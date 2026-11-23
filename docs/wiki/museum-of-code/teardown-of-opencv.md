@@ -69,7 +69,7 @@ The most dangerous code is highly complex logic locked in the minds of single co
 
 ### The Security Perimeter: Zero-Trust & X-Ray Audits
 
-A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model flagged the repository as **✅ SECURE (No Malware Detected)**, providing positive validation of OpenCV's perimeter. 
+A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. 
 
 However, the rule-based X-Ray and Import Policy Gate identified several surface exposures that require monitoring:
 * **Hardcoded Artifacts:** `5` instances found. The engine detected `.pfx` temporary keys exposed in Windows/WinRT sample directories (e.g., `FaceDetection_TemporaryKey.pfx`).

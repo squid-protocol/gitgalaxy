@@ -105,3 +105,111 @@ def test_the_lane_checkout_carries_ci_retry():
     text = WORKFLOW.read_text(encoding="utf-8")
     lane = text[text.index("\n  lane:") : text.index("\n  db2-part:")]
     assert "            tests/tools/ci_retry.sh\n" in lane
+
+
+PIN = "Pin the commit of main this run is of"
+LATE = "Push lane - hold the PR back if a full run has started meanwhile (#4743)"
+
+
+def _stub_gh(tmp_path, fail_first, out):
+    """A `gh` that prints `out` after `fail_first` rate-limited (HTTP 403) attempts."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    count = tmp_path / "count.txt"
+    gh = bin_dir / "gh"
+    gh.write_text(
+        "#!/usr/bin/env bash\n"
+        f'echo x >> "{count}"\n'
+        f'if [ "$(wc -l < "{count}")" -le {fail_first} ]; then\n'
+        '  echo "gh: API rate limit exceeded (HTTP 403)" >&2; exit 1\n'
+        "fi\n"
+        f'printf "%s\\n" "{out}"\n'
+    )
+    gh.chmod(gh.stat().st_mode | stat.S_IEXEC)
+    tools = tmp_path / "gitgalaxy" / "tests" / "tools"
+    tools.mkdir(parents=True)
+    shutil.copy(ROOT / "tests" / "tools" / "ci_retry.sh", tools / "ci_retry.sh")
+    return bin_dir, count
+
+
+def _run_step(tmp_path, name, fail_first, out):
+    bin_dir, count = _stub_gh(tmp_path, fail_first, out)
+    gh_out = tmp_path / "gh_output.txt"
+    summary = tmp_path / "summary.txt"
+    env = dict(
+        os.environ,
+        PATH=f"{bin_dir}:{os.environ['PATH']}",
+        REPO="o/r",
+        GITHUB_OUTPUT=str(gh_out),
+        GITHUB_STEP_SUMMARY=str(summary),
+        CI_RETRY_SLEEP="true",
+    )
+    # the inline pin loop sleeps through the PATH: a no-op `sleep` keeps the test instant
+    sleep = bin_dir / "sleep"
+    sleep.write_text("#!/usr/bin/env bash\nexit 0\n")
+    sleep.chmod(sleep.stat().st_mode | stat.S_IEXEC)
+    r = subprocess.run(
+        ["bash", "-e", "-c", _script(name)], cwd=tmp_path, env=env, capture_output=True, text=True, check=False
+    )
+    return r, (gh_out.read_text() if gh_out.exists() else ""), len(count.read_text().splitlines())
+
+
+def test_the_pin_read_survives_a_transient_rate_limit(tmp_path):
+    r, out, calls = _run_step(tmp_path, PIN, fail_first=2, out="abc123")
+    assert r.returncode == 0, r.stderr
+    assert out.strip() == "sha=abc123"
+    assert calls == 3
+
+
+def test_the_pin_read_fails_the_job_when_every_try_is_rate_limited(tmp_path):
+    r, out, calls = _run_step(tmp_path, PIN, fail_first=99, out="abc123")
+    assert r.returncode != 0
+    assert "INFRASTRUCTURE" in r.stderr  # ci_digest reruns it instead of calling it a code defect
+    assert not out
+    assert calls == 3
+
+
+def test_the_late_gate_survives_a_transient_rate_limit(tmp_path):
+    r, out, calls = _run_step(tmp_path, LATE, fail_first=1, out="1")
+    assert r.returncode == 0, r.stderr
+    assert out.strip() == "publish=false"
+    assert calls == 2
+
+
+def test_the_late_gate_publishes_when_every_try_is_rate_limited(tmp_path):
+    r, out, calls = _run_step(tmp_path, LATE, fail_first=99, out="1")
+    assert r.returncode == 0, r.stderr
+    assert "::warning" in r.stdout
+    assert out.strip() == "publish=true"
+    assert calls == 3
+
+
+def test_the_late_gate_publishes_when_no_full_run_is_active(tmp_path):
+    r, out, _ = _run_step(tmp_path, LATE, fail_first=0, out="0")
+    assert r.returncode == 0, r.stderr
+    assert out.strip() == "publish=true"
+
+
+# A `gh api` / `gh run` read left bare fails the whole refresh on a rate limit. Every one is retried (ci_retry.sh, or
+# the inline loop in the pin step, which runs before any checkout) or listed here with its reason.
+BARE_GH_ALLOWED = {
+    # the auto-merge loop retries by itself and treats a non-"clean status" error as fatal on purpose (#6693)
+    "gh pr merge",
+}
+
+
+def test_no_gh_read_in_the_workflow_is_left_without_a_retry():
+    offenders = []
+    lines = WORKFLOW.read_text(encoding="utf-8").splitlines()
+    for n, ln in enumerate(lines, 1):
+        code = ln.split("#", 1)[0] if ln.lstrip().startswith("#") else ln
+        if not any(tok in code for tok in ("gh api ", "gh run ", "gh pr ", "gh issue ")):
+            continue
+        if "ci_retry.sh" in code or any(a in code for a in BARE_GH_ALLOWED) or code.lstrip().startswith("#"):
+            continue
+        if "--comment" in code or code.lstrip().startswith("echo"):
+            continue
+        if 'gh api "repos/$REPO/commits/main"' in code:  # the pin step's inline retry loop
+            continue
+        offenders.append(f"{n}: {ln.strip()}")
+    assert not offenders, "\n".join(offenders)

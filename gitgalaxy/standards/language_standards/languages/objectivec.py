@@ -289,7 +289,7 @@ DEFINITION: dict[str, Any] = {
         # structural-signal scan loop, same convention as haskell's
         # `_args_arrow_count_groups`.
         "_args_colon_selector_groups": {1},
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries defining interface, implementation, and memory types.
         # BUG FIX: the 8 @-prefixed alternatives never matched -- same
         # \b-before-@ shape as branch's fix above.
         # #2545: `return` added here (moved out of `branch` above) -- matches the
@@ -607,9 +607,21 @@ DEFINITION: dict[str, Any] = {
         # branch's fix above.
         "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing threads to sleep.
-        "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep)\s*\("),
+        # #8907: the Foundation sleep and the timed deferrals are the same contract
+        # ("a sleep, a timed wait, a timeout-driven deferral").
+        "thread_sleeps": re.compile(
+            r"\b(sleep|usleep|nanosleep|dispatch_after)\s*\("
+            r"|\[\s*NSThread\s+sleep(?:ForTimeInterval|UntilDate)\s*:"
+            r"|\bperformSelector\s*:[^;\]]*\bafterDelay\s*:"
+        ),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),
+        # #8907: `&` and `^` count only in binary position (an operand before them). A unary
+        # address-of (`= &a`, `(&a`, `return &a`) and a block caret (`(^blk)`, `= ^{`, `:^(`)
+        # have no operand before them. Compound assignments are unambiguous.
+        "bitwise_ops": re.compile(
+            r"(?<!\|)\|(?!\|)|<<|>>|~|&=|\|=|\^="
+            r"|(?:\b(?!return\b|case\b)\w+|[)\]])[ \t]*[&^](?![&=])"
+        ),
         # 44. sync_locks (Resource Management & Stability) Coordinated threading logic.
         # BUG FIX: @synchronized never matched -- same \b-before-@ shape
         # as branch's fix above.

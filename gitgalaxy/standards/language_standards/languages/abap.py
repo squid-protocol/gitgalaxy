@@ -79,7 +79,7 @@ DEFINITION: dict[str, Any] = {
         # METHODS/CLASS-METHODS/FORM/FUNCTION/MODULE. See detector.py's
         # `_abap_declaration_statement_spans`.
         "_scope_filters": {"args": "abap_declaration_statement"},
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
+        # 3. structural_boundaries (Structural Keywords): structural boundaries. EXCLUDES access modifiers and constants.
         "structural_boundaries": re.compile(
             r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT|RETURN)(?![(-])\b",
             re.I | re.M,

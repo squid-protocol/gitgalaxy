@@ -581,11 +581,20 @@ public final class Idcams {
             }
             String name = entry(ops.get(0).name, "DELETE");
             for (Op op : ops.subList(1, ops.size())) {
-                if (!plainDeleteWord(op.name) || op.args != null) {
+                if (!(plainDeleteWord(op.name) || op.name.equals("ALTERNATEINDEX") || op.name.equals("AIX")) || op.args != null) {
                     throw new Refused("the IDCAMS DELETE " + op.name + " parameter");
                 }
             }
             Entry ent = catalog.get(name);
+            boolean aixType = ops.subList(1, ops.size()).stream().anyMatch(o -> o.name.equals("ALTERNATEINDEX") || o.name.equals("AIX"));
+            if (aixType && ent == null) {
+                end(8, "DELETE " + name + ": entry not found"); // the type keyword changes nothing for an absent entry
+                return;
+            }
+            if (aixType) {
+                throw new Refused("the IDCAMS DELETE ALTERNATEINDEX of " + name
+                    + ", an entry in the catalog (only an absent one is modelled)");
+            }
             if (ent != null && !(ent instanceof Cluster)) {
                 throw new Refused("the IDCAMS DELETE of " + name
                     + ", an alternate index or path (its dependents are not modelled)");
@@ -609,6 +618,12 @@ public final class Idcams {
             return false;
         }
 
+        /** CONTROLINTERVALSIZE(n) / CISZ(n): a control interval size, an allocation detail with no effect here. */
+        private static boolean isCisz(Op op) {
+            return (op.name.equals("CONTROLINTERVALSIZE") || op.name.equals("CISZ")) && op.args != null
+                && op.args.size() == 1 && op.args.get(0).args == null && op.args.get(0).name.matches("[0-9]+");
+        }
+
         private List<String> components(List<Op> ops, String kind) {
             List<String> names = new ArrayList<>();
             Set<String> seen = new HashSet<>();
@@ -620,7 +635,12 @@ public final class Idcams {
                 if (!seen.add(op.name)) {
                     throw new Refused("the IDCAMS DEFINE " + kind + " " + op.name + " component stated twice");
                 }
-                List<Op> inner = op.args == null ? List.of() : op.args;
+                List<Op> inner = new ArrayList<>();
+                for (Op i : op.args == null ? List.<Op>of() : op.args) {
+                    if (!isCisz(i)) {
+                        inner.add(i);
+                    }
+                }
                 if (inner.size() != 1 || !inner.get(0).name.equals("NAME") || inner.get(0).args == null
                     || inner.get(0).args.size() != 1) {
                     throw new Refused("the IDCAMS DEFINE " + kind + " " + op.name

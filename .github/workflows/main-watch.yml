@@ -24,6 +24,7 @@ name: Main Watch
 on:
   workflow_run:
     workflows:
+      - "CI cap report"
       - "CICS Crucible"
       - "CodeQL Security Scan"
       - "Crucible Path Independence"
@@ -41,6 +42,7 @@ on:
       - "Muninn Security Scan"
       - "OS Smoke Grid"
       - "Ports Compile"
+      - "rosetta-audit"
       - "Tree-sitter Accuracy Audit"
       - "unicode-gauntlet"
     types: [completed]

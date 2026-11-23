@@ -14,7 +14,7 @@ The architecture is characterized by isolated computational scripts tied togethe
 * **Fragile Orchestrators:** Files like `contacts.py` and `paste_contact_maps.py` serve as orchestrators. They exhibit high outbound dependencies because they must coordinate data loading, model inference, and output processing across the disparate network definitions.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The engine classified 39.4% of the codebase as `BINARY_THREAT`. In this specific context, these are not malicious payloads but rather massive serialized binary files (`saved_model.pb`, `mocap_data.h5`) containing the pre-trained weights for the neural networks. While these pose no traditional security threat, their presence as unanalyzable "Dark Matter" means the logic encapsulated within them is opaque to static analysis.
 

@@ -53,6 +53,7 @@ Each file in this directory serves a distinct calibration purpose for the downst
 * **`stdlib_modules.py` / `system_headers.py` (Typosquat Exemptions):** Standard-library module and system header names the typosquat radar never tests as suspects (#4982, #4547).
 * **`yaml_reader.py` (Strict YAML Subset):** A small reader for GitGalaxy's own config files that works without PyYAML and rejects anything outside its subset (#3613).
 * **`mq.py`:** The IBM MQ calls (MQI) GitGalaxy models, the one list the det translator and the MQ model tests read (#4892).
+* **`cics_security.py` (CICS Security Model):** The untrusted sources, conduits, sensitive sinks and narrow sanitizers of a CICS COBOL estate, each cited to the IBM manual for its release, with every verb the burned estates use classified or listed as not security-relevant (#8606, step 1; no detection is claimed or measured yet).
 * **`cics/` and `cobol/` (Rules as Data):** The CICS command spec ([`cics/README.md`](cics/README.md), #4270) and the COBOL language and runtime rule tables (MOVE, COMPARE, ARITH, STRING, FUNC, EDIT, SORT, HFP; #4712).
 * **`archetype_brains/` and `fact_channel_confidence.json`:** The frozen file/repo archetype brains (shipped as package data; swapping one is not golden-neutral) and the per-field field-testing record the skeleton export ships.
 * **`language_addition_costs.jsonl` / `.md`:** The cost ledger for each language addition, with its notes ([`language_addition_costs.md`](language_addition_costs.md)).

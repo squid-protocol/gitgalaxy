@@ -139,7 +139,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*)[ \t]*=>"
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries. EXCLUDES access modifiers and val/var.
         "structural_boundaries": re.compile(
             r"\b(lazy|type|opaque|class|trait|object|enum|extension|import|export|return|extends|with|derives|new|given|using|then|try|catch|finally|throw)\b"
         ),

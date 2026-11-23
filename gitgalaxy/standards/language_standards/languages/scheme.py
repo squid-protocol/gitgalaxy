@@ -345,7 +345,8 @@ DEFINITION: dict[str, Any] = {
         "ui_framework": None,
         # 17. closures (Closures / Anonymous Functions)
         # Anonymous function depth.
-        "closures": re.compile(r"(?<![^ \t\n\r(\[])lambda(?![^ \t)\]\n\r])"),
+        # `lambda` and its Greek-letter spelling (Racket, #8927), built with chr() (X-Ray flags literals).
+        "closures": re.compile(r"(?<![^ \t\n\r(\[])(lambda|" + chr(0x3BB) + r")(?![^ \t)\]\n\r])"),
         # 18. globals (Global / Shared State)
         # Top-level state bindings (defines that are NOT functions).
         # BUG FIX: same identifier-class defect as func_start/class_start --
@@ -454,7 +455,11 @@ DEFINITION: dict[str, Any] = {
             r"(?<![^ \t\n\r(\[])(number->string|string->number|symbol->string|string->symbol|list->vector|vector->list|char->integer|integer->char)(?![^ \t)\]\n\r])"
         ),
         # 41. panics_and_aborts (Error Exits: error/abort/exit/emergency-exit)
-        "panics_and_aborts": re.compile(r"(?<![^ \t\n\r(\[])(error|abort|exit|emergency-exit)(?![^ \t)\]\n\r])"),
+        # Racket/R6RS/Guile raise forms count too (#8927).
+        "panics_and_aborts": re.compile(
+            r"(?<![^ \t\n\r(\[])(error|abort|exit|emergency-exit|raise|raise-exception|throw"
+            r"|raise-(?:user|argument|arguments|result|range|type|syntax)-error)(?![^ \t)\]\n\r])"
+        ),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"(?<![^ \t\n\r(\[])(sleep|usleep|thread-sleep!)(?![^ \t)\]\n\r])"),
         # 43. bitwise_ops (Bitwise Operations)

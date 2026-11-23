@@ -484,6 +484,8 @@ class ScopeParsingRegistry:
             ],
             "closers": [r"(?<![:.@$])\bend\b(?![:?!])"],
             "function_opener": r"(?<![:.@$])\bdef(?:p|macrop?|guardp?)?\b(?![:?!])",
+            # #8922: a head split before `when` / inside its parameter list / before `do:` is one head.
+            "head_continuation": True,
             "class_opener": r"(?<![:.@$])\bdef(?:module|protocol|impl)\b(?![:?!])",
         },
         # #6572: Julia blocks (`function`, `if`, `for`, `while`, `let`, `try`, `struct`, `module`, `macro`, `quote`)
@@ -1030,6 +1032,46 @@ _BRACE_LITERAL_SHIELD_LANGS = frozenset(
     }
 )  # fmt: skip
 
+# #8908: Perl's `perl_literals` scope filter. Strings and quote-like regex literals
+# (`m//`, `s///`, `qr//`, `tr`, `y`, `q`/`qq`/`qw`/`qx`, a bare `/.../` after an operator)
+# are blanked index-aligned, so a `?:`, `:` or `|` inside one is not read as code.
+_PERL_QOP = r"(?<![\w$@%&:>-])"
+_PERL_SLASH_BODY = r"(?:\\.|[^/\\\n])*"
+_PERL_BRACE_BODY = r"\{(?:\\.|[^{}\\\n]|\{[^{}\n]*\})*\}"
+_PERL_LITERAL_RE = re.compile(
+    r'"(?:\\.|[^"\\])*"'
+    r"|'(?:\\.|[^'\\]){0,200}'"
+    r"|" + _PERL_QOP + r"(?:s|tr|y)[ \t]*/" + _PERL_SLASH_BODY + "/" + _PERL_SLASH_BODY + "/[a-z]*"
+    r"|" + _PERL_QOP + r"(?:qr|qq|qw|qx|q|m)[ \t]*/" + _PERL_SLASH_BODY + "/[a-z]*"
+    r"|" + _PERL_QOP + r"(?:s|tr|y)[ \t]*" + _PERL_BRACE_BODY + r"[ \t]*" + _PERL_BRACE_BODY + "[a-z]*"
+    r"|" + _PERL_QOP + r"(?:qr|qq|qw|qx|q|m)[ \t]*" + _PERL_BRACE_BODY + "[a-z]*"
+    r"|/" + _PERL_SLASH_BODY + "/[a-z]*"
+)
+_PERL_BARE_SLASH_AFTER = re.compile(
+    r"(?:(?:=~|!~|\(|,|;|\{|&&|\|\||[=?:!])[ \t]*$)|(?:\b(?:if|unless|while|split|grep|map|return|and|or|not)[ \t]+$)"
+)
+
+
+def _build_perl_safe_stream(code: str) -> str:
+    """Index-aligned copy of `code` with Perl string and regex literals blanked (#8908)."""
+    out: list[str] = []
+    pos = 0
+    last = 0
+    while True:
+        m = _PERL_LITERAL_RE.search(code, pos)
+        if not m:
+            break
+        text = m.group(0)
+        if text[0] == "/" and not _PERL_BARE_SLASH_AFTER.search(code[max(0, m.start() - 40) : m.start()]):
+            pos = m.start() + 1  # division or defined-or, not a regex
+            continue
+        out.append(code[last : m.start()])
+        out.append("".join("\n" if c == "\n" else " " for c in text))
+        last = pos = m.end()
+    out.append(code[last:])
+    return "".join(out)
+
+
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     # #5638: a Fortran `RETURN` is an early exit (inside `IF ... ENDIF`), the unit runs to its `END`
     "fortran": frozenset({"EXIT", "RETURN"}),
@@ -1063,6 +1105,24 @@ _COBOL_UNIT_END_RE = re.compile(
     re.I | re.M,
 )
 _STRUCTURAL_UNIT_END_LANGS = frozenset({"cobol", "pli"})
+
+
+def _ada_unit_end(code: str, match: re.Match[str]) -> int | None:
+    """#8913: absolute index just past the `end Name;` that closes the Ada subprogram `match` opens.
+
+    Searched in the whole file, not the greedy sandbox: a parent's own `end Parent;` lies past the
+    nested subprograms' headers that cut its sandbox. A qualified `end Pkg.Name;` closes `Name`.
+    None when the body has no labelled end (the unit then keeps its greedy sandbox)."""
+    raw_name = match.group(match.lastindex) if match.lastindex else None
+    if not raw_name:
+        return None
+    end_re = re.compile(
+        r"(?<![\w.])end[ \t\r\n]+(?:[\w]+\.)*" + re.escape(raw_name) + r"(?![\w.])[ \t\r\n]*;",
+        re.I,
+    )
+    m = end_re.search(code, match.end())
+    return m.end() if m else None
+
 
 # #4302: a COBOL program may run statements straight after `PROCEDURE DIVISION.`,
 # before any paragraph or section header (batch mains open, loop, close and GOBACK
@@ -2216,6 +2276,51 @@ def _python_references(text: str, called: set[str], own_name: str) -> list[tuple
 _DECORATOR_NAME = re.compile(r"(?m)^[ \t]*@[ \t]*([A-Za-z_][\w.]{0,200})")
 _DECORATOR_LOOKBACK_LINES = 60
 _BRACKET_DEPTH = str.maketrans({"(": "(", "[": "(", "{": "(", ")": ")", "]": ")", "}": ")"})
+
+
+def _erlang_leading_attributes(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
+    """#8923: count `-spec` / `-type`-style attribute lines in the unbroken block directly above a clause head.
+
+    A `-spec` may continue on indented lines; the walk stops at a blank line or a column-0 line that is not an
+    attribute (the previous function's head), so a clause after `;` finds none.
+    """
+    if rule is None:
+        return 0
+    pos = code.rfind("\n", 0, def_idx) + 1
+    count = 0
+    seen = 0
+    while pos > 0 and seen < _DECORATOR_LOOKBACK_LINES:
+        prev = code.rfind("\n", 0, pos - 1) + 1
+        line = code[prev : pos - 1]
+        seen += 1
+        pos = prev
+        if not line.strip():
+            break
+        if rule.match(line):
+            count += 1
+        elif line[0] not in " \t%":
+            break
+    return count
+
+
+def _haskell_leading_pragmas(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
+    """Count of `{-# ... #-}` pragmas in the contiguous run of pragma/blank lines directly above `def_idx`."""
+    if rule is None:
+        return 0
+    lines: list[str] = []
+    pos = code.rfind("\n", 0, def_idx) + 1
+    while pos > 0 and len(lines) < _DECORATOR_LOOKBACK_LINES:
+        prev = code.rfind("\n", 0, pos - 1) + 1
+        lines.append(code[prev : pos - 1])
+        pos = prev
+    count = 0
+    for line in lines:
+        if not line.strip():
+            continue
+        if not rule.fullmatch(line.strip()):
+            break
+        count += 1
+    return count
 
 
 def _python_decorators(safe_code: str, def_idx: int) -> list[tuple[str, str]]:
@@ -5873,7 +5978,7 @@ class StructuralExtractor:
             # ==============================================================================
 
             # galaxyscope:ignore sec_high_risk_execution
-            # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
+            # PHASE 4: AI APPSEC SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
 
             # galaxyscope:ignore sec_high_risk_execution
@@ -7053,6 +7158,10 @@ class StructuralExtractor:
         current_line_count = offset + 1
         last_counted_idx = 0
 
+        # #8913: an Ada subprogram ends at its own `end Name;`, so a nested one no longer takes the
+        # parent's tail and the parent keeps the lines after it (the nested body is blanked out of it).
+        ada_ends: list[int | None] = [_ada_unit_end(code, m) for m in matches] if self.primary_lang_id == "ada" else []
+
         for i, match in enumerate(matches):
             start_idx = match.start()
             greedy_end_idx = matches[i + 1].start() if i + 1 < len(matches) else len(code)
@@ -7060,7 +7169,10 @@ class StructuralExtractor:
             sandbox = code[start_idx:greedy_end_idx]
             end_offset = len(sandbox)
 
-            if self.primary_lang_id in _STRUCTURAL_UNIT_END_LANGS:
+            ada_end = ada_ends[i] if ada_ends else None
+            if ada_end is not None:
+                end_offset = ada_end - start_idx
+            elif self.primary_lang_id in _STRUCTURAL_UNIT_END_LANGS:
                 end_offset = self._structural_unit_end(sandbox, match.end() - start_idx, match)
             elif self.assembly_returns:
                 excluded_keywords = _NON_TERMINATING_KEYWORDS_BY_LANG.get(self.primary_lang_id, frozenset())
@@ -7094,7 +7206,19 @@ class StructuralExtractor:
             # unlike other integration modes a one-line body here is not a
             # mis-slice to discard -- only an actually-empty label has no
             # real content.
-            block = code[start_idx : start_idx + end_offset].strip()
+            block = code[start_idx : start_idx + end_offset]
+            nested_spans: list[tuple[int, int]] = []
+            if ada_end is not None:
+                # Blank (newlines kept, so lines and LOC hold) every nested subprogram inside this one.
+                for j in range(i + 1, len(matches)):
+                    nested_end = ada_ends[j]
+                    if matches[j].start() >= ada_end:
+                        break
+                    if nested_end is not None and nested_end <= ada_end:
+                        a, b = matches[j].start() - start_idx, nested_end - start_idx
+                        block = block[:a] + re.sub(r"[^\n]", " ", block[a:b]) + block[b:]
+                        nested_spans.append((matches[j].start(), nested_end))
+            block = block.strip()
             if not block:
                 continue
 
@@ -7219,6 +7343,7 @@ class StructuralExtractor:
                 spatial_map,
                 args_search_text=args_search_text,
                 args_count_override=args_count_override,
+                exclude_spans=nested_spans or None,
             )
 
             satellites.append(sat)
@@ -9572,6 +9697,13 @@ class StructuralExtractor:
                 if decorators:
                     sat["hit_vector"]["decorators"] = len(decorators)
 
+            if lang_id == "haskell":
+                # #8904: a GHC pragma (`{-# INLINE f #-}`) sits on the line(s) above the binding's
+                # signature, outside the [start_idx, end_idx) span the hit_vector is bisected from.
+                pragmas = _haskell_leading_pragmas(code, start_idx, rules.get("decorators"))
+                if pragmas:
+                    sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + pragmas
+
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -10191,6 +10323,7 @@ class StructuralExtractor:
             # of unclosed/unbalanced "def" lines) can't turn this into an
             # O(n^2) scan -- mirrors Mode B's own bounded search_limit.
             max_trace_lines = 2000
+            head_continuation = bool(config.get("head_continuation"))
 
             # #2438: at top level the primary scan above already emits a satellite
             # for every opener whose net scope change is positive (a real
@@ -10218,6 +10351,9 @@ class StructuralExtractor:
                     local_depth += net_changes[j]
                     block_lines.append(original_lines[j])
                     if local_depth <= 0:
+                        if head_continuation and j + 1 < trace_limit and self._head_continues(safe_lines, i, j, n):
+                            j += 1
+                            continue
                         break
                     j += 1
                 else:
@@ -10250,6 +10386,20 @@ class StructuralExtractor:
 
         self.logger.debug(f"[DIAGNOSTIC] Mode D: Extracted {len(satellites)} satellites.")
         return satellites, sum_fxn_impact
+
+    @staticmethod
+    def _head_continues(safe_lines: list[str], i: int, j: int, n: int) -> bool:
+        """#8922: True when the declaration head on lines i..j is unfinished (no `do` yet): an open
+        parenthesis, a trailing comma, or a next line that starts with `when`."""
+        head = "\n".join(safe_lines[i : j + 1])
+        if re.search(r"\bdo\b", head):
+            return False
+        if head.count("(") > head.count(")") or head.rstrip().endswith(","):
+            return True
+        k = j + 1
+        while k < n and not safe_lines[k].strip():
+            k += 1
+        return k < n and re.match(r"[ \t]*when\b", safe_lines[k]) is not None
 
     def _slice_by_terminator(
         self,
@@ -10399,6 +10549,11 @@ class StructuralExtractor:
                         sat_end_char,
                         spatial_map,
                     )
+                    if lang_id == "erlang" and satellite_name != "Declarative_Block":
+                        # #8923: the `-spec` above a function sits outside its unit.
+                        attrs = _erlang_leading_attributes(code, sat_start_char, rules.get("decorators"))
+                        if attrs:
+                            sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + attrs
                     satellites.append(sat)
                     sum_fxn_impact += mag
 
@@ -11011,6 +11166,10 @@ class StructuralExtractor:
             # func_start is the only rule that opts in.
             called = {n.lower() for n in _BATCH_CALL_TARGET_RE.findall(code)}
             return [m for m in matches if m.group(1) and m.group(1).lower() in called]
+        if filter_name == "perl_literals":
+            # #8908: drop a match inside a Perl string or regex literal.
+            safe = _build_perl_safe_stream(code)
+            return [m for m in matches if safe[m.start() : m.end()] == code[m.start() : m.end()]]
         if filter_name == "outside_literals":
             # #4136: drop a match that touches a string literal or a comment.
             # The code stream keeps string literals (the stream contract), so
@@ -11932,6 +12091,7 @@ class StructuralExtractor:
         spatial_map: dict[str, list[int]] | None = None,
         args_search_text: str | None = None,
         args_count_override: int | None = None,
+        exclude_spans: list[tuple[int, int]] | None = None,
     ) -> tuple[FunctionNode, float]:
         """
         Calculates the structural weight, algorithmic complexity, and hit vector
@@ -11972,6 +12132,9 @@ class StructuralExtractor:
                 left = bisect.bisect_left(indices, start_idx)
                 right = bisect.bisect_left(indices, end_idx)
                 count = right - left
+                # #8913: hits inside a nested unit's span belong to that unit, not this one.
+                for ex_a, ex_b in exclude_spans or ():
+                    count -= bisect.bisect_left(indices, ex_b) - bisect.bisect_left(indices, ex_a)
                 if count > 0:
                     hit_vector[key] = count
 

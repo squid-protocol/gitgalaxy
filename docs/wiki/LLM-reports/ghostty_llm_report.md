@@ -14,7 +14,7 @@ The network topology reveals a well-structured hub-and-spoke architecture built 
 * **Fragile Orchestrators:** The application lifecycle managers are highly coupled. `src/app/App.zig` (40 outbound dependencies), `src/app/config.zig` (22 outbound), and `src/app/mac.zig` (22 outbound) operate as fragile routing hubs. They must coordinate thread spawning, window management, font configuration, and terminal instantiation into a unified execution context.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged specific files like `src/os/memory.zig` and `src/allocator.zig` for "Raw Memory Manipulation" (10.0% exposure). In the context of a systems-level application like a terminal emulator written in Zig, this is expected operational reality. The codebase must perform direct memory mapping, manage custom allocators, and handle unsafe C-bindings (FFI) for windowing systems (GTK/Cocoa) and graphics APIs (OpenGL).
 

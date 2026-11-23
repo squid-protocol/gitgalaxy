@@ -143,13 +143,12 @@
     "ada/alire": {
       "ada/alire/alire-conditional_trees.adb": {
         "All_But_First_Children@106": [
-          "Vector_Node"
+          "Vector_Node",
+          "To_Holder"
         ],
         "Append@212": [],
         "As_List@305": [
-          "Enumerate",
-          "Evaluate",
-          "Append"
+          "Enumerate"
         ],
         "Conjunction@44": [],
         "Conjunction@60": [
@@ -163,7 +162,10 @@
           "Leaf_Node",
           "Vector_Node"
         ],
-        "Evaluate@342": [],
+        "Evaluate@342": [
+          "Evaluate",
+          "Tree"
+        ],
         "First@585": [
           "Cursor"
         ],
@@ -173,8 +175,7 @@
         ],
         "Flatten@124": [
           "Append",
-          "Vector_Node",
-          "Tree"
+          "Vector_Node"
         ],
         "Has_Element@609": [
           "Has_Element",
@@ -201,10 +202,14 @@
           "To_Holder"
         ],
         "Join@169": [
-          "Flatten"
+          "Flatten",
+          "To_Holder"
         ],
         "Leaf_Count@222": [],
-        "Materialize@235": [],
+        "Materialize@235": [
+          "Evaluate",
+          "Visit"
+        ],
         "New_Leaf@76": [
           "To_Holder"
         ],
@@ -249,7 +254,14 @@
         "Tree_TOML_Add@459": [
           "Head",
           "Create_Table",
-          "Tail"
+          "Tail",
+          "Assert",
+          "Has",
+          "Get",
+          "Set",
+          "Merge_Tables",
+          "Append",
+          "Item"
         ],
         "Visit@242": [
           "Append",
@@ -257,7 +269,8 @@
           "Vector_Node"
         ],
         "Visit_All@676": [
-          "procedure"
+          "procedure",
+          "Recursive_Traversal"
         ]
       },
       "ada/alire/alire-crate_configuration.adb": {
@@ -276,7 +289,8 @@
         ],
         "Build_Switches@101": [
           "Make_Switches_Map",
-          "To_Set"
+          "To_Set",
+          "Switches_Map"
         ],
         "Ensure_Complete@381": [
           "Raise_Checked_Error"
@@ -315,7 +329,23 @@
           "Detail",
           "Release"
         ],
-        "Generate_Config_Files@424": [],
+        "Generate_Config_Files@424": [
+          "Get_Config_Entry",
+          "Release_Base",
+          "Is_Config_Complete",
+          "Warn_Once",
+          "Name",
+          "Is_Directory",
+          "Config_Outdated",
+          "Debug",
+          "Make_Switches_Map",
+          "To_Set",
+          "Create_Path",
+          "Generate_Ada_Config",
+          "Generate_GPR_Config",
+          "Direct_Withs",
+          "Generate_C_Config"
+        ],
         "Generate_GPR_Config@645": [
           "To_Mixed_Case",
           "Create",
@@ -342,8 +372,13 @@
           "Create_String",
           "To_Lower_Case"
         ],
-        "Is_Config_Complete@364": [],
-        "Is_Default_Profile@157": [],
+        "Is_Config_Complete@364": [
+          "Name",
+          "Element"
+        ],
+        "Is_Default_Profile@157": [
+          "Setter_Map"
+        ],
         "Is_Reserved_Name@169": [
           "Has_Prefix"
         ],
@@ -379,7 +414,19 @@
           "To_Name",
           "As_String"
         ],
-        "Make_Build_Profile_Map@183": [],
+        "Make_Build_Profile_Map@183": [
+          "Insert",
+          "On_Platform_Properties",
+          "Variable",
+          "Replace_Element",
+          "Replace",
+          "Key",
+          "Set_Profile",
+          "Element",
+          "Set_Value",
+          "Create_String",
+          "To_Lower_Case"
+        ],
         "Make_Switches_Map@269": [
           "Release",
           "Element",
@@ -389,8 +436,21 @@
           "Include",
           "Get_List"
         ],
-        "Name@355": [],
-        "Parse_Profiles@972": [],
+        "Name@355": [
+          "To_Name",
+          "Head",
+          "Key"
+        ],
+        "Parse_Profiles@972": [
+          "Split",
+          "Head",
+          "Tail",
+          "Raise_Checked_Error",
+          "To_Profile",
+          "Contains",
+          "Name",
+          "Insert"
+        ],
         "Pretty_Print_Switches@606": [
           "String",
           "Put_Line",
@@ -415,16 +475,7 @@
         "Set_Profile@193": [
           "Contains",
           "Replace",
-          "Raise_Checked_Error",
-          "Insert",
-          "On_Platform_Properties",
-          "Variable",
-          "Replace_Element",
-          "Key",
-          "Element",
-          "Set_Value",
-          "Create_String",
-          "To_Lower_Case"
+          "Raise_Checked_Error"
         ],
         "Set_Value@847": [
           "Key",
@@ -440,13 +491,7 @@
           "Value",
           "Raise_Checked_Error",
           "Error",
-          "Warnings",
-          "Split",
-          "Head",
-          "Tail",
-          "Contains",
-          "Name",
-          "Insert"
+          "Warnings"
         ],
         "Use_Default_Values@919": [
           "Reference",
@@ -535,9 +580,7 @@
       "ada/alire/alire-directories.adb": {
         "Accumulate@1033": [
           "Kind",
-          "Size",
-          "Exists",
-          "Traverse_Tree"
+          "Size"
         ],
         "Add@57": [
           "Include"
@@ -552,15 +595,10 @@
         "Check@430": [
           "Kind",
           "Name",
-          "Append",
-          "Exists",
-          "Find"
+          "Append"
         ],
         "Check@534": [
-          "Simple_Name",
-          "Exists",
-          "Traverse_Tree",
-          "Parent"
+          "Simple_Name"
         ],
         "Copy@106": [
           "Copy",
@@ -587,8 +625,7 @@
         "Delete_Links@284": [
           "Iterate",
           "Kind",
-          "Unlink",
-          "Exists"
+          "Unlink"
         ],
         "Delete_Temporaries@159": [
           "Debug",
@@ -596,22 +633,29 @@
           "Get",
           "Log_Exception"
         ],
-        "Detect_Root_Path@186": [],
+        "Detect_Root_Path@186": [
+          "Find_Candidate_Folder"
+        ],
         "Editable_Name@1125": [],
-        "Ensure_Deletable@226": [],
+        "Ensure_Deletable@226": [
+          "Exists",
+          "Traverse_Tree"
+        ],
         "Ensure_Deletable_Item@232": [
           "Kind",
           "Debug",
           "Checked_Spawn",
-          "Append",
-          "Exists"
+          "Append"
         ],
         "Exists@517": [
           "Exists",
           "Scrub"
         ],
         "Exists_With_Exact_Case@526": [
-          "Simple_Name"
+          "Simple_Name",
+          "Exists",
+          "Traverse_Tree",
+          "Parent"
         ],
         "Filename@776": [],
         "Finalize@494": [
@@ -622,7 +666,19 @@
           "Free",
           "Finalize_Exception"
         ],
-        "Finalize@794": [],
+        "Finalize@794": [
+          "Del",
+          "Close",
+          "Ensure_Deletable",
+          "Exists",
+          "Kind",
+          "Debug",
+          "Delete_File",
+          "Delete_Tree",
+          "Log_Exception",
+          "Put_Warning",
+          "Finalize_Exception"
+        ],
         "Find_Candidate_Folder@194": [
           "Scrub",
           "Debug",
@@ -631,14 +687,40 @@
           "Has_Parent",
           "Parent"
         ],
-        "Find_Files_Under@419": [],
-        "Find_Relative_Path@461": [],
-        "Force_Delete@276": [],
+        "Find_Files_Under@419": [
+          "Exists",
+          "Kind",
+          "Find"
+        ],
+        "Find_Relative_Path@461": [
+          "Relative",
+          "Scrub"
+        ],
+        "Force_Delete@276": [
+          "Exists",
+          "Delete_Links",
+          "Recoverable_User_Error",
+          "Kind",
+          "Debug",
+          "Delete_File",
+          "Ensure_Deletable",
+          "Delete_Tree",
+          "Raise_Checked_Error",
+          "Log_Exception"
+        ],
         "Get@75": [],
         "Go_Down@983": [
-          "Doing"
+          "Doing",
+          "Kind",
+          "Step",
+          "Simple_Name",
+          "Debug",
+          "Full_Name",
+          "Warning"
         ],
-        "In_Dir@1108": [],
+        "In_Dir@1108": [
+          "With_Name"
+        ],
         "Initialize@476": [
           "To_Unbounded_String",
           "Debug",
@@ -648,7 +730,8 @@
           "Exists",
           "Create_Path",
           "Full_Name",
-          "Debug"
+          "Debug",
+          "Add"
         ],
         "Is_Directory@556": [
           "Exists",
@@ -672,11 +755,32 @@
           "Debug",
           "Is_Directory",
           "Merge_Log",
-          "Create_Tree"
+          "Create_Tree",
+          "Exists",
+          "Recoverable_User_Error",
+          "URL",
+          "Raise_Checked_Error",
+          "Delete_File",
+          "Copy"
         ],
-        "Merge_Contents@849": [],
-        "Merge_Log@860": [],
-        "New_Replacement@1132": [],
+        "Merge_Contents@849": [
+          "Absolute",
+          "Debug",
+          "Kind",
+          "Copy",
+          "Traverse_Tree",
+          "Force_Delete"
+        ],
+        "Merge_Log@860": [
+          "Debug"
+        ],
+        "New_Replacement@1132": [
+          "Is_File",
+          "Exists",
+          "Copy_File",
+          "Raise_Checked_Error",
+          "Kind"
+        ],
         "Next_Name@592": [
           "Discrete_Random",
           "Replace",
@@ -687,7 +791,9 @@
           "Reset",
           "To_Integer",
           "Name",
-          "Random"
+          "Random",
+          "Contains",
+          "Insert"
         ],
         "Rename@372": [
           "Rename",
@@ -697,7 +803,8 @@
           "Kind",
           "Merge_Contents",
           "Delete_Tree",
-          "Absolute"
+          "Absolute",
+          "Log_Exception"
         ],
         "Replace@1161": [
           "Backup_If_Existing",
@@ -708,18 +815,14 @@
           "Debug",
           "Unchecked_Spawn_And_Capture",
           "To_Vector",
-          "Flatten",
-          "Recoverable_User_Error",
-          "Exists",
-          "Kind",
-          "Delete_File",
-          "Ensure_Deletable",
-          "Delete_Tree",
-          "Raise_Checked_Error",
-          "Log_Exception"
+          "Flatten"
         ],
         "TTY_Image@1068": [
-          "Image"
+          "Image",
+          "Emph",
+          "Replace",
+          "Modular_File_Size",
+          "Val"
         ],
         "Temp_Name@667": [
           "Trim",
@@ -739,36 +842,51 @@
         ],
         "Traverse_Tree@966": [
           "procedure",
-          "Activity"
+          "Activity",
+          "Debug",
+          "Full_Name",
+          "Find"
         ],
-        "Tree_Size@1025": [],
-        "With_Name@1092": []
+        "Tree_Size@1025": [
+          "Exists",
+          "Kind",
+          "Size",
+          "Traverse_Tree"
+        ],
+        "With_Name@1092": [
+          "Full_Name",
+          "Add"
+        ]
       },
       "ada/alire/alire-index_on_disk-loading.adb": {
         "Actually_Add@201": [
-          "Add",
+          "Add"
+        ],
+        "Add@58": [
+          "Find_All",
+          "Origin",
+          "Outcome_Failure",
+          "Adjust_Priorities",
+          "New_Handler",
+          "Debug",
+          "Invalidate_Providers"
+        ],
+        "Add_Or_Reset_Community@188": [
+          "Find_All",
           "Warn_Once",
           "Debug",
           "Assert",
           "Indexes",
+          "Actually_Add",
           "Has_Element",
-          "Next"
-        ],
-        "Add@58": [
-          "Find_All"
-        ],
-        "Add_Or_Reset_Community@188": [
-          "Find_All"
+          "Next",
+          "Outcome_From_Exception"
         ],
         "Adjust_Priorities@70": [
           "Debug",
           "With_Priority",
           "Write_Metadata",
-          "Outcome_Failure",
-          "Origin",
-          "Add",
-          "New_Handler",
-          "Invalidate_Providers"
+          "Outcome_Failure"
         ],
         "Check_One@310": [
           "Full_Name",
@@ -777,15 +895,16 @@
           "New_Handler",
           "Insert",
           "Outcome_Failure",
-          "Message",
+          "Message"
+        ],
+        "Default_Path@259": [],
+        "Drop_Index_Cache@250": [],
+        "Find_All@297": [
           "Debug",
           "Is_Directory",
           "Search",
           "Detail"
         ],
-        "Default_Path@259": [],
-        "Drop_Index_Cache@250": [],
-        "Find_All@297": [],
         "Index_Available@385": [
           "Find_All"
         ],
@@ -796,6 +915,7 @@
           "Debug"
         ],
         "Load@399": [
+          "Load",
           "Contains",
           "Debug",
           "Name",
@@ -803,7 +923,10 @@
           "Setup",
           "Load_Providers",
           "Find_All",
-          "Warn_Once"
+          "Warn_Once",
+          "Assert",
+          "Include",
+          "all"
         ],
         "Load_All@495": [
           "Activity",
@@ -817,7 +940,8 @@
           "Save_Providers"
         ],
         "Load_Index_Metadata@549": [
-          "Load_File"
+          "Load_File",
+          "Outcome_Failure"
         ],
         "Load_Providers@567": [
           "Providers_File",
@@ -827,7 +951,9 @@
           "Warning",
           "Debug",
           "Format_Error",
-          "Delete_File"
+          "Delete_File",
+          "From_TOML",
+          "From"
         ],
         "Providers_File@42": [
           "Load_Providers",
@@ -837,10 +963,20 @@
           "Providers_File",
           "Is_Directory",
           "Containing_Directory",
-          "Debug"
+          "Debug",
+          "Create",
+          "Dump_To_File",
+          "Close",
+          "Log_Exception",
+          "Is_Open",
+          "Is_Regular_File",
+          "Delete_File"
         ],
         "Setup@266": [
-          "Detail"
+          "Detail",
+          "Find_All",
+          "Raise_Checked_Error",
+          "Message"
         ]
       },
       "ada/alire/alire-origins.adb": {
@@ -857,7 +993,9 @@
           "Append",
           "Any_Hash"
         ],
-        "Archive_Format@181": [],
+        "Archive_Format@181": [
+          "Is_Available"
+        ],
         "Archive_Format@334": [
           "Has_Suffix"
         ],
@@ -876,12 +1014,17 @@
           "New_Source_Archive",
           "Contains",
           "Add_Hashes",
-          "Has"
+          "Has",
+          "New_Leaf"
         ],
         "From_TOML@559": [
           "Archive_Data"
         ],
-        "From_TOML@761": [],
+        "From_TOML@761": [
+          "Load",
+          "Descend",
+          "Checked_Pop"
+        ],
         "Get_Hashes@231": [
           "Is_Available"
         ],
@@ -896,22 +1039,11 @@
         "Is_Available@966": [],
         "Is_Conditional@815": [],
         "Kind@110": [],
-        "Load@571": [],
-        "Load_Binary_Archive@507": [
-          "Descend",
-          "Get",
-          "Has",
-          "Raise_Checked_Error",
-          "Bold"
-        ],
-        "Load_Source_Archive@598": [
-          "Set",
-          "Create_String",
-          "From_TOML",
-          "Descend",
-          "Has",
-          "Get",
+        "Load@571": [
           "Load",
+          "Has",
+          "Get",
+          "Descend",
           "Visit_All",
           "Checked_Pop",
           "URI_Kind",
@@ -920,15 +1052,31 @@
           "Local_Path",
           "Checked_Error",
           "New_Filesystem",
+          "Load_Source_Archive",
           "Contains",
           "New_VCS",
           "To_Native",
           "Portable_Path",
           "New_System",
           "Add_Hashes",
+          "Set",
           "Assert",
           "Failure",
           "To_Mixed_Case"
+        ],
+        "Load_Binary_Archive@507": [
+          "Descend",
+          "Get",
+          "Has",
+          "Raise_Checked_Error",
+          "Bold",
+          "From_TOML"
+        ],
+        "Load_Source_Archive@598": [
+          "Set",
+          "Create_String",
+          "From_TOML",
+          "Descend"
         ],
         "Mark_Binary@589": [],
         "Mirror_Binary_From_TOML@551": [],
@@ -941,7 +1089,11 @@
         "New_SVN@90": [],
         "New_Source_Archive@358": [
           "URL_Basename",
-          "Archive_Format"
+          "Archive_Format",
+          "URI_Kind",
+          "To_URL",
+          "Full_Name",
+          "Local_Path"
         ],
         "New_System@103": [],
         "New_VCS@397": [
@@ -950,7 +1102,8 @@
           "Is_Valid_Commit",
           "Raise_Checked_Error",
           "New_Git",
-          "New_Hg"
+          "New_Hg",
+          "New_SVN"
         ],
         "Package_Name@190": [],
         "Path@157": [],
@@ -1004,11 +1157,25 @@
         ]
       },
       "ada/alire/alire-properties-configurations.adb": {
-        "Assignments_From_TOML@761": [],
+        "Assignments_From_TOML@761": [
+          "Iterate_On_Table",
+          "Create_One",
+          "To_String",
+          "Unset"
+        ],
         "Config_Entry_From_TOML@814": [
           "Descend",
           "Checked_Pop",
-          "Pop"
+          "Pop",
+          "Tail",
+          "Definitions_From_TOML",
+          "Assignments_From_TOML",
+          "Is_Valid",
+          "Value",
+          "Raise_Checked_Error",
+          "Valid_Keys_Suggestion",
+          "Append",
+          "New_Value"
         ],
         "Create_One@626": [
           "From",
@@ -1019,8 +1186,7 @@
           "Item",
           "Valid",
           "Type_To_String",
-          "New_Value",
-          "Raise_Checked_Error"
+          "New_Value"
         ],
         "Create_One@770": [
           "Raise_Checked_Error",
@@ -1028,13 +1194,20 @@
           "Append",
           "New_Value"
         ],
-        "Definitions_From_TOML@617": [],
+        "Definitions_From_TOML@617": [
+          "Raise_Checked_Error",
+          "Iterate_On_Table",
+          "Create_One",
+          "To_String",
+          "Unset"
+        ],
         "Image@104": [
           "Ret"
         ],
         "Image@136": [
           "Raise_Checked_Error",
-          "To_Lower_Case"
+          "To_Lower_Case",
+          "To_String"
         ],
         "Image@199": [
           "Type_To_String",
@@ -1078,7 +1251,8 @@
           "Set"
         ],
         "To_Type@32": [
-          "To_Lower"
+          "To_Lower",
+          "Raise_Checked_Error"
         ],
         "To_YAML@256": [
           "Type_To_String",
@@ -1106,7 +1280,8 @@
       },
       "ada/alire/alire-publish.adb": {
         "All_Sites_Are_Trusted@1115": [
-          "Trusted_Sites"
+          "Trusted_Sites",
+          "Sites"
         ],
         "Base_Path@102": [
           "Check_Root_Status"
@@ -1115,7 +1290,12 @@
           "Guard",
           "Enter",
           "Deploy_Path",
-          "Warning"
+          "Warning",
+          "Exists",
+          "Create_Directory",
+          "Checked_Spawn",
+          "Append",
+          "Put_Success"
         ],
         "Check_Git_Clean@215": [
           "Status",
@@ -1129,8 +1309,7 @@
           "Put_Info",
           "URL",
           "Get_Rel_Path_Inside_Repo",
-          "Debug",
-          "Infer_Remote"
+          "Debug"
         ],
         "Check_Release@234": [
           "Tomify",
@@ -1150,20 +1329,24 @@
           "Error",
           "Has_Suffix",
           "Is_Valid_GitHub_Username",
-          "Require_Confirmation",
-          "procedure",
-          "Check_Build",
-          "Is_Directory"
+          "Require_Confirmation"
         ],
-        "Check_Root_Status@61": [],
+        "Check_Root_Status@61": [
+          "Full_Path",
+          "Exists",
+          "Full_Name",
+          "Debug",
+          "Raise_Checked_Error",
+          "URL",
+          "Wrap"
+        ],
         "Check_User_Manifest@414": [
           "Check_Release",
           "From_Manifest",
           "Starting_Manifest",
           "Full_Name",
           "Raise_Checked_Error",
-          "Wrap",
-          "Deploy_Sources"
+          "Wrap"
         ],
         "Deploy_Path@122": [],
         "Deploy_Sources@454": [
@@ -1180,9 +1363,7 @@
           "Raise_Checked_Error",
           "Copy_File",
           "Remove_Array",
-          "Packaged_Manifest",
-          "Generate_Index_Manifest",
-          "Is_Directory"
+          "Packaged_Manifest"
         ],
         "Directory_Tar@1056": [
           "Guard",
@@ -1225,10 +1406,7 @@
           "Manifest_Path",
           "Tail",
           "Community_Manifest_Path",
-          "Is_Open",
-          "Prepare_Archive",
-          "Is_Valid",
-          "Full_Name"
+          "Is_Open"
         ],
         "Generated_Filename@149": [
           "Manifest_File"
@@ -1252,7 +1430,10 @@
           "Remote_URL"
         ],
         "Is_Trusted@1125": [
-          "Trusted_Sites"
+          "Trusted_Sites",
+          "All_Sites_Are_Trusted",
+          "Host",
+          "Has_Suffix"
         ],
         "Is_Valid@774": [
           "Always",
@@ -1265,7 +1446,23 @@
           "Get"
         ],
         "Local_Repository@1141": [
-          "Search_Root"
+          "Search_Root",
+          "Infer_Remote",
+          "Check_Root_Status",
+          "Full_Name",
+          "Is_Repository",
+          "Git_Error",
+          "Remotes",
+          "Check_Git_Clean",
+          "Check_Nested_Crate",
+          "Check_User_Manifest",
+          "Revision_Commit",
+          "Put_Success",
+          "Emph",
+          "Raise_Checked_Error",
+          "Fetch_URL",
+          "Remote_Origin",
+          "Make_VCS_Explicit"
         ],
         "New_Options@167": [],
         "Packaged_Manifest@142": [
@@ -1276,7 +1473,15 @@
           "Full_Name",
           "Manifest_File",
           "Is_Repository",
-          "Base_Path"
+          "Base_Path",
+          "Check_Git_Clean",
+          "Warning",
+          "Exists",
+          "Create_Path",
+          "Put_Success",
+          "URI_Kind",
+          "Validated_Input",
+          "URL"
         ],
         "Print_Trusted_Sites@1497": [
           "Trusted_Sites",
@@ -1319,20 +1524,23 @@
         ],
         "Tar_Archive@712": [
           "Warnings",
-          "Checked_Spawn",
-          "Check_Git_Clean",
-          "Base_Path",
-          "Warning",
-          "Exists",
-          "Create_Path",
-          "Put_Success"
+          "Checked_Spawn"
         ],
         "Trusted_Sites@1096": [
           "Split",
           "Append"
         ],
         "Verify_Github@852": [
-          "Warning"
+          "Warning",
+          "Put_Info",
+          "Put_Success",
+          "Emph",
+          "User_Exists",
+          "Recoverable_User_Error",
+          "Repo_Exists",
+          "Ask_To_Fork",
+          "URL",
+          "Tail"
         ],
         "Verify_Origin@907": [
           "URI_Kind",
@@ -1341,8 +1549,7 @@
           "Put_Success",
           "Is_Trusted",
           "Host",
-          "Wrap",
-          "array"
+          "Wrap"
         ]
       },
       "ada/alire/alire-releases.adb": {
@@ -1374,19 +1581,7 @@
         "Create_Authoritative_Manifest@307": [
           "Debug",
           "Whenever",
-          "To_File",
-          "URL",
-          "Exists_With_Exact_Case",
-          "Raise_Checked_Error",
-          "Detail",
-          "Already_Installed",
-          "Put_Info",
-          "Deploy",
-          "Create_Path",
-          "Mark",
-          "Log_Exception",
-          "Exists",
-          "Force_Delete"
+          "To_File"
         ],
         "Default_Properties@57": [
           "New_Value",
@@ -1397,10 +1592,32 @@
           "Unit"
         ],
         "Deploy@250": [
-          "Complete_Copy"
+          "Deploy",
+          "Complete_Copy",
+          "Debug",
+          "URL",
+          "Exists_With_Exact_Case",
+          "Raise_Checked_Error",
+          "Detail",
+          "Already_Installed",
+          "Put_Info",
+          "Create_Path",
+          "Create_Authoritative_Manifest",
+          "Mark",
+          "Log_Exception",
+          "Exists",
+          "Force_Delete"
         ],
-        "Deployment_Folder@152": [],
-        "Environment@690": [],
+        "Deployment_Folder@152": [
+          "Replace",
+          "Head",
+          "Image"
+        ],
+        "Environment@690": [
+          "On_Platform_Properties",
+          "Insert",
+          "Variable"
+        ],
         "Executables@707": [
           "Props_To_Strings",
           "All_Properties",
@@ -1408,15 +1625,30 @@
           "Exes"
         ],
         "Flat_Dependencies@66": [
-          "Enumerate"
+          "Enumerate",
+          "Evaluate"
         ],
         "Forbidding@425": [],
         "From_Manifest@1054": [
           "Guard",
-          "Enter"
+          "Enter",
+          "From_TOML",
+          "From",
+          "Load_File",
+          "Log_Exception",
+          "Raise_Checked_Error",
+          "Wrap",
+          "Get"
         ],
         "From_TOML@1087": [
-          "Assert_Key"
+          "From_TOML",
+          "Assert_Key",
+          "New_Empty_Release",
+          "Get",
+          "Contains",
+          "Retagging",
+          "Parse",
+          "Assert"
         ],
         "From_TOML@1121": [
           "From_TOML",
@@ -1429,7 +1661,11 @@
           "Property",
           "New_Version"
         ],
-        "GPR_Externals@732": [],
+        "GPR_Externals@732": [
+          "On_Platform_Properties",
+          "Class",
+          "Include"
+        ],
         "Has_Property@850": [
           "Enumerate",
           "To_Lower_Case"
@@ -1439,17 +1675,26 @@
         ],
         "Is_External@1405": [],
         "Is_Native@1412": [
-          "Has_Suffix",
-          "Is_External"
+          "Has_Suffix"
         ],
-        "Labeled_Properties@870": [],
-        "Labeled_Properties_Vector@858": [],
+        "Labeled_Properties@870": [
+          "Props_To_Strings",
+          "All_Properties"
+        ],
+        "Labeled_Properties_Vector@858": [
+          "Filter",
+          "All_Properties"
+        ],
         "Long_Description@1382": [
           "Enumerate",
           "Filter",
           "Tail"
         ],
-        "Monorepo_Path@160": [],
+        "Monorepo_Path@160": [
+          "Sanitize",
+          "Base_Name",
+          "Simple_Name"
+        ],
         "New_Empty_Release@584": [
           "New_Working_Release"
         ],
@@ -1457,14 +1702,22 @@
         "New_Working_Release@592": [
           "New_Filesystem"
         ],
-        "On_Platform_Actions@620": [],
+        "On_Platform_Actions@620": [
+          "On_Platform_Properties",
+          "Moments",
+          "Class",
+          "Append"
+        ],
         "On_Platform_Properties@642": [
           "On_Platform_Properties",
-          "Materialize"
+          "Materialize",
+          "Is_Descendant_At_Same_Level",
+          "Append"
         ],
         "Print@883": [
           "Print",
-          "To_TOML"
+          "To_TOML",
+          "Put_Line"
         ],
         "Project_Files@762": [
           "Props_To_Strings",
@@ -1473,10 +1726,15 @@
           "Split"
         ],
         "Project_Paths@805": [
-          "Project_Files"
+          "Project_Files",
+          "Contains",
+          "Include",
+          "File",
+          "Index"
         ],
         "Property@972": [
-          "Filter"
+          "Filter",
+          "Label"
         ],
         "Property_Contains@1018": [
           "To_Lower_Case",
@@ -1494,9 +1752,14 @@
           "Tail"
         ],
         "Props_To_Strings@672": [
-          "Filter"
+          "Filter",
+          "Append",
+          "Label"
         ],
-        "Providing@438": [],
+        "Providing@438": [
+          "Append",
+          "New_Milestone"
+        ],
         "Release_Path@215": [
           "Replace",
           "Head",
@@ -1505,14 +1768,22 @@
         "Replacing@455": [],
         "Replacing@467": [],
         "Replacing@481": [],
-        "Replacing@495": [],
+        "Replacing@495": [
+          "Release"
+        ],
         "Retagging@531": [],
-        "Sanitize@171": [],
+        "Sanitize@171": [
+          "Safe"
+        ],
         "Simple_Name@186": [
           "URL",
           "Raise_Checked_Error"
         ],
-        "Sort_Compilers@1399": [],
+        "Sort_Compilers@1399": [
+          "Is_External",
+          "Is_Native",
+          "Standard_Sorting"
+        ],
         "To_Dependency@1178": [
           "New_Value",
           "New_Dependency",
@@ -1539,7 +1810,10 @@
           "Append"
         ],
         "To_YAML@1308": [
-          "To_YAML"
+          "To_YAML",
+          "YAML_Stringify",
+          "Props_To_YAML",
+          "Deps"
         ],
         "Upgrading@543": [],
         "Version@1349": [],
@@ -1686,7 +1960,18 @@
         ]
       },
       "ada/alire/alire-roots-editable.adb": {
-        "Add_Dependency@88": [],
+        "Add_Dependency@88": [
+          "Exists",
+          "Releases_For_Crate",
+          "Recoverable_User_Error",
+          "Name",
+          "Release",
+          "Depends_On",
+          "Set",
+          "Append",
+          "Crate_File",
+          "Missing"
+        ],
         "Add_Path_Pin@353": [
           "Full_Name",
           "Add_Pin_Preparations",
@@ -1697,8 +1982,38 @@
           "Linking",
           "Update"
         ],
-        "Add_Pin_Preparations@258": [],
-        "Add_Remote_Pin@384": [],
+        "Add_Pin_Preparations@258": [
+          "Detect_Root",
+          "Put_Warning",
+          "URL",
+          "Name",
+          "Raise_Checked_Error",
+          "Depends_On",
+          "Add_Dependency",
+          "New_Dependency",
+          "Release",
+          "Contains",
+          "Remove_Pin"
+        ],
+        "Add_Remote_Pin@384": [
+          "Is_Valid_Commit",
+          "Clone_Branch",
+          "Raise_Checked_Error",
+          "URL",
+          "Add_Pin_Preparations",
+          "New_Remote",
+          "Deploy_Path",
+          "Exists",
+          "Create_Path",
+          "Delete_Tree",
+          "Rename",
+          "Append",
+          "Crate_File",
+          "Deploy",
+          "Set",
+          "Linking",
+          "Update"
+        ],
         "Add_Version_Pin@224": [
           "Depends_On",
           "Add_Dependency",
@@ -1728,8 +2043,7 @@
           "Emph",
           "Add_Remote_Pin",
           "Raise_Checked_Error",
-          "URL",
-          "Is_Valid_Commit"
+          "URL"
         ],
         "Finalize@539": [],
         "Finalize@541": [
@@ -1747,19 +2061,12 @@
           "Updatable",
           "Put_Warning"
         ],
-        "New_Root@24": [],
+        "New_Root@24": [
+          "Root",
+          "Sync_Pins_From_Manifest"
+        ],
         "Pin_Is_Parent_Crate@269": [
-          "Find_Relative_Path_To",
-          "Put_Warning",
-          "URL",
-          "Name",
-          "Raise_Checked_Error",
-          "Depends_On",
-          "Add_Dependency",
-          "New_Dependency",
-          "Release",
-          "Contains",
-          "Remove_Pin"
+          "Find_Relative_Path_To"
         ],
         "Reload_Manifest@530": [],
         "Remove_Dependency@183": [
@@ -1792,7 +2099,19 @@
           "State",
           "Release",
           "Image",
-          "Debug"
+          "Debug",
+          "Insert",
+          "Detect_Root",
+          "Provides",
+          "Error",
+          "Depending_On",
+          "Dependency_On",
+          "Or_Else",
+          "New_Dependency",
+          "Linking",
+          "Add_Pins",
+          "Union",
+          "To_Set"
         ],
         "Add_Version_Pin@970": [
           "Depends_On",
@@ -1807,26 +2126,39 @@
           "Pinning"
         ],
         "Adjust@2163": [],
-        "Build@114": [],
-        "Build_Context@299": [],
+        "Build@114": [
+          "Build_Prepare",
+          "Stop_Build",
+          "Traverse",
+          "Log_Exception"
+        ],
+        "Build_Context@299": [
+          "Load"
+        ],
         "Build_Hash@311": [
           "Compute",
           "Contains",
           "Hash",
           "Error",
           "Print_States",
-          "Recoverable_Program_Error"
+          "Recoverable_Program_Error",
+          "Digest"
         ],
         "Build_Prepare@59": [
           "Set_Build_Profiles",
           "Set",
-          "Stop_Build"
+          "Stop_Build",
+          "Generate_Configuration"
         ],
         "Build_Single_Release@130": [
           "Unreferenced",
           "Guard",
           "Enter",
-          "Release_Base"
+          "Release_Base",
+          "Put_Info",
+          "Execute_Actions",
+          "Stop_Build",
+          "Call_Gprbuild"
         ],
         "Cache_Dir@1631": [],
         "Call_Gprbuild@146": [
@@ -1841,15 +2173,20 @@
           "Release_Base",
           "Error",
           "Get",
-          "Log_Exception",
-          "Execute_Actions",
-          "Stop_Build",
-          "Build_Prepare",
-          "Traverse"
+          "Log_Exception"
         ],
         "Check_Dir@1243": [
           "Unreferenced",
-          "Kind"
+          "Kind",
+          "Name",
+          "Detect_Root",
+          "Full_Name",
+          "Insert",
+          "URL",
+          "String",
+          "To_Portable",
+          "Find_Relative_Path",
+          "Emph"
         ],
         "Check_Stored@702": [
           "Raise_Checked_Error"
@@ -1861,10 +2198,7 @@
         "Commit@2091": [
           "Backup_If_Existing",
           "Copy_File",
-          "Delete_File",
-          "Crate_File",
-          "Lock_File",
-          "Sync_From_Manifest"
+          "Delete_File"
         ],
         "Compiler@338": [
           "Compiler"
@@ -1877,7 +2211,8 @@
           "Dependencies",
           "Contains",
           "Debug",
-          "Sync_Pins_From_Manifest"
+          "Sync_Pins_From_Manifest",
+          "Resolve"
         ],
         "Config_Outdated@585": [
           "Build_Hash",
@@ -1899,20 +2234,29 @@
           "Update"
         ],
         "Dependencies_Dir@1638": [],
-        "Deploy_Dependencies@766": [],
+        "Deploy_Dependencies@766": [
+          "Traverse",
+          "Print_Hints",
+          "Assert",
+          "Release"
+        ],
         "Deploy_Release@773": [
           "Unreferenced",
           "Debug",
           "Release",
-          "Provides"
+          "Provides",
+          "Is_Tool",
+          "Deploy",
+          "Release_Parent",
+          "Print_Nested_Crates",
+          "Release_Base"
         ],
         "Direct_Withs@530": [
           "Flat_Dependencies",
           "Contains",
           "Element",
           "Project_Files",
-          "Include",
-          "Configuration"
+          "Include"
         ],
         "Environment@1397": [],
         "Export_Build_Environment@1217": [
@@ -1943,12 +2287,33 @@
           "Put_Info",
           "Flatten"
         ],
-        "Install@345": [],
+        "Install@345": [
+          "Put_Info",
+          "Print",
+          "Assert",
+          "Build",
+          "Traverse"
+        ],
         "Install_Inner@358": [
           "Unreferenced",
-          "Put_Warning"
+          "Put_Warning",
+          "Check_Conflicts",
+          "Project_Files",
+          "Provides",
+          "Put_Info",
+          "Dim",
+          "Release_Base",
+          "URL",
+          "Find_Installed",
+          "Set_Not_Installed",
+          "Gprinstall",
+          "Full_Name",
+          "Contains",
+          "Detail"
         ],
-        "Is_Lockfile_Outdated@1710": [],
+        "Is_Lockfile_Outdated@1710": [
+          "File_Time_Stamp"
+        ],
         "Is_Root_Release@1763": [],
         "Is_Root_Release@1772": [],
         "Load_Configuration@604": [
@@ -1989,7 +2354,12 @@
         "Print_Nested_Crates@1233": [
           "Full_Name",
           "Guard",
-          "Enter"
+          "Enter",
+          "Traverse_Tree",
+          "Put_Info",
+          "Bold",
+          "URL",
+          "Info"
         ],
         "Project_Paths@1311": [
           "Project_Paths",
@@ -1997,7 +2367,8 @@
           "Release",
           "Include",
           "Release_Base",
-          "State"
+          "State",
+          "Path"
         ],
         "Release@1478": [],
         "Release@1485": [
@@ -2023,9 +2394,7 @@
         "Removing_Post_Fetch_Flag@1885": [
           "Is_Root_Release",
           "Post_Fetch",
-          "Release_Base",
-          "Traverse",
-          "Build_Prepare"
+          "Release_Base"
         ],
         "Requires_Build_Sync@1497": [],
         "Set@1357": [
@@ -2062,7 +2431,8 @@
           "Path"
         ],
         "Sync_Builds@867": [
-          "Activity"
+          "Activity",
+          "Traverse"
         ],
         "Sync_From_Manifest@1781": [
           "Put_Info",
@@ -2083,26 +2453,43 @@
           "Guard",
           "Enter",
           "Path",
-          "Add_Pins"
+          "Add_Pins",
+          "Release",
+          "Key",
+          "Element",
+          "Debug",
+          "Name",
+          "Add_Version_Pin",
+          "Add_Link_Pin",
+          "Detail",
+          "State",
+          "To_Set",
+          "Exists",
+          "Delete_File"
         ],
         "Sync_Release@876": [
           "Unreferenced",
           "Release",
           "Provides",
-          "Debug"
+          "Debug",
+          "Activity",
+          "Requires_Build_Sync",
+          "Sync"
         ],
         "Traverse@2137": [
-          "procedure"
-        ],
-        "Traverse_Wrap@2149": [
-          "Doing",
           "Traverse",
+          "procedure",
           "Unit",
           "Release"
         ],
+        "Traverse_Wrap@2149": [
+          "Doing"
+        ],
         "Update@1860": [
           "Sync_Pins_From_Manifest",
-          "Update_Dependencies"
+          "Update_Dependencies",
+          "Traverse",
+          "Build_Prepare"
         ],
         "Update_Dependencies@1955": [
           "Guard",
@@ -2121,9 +2508,7 @@
           "Print",
           "Confirm_Solution_Changes",
           "Detail",
-          "Set",
-          "Temporary_Copy",
-          "Copy_File"
+          "Set"
         ],
         "Working_Folder@1654": [],
         "Write_Manifest@1661": [
@@ -2222,14 +2607,33 @@
         "Best_Version@281": [],
         "Between@90": [],
         "Contains_Changes@97": [],
-        "Determine_Relevant_Version@275": [],
+        "Determine_Relevant_Version@275": [
+          "Best_Version",
+          "Version",
+          "Warn",
+          "Error",
+          "Recoverable_Program_Error"
+        ],
         "Find_Changes@104": [
-          "Depends_On"
+          "Depends_On",
+          "State",
+          "Length",
+          "Add_Change",
+          "Icon"
         ],
         "Former@116": [
           "State"
         ],
-        "Fulfil_Change@139": [],
+        "Fulfil_Change@139": [
+          "Gains_State",
+          "Add_Change",
+          "Icon",
+          "Image",
+          "Error",
+          "Warn",
+          "To_Lower_Case",
+          "OK"
+        ],
         "Gains_State@145": [],
         "Icon@35": [
           "OK",
@@ -2248,20 +2652,36 @@
           "Icon",
           "Error",
           "Warn",
-          "To_Lower_Case",
-          "Length"
+          "To_Lower_Case"
         ],
         "Pinned_Or_Unpinned@205": [
           "Add_Change",
           "Icon",
           "Version"
         ],
-        "Print@416": [],
+        "Print@416": [
+          "Print",
+          "Log",
+          "Warn",
+          "OK",
+          "Union",
+          "Find_Changes",
+          "Contains",
+          "Append",
+          "Name",
+          "Flatten"
+        ],
         "Provider_Change@233": [
           "Add_Change",
           "Italic"
         ],
-        "Releases_Without_Sources@316": [],
+        "Releases_Without_Sources@316": [
+          "Element",
+          "Add_Change",
+          "Icon",
+          "Warn",
+          "Report_Kinds"
+        ],
         "Transitivity_Changed@182": [
           "Add_Change",
           "To_Lower_Case"
@@ -2285,16 +2705,7 @@
           "Satisfies",
           "Log",
           "Icon",
-          "Terminal",
-          "Warn",
-          "OK",
-          "Union",
-          "Find_Changes",
-          "Contains",
-          "Append",
-          "Name",
-          "Flatten",
-          "Print"
+          "Terminal"
         ]
       },
       "ada/alire/alire-solutions.adb": {
@@ -2315,13 +2726,35 @@
           "State"
         ],
         "Contains_Skipped@82": [],
-        "Crates@427": [],
+        "Crates@427": [
+          "Include"
+        ],
         "Dependencies_Providing@1163": [
           "Provides",
           "Insert"
         ],
-        "Dependencies_That@374": [],
-        "Dependency@100": [],
+        "Dependencies_That@374": [
+          "Check",
+          "Insert"
+        ],
+        "Dependency@100": [
+          "Dependencies",
+          "Merging",
+          "Contains",
+          "Depends_On",
+          "Provides",
+          "Including",
+          "State",
+          "New_State",
+          "Dependencies_That",
+          "Missing",
+          "Pinning",
+          "Satisfies",
+          "User_Unpinning",
+          "Setting",
+          "Unlinking",
+          "Unpinning"
+        ],
         "Dependency@393": [
           "Enumerate",
           "State",
@@ -2343,8 +2776,14 @@
         "Excluding@119": [
           "Exclude"
         ],
-        "Forbidden@440": [],
-        "Forbids@458": [],
+        "Forbidden@440": [
+          "Forbidden",
+          "Merge"
+        ],
+        "Forbids@458": [
+          "Forbidden",
+          "Satisfies"
+        ],
         "From_TOML@1325": [
           "From_TOML",
           "Debug",
@@ -2362,14 +2801,27 @@
           "Append"
         ],
         "Including@509": [
-          "Forbids"
+          "Including",
+          "Forbids",
+          "Depends_On",
+          "Depending_On",
+          "Satisfies",
+          "State",
+          "Solving",
+          "Whenever",
+          "Hinting",
+          "Missing",
+          "Debug"
         ],
         "Is_Attempted@198": [],
         "Is_Complete@205": [],
         "Label@939": [
           "State"
         ],
-        "Link_Pins@591": [],
+        "Link_Pins@591": [
+          "Append",
+          "New_Dependency"
+        ],
         "Linking@578": [],
         "Links@212": [
           "Dependencies_That"
@@ -2380,16 +2832,53 @@
         "Missing@233": [],
         "Missing@251": [],
         "Narrow_New_Dependencies@1382": [
-          "Between"
+          "Between",
+          "Contains",
+          "New_Dependency",
+          "Value",
+          "Releases",
+          "Detail"
         ],
         "Parent_Connector@980": [],
         "Pinning@266": [],
-        "Pins@607": [],
-        "Pins@637": [],
-        "Print@656": [
-          "Log"
+        "Pins@607": [
+          "New_Dependency"
         ],
-        "Print@955": [],
+        "Pins@637": [
+          "Insert",
+          "New_Dependency"
+        ],
+        "Print@656": [
+          "Print",
+          "Log",
+          "Dependencies_That",
+          "Name",
+          "Version",
+          "Italic",
+          "Emph",
+          "TTY_URL_With_Reference",
+          "To_Lower_Case",
+          "Error",
+          "Exists",
+          "Crate",
+          "Hints",
+          "Forbidden",
+          "Including",
+          "From_Solution"
+        ],
+        "Print@955": [
+          "Has_Dependencies",
+          "State",
+          "Enumerate",
+          "Parent_Connector",
+          "Depends_On",
+          "Always",
+          "Label",
+          "Emph",
+          "Already_Printed",
+          "Contains",
+          "Include"
+        ],
         "Print_Graph@786": [
           "Always",
           "Check_Tool",
@@ -2423,7 +2912,13 @@
           "Print"
         ],
         "Print_Tree@916": [
-          "U"
+          "U",
+          "Label",
+          "State",
+          "Contains",
+          "Always",
+          "Print",
+          "Enumerate"
         ],
         "Print_Versions@1064": [
           "Append",
@@ -2442,7 +2937,9 @@
           "Print"
         ],
         "Provides@279": [],
-        "Releases@1148": [],
+        "Releases@1148": [
+          "Insert"
+        ],
         "Releases_Providing@1182": [
           "Dependencies_Providing",
           "Include"
@@ -2465,16 +2962,30 @@
         "State@1232": [
           "Contains",
           "Dependencies",
-          "Provides"
+          "Provides",
+          "Set",
+          "Name"
         ],
         "State@1255": [
           "Contains",
           "Dependencies",
-          "Provides"
+          "Provides",
+          "Set"
         ],
-        "To_TOML@1356": [],
+        "To_TOML@1356": [
+          "Set",
+          "Create_Boolean"
+        ],
         "Traverse@1440": [
-          "procedure"
+          "procedure",
+          "Visit",
+          "Debug",
+          "Insert",
+          "Flat_Dependencies",
+          "Contains",
+          "Provides",
+          "New_State",
+          "Solving"
         ],
         "Unlinking@321": [],
         "Unpinning@335": [],
@@ -2486,15 +2997,11 @@
           "Name",
           "Include",
           "Exclude",
-          "Doing",
-          "Insert",
-          "Flat_Dependencies",
-          "Contains",
-          "Provides",
-          "New_State",
-          "Solving"
+          "Doing"
         ],
-        "With_Pins@1279": []
+        "With_Pins@1279": [
+          "Pinning"
+        ]
       },
       "ada/alire/alire-solutions.ads": {
         "Dependency@230": [],
@@ -2597,12 +3104,24 @@
         "Check_Link@1754": [
           "Depends_On",
           "State",
-          "Skip_Dependency"
+          "Skip_Dependency",
+          "Enqueue",
+          "Next",
+          "Seeing",
+          "Expanding",
+          "Targeting",
+          "With_More",
+          "Pin_Dependencies",
+          "Solved",
+          "Linking"
         ],
         "Check_Regular_Releases@1639": [
           "Contains",
           "Debug",
-          "Expand_Missing"
+          "Expand_Missing",
+          "Releases_Satisfying",
+          "Include",
+          "Consider"
         ],
         "Check_Release@1416": [
           "Forbids",
@@ -2611,19 +3130,24 @@
           "Expand_Missing",
           "Satisfies",
           "Is_Available",
-          "Contains_Incompatible"
+          "Contains_Incompatible",
+          "Dependencies",
+          "Enqueue",
+          "Next",
+          "Downgrading",
+          "Seeing",
+          "Expanding",
+          "Targeting",
+          "With_More",
+          "Solved",
+          "Including",
+          "Unit"
         ],
         "Check_Reused_Releases@1789": [
           "Debug",
           "Releases_Providing",
           "Dependencies_Providing",
-          "Check_Release",
-          "Contains",
-          "Skip_Dependency",
-          "Depends_On",
-          "State",
-          "Exists",
-          "Releases_Satisfying"
+          "Check_Release"
         ],
         "Check_Version_Pin@1542": [
           "State",
@@ -2654,10 +3178,7 @@
           "RD"
         ],
         "Consider@1675": [
-          "Check_Release",
-          "Debug",
-          "Include",
-          "Releases_Satisfying"
+          "Check_Release"
         ],
         "Contains_All_Satisfiable@419": [
           "State",
@@ -2675,16 +3196,36 @@
           "Name",
           "Exists"
         ],
-        "Enqueue@1197": [],
+        "Enqueue@1197": [
+          "Natural",
+          "Debug",
+          "Image_One_Line",
+          "Insert"
+        ],
         "Exists@221": [],
-        "Expand@1305": [],
+        "Expand@1305": [
+          "Is_In",
+          "Debug",
+          "Image_One_Line",
+          "Expand_Value",
+          "Depending_On",
+          "Dependency"
+        ],
         "Expand_And_Vector@1881": [
           "Enqueue",
           "Next",
           "Targeting",
           "With_More"
         ],
-        "Expand_Missing@1382": [],
+        "Expand_Missing@1382": [
+          "Enqueue",
+          "Next",
+          "Seeing",
+          "Targeting",
+          "With_More",
+          "Solved",
+          "Missing"
+        ],
         "Expand_Or_Vector@1896": [
           "Enqueue",
           "Next",
@@ -2692,17 +3233,29 @@
           "Target"
         ],
         "Expand_Value@1325": [
-          "Depending_On"
+          "Depending_On",
+          "Contains",
+          "Skip_Dependency",
+          "Depends_On",
+          "State",
+          "Dependencies_Providing",
+          "Exists",
+          "Releases_Satisfying",
+          "Debug",
+          "Image_One_Line",
+          "Include",
+          "Expand_Missing"
         ],
-        "Explore@2123": [],
+        "Explore@2123": [
+          "Debug",
+          "Expand",
+          "Include"
+        ],
         "Feasible@1243": [
           "Depends_On",
           "Contains_Release",
           "State",
-          "Satisfies",
-          "Natural",
-          "Debug",
-          "Image_One_Line"
+          "Satisfies"
         ],
         "Find@234": [
           "Releases_Satisfying",
@@ -2733,7 +3286,12 @@
         ],
         "Is_Better@496": [
           "Compare",
-          "Full_Solution"
+          "Full_Solution",
+          "Which_One",
+          "Left",
+          "Right",
+          "Contains_All_Satisfiable",
+          "Pending_Count"
         ],
         "Is_Potentially_Complete@445": [],
         "Is_Resolvable@265": [],
@@ -2747,28 +3305,21 @@
           "Debug"
         ],
         "Milestone@385": [],
-        "Next_Id@33": [
-          "Downgrading",
-          "Seeing",
-          "Union",
-          "To_Set",
-          "Expanding",
-          "Append",
-          "Targeting",
-          "With_More",
-          "Solved"
-        ],
+        "Next_Id@33": [],
         "Pending_Count@204": [],
-        "Preferred_Compiler@519": [],
-        "Preferred_Version@530": [
-          "Which_One",
+        "Preferred_Compiler@519": [
           "Releases_Providing",
+          "Which_One",
           "Contains",
+          "Preferred_Version",
           "Contains_Release"
         ],
+        "Preferred_Version@530": [],
         "Progress_Line@1148": [
           "Float",
-          "Is_Potentially_Complete"
+          "Is_Potentially_Complete",
+          "Trim",
+          "Print_Pct"
         ],
         "Progress_Report@1185": [
           "Step"
@@ -2776,23 +3327,34 @@
         "R_GNAT@523": [
           "Releases_Providing"
         ],
-        "Resolve@278": [],
+        "Resolve@278": [
+          "New_Dependency"
+        ],
         "Resolve@291": [
-          "Next"
+          "Next",
+          "Activity",
+          "Available",
+          "Tool_Is_Configured",
+          "Tool_Milestone",
+          "New_Milestone",
+          "Contains_All_Satisfiable",
+          "Is_Better",
+          "Indefinite_Ordered_Sets",
+          "Include",
+          "Full_Solution",
+          "Evaluate",
+          "Detail",
+          "Image",
+          "Debug",
+          "Detect_Unavailable_Direct_Dependencies",
+          "Enqueue"
         ],
         "Right@820": [
-          "Debug",
-          "Which_One",
-          "Left",
-          "Contains_All_Satisfiable",
-          "Compare",
-          "Pending_Count"
+          "Debug"
         ],
         "Search_Timeout@2040": [],
         "Set_New_Target@1910": [
-          "Expand",
-          "Debug",
-          "Image_One_Line"
+          "Expand"
         ],
         "Skip_Dependency@1622": [
           "Enqueue",
@@ -2814,18 +3376,11 @@
           "Emph",
           "Warn",
           "Error",
-          "Bold",
-          "Evaluate",
-          "Image",
-          "Detect_Unavailable_Direct_Dependencies",
-          "Enqueue",
-          "Include"
+          "Bold"
         ],
         "Top_Ten@2125": [
           "Debug",
-          "Image_One_Line",
-          "Expand",
-          "Include"
+          "Image_One_Line"
         ],
         "Trace_Pins@2020": [
           "Detail"
@@ -2840,8 +3395,7 @@
           "String",
           "To_Unbounded_String",
           "Load_Test_Case_Pragmas",
-          "Matches_Filter",
-          "Find"
+          "Matches_Filter"
         ],
         "Cmp@660": [
           "Pid_To_Integer",
@@ -2852,7 +3406,12 @@
           "Indefinite_Ordered_Maps",
           "Root_Prefix"
         ],
-        "Create_Gpr_List@592": [],
+        "Create_Gpr_List@592": [
+          "Load_Or_Create",
+          "To_Mixed_Case",
+          "Append_Line",
+          "Append_To_Last_Line"
+        ],
         "Default_Timeout@41": [
           "Duration"
         ],
@@ -2865,7 +3424,8 @@
           "Strip_Suffix",
           "Strip_Prefix",
           "Simple_Name",
-          "Parent"
+          "Parent",
+          "String"
         ],
         "Display_Name@375": [
           "Length",
@@ -2896,7 +3456,8 @@
           "Warning"
         ],
         "Get_Test_List@846": [
-          "Root_Prefix"
+          "Root_Prefix",
+          "Find"
         ],
         "Img@395": [
           "Lower"
@@ -2925,13 +3486,35 @@
         ],
         "Load_Or_Create@601": [
           "Exists",
-          "Touch"
+          "Touch",
+          "Load"
         ],
         "Load_Test_Case_Pragmas@386": [
-          "Lower"
+          "Lower",
+          "Img",
+          "Key",
+          "Str",
+          "Decode",
+          "Encode",
+          "Is_Valid",
+          "From_File",
+          "Strict_On",
+          "Has_Key",
+          "All_Pragmas",
+          "Alire_Test",
+          "Wrong_Type",
+          "Duration",
+          "Keys",
+          "Int",
+          "Big_Int",
+          "Is_Known_Pragma_Key",
+          "Diagnose",
+          "Error",
+          "Exception_Message"
         ],
         "Matches_Filter@857": [
-          "Display_Name"
+          "Display_Name",
+          "Contains"
         ],
         "Pass@175": [
           "Insert",
@@ -2956,11 +3539,7 @@
         "Put_Progress@766": [
           "Long_Integer",
           "Put",
-          "Tail",
-          "Min",
-          "Natural",
-          "Spawn_Test",
-          "Wait_Process"
+          "Tail"
         ],
         "Report@299": [
           "Insert",
@@ -2988,10 +3567,40 @@
           "Run_All_Tests",
           "Error"
         ],
-        "Run_All_Tests@650": [],
+        "Run_All_Tests@650": [
+          "Pid_To_Integer",
+          "Test_Info",
+          "String",
+          "Indefinite_Ordered_Maps",
+          "Root_Prefix",
+          "Min",
+          "Natural",
+          "Spawn_Test",
+          "Wait_Process",
+          "Running_Tests",
+          "Pass",
+          "Fail",
+          "Lines",
+          "Delete_File",
+          "Delete"
+        ],
         "Show_List@968": [
           "Root_Prefix",
-          "Get_Test_List"
+          "Get_Test_List",
+          "Text",
+          "New_Text",
+          "Decode",
+          "Get",
+          "Insert",
+          "Append",
+          "Display_Name",
+          "String",
+          "To_Portable",
+          "Path_Of",
+          "Always",
+          "Encode",
+          "Put_Info",
+          "Info"
         ],
         "Skip@247": [
           "Insert",
@@ -3009,7 +3618,10 @@
           "Display_Name",
           "Skip",
           "To_String",
-          "Fail"
+          "Fail",
+          "Non_Blocking_Spawn",
+          "Insert",
+          "Create"
         ],
         "Text@977": [
           "New_Text",
@@ -3029,17 +3641,25 @@
         "Total_Count@278": [],
         "Wrong_Type@461": [
           "Img",
-          "Diagnose",
-          "From_File",
-          "Strict_On",
-          "Has_Key",
-          "Key",
-          "All_Pragmas"
+          "Diagnose"
         ]
       },
       "ada/alire/alire-toml_index.adb": {
         "Check_Index@105": [
-          "Compose"
+          "Compose",
+          "Load_File",
+          "Has",
+          "Set_Error",
+          "Get",
+          "Parse",
+          "Compare_Branches",
+          "Contains",
+          "Put_Warning",
+          "Emph",
+          "Terminal",
+          "Put_Info",
+          "Debug",
+          "Image"
         ],
         "Community_Manifest_Path@594": [
           "Manifest_Path"
@@ -3079,7 +3699,9 @@
         "Load@286": [
           "Locate_Root",
           "Detail",
-          "Check_Index"
+          "Check_Index",
+          "Traverse_Tree",
+          "Outcome_From_Exception"
         ],
         "Load@327": [
           "Locate_Root",
@@ -3091,7 +3713,22 @@
         "Load_From_Index_Internal@443": [
           "Guard",
           "Enter",
-          "Parent"
+          "Parent",
+          "Error_In_File",
+          "Debug",
+          "Name",
+          "Version",
+          "Load_File",
+          "Assert",
+          "Has",
+          "Get",
+          "Parse",
+          "Add",
+          "From_Externals_Manifest",
+          "From",
+          "For_Index",
+          "Index_Release",
+          "From_TOML"
         ],
         "Load_Manifest@361": [
           "Unreferenced",
@@ -3100,7 +3737,15 @@
           "Full_Name",
           "Simple_Name",
           "Containing_Directory",
-          "Shelf_Name"
+          "Shelf_Name",
+          "Extension",
+          "Raise_Checked_Error",
+          "Contains",
+          "Head",
+          "Tail",
+          "Base_Name",
+          "Has_Prefix",
+          "Load_From_Index_Internal"
         ],
         "Locate_Root@254": [
           "Find_Files_Under",
@@ -3111,7 +3756,10 @@
           "Flatten"
         ],
         "Manifest_File@571": [],
-        "Manifest_Path@583": [],
+        "Manifest_Path@583": [
+          "Portable_Path",
+          "Name"
+        ],
         "Set_Error@86": [
           "To_Unbounded_String"
         ]
@@ -3119,30 +3767,50 @@
       "ada/alire/alire-toolchains.adb": {
         "Add_Choice@100": [
           "Prepend",
-          "Append",
-          "Detect_Externals",
-          "New_Empty_Release",
-          "Releases_Satisfying",
-          "Any_Tool",
-          "Is_Valid_Choice",
-          "Dim",
-          "From_Set",
-          "Natural",
-          "Insert"
+          "Append"
         ],
         "Any_Tool@34": [
           "New_Dependency"
         ],
         "Assistant@48": [
-          "Indefinite_Vectors"
+          "Indefinite_Vectors",
+          "Put_Paragraphs",
+          "Append",
+          "Name",
+          "Italic",
+          "Put_Warning",
+          "Emph",
+          "Info",
+          "Put_Info",
+          "Detail",
+          "Set_Up",
+          "Whenever",
+          "Provides",
+          "Terminal",
+          "Set_Automatic_Assistant",
+          "Install"
         ],
-        "Available@524": [],
+        "Available@524": [
+          "Exists",
+          "Traverse_Tree",
+          "Tool_Is_External",
+          "Detect_Externals",
+          "Releases_Satisfying",
+          "Any_Tool",
+          "Debug",
+          "Include",
+          "Force_Delete",
+          "Flatten"
+        ],
         "Deploy@687": [
           "Deploy",
           "Contains",
           "Detail",
           "Debug",
-          "Platform_Deployer"
+          "Platform_Deployer",
+          "Warning",
+          "Touch",
+          "Put_Info"
         ],
         "Deploy_Missing@744": [
           "Tool_Is_Configured",
@@ -3165,14 +3833,7 @@
           "Include",
           "From_Manifest",
           "Warn_Once",
-          "Simple_Name",
-          "Traverse_Tree",
-          "Tool_Is_External",
-          "Detect_Externals",
-          "Releases_Satisfying",
-          "Any_Tool",
-          "Force_Delete",
-          "Flatten"
+          "Simple_Name"
         ],
         "Detect_Externals@398": [
           "Detect_Externals"
@@ -3189,7 +3850,19 @@
           "Terminal"
         ],
         "Dirty_Cache_Flag@42": [],
-        "Fill_Version_Choices@90": [],
+        "Fill_Version_Choices@90": [
+          "Detect_Externals",
+          "Append",
+          "New_Empty_Release",
+          "Releases_Satisfying",
+          "Any_Tool",
+          "Is_Valid_Choice",
+          "Add_Choice",
+          "Dim",
+          "From_Set",
+          "Natural",
+          "Insert"
+        ],
         "Install@192": [
           "Deploy",
           "Debug",
@@ -3224,7 +3897,9 @@
           "Force_Delete",
           "Put_Success"
         ],
-        "Remove@828": [],
+        "Remove@828": [
+          "Raise_Checked_Error"
+        ],
         "Set_As_Default@409": [
           "Set",
           "Tool_Key",
@@ -3242,18 +3917,7 @@
           "Any_Tool",
           "Pick_Up_Tool",
           "Fill_Version_Choices",
-          "Put_Warning",
-          "Put_Paragraphs",
-          "Append",
-          "Name",
-          "Italic",
-          "Emph",
-          "Detail",
-          "Whenever",
-          "Provides",
-          "Terminal",
-          "Set_Automatic_Assistant",
-          "Install"
+          "Put_Warning"
         ],
         "Tool_Dependency@445": [
           "New_Dependency",
@@ -3263,11 +3927,18 @@
           "Defined",
           "Tool_Key"
         ],
-        "Tool_Is_Missing@865": [],
+        "Tool_Is_Missing@865": [
+          "Available",
+          "Tool_Is_External",
+          "Tool_Milestone"
+        ],
         "Tool_Release@452": [
           "Tool_Is_Configured",
           "Raise_Checked_Error",
-          "Name"
+          "Name",
+          "Release",
+          "Tool_Milestone",
+          "Log_Exception"
         ],
         "Unconfigure@474": [
           "Defined",
@@ -3283,21 +3954,55 @@
           "With_Name",
           "Containing_Directory",
           "Exists",
-          "Debug"
+          "Debug",
+          "Create_Path",
+          "Put_Info",
+          "Name",
+          "URL",
+          "Short_Commit",
+          "Clone_Branch",
+          "Raise_Checked_Error",
+          "Rename"
         ],
         "Deploy@142": [
           "Deploy_Path",
-          "Checkout"
+          "Checkout",
+          "Exists",
+          "Branch",
+          "Debug",
+          "URL",
+          "Update",
+          "Detect_Root",
+          "Raise_Checked_Error",
+          "Name",
+          "Put_Warning",
+          "Pretty_Print"
         ],
-        "Deploy_Path@123": [],
+        "Deploy_Path@123": [
+          "Full_Name",
+          "Short_Commit"
+        ],
         "From_Lockfile@495": [
           "Assert",
           "Checked_Pop",
           "Contains",
-          "To_Absolute_From_Portable"
+          "To_Absolute_From_Portable",
+          "Is_Directory",
+          "Recoverable_Error"
         ],
-        "From_TOML@481": [],
-        "From_Table@487": [],
+        "From_TOML@481": [
+          "Parse",
+          "From_Table",
+          "Raise_Checked_Error",
+          "Log_Exception"
+        ],
+        "From_Table@487": [
+          "Contains",
+          "Parse",
+          "Checked_Pop",
+          "Error",
+          "Raise_Checked_Error"
+        ],
         "Has_Path@426": [],
         "Image@67": [
           "Version",
@@ -3314,10 +4019,7 @@
           "Checked_Pop",
           "Contains",
           "Checked_Error",
-          "Assert",
-          "Parse",
-          "Error",
-          "Raise_Checked_Error"
+          "Assert"
         ],
         "Load_To_Path@550": [
           "Checked_Pop",
@@ -3366,10 +4068,7 @@
           "Has_Prefix",
           "Query",
           "Discard_Uncommitted",
-          "Raise_Checked_Error",
-          "Exists",
-          "Branch",
-          "Debug"
+          "Raise_Checked_Error"
         ]
       },
       "ada/alire/alire-vcss-git.adb": {
@@ -3383,14 +4082,18 @@
           "Unreferenced",
           "Guard",
           "Enter",
-          "Run_Git_And_Capture"
+          "Run_Git_And_Capture",
+          "Tail",
+          "Raise_Checked_Error",
+          "Flatten"
         ],
         "Branch_Remote@125": [
           "Guard",
           "Enter",
           "Run_Git_And_Capture",
           "Contains",
-          "Tail"
+          "Tail",
+          "Head"
         ],
         "Branches@105": [
           "Guard",
@@ -3406,16 +4109,20 @@
           "Run_Git",
           "Repo_URL",
           "Guard",
-          "Enter"
+          "Enter",
+          "Get"
         ],
         "Command@260": [
           "Guard",
-          "Enter"
+          "Enter",
+          "Run_Git_And_Capture",
+          "To_Vector"
         ],
         "Commit_All@278": [
           "Guard",
           "Enter",
-          "Run_Git"
+          "Run_Git",
+          "Get"
         ],
         "Commit_Remotes@488": [
           "Unreferenced",
@@ -3443,7 +4150,8 @@
         "Discard_Uncommitted@299": [
           "Guard",
           "Enter",
-          "Run_Git"
+          "Run_Git",
+          "Get"
         ],
         "Fetch_URL@416": [
           "Unreferenced",
@@ -3458,7 +4166,8 @@
           "Unreferenced",
           "Guard",
           "Enter",
-          "Full_Name"
+          "Full_Name",
+          "Run_Git_And_Capture"
         ],
         "Git_Dir@856": [
           "Getenv"
@@ -3467,18 +4176,21 @@
           "Unreferenced",
           "Guard",
           "Enter",
-          "Run_Git_And_Capture"
+          "Run_Git_And_Capture",
+          "Head"
         ],
         "Is_Detached@448": [
           "Unreferenced",
           "Guard",
           "Enter",
-          "Run_Git_And_Capture"
+          "Run_Git_And_Capture",
+          "Contains"
         ],
         "Is_Repository@469": [
           "Unreferenced",
           "Guard",
-          "Enter"
+          "Enter",
+          "Unchecked_Spawn_And_Capture"
         ],
         "Push@319": [
           "Guard",
@@ -3487,7 +4199,8 @@
           "Branch",
           "Run_Git",
           "Remote_URL",
-          "Replace"
+          "Replace",
+          "Get"
         ],
         "Remote_Commit@585": [
           "Remote_Commit",
@@ -3498,7 +4211,8 @@
           "Has_Suffix",
           "Head",
           "Raise_Checked_Error",
-          "Emph"
+          "Emph",
+          "Git_Commit"
         ],
         "Remote_URL@541": [
           "Unreferenced",
@@ -3512,7 +4226,8 @@
           "Guard",
           "Enter",
           "Run_Git_And_Capture",
-          "To_Vector"
+          "To_Vector",
+          "Include"
         ],
         "Repo_Remote@514": [
           "Unreferenced",
@@ -3531,14 +4246,16 @@
         "Root@901": [
           "Unreferenced",
           "Unchecked_Run_Git_And_Capture",
-          "Debug"
+          "Debug",
+          "Unit"
         ],
         "Run_Git@22": [
           "Check_Tool",
           "Checked_Spawn"
         ],
         "Run_Git_And_Capture@34": [
-          "Check_Tool"
+          "Check_Tool",
+          "Checked_Spawn_And_Capture"
         ],
         "Status@691": [
           "Dirty_Files"
@@ -3556,7 +4273,9 @@
           "Check_Tool",
           "Unchecked_Spawn_And_Capture"
         ],
-        "Update@730": [],
+        "Update@730": [
+          "Update"
+        ],
         "Update@739": [
           "Guard",
           "Enter",
@@ -3565,9 +4284,22 @@
           "URL",
           "Emph",
           "Run_Git",
-          "Repo_Remote"
+          "Repo_Remote",
+          "Get"
         ],
-        "Worktree@792": [],
+        "Worktree@792": [
+          "Unreferenced",
+          "Guard",
+          "Enter",
+          "Worktree_Error",
+          "Assert",
+          "Natural",
+          "Head",
+          "Output",
+          "To_Native",
+          "Portable_Path",
+          "Tail"
+        ],
         "Worktree_Error@805": [
           "Flatten",
           "Unchecked_Spawn_And_Capture",
@@ -3605,7 +4337,10 @@
         ],
         "Generate@35": [
           "To_String",
-          "Full_Name"
+          "Full_Name",
+          "To_Boolean",
+          "Put_Success",
+          "Emph"
         ],
         "Generate_Config@54": [
           "Detect_Root",
@@ -3613,10 +4348,7 @@
         ],
         "Generate_Github_Files@110": [
           "Translate_Tree",
-          "Init_Crate_Translation",
-          "To_Boolean",
-          "Put_Success",
-          "Emph"
+          "Init_Crate_Translation"
         ],
         "Generate_Main_Crate@68": [
           "Translate_Tree",
@@ -3642,7 +4374,9 @@
           "Reportaise_Wrong_Arguments",
           "Query_String",
           "Is_Valid_Name",
-          "To_Unbounded_String"
+          "To_Unbounded_String",
+          "Put_Line",
+          "Error_In_Name"
         ],
         "Query_Description@348": [
           "To_Unbounded_String",
@@ -3654,7 +4388,13 @@
           "To_Unbounded_String"
         ],
         "Query_License@253": [
-          "Append"
+          "Append",
+          "License_Vect",
+          "Query_Multi",
+          "Emph",
+          "To_Unbounded_String",
+          "Valid",
+          "Parse"
         ],
         "Query_Other_License@207": [
           "Query_String",
@@ -3714,7 +4454,8 @@
           "Windows_Post_Cleanup"
         ],
         "Get_Archive_Name@151": [
-          "To_Lower_Case"
+          "To_Lower_Case",
+          "Version_String"
         ],
         "Get_Version_Tag@58": [
           "Parse",
@@ -3722,7 +4463,8 @@
           "Detail",
           "Warning",
           "Tag_Name",
-          "Info"
+          "Info",
+          "Reportaise_Command_Failed"
         ],
         "Install_Alr@194": [
           "Is_File",
@@ -3774,7 +4516,12 @@
           "From_String",
           "Args",
           "Exists",
-          "Show_Providers"
+          "Show_Providers",
+          "Report_Jekyll",
+          "Report_Externals",
+          "Report_Dependents",
+          "Report",
+          "Reportaise_Command_Failed"
         ],
         "Find_Target_Release@32": [
           "To_Set",
@@ -3833,8 +4580,14 @@
         "Auto_Update_Index@105": [
           "Unreferenced"
         ],
-        "Check_Starting_Dir@598": [],
-        "Crate_Version_Sets@789": [],
+        "Check_Starting_Dir@598": [
+          "Check_Absolute_Path",
+          "Full_Name",
+          "Assert"
+        ],
+        "Crate_Version_Sets@789": [
+          "Append"
+        ],
         "Create_Alire_Folders@280": [
           "Make_Dir",
           "Create"
@@ -3848,7 +4601,22 @@
           "Detail",
           "Debug"
         ],
-        "Execute@528": [],
+        "Execute@528": [
+          "Value",
+          "Enable_Color",
+          "Warning",
+          "Terminal",
+          "Assert",
+          "Full_Name",
+          "Debug",
+          "Load_Aliases",
+          "Log",
+          "Pretty_Print",
+          "Get",
+          "Bailout",
+          "Detail",
+          "Error"
+        ],
         "Forbids_Structured_Output@357": [
           "Error",
           "Reportaise_Wrong_Arguments",
@@ -3917,25 +4685,34 @@
         "Set_Structured_Output@552": [
           "Replace",
           "Is_Valid",
-          "Enum_Suggestion"
+          "Enum_Suggestion",
+          "Value",
+          "Reportaise_Wrong_Arguments",
+          "Suggest"
         ],
         "To_Boolean@853": [
           "Is_Boolean",
           "Value",
-          "Image"
+          "Image",
+          "Reportaise_Wrong_Arguments"
         ]
       }
     },
     "ada/functional": {
       "ada/functional/functional-either.adb": {
-        "And_Then@116": [],
+        "And_Then@116": [
+          "F"
+        ],
         "Bimap@80": [
           "Left",
-          "Map_L"
+          "Map_L",
+          "Right",
+          "Map_R"
         ],
         "Contains@42": [],
         "Fold@128": [
-          "On_Left"
+          "On_Left",
+          "On_Right"
         ],
         "Get_Or_Else@52": [],
         "Is_Left@24": [],
@@ -3954,23 +4731,34 @@
         ],
         "Left@17": [],
         "Left_Value@46": [],
-        "Map@92": [],
+        "Map@92": [
+          "Right",
+          "F"
+        ],
         "Map_Left@56": [
           "Left",
           "F"
         ],
-        "Map_Right@68": [],
+        "Map_Right@68": [
+          "Right",
+          "F"
+        ],
         "Merge@140": [
-          "From_Left"
+          "From_Left",
+          "From_Right"
         ],
         "Right@20": [],
         "Right_Value@49": [],
         "Swap@104": [
-          "Make_Right"
+          "Make_Right",
+          "Make_Left"
         ],
-        "To_Option@152": [],
+        "To_Option@152": [
+          "Make_Some"
+        ],
         "To_Result@162": [
-          "Make_Error"
+          "Make_Error",
+          "Make_Ok"
         ]
       },
       "ada/functional/functional-option.adb": {
@@ -4006,10 +4794,12 @@
         "New_Some@17": [],
         "None@20": [],
         "Ok_Or@212": [
-          "Make_Ok"
+          "Make_Ok",
+          "Make_Error"
         ],
         "Ok_Or_Else@222": [
-          "Make_Ok"
+          "Make_Ok",
+          "Make_Error"
         ],
         "Or_Else@131": [],
         "Or_Else_With@141": [],
@@ -4031,11 +4821,14 @@
           "F"
         ],
         "And_Then_Into@124": [
-          "F"
+          "F",
+          "Error_U"
         ],
         "Bimap@148": [
           "Ok",
-          "Map_Ok"
+          "Map_Ok",
+          "New_Error",
+          "Map_Error"
         ],
         "Contains@42": [],
         "Ensure@208": [
@@ -4050,7 +4843,9 @@
           "Convert",
           "Is_Ok_Inner",
           "Ok",
-          "Value_Inner"
+          "Value_Inner",
+          "New_Error",
+          "Error_Inner"
         ],
         "Is_Error@27": [],
         "Is_Error_And@33": [
@@ -4070,7 +4865,10 @@
           "Ok",
           "F"
         ],
-        "Map_Error@136": [],
+        "Map_Error@136": [
+          "New_Error",
+          "F"
+        ],
         "Map_Or@88": [
           "F"
         ],
@@ -4079,8 +4877,12 @@
         ],
         "New_Error@20": [],
         "Ok@17": [],
-        "Recover@184": [],
-        "Recover_With@196": [],
+        "Recover@184": [
+          "Handle"
+        ],
+        "Recover_With@196": [
+          "Handle"
+        ],
         "Tap@236": [
           "On_Ok",
           "On_Error"
@@ -4097,11 +4899,17 @@
         "Unwrap_Or@53": [],
         "Unwrap_Or_With@64": [],
         "Value@46": [],
-        "With_Context@224": [],
+        "With_Context@224": [
+          "New_Error",
+          "Append"
+        ],
         "Zip_With@267": [
           "Is_Ok_U",
           "New_Error",
-          "Error_U"
+          "Error_U",
+          "Ok",
+          "Combine",
+          "Value_U"
         ]
       },
       "ada/functional/functional-scoped.adb": {
@@ -4117,17 +4925,29 @@
         "Find_Error_Kind@24": [
           "Exception_Identity"
         ],
-        "Run@44": [],
-        "Run_Catch_All@58": []
+        "Run@44": [
+          "Make_Error",
+          "Find_Error_Kind",
+          "Exception_Message"
+        ],
+        "Run_Catch_All@58": [
+          "Make_Error",
+          "Exception_Message"
+        ]
       },
       "ada/functional/functional-try-map_to_result_with_param.adb": {
         "Find_Error_Kind@19": [
           "Exception_Identity"
         ],
         "Run@37": [
-          "Action"
+          "Action",
+          "Make_Error",
+          "Find_Error_Kind",
+          "Exception_Message"
         ],
-        "Run_Catch_All@51": []
+        "Run_Catch_All@51": [
+          "Run"
+        ]
       },
       "ada/functional/functional-try-to_option.adb": {
         "Run@15": [
@@ -4136,7 +4956,9 @@
       },
       "ada/functional/functional-try-to_result.adb": {
         "Run@15": [
-          "Ok"
+          "Ok",
+          "New_Error",
+          "Map_Exception"
         ]
       },
       "ada/functional/functional-try-to_result.ads": {
@@ -4145,7 +4967,9 @@
       "ada/functional/functional-try.adb": {
         "Try_To_Any_Result_With_Param@37": [
           "Ok",
-          "Action"
+          "Action",
+          "New_Error",
+          "Map_Exception"
         ],
         "Try_To_Functional_Option@68": [
           "New_Some"
@@ -4158,11 +4982,15 @@
           "Action"
         ],
         "Try_To_Result@25": [
-          "Ok"
+          "Ok",
+          "New_Error",
+          "Map_Exception"
         ],
         "Try_To_Result_With_Param@80": [
           "Ok",
-          "Action"
+          "Action",
+          "New_Error",
+          "Map_Exception"
         ]
       },
       "ada/functional/functional-try.ads": {
@@ -4205,9 +5033,15 @@
         "Get_Message@45": [
           "Message"
         ],
-        "Get_Value@174": [],
-        "Get_Value@43": [],
-        "Get_Value@79": [],
+        "Get_Value@174": [
+          "Ok"
+        ],
+        "Get_Value@43": [
+          "Message"
+        ],
+        "Get_Value@79": [
+          "Ok"
+        ],
         "Is_Error@42": [],
         "Is_Ok@41": [],
         "Make_Error@51": [
@@ -4216,21 +5050,85 @@
           "Message"
         ],
         "Ok@48": [],
-        "Raise_Constraint_Error@139": [],
-        "Raise_Error@198": [],
-        "Raise_Error@260": [],
-        "Raise_Name_Error@104": [],
-        "Raise_Use_Error@228": [],
-        "Test_Run_Catch_All_Exception@197": [],
-        "Test_Run_Catch_All_Success@173": [],
-        "Test_Run_Empty_Mappings@259": [],
-        "Test_Run_Mapped_Exception@103": [],
-        "Test_Run_Second_Mapping_Matches@227": [],
-        "Test_Run_Success@78": [],
-        "Test_Run_Unmapped_Exception@138": [],
+        "Raise_Constraint_Error@139": [
+          "Ok"
+        ],
+        "Raise_Error@198": [
+          "Ok"
+        ],
+        "Raise_Error@260": [
+          "Ok"
+        ],
+        "Raise_Name_Error@104": [
+          "Ok"
+        ],
+        "Raise_Use_Error@228": [
+          "Ok"
+        ],
+        "Test_Run_Catch_All_Exception@197": [
+          "Map_To_Result",
+          "Put_Line",
+          "Assert",
+          "Is_Error",
+          "Get_Kind",
+          "Get_Message"
+        ],
+        "Test_Run_Catch_All_Success@173": [
+          "Map_To_Result",
+          "Put_Line",
+          "Assert",
+          "Is_Ok",
+          "Get_Value"
+        ],
+        "Test_Run_Empty_Mappings@259": [
+          "Map_To_Result",
+          "Run",
+          "Put_Line",
+          "Assert",
+          "Is_Error",
+          "Get_Kind"
+        ],
+        "Test_Run_Mapped_Exception@103": [
+          "Map_To_Result",
+          "Run",
+          "Put_Line",
+          "Assert",
+          "Is_Error",
+          "Get_Kind",
+          "Get_Message"
+        ],
+        "Test_Run_Second_Mapping_Matches@227": [
+          "Map_To_Result",
+          "Run",
+          "Put_Line",
+          "Assert",
+          "Is_Error",
+          "Get_Kind"
+        ],
+        "Test_Run_Success@78": [
+          "Map_To_Result",
+          "Mapping_Array",
+          "Run",
+          "Put_Line",
+          "Assert",
+          "Is_Ok",
+          "Get_Value"
+        ],
+        "Test_Run_Unmapped_Exception@138": [
+          "Map_To_Result",
+          "Run",
+          "Put_Line",
+          "Assert",
+          "Is_Error",
+          "Get_Kind",
+          "Get_Message"
+        ],
         "Test_Try_Map_To_Result@19": [
           "Test_Result",
-          "String"
+          "String",
+          "Put_Line",
+          "Register_Results",
+          "Set_Exit_Status"
         ]
       }
     },

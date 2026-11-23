@@ -14,7 +14,7 @@ The dependency graph indicates a highly centralized topology with an assortativi
 * **Fragile Orchestrators:** Files acting as API surfaces and pipeline coordinators exhibit the highest outbound coupling. `packages/compiler/src/template/pipeline/src/emit.ts` (73 outbound) and `packages/core/src/core_private_export.ts` (60 outbound) are highly fragile to upstream changes, acting as tightly coupled routing hubs for framework features.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the source code. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. 
 
 The rule-based lens flagged several files with 100% "Exploit Generation Surface" and "Weaponizable Injection Vectors," such as `transition_animation_engine.ts`, `client.ts` (HTTP), and `location_shim.ts`. In the context of a web framework, this is expected operational behavior: these modules are explicitly responsible for manipulating DOM states, parsing unescaped HTML abstractions, and managing external HTTP streams. The 12,915 "Unknown Dependencies" reflect the immense scale of the frontend build ecosystem (npm/yarn) and do not represent direct runtime supply chain breaches.
 

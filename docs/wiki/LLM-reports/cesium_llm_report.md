@@ -16,7 +16,7 @@ The network topology indicates a relatively low modularity (0.2315) and negative
 * **Fragile Orchestrators:** Core rendering and data management modules exhibit massive outbound coupling. `CzmlDataSource.js` (93 outbound dependencies), `Scene.js` (83 outbound), and `KmlDataSource.js` (69 outbound) function as monolithic orchestrators. They are highly fragile to API changes because they centrally coordinate the transformation of raw geospatial data into renderable scene primitives.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 Ecosystem audits confirm no blacklisted dependencies. The rule-based lens flagged several files for 100% "Exploit Generation Surface," including `ContentEditableInput.js`, `Math.js`, and `JulianDate.js`. Within a browser-based rendering and calculation engine, this is expected behavior: these modules are explicitly designed to parse raw string inputs, handle dynamic user DOM events, and evaluate mathematical expressions. However, input to these specific modules must remain strictly sanitized to prevent DOM-based XSS or prototype pollution.
 

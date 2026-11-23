@@ -423,7 +423,7 @@ DEFINITION: dict[str, Any] = {
         # comment above for why this can't reuse the generic
         # comma/whitespace fallback.
         "_args_pattern_list_groups": {3},
-        # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # structural_boundaries (Structural Keywords). Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
             r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern|then|of)\b|%1\s*->|⊸"
         ),
@@ -635,8 +635,9 @@ DEFINITION: dict[str, Any] = {
             r"|\b(?:getEnv|lookupEnv|getEnvironment|setEnv|getArgs|getProgName)\b",
             re.M,
         ),
-        # decorators: Decorators / Annotations. GHC pragmas (INLINE, LANGUAGE).
-        "decorators": re.compile(r"\{-#\s*(?:INLINE|NOINLINE|LANGUAGE|OPTIONS_GHC|RULES|MINIMAL)\s+[^#]*#-\}"),
+        # decorators: Decorators / Annotations. Any GHC `{-# NAME ... #-}` pragma (INLINE, SPECIALIZE, LANGUAGE,
+        # UNPACK, ...); #8904: the old fixed list of six names missed the rest.
+        "decorators": re.compile(r"\{-#\s*[A-Z][A-Z_]*\b[^#]{0,500}#-\}"),
         # generics: Generics / Type Parameters. forall quantification and constraints.
         "generics": re.compile(
             r"\bforall\s+[^.]+\.|\b(?:[A-Z]["

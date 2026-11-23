@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 4,
+      "dart/flutter/editable_text.dart": 0,
       "dart/flutter/events.dart": 5,
-      "dart/flutter/framework.dart": 24,
-      "dart/flutter/navigator.dart": 23,
-      "dart/flutter/object.dart": 12,
-      "dart/flutter/semantics.dart": 83,
-      "dart/flutter/theme_data.dart": 24
+      "dart/flutter/framework.dart": 0,
+      "dart/flutter/navigator.dart": 0,
+      "dart/flutter/object.dart": 4,
+      "dart/flutter/semantics.dart": 78,
+      "dart/flutter/theme_data.dart": 1
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0
@@ -1435,7 +1435,7 @@
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": 0,
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": 0,
-      "groovy/godot_android_gradle/java_app_build.gradle": 3,
+      "groovy/godot_android_gradle/java_app_build.gradle": 2,
       "groovy/godot_android_gradle/java_app_settings.gradle": 0,
       "groovy/godot_android_gradle/java_editor_build.gradle": 1,
       "groovy/godot_android_gradle/java_lib_build.gradle": 0,
@@ -1450,7 +1450,7 @@
       "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 2,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 0,
@@ -1520,7 +1520,7 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 3,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": 0,
@@ -1639,15 +1639,15 @@
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 3,
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 2,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": 0,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 0,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 0,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 1,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 0,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 3,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 1,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": 0,
@@ -1669,7 +1669,7 @@
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": 0,
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": 0,
       "groovy/spock_smoke_specs/FeatureMethods.groovy": 3,
-      "groovy/spock_smoke_specs/FinalFields.groovy": 2,
+      "groovy/spock_smoke_specs/FinalFields.groovy": 0,
       "groovy/spock_smoke_specs/FixtureMethods.groovy": 0,
       "groovy/spock_smoke_specs/GroovyCallChain.groovy": 0,
       "groovy/spock_smoke_specs/InteractionsAndExceptionConditions.groovy": 0,
@@ -2505,7 +2505,7 @@
       "objective-c/worldwideweb/HText.c": 0,
       "objective-c/worldwideweb/HyperManager.m": 0,
       "objective-c/worldwideweb/HyperText.h": 0,
-      "objective-c/worldwideweb/HyperText.m": 29,
+      "objective-c/worldwideweb/HyperText.m": 3,
       "objective-c/worldwideweb/TcpAccess.m": 0
     },
     "perl": {
@@ -2517,35 +2517,35 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0,
-      "perl/bugzilla/Bug.pm": 52,
-      "perl/bugzilla/CGI.pm": 19,
-      "perl/bugzilla/DB.pm": 11,
-      "perl/bugzilla/Requirements.pm": 9
+      "perl/bugzilla/Bug.pm": 39,
+      "perl/bugzilla/CGI.pm": 12,
+      "perl/bugzilla/DB.pm": 4,
+      "perl/bugzilla/Requirements.pm": 4
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 352,
+      "perl/exiftool/ExifTool.pm": 135,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
-      "perl/exiftool/RandomAccess.pm": 3,
-      "perl/exiftool/exiftool": 465
+      "perl/exiftool/RandomAccess.pm": 2,
+      "perl/exiftool/exiftool": 283
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 2,
+      "perl/mojo/IOLoop.pm": 0,
       "perl/mojo/Makefile.PL": 0,
       "perl/mojo/Promise.pm": 0,
-      "perl/mojo/Template.pm": 11,
+      "perl/mojo/Template.pm": 5,
       "perl/mojo/WebSocket.pm": 0
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 7,
+      "perl/spamassassin/AsyncLoop.pm": 5,
       "perl/spamassassin/Bayes.pm": 0,
-      "perl/spamassassin/HTML.pm": 50,
-      "perl/spamassassin/Makefile.PL": 26,
-      "perl/spamassassin/Message.pm": 31,
-      "perl/spamassassin/Parser.pm": 60,
-      "perl/spamassassin/PerMsgStatus.pm": 91,
-      "perl/spamassassin/SpamAssassin.pm": 56
+      "perl/spamassassin/HTML.pm": 16,
+      "perl/spamassassin/Makefile.PL": 6,
+      "perl/spamassassin/Message.pm": 2,
+      "perl/spamassassin/Parser.pm": 16,
+      "perl/spamassassin/PerMsgStatus.pm": 16,
+      "perl/spamassassin/SpamAssassin.pm": 15
     },
     "php": {
       "php/SOURCES.md": 0

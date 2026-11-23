@@ -88,6 +88,11 @@ through the real extractor, since a bare regex never sees the filter. A
 JS/TS template literal's `${a ? b : c}` is shielded with its literal: a known,
 accepted undercount.
 
+**Perl (#8908).** Perl is not one of the 18, but its `branch`, `decorators` and `bitwise_ops` opt into the
+`perl_literals` scope filter (`detector._build_perl_safe_stream`): a string, or a `m//`, `s///`, `qr//`, `tr`, `q`/`qq`
+or bare `/.../` regex literal, is not code, so `(?:a|b)` and `"dbi:mysql:host"` count nothing. A ternary counts once, at
+its `?`; a `:` is never a decision. Pins: `tests/extraction/languages/test_perl_branch_literals_8908.py`.
+
 **Java's `:` and `?`.** A ternary is one decision, counted at its `?` (the
 "value-selection" dual below; java also counted its `:`, so every ternary read
 2). A `:` is never a decision in java: the ternary's own, a `case`/`default`
@@ -97,6 +102,21 @@ enhanced-for and `assert` separators. A generic wildcard (`<?>`,
 Likewise `??` is one value-selection decision: typescript, javascript, dart,
 swift and apex listed `\?` before `\?\?`, so the single `?` arm won and `a ?? b`
 read 2.
+Dart's bare `?` is anchored on a ternary position (whitespace before it, not `?.`, `?[`, `?..`): a nullable type `T?` and null-aware access are not decisions (#8906); an unspaced `a?b:c` is a known undercount.
+
+**Erlang's clause arrow (#8923).** A function's own head-to-body `->` is not a decision (`inc(X) -> X + 1.` is 0). A
+`case`/`if`/`receive`/`try` is one hit, each arm (an indented `->` line outside a `fun`) is one hit, and `of` is not
+counted. A clause head after a `;` line is an arm-opener by pattern, so the second and later clauses of a multi-clause
+function count (a three-clause function is 2). A `fun(X) -> ...` arrow is not an arm. Limit: a multi-line clause head
+whose guard `->` sits on an indented line counts once. A `-spec` / `-type` attribute directly above a function is that
+function's `decorators` hit.
+
+**Swift's `?`, `for`, `case` and `default` (#8895).** Swift counts the ternary `?`
+only where it has whitespace on both sides: an optional type (`Int?`), a chain
+(`x?.y`), `try?` and `as?` are not decisions. `for` is a loop, not an argument
+label (`func f(for item:)`, `f(for: x)`). `case` is a switch arm only when a
+depth-0 `:` ends its pattern (an enum `case a, b(x: Int)` is a declaration), and
+`default` only before a `:`.
 
 ## Deliberate duals and deferred residue
 
@@ -172,7 +192,7 @@ the four control files, target 3 + 0 + 0 + 0). "—" = no crucible presence.
 | shell | 9737 → 3411 | 5 → 3 | then/fi/esac/done/do, test brackets; re-plant added else + while; break/continue → boundaries (#2832) |
 | solidity | 69 | 3 | try/catch relocated; break/continue → boundaries, no corpus incidence (#2832) |
 | sqlite | 161 → 45 | 5 → 3 | THEN/END relocated; one CASE = CASE + its arms |
-| swift | 871 → 759 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}`; C3 `.default` accessor dropped (#2859) |
+| swift | 871 → 759 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}`; C3 `.default` accessor dropped (#2859); #8895: optional `?`, `for` labels, enum `case` out |
 | tcl | 2330 → 2124 | 4 → 3 | catch/try/trap/finally |
 | typescript | 14879 → 14137 | 3 | try/catch/finally (+ safety mirror); break/continue → boundaries (#2832) |
 | yacc | 93 | 3 | clean (`\|` is yacc's real alternation decision) |

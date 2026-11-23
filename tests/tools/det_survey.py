@@ -465,7 +465,7 @@ def main() -> int:
         runtime = work / "runtime"
         if not args.no_compile:
             shutil.rmtree(runtime, ignore_errors=True)
-            for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
+            for rel, text in P.project_runtime(PKG, project).items():
                 (runtime / rel).parent.mkdir(parents=True, exist_ok=True)
                 (runtime / rel).write_text(text, encoding="utf-8")
         # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
@@ -497,7 +497,9 @@ def main() -> int:
         estate_files_map = P.estate_files(project)
         rows: list[dict[str, Any]] = [{}] * len(progs)
         todo_idx: list[int] = []
-        todo_tasks: list[tuple[Path, Path, Path, list[Path], Path, str | None, str | None, dict[str, Any] | None, str | None]] = []
+        todo_tasks: list[
+            tuple[Path, Path, Path, list[Path], Path, str | None, str | None, dict[str, Any] | None, str | None]
+        ] = []
         for idx, p in enumerate(progs):
             rel = p.relative_to(corpus).as_posix()
             if copies[p]:

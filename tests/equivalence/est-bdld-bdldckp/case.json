@@ -1,0 +1,26 @@
+{
+ "corpus": "estate-crucible",
+ "program": "BDLDCKP",
+ "program_source": "estate/apps/BDLD/cobol/BDLDCKP.cbl",
+ "copy_dirs": [
+  "estate/apps/BDLD/copybook"
+ ],
+ "job": "BDLDCKJ",
+ "step": "CKP010",
+ "parm": null,
+ "clock": "2026/11/21 10:30:15.00",
+ "datasets": {
+  "TRANIN": {
+   "input": "@generate",
+   "organization": "sequential",
+   "reclen": 40,
+   "generate": {
+    "copybook": "estate/apps/BDLD/cobol/BDLDCKP.cbl",
+    "record": "TRAN-REC",
+    "records": 1203,
+    "seed": 7065
+   }
+  }
+ },
+ "notes": "estate-crucible Batch Badlands (#7065, BDLD): BDLDCKP, the I-O-CONTROL RERUN program refused at the level's first-time translate (2026-11-04, LayoutError; read since #8577), as BDLDCKJ step CKP010 runs it, on 1203 GENERATED TRAN-REC records (the BDLREC layout), past the RERUN ON SYSCKPT EVERY 1000 RECORDS interval. Its output is the DISPLAY of the record count (the job log). RERUN writes checkpoints for a restart; neither the oracle (GnuCOBOL) nor the port takes them, and no output of the step depends on them. The oracle is GnuCOBOL, not z/OS."
+}

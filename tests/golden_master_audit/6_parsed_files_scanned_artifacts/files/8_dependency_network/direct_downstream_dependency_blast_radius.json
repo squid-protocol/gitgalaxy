@@ -22,18 +22,18 @@
       "ada/alire/alire-conditional_trees.adb": 3,
       "ada/alire/alire-crate_configuration.adb": 0,
       "ada/alire/alire-dependencies-states.ads": 0,
-      "ada/alire/alire-directories.adb": 3,
+      "ada/alire/alire-directories.adb": 4,
       "ada/alire/alire-index_on_disk-loading.adb": 0,
       "ada/alire/alire-origins.adb": 2,
       "ada/alire/alire-properties-configurations.adb": 4,
       "ada/alire/alire-publish.adb": 0,
       "ada/alire/alire-releases.adb": 4,
-      "ada/alire/alire-releases.ads": 1,
+      "ada/alire/alire-releases.ads": 2,
       "ada/alire/alire-roots-editable.adb": 0,
       "ada/alire/alire-roots.adb": 3,
       "ada/alire/alire-roots.ads": 0,
       "ada/alire/alire-solutions-diffs.adb": 0,
-      "ada/alire/alire-solutions.adb": 1,
+      "ada/alire/alire-solutions.adb": 2,
       "ada/alire/alire-solutions.ads": 2,
       "ada/alire/alire-solver.adb": 0,
       "ada/alire/alire-test-runner.adb": 0,
@@ -69,7 +69,7 @@
       "ada/functional/functional_tests_config.ads": 0,
       "ada/functional/test_framework.adb": 0,
       "ada/functional/test_framework.ads": 0,
-      "ada/functional/test_try_map_to_result.adb": 6
+      "ada/functional/test_try_map_to_result.adb": 12
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": 0
@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": 0
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 2,
+      "kotlin/okhttp/Call.kt": 3,
       "kotlin/okhttp/Dispatcher.kt": 1,
       "kotlin/okhttp/LICENSE.txt": 0,
       "kotlin/okhttp/OkHttp.android.kt": 0,

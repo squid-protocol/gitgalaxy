@@ -98,8 +98,12 @@ jobs:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # job_cap_plan.py reads the workflow's recent runs
     outputs:
       gates: ${{ steps.plan.outputs.gates }}
+      cap: ${{ steps.cap.outputs.cap }}  # job_cap_plan.py: worst measured wall x 1.3, clamped
     steps:
       - name: Checkout GitGalaxy
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -121,11 +125,21 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Plan the job's cap from its measured wall time
+        id: cap
+        continue-on-error: true  # never fails the workflow: no history means the literal fallback below
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 tests/tools/job_cap_plan.py --workflow graph-accuracy-audit.yml --job graph-accuracy-audit --floor 20 --ceiling 45 \
+            --fallback 25 --github-output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
   graph-accuracy-audit:
     needs: [plan]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs every gate
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.cap || '25') }}  # job_cap_plan.py; the literal is the fallback
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus

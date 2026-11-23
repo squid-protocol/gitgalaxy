@@ -1,6 +1,9 @@
 {
   "groups": {
     "ada/alire": {
+      "ada/alire/alire-conditional_trees.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb"
+      ],
       "ada/alire/alire-crate_configuration.adb": [
         "fcall:ada/alire/alire-properties-configurations.adb"
       ],
@@ -20,6 +23,8 @@
         "fcall:ada/alire/alire-conditional_trees.adb",
         "fcall:ada/alire/alire-directories.adb",
         "fcall:ada/alire/alire-origins.adb",
+        "fcall:ada/alire/alire-releases.ads",
+        "fcall:ada/alire/alire-solutions.adb",
         "fcall:ada/functional/functional-option.adb",
         "fcall:ada/functional/test_try_map_to_result.adb"
       ],
@@ -30,11 +35,17 @@
       "ada/alire/alire-roots-editable.adb": [
         "fcall:ada/alire/alire-roots.adb"
       ],
+      "ada/alire/alire-roots.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb"
+      ],
       "ada/alire/alire-roots.ads": [
         "fcall:ada/alire/alire-roots.adb"
       ],
       "ada/alire/alire-solutions-diffs.adb": [
         "fcall:ada/alire/alire-solutions.ads"
+      ],
+      "ada/alire/alire-solutions.adb": [
+        "fcall:ada/alire/alire-directories.adb"
       ],
       "ada/alire/alire-solutions.ads": [
         "fcall:ada/alire/alire-solutions.adb"
@@ -73,11 +84,21 @@
         "fcall:ada/alire/alr-commands.adb"
       ],
       "ada/alire/alr-commands.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb",
         "import:powershell/roslyn/Test.ps1"
       ]
     },
     "ada/functional": {
       "ada/functional/functional-either.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb"
+      ],
+      "ada/functional/functional-option.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb"
+      ],
+      "ada/functional/functional-try-map_to_result.adb": [
+        "fcall:ada/functional/test_try_map_to_result.adb"
+      ],
+      "ada/functional/functional-try-map_to_result_with_param.adb": [
         "fcall:ada/functional/test_try_map_to_result.adb"
       ],
       "ada/functional/functional-try.ads": [
@@ -2100,6 +2121,11 @@
       "jcl/zopeneditor-sample/RUNPSAM1.jcl": [
         "exec:pli/zopeneditor_sample/PSAM1.pli",
         "fcall:jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl"
+      ]
+    },
+    "kotlin/okhttp": {
+      "kotlin/okhttp/Dispatcher.kt": [
+        "fcall:kotlin/okhttp/Call.kt"
       ]
     },
     "livecode/livecode": {

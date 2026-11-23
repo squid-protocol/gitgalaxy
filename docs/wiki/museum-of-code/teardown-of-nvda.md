@@ -74,7 +74,7 @@ In a project as specialized as NVDA, domain knowledge is fiercely concentrated. 
 
 Accessibility software fundamentally requires high system privileges and deep OS hooks, making its security perimeter uniquely challenging.
 
-* **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware.
+* **Autonomous AI Threats:** **0 detected** by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.
 * **Import Policy Gate:** **0 Blacklisted / 2 Unknown Dependencies**. An excellent security posture with tight dependency control.
 * **Binary Anomalies (X-Ray):** **3 hits**. Minor entropy flags, likely associated with compiled C++ helpers or synthesized audio artifacts.
 * **Weaponizable Surface Exposures:** The engine flagged `IAccessibleHandler/__init__.py` and `NVDAHelper/__init__.py` with **100.0% Exploit Generation Surface**. This is an architectural reality: these files rely heavily on dynamic COM dispatching, OS-level hooks, and `ctypes` integrations to function. Additionally, the C++ rendering engines (`mshtml.cpp` and `gecko_ia2.cpp`) exhibited ~**10% Raw Memory Manipulation** density, highlighting the theoretical buffer risks inherent in manual DOM traversal.

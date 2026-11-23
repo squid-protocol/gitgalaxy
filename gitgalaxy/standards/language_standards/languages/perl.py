@@ -177,7 +177,7 @@ DEFINITION: dict[str, Any] = {
         # already used for signature-less traditional subs, instead of trusting
         # a prototype's declaration for a count it can't actually give.
         "_args_prototype_groups": {2},
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries. EXCLUDES access modifiers and immutability.
         "structural_boundaries": re.compile(
             r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await|goto)\b"
         ),

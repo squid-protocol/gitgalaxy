@@ -151,7 +151,7 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             r"\b(?:function|modifier|error|event)\s+([a-zA-Z_]\w*\s*)?(\([^)]{0,500}\))|\b(?:constructor|fallback|receive)\s*(\([^)]{0,500}\))"
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries defining scope and data definitions.
         # #2545: `return` added here (moved out of `branch` above) -- matches the
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention of tracking `return`
         # as a structural boundary, not a branch.

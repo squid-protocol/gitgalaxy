@@ -86,7 +86,7 @@ DEFINITION: dict[str, Any] = {
         # truncates/zeroes the count). See `_args_bare_body_groups` in
         # detector.py's `_calculate_block_metrics` for the full story.
         "_args_bare_body_groups": {1},
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
         "structural_boundaries": re.compile(
             r"(?<!@\")\b(var|return|break|continue|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b(?!\")"
         ),

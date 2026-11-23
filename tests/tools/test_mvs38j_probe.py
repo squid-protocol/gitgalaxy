@@ -245,7 +245,9 @@ def test_the_committed_restart_results_cover_every_step_restart_scenario_and_agr
     assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
     doc, scs = probe.restart_scenarios()
     assert [r["id"] for r in got["results"]] == [s["id"] for s in scs]
-    assert len(scs) == 17  # the 2026-11-21 box rerun (11 at #8837, six added by #8835); a scenario added later is a stated skip until a rerun
+    assert (
+        len(scs) == 17
+    )  # the 2026-11-21 box rerun (11 at #8837, six added by #8835); a scenario added later is a stated skip until a rerun
     assert set(got["skipped"]) == {s["id"] for s in doc["scenarios"]} - {s["id"] for s in scs}
     assert all(
         got["skipped"][s["id"]] == probe.RESTART_SKIP[s["job"]]
@@ -307,7 +309,9 @@ def test_an_over_long_job_card_is_folded_after_a_comma_within_column_71():
     head = "//RSTJOB13 JOB (ACCT),'RESTART COND OVR',CLASS=A,MSGCLASS=A,RESTART=CALL3.K2"
     cards = probe.fold_card(head)
     assert len(cards) == 2 and all(len(c) <= 71 for c in cards)
-    assert cards[0].endswith(",") and cards[1].startswith("//" + " " * 13) and cards[1].strip("/ ") == "RESTART=CALL3.K2"
+    assert (
+        cards[0].endswith(",") and cards[1].startswith("//" + " " * 13) and cards[1].strip("/ ") == "RESTART=CALL3.K2"
+    )
     assert probe.fold_card("//SHORT    JOB (ACCT),'A,B',CLASS=A") == ["//SHORT    JOB (ACCT),'A,B',CLASS=A"]
 
 
@@ -317,3 +321,34 @@ def test_every_restart_deck_card_fits_in_column_71():
     for sc in scs:
         for card in probe.restart_deck(doc["flow_jcl"], sc["job"], sc["given"]).splitlines():
             assert len(card) <= 71, (sc["id"], card)
+
+
+CARDDEMO_DOC = json.loads((probe.CARDDEMO_CASE / "scenarios.json").read_text(encoding="utf-8"))
+
+
+def test_the_committed_carddemo_results_cover_every_scenario_and_agree_three_ways():
+    got = json.loads(probe.CARDDEMO_RESULTS.read_text(encoding="utf-8"))
+    assert got["provenance"] == "mvs38j-run" and "Q16" in got["internal_only"]
+    assert got["corpus_commit"] == CARDDEMO_DOC["corpus_commit"]
+    want = [(j["job"], s) for j in CARDDEMO_DOC["jobs"] for s in j["scenarios"]]
+    assert [r["id"] for r in got["results"]] == [f"{job}:{s['id']}" for job, s in want]
+    for r, (job, sc) in zip(got["results"], want, strict=True):
+        assert r["job"] == job and r["expect"] == sc["expect"], r["id"]
+        assert r["verdict"] == probe.verdict(r["expect"], r["engine"], r["box"]) == "agree", r["id"]
+        assert r["unparsed_ief"] == 0 and not r["jcl_error"], r["id"]
+
+
+def test_a_carddemo_deck_keeps_each_cond_and_fits_in_column_71():
+    doc, root, _ = probe.carddemo_corpus()
+    if root is None:
+        import pytest
+
+        pytest.skip("the CardDemo corpus is not checked out")
+    from gitgalaxy.core.source_text import read_source
+
+    for j in doc["jobs"]:
+        rows = job_flow.jcl_job_flow(read_source(root / j["member"]).text)
+        for sc in j["scenarios"]:
+            deck = probe.build_deck(rows, j["job"], sc["given"])
+            assert [ln[2:10].strip() for ln in deck.splitlines() if " EXEC " in ln] == j["steps"]
+            assert all(len(ln) <= 71 for ln in deck.splitlines())

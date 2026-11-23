@@ -150,9 +150,7 @@ def test_creastmt_sort_case_is_the_dfsort_lowering_of_the_jcl_sysin():
     sortin = (eq.CASES / "carddemo-sort-creastmt" / "sortin.txt").read_bytes().split(b"\n")
     recs = [r for r in sortin if r]
     assert len(recs) == 100 and {len(r) for r in recs} == {350}
-    assert (
-        len({(r[262:278], r[:16]) for r in recs}) == 100
-    )  # every sort key distinct: DFSORT's equal-key order never matters
+    assert len({(r[262:278], r[:16]) for r in recs}) == 100  # every sort key distinct: DFSORT's equal-key order never matters
 
 
 def _sort_job(writer_reclen, writer_program, reader_reclen):

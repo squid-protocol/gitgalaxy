@@ -51,6 +51,78 @@
       "aid": "DFHENTER",
       "commarea_hex": "3141424344",
       "why": "a 5-byte caller area (stage 1, text ABCD): shorter than DFHCOMMAREA"
+    },
+    {
+      "name": "wq1-invreq",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "1",
+        "CA-TEXT": "MENU-A1"
+      },
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "first WRITEQ TS answers INVREQ: condition() abend path"
+    },
+    {
+      "name": "wq-ioerr-s2",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "2",
+        "CA-TEXT": "MENU-A1"
+      },
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "IOERR"
+        }
+      ],
+      "why": "stage 2 WRITEQ TS NOSPACE"
+    },
+    {
+      "name": "wq-ioerr-s1",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "1",
+        "CA-TEXT": "ABCDEFG"
+      },
+      "faults": [
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "IOERR"
+        }
+      ],
+      "why": "IOERR"
+    },
+    {
+      "name": "stage-x",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CA-STAGE": "X",
+        "CA-TEXT": "ZZZZZZZ"
+      },
+      "why": "stage other than 1 or 2 takes the ELSE"
+    },
+    {
+      "name": "calen-1-hex",
+      "aid": "DFHENTER",
+      "commarea_hex": "31",
+      "why": "1-byte area, stage only"
+    },
+    {
+      "name": "calen-2-s2-hex",
+      "aid": "DFHENTER",
+      "commarea_hex": "3241",
+      "why": "2-byte area stage 2"
     }
   ],
   "termid": "T001"

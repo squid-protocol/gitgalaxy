@@ -142,8 +142,21 @@
    "line": 84,
    "before": "private final Field f2_WS_CONT_IN = Field.group(s_WS_CONT_IN, 0, 261);",
    "after": "private final Field f2_WS_CONT_IN = Field.group(s_WS_CONT_IN, 0, 262);",
-   "verdict": "harness-gap",
-   "reason": "field offset/length of an ABNDINFO-REC body item, WS item or typed DFHCOMMAREA view: the oracle compares neither the LINK commarea contents nor the final ABNDFILE record (only the key bytes show, through a DUPREC DISPLAY)"
+   "verdict": "equivalent",
+   "reason": "WS-CONT-IN group length 262 for 261: every use of the group (GET CONTAINER INTO, PUT CONTAINER FROM) passes the explicit 261 FLENGTH (WS-CONTAINER-LEN), and DetCics.containerLimit / containerData refuse only an FLENGTH past the group and put() copies min(data, group), so 261 binds before the group's own length; container-short, container-too-long and the task-number inputs ran with no difference",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "db386974a5",
@@ -172,8 +185,21 @@
    "line": 111,
    "before": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
    "after": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
-   "verdict": "harness-gap",
-   "reason": "field offset/length of an ABNDINFO-REC body item, WS item or typed DFHCOMMAREA view: the oracle compares neither the LINK commarea contents nor the final ABNDFILE record (only the key bytes show, through a DUPREC DISPLAY)"
+   "verdict": "equivalent",
+   "reason": "EIBTASKN as 8 digits packed instead of 7 moves its bytes one place on (byte 16, EIBTRMID's first, now carries the sign nibble): the port stores and reads EIBTASKN through the same Field, so the value MOVEd to ABND-TASKNO-KEY and WS-SEED is the same up to task 9999999 (tried task numbers 1 and 9999999), and EIBTRMID is set once and never read",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "938a54fde8",
@@ -762,8 +788,21 @@
    "line": 220,
    "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
    "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */",
-   "verdict": "case-gap",
-   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+   "verdict": "equivalent",
+   "reason": "WS-TIME-DATA initial image (000000) not copied: its only readers (ABND-TIME STRING of WS-TIME-NOW-GRP-HH and -MM) run after PERFORM POPULATE-TIME-DATE, whose FORMATTIME moves all six bytes of WS-TIME-NOW; no path reads the image first",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "6fd79cb0ad",
@@ -771,8 +810,21 @@
    "line": 222,
    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
-   "verdict": "case-gap",
-   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+   "verdict": "equivalent",
+   "reason": "DFHEIBLK initial image not copied: the entry code stores EIBTRNID, EIBTRMID, EIBTASKN, EIBDATE, EIBTIME and EIBCALEN, and EIBRESP / EIBRESP2 are stored by the DELAY before ABND-RESPCODE reads them; no EIB byte the image holds is read before a store",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "372015818c",
@@ -822,8 +874,21 @@
    "line": 234,
    "before": "DC_1.reset();",
    "after": "/* DC_1.reset(); */",
-   "verdict": "case-gap",
-   "reason": "initial-image bytes and their reset copies are only seen if the stored byte later reaches a compared event or sysout line; no scenario of this case makes the mutated image byte reach one"
+   "verdict": "equivalent",
+   "reason": "DC_1.reset() deleted: DC_1 is the literal 1, and a widened scale (Cobol.add raises it to the other operand's) leaves its value 1, so the sum differs only in trailing zeros and both COMPUTEs store into an integer; the 11 tried inputs, whose RANDOM draws widen it, end the same",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "22483b353f",
@@ -1381,8 +1446,21 @@
    "line": 391,
    "before": "for (int d = mine - 1; d >= 0; d--) {",
    "after": "for (int d = mine - 1; d > 0; d--) {",
-   "verdict": "case-gap",
-   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+   "verdict": "unreachable",
+   "reason": "the nested-PERFORM exit loop (d >= 0 against d > 0) only differs when an inner PERFORM's range runs past an outer THRU: the inner ranges are PERFORM POPULATE-TIME-DATE (6 THRU 8, the outer's own end) and GET-ME-OUT-OF-HERE (ends in Goback), so the cursor meets the inner thru first",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "81aebe0cde",
@@ -1430,8 +1508,21 @@
    "line": 441,
    "before": "BigDecimal v1 = Cobol.add(D2.multiply(funcRandom.next(Cobol.num(f26_WS_SEED, CS))), DC_1);",
    "after": "BigDecimal v1 = Cobol.subtract(D2.multiply(funcRandom.next(Cobol.num(f26_WS_SEED, CS))), DC_1);",
-   "verdict": "case-gap",
-   "reason": "delay branch (WS-DELAY-AMT, planned DELAY fault): the delay scenario draws one seeded RANDOM value and the DELAY response is only compared as fired/not fired, so a changed amount, RESP slot or RESP2 store is not seen by the planned inputs"
+   "verdict": "harness-gap",
+   "reason": "the DELAY amount (2 * RANDOM + 1 against 2 * RANDOM - 1: 1 or 2 against 0 seconds) shows nowhere the oracle looks: a task takes no time and EIBTIME does not move (oracle_assumptions X4), the DELAY is NORMAL for both amounts, and the response is compared as fired; 8 task numbers seeding RANDOM differently ended the same",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "fcc99c4924",
@@ -1439,8 +1530,21 @@
    "line": 455,
    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 12, 8, false), CS);",
    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f48_ABNDINFO_REC.storage(), f48_ABNDINFO_REC.offset() + 13, 8, false), CS);",
-   "verdict": "harness-gap",
-   "reason": "INITIALIZE ABNDINFO-REC / key / SQLCODE moves write record-body bytes that reach only the ABNDFILE record and LINK commarea; the oracle does not compare either (the key bytes are seen only with a seeded record, whose utime and task are fixed at the values this case drives)"
+   "verdict": "equivalent",
+   "reason": "INITIALIZE of ABND-APPLID at offset 13 for 12: byte 12 is overwritten by the ASSIGN APPLID that follows (DetCics.putText fills all 8 bytes) and byte 20 is spaced by the next INITIALIZE line; the tried DELAY-fault tasks (1, 7, 4242 and 9999999) end with the same record",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "b870e5d907",
@@ -1477,8 +1581,21 @@
    "line": 506,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to < 0) return GOTO | to;",
-   "verdict": "case-gap",
-   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+   "verdict": "unreachable",
+   "reason": "the test after the LINK to ABNDPROC (to >= 0) needs a LINK RESP other than NORMAL that returns: the LINK codes no RESP, so a failing LINK raises its condition and with no HANDLE CONDITION ends the task first; a planned LINK PGMIDERR after the failed DELAY ended in AEI0 before it",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "ae21b730e4",
@@ -1486,8 +1603,21 @@
    "line": 513,
    "before": "if (true) return GOTO | paragraph(exit7);",
    "after": "if (!(true)) return GOTO | paragraph(exit7);",
-   "verdict": "case-gap",
-   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+   "verdict": "unreachable",
+   "reason": "if (true) after task.abend(PLOP) is reached only when the abend returns a HANDLE ABEND exit; CRDTAGY5 has no HANDLE ABEND, the call returns null and the throw before it ends the task; the DELAY-fault inputs abend there",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "1bf4d31afe",
@@ -1495,8 +1625,21 @@
    "line": 557,
    "before": "perform(3, 5);",
    "after": "perform(3, 6);",
-   "verdict": "case-gap",
-   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+   "verdict": "equivalent",
+   "reason": "PERFORM GET-ME-OUT-OF-HERE THRU bound 6 for 5: the range runs GET-ME-OUT-OF-HERE then GMOFH010, whose EXEC CICS RETURN throws Goback before the thru paragraph is compared with the cursor; container-missing, no-channel and the DELAY-fault inputs reach it and agree",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   },
   {
    "id": "2b3ced4ec8",
@@ -1504,8 +1647,21 @@
    "line": 580,
    "before": "task.returnTransid(null, null);",
    "after": "/* task.returnTransid(null, null); */",
-   "verdict": "case-gap",
-   "reason": "control-flow or return-code mutant whose divergence is not seen by any scenario this case drives (no event, abend code or sysout line differs); needs a scenario that reaches the changed path or a harness comparison of the unobserved value"
+   "verdict": "equivalent",
+   "reason": "RETURN's task.returnTransid(null, null) deleted: the RETURN throws Goback, which the main catch handles, and that handler issues task.returnTransid(null, null) itself when the task has not ended; the same call, once, either way",
+   "tried": [
+    "credit-score-task-1",
+    "credit-score-task-100",
+    "credit-score-task-11",
+    "credit-score-task-2",
+    "credit-score-task-3",
+    "credit-score-task-31337",
+    "credit-score-task-5",
+    "credit-score-task-99999",
+    "delay-invreq-link-pgmiderr",
+    "delay-invreq-task-1",
+    "delay-invreq-task-large"
+   ]
   }
  ]
 }

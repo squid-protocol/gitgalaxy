@@ -1,5 +1,5 @@
 {
- "commit": "df061c90d",
+ "commit": "05d1ef796",
  "components": {
   "capabilities": {
    "groups": [
@@ -283,7 +283,7 @@
      "done": null,
      "found": "",
      "group": "Batch",
-     "have": "8 multi-step job case",
+     "have": "9 multi-step job case",
      "name": "JCL job execution",
      "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T02:55:06Z",
+  "as_of": "2026-11-23T03:45:39Z",
   "core": {
    "closed": 259,
    "open": 16,

@@ -259,6 +259,28 @@
    ]
   },
   {
+   "id": "25cf1cdd2b",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"AAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_CICS_WORK_AREA follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
    "id": "a094a1690c",
    "op": "LIT",
    "line": 51,
@@ -300,6 +322,28 @@
    ]
   },
   {
+   "id": "d6dc5cb670",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_CONTAINER_LEN follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
    "id": "971394234a",
    "op": "LIT",
    "line": 55,
@@ -315,6 +359,28 @@
     "atk-task-77",
     "atk-task-99999",
     "atk-wr-disabled",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "cb6c7f8c49",
+   "op": "LIT",
+   "line": 55,
+   "before": "\"AAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_SEED follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
     "atk-wr-nospace",
     "atk-wr-notopen",
     "inert-image"
@@ -4444,6 +4510,138 @@
    ]
   },
   {
+   "id": "c6c2c26505",
+   "op": "DEL",
+   "line": 214,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_WORK_AREA, 0, s_WS_CICS_WORK_AREA.bytes, 0, IMAGE_s_WS_CICS_WORK_AREA.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_CICS_WORK_AREA's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "b7f60d3888",
+   "op": "DEL",
+   "line": 215,
+   "before": "System.arraycopy(IMAGE_s_WS_CONTAINER_LEN, 0, s_WS_CONTAINER_LEN.bytes, 0, IMAGE_s_WS_CONTAINER_LEN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CONTAINER_LEN, 0, s_WS_CONTAINER_LEN.bytes, 0, IMAGE_s_WS_CONTAINER_LEN.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_CONTAINER_LEN's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "f33d86851a",
+   "op": "DEL",
+   "line": 216,
+   "before": "System.arraycopy(IMAGE_s_WS_SEED, 0, s_WS_SEED.bytes, 0, IMAGE_s_WS_SEED.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_SEED, 0, s_WS_SEED.bytes, 0, IMAGE_s_WS_SEED.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_SEED's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "bd4c10ed51",
+   "op": "DEL",
+   "line": 219,
+   "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_ORIG_DATE_GRP_X's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "266987d54a",
+   "op": "DEL",
+   "line": 223,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "inert-image"
+   ]
+  },
+  {
+   "id": "86f78c6551",
+   "op": "DEL",
+   "line": 225,
+   "before": "f21_WS_DELAY_AMT = 0L;",
+   "after": "/* f21_WS_DELAY_AMT = 0L; */",
+   "verdict": "equivalent",
+   "reason": "every read of f21_WS_DELAY_AMT follows a top-level store of it in its own method; the initial value is never read (store-dominates-read)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "store-dominates-read"
+   ]
+  },
+  {
    "id": "664e26dedd",
    "op": "DEL",
    "line": 226,
@@ -4841,6 +5039,138 @@
    ]
   },
   {
+   "id": "585cf98f63",
+   "op": "DEL",
+   "line": 259,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "never-populated"
+   ]
+  },
+  {
+   "id": "0d99532e76",
+   "op": "AOR",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2b2ab5a24d",
+   "op": "AOR",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7915785d46",
+   "op": "CON",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ef838a452e",
+   "op": "DEL",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "fb0e4031fa",
+   "op": "AOR",
+   "line": 265,
+   "before": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f64_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f64_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "0dc3363e3f",
    "op": "DEL",
    "line": 266,
@@ -4858,6 +5188,116 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1f20a52cb6",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "5c126aaeb4",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7a421ca80c",
+   "op": "DEL",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "a573b607cc",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "d029b02648",
+   "op": "AOR",
+   "line": 266,
+   "before": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f63_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
    ]
   },
   {
@@ -4942,6 +5382,28 @@
    ]
   },
   {
+   "id": "e67af0c023",
+   "op": "CON",
+   "line": 271,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "6768e681ce",
    "op": "DEL",
    "line": 272,
@@ -4959,6 +5421,50 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ad94c48faa",
+   "op": "CON",
+   "line": 273,
+   "before": "calen = DetCics.eibCalen(task, 681);",
+   "after": "calen = DetCics.eibCalen(task, 682);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "df2006204f",
+   "op": "DEL",
+   "line": 273,
+   "before": "calen = DetCics.eibCalen(task, 681);",
+   "after": "/* calen = DetCics.eibCalen(task, 681); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5109,6 +5615,50 @@
    ]
   },
   {
+   "id": "22a8a77b47",
+   "op": "CON",
+   "line": 275,
+   "before": "calen = DetCics.eibCalen(task, 98);",
+   "after": "calen = DetCics.eibCalen(task, 99);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "267ff74f96",
+   "op": "DEL",
+   "line": 275,
+   "before": "calen = DetCics.eibCalen(task, 98);",
+   "after": "/* calen = DetCics.eibCalen(task, 98); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "29de6ec475",
    "op": "AOR",
    "line": 275,
@@ -5192,6 +5742,94 @@
    ]
   },
   {
+   "id": "454e0d3a96",
+   "op": "DEL",
+   "line": 277,
+   "before": "calen = DetCics.eibCalen(task, 32);",
+   "after": "/* calen = DetCics.eibCalen(task, 32); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "683f8b1ee3",
+   "op": "CON",
+   "line": 277,
+   "before": "calen = DetCics.eibCalen(task, 32);",
+   "after": "calen = DetCics.eibCalen(task, 33);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "605841ffef",
+   "op": "CON",
+   "line": 279,
+   "before": "calen = DetCics.eibCalen(task, 28);",
+   "after": "calen = DetCics.eibCalen(task, 29);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6d544472c5",
+   "op": "DEL",
+   "line": 279,
+   "before": "calen = DetCics.eibCalen(task, 28);",
+   "after": "/* calen = DetCics.eibCalen(task, 28); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "fc18f42cd2",
    "op": "CON",
    "line": 280,
@@ -5209,6 +5847,50 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0845cbd549",
+   "op": "CON",
+   "line": 281,
+   "before": "calen = DetCics.eibCalen(task, 1);",
+   "after": "calen = DetCics.eibCalen(task, 2);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c614156cfb",
+   "op": "DEL",
+   "line": 281,
+   "before": "calen = DetCics.eibCalen(task, 1);",
+   "after": "/* calen = DetCics.eibCalen(task, 1); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5249,6 +5931,50 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "18f4019ea5",
+   "op": "DEL",
+   "line": 283,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "50889c4a91",
+   "op": "CON",
+   "line": 283,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5332,6 +6058,50 @@
    ]
   },
   {
+   "id": "0845e671ef",
+   "op": "DEL",
+   "line": 285,
+   "before": "calen = DetCics.eibCalen(task, 100);",
+   "after": "/* calen = DetCics.eibCalen(task, 100); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "ff37513c06",
+   "op": "CON",
+   "line": 285,
+   "before": "calen = DetCics.eibCalen(task, 100);",
+   "after": "calen = DetCics.eibCalen(task, 101);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "f284ce2e43",
    "op": "DEL",
    "line": 286,
@@ -5349,6 +6119,94 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "56f524fd5c",
+   "op": "CON",
+   "line": 287,
+   "before": "calen = DetCics.eibCalen(task, 134);",
+   "after": "calen = DetCics.eibCalen(task, 135);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c7d3d0e57f",
+   "op": "DEL",
+   "line": 287,
+   "before": "calen = DetCics.eibCalen(task, 134);",
+   "after": "/* calen = DetCics.eibCalen(task, 134); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7fcd13126c",
+   "op": "CON",
+   "line": 289,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "86cdfa7957",
+   "op": "DEL",
+   "line": 289,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5392,6 +6250,72 @@
    ]
   },
   {
+   "id": "294d3f6505",
+   "op": "CON",
+   "line": 291,
+   "before": "calen = DetCics.eibCalen(task, 107);",
+   "after": "calen = DetCics.eibCalen(task, 108);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "4a292332e1",
+   "op": "DEL",
+   "line": 291,
+   "before": "calen = DetCics.eibCalen(task, 107);",
+   "after": "/* calen = DetCics.eibCalen(task, 107); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0ea5f2e18b",
+   "op": "CON",
+   "line": 293,
+   "before": "calen = DetCics.eibCalen(task, 1985);",
+   "after": "calen = DetCics.eibCalen(task, 1986);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "3f31525246",
    "op": "ROR",
    "line": 293,
@@ -5432,6 +6356,28 @@
    ]
   },
   {
+   "id": "bab39e3b95",
+   "op": "DEL",
+   "line": 293,
+   "before": "calen = DetCics.eibCalen(task, 1985);",
+   "after": "/* calen = DetCics.eibCalen(task, 1985); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "0c72c56764",
    "op": "DEL",
    "line": 294,
@@ -5452,6 +6398,50 @@
    ]
   },
   {
+   "id": "6d882b2a0d",
+   "op": "DEL",
+   "line": 295,
+   "before": "calen = DetCics.eibCalen(task, 269);",
+   "after": "/* calen = DetCics.eibCalen(task, 269); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "a51f060b7b",
+   "op": "CON",
+   "line": 295,
+   "before": "calen = DetCics.eibCalen(task, 269);",
+   "after": "calen = DetCics.eibCalen(task, 270);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "24958b7200",
    "op": "CON",
    "line": 297,
@@ -5469,6 +6459,28 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "31ad80b119",
+   "op": "CON",
+   "line": 297,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "calen = DetCics.eibCalen(task, 262);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5529,6 +6541,50 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ba2304e7e4",
+   "op": "DEL",
+   "line": 297,
+   "before": "calen = DetCics.eibCalen(task, 261);",
+   "after": "/* calen = DetCics.eibCalen(task, 261); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "5d8b163be9",
+   "op": "CON",
+   "line": 299,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen == 1 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-calen-unread"
    ]
   },
   {
@@ -5629,6 +6685,28 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "4e7e98b047",
+   "op": "DEL",
+   "line": 302,
+   "before": "Cobol.store(f70_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+   "after": "/* Cobol.store(f70_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f70_EIBCALEN is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "eib-resp-unread"
    ]
   },
   {
@@ -6714,6 +7792,28 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "c6a831432a",
+   "op": "CON",
+   "line": 582,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "unreachable",
+   "reason": "line 582 follows an unconditional `if (true) throw new Goback();`: it is never reached (dead-after-throw)",
+   "tried": [
+    "atk-get-invreq",
+    "atk-link-pgmiderr",
+    "atk-put-invreq",
+    "atk-task-1",
+    "atk-task-1-abend",
+    "atk-task-77",
+    "atk-task-99999",
+    "atk-task-99999-abend",
+    "atk-wr-nospace",
+    "atk-wr-notopen",
+    "dead-after-throw"
    ]
   }
  ]

@@ -5,24 +5,23 @@
  "case": "cruc-pc-immediate-s",
  "entry": {
   "program": "PCIMMS",
-  "commit": "619e1a9c61b95ba69930fb9fe797239e72cdf203+uncommitted",
-  "date": "2026-11-20",
+  "commit": "151495949e24385da79ced2013575a2273d95c4b",
+  "date": "2026-11-23",
   "mode": "fast",
   "seed": 0,
-  "mutants": 250,
+  "mutants": 237,
   "out_of_scope": 6,
-  "chosen": 250,
+  "chosen": 237,
   "coverage": "proven on 2 scenarios, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 45,
+   "killed": 44,
    "timeout": 0,
-   "survived": 200,
-   "stillborn": 5,
+   "survived": 190,
+   "stillborn": 3,
    "error": 0,
    "pending": 0
   },
   "killed": [
-   "09765135c0",
    "0d75fde32d",
    "165cb679c1",
    "1a0935d205",
@@ -70,9 +69,7 @@
   ],
   "stillborn": [
    "4e447d7b1c",
-   "9639ec9d63",
    "a7a171760e",
-   "abeb0258df",
    "b4881c040d"
   ],
   "survived": [
@@ -317,90 +314,10 @@
     "after": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
-    "id": "0af7c4f715",
-    "op": "NEG",
-    "file": "service/PcimmsService.java",
-    "line": 74,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "45b8c38658",
-    "op": "ROR",
-    "file": "service/PcimmsService.java",
-    "line": 74,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "86f21080bd",
-    "op": "ROR",
-    "file": "service/PcimmsService.java",
-    "line": 74,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "fbedcc390c",
-    "op": "CON",
-    "file": "service/PcimmsService.java",
-    "line": 74,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() > 2) {"
-   },
-   {
-    "id": "574816cd84",
-    "op": "DEL",
-    "file": "service/PcimmsService.java",
-    "line": 75,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "df6b669243",
-    "op": "LIT",
-    "file": "service/PcimmsService.java",
-    "line": 80,
-    "before": "@SuppressWarnings(\"unchecked\")",
-    "after": "@SuppressWarnings(\"Xnchecked\")"
-   },
-   {
-    "id": "bd9f9424f9",
-    "op": "NEG",
-    "file": "service/PcimmsService.java",
-    "line": 82,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
-   },
-   {
-    "id": "f7ab23076b",
-    "op": "COR",
-    "file": "service/PcimmsService.java",
-    "line": 82,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
-   },
-   {
-    "id": "8a027d7dcd",
-    "op": "LIT",
-    "file": "service/PcimmsService.java",
-    "line": 85,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
-   },
-   {
-    "id": "7ce9be308c",
-    "op": "LIT",
-    "file": "service/PcimmsService.java",
-    "line": 85,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
-   },
-   {
     "id": "cfa3b37f30",
     "op": "LIT",
     "file": "service/PcimmsService.java",
-    "line": 89,
+    "line": 78,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
    },
@@ -408,7 +325,7 @@
     "id": "4d054aaa25",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 89,
+    "line": 78,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
    },
@@ -416,7 +333,7 @@
     "id": "f53779848d",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 113,
+    "line": 98,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
    },
@@ -424,7 +341,7 @@
     "id": "791d39f823",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 114,
+    "line": 99,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -432,7 +349,7 @@
     "id": "af4ab659ae",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 115,
+    "line": 100,
     "before": "f1_WS_RESP = 0L;",
     "after": "/* f1_WS_RESP = 0L; */"
    },
@@ -440,7 +357,7 @@
     "id": "432b7daebf",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 116,
+    "line": 101,
     "before": "f2_WS_RESP2 = 0L;",
     "after": "/* f2_WS_RESP2 = 0L; */"
    },
@@ -448,7 +365,7 @@
     "id": "22fab4f72d",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 138,
+    "line": 123,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
    },
@@ -456,7 +373,7 @@
     "id": "47ce3b1c54",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 139,
+    "line": 124,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
    },
@@ -464,7 +381,7 @@
     "id": "3e4f994e6a",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 140,
+    "line": 125,
     "before": "heldKey.clear();",
     "after": "/* heldKey.clear(); */"
    },
@@ -472,7 +389,7 @@
     "id": "e7fff4ab46",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 142,
+    "line": 127,
     "before": "Cobol.move(task.transid(), f12_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f12_EIBTRNID, CS); */"
    },
@@ -480,7 +397,7 @@
     "id": "385988ecc9",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 144,
+    "line": 129,
     "before": "Cobol.store(f13_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f13_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
@@ -488,7 +405,7 @@
     "id": "c09d271379",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 146,
+    "line": 131,
     "before": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -496,7 +413,7 @@
     "id": "23e4e30272",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 146,
+    "line": 131,
     "before": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -504,7 +421,7 @@
     "id": "c8dbacaa68",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 146,
+    "line": 131,
     "before": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -512,7 +429,7 @@
     "id": "3d307987b1",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 146,
+    "line": 131,
     "before": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -520,7 +437,7 @@
     "id": "5c85852fcb",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 146,
+    "line": 131,
     "before": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f11_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -528,7 +445,7 @@
     "id": "bd5044d670",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 147,
+    "line": 132,
     "before": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -536,7 +453,7 @@
     "id": "d63109791b",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 147,
+    "line": 132,
     "before": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -544,7 +461,7 @@
     "id": "ef1e51bfbd",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 147,
+    "line": 132,
     "before": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -552,7 +469,7 @@
     "id": "6bda16db2c",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 147,
+    "line": 132,
     "before": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -560,7 +477,7 @@
     "id": "59401122df",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 147,
+    "line": 132,
     "before": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f10_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -568,7 +485,7 @@
     "id": "1f825730a1",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 148,
+    "line": 133,
     "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
    },
@@ -576,7 +493,7 @@
     "id": "e020e3b4f5",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 152,
+    "line": 137,
     "before": "int calen = 0;",
     "after": "int calen = 1;"
    },
@@ -584,7 +501,7 @@
     "id": "affac9a202",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 153,
+    "line": 138,
     "before": "if (ca instanceof CaaddrWsArea) {",
     "after": "if (!(ca instanceof CaaddrWsArea)) {"
    },
@@ -592,7 +509,7 @@
     "id": "e99fc2986e",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 155,
+    "line": 140,
     "before": "} else if (ca instanceof CabllDfhcommarea) {",
     "after": "} else if (!(ca instanceof CabllDfhcommarea)) {"
    },
@@ -600,7 +517,7 @@
     "id": "b6bbe3f2b2",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 157,
+    "line": 142,
     "before": "} else if (ca instanceof CaboffWsOut) {",
     "after": "} else if (!(ca instanceof CaboffWsOut)) {"
    },
@@ -608,7 +525,7 @@
     "id": "6645178e89",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 159,
+    "line": 144,
     "before": "} else if (ca instanceof CaboffWsPre) {",
     "after": "} else if (!(ca instanceof CaboffWsPre)) {"
    },
@@ -616,7 +533,7 @@
     "id": "e06c2e5558",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 161,
+    "line": 146,
     "before": "} else if (ca instanceof CaboffWsSrc) {",
     "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
    },
@@ -624,7 +541,7 @@
     "id": "1e789bf18c",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 163,
+    "line": 148,
     "before": "} else if (ca instanceof CabrerrWsData) {",
     "after": "} else if (!(ca instanceof CabrerrWsData)) {"
    },
@@ -632,7 +549,7 @@
     "id": "987bf15a2a",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 165,
+    "line": 150,
     "before": "} else if (ca instanceof CaccsidWsAsc) {",
     "after": "} else if (!(ca instanceof CaccsidWsAsc)) {"
    },
@@ -640,7 +557,7 @@
     "id": "ff38d3f2c8",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 167,
+    "line": 152,
     "before": "} else if (ca instanceof CachanWsBin) {",
     "after": "} else if (!(ca instanceof CachanWsBin)) {"
    },
@@ -648,7 +565,7 @@
     "id": "bd2fc6f2d3",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 169,
+    "line": 154,
     "before": "} else if (ca instanceof CachanWsMore) {",
     "after": "} else if (!(ca instanceof CachanWsMore)) {"
    },
@@ -656,7 +573,7 @@
     "id": "f61ee2ce50",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 171,
+    "line": 156,
     "before": "} else if (ca instanceof CachanWsReq) {",
     "after": "} else if (!(ca instanceof CachanWsReq)) {"
    },
@@ -664,7 +581,7 @@
     "id": "cb3f0c5e34",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 173,
+    "line": 158,
     "before": "} else if (ca instanceof CachsubWsReply) {",
     "after": "} else if (!(ca instanceof CachsubWsReply)) {"
    },
@@ -672,7 +589,7 @@
     "id": "17c6d910ec",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 175,
+    "line": 160,
     "before": "} else if (ca instanceof CachsubWsShort) {",
     "after": "} else if (!(ca instanceof CachsubWsShort)) {"
    },
@@ -680,7 +597,7 @@
     "id": "b9b0095aac",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 177,
+    "line": 162,
     "before": "} else if (ca instanceof CachxbWsOwn) {",
     "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
    },
@@ -688,7 +605,7 @@
     "id": "69ff62bda4",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 179,
+    "line": 164,
     "before": "} else if (ca instanceof CagcstWsPtr) {",
     "after": "} else if (!(ca instanceof CagcstWsPtr)) {"
    },
@@ -696,7 +613,7 @@
     "id": "dcc9882741",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 181,
+    "line": 166,
     "before": "} else if (ca instanceof CagcstWsSrc2) {",
     "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
    },
@@ -704,7 +621,7 @@
     "id": "650e4283d7",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 183,
+    "line": 168,
     "before": "} else if (ca instanceof GtasgnWsCa) {",
     "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
    },
@@ -712,7 +629,7 @@
     "id": "eefe37629d",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 189,
+    "line": 174,
     "before": "} else if (ca instanceof PcconfWsState) {",
     "after": "} else if (!(ca instanceof PcconfWsState)) {"
    },
@@ -720,7 +637,7 @@
     "id": "399895ad2c",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 191,
+    "line": 176,
     "before": "} else if (ca instanceof PcrcaWsCarry) {",
     "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
    },
@@ -728,7 +645,7 @@
     "id": "4adc11a626",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 193,
+    "line": 178,
     "before": "} else if (ca instanceof PcrcaWsModify) {",
     "after": "} else if (!(ca instanceof PcrcaWsModify)) {"
    },
@@ -736,7 +653,7 @@
     "id": "09d689d9b7",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 195,
+    "line": 180,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
    },
@@ -744,7 +661,7 @@
     "id": "ef1f6ca288",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 197,
+    "line": 182,
     "before": "} else if (ca instanceof PcrcbWsNew1) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew1)) {"
    },
@@ -752,7 +669,7 @@
     "id": "12cfc872ce",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 199,
+    "line": 184,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
    },
@@ -760,7 +677,7 @@
     "id": "431086ee00",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 201,
+    "line": 186,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
@@ -768,7 +685,7 @@
     "id": "94295e9b10",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 204,
+    "line": 189,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -776,7 +693,7 @@
     "id": "19f7380c1a",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 204,
+    "line": 189,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -784,7 +701,7 @@
     "id": "1380dcde82",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 207,
+    "line": 192,
     "before": "Cobol.store(f17_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f17_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -792,23 +709,15 @@
     "id": "ec634e372e",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 209,
+    "line": 194,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
-   },
-   {
-    "id": "e87e09d3cd",
-    "op": "DEL",
-    "file": "service/PcimmsService.java",
-    "line": 214,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
    },
    {
     "id": "b6914a49d6",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 218,
+    "line": 203,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -816,7 +725,7 @@
     "id": "fa62b307a5",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 219,
+    "line": 204,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -824,7 +733,7 @@
     "id": "f7253d3791",
     "op": "LIT",
     "file": "service/PcimmsService.java",
-    "line": 226,
+    "line": 211,
     "before": "region.run(task, \"PCIMMS\", this::runTask);",
     "after": "region.run(task, \"XCIMMS\", this::runTask);"
    },
@@ -832,7 +741,7 @@
     "id": "109d045fd2",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 233,
+    "line": 218,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
    },
@@ -840,7 +749,7 @@
     "id": "388b6c4de0",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 251,
+    "line": 234,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -848,7 +757,7 @@
     "id": "76b93111ea",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 256,
+    "line": 239,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -856,7 +765,7 @@
     "id": "14001aad05",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 257,
+    "line": 240,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -864,7 +773,7 @@
     "id": "6cf9fe6e46",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 265,
+    "line": 248,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -872,7 +781,7 @@
     "id": "2459df333e",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 276,
+    "line": 259,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -880,7 +789,7 @@
     "id": "a588f35ae4",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 276,
+    "line": 259,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -888,7 +797,7 @@
     "id": "6fd04fbcf8",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 276,
+    "line": 259,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -896,7 +805,7 @@
     "id": "89e0180442",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 278,
+    "line": 261,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -904,7 +813,7 @@
     "id": "deb9e7d4ef",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 283,
+    "line": 266,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -912,7 +821,7 @@
     "id": "7a0d034ee4",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 283,
+    "line": 266,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -920,7 +829,7 @@
     "id": "eea76dd055",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 285,
+    "line": 268,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -928,7 +837,7 @@
     "id": "f0edee129d",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 286,
+    "line": 269,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -936,7 +845,7 @@
     "id": "fc1a48fbc7",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 286,
+    "line": 269,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -944,7 +853,7 @@
     "id": "a899412f01",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 287,
+    "line": 270,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -952,7 +861,7 @@
     "id": "b100fe4b57",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -960,7 +869,7 @@
     "id": "5fe9b0d395",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -968,7 +877,7 @@
     "id": "fab10465d5",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -976,7 +885,7 @@
     "id": "4d8c45029b",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -984,7 +893,7 @@
     "id": "75ec02c29d",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -992,7 +901,7 @@
     "id": "71c33a0208",
     "op": "AOR",
     "file": "service/PcimmsService.java",
-    "line": 289,
+    "line": 272,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -1000,7 +909,7 @@
     "id": "3ecce0a923",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 290,
+    "line": 273,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -1008,7 +917,7 @@
     "id": "c896e57e5b",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 290,
+    "line": 273,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -1016,7 +925,7 @@
     "id": "5d45cf7c5b",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 295,
+    "line": 278,
     "before": "if (next >= 1) {",
     "after": "if (!(next >= 1)) {"
    },
@@ -1024,7 +933,7 @@
     "id": "2219574bef",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 295,
+    "line": 278,
     "before": "if (next >= 1) {",
     "after": "if (next < 1) {"
    },
@@ -1032,7 +941,7 @@
     "id": "c1a9b9da1b",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 295,
+    "line": 278,
     "before": "if (next >= 1) {",
     "after": "if (next > 1) {"
    },
@@ -1040,7 +949,7 @@
     "id": "a0305cab8f",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 295,
+    "line": 278,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -1048,7 +957,7 @@
     "id": "a78fbffd90",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 298,
+    "line": 281,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -1056,7 +965,7 @@
     "id": "bbc810dce9",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 301,
+    "line": 284,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1064,7 +973,7 @@
     "id": "2006705b9a",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 301,
+    "line": 284,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1072,7 +981,7 @@
     "id": "001d270fff",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 305,
+    "line": 288,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1080,7 +989,7 @@
     "id": "d5c480e7df",
     "op": "LIT",
     "file": "service/PcimmsService.java",
-    "line": 312,
+    "line": 295,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -1088,7 +997,7 @@
     "id": "cd8bb17504",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 320,
+    "line": 303,
     "before": "if (rr1[0] == 0) { caBack.run(); throw new Goback(); }",
     "after": "if (rr1[1] == 0) { caBack.run(); throw new Goback(); }"
    },
@@ -1096,7 +1005,7 @@
     "id": "6dc4ab4be8",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 321,
+    "line": 304,
     "before": "Cobol.store(f38_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS);",
     "after": "/* Cobol.store(f38_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS); */"
    },
@@ -1104,7 +1013,7 @@
     "id": "a4c4fa54c1",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 321,
+    "line": 304,
     "before": "Cobol.store(f38_EIBRESP, BigDecimal.valueOf(rr1[0]), false, CS);",
     "after": "Cobol.store(f38_EIBRESP, BigDecimal.valueOf(rr1[1]), false, CS);"
    },
@@ -1112,7 +1021,7 @@
     "id": "af876f2aa6",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 322,
+    "line": 305,
     "before": "Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(rr1[1]), false, CS);",
     "after": "/* Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(rr1[1]), false, CS); */"
    },
@@ -1120,7 +1029,7 @@
     "id": "7c06747690",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 323,
+    "line": 306,
     "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(rr1[0]), 8, true, false, CS);",
     "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(rr1[0]), 9, true, false, CS);"
    },
@@ -1128,7 +1037,7 @@
     "id": "a39dc9e3a9",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 324,
+    "line": 307,
     "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(rr1[1]), 8, true, false, CS);",
     "after": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(rr1[1]), 9, true, false, CS);"
    },
@@ -1136,7 +1045,7 @@
     "id": "b7502c68ed",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 330,
+    "line": 313,
     "before": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 14, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -1144,7 +1053,7 @@
     "id": "9282ba74b1",
     "op": "LIT",
     "file": "service/PcimmsService.java",
-    "line": 330,
+    "line": 313,
     "before": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -1152,7 +1061,7 @@
     "id": "1136270a98",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 331,
+    "line": 314,
     "before": "Cobol.store(f38_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS);",
     "after": "/* Cobol.store(f38_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS); */"
    },
@@ -1160,7 +1069,7 @@
     "id": "4e738cd81a",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 332,
+    "line": 315,
     "before": "Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -1168,7 +1077,7 @@
     "id": "012b44fdb9",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 332,
+    "line": 315,
     "before": "Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f39_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -1176,7 +1085,7 @@
     "id": "1ca4a9dcf8",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 335,
+    "line": 318,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -1184,7 +1093,7 @@
     "id": "d4be085924",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 335,
+    "line": 318,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -1192,7 +1101,7 @@
     "id": "e56e56a527",
     "op": "ROR",
     "file": "service/PcimmsService.java",
-    "line": 335,
+    "line": 318,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -1200,23 +1109,15 @@
     "id": "e6d40a4652",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 335,
+    "line": 318,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
-   },
-   {
-    "id": "26277eeee9",
-    "op": "DEL",
-    "file": "service/PcimmsService.java",
-    "line": 338,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
    },
    {
     "id": "06c89da2a5",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 339,
+    "line": 322,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -1224,7 +1125,7 @@
     "id": "992d41ad1a",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 340,
+    "line": 323,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -1232,7 +1133,7 @@
     "id": "8585484617",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 341,
+    "line": 324,
     "before": "return 1;",
     "after": "return 2;"
    },
@@ -1240,7 +1141,7 @@
     "id": "6400ad8182",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 187,
+    "line": 172,
     "before": "} else if (ca instanceof HcrparWsV2) {",
     "after": "} else if (!(ca instanceof HcrparWsV2)) {"
    },
@@ -1248,7 +1149,7 @@
     "id": "cdd9ab1b28",
     "op": "NEG",
     "file": "service/PcimmsService.java",
-    "line": 185,
+    "line": 170,
     "before": "} else if (ca instanceof HcrparWsV1) {",
     "after": "} else if (!(ca instanceof HcrparWsV1)) {"
    },
@@ -1256,7 +1157,7 @@
     "id": "0249ac3e60",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 158,
+    "line": 143,
     "before": "calen = DetCics.eibCalen(task, 16);",
     "after": "calen = DetCics.eibCalen(task, 17);"
    },
@@ -1264,7 +1165,7 @@
     "id": "1142d9e459",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 162,
+    "line": 147,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "/* calen = DetCics.eibCalen(task, 10); */"
    },
@@ -1272,7 +1173,7 @@
     "id": "14ef9012b3",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 184,
+    "line": 169,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "calen = DetCics.eibCalen(task, 5);"
    },
@@ -1280,7 +1181,7 @@
     "id": "2ca95452b2",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 190,
+    "line": 175,
     "before": "calen = DetCics.eibCalen(task, 30);",
     "after": "calen = DetCics.eibCalen(task, 31);"
    },
@@ -1288,7 +1189,7 @@
     "id": "2ef8155a20",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 176,
+    "line": 161,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "calen = DetCics.eibCalen(task, 5);"
    },
@@ -1296,7 +1197,7 @@
     "id": "35cca5fdeb",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 154,
+    "line": 139,
     "before": "calen = DetCics.eibCalen(task, 20);",
     "after": "/* calen = DetCics.eibCalen(task, 20); */"
    },
@@ -1304,7 +1205,7 @@
     "id": "36ec144f3b",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 156,
+    "line": 141,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "calen = DetCics.eibCalen(task, 5);"
    },
@@ -1320,7 +1221,7 @@
     "id": "38e648b3e0",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 168,
+    "line": 153,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
@@ -1328,7 +1229,7 @@
     "id": "3f203b898a",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 164,
+    "line": 149,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1336,7 +1237,7 @@
     "id": "42ae8b0ac3",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 158,
+    "line": 143,
     "before": "calen = DetCics.eibCalen(task, 16);",
     "after": "/* calen = DetCics.eibCalen(task, 16); */"
    },
@@ -1344,7 +1245,7 @@
     "id": "5828051845",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 200,
+    "line": 185,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1352,7 +1253,7 @@
     "id": "5b48bbc32a",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 196,
+    "line": 181,
     "before": "calen = DetCics.eibCalen(task, 5);",
     "after": "/* calen = DetCics.eibCalen(task, 5); */"
    },
@@ -1360,7 +1261,7 @@
     "id": "5dc97956f4",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 168,
+    "line": 153,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "calen = DetCics.eibCalen(task, 5);"
    },
@@ -1376,7 +1277,7 @@
     "id": "62f6df0c5c",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 194,
+    "line": 179,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1384,7 +1285,7 @@
     "id": "63eaa0b143",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 166,
+    "line": 151,
     "before": "calen = DetCics.eibCalen(task, 6);",
     "after": "calen = DetCics.eibCalen(task, 7);"
    },
@@ -1392,7 +1293,7 @@
     "id": "64db4a5e01",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 192,
+    "line": 177,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1400,7 +1301,7 @@
     "id": "6cd4775455",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 174,
+    "line": 159,
     "before": "calen = DetCics.eibCalen(task, 11);",
     "after": "/* calen = DetCics.eibCalen(task, 11); */"
    },
@@ -1408,7 +1309,7 @@
     "id": "6ce78a7dee",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 154,
+    "line": 139,
     "before": "calen = DetCics.eibCalen(task, 20);",
     "after": "calen = DetCics.eibCalen(task, 21);"
    },
@@ -1416,7 +1317,7 @@
     "id": "6e5a365d3a",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 156,
+    "line": 141,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
@@ -1424,7 +1325,7 @@
     "id": "7ca0d469fd",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 182,
+    "line": 167,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1432,7 +1333,7 @@
     "id": "7e75a3bba2",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 196,
+    "line": 181,
     "before": "calen = DetCics.eibCalen(task, 5);",
     "after": "calen = DetCics.eibCalen(task, 6);"
    },
@@ -1440,7 +1341,7 @@
     "id": "7f64f9c7b8",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 172,
+    "line": 157,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "/* calen = DetCics.eibCalen(task, 10); */"
    },
@@ -1448,7 +1349,7 @@
     "id": "8125589a26",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 200,
+    "line": 185,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1456,7 +1357,7 @@
     "id": "81fd4898fa",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 205,
+    "line": 190,
     "before": "calen = DetCics.eibCalen(task, task.linkArea().length);",
     "after": "/* calen = DetCics.eibCalen(task, task.linkArea().length); */"
    },
@@ -1464,7 +1365,7 @@
     "id": "94c9ee1d14",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 198,
+    "line": 183,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1472,7 +1373,7 @@
     "id": "956cb57071",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 180,
+    "line": 165,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1480,7 +1381,7 @@
     "id": "a4d22d14b2",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 194,
+    "line": 179,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1488,7 +1389,7 @@
     "id": "a83212a34b",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 160,
+    "line": 145,
     "before": "calen = DetCics.eibCalen(task, 2);",
     "after": "calen = DetCics.eibCalen(task, 3);"
    },
@@ -1496,7 +1397,7 @@
     "id": "a8bf57b50b",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 188,
+    "line": 173,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "calen = DetCics.eibCalen(task, 11);"
    },
@@ -1504,7 +1405,7 @@
     "id": "b22a15e489",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 176,
+    "line": 161,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
@@ -1512,7 +1413,7 @@
     "id": "b24ae80325",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 178,
+    "line": 163,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "/* calen = DetCics.eibCalen(task, 10); */"
    },
@@ -1520,7 +1421,7 @@
     "id": "b6149f2e18",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 180,
+    "line": 165,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1528,7 +1429,7 @@
     "id": "b9d7859365",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 186,
+    "line": 171,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "calen = DetCics.eibCalen(task, 11);"
    },
@@ -1536,7 +1437,7 @@
     "id": "bd8afbda82",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 186,
+    "line": 171,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "/* calen = DetCics.eibCalen(task, 10); */"
    },
@@ -1544,7 +1445,7 @@
     "id": "c818e27bea",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 202,
+    "line": 187,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1552,7 +1453,7 @@
     "id": "c8bdcf52af",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 178,
+    "line": 163,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "calen = DetCics.eibCalen(task, 11);"
    },
@@ -1560,7 +1461,7 @@
     "id": "c98a85892e",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 170,
+    "line": 155,
     "before": "calen = DetCics.eibCalen(task, 3);",
     "after": "/* calen = DetCics.eibCalen(task, 3); */"
    },
@@ -1568,7 +1469,7 @@
     "id": "cc70c7f75f",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 164,
+    "line": 149,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1576,7 +1477,7 @@
     "id": "cd8a9dd276",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 160,
+    "line": 145,
     "before": "calen = DetCics.eibCalen(task, 2);",
     "after": "/* calen = DetCics.eibCalen(task, 2); */"
    },
@@ -1584,7 +1485,7 @@
     "id": "d71d00fcaf",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 162,
+    "line": 147,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "calen = DetCics.eibCalen(task, 11);"
    },
@@ -1592,7 +1493,7 @@
     "id": "d7f26a4798",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 170,
+    "line": 155,
     "before": "calen = DetCics.eibCalen(task, 3);",
     "after": "calen = DetCics.eibCalen(task, 4);"
    },
@@ -1600,7 +1501,7 @@
     "id": "d84aa25679",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 202,
+    "line": 187,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1608,7 +1509,7 @@
     "id": "e2171f574e",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 184,
+    "line": 169,
     "before": "calen = DetCics.eibCalen(task, 4);",
     "after": "/* calen = DetCics.eibCalen(task, 4); */"
    },
@@ -1616,7 +1517,7 @@
     "id": "edb7872eb0",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 188,
+    "line": 173,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "/* calen = DetCics.eibCalen(task, 10); */"
    },
@@ -1624,7 +1525,7 @@
     "id": "ee05dfeaa0",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 198,
+    "line": 183,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1632,7 +1533,7 @@
     "id": "ef03ef7a75",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 192,
+    "line": 177,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "calen = DetCics.eibCalen(task, 9);"
    },
@@ -1640,7 +1541,7 @@
     "id": "f23a76f3b9",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 172,
+    "line": 157,
     "before": "calen = DetCics.eibCalen(task, 10);",
     "after": "calen = DetCics.eibCalen(task, 11);"
    },
@@ -1648,7 +1549,7 @@
     "id": "f7a2ea52f6",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 166,
+    "line": 151,
     "before": "calen = DetCics.eibCalen(task, 6);",
     "after": "/* calen = DetCics.eibCalen(task, 6); */"
    },
@@ -1656,7 +1557,7 @@
     "id": "fba4755a13",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 182,
+    "line": 167,
     "before": "calen = DetCics.eibCalen(task, 8);",
     "after": "/* calen = DetCics.eibCalen(task, 8); */"
    },
@@ -1664,7 +1565,7 @@
     "id": "fc78397be0",
     "op": "DEL",
     "file": "service/PcimmsService.java",
-    "line": 190,
+    "line": 175,
     "before": "calen = DetCics.eibCalen(task, 30);",
     "after": "/* calen = DetCics.eibCalen(task, 30); */"
    },
@@ -1672,24 +1573,40 @@
     "id": "fe287a3c96",
     "op": "CON",
     "file": "service/PcimmsService.java",
-    "line": 174,
+    "line": 159,
     "before": "calen = DetCics.eibCalen(task, 11);",
     "after": "calen = DetCics.eibCalen(task, 12);"
+   },
+   {
+    "id": "b4bf497fd4",
+    "op": "DEL",
+    "file": "service/PcimmsService.java",
+    "line": 321,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "fbc20432a3",
+    "op": "DEL",
+    "file": "service/PcimmsService.java",
+    "line": 199,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
    }
   ],
   "inputs": {
-   "port": "536eb72c15946f3936fdf9031344c8bcca01220f9e253bf6f6f6c99b2a73bfa7",
-   "runtime": "66bda5999b70689e073b040600cbed86b0b3da96422152b516d140fcf62a4af5",
-   "generator": "a4106f9593efb01f2d31d986d9fbd2a965f3695d4bca7a24dcfca7dd423bd864",
+   "port": "94e32b8a81f6311fa78b1feb7f495217d4c50a52f4858c248749f301739da052",
+   "runtime": "03164a88d8a5e92bf7e5706f443973a448338e510c1a6bef6a62ff5659ec2af6",
+   "generator": "a13408791131e460b03c3af67073baac10bf55c6c093264c1993c5739ec5cbe9",
    "case": "2318f11507f369fb1b9af9313495305f6423bfe3814bed8a8f6811a21d3e8b0f",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "bbe0b5c69920ce5f946f96767c46abd8f31b7d548515293b0a29e880a06fa4f0",
+   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
    "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "e5850b264120040b79da2ad3525e6c57e3133ff9acc0739005870d96bb5da3c4"
+   "survivors": "945bd97f13f90c3d9465c4e3443a5b7dba19d105a5e1572eee05a9d672ce32c9"
   },
   "components": {
    "generator": {
-    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
+    "generator:core": "398e1fa59fcddde8af7a4114e8ac5d094b6e5890a1191b595d32bec49694e061",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1709,12 +1626,13 @@
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
-    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
+    "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
+    "generator:det/replace": "63b00b343ede85ea6ee431a521c5094d52bf03a347cd30bd56d30d821f0bae9c",
+    "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc"
    },
    "harness": {
-    "harness:cics": "a087f5d0b585502485eec7ddf951b2c18be810732088641086f699ff3087848b",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
+    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
    },
    "oracle": {
     "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
@@ -1722,11 +1640,11 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "001d270fff 012b44fdb9 0249ac3e60 06c89da2a5 09765135c0 09b453365e 09d689d9b7 0af7c4f715 0d75fde32d 109d045fd2 1136270a98 1142d9e459 12cfc872ce 1380dcde82 14001aad05 14ef9012b3 165cb679c1 17c6d910ec 19f7380c1a 1a0935d205 1ca4a9dcf8 1e60870e87 1e789bf18c 1e8b0023b6 1ef8477da9 1f825730a1 2006705b9a 2219574bef 22fab4f72d 23e4e30272 2459df333e 26277eeee9 2ca95452b2 2ef8155a20 317f32744d 31a3f82e7a 33355bceb0 333eb7398f 35cca5fdeb 36e7c34b45 36ec144f3b 3787249a55 3800356b47 385988ecc9 388b6c4de0 38e648b3e0 399895ad2c 3d307987b1 3e4f994e6a 3ecce0a923 3f203b898a 4144f9413e 426d381edd 42ae8b0ac3 431086ee00 432b7daebf 443c1e47d7 45b8c38658 471f17d0c2 47ce3b1c54 47dfec84c1 4a920a1061 4adc11a626 4c75870560 4d054aaa25 4d8c45029b 4e447d7b1c 4e738cd81a 574816cd84 576ca0c1fb 5828051845 59401122df 5b48bbc32a 5c85852fcb 5d45cf7c5b 5dc97956f4 5ee4f73f39 5fe9b0d395 602a5a1493 625087e664 62f6df0c5c 63eaa0b143 6400ad8182 64db4a5e01 650e4283d7 6645178e89 67556c77c8 685d9ee28a 69ff62bda4 6bda16db2c 6cd4775455 6ce78a7dee 6cf9fe6e46 6d10acc184 6dc4ab4be8 6e5a365d3a 6fd04fbcf8 71c33a0208 75ec02c29d 76b93111ea 7749249a36 791d39f823 79ee963d78 7a0d034ee4 7c06747690 7ca0d469fd 7ce9be308c 7dc01039c3 7e75a3bba2 7f64f9c7b8 80856cdbd6 8125589a26 81d2c78e19 81fd4898fa 8585484617 8640ef4242 86f21080bd 89e0180442 8a027d7dcd 8cb7a65f75 8cf547fe4c 8db06da75d 8fac6f08a0 921f29700b 9282ba74b1 93361f3c96 94295e9b10 94c9ee1d14 956cb57071 9639ec9d63 987bf15a2a 992d41ad1a 9aa9595e77 9aec3b929b 9e2efea0af a0305cab8f a04ae805a4 a193777110 a2e7a10f2b a39dc9e3a9 a47e2b8456 a4c4fa54c1 a4d22d14b2 a542072003 a588f35ae4 a78fbffd90 a7a171760e a83212a34b a899412f01 a8bf57b50b abeb0258df ac136c50fd adc8d36c6d af4ab659ae af876f2aa6 affac9a202 b100fe4b57 b22a15e489 b24ae80325 b2e7ecd708 b423896b20 b4881c040d b6149f2e18 b6914a49d6 b6af5c1ee9 b6bbe3f2b2 b7502c68ed b9b0095aac b9d7859365 bbc810dce9 bce594e17e bd2fc6f2d3 bd5044d670 bd8afbda82 bd9f9424f9 c09d271379 c1a9b9da1b c315020b6c c6ed60c2a4 c7f0f0f263 c818e27bea c896e57e5b c8bdcf52af c8dbacaa68 c8e59bad7d c98a85892e cb3f0c5e34 cc47454c18 cc70c7f75f cd8a9dd276 cd8bb17504 cdd9ab1b28 cec0ccc409 cfa3b37f30 d1736bb2ef d4be085924 d5c480e7df d63109791b d71d00fcaf d7f26a4798 d84aa25679 da260a330e dcc659ba5c dcc9882741 deb9e7d4ef df6b669243 e020e3b4f5 e06c2e5558 e2171f574e e3620dad9d e56e56a527 e61debabc6 e650edd496 e6d40a4652 e79536050e e7c8746b09 e7fff4ab46 e87e09d3cd e99fc2986e eab8b74be3 eb3104518f ec634e372e ed95c16961 edb7872eb0 ee05dfeaa0 eea76dd055 eefe37629d ef03ef7a75 ef1e51bfbd ef1f6ca288 f0edee129d f23a76f3b9 f466859724 f53779848d f61ee2ce50 f7253d3791 f7a2ea52f6 f7ab23076b f9bbe6a4ae f9c17b2586 fa62b307a5 fab10465d5 fba4755a13 fbce1ee883 fbedcc390c fc1a48fbc7 fc78397be0 fdf11165bb fe287a3c96 ff38d3f2c8",
+  "every": "001d270fff 012b44fdb9 0249ac3e60 06c89da2a5 09b453365e 09d689d9b7 0d75fde32d 109d045fd2 1136270a98 1142d9e459 12cfc872ce 1380dcde82 14001aad05 14ef9012b3 165cb679c1 17c6d910ec 19f7380c1a 1a0935d205 1ca4a9dcf8 1e60870e87 1e789bf18c 1e8b0023b6 1ef8477da9 1f825730a1 2006705b9a 2219574bef 22fab4f72d 23e4e30272 2459df333e 2ca95452b2 2ef8155a20 317f32744d 31a3f82e7a 33355bceb0 333eb7398f 35cca5fdeb 36e7c34b45 36ec144f3b 3787249a55 3800356b47 385988ecc9 388b6c4de0 38e648b3e0 399895ad2c 3d307987b1 3e4f994e6a 3ecce0a923 3f203b898a 4144f9413e 426d381edd 42ae8b0ac3 431086ee00 432b7daebf 443c1e47d7 471f17d0c2 47ce3b1c54 47dfec84c1 4a920a1061 4adc11a626 4c75870560 4d054aaa25 4d8c45029b 4e447d7b1c 4e738cd81a 576ca0c1fb 5828051845 59401122df 5b48bbc32a 5c85852fcb 5d45cf7c5b 5dc97956f4 5ee4f73f39 5fe9b0d395 602a5a1493 625087e664 62f6df0c5c 63eaa0b143 6400ad8182 64db4a5e01 650e4283d7 6645178e89 67556c77c8 685d9ee28a 69ff62bda4 6bda16db2c 6cd4775455 6ce78a7dee 6cf9fe6e46 6d10acc184 6dc4ab4be8 6e5a365d3a 6fd04fbcf8 71c33a0208 75ec02c29d 76b93111ea 7749249a36 791d39f823 79ee963d78 7a0d034ee4 7c06747690 7ca0d469fd 7dc01039c3 7e75a3bba2 7f64f9c7b8 80856cdbd6 8125589a26 81d2c78e19 81fd4898fa 8585484617 8640ef4242 89e0180442 8cb7a65f75 8cf547fe4c 8db06da75d 8fac6f08a0 921f29700b 9282ba74b1 93361f3c96 94295e9b10 94c9ee1d14 956cb57071 987bf15a2a 992d41ad1a 9aa9595e77 9aec3b929b 9e2efea0af a0305cab8f a04ae805a4 a193777110 a2e7a10f2b a39dc9e3a9 a47e2b8456 a4c4fa54c1 a4d22d14b2 a542072003 a588f35ae4 a78fbffd90 a7a171760e a83212a34b a899412f01 a8bf57b50b ac136c50fd adc8d36c6d af4ab659ae af876f2aa6 affac9a202 b100fe4b57 b22a15e489 b24ae80325 b2e7ecd708 b423896b20 b4881c040d b4bf497fd4 b6149f2e18 b6914a49d6 b6af5c1ee9 b6bbe3f2b2 b7502c68ed b9b0095aac b9d7859365 bbc810dce9 bce594e17e bd2fc6f2d3 bd5044d670 bd8afbda82 c09d271379 c1a9b9da1b c315020b6c c6ed60c2a4 c7f0f0f263 c818e27bea c896e57e5b c8bdcf52af c8dbacaa68 c8e59bad7d c98a85892e cb3f0c5e34 cc47454c18 cc70c7f75f cd8a9dd276 cd8bb17504 cdd9ab1b28 cec0ccc409 cfa3b37f30 d1736bb2ef d4be085924 d5c480e7df d63109791b d71d00fcaf d7f26a4798 d84aa25679 da260a330e dcc659ba5c dcc9882741 deb9e7d4ef e020e3b4f5 e06c2e5558 e2171f574e e3620dad9d e56e56a527 e61debabc6 e650edd496 e6d40a4652 e79536050e e7c8746b09 e7fff4ab46 e99fc2986e eab8b74be3 eb3104518f ec634e372e ed95c16961 edb7872eb0 ee05dfeaa0 eea76dd055 eefe37629d ef03ef7a75 ef1e51bfbd ef1f6ca288 f0edee129d f23a76f3b9 f466859724 f53779848d f61ee2ce50 f7253d3791 f7a2ea52f6 f9bbe6a4ae f9c17b2586 fa62b307a5 fab10465d5 fba4755a13 fbc20432a3 fbce1ee883 fc1a48fbc7 fc78397be0 fdf11165bb fe287a3c96 ff38d3f2c8",
   "refreshed": {
-   "from": "2026-11-14",
+   "from": "2026-11-20",
    "survivors_rerun": 0,
-   "fresh": 53,
+   "fresh": 2,
    "stale": []
   }
  }

@@ -510,6 +510,12 @@
     0,
     0
    ],
+   "carddemo-sort-creastmt-padded": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -3568,6 +3574,14 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-creastmt": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-sort-creastmt-padded": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-sort-tranrept": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -3640,10 +3654,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "translator": {
     "files": 186,
-    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
    }
   },
   "sweeps": {}
@@ -4288,7 +4302,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459",
+       "oracle_image": "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -4831,7 +4845,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459",
+       "oracle_image": "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -4943,7 +4957,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459",
+      "oracle_image": "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -21609,7 +21623,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459",
+       "oracle_image": "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -21670,7 +21684,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459",
+      "oracle_image": "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -24245,8 +24259,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "python tests/tools/cics_census.py survey --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-count,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-beyond,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (41) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -24264,20 +24278,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:c5262e7f3b4dcb60af54635aa26e7ef0ce760aac4c3f53677848478dc8146459"
+   "sha256:bf90c3945d90cb2664e06f4f4d1421c4dfafb5319652eb8d77a2cd3ec7ac5b11"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "translator": {
     "files": 186,
-    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
    }
   },
-  "translator_commit": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+  "translator_commit": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24320,6 +24334,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+  "fingerprint": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
  }
 }

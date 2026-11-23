@@ -468,6 +468,12 @@
     0,
     0
    ],
+   "carddemo-sort-creastmt-padded": [
+    1,
+    1,
+    0,
+    0
+   ],
    "carddemo-sort-tranrept": [
     1,
     1,
@@ -2690,6 +2696,14 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-sort-creastmt": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-sort-creastmt-padded": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-sort-tranrept": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -2762,10 +2776,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "translator": {
     "files": 186,
-    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
    }
   },
   "sweeps": {}
@@ -15620,8 +15634,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
-   "python tests/tools/evidence_report.py example-health-apis --baseline --sha efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "python tests/tools/cics_census.py survey --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
+   "python tests/tools/evidence_report.py example-health-apis --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases health-hcapdb01,health-hcapdb02,health-hcatdb01,health-hcavdb01,health-hcazerrs,health-hcazmenu,health-hcimdb01,health-hcipdb01,health-hcitdb01,health-hcivdb01,health-hcm1bi01,health-hcm1pl01,health-hcmaba01,health-hcmadb01,health-hcmadb02,health-hcmapl01,health-hcmrestw,health-hcp1ba01,health-hcp1bi01,health-hcp1pl01,health-hcprestw,health-hct1ba01,health-hct1bi01,health-hct1pl01,health-hctrestw,health-hcv1ba01,health-hcv1bi01,health-hcv1pl01  # Db2 cases (23) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -15642,13 +15656,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
    "translator": {
     "files": 186,
-    "sha256": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+    "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
    }
   },
-  "translator_commit": "efbef81900856e0933fd4b2d2dc77ce1dba992a3",
+  "translator_commit": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -15691,6 +15705,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "75626cbd820f15f1645a6b14d086816eb86930d0191e46804b87af9cb1a53889"
+  "fingerprint": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
  }
 }

@@ -302,15 +302,15 @@
 </g>
 <rect class="stripe" x="16" y="378" width="1212" height="34"/>
 <text class="lang" x="22" y="399.0">fortran</text>
-<g><title>fortran imports: precision 93.2% of 294, recall 44.4% of 635; corpus fortran-lang/fpm</title>
+<g><title>fortran imports: precision 96.7% of 612, recall 98.7% of 635; corpus fortran-lang/fpm</title>
 <text class="pr" x="120" y="392.5">Precision</text>
 <rect class="track" x="166" y="385" width="110" height="8" rx="2"/>
-<rect x="166" y="385" width="102.5" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="393">93.2%</text>
+<rect x="166" y="385" width="106.4" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="393">96.7%</text>
 <text class="pr" x="120" y="404.5">Recall</text>
 <rect class="track" x="166" y="397" width="110" height="8" rx="2"/>
-<rect x="166" y="397" width="48.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="405">44.4%</text>
+<rect x="166" y="397" width="108.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="405">98.7%</text>
 <text class="n" x="324" y="393">n=635 imports</text>
 <text class="n" x="324" y="405">repos 1 · files 222</text>
 </g>
@@ -327,15 +327,15 @@
 <text class="n" x="630" y="405">functions 120</text>
 </g>
 <text class="none" x="732" y="398.0">not measured</text>
-<g><title>fortran hubs: 50% / -0.37 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>fortran hubs: 90% / 0.38 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="392.5">overlap@10</text>
 <rect class="track" x="1090" y="385" width="110" height="8" rx="2"/>
-<rect x="1090" y="385" width="55.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="393">50%</text>
+<rect x="1090" y="385" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="393">90%</text>
 <text class="pr" x="1038" y="404.5">Spearman</text>
 <rect class="track" x="1090" y="397" width="110" height="8" rx="2"/>
-<rect x="1090" y="397" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="405">-0.37</text>
+<rect x="1090" y="397" width="41.8" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="405">0.38</text>
 <text class="n" x="1240" y="393">repos=1</text>
 </g>
 <text class="lang" x="22" y="433.0">go</text>
@@ -1272,17 +1272,17 @@
 </g>
 <rect class="stripe" x="16" y="1262" width="1212" height="34"/>
 <text class="lang" x="22" y="1283.0">tcl</text>
-<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 1 shapes without a verdict); corpus tcltk/tcllib</title>
+<g><title>tcl imports: precision 96.4% of 760, recall 90.0% of 836 (raw 96.4% / 90.0%; 2 shapes without a verdict); corpus tcltk/tcllib</title>
 <text class="pr" x="120" y="1276.5">Precision</text>
 <rect class="track" x="166" y="1269" width="110" height="8" rx="2"/>
-<rect x="166" y="1269" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="1277">100.0%</text>
+<rect x="166" y="1269" width="106.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="1277">96.4%*</text>
 <text class="pr" x="120" y="1288.5">Recall</text>
 <rect class="track" x="166" y="1281" width="110" height="8" rx="2"/>
-<rect x="166" y="1281" width="4.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="1289">4.4%*</text>
-<text class="n" x="324" y="1277">n=804 imports</text>
-<text class="n" x="324" y="1289">repos 1 · files 784</text>
+<rect x="166" y="1281" width="99.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="1289">90.0%</text>
+<text class="n" x="324" y="1277">n=836 imports</text>
+<text class="n" x="324" y="1289">repos 1 · files 789</text>
 </g>
 <g><title>tcl callee names: precision 99.3% of 2,080, recall 90.0% of 2,199 (raw 95.2% / 90.0%; 5 shapes without a verdict)</title>
 <text class="pr" x="426" y="1276.5">Precision</text>
@@ -1297,15 +1297,15 @@
 <text class="n" x="630" y="1289">functions 369</text>
 </g>
 <text class="none" x="732" y="1282.0">not measured</text>
-<g><title>tcl hubs: 20% / -0.69 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>tcl hubs: 90% / 0.60 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="1276.5">overlap@10</text>
 <rect class="track" x="1090" y="1269" width="110" height="8" rx="2"/>
-<rect x="1090" y="1269" width="22.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="1277">20%</text>
+<rect x="1090" y="1269" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="1277">90%</text>
 <text class="pr" x="1038" y="1288.5">Spearman</text>
 <rect class="track" x="1090" y="1281" width="110" height="8" rx="2"/>
-<rect x="1090" y="1281" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="1289">-0.69</text>
+<rect x="1090" y="1281" width="66.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="1289">0.60</text>
 <text class="n" x="1240" y="1277">repos=1</text>
 </g>
 <text class="lang" x="22" y="1317.0">typescript</text>

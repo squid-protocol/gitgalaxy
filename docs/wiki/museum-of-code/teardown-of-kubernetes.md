@@ -74,7 +74,7 @@ In a repository maintained by thousands of contributors, isolated domain knowled
 
 Kubernetes controls the security boundaries of the cloud, making its own static threat model a high-priority target.
 
-* **Autonomous AI Threats & Malware:** **0 detected**. The codebase is secure against recognized structural malware.
+* **Autonomous AI Threats:** **0 detected** by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.
 * **Import Policy Gate:** **0 Blacklisted Dependencies**. However, GitGalaxy flagged **497 Unknown Dependencies** bypassing the zero-trust whitelist, reflecting the massive sprawling nature of the `k8s.io` vendor tree.
 * **Binary Anomalies (X-Ray):** **73 hits**. Flagged for high entropy, but cross-referencing shows these are largely expected payloads within test scenarios.
 * **Weaponizable Injection Vectors & Hardcoded Secrets:** Files like `upgradeaware_test.go` and `impersonation_test.go` triggered **100% Injection Surface**, and dozens of `.rsa.key` files triggered **100% Hardcoded Payload Artifacts**. However, spatial mapping confirms these are strictly contained within `testdata` directories (e.g., `cmd/kubeadm/app/util/pkiutil/testing/testdata/`). This is a strong positive validation of the system's security perimeter: dangerous artifacts are effectively quarantined to test harnesses.

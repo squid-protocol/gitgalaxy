@@ -73,7 +73,7 @@ GitGalaxy tracks ownership entropy to identify "Bus Factor" risks. In TensorFlow
 
 When dealing with deep learning frameworks that process arbitrary tensors, the security perimeter is a critical attack surface.
 
-* **AI Threat Intelligence:** **0 detected**. The codebase is secure against recognized structural malware.
+* **Autonomous AI Threats:** **0 detected** by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.
 * **AI & Machine Learning Topology:** Classified as **Local Sovereignty (Heavy Compute)**. The primary AI integration is a "Pure Producer," deeply embedded with a massive Blast Radius. Hallucinations or injections here will cascade catastrophically.
 * **Import Policy Gate:** **0 Blacklisted Dependencies**, but **57 Unknown Dependencies** bypassing the zero-trust whitelist. 
 * **Binary Anomalies (X-Ray):** **51 hits**. High entropy artifacts detected, heavily associated with embedded binary models, flatbuffers, and `.bin` test data payloads.

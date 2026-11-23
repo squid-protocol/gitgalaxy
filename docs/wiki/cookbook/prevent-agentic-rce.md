@@ -20,7 +20,7 @@ Run the GitGalaxy engine against your agent framework:
 galaxyscope /path/to/your/llm_agent_repo --ai-guardrails
 ```
 
-(The `--ai-guardrails` flag enables the Zero-Trust Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)
+(The `--ai-guardrails` flag enables the AI Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)
 
 ### 2. Identify the Choke Points
 GitGalaxy generates an `_llm.md` context brief and an `_audit.json` file. Look specifically for the **Injection Surface Risk Exposure**.

@@ -857,7 +857,7 @@ def serve(work, image, name, ready_timeout=900):
         cmd_file = work / SERVE_CMD
         while not stop.is_set() and herc.proc.poll() is None:
             if cmd_file.is_file():
-                text = cmd_file.read_text(encoding="ascii", errors="replace")
+                text = cmd_file.read_bytes().decode("ascii", "ignore")  # console commands are ASCII
                 cmd_file.unlink(missing_ok=True)
                 for line in text.splitlines():
                     if line.strip():

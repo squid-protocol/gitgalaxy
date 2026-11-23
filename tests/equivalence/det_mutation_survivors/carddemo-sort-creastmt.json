@@ -1,0 +1,39 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "carddemo-sort-creastmt",
+ "survivors": [
+  {
+   "id": "0208aac286",
+   "op": "CON",
+   "line": 371,
+   "before": "Cobol.move(f12_W_REC.ref(263, Integer.valueOf(16)), f13_W_OUT.ref(1, Integer.valueOf(16)), CS);",
+   "after": "Cobol.move(f12_W_REC.ref(263, Integer.valueOf(17)), f13_W_OUT.ref(1, Integer.valueOf(16)), CS);",
+   "verdict": "equivalent",
+   "reason": "BUILD-OUT's first MOVE reads W-REC(263:17) into the 16-byte W-OUT(1:16): an alphanumeric MOVE to a shorter receiver truncates on the right, so byte 279 is dropped and the receiver is the same 16 bytes for every W-REC; the sending item stays inside W-REC (263+17-1 = 279 of 350).",
+   "tried": [
+    "parm-text"
+   ]
+  },
+  {
+   "id": "63ac1a8908",
+   "op": "CON",
+   "line": 371,
+   "before": "Cobol.move(f12_W_REC.ref(263, Integer.valueOf(16)), f13_W_OUT.ref(1, Integer.valueOf(16)), CS);",
+   "after": "Cobol.move(f12_W_REC.ref(263, Integer.valueOf(16)), f13_W_OUT.ref(1, Integer.valueOf(17)), CS);",
+   "verdict": "equivalent",
+   "reason": "BUILD-OUT's first MOVE widened to W-OUT(1:17) only adds byte 17 (a space pad of the 16-byte sender); the very next statement MOVEs W-REC(1:262) to W-OUT(17:262), which rewrites byte 17 on the only path through the paragraph, so the 328 bytes WRITTEN are unchanged for any record.",
+   "tried": [
+    "parm-text"
+   ]
+  }
+ ]
+}

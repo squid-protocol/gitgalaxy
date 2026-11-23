@@ -581,11 +581,20 @@ public final class Idcams {
             }
             String name = entry(ops.get(0).name, "DELETE");
             for (Op op : ops.subList(1, ops.size())) {
-                if (!plainDeleteWord(op.name) || op.args != null) {
+                if (!(plainDeleteWord(op.name) || op.name.equals("ALTERNATEINDEX") || op.name.equals("AIX")) || op.args != null) {
                     throw new Refused("the IDCAMS DELETE " + op.name + " parameter");
                 }
             }
             Entry ent = catalog.get(name);
+            boolean aixType = ops.subList(1, ops.size()).stream().anyMatch(o -> o.name.equals("ALTERNATEINDEX") || o.name.equals("AIX"));
+            if (aixType && ent == null) {
+                end(8, "DELETE " + name + ": entry not found"); // the type keyword changes nothing for an absent entry
+                return;
+            }
+            if (aixType) {
+                throw new Refused("the IDCAMS DELETE ALTERNATEINDEX of " + name
+                    + ", an entry in the catalog (only an absent one is modelled)");
+            }
             if (ent != null && !(ent instanceof Cluster)) {
                 throw new Refused("the IDCAMS DELETE of " + name
                     + ", an alternate index or path (its dependents are not modelled)");

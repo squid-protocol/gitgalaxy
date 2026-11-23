@@ -60,8 +60,6 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **The shared venv has no pytest-xdist** (`-n4` exits 4); a serial full suite takes ~20 min: poll `full.exit` (#5960).
 * **`git archive` honors `working-tree-encoding`:** use `git show rev:path` for raw committed bytes (#6126). Aperture silently
   drops files under a `Build/` directory (#6126).
-* **`XGBClassifier` needs scikit-learn:** to run the real-model test install it with `pip --target` into scratch plus
-  `PYTHONPATH` (#6129).
 * **Put options such as `--max-files-per-commit` before the subcommand:** a positional repo list swallows later flags (#6190).
   Don't use `Closes #N` as a fix label (#6190).
 * **The Java crucible leg prints null event values:** a key is present with a null value, so assert `e.get("length") is None`, not `"length" not in e` (#6348).

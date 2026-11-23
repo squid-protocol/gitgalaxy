@@ -2,7 +2,7 @@
 """Manage hash-pinned, universal requirement lockfiles for CI and shipped templates (#4918).
 
 Compiles and validates universal lockfiles valid across all supported OS and Python >= 3.11 matrices,
-preserving multi-version environment markers (e.g. for numpy, xgboost, typing-extensions).
+preserving multi-version environment markers (e.g. for numpy, typing-extensions).
 
 Usage:
     python tests/tools/pin_requirements.py                    # compile all ci/requirements/*.in
@@ -31,7 +31,7 @@ TEMPLATE_REQS = ROOT / "templates" / "requirements"
 
 # Packages known to require version splits across Python 3.11 / 3.12 matrices.
 # A universal compile MUST preserve their python version markers, not collapse them to a single flat pin.
-MULTIVERSION_PACKAGES = {"numpy", "xgboost"}
+MULTIVERSION_PACKAGES = {"numpy"}
 
 HEADER_DESCRIPTIONS = {
     CI_REQS: ("GitGalaxy's own CI", "tests/tools/pin_ci_requirements.sh"),

@@ -14,7 +14,7 @@ The dependency graph indicates a moderate modularity of 0.415, demonstrating fun
 * **Fragile Orchestrators:** The primary application interface, `src/flask/app.py`, pulls in 37 outbound dependencies, making it the most fragile orchestrator in the system. Similarly, `src/flask/cli.py` (30 outbound dependencies) heavily couples environment parsing, application discovery, and development server execution into a single operational unit.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged core routing and generation modules, such as `src/flask/sansio/scaffold.py` and various test suites, for "Exploit Generation Surface" and "Weaponizable Injection Vectors." In the context of a web framework, this is the expected operational baseline. These files are explicitly designed to parse unvalidated HTTP paths, configure dynamic application states, and construct responses from client inputs. 
 

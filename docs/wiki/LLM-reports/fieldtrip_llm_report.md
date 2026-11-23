@@ -14,7 +14,7 @@ The network topology reveals a remarkably high Modularity score (0.6855), demons
 * **Fragile Orchestrators:** Files bridging the OS and the hardware, such as `realtime/src/buffer/src/platform_includes.h` (22 outbound) and `src/rfbevent.c` (18 outbound), act as fragile orchestrators. They tightly couple the build environment to cross-platform threading and socket semantics, making the real-time acquisition layer highly sensitive to OS-level API shifts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged specific C and Java components (e.g., `openbci2ft.c`, `OpenBCI_ADS1299.java`) for "Raw Memory Manipulation" and "Exploit Generation Surface." In the context of a neuroscience acquisition framework interacting directly with hardware amplifiers and managing high-throughput memory buffers, this is expected operational behavior. The 1,221 "Binary Anomalies" (X-Ray) are typical for this domain, representing compiled MEX binaries, vendor-specific DLLs, and embedded neuroimaging template data rather than supply chain attacks.
 

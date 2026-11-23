@@ -108,6 +108,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       actions: read
+      contents: read  # the sparse checkout of the plan tools
     outputs:
       defer: ${{ steps.push_gate.outputs.defer || steps.full_gate.outputs.defer }}
       sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
@@ -117,6 +118,8 @@ jobs:
       sweep_timeout: ${{ steps.db2parts.outputs.sweep_timeout }}
       records_matrix: ${{ steps.db2parts.outputs.records_matrix }}
       records_timeout: ${{ steps.db2parts.outputs.records_timeout }}
+      det_mutation_cap: ${{ steps.detcap.outputs.cap }}  # job_cap_plan.py: worst measured wall x 1.3, never under the literal 150
+      det_mutation_step_cap: ${{ steps.detcap.outputs.step_cap }}
     env:
       REPO: ${{ github.repository }}
       EVENT: ${{ github.event_name }}
@@ -154,6 +157,8 @@ jobs:
             tests/tools/ci_retry.sh
             tests/tools/det_sweep_plan.py
             tests/tools/ci_shard_plan.py
+            tests/tools/job_cap_plan.py
+            tests/tools/ci_rerun_stats.py
             tests/equivalence/det_sweep_durations.json
             tests/equivalence/*/case.json
             tests/equivalence/*/evidence.json
@@ -239,6 +244,19 @@ jobs:
   # #5114: the split is pinned, not restored: no job here reads the durations cache (det-sweep.yml's `plan` chooses its
   # durations once and shares them); every shard balances by the committed det_sweep_durations.json of the ONE commit
   # the `lane` job pinned, so all shards cut the same slices. tests/tools/test_shard_split_pinned.py holds that.
+      # 2026-11-23 (#8701): det-mutation's cap was a literal 150 while its worst measured run was ~125 min (1.2x): a slow
+      # runner night ends in a cancelled job, which fails the whole refresh. The cap now follows the measured wall (x 1.3),
+      # never below 150 so det_mutation.py's own 130-min budget still ends the work first. No history = the literal.
+      - name: Plan det-mutation's cap from its measured wall time
+        id: detcap
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 tests/tools/job_cap_plan.py --workflow evidence-refresh.yml --job det-mutation --floor 150 --ceiling 240 \
+            --fallback 150 --step-margin 12 --github-output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
   db2-part:
     name: db2 ${{ matrix.part }}
     needs: lane
@@ -959,7 +977,7 @@ jobs:
     # runs to 2026-11-07 (COSGN00C alone re-ran 718 survivors, ~100 min), and a cancelled job fails the refresh, so its PR
     # never gets auto-merge. Each shard's budget (130 of 150 min, counted from the start) leaves a case it cannot finish
     # for the next run (a warning) instead of running into the limit.
-    timeout-minutes: 150
+    timeout-minutes: ${{ fromJSON(needs.lane.outputs.det_mutation_cap || '150') }}  # job_cap_plan.py; the literal is the fallback
     strategy:
       fail-fast: false
       matrix:
@@ -1088,7 +1106,7 @@ jobs:
         continue-on-error: true
         # #8509: a hung refresh ends here, inside the job's 150 min, so the always() stage and upload steps below still keep
         # the ledgers it renewed; past the job limit the whole job is cancelled and every renewed ledger is lost
-        timeout-minutes: 138
+        timeout-minutes: ${{ fromJSON(needs.lane.outputs.det_mutation_step_cap || '138') }}  # the job's cap - 12
         shell: bash  # -eo pipefail: the refresh's exit status, not tee's
         run: |
           cd gitgalaxy

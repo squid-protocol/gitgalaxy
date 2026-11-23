@@ -14,7 +14,7 @@ The network topology reveals a Modularity of 0.0, indicating a monolithic, globa
 * **Fragile Orchestrators:** Files acting as operational hubs exhibit the highest outbound coupling. `Comanche055/TAGS_FOR_RELATIVE_SETLOC.agc` and `Comanche055/P20-P25.agc` act as massive routing hubs, dispatching subroutine calls and state changes based on DSKY (Display and Keyboard) inputs or interrupt timers.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the source code. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. 
 
 The rule-based lens flagged several files with "Raw Memory Manipulation" signatures (e.g., `PINBALL_NOUN_TABLES.agc`). In the context of AGC assembly, this is fundamental operational behavior. The code relies on hardcoded memory addresses, bit-masking, and raw pointer manipulation to manage its highly constrained RAM and ROM. Additionally, files like `EXTENDED_VERBS.agc` triggered "Exploit Generation Surface" alerts; this reflects the DSKY interface's ability to directly modify execution state based on external (astronaut) input, which in a modern context resembles an injection surface, but here is the designed method of control.
 

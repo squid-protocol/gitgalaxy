@@ -16,7 +16,7 @@ The network topology reveals high modularity (0.495) but indicates that the scan
 * **Fragile Orchestrators:** Files such as `lib/ansible/utils/display.py` and `packaging/release.py` exhibit the highest outbound coupling. `display.py` acts as a heavy routing hub for console output and logging, making it susceptible to API changes in underlying formatters or state managers.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several `.pem` files in `test/units/module_utils/urls/fixtures/cbt/` with 100% "Hardcoded Payload Artifacts" exposure. Given their location within the `test/fixtures` directory, these are benign mock certificates used for validating SSL/TLS connection logic and do not represent leaked operational secrets. An isolated Exploit Generation Surface alert in `hacking/azp/incidental.py` is an artifact of the script parsing external test reports dynamically and does not pose a runtime threat to the core Ansible engine.
 

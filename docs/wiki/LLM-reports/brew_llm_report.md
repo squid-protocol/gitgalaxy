@@ -14,7 +14,7 @@ The network graph reveals a modularity of 0.6667, indicating distinct domains (e
 * **Fragile Orchestrators:** The newly introduced Rust command wrappers (e.g., `fetch.rs`, `list.rs`) exhibit the highest outbound coupling. They pull in extensive dependencies to bridge the gap between the Rust binary and the underlying Ruby execution environment, making them fragile to API shifts in the older Ruby codebase.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several Ruby utility scripts (`curl.rb`, `github/api.rb`) with 100% "Exploit Generation Surface" exposure. In the context of a package manager, this is expected behavior; these modules are designed to construct complex, arbitrary network requests, parse remote binaries, and execute shell commands (`system_command`). The hardcoded payload artifacts detected (`api/homebrew-1.pem`, `container.tar.xz.gpg`) are public keys and test fixtures used for verifying package signatures, not leaked internal secrets.
 

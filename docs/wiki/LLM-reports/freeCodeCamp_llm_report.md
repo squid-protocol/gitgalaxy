@@ -14,7 +14,7 @@ The dependency graph highlights a distinct split between static data providers a
 * **Fragile Orchestrators:** The primary execution engines and UI templates exhibit the highest outbound coupling. `api/src/schemas.ts` (47 outbound dependencies) binds the data validation layer, while `client/src/templates/Challenges/classic/show.tsx` (44 outbound) aggregates numerous sub-components and challenge logic into a single monolithic view context.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged `curriculum/src/file-handler.ts` for "Weaponizable Injection Vectors" (100% exposure). Given its role in parsing curriculum files from the filesystem, strict path sanitization is required to prevent directory traversal. Additionally, a hardcoded `.npmrc` file was flagged under "Hardcoded Payload Artifacts," which should be audited to ensure it contains no leaked registry tokens.
 

@@ -14,7 +14,7 @@ The dependency graph reveals a highly centralized, spaghetti-coupled topology ty
 * **Fragile Orchestrators:** The primary entry points act as massive routing hubs. `docker/api/client.py` (29 outbound dependencies) and `docker/utils/utils.py` (14 outbound dependencies) are highly fragile orchestrators, tightly coupling connection logic, environment parsing, and endpoint routing into singular execution contexts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several test fixtures (e.g., `tests/ssh/config/client/id_rsa`, `tests/unit/testdata/certs/ca.pem`) for "Hardcoded Payload Artifacts." In the context of a network library, these are explicitly benign testing assets used for validating TLS and SSH transport behaviors, not leaked production secrets. The "Exploit Generation Surface" detections in container types are standard for modules designed to format and execute arbitrary system commands via the Docker daemon API.
 

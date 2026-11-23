@@ -368,6 +368,7 @@ NOT_GATES.update(
         "cache-prune.yml": "deletes stale Actions caches",
         "canary-control.yml": "opens the weekly control PR (#7155 part 2); the gates it exercises are the ones listed above",
         "call-resolution-history.yml": "appends a measurement row after a push to main",
+        "ci-cap-report.yml": "weekly report of tight job caps; gates no change, its red run is Main Watch's issue for the fleet",
         "deploy-docs.yml": "publishes the docs site",
         "doc-drift.yml": "files documentation issues from the doc-refs backlog, never fails a change",
         "engine-coverage-map.yml": "records which test covers which module, for the suite plan",

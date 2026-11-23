@@ -16,7 +16,7 @@ The network topology reveals a highly centralized hub-and-spoke configuration ar
 * **Fragile Orchestrators:** The primary aggregator, `src/index.ts`, acts as the ultimate fragile orchestrator, pulling in 121 outbound dependencies to assemble the library's public API. Additionally, heavy data structures like `src/ReadonlyArray.ts` (48 outbound) and `src/Array.ts` (47 outbound) tightly couple multiple algebraic interfaces (Functor, Monad, Alternative) into single operational contexts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged `src/Task.ts` for "Weaponizable Injection Vectors" (100% exposure) and `src/ReadonlyRecord.ts` for "Exploit Generation Surface." In the context of a functional programming library, these are false positives resulting from the intended architectural behavior: `Task.ts` manages asynchronous execution wrappers and orchestrates deferred promises, triggering dynamic execution signatures, while `ReadonlyRecord.ts` heavily utilizes dynamic key iteration and object mutation mappings.
 

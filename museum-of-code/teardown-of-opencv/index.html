@@ -12703,7 +12703,7 @@ These files pull in the most external dependencies. They are highly coupled and 
 <li><strong><code>vector.h</code></strong> and <strong><code>cv2.cpp</code></strong> act as critical architectural bridges (Blast Radius of 17.3 and 16.1 respectively) but suffer from near <strong>100% Documentation Risk</strong>. Modifying these files is effectively flying blind.</li>
 </ul>
 <h3 id="the-security-perimeter-zero-trust-x-ray-audits">The Security Perimeter: Zero-Trust &amp; X-Ray Audits</h3>
-<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. Our AI Threat Intelligence model flagged the repository as <strong>✅ SECURE (No Malware Detected)</strong>, providing positive validation of OpenCV's perimeter. </p>
+<p>A modern DevSecOps posture requires validating the supply chain and binary artifacts statically. The malware classifier that produced a "No Malware Detected" line for this scan was removed on 2026-11-19 (research pending, #8430): it never ran with a trained model, so that line was not evidence. What follows is rule-based only. </p>
 <p>However, the rule-based X-Ray and Import Policy Gate identified several surface exposures that require monitoring:
 * <strong>Hardcoded Artifacts:</strong> <code>5</code> instances found. The engine detected <code>.pfx</code> temporary keys exposed in Windows/WinRT sample directories (e.g., <code>FaceDetection_TemporaryKey.pfx</code>).
 * <strong>Binary Anomalies (X-Ray):</strong> <code>63</code> anomalies detected, representing high-entropy strings, packed payloads, or magic byte mismatches (likely test images or compiled test payloads).

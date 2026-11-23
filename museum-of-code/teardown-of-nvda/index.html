@@ -12704,7 +12704,7 @@ In a project as specialized as NVDA, domain knowledge is fiercely concentrated. 
 <h3 id="the-security-perimeter-zero-trust-x-ray">The Security Perimeter (Zero-Trust &amp; X-Ray)</h3>
 <p>Accessibility software fundamentally requires high system privileges and deep OS hooks, making its security perimeter uniquely challenging.</p>
 <ul>
-<li><strong>Autonomous AI Threats &amp; Malware:</strong> <strong>0 detected</strong>. The codebase is secure against recognized structural malware.</li>
+<li><strong>Autonomous AI Threats:</strong> <strong>0 detected</strong> by the rule-based lenses (Agentic RCE). The malware classifier that once reported here was removed on 2026-11-19 (research pending, #8430); its "0 malware" line was not evidence.</li>
 <li><strong>Import Policy Gate:</strong> <strong>0 Blacklisted / 2 Unknown Dependencies</strong>. An excellent security posture with tight dependency control.</li>
 <li><strong>Binary Anomalies (X-Ray):</strong> <strong>3 hits</strong>. Minor entropy flags, likely associated with compiled C++ helpers or synthesized audio artifacts.</li>
 <li><strong>Weaponizable Surface Exposures:</strong> The engine flagged <code>IAccessibleHandler/__init__.py</code> and <code>NVDAHelper/__init__.py</code> with <strong>100.0% Exploit Generation Surface</strong>. This is an architectural reality: these files rely heavily on dynamic COM dispatching, OS-level hooks, and <code>ctypes</code> integrations to function. Additionally, the C++ rendering engines (<code>mshtml.cpp</code> and <code>gecko_ia2.cpp</code>) exhibited ~<strong>10% Raw Memory Manipulation</strong> density, highlighting the theoretical buffer risks inherent in manual DOM traversal.</li>

@@ -14,7 +14,7 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE,
+    CALLS_OUT_PHP,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
     commented_keyword_statement,
@@ -81,7 +81,7 @@ DEFINITION: dict[str, Any] = {
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_PHP,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

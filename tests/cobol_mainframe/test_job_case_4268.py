@@ -114,14 +114,21 @@ def test_creastmt_steps_run_in_jcl_order_and_the_program_step_carries_its_subpro
     assert eq.load_case("carddemo-cbstm03a")["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
 
 
-def test_creastmt_is_refused_by_name_at_the_outrec_length_join_not_padded():
-    """STEP010's OUTREC writes 328-byte records; the JCL says LRECL 350. No IBM citation says what DFSORT does, so
-    the join is refused (register F4), never padded: the job is never `proven`."""
+def test_creastmt_declares_the_ice043a_stop_at_step010_and_is_refused_by_name_without_it():
+    """STEP010's OUTREC writes 328-byte records; the JCL says LRECL 350. IBM ends the step (ICE043A, SC23-6879), so the
+    job declares `ibm_stops` and is checked up to it. Undeclared, the join is refused with the citation, never padded."""
     job, cases = _creastmt()
     assert cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] == 328
     all_cases = ej.load_steps(job, eq.load_case)
-    with pytest.raises(ej.Unsupported, match=r"INFILE has record length 350, carddemo-sort-creastmt\.SORTOUT writes 328"):
+    assert job["ibm_stops"] == {"step": "carddemo-sort-creastmt", "reason": "ICE043A"}
+    assert ej.ibm_stop(job) == 0
+    ej.check_job(job, all_cases)
+    del job["ibm_stops"]
+    with pytest.raises(
+        ej.Unsupported, match=r"INFILE has record length 350, carddemo-sort-creastmt\.SORTOUT writes 328"
+    ) as e:
         ej.check_job(job, all_cases)
+    assert "ICE043A" in str(e.value)
 
 
 def test_creastmt_chain_is_valid_once_the_sort_record_length_matches_the_jcl():
@@ -130,6 +137,7 @@ def test_creastmt_chain_is_valid_once_the_sort_record_length_matches_the_jcl():
     job, _ = _creastmt()
     all_cases = ej.load_steps(job, eq.load_case)
     all_cases["carddemo-sort-creastmt"]["datasets"]["SORTOUT"]["reclen"] = 350
+    del job["ibm_stops"]  # a 350-byte SORTOUT is no short join, so nothing is stopped
     ej.check_job(job, all_cases)
 
 

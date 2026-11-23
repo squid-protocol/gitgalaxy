@@ -6046,9 +6046,11 @@ class StructuralExtractor:
             # #6454: `//` is Rust's only line comment. `#` opens an attribute (`#[cfg(unix)] f();`, a `cfg_if!` arm)
             # and `--` is not a token, so the shared markers blanked the rest of the line and its calls.
             comment_markers = r"//"
-        elif lang_id in ("shell", "bash", "tcl"):
+        elif lang_id in ("shell", "bash", "tcl", "perl"):
             # #5909: tcl too: `switch -exact -- $v {` lost the rest of its line (the arm list's opening brace)
             # to a `--` "comment"; prism has already blanked tcl's real `#` comments.
+            # #6433: perl's only line comment is `#`; `//` / `//=` is defined-or (`$x //= $self->foo`) and
+            # `--` is decrement (`--$i`), so the shared markers blanked every call after `//` or `--`.
             # Shell's ONLY line-comment marker is `#`. `--` is the end-of-options
             # delimiter (`alert --stop ...`, `git checkout -- file`) and `//` has
             # no comment meaning at all -- both appear constantly in ordinary
@@ -7393,7 +7395,7 @@ class StructuralExtractor:
             long_body = r"(?:\\.|[^{q}\\]){{201,4000}}"
             long_guard = r"(?!(?:\\.|[^{q}\\]){{0,4000}}?\n(?:sub\b|=[a-z]))"
             long_open = r"(?:(?<=[=(,.])|(?<=[=(,.][ \t]))"
-            long_close = r"(?=[ \t]*[;,).])"
+            long_close = r"(?=[ \t]*(?:\n[ \t]*)?[;,).])"
             combined_pattern = (
                 r'"(?:\\.|[^"\\]){0,200}"|'
                 r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'|"

@@ -2517,7 +2517,7 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 146.3,
-      "perl/bugzilla/Bug.pm": 3996.98,
+      "perl/bugzilla/Bug.pm": 4012.78,
       "perl/bugzilla/CGI.pm": 479.74,
       "perl/bugzilla/DB.pm": 818.4,
       "perl/bugzilla/Requirements.pm": 310.94

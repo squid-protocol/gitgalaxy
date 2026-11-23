@@ -9,9 +9,10 @@
 # ARCHITECTURAL DECISION:
 # Autonomous coding agents excel in isolated, pure-function environments but
 # struggle with highly coupled, poorly documented, or dynamically generated logic.
-# This firewall establishes Zero-Trust guardrails to prevent AI agents from
-# executing unchecked modifications in volatile sectors, mitigating the risk
-# of cascading failures, context window exhaustion, and silent state mutations.
+# This firewall flags volatile sectors with heuristic risk columns, so that AI
+# agents can be kept from making unchecked modifications there (cascading
+# failures, context window exhaustion, silent state mutations). It flags; it
+# does not enforce or sandbox anything.
 # ==============================================================================
 import logging
 from typing import Any

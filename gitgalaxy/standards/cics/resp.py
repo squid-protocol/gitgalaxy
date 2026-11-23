@@ -82,6 +82,9 @@ CONDITION_ABEND: Mapping[str, str] = {
     # an unhandled SEND MAP / RECEIVE MAP INVMPSZ, an unhandled SEND MAP / SEND TEXT TSIOERR
     "INVMPSZ": "AEYB",
     "TSIOERR": "AEI8",
+    # #9116: IBM abend AEIR, "NOSPACE condition not handled" (module DFHEIP; an AEIA-group abend): an unhandled WRITEQ TS
+    # with no space. Verified against https://www.ibm.com/docs/SSGMCP_6.1.0/reference-abend-codes/abend-codes/AExx_abend_codes/AEIR.html
+    "NOSPACE": "AEIR",
 }
 ABEND_DOCS: Mapping[str, Doc] = {code: _abend_doc(code) for code in CONDITION_ABEND.values()}
 

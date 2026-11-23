@@ -8,7 +8,7 @@ This file provides guidance to Antigravity when working with code in the GitGala
 
 GitGalaxy (the "blAST engine") is an AST-free, LLM-free static analysis engine. It ingests a repository, extracts Structural Signatures via bounded regexes, and builds a mathematical knowledge graph.
 Data flows through `gitgalaxy/core/` in this pipeline:
-1. **`aperture.py`** — Zero-trust ingestion filter.
+1. **`aperture.py`** — Pre-read file filter (rejects binaries and huge files before reading).
 2. **`guidestar_lens.py`** — Parses manifests (e.g. package.json) for intent lock baseline.
 3. **`prism.py`** — Splits raw source into executable payload vs. comment/doc surface.
 4. **`detector.py`** — Structural extractor (applies regex rules to count signatures).

@@ -69,7 +69,7 @@ catches it) and deleted before the task ends.
 Data flows through `gitgalaxy/core/` in a fixed pipeline, each stage handing off to the next
 (writeup: `gitgalaxy/core/README.md`):
 
-1. **`aperture.py`** — zero-trust ingestion filter (rejects binaries/huge files pre-I/O).
+1. **`aperture.py`** — pre-read file filter (rejects binaries and huge files before reading).
 2. **`guidestar_lens.py`** — parses manifests for an "Intent Lock" baseline.
 3. **`prism.py`** — splits source into executable payload vs. comment/doc surface, shielding string literals.
 4. **`detector.py`** — applies the per-language regex rules from `gitgalaxy/standards/language_standards/` (a package:

@@ -1,0 +1,46 @@
+{
+  "kind": "job",
+  "job": "CREASTMT",
+  "steps": [
+    {
+      "case": "carddemo-sort-creastmt-padded"
+    },
+    {
+      "case": "creastmt-step020",
+      "idcams": {
+        "deck": "creastmt-step020.idc",
+        "dds": {
+          "INFILE": {
+            "reclen": 350
+          },
+          "OUTFILE": {
+            "cluster": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+            "reclen": 350,
+            "keys": [
+              {
+                "offset": 0,
+                "length": 32
+              }
+            ]
+          }
+        }
+      },
+      "feeds": {
+        "INFILE": {
+          "step": "carddemo-sort-creastmt-padded",
+          "dd": "SORTOUT"
+        }
+      }
+    },
+    {
+      "case": "carddemo-cbstm03a",
+      "feeds": {
+        "TRNXFILE": {
+          "step": "creastmt-step020",
+          "dd": "OUTFILE"
+        }
+      }
+    }
+  ],
+  "notes": "Authored variant of carddemo-job-creastmt (CardDemo CREASTMT, app/jcl/CREASTMT.JCL): STEP010's OUTREC is padded to the JCL's LRECL=350 (the manual's remedy for ICE043A, register F4), so the whole chain runs: STEP010 (DFSORT, det/dfsort.py), STEP020 (IDCAMS REPRO into the KSDS, det/idcams_model.py), STEP040 (CBSTM03A, which CALLs CBSTM03B: a case with subprograms). DELDEF01 and STEP030 (IEFBR14) are not steps here. Assumption: the JCL wiring is this file and the padded OUTREC is authored, not CardDemo's (register F4)."
+}

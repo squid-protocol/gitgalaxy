@@ -25,13 +25,14 @@
 /.crucible_venvs	tests/tools/crucible_check.py
 /.engine_test_map.json	tests/tools/coverage_map.py
 /.galaxyscope.yaml	tests/ast_accuracy_audit.py,tests/tools/self_scan.py,tests/tools/tree_sitter_accuracy_audit.py
-/.git	tests/security_auditing,tests/tools/pr_gates.py
+/.git	tests/security_auditing,tests/tools/box,tests/tools/pr_gates.py
 /.gitattributes	tests/tools/test_language_costs_union_merge.py
 /.gitignore	tests/cobol_mainframe,tests/core_engine,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py
 /.gitlab-ci.yml	tests/core_engine
-/.mainframe_corpora	tests/cobol_mainframe,tests/tools/cics_census.py,tests/tools/era_distribution.py,tests/tools/feature_inventory.py,tests/tools/mainframe_corpus.py,tests/tools/pr_gates.py,tests/tools/preflight.py
+/.mainframe_corpora	tests/cobol_mainframe,tests/tools/box,tests/tools/cics_census.py,tests/tools/era_distribution.py,tests/tools/feature_inventory.py,tests/tools/mainframe_corpus.py,tests/tools/pr_gates.py,tests/tools/preflight.py
 /.test_durations	tests/tools/affected_tests.py,tests/tools/test_ci_critical_path_split.py,tests/tools/time_ratchet.py
 /.tools	tests/tools/preflight.py
+/.venv	tests/tools/box
 /A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe

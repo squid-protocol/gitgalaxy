@@ -44,6 +44,60 @@
       },
       "why": "EIBCALEN 10: the detail screen shows the menu COMMAREA and EIBTRNID",
       "terminal": "PC12"
+    },
+    {
+      "name": "short-calen-3-hex",
+      "aid": "DFHENTER",
+      "commarea_hex": "303033",
+      "why": "EIBCALEN 3, shorter than the 10-byte layout: the area is cut to the caller's length",
+      "terminal": "PC12"
+    },
+    {
+      "name": "calen-1-hex",
+      "aid": "DFHENTER",
+      "commarea_hex": "30",
+      "why": "EIBCALEN 1: one byte of the area",
+      "terminal": "PC12"
+    },
+    {
+      "name": "long-calen-20",
+      "aid": "DFHENTER",
+      "commarea_hex": "30303033504633205858585858585858585858",
+      "why": "EIBCALEN 19, longer than the 10-byte DFHCOMMAREA: only the first 10 bytes are read",
+      "terminal": "PC12"
+    },
+    {
+      "name": "sendmap-invreq",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 3,
+        "MN-LAST": "PF3",
+        "MN-FLAG": ""
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVREQ",
+          "map": "PCDT"
+        }
+      ],
+      "why": "SEND MAP answers INVREQ: no RESP, condition() abend path",
+      "terminal": "PC12"
+    },
+    {
+      "name": "sendtext-invreq",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "SEND TEXT answers INVREQ on the no-context arm",
+      "terminal": "PC12"
     }
   ],
   "termid": "T001",

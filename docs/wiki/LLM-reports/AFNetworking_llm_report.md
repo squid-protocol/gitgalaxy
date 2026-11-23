@@ -14,7 +14,7 @@ The architecture relies on a clear separation between protocol definitions and h
 * **Fragile Orchestrators:** Files like `AFHTTPSessionManager.m` and the umbrella `AFNetworking.h` header exhibit high outbound coupling. `AFHTTPSessionManager.m` acts as the primary traffic controller, bridging serialization logic with NSURLSession APIs, making it highly susceptible to cascading changes if underlying interfaces mutate.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts, and ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
 
 The security lens flagged several certificates in the `Example/Certificates` and `Tests/Resources` directories (e.g., `adn.cer`, `root_ca.cer`) with 100% "Hardcoded Payload" exposure. In the context of a networking library, these are safe test fixtures and public keys required for testing SSL/TLS certificate pinning, not leaked secrets. Minor raw memory manipulation signatures in serialization headers are expected given the low-level byte stream parsing required for HTTP body construction.
 

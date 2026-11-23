@@ -16,7 +16,7 @@ The network topology reveals high modularity (0.7297), indicating distinct bound
 * **Fragile Orchestrators:** The unit testing files (`traceback_unit_test.cpp`, `rmblast_traceback_unit_test.cpp`) pull in the highest number of outbound dependencies (up to 44). While these are tests, their high fragility indicates that the underlying API surfaces they validate are highly coupled, requiring massive context to initialize a single test scenario.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged `update_blastdb.pl` with 100% "Exploit Generation Surface" exposure, which is expected operational behavior for a script that dynamically fetches and writes databases from remote FTP servers. The 6 "Binary Anomalies" (X-Ray) correspond to hardcoded `.crt` and `.key` payload artifacts detected in `src/app/pubseq_gateway/server/test/ssl/psg.crt`. As these reside explicitly within a `test/ssl` directory, they are benign test fixtures rather than leaked production secrets. The repository employs "Raw Memory Manipulation" in critical algorithmic files (`blast_nascan.c`, `sls_alp.cpp`), which is standard for high-performance C/C++ alignment engines but requires strict bounds checking.
 

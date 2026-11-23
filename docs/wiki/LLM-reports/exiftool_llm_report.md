@@ -14,7 +14,7 @@ The network topology reveals a hub-and-spoke architecture with profound coupling
 * **Fragile Orchestrators:** The exact same foundational pillars also function as extreme outbound orchestrators. `lib/Image/ExifTool.pm` pulls in 129 outbound dependencies, and `lib/Image/ExifTool/Exif.pm` pulls in 54. They orchestrate the entire metadata extraction lifecycle, making them highly fragile and sensitive to API shifts in any underlying format module.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged `lib/Image/ExifTool.pm` for "Exploit Generation Surface" and C++ pipe implementations (`cpp_cross_compile/cpp/ExifToolPipe.cpp`) for "Raw Memory Manipulation." In the context of a tool designed to parse arbitrarily complex, potentially malformed binary data from external files, this is expected operational behavior. The 3 binary anomalies detected by X-Ray align with expected compiled test artifacts or benign binary fixtures rather than supply chain threats.
 

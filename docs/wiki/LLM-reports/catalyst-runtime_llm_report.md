@@ -14,7 +14,7 @@ The dependency graph highlights a test-heavy, highly coupled topology.
 * **Fragile Orchestrators:** Test scripts like `t/arg_constraints.t` and `t/utf_incoming.t` are the most fragile orchestrators, pulling in up to 17 external dependencies. This high outbound coupling indicates that testing a single component requires initializing a vast swath of the Catalyst framework, pointing to a lack of discrete mockability within the core engine.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several files with 100% "Exploit Generation Surface" exposure, including `Makefile.PL` and `t/aggregate/unit_core_uri_for.t`. In the context of a web framework's build system and test suite, this is expected: these files must parse system arguments, execute dynamic shell commands, and generate edge-case URIs. A single "Binary Anomaly" was identified, likely an expected test artifact (e.g., an encoded payload for file upload tests). There are no detected "Autonomous AI Vulnerabilities" or "Weaponizable Injection Vectors" within the core runtime.
 

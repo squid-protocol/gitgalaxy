@@ -1,0 +1,68 @@
+name: CI cap report
+
+# 2026-11-23 (#8701): a hard job cap that sits close to a job's real run time fails the night the runner is slow, and
+# the history is "raise it, fail again, raise it" (the Full Suite Gate's Windows legs, 3 caps in 2 days). Two tools
+# already measured this (#5156 ci_cap_headroom.py for literal `timeout-minutes`, #8701 gate_leg_margin.py for the Gate's
+# planner-written leg caps) but nothing ran them, so a tight cap was found by failing. This runs both weekly. A tight
+# cap fails the run, Main Watch opens `main is red: CI cap report`, and the fleet works that issue. It reads run
+# metadata only and never runs pull-request code.
+#
+# The Gate's own caps no longer need this to stay safe: the plan job (suite_shard_plan.py --gate --history-runs)
+# floors each leg's cap at the measured worst wall x 1.3 and adds a part to a leg measured over its target.
+
+on:
+  schedule:
+    - cron: "27 7 * * 1"  # weekly, Monday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cap-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install PyYAML
+        run: tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/lint.txt
+
+      - name: Literal caps close to their measured wall time
+        id: literal
+        continue-on-error: true
+        run: |
+          since=$(date -u -d '30 days ago' +%F)
+          python tests/tools/ci_cap_headroom.py --since "$since" --max-runs 4
+
+      - name: Full Suite Gate legs close to their step cap
+        id: gate
+        continue-on-error: true
+        run: python tests/tools/gate_leg_margin.py --os '' --runs 5 --min-margin 3
+
+      # both reports ran whatever the other said; the run is red when either found a tight cap
+      - name: Fail when a cap is tight
+        if: steps.literal.outcome == 'failure' || steps.gate.outcome == 'failure'
+        run: |
+          echo "::error::a job cap is within its measured margin: read the two report steps above"
+          exit 1

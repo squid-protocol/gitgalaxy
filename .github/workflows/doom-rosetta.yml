@@ -110,8 +110,9 @@ jobs:
 
       # Same hard preflight as tri-comparison-audit.yml: Ubuntu's arduino-ctags can shadow the `ctags` name.
       - name: Install universal-ctags and verify it's the real thing
+        timeout-minutes: 12  # 2026-11-23: a hung package install ran the whole 30-min job cap; 3 bounded attempts fit well inside this
         run: |
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
+          gitgalaxy/tests/tools/ci_retry.sh 3 10 -- timeout -k 10 180 bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
           if ! ctags --version | grep -q "Universal Ctags"; then
             echo "::error::ctags on PATH is not Universal Ctags -- refusing to run a silently-degraded check."
             ctags --version || true

@@ -14,7 +14,7 @@ The network topology reveals a Modularity score of 0.0 and an Assortativity of 0
 * **Fragile Orchestrators:** Workspace entry points carry extreme outbound coupling. `workspaces/arborist/lib/arborist/index.js` (17 outbound), `workspaces/libnpmexec/lib/index.js` (17 outbound), and `workspaces/config/lib/index.js` (16 outbound) function as monolithic routing hubs. They are highly fragile, tying together file system operations, registry fetching, and local caching into singular operational contexts.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several files (e.g., `scripts/smoke-tests.sh`, `workspaces/config/lib/index.js`) for "Exploit Generation Surface." In the context of a package manager, this is intended operational behavior: the system is designed to evaluate raw configuration files, traverse the file system, and execute dynamic child processes. The ecosystem audit identified 1,636 unknown dependencies, which is standard for an npm integration environment, and zero blacklisted supply chain threats.
 

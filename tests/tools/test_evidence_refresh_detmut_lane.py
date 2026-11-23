@@ -3,6 +3,7 @@ without a PR per port. The class: a ledger stale on an input fingerprint that no
 tests pin the wiring: the job exists, its ledgers reach the bot PR, a wrong claim blocks auto-merge, a moved port only warns.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,14 @@ LEDGER_GLOB = "tests/equivalence/det_mutation/*.json"
 @pytest.fixture(scope="module")
 def jobs():
     return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]
+
+
+def minutes(value):
+    """A timeout as minutes: the literal, or the literal fallback of a planned `${{ fromJSON(... || '150') }}` (2026-11-23:
+    job_cap_plan.py plans det-mutation's cap from its measured wall time; with no history the fallback is what runs)."""
+    if isinstance(value, int):
+        return value
+    return int(re.search(r"\|\|\s*'(\d+)'", value).group(1))
 
 
 def steps_text(job):
@@ -45,7 +54,9 @@ def test_the_lane_runs_the_moved_ports_within_a_budget_under_the_job_timeout(job
     step = next(s for s in job["steps"] if s.get("id") == "detmut")
     assert "--run-moved" in step["run"]
     budget = int(step["run"].split("--budget-min")[1].split()[0])
-    assert 0 < budget <= job["timeout-minutes"] - 20  # setup, the oracle image and one case that runs past its estimate
+    assert (
+        0 < budget <= minutes(job["timeout-minutes"]) - 20
+    )  # setup, the oracle image and one case that runs past its estimate
 
 
 def test_the_ledgers_reach_the_refresh_job_and_the_bot_pr(jobs):
@@ -118,6 +129,6 @@ def test_a_hung_refresh_ends_inside_the_job_so_the_renewed_ledgers_are_kept(jobs
     job = jobs["det-mutation"]
     step = next(s for s in job["steps"] if s.get("id") == "detmut")
     budget = int(step["run"].split("--budget-min")[1].split()[0])
-    assert budget < step["timeout-minutes"] < job["timeout-minutes"]
+    assert budget < minutes(step["timeout-minutes"]) < minutes(job["timeout-minutes"])
     after = job["steps"][job["steps"].index(step) + 1 :]
     assert [s.get("if") for s in after if s.get("name") in ("Stage the ledgers this job wrote", "Keep the renewed ledgers")] == ["always()", "always()"]  # fmt: skip

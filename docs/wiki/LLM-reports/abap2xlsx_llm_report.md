@@ -15,7 +15,7 @@ The system relies on a centralized, highly coupled orchestration layer to manage
 * *(Note: The dependency graph identifies root documentation and configuration files like `README.md` and `abap_transpile.json` as having 0 inbound connections, confirming they act as static foundational config rather than executed logic).*
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts, and ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
 
 There is a localized 100% exposure alert for *Exploit Generation Surface* in `src/zcl_excel_reader_2007.clas.abap` and `src/zcl_excel_worksheet.clas.abap`. In the context of a file parser, this is expected behavior: these files dynamically process external input (Excel files/XML), which inherently surfaces deserialization and dynamic execution risks. While no active weaponization is present, these ingress points should strictly validate inputs to prevent malicious XML payloads.
 

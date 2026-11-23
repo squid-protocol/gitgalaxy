@@ -14,7 +14,7 @@ The dependency graph confirms a highly entangled, monolithic structure driven by
 * **Fragile Orchestrators:** The primary risk surfaces are the Service Implementation and Configuration classes. `LoanWritePlatformServiceJpaRepositoryImpl.java` (207 outbound dependencies) and `LoanAccountConfiguration.java` (170 outbound) are extreme examples of 'God Classes'. They act as fragile orchestrators, pulling together vast swaths of the loan domain (calculators, repositories, validators) into single, tightly coupled files that are highly sensitive to any API changes within the loan ecosystem.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged several data import utilities and reporting modules (e.g., `LocalContentStorageUtil.java`, `DatatableWriteServiceImpl.java`) for "Exploit Generation Surface" and "Weaponizable Injection Vectors." In the context of a financial platform, these files handle raw CSV/SQL data imports and dynamic reporting queries. While this is expected behavior for bulk import services, it represents a critical attack surface requiring strict input sanitization to prevent SQL injection or path traversal vulnerabilities. A hardcoded keystore (`keystore.jks`) was identified in `fineract-provider/src/main/resources/`; if this is not a test stub, it poses a severe secrets management risk.
 

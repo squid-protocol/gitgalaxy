@@ -84,17 +84,21 @@ def test_weights_fill_unmeasured_with_the_median():
     assert missing == ["a", "b"] and w == {"a": 1.0, "b": 1.0}
 
 
-@pytest.mark.parametrize(("missing", "total", "fails"), [
-    (0, 70, False), (2, 5, False),  # the grace allowance, even when it is over the fraction
-    (3, 70, False), (17, 70, False), (18, 70, True), (31, 70, True),  # the 31-of-70 of #5882
+@pytest.mark.parametrize(("missing", "total", "outcome"), [
+    (0, 70, "ok"), (2, 5, "ok"),  # the grace allowance, even when it is over the fraction
+    (3, 70, "ok"), (17, 70, "ok"),
+    (18, 70, "warns"), (31, 70, "warns"), (35, 70, "warns"),  # over MAX_UNMEASURED: a warning, the plan still runs (the 31-of-70 of #5882)
+    (36, 70, "fails"), (60, 70, "fails"),  # over FAIL_UNMEASURED: the durations are not being fed at all
 ])  # fmt: skip
-def test_unmeasured_fails_loudly_past_the_grace(missing, total, fails):
+def test_unmeasured_warns_then_fails_past_the_grace(missing, total, outcome, capsys):
+    """2026-11-23: one 25% cliff failed every PR that added three cases to a file the nightly never writes back."""
     names = [f"c{i}" for i in range(missing)]
-    if fails:
+    if outcome == "fails":
         with pytest.raises(sp.PlanError, match="no measured duration"):
             sp.check_measured(names, total)
     else:
         sp.check_measured(names, total)
+        assert ("::warning::" in capsys.readouterr().err) is (outcome == "warns")
 
 
 def test_headroom_plans_below_the_target_and_adds_a_shard_at_the_boundary():

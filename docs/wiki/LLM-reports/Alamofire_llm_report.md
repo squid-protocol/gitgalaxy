@@ -14,7 +14,7 @@ The architecture is anchored by a centralized public API with heavily decoupled 
 * **Fragile Orchestrators:** Files like `Source/Features/MultipartFormData.swift` and `Source/Features/Combine.swift` act as orchestrators. They exhibit higher outbound dependencies as they translate specific feature requests (like multipart encoding or Combine publisher streams) into the core networking logic.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts. Ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. Ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. 
 
 The rule-based lens flagged several files with 100% "Hardcoded Payload Artifacts" exposure (e.g., `alamofire-root-ca.cer`, `expired.cer`). Given the context of a networking library, these are safely located within the `Tests/Resources/Certificates/` directory. They are benign test fixtures required for validating SSL/TLS certificate pinning and server trust evaluation workflows, not leaked operational secrets.
 

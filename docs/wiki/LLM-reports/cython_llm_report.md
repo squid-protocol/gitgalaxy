@@ -14,7 +14,7 @@ The network topology reveals a Modularity of 0.6006, suggesting that while the c
 * **Fragile Orchestrators:** The test runner `runtests.py` (66 outbound dependencies) and AST node orchestrators like `Cython/Compiler/ExprNodes.py` (28 outbound) are highly fragile. They aggregate sprawling logic across the entire compiler pipeline, making them highly sensitive to changes in any subsystem.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based security lens flagged test files like `tests/run/strliterals.pyx` for 100% "Obfuscation & Evasion Surface" and `Cython/Debugger/libpython.py` for "Exploit Generation Surface." In the context of a compiler test suite and GDB debugging integration, this is expected behavior: these modules must parse esoteric character encodings, evaluate raw string literals, and inject execution probes. The "Raw Memory Manipulation" detected in `Cython/Utility/Buffer.c` reflects the standard operational reality of managing C-level memory buffers from Python space.
 

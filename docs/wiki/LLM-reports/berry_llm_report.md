@@ -14,7 +14,7 @@ The dependency graph indicates a relatively high modularity (0.5945), meaning th
 * **Fragile Orchestrators:** Files acting as plugin coordinators exhibit the highest outbound coupling. `packages/plugin-essentials/sources/index.ts` (41 outbound dependencies) and `packages/yarnpkg-core/sources/Project.ts` (38 outbound dependencies) are highly fragile routing hubs that orchestrate the disparate feature set of the package manager.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the source code.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several core modules (e.g., `libzipAsync.js`, `Project.ts`, `makeApi.ts`) with "Exploit Generation Surface" exposure. In the context of a package manager, this is expected operational behavior: these modules are expressly designed to execute shell commands, parse external untrusted code manifests, and dynamically write to the local file system. The 1,664 "Unknown Dependencies" reflect the massive surface area of the npm ecosystem that Yarn interacts with, but are managed safely within the tool's bounds.
 

@@ -29,7 +29,7 @@
     
     
       
-        <title>Generate Zero-Trust SBOMs - GitGalaxy</title>
+        <title>Generate Verified SBOMs - GitGalaxy</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-to-generate-a-zero-trust-sbom-software-bill-of-materials" class="md-skip">
+        <a href="#how-to-generate-a-verified-sbom-software-bill-of-materials" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Generate Zero-Trust SBOMs
+              Generate Verified SBOMs
             
           </span>
         </div>
@@ -638,7 +638,7 @@
   <span class="md-ellipsis">
     
   
-    Generate Zero-Trust SBOMs
+    Generate Verified SBOMs
   
 
     
@@ -656,7 +656,7 @@
   <span class="md-ellipsis">
     
   
-    Generate Zero-Trust SBOMs
+    Generate Verified SBOMs
   
 
     
@@ -682,15 +682,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-zero-trust-verification-engine" class="md-nav__link">
+  <a href="#the-physical-verification-engine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Zero-Trust Verification Engine
+        The Physical Verification Engine
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Zero-Trust Verification Engine">
+    <nav class="md-nav" aria-label="The Physical Verification Engine">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -10982,7 +10982,7 @@
   <span class="md-ellipsis">
     
   
-    Zero-Trust Meta Auditor
+    JCL Meta Auditor
   
 
     
@@ -11010,7 +11010,7 @@
   <span class="md-ellipsis">
     
   
-    Zero-Trust JCL Forge
+    Verified JCL Forge
   
 
     
@@ -12729,11 +12729,11 @@
   
 
 
-<h1 id="how-to-generate-a-zero-trust-sbom-software-bill-of-materials">How to Generate a Zero-Trust SBOM (Software Bill of Materials)</h1>
+<h1 id="how-to-generate-a-verified-sbom-software-bill-of-materials">How to Generate a Verified SBOM (Software Bill of Materials)</h1>
 <p>In modern enterprise compliance (like SOC2 or Executive Order 14028), generating a Software Bill of Materials (SBOM) is mandatory. However, standard SBOM generators are fundamentally flawed: they blindly trust manifest files (<code>package.json</code>, <code>requirements.txt</code>, <code>Cargo.toml</code>). </p>
 <p>If a malicious actor alters a dependency inside <code>node_modules</code> or a Python <code>venv</code> after installation, standard tools will still report the package as safe because they only read the manifest. </p>
-<p>GitGalaxy shifts this paradigm using the <strong>Universal Zero-Trust SBOM Generator</strong>. It physically verifies the existence and structural integrity of every declared dependency on disk before sealing the cryptographic manifest.</p>
-<h2 id="the-zero-trust-verification-engine">The Zero-Trust Verification Engine</h2>
+<p>GitGalaxy shifts this paradigm using the <strong>Universal SBOM Generator</strong>. It physically verifies the existence and structural integrity of every declared dependency on disk before sealing the cryptographic manifest.</p>
+<h2 id="the-physical-verification-engine">The Physical Verification Engine</h2>
 <p>The GitGalaxy generator supports NPM, Packagist (PHP), PyPI, and Cargo ecosystems. It performs a multi-stage physical audit to map the delta between what is declared and what actually exists in memory.</p>
 <h3 id="1-execute-the-generation">1. Execute the Generation</h3>
 <p>Point the main <code>galaxyscope</code> command at the root folder of your project. SBOM generation is built into that command as an output mode, so there is no extra tool to install.</p>
@@ -12741,7 +12741,7 @@
 </code></pre></div>
 <h3 id="2-the-physical-integrity-audit">2. The Physical Integrity Audit</h3>
 <p>As the engine parses the manifest, it hunts down the physical location of the package on disk (e.g., scanning virtual environments or <code>vendor/</code> folders). It then subjects the core files to the GitGalaxy <code>SecurityLens</code>.</p>
-<p>Every dependency is tagged with one of three Zero-Trust statuses:
+<p>Every dependency is tagged with one of three verification statuses:
 * <strong><code>VERIFIED_SAFE</code></strong>: The package exists on disk and passes baseline mathematical structural integrity.
 * <strong><code>UNVERIFIED_MISSING_ON_DISK</code></strong>: The manifest claims the package is installed, but the physical files are missing. (Indicates broken builds or phantom dependencies).
 * <strong><code>SPOOF_DETECTED</code></strong>: The package exists, but the structural engine detected extreme mathematical anomalies (e.g., Shannon Entropy &gt; 4.8 or Language Spoofing), indicating the dependency has been hijacked, packed, or poisoned.</p>
@@ -12764,7 +12764,7 @@
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a> ❌ ALERT: 1 dependencies failed physical structural verification.
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>==========================================================
 </code></pre></div>
-<p>By shifting to a Zero-Trust SBOM, your security teams are no longer auditing assumptions—they are auditing mathematical reality.</p>
+<p>By shifting to a verified SBOM, your security teams are no longer auditing assumptions—they are auditing mathematical reality.</p>
 <blockquote>
 <p><strong>Read the full technical specification:</strong> <a href="../../04-02-sbom-generator/">SBOM Generator</a></p>
 </blockquote>

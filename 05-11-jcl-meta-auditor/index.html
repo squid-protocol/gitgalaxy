@@ -29,7 +29,7 @@
     
     
       
-        <title>Zero-Trust Meta Auditor - GitGalaxy</title>
+        <title>JCL Meta Auditor - GitGalaxy</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Zero-Trust Meta Auditor
+              JCL Meta Auditor
             
           </span>
         </div>
@@ -626,7 +626,7 @@
   <span class="md-ellipsis">
     
   
-    Generate Zero-Trust SBOMs
+    Generate Verified SBOMs
   
 
     
@@ -10913,7 +10913,7 @@
   <span class="md-ellipsis">
     
   
-    Zero-Trust Meta Auditor
+    JCL Meta Auditor
   
 
     
@@ -10931,7 +10931,7 @@
   <span class="md-ellipsis">
     
   
-    Zero-Trust Meta Auditor
+    JCL Meta Auditor
   
 
     
@@ -11106,7 +11106,7 @@
   <span class="md-ellipsis">
     
   
-    Zero-Trust JCL Forge
+    Verified JCL Forge
   
 
     
@@ -12839,7 +12839,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py">gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem acts as a verification tool that compares generated, program-specific Job Control Language (JCL) scripts against legacy IBM JCL files. It solves the problem of verifying the effectiveness and security posture of newly generated execution scripts by quantifying code bloat reduction and measuring the elimination of over-permissioned I/O access boundaries. It exists to provide measurable proof that the modernized JCL scripts enforce least privilege. It fits into GitGalaxy as the final audit step in the JCL modernization pipeline. This subsystem is known as the Zero-Trust JCL Auditor.</p>
+<p>This subsystem acts as a verification tool that compares generated, program-specific Job Control Language (JCL) scripts against legacy IBM JCL files. It solves the problem of verifying the effectiveness and security posture of newly generated execution scripts by quantifying code bloat reduction and measuring the elimination of over-permissioned I/O access boundaries. It exists to provide measurable proof that the modernized JCL scripts enforce least privilege. It fits into GitGalaxy as the final audit step in the JCL modernization pipeline. This subsystem is known as the JCL Auditor.</p>
 <h2 id="purpose">Purpose</h2>
 <p>The purpose of this component is to audit and calculate security and reduction metrics by mapping legacy JCL scripts to modernized scripts and evaluating changes in dataset allocations and line counts.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -12855,7 +12855,7 @@ The auditor compares baseline legacy metrics against modernized JCL files. It ca
 <strong>Outputs produced:</strong> Security and reduction metrics (code bloat reduction percentage, excess data definitions blocked) in CLI or JSON format.
 <strong>Dependencies:</strong> Upstream depends on the output of the Job Control Language (JCL) Generator. Downstream is consumed by automated integration testing pipelines or developers.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Legacy JCL Files] --&gt; B[Zero-Trust JCL Auditor]
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Legacy JCL Files] --&gt; B[JCL Auditor]
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    C[Modernized JCL Scripts] --&gt; B
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Audit Metrics Report]
 </code></pre></div>

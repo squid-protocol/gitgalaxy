@@ -5871,7 +5871,7 @@ class StructuralExtractor:
             # ==============================================================================
 
             # galaxyscope:ignore sec_high_risk_execution
-            # PHASE 4: AI APPSEC & ZERO-TRUST SENSORS (The Checkmarx/Bitwarden Defense)
+            # PHASE 4: AI APPSEC SENSORS (The Checkmarx/Bitwarden Defense)
             # ==============================================================================
 
             # galaxyscope:ignore sec_high_risk_execution

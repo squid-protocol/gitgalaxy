@@ -115,3 +115,92 @@ def test_kotlin_companion_object_inheritance_and_return_type_chain():
     chain_hit = next(s for s in sites if s["src_name"] == "make" and s["callee"] == "build")
     assert chain_hit["step"] == "typed"
     assert chain_hit["dst_path"] == "ClassName.kt"
+
+
+def test_cpp_variadic_pack_overloads_and_decltype_trailing_return():
+    hdr = (
+        "namespace fmt {\n"
+        "template <typename... T>\n"
+        "void print(FILE* f, format_string<T...> fmt, T&&... args) { }\n"
+        "template <typename... T>\n"
+        "void print(format_string<T...> fmt, T&&... args) { }\n"
+        "template <typename R>\n"
+        "auto join(R&& r, string_view sep)\n"
+        "    -> join_view<decltype(range_begin(r)),\n"
+        "                 decltype(range_end(r))> {\n"
+        "  return {};\n"
+        "}\n"
+        "}\n"
+    )
+    src = 'void run(int x) {\n  fmt::print("{}", x, 1);\n}\n'
+    f_hdr = _parse("cpp", "include/fmt/core.h", hdr)
+    f_src = _parse("cpp", "src/app.cc", src)
+    assert "join" in {f["name"] for f in f_hdr["functions"]}
+    edges = [{"src": "src/app.cc", "dst": "include/fmt/core.h"}]
+    sites, _ = resolve_calls([f_hdr, f_src], edges)
+    hit = next(s for s in sites if s["src_name"] == "run" and s["callee"] == "print")
+    assert hit["step"] == "import"
+    assert hit["dst_line"] == 4
+
+
+def test_kotlin_bodyless_interface_signature_extension_and_object_import():
+    iface_kt = (
+        "interface ClassInspector {\n"
+        "  fun containerData(c: Container, name: String, parent: String?): Int\n"
+        "}\n"
+        "fun ClassInspector.containerData(name: String, parent: String?): Int {\n"
+        "  return 1\n"
+        "}\n"
+    )
+    util_kt = (
+        "internal object ClassInspectorUtil {\n"
+        "  fun filterOutNullabilityAnnotations(xs: List<Int>): List<Int> { return xs }\n"
+        "}\n"
+    )
+    annot_kt = (
+        "interface Annotatable {\n"
+        "  interface Builder<out T : Builder<T>> {\n"
+        "    fun addAnnotations(xs: List<Int>): T { return this as T }\n"
+        "  }\n"
+        "}\n"
+    )
+    file_kt = (
+        "class FileSpec {\n"
+        "  class Builder : Annotatable.Builder<Builder> {\n"
+        "    override fun addAnnotations(xs: List<Int>): Builder = super.addAnnotations(xs)\n"
+        "  }\n"
+        "}\n"
+    )
+    caller_kt = (
+        "fun work(ci: ClassInspector, xs: List<Int>) {\n"
+        '  ci.containerData("a", null)\n'
+        "  filterOutNullabilityAnnotations(xs)\n"
+        "}\n"
+    )
+    f_iface = _parse("kotlin", "ClassInspector.kt", iface_kt)
+    f_util = _parse("kotlin", "ClassInspectorUtil.kt", util_kt)
+    f_annot = _parse("kotlin", "Annotatable.kt", annot_kt)
+    f_file = _parse("kotlin", "FileSpec.kt", file_kt)
+    f_caller = _parse("kotlin", "Caller.kt", caller_kt)
+
+    sig_fn = next(f for f in f_iface["functions"] if f["start_line"] == 2)
+    assert sig_fn.get("def_shape") == "signature"
+
+    edges = [
+        {"src": "Caller.kt", "dst": "ClassInspector.kt"},
+        {"src": "Caller.kt", "dst": "ClassInspectorUtil.kt"},
+        {"src": "FileSpec.kt", "dst": "Annotatable.kt"},
+    ]
+    sites, _ = resolve_calls([f_iface, f_util, f_annot, f_file, f_caller], edges)
+
+    cd_hit = next(s for s in sites if s["src_name"] == "work" and s["callee"] == "containerData")
+    assert cd_hit["dst_path"] == "ClassInspector.kt"
+    assert cd_hit["dst_line"] == 4
+
+    obj_hit = next(s for s in sites if s["src_name"] == "work" and s["callee"] == "filterOutNullabilityAnnotations")
+    assert obj_hit["step"] == "import"
+    assert obj_hit["dst_path"] == "ClassInspectorUtil.kt"
+
+    super_hit = next(s for s in sites if s["src_path"] == "FileSpec.kt" and s["callee"] == "addAnnotations")
+    assert super_hit["step"] == "class"
+    assert super_hit["dst_path"] == "Annotatable.kt"

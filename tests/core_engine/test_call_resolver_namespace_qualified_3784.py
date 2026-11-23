@@ -91,10 +91,11 @@ def test_marked_call_never_reaches_a_free_function_the_caller_cannot_see():
     assert _edges(files) == []
 
 
-def test_marked_namespace_call_without_a_free_definition_falls_back_to_the_method_ladder():
+def test_marked_namespace_call_without_a_free_definition_does_not_hit_unrelated_method():
+    """A namespace-qualified call (`util::make()`, `fmt::scan()`) must not fall through to an
+    unrelated class's method (`Pool::make`, `scanner<num>::scan`) in the same file."""
     files = {"src/a.cc": [_fn("t", 1, ["make"], "::util"), _fn("Pool::make", 5)]}
-    (edge,) = _edges(files)
-    assert edge[0:2] == ("t", "Pool::make")
+    assert _edges(files) == []
 
 
 def test_unmarked_receiver_call_still_reaches_a_member_by_import_stem():

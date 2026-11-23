@@ -2417,7 +2417,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
+   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
    "translator": {
     "files": 186,
     "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
@@ -8527,8 +8527,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
-   "python tests/tools/evidence_report.py zecs --baseline --sha ded8fea901e4cac1a7c6b0e002a08effba565abc",
+   "python tests/tools/cics_census.py survey --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 971a5c4fb6cb4f3594b493856043dddac94de36b",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8550,13 +8550,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
+   "sha": "971a5c4fb6cb4f3594b493856043dddac94de36b",
    "translator": {
     "files": 186,
     "sha256": "35db5738675b415812a42b9f974bb7a6afd95fc5acb077208deb11a63b1c8440"
    }
   },
-  "translator_commit": "ded8fea901e4cac1a7c6b0e002a08effba565abc",
+  "translator_commit": "971a5c4fb6cb4f3594b493856043dddac94de36b",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

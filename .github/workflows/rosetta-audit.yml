@@ -41,6 +41,14 @@ on:
       - "pyproject.toml"
       - "tests/tools/rosetta_audit.py"
       - ".github/workflows/rosetta-audit.yml"
+  # 2026-11-23: post-merge.yml also dispatches this on main (at most once per cadence window, when main changed a file in
+  # the `paths` above). A PR run is baseline-gated against engine main, so a corpus that is BEHIND main stays a notice on
+  # every PR and nobody owns it: #8939 split short_circuit out of branch, left clist/short_circuit an unreviewed n/a cell, and
+  # ~13 PRs sat red on it for two days while the corpus's own "owes a re-bless" issue named only tcl, in another repo.
+  # The main run has no baseline (main IS the baseline), so any corpus mismatch or unreviewed n/a cell fails it, Main Watch
+  # opens `main is red: rosetta-audit` here, and the fleet works that issue like any red main.
+  schedule:
+    - cron: "17 7 * * *"  # nightly: the corpus can drift from its own side (a corpus merge starts no engine run)
   workflow_dispatch:
 
 permissions:
@@ -76,6 +84,7 @@ jobs:
       # The baseline build: the branch this PR targets. Failing languages are re-run against
       # it so the audit can tell "this PR moved the corpus" from "the corpus is behind main".
       - name: Checkout GitGalaxy baseline (PR base branch)
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
@@ -110,6 +119,7 @@ jobs:
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Install GitGalaxy baseline build (full precision, separate venv)
+        if: github.event_name == 'pull_request'
         run: |
           python -m venv baseline-venv
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- baseline-venv/bin/pip install --require-hashes -r gitgalaxy/ci/requirements/bootstrap.txt
@@ -125,9 +135,15 @@ jobs:
             allow="--allow-regressions"
             echo "::notice::rosetta:rebless-owed label present -- regressions reported as warnings"
           fi
+          # On a PR: failing languages are re-run against engine main (a corpus that is behind is a notice). On main
+          # (dispatch or nightly) there is no baseline: main is the baseline, so every corpus mismatch fails the run.
+          baseline=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            baseline="--baseline-bin ${{ github.workspace }}/baseline-venv/bin/galaxyscope"
+          fi
           python gitgalaxy/tests/tools/rosetta_audit.py \
             --corpus keyword-rosetta \
-            --baseline-bin "${{ github.workspace }}/baseline-venv/bin/galaxyscope" \
+            $baseline \
             $allow
 
       # Baseline-gated: fails only on unreviewed rule-absent (n/a) cells beyond the corpus's

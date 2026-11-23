@@ -6,7 +6,7 @@ description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_fo
 > **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py)
 
 ## Engineering Summary
-This subsystem converts physical file requirements and execution intent extracted from COBOL source code into streamlined Job Control Language (JCL) scripts. It solves the problem of manually writing execution scripts by automatically provisioning only the exact dataset permissions required for a given program. It exists to enforce least-privilege resource access and modernize mainframe execution workflows. It fits into GitGalaxy by taking static analysis results and outputting operational execution environments. This subsystem is known as the Zero-Trust JCL Generator.
+This subsystem converts physical file requirements and execution intent extracted from COBOL source code into streamlined Job Control Language (JCL) scripts. It solves the problem of manually writing execution scripts by automatically provisioning only the exact dataset permissions required for a given program. It exists to enforce least-privilege resource access and modernize mainframe execution workflows. It fits into GitGalaxy by taking static analysis results and outputting operational execution environments. This subsystem is known as the JCL Generator.
 
 ## Purpose
 The purpose of this component is to parse COBOL source code for file bindings and subsystem usage, and generate standardized, single-step JCL scripts that map directly to the program's actual data access patterns.
@@ -29,7 +29,7 @@ Extracted file bindings are mapped to Data Set Parameters (`DISP`). Output datas
 
 ```mermaid
 flowchart LR
-    A[COBOL Source Files] --> B[Zero-Trust JCL Generator]
+    A[COBOL Source Files] --> B[JCL Generator]
     B --> C[Modernized JCL Scripts]
     C --> D[JCL Security Auditor]
 ```

@@ -148,3 +148,32 @@ def test_a_field_outside_the_record_is_refused_by_lowering():
 
 def test_the_modelled_refusals_still_come_first():
     assert "the OUTFIL statement" in _line(_forge(_sort_in(**FB80), " SORT FIELDS=(1,4,CH,A)\n OUTFIL FNAMES=O\n"))
+
+
+def test_a_concatenated_sortin_is_every_dataset_in_order_and_the_dds_are_named_for_it():
+    """#8886 slice 7: SORTIN followed by an unnamed DD is a concatenation. Both datasets are lowered inputs (before, the
+    second was dropped and the SORT ran over the first alone); the generated Dd constants name the k-th `SORTIN<k>`."""
+    dds = [
+        {"dd": "SORTIN", "dsn": "A.BKUP", "generation": "0", **FB80},
+        {"dd": "SORTIN", "dsn": "B.SYS", "generation": "0", **FB80},
+        {"dd": "SORTOUT", "dsn": "C"},
+    ]
+    f = _forge(dds)
+    st = _step(f)
+    assert st.refused is None and st.concat == 2
+    assert st.lowered == dfsort.cobol_program(dfsort.parse(" SORT FIELDS=(1,4,CH,A)\n"), 80, ["SORTIN", "SORTIN2"])
+    src = f.sources()[("base_pkg", "batch")]
+    (cfg,) = (t for k, t in src.items() if k.endswith("JobConfig"))
+    assert 'new Dd("SORTIN", "A.BKUP"' in cfg and 'new Dd("SORTIN2", "B.SYS"' in cfg
+
+
+def test_a_dcb_fact_with_no_generation_holds_for_every_generation_of_the_dataset():
+    """A GDG's DCB stated elsewhere (no generation) answers `_sort_reclen` for the generation (0) a step reads; a row
+    that names another generation does not."""
+    gdg = {"dd": "SORTIN", "dsn": "A.BKUP", "generation": "0"}
+    out = {"dd": "SORTOUT", "dsn": "C"}
+    fact = {"dd": "DCB-A", "dsn": "A.BKUP", "ordinal": 9, **FB80}
+    ok = _step(_forge([gdg, out], other=[fact]))
+    assert ok.refused is None and "80-byte" in ok.lowered_note
+    other_gen = _step(_forge([gdg, out], other=[{**fact, "generation": "+1"}]))
+    assert other_gen.refused and "record length" in other_gen.refused

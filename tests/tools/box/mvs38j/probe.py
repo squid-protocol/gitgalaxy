@@ -32,6 +32,7 @@ import json
 import re
 import sys
 import tempfile
+import threading
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -52,7 +53,14 @@ COND_JOBS = ("CONDJOB", "EVNJOB")  # IFJOB needs IF / THEN / ELSE, which 3.8J do
 RESULTS = FIXTURE / "mvs38j_probe.json"
 PROC_CASE = REPO / "tests" / "equivalence" / "jcl" / "proc"
 PROC_RESULTS = PROC_CASE / "mvs38j_probe.json"
-PROC_JOBS = ("SYMJOB", "OVRJOB", "PCJOB")  # SET / JCLLIB / INCLUDE / nested procedures are not in 3.8J (tier 1 only)
+PROC_JOBS = (
+    "SYMJOB",
+    "OVRJOB",
+    "PCJOB",
+    "KNDJOB",
+    "SSJOB",
+    "DUPJOB",
+)  # SET / JCLLIB / INCLUDE / nested procedures are not in 3.8J (tier 1 only)
 PROC_UNOBSERVED = [
     "pgm (every PGM= is IEFBR14)",
     "parm unless a symbolic",
@@ -82,16 +90,24 @@ GDG_UNOBSERVED = [
 RESTART_CASE = REPO / "tests" / "equivalence" / "jcl" / "restart"
 RESTART_RESULTS = RESTART_CASE / "mvs38j_probe.json"
 RESTART_SKIP = {  # job -> why it is not run here
-    "RSTJOB4": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-    "RSTJOB11": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-    "RSTJOB12": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
     "RSTJOB5": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
     "RSTJOB9": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
     "RSTJOB10": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
 }
+RESTART_CHECKPOINT = {
+    "RSTJOB4": "V3",
+    "RSTJOB11": "K1",
+    "RSTJOB12": "WEEKLY",
+}  # job -> the step that takes the checkpoint
+CHK_DSN, CHK_LOAD, CHK_ID = (
+    "PUB001.CHK.DATA",
+    "PUB001.CHK.LOAD",
+    "C0000001",
+)  # 3.8J names the first checkpoint C0000001 itself
 RESTART_UNOBSERVED = [
-    "what a program does (every step is IDCAMS with SET MAXCC)",
-    "a checkpoint restart (SYSCHK, checkid, RD=): not run",
+    "what a program does (every step is IDCAMS with SET MAXCC, except the checkpointed step: CHKPGM, which takes one CHKPT)",
+    "the checkid the fixture names (CK1, CKPT2, CHECK8): 3.8J's CHKPT names its checkpoint itself (C0000001), the restart deck uses that",
+    "the completion code of a restarted step (the box shows IEFRSTRT, code 0000, whatever the checkpointed program returned)",
     "the restart rule for a bare COND=(code,op) over skipped steps (assumption A1): only its outcome on the box is compared",
 ]
 DSUTIL_SCENARIOS = FIXTURE / "dsutil_scenarios.json"
@@ -148,15 +164,32 @@ def observed(parsed, job, step_names):
     return {n: ("run" if n in started else "bypass") for n in step_names}
 
 
-def proc_deck(lines, job, call):
-    """(deck text, procedure steps with a symbolic PARM) for one call: the job's procedure, that call, its override DDs."""
+def set_only_dds(lines, job):
+    """ddnames of the job's procedure whose DSN uses a symbol only a SET statement defines (3.8J has no SET: not run)."""
     block, inside = [], False
     for ln in lines:
         f = ln.split()
         if len(f) > 1 and f[1] == "JOB" and not ln.startswith("//*"):
             inside = f[0] == f"//{job}"
-        elif inside and not ln.startswith("//*") and not ln.startswith("// SET"):
+        elif inside and not ln.startswith("//*"):
             block.append(ln)
+    set_syms = {m for ln in block if ln.split()[1:2] == ["SET"] for m in re.findall(r"([A-Z0-9$#@]+)=", ln)}
+    given = {m for ln in block if ln.split()[1:2] != ["SET"] for m in re.findall(r"([A-Z0-9$#@]+)=", ln)}
+    only = set_syms - given
+    return {ln.split()[0].lstrip("/") for ln in block if ln.split()[1:2] == ["DD"] and any(f"&{x}" in ln for x in only)}
+
+
+def proc_deck(lines, job, call):
+    """(deck text, procedure steps with a symbolic PARM) for one call: the job's procedure, that call, its override DDs."""
+    block, inside = [], False
+    skip = set_only_dds(lines, job)
+    for ln in lines:
+        f = ln.split()
+        if len(f) > 1 and f[1] == "JOB" and not ln.startswith("//*"):
+            inside = f[0] == f"//{job}"
+        elif inside and not ln.startswith("//*") and f[1:2] != ["SET"]:
+            if not (f[1:2] == ["DD"] and f[0].lstrip("/") in skip):
+                block.append(ln)
     out = [f"//{job:<8} JOB (ACCT),'PROBE',CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1)"]
     in_proc, keep, sym, step = True, True, [], None
     for ln in block:
@@ -177,13 +210,14 @@ def proc_deck(lines, job, call):
             ln = re.sub(r"PGM=[A-Z0-9$#@]+", "PGM=IEFBR14", ln)
         elif f[1:2] == ["DD"] and "DSN=" in ln:
             dsn = re.search(r"DSN=([^,\s]+)", ln).group(1)
-            ln = f"{f[0].ljust(max(9, len(f[0])))} DD DSN={dsn},UNIT=SYSDA,SPACE=(TRK,1)"
+            if dsn != "NULLFILE":  # NULLFILE is a dummy: it keeps no unit or space
+                ln = f"{f[0].ljust(max(9, len(f[0])))} DD DSN={dsn},UNIT=SYSDA,SPACE=(TRK,1)"
         out.append(ln)
     return "\n".join(out) + "\n", sym
 
 
 _ALLOC = re.compile(r"IEF236I ALLOC\. FOR (\S+) (\S+) (\S+)")
-_DDALLOC = re.compile(r"IEF237I\s+\S+\s+ALLOCATED TO (\S+)")
+_DDALLOC = re.compile(r"IEF237I\s+(?!DMY\b|JES2\b)\S+\s+ALLOCATED TO (\S+)")  # a dummy or a sysout DD names no dataset
 _SUBST = re.compile(r"IEF653I SUBSTITUTION JCL - PGM=\S+?,PARM='([^']*)'")
 _DSNDISP = re.compile(r"IEF285I\s+(\S+)\s+(?:KEPT|DELETED|PASSED|CATALOGED|UNCATALOGED)")
 
@@ -289,7 +323,13 @@ def main_proc(args):
             keys,
             {k: v.get("parm") for k, v in engine_all.items()},
         )
+        gone = set_only_dds(doc["flow_jcl"], sc["job"])  # a DD the deck drops (its symbol needs SET) is not compared
+
+        def _drop(proj):
+            return {k: {**v, "dd": [d for d in v["dd"] if d[0] not in gone]} for k, v in proj.items()}
+
         expect = proc_projection(sc["expect"], keys, {k: v.get("parm") for k, v in sc["expect"].items()})
+        expect, engine = _drop(expect), _drop(engine)
         job = parsed["jobs"][-1] if parsed and parsed["jobs"] else None
         ran = [(s["procstep"], s["step"], s["executed"], s["cond_code"]) for s in job["steps"]] if job else None
         results.append(
@@ -312,7 +352,7 @@ def main_proc(args):
     out = {
         "provenance": runner.PROVENANCE,
         "internal_only": "Q16: MVS 3.8J results are not published",
-        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB)",
+        "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB / SSJOB / DUPJOB)",
         "results": results,
     }
     Path(args.out if args.out != str(RESULTS) else PROC_RESULTS).write_text(json.dumps(out, indent=1) + "\n")
@@ -925,16 +965,34 @@ def main_restart(args):
         print("probe: --printer FILE is required (the 1403 file of a started box)", file=sys.stderr)
         return 2
     results = []
+    stop, workdir = threading.Event(), Path(args.printer).parent
+    if any(sc["job"] in RESTART_CHECKPOINT for sc in scs):
+        threading.Thread(
+            target=answer_checkpoint_wtors, args=(workdir, stop, [(workdir / "mvslog.txt").stat().st_size]), daemon=True
+        ).start()
+        submit_and_read(chkpgm_setup_deck(), "CHKMAKE", args.printer, args.host, args.port, args.timeout)
     for sc in scs:
-        with tempfile.TemporaryDirectory(prefix="mvs38j-probe-") as tmp:
-            path = Path(tmp) / f"{sc['id']}.jcl"
-            path.write_text(restart_deck(lines, sc["job"], sc["given"]))
-            before = Path(args.printer).stat().st_size if Path(args.printer).is_file() else 0
-            runner.submit(path, args.host, args.port)
-        parsed = None
-        if runner.wait_for_job(args.printer, sc["job"], args.timeout, before):
-            text = Path(args.printer).read_bytes()[before:].decode("utf-8", "backslashreplace")
-            parsed = runner.parse_log(text, sc["job"])
+        chk = {}
+        if sc["job"] in RESTART_CHECKPOINT:
+            parsed, taken, restarted = run_checkpoint_scenario(
+                sc, doc, args.printer, args.host, args.port, args.timeout
+            )
+            chk = {
+                "checkpoint": {
+                    "step": RESTART_CHECKPOINT[sc["job"]],
+                    "taken_IHJ004I": taken,
+                    "restarted_IHJ008I": restarted,
+                }
+            }
+            if not (taken and restarted):
+                parsed = (
+                    None  # a restart that did not resume from a real checkpoint says nothing about the checkpoint rule
+                )
+        else:
+            text = submit_and_read(
+                restart_deck(lines, sc["job"], sc["given"]), sc["job"], args.printer, args.host, args.port, args.timeout
+            )
+            parsed = runner.parse_log(text, sc["job"]) if text else None
         box = observed_restart(parsed, sc["job"], list(sc["expect"])) if parsed else None
         engine = restart_flow(rows, sc["job"], sc["given"])
         job = parsed["jobs"][-1] if parsed and parsed["jobs"] else None
@@ -950,10 +1008,12 @@ def main_restart(args):
                 "box_abends": job["abends"] if job else None,
                 "jcl_error": job["jcl_error"] if job else None,
                 "unparsed_ief": parsed["unparsed_ief"] if parsed else None,
+                **chk,
                 **({"assumed": sc["assumed"]} if "assumed" in sc else {}),
             }
         )
         print(f"{sc['id']}: {results[-1]['verdict']}", flush=True)
+    stop.set()
     out = {
         "provenance": runner.PROVENANCE,
         "internal_only": "Q16: MVS 3.8J results are not published",
@@ -964,6 +1024,152 @@ def main_restart(args):
     }
     Path(args.out if args.out != str(RESULTS) else RESTART_RESULTS).write_text(json.dumps(out, indent=1) + "\n")
     return 0 if all(r["verdict"] == "agree" for r in results) else 1
+
+
+CHKPGM_SOURCE = """CHKPGM   CSECT
+         STM   14,12,12(13)
+         BALR  12,0
+         USING *,12
+         ST    13,SAVE+4
+         LA    13,SAVE
+         L     2,0(1)
+         LH    3,0(2)
+         SR    4,4
+         LTR   3,3
+         BZ    NOPARM
+         IC    4,2(2)
+         N     4,=X'0000000F'
+NOPARM   ST    4,RC
+         OPEN  (CHKDCB,(OUTPUT))
+         WTO   'CHKPGM BEFORE CHECKPOINT'
+         CHKPT CHKDCB
+         WTO   'CHKPGM AFTER CHECKPOINT'
+         CLOSE (CHKDCB)
+         L     13,SAVE+4
+         LM    14,12,12(13)
+         L     15,RC
+         BR    14
+SAVE     DC    18F'0'
+RC       DC    F'0'
+CHKDCB   DCB   DDNAME=CHKDD,DSORG=PS,MACRF=(W),RECFM=U,BLKSIZE=7000
+         END
+"""
+
+
+def chkpgm_setup_deck():
+    """Assemble and link CHKPGM (a one-CHKPT program that returns its PARM digit) into PUB001.CHK.LOAD, deleting an older copy."""
+    out = ["//CHKMAKE  JOB (ACCT),'CHKPGM BUILD',CLASS=A,MSGCLASS=A", "//DEL      EXEC PGM=IEFBR14"]
+    out += [f"//D1       DD DSN={CHK_LOAD},DISP=(MOD,DELETE),UNIT=SYSDA,", "//         SPACE=(TRK,1)"]
+    out += ["//ASM      EXEC PGM=IFOX00,PARM='NODECK,LOAD'", "//SYSLIB   DD DSN=SYS1.MACLIB,DISP=SHR"]
+    out += ["//         DD DSN=SYS1.AMODGEN,DISP=SHR"]
+    out += [f"//SYSUT{n}   DD UNIT=SYSDA,SPACE=(CYL,(2,1))" for n in (1, 2, 3)]
+    out += ["//SYSPRINT DD SYSOUT=A", "//SYSGO    DD DSN=&&OBJ,UNIT=SYSDA,DISP=(,PASS),SPACE=(TRK,(5,5)),"]
+    out += ["//         DCB=(RECFM=FB,LRECL=80,BLKSIZE=400)", "//SYSIN    DD *", CHKPGM_SOURCE.rstrip("\n"), "/*"]
+    out += [
+        "//LKED     EXEC PGM=IEWL,PARM='LIST,LET,XREF',COND=(8,LT,ASM)",
+        "//SYSLIN   DD DSN=&&OBJ,DISP=(OLD,DELETE)",
+    ]
+    out += [f"//SYSLMOD  DD DSN={CHK_LOAD}(CHKPGM),DISP=(NEW,CATLG),UNIT=SYSDA,", "//         SPACE=(TRK,(5,5,2))"]
+    out += ["//SYSUT1   DD UNIT=SYSDA,SPACE=(CYL,(2,1))", "//SYSPRINT DD SYSOUT=A"]
+    return "\n".join(out) + "\n"
+
+
+def chk_clean_deck():
+    """Delete the checkpoint dataset a scenario leaves (MOD,DELETE allocates a missing one first)."""
+    return "\n".join(
+        [
+            "//CHKCLEAN JOB (ACCT),'CHKPT CLEANUP',CLASS=A,MSGCLASS=A",
+            "//S1       EXEC PGM=IEFBR14",
+            f"//D1       DD DSN={CHK_DSN},DISP=(MOD,DELETE),UNIT=SYSDA,",
+            "//         SPACE=(TRK,1)",
+            "",
+        ]
+    )
+
+
+def _chk_dd(disp):
+    """The CHKDD card(s), continued so no card passes column 71 (a longer one is a JCL error, IEF618I)."""
+    if disp == "new":
+        return f"DSN={CHK_DSN},DISP=(NEW,CATLG),UNIT=SYSDA,\n//         SPACE=(TRK,(5,5)),DCB=(RECFM=U,BLKSIZE=7000)"
+    return f"DSN={CHK_DSN},DISP=OLD"
+
+
+def chk_deck(lines, job, given, ckpt_step, restart):
+    """The two decks of a checkpoint scenario. `restart` False: the fixture's job without RESTART= / SYSCHK, the checkpoint
+    step running CHKPGM (PARM = its `given` rc digit) with a CHKDD that creates PUB001.CHK.DATA. True: the fixture's own JOB card
+    with the fixture's checkid replaced by CHK_ID, its SYSCHK DD on PUB001.CHK.DATA, and CHKDD OLD."""
+    head = next(ln for ln in lines if ln.split()[:2] == [f"//{job}", "JOB"])
+    head = head.replace(",CLASS=A", ",CLASS=A,MSGCLASS=A") if ",CLASS=A" in head else head + ",MSGCLASS=A"
+    if restart:
+        head = re.sub(r"(RESTART=\([^,)]*),[^)]*\)", lambda m: m.group(1) + "," + CHK_ID + ")", head)
+    else:
+        head = re.sub(r",RESTART=\([^)]*\)", "", head)
+    out = fold_card(head)
+    disp = "old" if restart else "new"
+    in_proc, syschk = False, False
+    for ln in _job_block(lines, job):
+        f = ln.split()
+        if len(f) < 2:
+            continue
+        if f[1] == "DD" and f[0] == "//SYSCHK":
+            continue  # re-emitted just before the first job step (a procedure body must not precede it)
+        elif f[1] == "PROC":
+            in_proc = True
+            out.append(ln)
+        elif f[1] == "PEND":
+            in_proc = False
+            out.append(ln)
+        elif f[1] == "EXEC":
+            name = f[0][2:]
+            if restart and not in_proc and not syschk:
+                out.append(f"//SYSCHK   DD DSN={CHK_DSN},DISP=OLD")
+                syschk = True
+            rd = re.search(r",(RD=\w+)", f[2])
+            rd = f",{rd.group(1)}" if rd else ""
+            if in_proc:
+                if name == ckpt_step:
+                    out += [f"//{name:<8} EXEC PGM=CHKPGM", f"//STEPLIB  DD DSN={CHK_LOAD},DISP=SHR"]
+                    out.append(f"//CHKDD    DD {_chk_dd(disp)}")
+                else:
+                    out += [f"//{name:<8} EXEC PGM=IDCAMS", "//SYSPRINT DD SYSOUT=A", "//SYSIN    DD DUMMY"]
+            elif f[2].startswith("PGM="):
+                rc = given.get(name, {"rc": 0})["rc"]
+                if name == ckpt_step:
+                    parm = "" if restart else f",PARM='{rc}'"
+                    out += [f"//{name:<8} EXEC PGM=CHKPGM{parm}{rd}", f"//STEPLIB  DD DSN={CHK_LOAD},DISP=SHR"]
+                    out.append(f"//CHKDD    DD {_chk_dd(disp)}")
+                else:
+                    out += [f"//{name:<8} EXEC PGM=IDCAMS{rd}", "//SYSPRINT DD SYSOUT=A", "//SYSIN    DD *"]
+                    out += [f" SET MAXCC={rc}", "/*"]
+            else:  # a procedure call; its steps run rc 0 (a nonzero given on a procedure step is not modelled here)
+                out.append(ln)
+    if any("." in k and v["rc"] for k, v in given.items()):
+        raise ValueError(f"{job}: a nonzero procedure-step rc is not modelled")
+    return "\n".join(out) + "\n"
+
+
+def answer_checkpoint_wtors(workdir, stop, seen):
+    """Answer YES to each IEC254D / IEC255D (new checkpoint dataset / secure checkpoint volume) the master console hardcopy shows,
+    through the box's `box.cmd` file (sysgen.py serve). `seen` is a mutable offset into mvslog.txt."""
+    log, cmd = Path(workdir) / "mvslog.txt", Path(workdir) / "box.cmd"
+    while not stop.is_set():
+        if log.is_file():
+            data = log.read_bytes()
+            text, seen[0] = data[seen[0] :].decode("latin-1"), len(data)
+            for m in re.finditer(r"\*(\d+) IEC25[45]D", text):
+                cmd.write_text(f"r {m.group(1)},yes\n")
+        stop.wait(1.0)
+
+
+def run_checkpoint_scenario(sc, doc, printer, host, port, timeout):
+    """Checkpointed run, then the deferred restart: (parsed restart log, whether the checkpoint was taken, whether it restarted)."""
+    lines, job, step = doc["flow_jcl"], sc["job"], RESTART_CHECKPOINT[sc["job"]]
+    submit_and_read(chk_clean_deck(), "CHKCLEAN", printer, host, port, timeout)
+    first = submit_and_read(chk_deck(lines, job, sc["given"], step, False), job, printer, host, port, timeout)
+    taken = bool(first) and "IHJ004I" in first
+    text = submit_and_read(chk_deck(lines, job, sc["given"], step, True), job, printer, host, port, timeout)
+    parsed = runner.parse_log(text, job) if text else None
+    return parsed, taken, bool(text) and "IHJ008I" in text
 
 
 DSUTIL_ROOT = (

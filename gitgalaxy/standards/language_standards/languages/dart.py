@@ -122,7 +122,7 @@ DEFINITION: dict[str, Any] = {
             + r"$]*)(?:[ \t\n]*<[^>]*>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*(?:\{|=>|:|async|sync))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*=>",
             re.I | re.M,
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
+        # 3. structural_boundaries (Structural Keywords): structural boundaries. EXCLUDES access modifiers and const/final.
         "structural_boundaries": re.compile(
             r"\b(var|late|return|break|continue|yield|await|class|mixin|extension|enum|typedef|import|export|part|library|base|sealed|interface|macro)\b|=>",
             re.I,

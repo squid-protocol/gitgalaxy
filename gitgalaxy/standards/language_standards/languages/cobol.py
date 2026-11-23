@@ -181,7 +181,7 @@ DEFINITION: dict[str, Any] = {
             r"[A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
             re.I,
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
+        # 3. structural_boundaries (Structural Keywords): structural boundaries defining straight-line execution flow.
         # EXCLUDES access modifiers (GLOBAL, EXTERNAL) to prevent Structural Complexity Inflation.
         "structural_boundaries": re.compile(
             r"\b(DIVISION|SECTION|EXIT|CONTINUE|GOBACK|ACCEPT|XML\s+PARSE|JSON\s+GENERATE|DISPLAY|STOP\s+RUN|PERFORM)\b",

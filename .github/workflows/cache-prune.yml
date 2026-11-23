@@ -35,11 +35,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          sparse-checkout: tests/tools/cache_prune.py
+          sparse-checkout: |
+            tests/tools/cache_prune.py
+            tests/tools/ci_retry.sh
           sparse-checkout-cone-mode: false
 
       - name: Cache usage before
-        run: gh api "repos/$GH_REPO/actions/cache/usage"
+        run: CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$GH_REPO/actions/cache/usage"
 
       - name: Prune
         env:
@@ -50,4 +52,4 @@ jobs:
           python3 tests/tools/cache_prune.py --repo "$GH_REPO" $flag | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Cache usage after
-        run: gh api "repos/$GH_REPO/actions/cache/usage"
+        run: CI_RETRY_CAPTURE=1 tests/tools/ci_retry.sh 4 10 -- gh api "repos/$GH_REPO/actions/cache/usage"

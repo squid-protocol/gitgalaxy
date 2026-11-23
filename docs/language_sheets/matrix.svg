@@ -1,1136 +1,659 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1130 3850" width="1130" height="3850" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">
-<rect width="1130" height="3850" fill="#0f1117"/>
-<text x="130" y="28" font-size="11" fill="#8b949e" font-weight="600">DETECTION</text>
-<text x="290" y="28" font-size="11" fill="#8b949e" font-weight="600">FUNCTIONS</text>
-<text x="450" y="28" font-size="11" fill="#8b949e" font-weight="600">CALL LINKS</text>
-<text x="610" y="28" font-size="11" fill="#8b949e" font-weight="600">IMPORTS</text>
-<text x="770" y="28" font-size="11" fill="#8b949e" font-weight="600">KEYWORDS</text>
-<text x="960" y="28" font-size="11" fill="#8b949e" font-weight="600">ROSETTA</text>
-<text x="8" y="28" font-size="11" fill="#8b949e" font-weight="600">LANGUAGE</text>
-<rect x="8" y="40" width="12" height="12" rx="3" fill="#3b1d1d" stroke="#e5534b"/>
-<text x="25" y="50" font-size="10.5" fill="#c9d1d9">under 50%</text>
-<rect x="108" y="40" width="12" height="12" rx="3" fill="#1f3b5c" stroke="#8b949e"/>
-<text x="125" y="50" font-size="10.5" fill="#c9d1d9">50-79%</text>
-<rect x="208" y="40" width="12" height="12" rx="3" fill="#2f6aa8" stroke="#8b949e"/>
-<text x="225" y="50" font-size="10.5" fill="#c9d1d9">80-89%</text>
-<rect x="308" y="40" width="12" height="12" rx="3" fill="#4f9be8" stroke="#8b949e"/>
-<text x="325" y="50" font-size="10.5" fill="#c9d1d9">90-97%</text>
-<rect x="408" y="40" width="12" height="12" rx="3" fill="#a9d1ff" stroke="#8b949e"/>
-<text x="425" y="50" font-size="10.5" fill="#c9d1d9">98-100%</text>
-<text x="518" y="50" font-size="10.5" fill="#8b949e">p = precision, r = recall. Keywords: families by score, high to low.</text>
-<line x1="8" y1="64" x2="1122" y2="64" stroke="#30363d"/>
-<text x="8" y="84" font-size="13" fill="#f0efec" font-weight="600">abap</text>
-<rect x="130" y="70" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="83" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="70" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="83" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="102" font-size="10" fill="#8b949e">7 files</text>
-<text x="290" y="84" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="84" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="84" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="84" font-size="11" fill="#8b949e">decoy test only (21)</text>
-<rect x="960.0" y="74" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="98" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="112" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="118" x2="1122" y2="118" stroke="#30363d"/>
-<text x="8" y="138" font-size="13" fill="#f0efec" font-weight="600">acs</text>
-<text x="130" y="138" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="138" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="138" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="138" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="138" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="128" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="152" font-size="10" fill="#c9d1d9">50 passed, 0 failed</text>
-<text x="960" y="166" font-size="10" fill="#8b949e">of 50 comparable cells</text>
-<line x1="8" y1="172" x2="1122" y2="172" stroke="#30363d"/>
-<text x="8" y="192" font-size="13" fill="#f0efec" font-weight="600">ada</text>
-<rect x="130" y="178" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="191" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="178" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="191" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="210" font-size="10" fill="#8b949e">50 files</text>
-<text x="290" y="192" font-size="11" fill="#8b949e">not measured</text>
-<rect x="450" y="178" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="456" y="191" font-size="11" fill="#ffffff">82.2% p</text>
-<rect x="507" y="178" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="191" font-size="11" fill="#ffffff">58.6% r</text>
-<text x="450" y="210" font-size="10" fill="#8b949e">2,795 calls</text>
-<text x="610" y="192" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="192" font-size="11" fill="#8b949e">decoy test only (1)</text>
-<rect x="960.0" y="182" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="206" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="220" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="226" x2="1122" y2="226" stroke="#30363d"/>
-<text x="8" y="246" font-size="13" fill="#f0efec" font-weight="600">agc_assembly</text>
-<rect x="130" y="232" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="245" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="232" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="245" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="264" font-size="10" fill="#8b949e">10 files</text>
-<text x="290" y="246" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="246" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="246" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="246" font-size="11" fill="#8b949e">decoy test only (21)</text>
-<rect x="960.0" y="236" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="260" font-size="10" fill="#c9d1d9">56 passed, 0 failed</text>
-<text x="960" y="274" font-size="10" fill="#8b949e">of 56 comparable cells</text>
-<line x1="8" y1="280" x2="1122" y2="280" stroke="#30363d"/>
-<text x="8" y="300" font-size="13" fill="#f0efec" font-weight="600">apex</text>
-<rect x="130" y="286" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="299" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="286" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="299" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="318" font-size="10" fill="#8b949e">7 files</text>
-<rect x="290" y="286" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="299" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="286" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="299" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="318" font-size="10" fill="#8b949e">38 functions</text>
-<rect x="450" y="286" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="299" font-size="11" fill="#06121f">95.7% p</text>
-<rect x="507" y="286" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="299" font-size="11" fill="#06121f">97.5% r</text>
-<text x="450" y="318" font-size="10" fill="#8b949e">276 calls</text>
-<text x="610" y="300" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="300" font-size="11" fill="#8b949e">decoy test only (15)</text>
-<rect x="960.0" y="290" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="314" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="328" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="334" x2="1122" y2="334" stroke="#30363d"/>
-<text x="8" y="354" font-size="13" fill="#f0efec" font-weight="600">assembly</text>
-<rect x="130" y="340" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="353" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="340" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="353" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="372" font-size="10" fill="#8b949e">234 files</text>
-<text x="290" y="354" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="354" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="354" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="354" font-size="11" fill="#8b949e">decoy test only (15)</text>
-<rect x="960.0" y="344" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="368" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="382" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="388" x2="1122" y2="388" stroke="#30363d"/>
-<text x="8" y="408" font-size="13" fill="#f0efec" font-weight="600">batch</text>
-<rect x="130" y="394" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="407" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="394" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="407" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="426" font-size="10" fill="#8b949e">5 files</text>
-<text x="290" y="408" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="408" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="408" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="408" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="408" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="442" x2="1122" y2="442" stroke="#30363d"/>
-<text x="8" y="462" font-size="13" fill="#f0efec" font-weight="600">blp</text>
-<rect x="130" y="448" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="461" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="448" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="461" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="480" font-size="10" fill="#8b949e">5 files</text>
-<text x="290" y="462" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="462" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="462" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="462" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="462" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="496" x2="1122" y2="496" stroke="#30363d"/>
-<text x="8" y="516" font-size="13" fill="#f0efec" font-weight="600">bms</text>
-<rect x="130" y="502" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="515" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="502" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="515" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="534" font-size="10" fill="#8b949e">10 files</text>
-<text x="290" y="516" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="516" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="516" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="516" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="506" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="530" font-size="10" fill="#c9d1d9">38 passed, 0 failed</text>
-<text x="960" y="544" font-size="10" fill="#8b949e">of 38 comparable cells</text>
-<line x1="8" y1="550" x2="1122" y2="550" stroke="#30363d"/>
-<text x="8" y="570" font-size="13" fill="#f0efec" font-weight="600">c</text>
-<rect x="130" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="569" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="569" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="588" font-size="10" fill="#8b949e">40 files</text>
-<rect x="290" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="569" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="556" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="569" font-size="11" fill="#06121f">99.5% p</text>
-<text x="290" y="588" font-size="10" fill="#8b949e">1,715 functions</text>
-<rect x="450" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="569" font-size="11" fill="#06121f">100% p</text>
-<rect x="500" y="556" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="506" y="569" font-size="11" fill="#ffffff">51.7% r</text>
-<text x="450" y="588" font-size="10" fill="#8b949e">13,285 reference edges</text>
-<rect x="610" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="569" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="556" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="569" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="588" font-size="10" fill="#8b949e">811 imports</text>
-<rect x="770.0" y="560" width="75.0" height="9" fill="#4f9be8"/>
-<rect x="845.0" y="560" width="30.0" height="9" fill="#2f6aa8"/>
-<rect x="875.0" y="560" width="15.0" height="9" fill="#1f3b5c"/>
-<rect x="890.0" y="560" width="30.0" height="9" fill="#e5534b"/>
-<text x="807.5" y="582" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="807.5" y="593" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="860.0" y="582" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="882.5" y="582" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="905.0" y="582" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="770" y="605" font-size="10" fill="#8b949e">10 of 55 families</text>
-<rect x="960.0" y="560" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="584" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="598" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="604" x2="1122" y2="604" stroke="#30363d"/>
-<text x="8" y="624" font-size="13" fill="#f0efec" font-weight="600">clist</text>
-<text x="130" y="624" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="624" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="624" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="624" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="624" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="614" width="124.5" height="9" fill="#4f9be8"/>
-<rect x="1084.5" y="614" width="25.5" height="9" fill="#e5534b"/>
-<text x="960" y="638" font-size="10" fill="#c9d1d9">39 passed, 8 failed</text>
-<text x="960" y="652" font-size="10" fill="#8b949e">of 47 comparable cells</text>
-<line x1="8" y1="658" x2="1122" y2="658" stroke="#30363d"/>
-<text x="8" y="678" font-size="13" fill="#f0efec" font-weight="600">cobol</text>
-<rect x="130" y="664" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="677" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="664" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="677" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="696" font-size="10" fill="#8b949e">570 files</text>
-<text x="290" y="678" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="678" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="678" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="678" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="668" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="692" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="706" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="712" x2="1122" y2="712" stroke="#30363d"/>
-<text x="8" y="732" font-size="13" fill="#f0efec" font-weight="600">cpp</text>
-<rect x="130" y="718" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="731" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="718" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="731" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="750" font-size="10" fill="#8b949e">29 files</text>
-<rect x="290" y="718" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="731" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="718" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="731" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="750" font-size="10" fill="#8b949e">1,381 functions</text>
-<rect x="450" y="718" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="731" font-size="11" fill="#06121f">95.7% p</text>
-<rect x="507" y="718" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="731" font-size="11" fill="#ff8f88">41.5% r</text>
-<text x="450" y="750" font-size="10" fill="#8b949e">3,301 reference edges</text>
-<rect x="610" y="718" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="731" font-size="11" fill="#06121f">99.4% p</text>
-<rect x="667" y="718" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="731" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="750" font-size="10" fill="#8b949e">171 imports</text>
-<text x="770" y="732" font-size="11" fill="#8b949e">decoy test only (24)</text>
-<rect x="960.0" y="722" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="746" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="760" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="766" x2="1122" y2="766" stroke="#30363d"/>
-<text x="8" y="786" font-size="13" fill="#f0efec" font-weight="600">crystal</text>
-<text x="130" y="786" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="786" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="786" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="786" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="786" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="776" width="147.5" height="9" fill="#4f9be8"/>
-<rect x="1107.5" y="776" width="2.5" height="9" fill="#e5534b"/>
-<text x="960" y="800" font-size="10" fill="#c9d1d9">58 passed, 1 failed</text>
-<text x="960" y="814" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="820" x2="1122" y2="820" stroke="#30363d"/>
-<text x="8" y="840" font-size="13" fill="#f0efec" font-weight="600">csharp</text>
-<rect x="130" y="826" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="839" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="826" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="839" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="858" font-size="10" fill="#8b949e">8 files</text>
-<rect x="290" y="826" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="839" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="826" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="839" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="858" font-size="10" fill="#8b949e">964 functions</text>
-<rect x="450" y="826" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="839" font-size="11" fill="#06121f">99.7% p</text>
-<rect x="507" y="826" width="40" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="839" font-size="11" fill="#ffffff">79% r</text>
-<text x="450" y="858" font-size="10" fill="#8b949e">4,727 reference edges</text>
-<rect x="610" y="826" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="839" font-size="11" fill="#ff8f88">17.5% p</text>
-<rect x="667" y="826" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="673" y="839" font-size="11" fill="#ffffff">66.7% r</text>
-<text x="610" y="858" font-size="10" fill="#8b949e">39 imports</text>
-<rect x="770.0" y="830" width="87.5" height="9" fill="#4f9be8"/>
-<rect x="857.5" y="830" width="25.0" height="9" fill="#2f6aa8"/>
-<rect x="882.5" y="830" width="12.5" height="9" fill="#1f3b5c"/>
-<rect x="895.0" y="830" width="25.0" height="9" fill="#e5534b"/>
-<text x="813.8" y="852" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
-<text x="813.8" y="863" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="870.0" y="852" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="888.8" y="852" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="907.5" y="852" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="770" y="875" font-size="10" fill="#8b949e">12 of 58 families</text>
-<rect x="960.0" y="830" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="854" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="868" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="874" x2="1122" y2="874" stroke="#30363d"/>
-<text x="8" y="894" font-size="13" fill="#f0efec" font-weight="600">css</text>
-<rect x="130" y="880" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="893" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="880" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="893" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="912" font-size="10" fill="#8b949e">38 files</text>
-<rect x="290" y="880" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="893" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="880" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="893" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="912" font-size="10" fill="#8b949e">164 functions</text>
-<text x="450" y="894" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="894" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="894" font-size="11" fill="#8b949e">decoy test only (2)</text>
-<rect x="960.0" y="884" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="908" font-size="10" fill="#c9d1d9">51 passed, 0 failed</text>
-<text x="960" y="922" font-size="10" fill="#8b949e">of 51 comparable cells</text>
-<line x1="8" y1="928" x2="1122" y2="928" stroke="#30363d"/>
-<text x="8" y="948" font-size="13" fill="#f0efec" font-weight="600">dart</text>
-<rect x="130" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="947" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="947" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="966" font-size="10" fill="#8b949e">7 files</text>
-<rect x="290" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="947" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="947" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="966" font-size="10" fill="#8b949e">1,750 functions</text>
-<rect x="450" y="934" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="947" font-size="11" fill="#06121f">99.6% p</text>
-<rect x="507" y="934" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="947" font-size="11" fill="#06121f">99.1% r</text>
-<text x="450" y="966" font-size="10" fill="#8b949e">2,644 calls</text>
-<rect x="610" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="947" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="934" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="947" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="966" font-size="10" fill="#8b949e">748 imports</text>
-<text x="770" y="948" font-size="11" fill="#8b949e">decoy test only (21)</text>
-<rect x="960.0" y="938" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="962" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="976" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="982" x2="1122" y2="982" stroke="#30363d"/>
-<text x="8" y="1002" font-size="13" fill="#f0efec" font-weight="600">db2_sql</text>
-<rect x="130" y="988" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1001" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="988" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1001" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1020" font-size="10" fill="#8b949e">10 files</text>
-<text x="290" y="1002" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1002" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1002" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1002" font-size="11" fill="#8b949e">decoy test only (2)</text>
-<rect x="960.0" y="992" width="147.4" height="9" fill="#4f9be8"/>
-<rect x="1107.4" y="992" width="2.6" height="9" fill="#e5534b"/>
-<text x="960" y="1016" font-size="10" fill="#c9d1d9">56 passed, 1 failed</text>
-<text x="960" y="1030" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="1036" x2="1122" y2="1036" stroke="#30363d"/>
-<text x="8" y="1056" font-size="13" fill="#f0efec" font-weight="600">dockerfile</text>
-<rect x="130" y="1042" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1055" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1042" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1055" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1074" font-size="10" fill="#8b949e">5 files</text>
-<text x="290" y="1056" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1056" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1056" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1056" font-size="11" fill="#8b949e">decoy test only (11)</text>
-<rect x="960.0" y="1046" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1070" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="1084" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="1090" x2="1122" y2="1090" stroke="#30363d"/>
-<text x="8" y="1110" font-size="13" fill="#f0efec" font-weight="600">elixir</text>
-<text x="130" y="1110" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1110" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1110" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="1096" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="1109" font-size="11" fill="#06121f">92.9% p</text>
-<rect x="667" y="1096" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="1109" font-size="11" fill="#06121f">97.3% r</text>
-<text x="610" y="1128" font-size="10" fill="#8b949e">111 imports</text>
-<text x="770" y="1110" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="1110" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="1144" x2="1122" y2="1144" stroke="#30363d"/>
-<text x="8" y="1164" font-size="13" fill="#f0efec" font-weight="600">embedded_python</text>
-<rect x="130" y="1150" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1163" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1150" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1163" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1182" font-size="10" fill="#8b949e">14 files</text>
-<text x="290" y="1164" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1164" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1164" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1164" font-size="11" fill="#8b949e">decoy test only (18)</text>
-<rect x="960.0" y="1154" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1178" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1192" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1198" x2="1122" y2="1198" stroke="#30363d"/>
-<text x="8" y="1218" font-size="13" fill="#f0efec" font-weight="600">erlang</text>
-<text x="130" y="1218" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1218" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1218" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="1204" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1217" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1204" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1217" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="1236" font-size="10" fill="#8b949e">97 imports</text>
-<text x="770" y="1218" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="1218" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="1252" x2="1122" y2="1252" stroke="#30363d"/>
-<text x="8" y="1272" font-size="13" fill="#f0efec" font-weight="600">fortran</text>
-<rect x="130" y="1258" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1271" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1258" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1271" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1290" font-size="10" fill="#8b949e">6 files</text>
-<rect x="290" y="1258" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1271" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1258" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1271" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="1290" font-size="10" fill="#8b949e">139 functions</text>
-<rect x="450" y="1258" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="456" y="1271" font-size="11" fill="#ffffff">66.8% p</text>
-<rect x="507" y="1258" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="1271" font-size="11" fill="#ffffff">71.5% r</text>
-<text x="450" y="1290" font-size="10" fill="#8b949e">389 calls</text>
-<rect x="610" y="1258" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="1271" font-size="11" fill="#06121f">94.8% p</text>
-<rect x="667" y="1258" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="1271" font-size="11" fill="#06121f">98.7% r</text>
-<text x="610" y="1290" font-size="10" fill="#8b949e">635 imports</text>
-<text x="770" y="1272" font-size="11" fill="#8b949e">decoy test only (15)</text>
-<rect x="960.0" y="1262" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1286" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1300" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1306" x2="1122" y2="1306" stroke="#30363d"/>
-<text x="8" y="1326" font-size="13" fill="#f0efec" font-weight="600">fsharp</text>
-<text x="130" y="1326" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1326" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1326" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1326" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1326" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="1316" width="137.1" height="9" fill="#4f9be8"/>
-<rect x="1097.1" y="1316" width="12.9" height="9" fill="#e5534b"/>
-<text x="960" y="1340" font-size="10" fill="#c9d1d9">53 passed, 5 failed</text>
-<text x="960" y="1354" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="1360" x2="1122" y2="1360" stroke="#30363d"/>
-<text x="8" y="1380" font-size="13" fill="#f0efec" font-weight="600">go</text>
-<rect x="130" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1379" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1379" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1398" font-size="10" fill="#8b949e">69 files</text>
-<rect x="290" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1379" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1379" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="1398" font-size="10" fill="#8b949e">917 functions</text>
-<rect x="450" y="1366" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1379" font-size="11" fill="#06121f">99.6% p</text>
-<rect x="507" y="1366" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="1379" font-size="11" fill="#ffffff">77.8% r</text>
-<text x="450" y="1398" font-size="10" fill="#8b949e">4,706 reference edges</text>
-<rect x="610" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1379" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1379" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="1398" font-size="10" fill="#8b949e">149 imports</text>
-<rect x="770.0" y="1370" width="50.0" height="9" fill="#4f9be8"/>
-<rect x="820.0" y="1370" width="25.0" height="9" fill="#2f6aa8"/>
-<rect x="845.0" y="1370" width="37.5" height="9" fill="#1f3b5c"/>
-<rect x="882.5" y="1370" width="37.5" height="9" fill="#e5534b"/>
-<text x="795.0" y="1392" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="795.0" y="1403" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="832.5" y="1392" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="863.8" y="1392" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="901.2" y="1392" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="770" y="1415" font-size="10" fill="#8b949e">12 of 57 families</text>
-<rect x="960.0" y="1370" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1394" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1408" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1414" x2="1122" y2="1414" stroke="#30363d"/>
-<text x="8" y="1434" font-size="13" fill="#f0efec" font-weight="600">groovy</text>
-<rect x="130" y="1420" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1433" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1420" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1433" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1452" font-size="10" fill="#8b949e">305 files</text>
-<text x="290" y="1434" font-size="11" fill="#8b949e">not measured</text>
-<rect x="450" y="1420" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="1433" font-size="11" fill="#06121f">90.1% p</text>
-<rect x="507" y="1420" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="1433" font-size="11" fill="#06121f">95.3% r</text>
-<text x="450" y="1452" font-size="10" fill="#8b949e">737 calls</text>
-<rect x="610" y="1420" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1433" font-size="11" fill="#06121f">99.3% p</text>
-<rect x="667" y="1420" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="1433" font-size="11" fill="#06121f">96.3% r</text>
-<text x="610" y="1452" font-size="10" fill="#8b949e">1,105 imports</text>
-<text x="770" y="1434" font-size="11" fill="#8b949e">decoy test only (16)</text>
-<rect x="960.0" y="1424" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1448" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1462" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1468" x2="1122" y2="1468" stroke="#30363d"/>
-<text x="8" y="1488" font-size="13" fill="#f0efec" font-weight="600">haskell</text>
-<rect x="130" y="1474" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1487" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1474" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1487" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1506" font-size="10" fill="#8b949e">7 files</text>
-<rect x="290" y="1474" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1487" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1474" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1487" font-size="11" fill="#06121f">99.3% p</text>
-<text x="290" y="1506" font-size="10" fill="#8b949e">146 functions</text>
-<rect x="450" y="1474" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="1487" font-size="11" fill="#06121f">95.7% p</text>
-<rect x="507" y="1474" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="1487" font-size="11" fill="#06121f">98.9% r</text>
-<text x="450" y="1506" font-size="10" fill="#8b949e">380 calls</text>
-<rect x="610" y="1474" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1487" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1474" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1487" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="1506" font-size="10" fill="#8b949e">139 imports</text>
-<text x="770" y="1488" font-size="11" fill="#8b949e">decoy test only (32)</text>
-<rect x="960.0" y="1478" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1502" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="1516" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="1522" x2="1122" y2="1522" stroke="#30363d"/>
-<text x="8" y="1542" font-size="13" fill="#f0efec" font-weight="600">hcl</text>
-<text x="130" y="1542" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1542" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1542" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="1528" width="34" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="1541" font-size="11" fill="#ff8f88">0% r</text>
-<text x="610" y="1560" font-size="10" fill="#8b949e">30 imports</text>
-<text x="770" y="1542" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="1542" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="1576" x2="1122" y2="1576" stroke="#30363d"/>
-<text x="8" y="1596" font-size="13" fill="#f0efec" font-weight="600">hlasm</text>
-<rect x="130" y="1582" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1595" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1582" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1595" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1614" font-size="10" fill="#8b949e">18 files</text>
-<text x="290" y="1596" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1596" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1596" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1596" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="1586" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1610" font-size="10" fill="#c9d1d9">57 passed, 0 failed</text>
-<text x="960" y="1624" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="1630" x2="1122" y2="1630" stroke="#30363d"/>
-<text x="8" y="1650" font-size="13" fill="#f0efec" font-weight="600">hlo</text>
-<rect x="130" y="1636" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1649" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1636" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1649" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1668" font-size="10" fill="#8b949e">3 files</text>
-<text x="290" y="1650" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1650" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1650" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1650" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="1650" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="1684" x2="1122" y2="1684" stroke="#30363d"/>
-<text x="8" y="1704" font-size="13" fill="#f0efec" font-weight="600">html</text>
-<rect x="130" y="1690" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1703" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1690" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1703" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1722" font-size="10" fill="#8b949e">54 files</text>
-<rect x="290" y="1690" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1703" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1690" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1703" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="1722" font-size="10" fill="#8b949e">37 functions</text>
-<text x="450" y="1704" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1704" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1704" font-size="11" fill="#8b949e">decoy test only (3)</text>
-<rect x="960.0" y="1694" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1718" font-size="10" fill="#c9d1d9">53 passed, 0 failed</text>
-<text x="960" y="1732" font-size="10" fill="#8b949e">of 53 comparable cells</text>
-<line x1="8" y1="1738" x2="1122" y2="1738" stroke="#30363d"/>
-<text x="8" y="1758" font-size="13" fill="#f0efec" font-weight="600">java</text>
-<rect x="130" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1757" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1757" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1776" font-size="10" fill="#8b949e">14 files</text>
-<rect x="290" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1757" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1757" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="1776" font-size="10" fill="#8b949e">385 functions</text>
-<rect x="450" y="1744" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1757" font-size="11" fill="#06121f">99.8% p</text>
-<rect x="507" y="1744" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="1757" font-size="11" fill="#ffffff">82.5% r</text>
-<text x="450" y="1776" font-size="10" fill="#8b949e">7,858 reference edges</text>
-<rect x="610" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1757" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1744" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1757" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="1776" font-size="10" fill="#8b949e">1,085 imports</text>
-<rect x="770.0" y="1748" width="62.5" height="9" fill="#4f9be8"/>
-<rect x="832.5" y="1748" width="12.5" height="9" fill="#2f6aa8"/>
-<rect x="845.0" y="1748" width="25.0" height="9" fill="#1f3b5c"/>
-<rect x="870.0" y="1748" width="50.0" height="9" fill="#e5534b"/>
-<text x="801.2" y="1770" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="801.2" y="1781" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="838.8" y="1770" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="857.5" y="1770" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="895.0" y="1770" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="895.0" y="1781" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="1793" font-size="10" fill="#8b949e">12 of 55 families</text>
-<rect x="960.0" y="1748" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1772" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1786" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1792" x2="1122" y2="1792" stroke="#30363d"/>
-<text x="8" y="1812" font-size="13" fill="#f0efec" font-weight="600">javascript</text>
-<rect x="130" y="1798" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1811" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1798" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1811" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1830" font-size="10" fill="#8b949e">20 files</text>
-<rect x="290" y="1798" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1811" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1798" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1811" font-size="11" fill="#06121f">98.1% p</text>
-<text x="290" y="1830" font-size="10" fill="#8b949e">632 functions</text>
-<rect x="450" y="1798" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1811" font-size="11" fill="#06121f">99.4% p</text>
-<rect x="507" y="1798" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="1811" font-size="11" fill="#ffffff">87.9% r</text>
-<text x="450" y="1830" font-size="10" fill="#8b949e">528 reference edges</text>
-<rect x="610" y="1798" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1811" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1798" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1811" font-size="11" fill="#06121f">99.8% r</text>
-<text x="610" y="1830" font-size="10" fill="#8b949e">433 imports</text>
-<rect x="770.0" y="1802" width="68.2" height="9" fill="#4f9be8"/>
-<rect x="838.2" y="1802" width="13.6" height="9" fill="#2f6aa8"/>
-<rect x="851.8" y="1802" width="13.6" height="9" fill="#1f3b5c"/>
-<rect x="865.5" y="1802" width="54.5" height="9" fill="#e5534b"/>
-<text x="804.1" y="1824" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="804.1" y="1835" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="845.0" y="1824" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="858.6" y="1824" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="892.7" y="1824" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="892.7" y="1835" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="1847" font-size="10" fill="#8b949e">11 of 66 families</text>
-<rect x="960.0" y="1802" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1826" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="1840" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="1846" x2="1122" y2="1846" stroke="#30363d"/>
-<text x="8" y="1866" font-size="13" fill="#f0efec" font-weight="600">jcl</text>
-<rect x="130" y="1852" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1865" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1852" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1865" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1884" font-size="10" fill="#8b949e">186 files</text>
-<text x="290" y="1866" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1866" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="1866" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="1866" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="1856" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1880" font-size="10" fill="#c9d1d9">52 passed, 0 failed</text>
-<text x="960" y="1894" font-size="10" fill="#8b949e">of 52 comparable cells</text>
-<line x1="8" y1="1900" x2="1122" y2="1900" stroke="#30363d"/>
-<text x="8" y="1920" font-size="13" fill="#f0efec" font-weight="600">julia</text>
-<text x="130" y="1920" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1920" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="1920" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="1906" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="1919" font-size="11" fill="#06121f">97.2% p</text>
-<rect x="667" y="1906" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="1919" font-size="11" fill="#06121f">93.2% r</text>
-<text x="610" y="1938" font-size="10" fill="#8b949e">44 imports</text>
-<text x="770" y="1920" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="1920" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="1954" x2="1122" y2="1954" stroke="#30363d"/>
-<text x="8" y="1974" font-size="13" fill="#f0efec" font-weight="600">kotlin</text>
-<rect x="130" y="1960" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1973" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="1960" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1973" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="1992" font-size="10" fill="#8b949e">6 files</text>
-<rect x="290" y="1960" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1973" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="1960" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1973" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="1992" font-size="10" fill="#8b949e">28 functions</text>
-<rect x="450" y="1960" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="1973" font-size="11" fill="#06121f">97.5% p</text>
-<rect x="507" y="1960" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="1973" font-size="11" fill="#ff8f88">42.5% r</text>
-<text x="450" y="1992" font-size="10" fill="#8b949e">1,386 reference edges</text>
-<rect x="610" y="1960" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1973" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="1960" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1973" font-size="11" fill="#06121f">99.2% r</text>
-<text x="610" y="1992" font-size="10" fill="#8b949e">377 imports</text>
-<rect x="770.0" y="1964" width="50.0" height="9" fill="#4f9be8"/>
-<rect x="820.0" y="1964" width="25.0" height="9" fill="#2f6aa8"/>
-<rect x="845.0" y="1964" width="12.5" height="9" fill="#1f3b5c"/>
-<rect x="857.5" y="1964" width="62.5" height="9" fill="#e5534b"/>
-<text x="795.0" y="1986" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="795.0" y="1997" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="832.5" y="1986" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="851.2" y="1986" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="888.8" y="1986" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="888.8" y="1997" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="2009" font-size="10" fill="#8b949e">12 of 57 families</text>
-<rect x="960.0" y="1964" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="1988" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="2002" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="2008" x2="1122" y2="2008" stroke="#30363d"/>
-<text x="8" y="2028" font-size="13" fill="#f0efec" font-weight="600">livecode</text>
-<rect x="130" y="2014" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2027" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2014" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2027" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2046" font-size="10" fill="#8b949e">98 files</text>
-<text x="290" y="2028" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2028" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2028" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2028" font-size="11" fill="#8b949e">decoy test only (13)</text>
-<rect x="960.0" y="2018" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2042" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2056" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2062" x2="1122" y2="2062" stroke="#30363d"/>
-<text x="8" y="2082" font-size="13" fill="#f0efec" font-weight="600">lua</text>
-<rect x="130" y="2068" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2081" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2068" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2081" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2100" font-size="10" fill="#8b949e">113 files</text>
-<rect x="290" y="2068" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2081" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2068" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2081" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2100" font-size="10" fill="#8b949e">623 functions</text>
-<rect x="450" y="2068" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="2081" font-size="11" fill="#06121f">97.5% p</text>
-<rect x="507" y="2068" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="2081" font-size="11" fill="#06121f">98.2% r</text>
-<text x="450" y="2100" font-size="10" fill="#8b949e">1,356 calls</text>
-<rect x="610" y="2068" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2081" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="2068" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="2081" font-size="11" fill="#06121f">99.2% r</text>
-<text x="610" y="2100" font-size="10" fill="#8b949e">354 imports</text>
-<rect x="770.0" y="2072" width="75.0" height="9" fill="#4f9be8"/>
-<rect x="845.0" y="2072" width="15.0" height="9" fill="#1f3b5c"/>
-<rect x="860.0" y="2072" width="60.0" height="9" fill="#e5534b"/>
-<text x="807.5" y="2094" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="807.5" y="2105" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="852.5" y="2094" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="890.0" y="2094" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="890.0" y="2105" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="2117" font-size="10" fill="#8b949e">10 of 52 families</text>
-<rect x="960.0" y="2072" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2096" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2110" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2116" x2="1122" y2="2116" stroke="#30363d"/>
-<text x="8" y="2136" font-size="13" fill="#f0efec" font-weight="600">m4</text>
-<rect x="130" y="2122" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2135" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2122" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2135" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2154" font-size="10" fill="#8b949e">8 files</text>
-<text x="290" y="2136" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2136" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2136" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2136" font-size="11" fill="#8b949e">decoy test only (17)</text>
-<rect x="960.0" y="2126" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2150" font-size="10" fill="#c9d1d9">52 passed, 0 failed</text>
-<text x="960" y="2164" font-size="10" fill="#8b949e">of 52 comparable cells</text>
-<line x1="8" y1="2170" x2="1122" y2="2170" stroke="#30363d"/>
-<text x="8" y="2190" font-size="13" fill="#f0efec" font-weight="600">makefile</text>
-<rect x="130" y="2176" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2189" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2176" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2189" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2208" font-size="10" fill="#8b949e">4 files</text>
-<rect x="290" y="2176" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2189" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2176" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2189" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2208" font-size="10" fill="#8b949e">1 functions</text>
-<text x="450" y="2190" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2190" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2190" font-size="11" fill="#8b949e">decoy test only (9)</text>
-<rect x="960.0" y="2180" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2204" font-size="10" fill="#c9d1d9">57 passed, 0 failed</text>
-<text x="960" y="2218" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="2224" x2="1122" y2="2224" stroke="#30363d"/>
-<text x="8" y="2244" font-size="13" fill="#f0efec" font-weight="600">matlab</text>
-<rect x="130" y="2230" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2243" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2230" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2243" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2262" font-size="10" fill="#8b949e">6 files</text>
-<rect x="290" y="2230" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2243" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2230" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2243" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2262" font-size="10" fill="#8b949e">23 functions</text>
-<rect x="450" y="2230" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="456" y="2243" font-size="11" fill="#ffffff">72.4% p</text>
-<rect x="507" y="2230" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="2243" font-size="11" fill="#ff8f88">47.8% r</text>
-<text x="450" y="2262" font-size="10" fill="#8b949e">460 calls</text>
-<rect x="610" y="2230" width="34" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="2243" font-size="11" fill="#ff8f88">0% r</text>
-<text x="610" y="2262" font-size="10" fill="#8b949e">9 imports</text>
-<text x="770" y="2244" font-size="11" fill="#8b949e">decoy test only (26)</text>
-<rect x="960.0" y="2234" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2258" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2272" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2278" x2="1122" y2="2278" stroke="#30363d"/>
-<text x="8" y="2298" font-size="13" fill="#f0efec" font-weight="600">mlir</text>
-<rect x="130" y="2284" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2297" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2284" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2297" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2316" font-size="10" fill="#8b949e">3 files</text>
-<text x="290" y="2298" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2298" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2298" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2298" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2298" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2332" x2="1122" y2="2332" stroke="#30363d"/>
-<text x="8" y="2352" font-size="13" fill="#f0efec" font-weight="600">nim</text>
-<text x="130" y="2352" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="2352" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2352" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="2338" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2351" font-size="11" fill="#06121f">99.7% p</text>
-<rect x="667" y="2338" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="2351" font-size="11" fill="#06121f">96.7% r</text>
-<text x="610" y="2370" font-size="10" fill="#8b949e">301 imports</text>
-<text x="770" y="2352" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2352" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2386" x2="1122" y2="2386" stroke="#30363d"/>
-<text x="8" y="2406" font-size="13" fill="#f0efec" font-weight="600">nix</text>
-<rect x="130" y="2392" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2405" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2392" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2405" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2424" font-size="10" fill="#8b949e">5 files</text>
-<text x="290" y="2406" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2406" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2406" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2406" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2406" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2440" x2="1122" y2="2440" stroke="#30363d"/>
-<text x="8" y="2460" font-size="13" fill="#f0efec" font-weight="600">objective-c</text>
-<rect x="130" y="2446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2459" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2459" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2478" font-size="10" fill="#8b949e">6 files</text>
-<rect x="290" y="2446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2459" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2446" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2459" font-size="11" fill="#06121f">99.4% p</text>
-<text x="290" y="2478" font-size="10" fill="#8b949e">153 functions</text>
-<rect x="450" y="2446" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="2459" font-size="11" fill="#06121f">97.8% p</text>
-<rect x="507" y="2446" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="2459" font-size="11" fill="#06121f">98.1% r</text>
-<text x="450" y="2478" font-size="10" fill="#8b949e">321 calls</text>
-<rect x="610" y="2446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2459" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="2446" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="2459" font-size="11" fill="#06121f">99.6% r</text>
-<text x="610" y="2478" font-size="10" fill="#8b949e">2,767 imports</text>
-<text x="770" y="2460" font-size="11" fill="#8b949e">decoy test only (28)</text>
-<rect x="960.0" y="2450" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2474" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2488" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2494" x2="1122" y2="2494" stroke="#30363d"/>
-<text x="8" y="2514" font-size="13" fill="#f0efec" font-weight="600">ocaml</text>
-<text x="130" y="2514" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="2514" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2514" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="2500" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2513" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="2500" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="2513" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="2532" font-size="10" fill="#8b949e">46 imports</text>
-<text x="770" y="2514" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2514" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2548" x2="1122" y2="2548" stroke="#30363d"/>
-<text x="8" y="2568" font-size="13" fill="#f0efec" font-weight="600">perl</text>
-<rect x="130" y="2554" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2567" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2554" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2567" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2586" font-size="10" fill="#8b949e">21 files</text>
-<rect x="290" y="2554" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2567" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2554" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2567" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2586" font-size="10" fill="#8b949e">943 functions</text>
-<rect x="450" y="2554" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="2567" font-size="11" fill="#06121f">97.1% p</text>
-<rect x="507" y="2554" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="2567" font-size="11" fill="#06121f">97.8% r</text>
-<text x="450" y="2586" font-size="10" fill="#8b949e">4,524 calls</text>
-<rect x="610" y="2554" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2567" font-size="11" fill="#06121f">98.7% p</text>
-<rect x="667" y="2554" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="2567" font-size="11" fill="#06121f">99.2% r</text>
-<text x="610" y="2586" font-size="10" fill="#8b949e">397 imports</text>
-<text x="770" y="2568" font-size="11" fill="#8b949e">decoy test only (20)</text>
-<rect x="960.0" y="2558" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2582" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2596" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2602" x2="1122" y2="2602" stroke="#30363d"/>
-<text x="8" y="2622" font-size="13" fill="#f0efec" font-weight="600">php</text>
-<rect x="130" y="2608" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2621" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2608" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2621" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2640" font-size="10" fill="#8b949e">36 files</text>
-<rect x="290" y="2608" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2621" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2608" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2621" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2640" font-size="10" fill="#8b949e">1,707 functions</text>
-<rect x="450" y="2608" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="2621" font-size="11" fill="#06121f">99.9% p</text>
-<rect x="507" y="2608" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="2621" font-size="11" fill="#06121f">97.9% r</text>
-<text x="450" y="2640" font-size="10" fill="#8b949e">3,059 reference edges</text>
-<rect x="610" y="2608" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2621" font-size="11" fill="#06121f">99.2% p</text>
-<rect x="667" y="2608" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="2621" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="2640" font-size="10" fill="#8b949e">390 imports</text>
-<rect x="770.0" y="2612" width="87.5" height="9" fill="#4f9be8"/>
-<rect x="857.5" y="2612" width="25.0" height="9" fill="#2f6aa8"/>
-<rect x="882.5" y="2612" width="12.5" height="9" fill="#1f3b5c"/>
-<rect x="895.0" y="2612" width="25.0" height="9" fill="#e5534b"/>
-<text x="813.8" y="2634" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
-<text x="813.8" y="2645" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="870.0" y="2634" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="888.8" y="2634" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="907.5" y="2634" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="770" y="2657" font-size="10" fill="#8b949e">12 of 56 families</text>
-<rect x="960.0" y="2612" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2636" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2650" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2656" x2="1122" y2="2656" stroke="#30363d"/>
-<text x="8" y="2676" font-size="13" fill="#f0efec" font-weight="600">pli</text>
-<rect x="130" y="2662" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2675" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2662" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2675" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2694" font-size="10" fill="#8b949e">3 files</text>
-<text x="290" y="2676" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2676" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2676" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2676" font-size="11" fill="#8b949e">decoy test only (11)</text>
-<rect x="960.0" y="2666" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2690" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="2704" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="2710" x2="1122" y2="2710" stroke="#30363d"/>
-<text x="8" y="2730" font-size="13" fill="#f0efec" font-weight="600">postgresql</text>
-<text x="130" y="2730" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="2730" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2730" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2730" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2730" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="2720" width="147.4" height="9" fill="#4f9be8"/>
-<rect x="1107.4" y="2720" width="2.6" height="9" fill="#e5534b"/>
-<text x="960" y="2744" font-size="10" fill="#c9d1d9">56 passed, 1 failed</text>
-<text x="960" y="2758" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="2764" x2="1122" y2="2764" stroke="#30363d"/>
-<text x="8" y="2784" font-size="13" fill="#f0efec" font-weight="600">powershell</text>
-<rect x="130" y="2770" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2783" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2770" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2783" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2802" font-size="10" fill="#8b949e">126 files</text>
-<rect x="290" y="2770" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2783" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2770" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2783" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2802" font-size="10" fill="#8b949e">489 functions</text>
-<rect x="450" y="2770" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="2783" font-size="11" fill="#06121f">97.4% p</text>
-<rect x="507" y="2770" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="2783" font-size="11" fill="#06121f">96.4% r</text>
-<text x="450" y="2802" font-size="10" fill="#8b949e">2,740 calls</text>
-<rect x="610" y="2770" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2783" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="2770" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="2783" font-size="11" fill="#06121f">98.8% r</text>
-<text x="610" y="2802" font-size="10" fill="#8b949e">83 imports</text>
-<text x="770" y="2784" font-size="11" fill="#8b949e">decoy test only (17)</text>
-<rect x="960.0" y="2774" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2798" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2812" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2818" x2="1122" y2="2818" stroke="#30363d"/>
-<text x="8" y="2838" font-size="13" fill="#f0efec" font-weight="600">proto</text>
-<rect x="130" y="2824" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2837" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2824" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2837" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2856" font-size="10" fill="#8b949e">4 files</text>
-<text x="290" y="2838" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2838" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="2838" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="2838" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2838" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2872" x2="1122" y2="2872" stroke="#30363d"/>
-<text x="8" y="2892" font-size="13" fill="#f0efec" font-weight="600">python</text>
-<rect x="130" y="2878" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2891" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2878" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2891" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="2910" font-size="10" fill="#8b949e">269 files</text>
-<rect x="290" y="2878" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="2891" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="2878" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="2891" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="2910" font-size="10" fill="#8b949e">2,408 functions</text>
-<rect x="450" y="2878" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="2891" font-size="11" fill="#06121f">99.9% p</text>
-<rect x="507" y="2878" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="2891" font-size="11" fill="#ffffff">54.8% r</text>
-<text x="450" y="2910" font-size="10" fill="#8b949e">3,565 reference edges</text>
-<rect x="610" y="2878" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="2891" font-size="11" fill="#06121f">99.9% p</text>
-<rect x="667" y="2878" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="2891" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="2910" font-size="10" fill="#8b949e">2,101 imports</text>
-<rect x="770.0" y="2882" width="65.2" height="9" fill="#4f9be8"/>
-<rect x="835.2" y="2882" width="13.0" height="9" fill="#2f6aa8"/>
-<rect x="848.3" y="2882" width="26.1" height="9" fill="#1f3b5c"/>
-<rect x="874.3" y="2882" width="45.7" height="9" fill="#e5534b"/>
-<text x="802.6" y="2904" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">10</text>
-<text x="802.6" y="2915" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="841.7" y="2904" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="861.3" y="2904" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="897.2" y="2904" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
-<text x="897.2" y="2915" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="2927" font-size="10" fill="#8b949e">23 of 67 families</text>
-<rect x="960.0" y="2882" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="2906" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="2920" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="2926" x2="1122" y2="2926" stroke="#30363d"/>
-<text x="8" y="2946" font-size="13" fill="#f0efec" font-weight="600">r</text>
-<text x="130" y="2946" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="2946" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="2946" font-size="11" fill="#8b949e">not measured</text>
-<rect x="610" y="2932" width="34" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="2945" font-size="11" fill="#ff8f88">0% r</text>
-<text x="610" y="2964" font-size="10" fill="#8b949e">24 imports</text>
-<text x="770" y="2946" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="2946" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="2980" x2="1122" y2="2980" stroke="#30363d"/>
-<text x="8" y="3000" font-size="13" fill="#f0efec" font-weight="600">rexx</text>
-<rect x="130" y="2986" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="2999" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="2986" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="2999" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3018" font-size="10" fill="#8b949e">25 files</text>
-<text x="290" y="3000" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3000" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3000" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3000" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="2990" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3014" font-size="10" fill="#c9d1d9">54 passed, 0 failed</text>
-<text x="960" y="3028" font-size="10" fill="#8b949e">of 54 comparable cells</text>
-<line x1="8" y1="3034" x2="1122" y2="3034" stroke="#30363d"/>
-<text x="8" y="3054" font-size="13" fill="#f0efec" font-weight="600">ruby</text>
-<rect x="130" y="3040" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3053" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3040" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3053" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3072" font-size="10" fill="#8b949e">13 files</text>
-<rect x="290" y="3040" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3053" font-size="11" fill="#06121f">98.5% r</text>
-<rect x="347" y="3040" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="3053" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="3072" font-size="10" fill="#8b949e">135 functions</text>
-<rect x="450" y="3040" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3053" font-size="11" fill="#06121f">99.9% p</text>
-<rect x="507" y="3040" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="3053" font-size="11" fill="#06121f">96.3% r</text>
-<text x="450" y="3072" font-size="10" fill="#8b949e">1,045 calls</text>
-<rect x="610" y="3040" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3053" font-size="11" fill="#06121f">99.6% p</text>
-<rect x="667" y="3040" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="3053" font-size="11" fill="#06121f">99.6% r</text>
-<text x="610" y="3072" font-size="10" fill="#8b949e">239 imports</text>
-<rect x="770.0" y="3044" width="27.3" height="9" fill="#4f9be8"/>
-<rect x="797.3" y="3044" width="13.6" height="9" fill="#2f6aa8"/>
-<rect x="810.9" y="3044" width="54.5" height="9" fill="#1f3b5c"/>
-<rect x="865.5" y="3044" width="54.5" height="9" fill="#e5534b"/>
-<text x="783.6" y="3066" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="804.1" y="3066" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="838.2" y="3066" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="838.2" y="3077" font-size="9" fill="#8b949e" text-anchor="middle">75-50</text>
-<text x="892.7" y="3066" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="892.7" y="3077" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="3089" font-size="10" fill="#8b949e">11 of 56 families</text>
-<rect x="960.0" y="3044" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3068" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="3082" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="3088" x2="1122" y2="3088" stroke="#30363d"/>
-<text x="8" y="3108" font-size="13" fill="#f0efec" font-weight="600">rust</text>
-<rect x="130" y="3094" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3107" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3094" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3107" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3126" font-size="10" fill="#8b949e">46 files</text>
-<rect x="290" y="3094" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3107" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3094" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="3107" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="3126" font-size="10" fill="#8b949e">2,127 functions</text>
-<rect x="450" y="3094" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3107" font-size="11" fill="#06121f">98.3% p</text>
-<rect x="507" y="3094" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="3107" font-size="11" fill="#ffffff">81.5% r</text>
-<text x="450" y="3126" font-size="10" fill="#8b949e">1,084 reference edges</text>
-<rect x="610" y="3094" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3107" font-size="11" fill="#06121f">99.5% p</text>
-<rect x="667" y="3094" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="3107" font-size="11" fill="#06121f">99.3% r</text>
-<text x="610" y="3126" font-size="10" fill="#8b949e">814 imports</text>
-<rect x="770.0" y="3098" width="54.5" height="9" fill="#4f9be8"/>
-<rect x="824.5" y="3098" width="27.3" height="9" fill="#1f3b5c"/>
-<rect x="851.8" y="3098" width="68.2" height="9" fill="#e5534b"/>
-<text x="797.3" y="3120" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="797.3" y="3131" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="838.2" y="3120" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="885.9" y="3120" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="885.9" y="3131" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="3143" font-size="10" fill="#8b949e">11 of 59 families</text>
-<rect x="960.0" y="3098" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3122" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="3136" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="3142" x2="1122" y2="3142" stroke="#30363d"/>
-<text x="8" y="3162" font-size="13" fill="#f0efec" font-weight="600">scala</text>
-<rect x="130" y="3148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3161" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3161" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3180" font-size="10" fill="#8b949e">7 files</text>
-<rect x="290" y="3148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3161" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="3161" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="3180" font-size="10" fill="#8b949e">541 functions</text>
-<rect x="450" y="3148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3161" font-size="11" fill="#06121f">99.2% p</text>
-<rect x="507" y="3148" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="3161" font-size="11" fill="#06121f">93.8% r</text>
-<text x="450" y="3180" font-size="10" fill="#8b949e">3,359 calls</text>
-<rect x="610" y="3148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3161" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3161" font-size="11" fill="#06121f">98.3% r</text>
-<text x="610" y="3180" font-size="10" fill="#8b949e">529 imports</text>
-<rect x="770.0" y="3152" width="37.5" height="9" fill="#4f9be8"/>
-<rect x="807.5" y="3152" width="37.5" height="9" fill="#2f6aa8"/>
-<rect x="845.0" y="3152" width="12.5" height="9" fill="#1f3b5c"/>
-<rect x="857.5" y="3152" width="62.5" height="9" fill="#e5534b"/>
-<text x="788.8" y="3174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="826.2" y="3174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="851.2" y="3174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="888.8" y="3174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="888.8" y="3185" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="3197" font-size="10" fill="#8b949e">12 of 57 families</text>
-<rect x="960.0" y="3152" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3176" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="3190" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="3196" x2="1122" y2="3196" stroke="#30363d"/>
-<text x="8" y="3216" font-size="13" fill="#f0efec" font-weight="600">scheme</text>
-<rect x="130" y="3202" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3215" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3202" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3215" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3234" font-size="10" fill="#8b949e">5 files</text>
-<text x="290" y="3216" font-size="11" fill="#8b949e">not measured</text>
-<rect x="450" y="3202" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="456" y="3215" font-size="11" fill="#ff8f88">35.3% p</text>
-<rect x="507" y="3202" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="3215" font-size="11" fill="#ffffff">72.7% r</text>
-<text x="450" y="3234" font-size="10" fill="#8b949e">1,321 calls</text>
-<text x="610" y="3216" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3216" font-size="11" fill="#8b949e">decoy test only (10)</text>
-<rect x="960.0" y="3206" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3230" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="3244" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="3250" x2="1122" y2="3250" stroke="#30363d"/>
-<text x="8" y="3270" font-size="13" fill="#f0efec" font-weight="600">shell</text>
-<rect x="130" y="3256" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3269" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3256" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3269" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3288" font-size="10" fill="#8b949e">264 files</text>
-<rect x="290" y="3256" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="296" y="3269" font-size="11" fill="#ffffff">84.2% r</text>
-<rect x="347" y="3256" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="3269" font-size="11" fill="#06121f">98.1% p</text>
-<text x="290" y="3288" font-size="10" fill="#8b949e">970 functions</text>
-<rect x="450" y="3256" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3269" font-size="11" fill="#06121f">98.3% p</text>
-<rect x="507" y="3256" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="3269" font-size="11" fill="#06121f">98.2% r</text>
-<text x="450" y="3288" font-size="10" fill="#8b949e">1,743 calls</text>
-<rect x="610" y="3256" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3269" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3256" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3269" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="3288" font-size="10" fill="#8b949e">100 imports</text>
-<rect x="770.0" y="3260" width="33.3" height="9" fill="#4f9be8"/>
-<rect x="803.3" y="3260" width="33.3" height="9" fill="#2f6aa8"/>
-<rect x="836.7" y="3260" width="33.3" height="9" fill="#1f3b5c"/>
-<rect x="870.0" y="3260" width="50.0" height="9" fill="#e5534b"/>
-<text x="786.7" y="3282" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="820.0" y="3282" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="853.3" y="3282" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="895.0" y="3282" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="895.0" y="3293" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="3305" font-size="10" fill="#8b949e">9 of 51 families</text>
-<rect x="960.0" y="3260" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3284" font-size="10" fill="#c9d1d9">57 passed, 0 failed</text>
-<text x="960" y="3298" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="3304" x2="1122" y2="3304" stroke="#30363d"/>
-<text x="8" y="3324" font-size="13" fill="#f0efec" font-weight="600">solidity</text>
-<rect x="130" y="3310" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3323" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3310" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3323" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3342" font-size="10" fill="#8b949e">7 files</text>
-<rect x="290" y="3310" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3323" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3310" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="346" y="3323" font-size="11" fill="#06121f">94.3% p</text>
-<text x="290" y="3342" font-size="10" fill="#8b949e">99 functions</text>
-<rect x="450" y="3310" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3323" font-size="11" fill="#06121f">114% p</text>
-<rect x="500" y="3310" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="506" y="3323" font-size="11" fill="#06121f">99.3% r</text>
-<text x="450" y="3342" font-size="10" fill="#8b949e">149 calls</text>
-<rect x="610" y="3310" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3323" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3310" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3323" font-size="11" fill="#06121f">99.8% r</text>
-<text x="610" y="3342" font-size="10" fill="#8b949e">812 imports</text>
-<text x="770" y="3324" font-size="11" fill="#8b949e">decoy test only (17)</text>
-<rect x="960.0" y="3314" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3338" font-size="10" fill="#c9d1d9">57 passed, 0 failed</text>
-<text x="960" y="3352" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="3358" x2="1122" y2="3358" stroke="#30363d"/>
-<text x="8" y="3378" font-size="13" fill="#f0efec" font-weight="600">sqlite</text>
-<rect x="130" y="3364" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3377" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3364" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3377" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3396" font-size="10" fill="#8b949e">76 files</text>
-<text x="290" y="3378" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3378" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3378" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3378" font-size="11" fill="#8b949e">decoy test only (16)</text>
-<rect x="960.0" y="3368" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3392" font-size="10" fill="#c9d1d9">55 passed, 0 failed</text>
-<text x="960" y="3406" font-size="10" fill="#8b949e">of 55 comparable cells</text>
-<line x1="8" y1="3412" x2="1122" y2="3412" stroke="#30363d"/>
-<text x="8" y="3432" font-size="13" fill="#f0efec" font-weight="600">swift</text>
-<rect x="130" y="3418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3431" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3431" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3450" font-size="10" fill="#8b949e">6 files</text>
-<rect x="290" y="3418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3431" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3418" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="3431" font-size="11" fill="#06121f">99.2% p</text>
-<text x="290" y="3450" font-size="10" fill="#8b949e">132 functions</text>
-<rect x="450" y="3418" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3431" font-size="11" fill="#06121f">99.7% p</text>
-<rect x="507" y="3418" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="3431" font-size="11" fill="#06121f">95.6% r</text>
-<text x="450" y="3450" font-size="10" fill="#8b949e">387 calls</text>
-<rect x="610" y="3418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3431" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3418" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3431" font-size="11" fill="#06121f">98.8% r</text>
-<text x="610" y="3450" font-size="10" fill="#8b949e">510 imports</text>
-<rect x="770.0" y="3422" width="25.0" height="9" fill="#4f9be8"/>
-<rect x="795.0" y="3422" width="62.5" height="9" fill="#2f6aa8"/>
-<rect x="857.5" y="3422" width="50.0" height="9" fill="#1f3b5c"/>
-<rect x="907.5" y="3422" width="12.5" height="9" fill="#e5534b"/>
-<text x="782.5" y="3444" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="826.2" y="3444" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="826.2" y="3455" font-size="9" fill="#8b949e" text-anchor="middle">90-75</text>
-<text x="882.5" y="3444" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
-<text x="882.5" y="3455" font-size="9" fill="#8b949e" text-anchor="middle">75-50</text>
-<text x="913.8" y="3444" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="770" y="3467" font-size="10" fill="#8b949e">12 of 57 families</text>
-<rect x="960.0" y="3422" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3446" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="3460" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="3466" x2="1122" y2="3466" stroke="#30363d"/>
-<text x="8" y="3486" font-size="13" fill="#f0efec" font-weight="600">tcl</text>
-<rect x="130" y="3472" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3485" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3472" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3485" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3504" font-size="10" fill="#8b949e">32 files</text>
-<rect x="290" y="3472" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3485" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3472" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="346" y="3485" font-size="11" fill="#06121f">96.6% p</text>
-<text x="290" y="3504" font-size="10" fill="#8b949e">369 functions</text>
-<rect x="450" y="3472" width="59" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3485" font-size="11" fill="#06121f">121.3% p</text>
-<rect x="513" y="3472" width="40" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="519" y="3485" font-size="11" fill="#06121f">90% r</text>
-<text x="450" y="3504" font-size="10" fill="#8b949e">2,199 calls</text>
-<rect x="610" y="3472" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="3485" font-size="11" fill="#06121f">96.4% p</text>
-<rect x="667" y="3472" width="40" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="3485" font-size="11" fill="#06121f">90% r</text>
-<text x="610" y="3504" font-size="10" fill="#8b949e">836 imports</text>
-<text x="770" y="3486" font-size="11" fill="#8b949e">decoy test only (14)</text>
-<rect x="960.0" y="3476" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3500" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="3514" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="3520" x2="1122" y2="3520" stroke="#30363d"/>
-<text x="8" y="3540" font-size="13" fill="#f0efec" font-weight="600">td</text>
-<rect x="130" y="3526" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3539" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3526" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3539" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3558" font-size="10" fill="#8b949e">4 files</text>
-<text x="290" y="3540" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3540" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3540" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3540" font-size="11" fill="#8b949e">not measured</text>
-<text x="960" y="3540" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="3574" x2="1122" y2="3574" stroke="#30363d"/>
-<text x="8" y="3594" font-size="13" fill="#f0efec" font-weight="600">typescript</text>
-<rect x="130" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3593" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3593" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3612" font-size="10" fill="#8b949e">29 files</text>
-<rect x="290" y="3580" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3593" font-size="11" fill="#06121f">99.8% r</text>
-<rect x="347" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="3593" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="3612" font-size="10" fill="#8b949e">8,484 functions</text>
-<rect x="450" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3593" font-size="11" fill="#06121f">100% p</text>
-<rect x="500" y="3580" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="506" y="3593" font-size="11" fill="#ffffff">82.3% r</text>
-<text x="450" y="3612" font-size="10" fill="#8b949e">2,661 reference edges</text>
-<rect x="610" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3593" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3580" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3593" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="3612" font-size="10" fill="#8b949e">870 imports</text>
-<rect x="770.0" y="3584" width="37.5" height="9" fill="#4f9be8"/>
-<rect x="807.5" y="3584" width="25.0" height="9" fill="#2f6aa8"/>
-<rect x="832.5" y="3584" width="25.0" height="9" fill="#1f3b5c"/>
-<rect x="857.5" y="3584" width="62.5" height="9" fill="#e5534b"/>
-<text x="788.8" y="3606" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
-<text x="820.0" y="3606" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="845.0" y="3606" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="888.8" y="3606" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="888.8" y="3617" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
-<text x="770" y="3629" font-size="10" fill="#8b949e">12 of 66 families</text>
-<rect x="960.0" y="3584" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3608" font-size="10" fill="#c9d1d9">59 passed, 0 failed</text>
-<text x="960" y="3622" font-size="10" fill="#8b949e">of 59 comparable cells</text>
-<line x1="8" y1="3628" x2="1122" y2="3628" stroke="#30363d"/>
-<text x="8" y="3648" font-size="13" fill="#f0efec" font-weight="600">yacc</text>
-<rect x="130" y="3634" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3647" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3634" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3647" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3666" font-size="10" fill="#8b949e">4 files</text>
-<text x="290" y="3648" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3648" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3648" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3648" font-size="11" fill="#8b949e">decoy test only (10)</text>
-<rect x="960.0" y="3638" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3662" font-size="10" fill="#c9d1d9">54 passed, 0 failed</text>
-<text x="960" y="3676" font-size="10" fill="#8b949e">of 54 comparable cells</text>
-<line x1="8" y1="3682" x2="1122" y2="3682" stroke="#30363d"/>
-<text x="8" y="3702" font-size="13" fill="#f0efec" font-weight="600">yaml</text>
-<rect x="130" y="3688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3701" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3701" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3720" font-size="10" fill="#8b949e">45 files</text>
-<text x="290" y="3702" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3702" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3702" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3702" font-size="11" fill="#8b949e">decoy test only (4)</text>
-<rect x="960.0" y="3692" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3716" font-size="10" fill="#c9d1d9">57 passed, 0 failed</text>
-<text x="960" y="3730" font-size="10" fill="#8b949e">of 57 comparable cells</text>
-<line x1="8" y1="3736" x2="1122" y2="3736" stroke="#30363d"/>
-<text x="8" y="3756" font-size="13" fill="#f0efec" font-weight="600">zig</text>
-<rect x="130" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="3755" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="3755" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="3774" font-size="10" fill="#8b949e">37 files</text>
-<rect x="290" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="3755" font-size="11" fill="#06121f">100% r</text>
-<rect x="340" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="3755" font-size="11" fill="#06121f">100% p</text>
-<text x="290" y="3774" font-size="10" fill="#8b949e">3,538 functions</text>
-<rect x="450" y="3742" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="3755" font-size="11" fill="#06121f">99.9% p</text>
-<rect x="507" y="3742" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="3755" font-size="11" fill="#06121f">99.9% r</text>
-<text x="450" y="3774" font-size="10" fill="#8b949e">20,686 calls</text>
-<rect x="610" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="3755" font-size="11" fill="#06121f">100% p</text>
-<rect x="660" y="3742" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="3755" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="3774" font-size="10" fill="#8b949e">272 imports</text>
-<text x="770" y="3756" font-size="11" fill="#8b949e">decoy test only (9)</text>
-<rect x="960.0" y="3746" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3770" font-size="10" fill="#c9d1d9">58 passed, 0 failed</text>
-<text x="960" y="3784" font-size="10" fill="#8b949e">of 58 comparable cells</text>
-<line x1="8" y1="3790" x2="1122" y2="3790" stroke="#30363d"/>
-<text x="8" y="3810" font-size="13" fill="#f0efec" font-weight="600">zscript</text>
-<text x="130" y="3810" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="3810" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="3810" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="3810" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="3810" font-size="11" fill="#8b949e">not measured</text>
-<rect x="960.0" y="3800" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="3824" font-size="10" fill="#c9d1d9">52 passed, 0 failed</text>
-<text x="960" y="3838" font-size="10" fill="#8b949e">of 52 comparable cells</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1130 1340" width="1130" height="1340" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">
+<rect width="1130" height="1340" fill="#0f1117"/>
+<text x="130" y="20" font-size="11" fill="#8b949e" font-weight="600">DETECTION</text>
+<text x="290" y="20" font-size="11" fill="#8b949e" font-weight="600">FUNCTIONS</text>
+<text x="450" y="20" font-size="11" fill="#8b949e" font-weight="600">CALL LINKS</text>
+<text x="610" y="20" font-size="11" fill="#8b949e" font-weight="600">IMPORTS</text>
+<text x="770" y="20" font-size="11" fill="#8b949e" font-weight="600">KEYWORDS</text>
+<text x="960" y="20" font-size="11" fill="#8b949e" font-weight="600">ROSETTA</text>
+<text x="8" y="20" font-size="11" fill="#8b949e" font-weight="600">LANGUAGE</text>
+<rect x="8" y="30" width="12" height="12" rx="3" fill="#3b1d1d" stroke="#e5534b"/>
+<text x="25" y="40" font-size="10.5" fill="#c9d1d9">under 50%</text>
+<rect x="108" y="30" width="12" height="12" rx="3" fill="#1f3b5c" stroke="#8b949e"/>
+<text x="125" y="40" font-size="10.5" fill="#c9d1d9">50-79%</text>
+<rect x="208" y="30" width="12" height="12" rx="3" fill="#2f6aa8" stroke="#8b949e"/>
+<text x="225" y="40" font-size="10.5" fill="#c9d1d9">80-89%</text>
+<rect x="308" y="30" width="12" height="12" rx="3" fill="#4f9be8" stroke="#8b949e"/>
+<text x="325" y="40" font-size="10.5" fill="#c9d1d9">90-97%</text>
+<rect x="408" y="30" width="12" height="12" rx="3" fill="#a9d1ff" stroke="#8b949e"/>
+<text x="425" y="40" font-size="10.5" fill="#c9d1d9">98-100%</text>
+<text x="518" y="40" font-size="10.5" fill="#8b949e">p = precision, r = recall. Keywords: families by score, high to low.</text>
+<line x1="8" y1="54" x2="1122" y2="54" stroke="#30363d"/>
+<text x="8" y="72" font-size="13" fill="#f0efec" font-weight="600">apex</text>
+<text x="8" y="86" font-size="10" fill="#8b949e">4 of 6 stats</text>
+<rect x="130" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="71" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="71" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="89" font-size="10" fill="#8b949e">7 files</text>
+<rect x="290" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="71" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="71" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="89" font-size="10" fill="#8b949e">38 functions</text>
+<rect x="450" y="58" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="71" font-size="11" fill="#06121f">95.7% p</text>
+<rect x="507" y="58" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="71" font-size="11" fill="#06121f">97.5% r</text>
+<text x="450" y="89" font-size="10" fill="#8b949e">276 calls</text>
+<text x="610" y="72" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="72" font-size="11" fill="#8b949e">decoy test only (15)</text>
+<rect x="960.0" y="61" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="82" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="92" x2="1122" y2="92" stroke="#30363d"/>
+<text x="8" y="110" font-size="13" fill="#f0efec" font-weight="600">c</text>
+<text x="8" y="124" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="109" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="109" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="127" font-size="10" fill="#8b949e">40 files</text>
+<rect x="290" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="109" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="96" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="109" font-size="11" fill="#06121f">99.5% p</text>
+<text x="290" y="127" font-size="10" fill="#8b949e">1,715 functions</text>
+<rect x="450" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="109" font-size="11" fill="#06121f">100% p</text>
+<rect x="500" y="96" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="506" y="109" font-size="11" fill="#ffffff">51.7% r</text>
+<text x="450" y="127" font-size="10" fill="#8b949e">13,285 reference edges</text>
+<rect x="610" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="109" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="96" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="109" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="127" font-size="10" fill="#8b949e">811 imports</text>
+<rect x="770.0" y="99" width="75.0" height="9" fill="#4f9be8"/>
+<rect x="845.0" y="99" width="30.0" height="9" fill="#2f6aa8"/>
+<rect x="875.0" y="99" width="15.0" height="9" fill="#1f3b5c"/>
+<rect x="890.0" y="99" width="30.0" height="9" fill="#e5534b"/>
+<text x="807.5" y="118" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="807.5" y="128" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="860.0" y="118" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="882.5" y="118" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="905.0" y="118" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="770" y="140" font-size="10" fill="#8b949e">10 of 55 families</text>
+<rect x="960.0" y="99" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="120" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="144" x2="1122" y2="144" stroke="#30363d"/>
+<text x="8" y="162" font-size="13" fill="#f0efec" font-weight="600">cpp</text>
+<text x="8" y="176" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="161" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="161" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="179" font-size="10" fill="#8b949e">29 files</text>
+<rect x="290" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="161" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="161" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="179" font-size="10" fill="#8b949e">1,381 functions</text>
+<rect x="450" y="148" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="161" font-size="11" fill="#06121f">95.7% p</text>
+<rect x="507" y="148" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="161" font-size="11" fill="#ff8f88">41.5% r</text>
+<text x="450" y="179" font-size="10" fill="#8b949e">3,301 reference edges</text>
+<rect x="610" y="148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="161" font-size="11" fill="#06121f">99.4% p</text>
+<rect x="667" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="161" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="179" font-size="10" fill="#8b949e">171 imports</text>
+<text x="770" y="162" font-size="11" fill="#8b949e">decoy test only (24)</text>
+<rect x="960.0" y="151" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="172" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="182" x2="1122" y2="182" stroke="#30363d"/>
+<text x="8" y="200" font-size="13" fill="#f0efec" font-weight="600">csharp</text>
+<text x="8" y="214" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="186" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="199" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="186" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="199" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="217" font-size="10" fill="#8b949e">8 files</text>
+<rect x="290" y="186" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="199" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="186" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="199" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="217" font-size="10" fill="#8b949e">964 functions</text>
+<rect x="450" y="186" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="199" font-size="11" fill="#06121f">99.7% p</text>
+<rect x="507" y="186" width="40" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="199" font-size="11" fill="#ffffff">79% r</text>
+<text x="450" y="217" font-size="10" fill="#8b949e">4,727 reference edges</text>
+<rect x="610" y="186" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="199" font-size="11" fill="#ff8f88">17.5% p</text>
+<rect x="667" y="186" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="673" y="199" font-size="11" fill="#ffffff">66.7% r</text>
+<text x="610" y="217" font-size="10" fill="#8b949e">39 imports</text>
+<rect x="770.0" y="189" width="87.5" height="9" fill="#4f9be8"/>
+<rect x="857.5" y="189" width="25.0" height="9" fill="#2f6aa8"/>
+<rect x="882.5" y="189" width="12.5" height="9" fill="#1f3b5c"/>
+<rect x="895.0" y="189" width="25.0" height="9" fill="#e5534b"/>
+<text x="813.8" y="208" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
+<text x="813.8" y="218" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="870.0" y="208" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="888.8" y="208" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="907.5" y="208" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="770" y="230" font-size="10" fill="#8b949e">12 of 58 families</text>
+<rect x="960.0" y="189" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="210" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="234" x2="1122" y2="234" stroke="#30363d"/>
+<text x="8" y="252" font-size="13" fill="#f0efec" font-weight="600">dart</text>
+<text x="8" y="266" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="251" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="251" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="269" font-size="10" fill="#8b949e">7 files</text>
+<rect x="290" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="251" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="251" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="269" font-size="10" fill="#8b949e">1,750 functions</text>
+<rect x="450" y="238" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="251" font-size="11" fill="#06121f">99.6% p</text>
+<rect x="507" y="238" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="251" font-size="11" fill="#06121f">99.1% r</text>
+<text x="450" y="269" font-size="10" fill="#8b949e">2,644 calls</text>
+<rect x="610" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="251" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="251" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="269" font-size="10" fill="#8b949e">748 imports</text>
+<text x="770" y="252" font-size="11" fill="#8b949e">decoy test only (21)</text>
+<rect x="960.0" y="241" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="262" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="272" x2="1122" y2="272" stroke="#30363d"/>
+<text x="8" y="290" font-size="13" fill="#f0efec" font-weight="600">fortran</text>
+<text x="8" y="304" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="289" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="289" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="307" font-size="10" fill="#8b949e">6 files</text>
+<rect x="290" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="289" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="289" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="307" font-size="10" fill="#8b949e">139 functions</text>
+<rect x="450" y="276" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="456" y="289" font-size="11" fill="#ffffff">66.8% p</text>
+<rect x="507" y="276" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="289" font-size="11" fill="#ffffff">71.5% r</text>
+<text x="450" y="307" font-size="10" fill="#8b949e">389 calls</text>
+<rect x="610" y="276" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="289" font-size="11" fill="#06121f">94.8% p</text>
+<rect x="667" y="276" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="289" font-size="11" fill="#06121f">98.7% r</text>
+<text x="610" y="307" font-size="10" fill="#8b949e">635 imports</text>
+<text x="770" y="290" font-size="11" fill="#8b949e">decoy test only (15)</text>
+<rect x="960.0" y="279" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="300" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="310" x2="1122" y2="310" stroke="#30363d"/>
+<text x="8" y="328" font-size="13" fill="#f0efec" font-weight="600">go</text>
+<text x="8" y="342" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="327" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="327" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="345" font-size="10" fill="#8b949e">69 files</text>
+<rect x="290" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="327" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="327" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="345" font-size="10" fill="#8b949e">917 functions</text>
+<rect x="450" y="314" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="327" font-size="11" fill="#06121f">99.6% p</text>
+<rect x="507" y="314" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="327" font-size="11" fill="#ffffff">77.8% r</text>
+<text x="450" y="345" font-size="10" fill="#8b949e">4,706 reference edges</text>
+<rect x="610" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="327" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="314" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="327" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="345" font-size="10" fill="#8b949e">149 imports</text>
+<rect x="770.0" y="317" width="50.0" height="9" fill="#4f9be8"/>
+<rect x="820.0" y="317" width="25.0" height="9" fill="#2f6aa8"/>
+<rect x="845.0" y="317" width="37.5" height="9" fill="#1f3b5c"/>
+<rect x="882.5" y="317" width="37.5" height="9" fill="#e5534b"/>
+<text x="795.0" y="336" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="795.0" y="346" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="832.5" y="336" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="863.8" y="336" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="901.2" y="336" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="770" y="358" font-size="10" fill="#8b949e">12 of 57 families</text>
+<rect x="960.0" y="317" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="338" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="362" x2="1122" y2="362" stroke="#30363d"/>
+<text x="8" y="380" font-size="13" fill="#f0efec" font-weight="600">groovy</text>
+<text x="8" y="394" font-size="10" fill="#8b949e">4 of 6 stats</text>
+<rect x="130" y="366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="379" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="379" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="397" font-size="10" fill="#8b949e">305 files</text>
+<text x="290" y="380" font-size="11" fill="#8b949e">not measured</text>
+<rect x="450" y="366" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="379" font-size="11" fill="#06121f">90.1% p</text>
+<rect x="507" y="366" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="379" font-size="11" fill="#06121f">95.3% r</text>
+<text x="450" y="397" font-size="10" fill="#8b949e">737 calls</text>
+<rect x="610" y="366" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="379" font-size="11" fill="#06121f">99.3% p</text>
+<rect x="667" y="366" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="379" font-size="11" fill="#06121f">96.3% r</text>
+<text x="610" y="397" font-size="10" fill="#8b949e">1,105 imports</text>
+<text x="770" y="380" font-size="11" fill="#8b949e">decoy test only (16)</text>
+<rect x="960.0" y="369" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="390" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="400" x2="1122" y2="400" stroke="#30363d"/>
+<text x="8" y="418" font-size="13" fill="#f0efec" font-weight="600">haskell</text>
+<text x="8" y="432" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="404" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="417" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="404" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="417" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="435" font-size="10" fill="#8b949e">7 files</text>
+<rect x="290" y="404" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="417" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="404" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="417" font-size="11" fill="#06121f">99.3% p</text>
+<text x="290" y="435" font-size="10" fill="#8b949e">146 functions</text>
+<rect x="450" y="404" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="417" font-size="11" fill="#06121f">95.7% p</text>
+<rect x="507" y="404" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="417" font-size="11" fill="#06121f">98.9% r</text>
+<text x="450" y="435" font-size="10" fill="#8b949e">380 calls</text>
+<rect x="610" y="404" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="417" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="404" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="417" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="435" font-size="10" fill="#8b949e">139 imports</text>
+<text x="770" y="418" font-size="11" fill="#8b949e">decoy test only (32)</text>
+<rect x="960.0" y="407" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="428" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<line x1="8" y1="438" x2="1122" y2="438" stroke="#30363d"/>
+<text x="8" y="456" font-size="13" fill="#f0efec" font-weight="600">java</text>
+<text x="8" y="470" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="455" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="455" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="473" font-size="10" fill="#8b949e">14 files</text>
+<rect x="290" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="455" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="455" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="473" font-size="10" fill="#8b949e">385 functions</text>
+<rect x="450" y="442" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="455" font-size="11" fill="#06121f">99.8% p</text>
+<rect x="507" y="442" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="455" font-size="11" fill="#ffffff">82.5% r</text>
+<text x="450" y="473" font-size="10" fill="#8b949e">7,858 reference edges</text>
+<rect x="610" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="455" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="442" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="455" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="473" font-size="10" fill="#8b949e">1,085 imports</text>
+<rect x="770.0" y="445" width="62.5" height="9" fill="#4f9be8"/>
+<rect x="832.5" y="445" width="12.5" height="9" fill="#2f6aa8"/>
+<rect x="845.0" y="445" width="25.0" height="9" fill="#1f3b5c"/>
+<rect x="870.0" y="445" width="50.0" height="9" fill="#e5534b"/>
+<text x="801.2" y="464" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="801.2" y="474" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="838.8" y="464" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="857.5" y="464" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="895.0" y="464" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="895.0" y="474" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="486" font-size="10" fill="#8b949e">12 of 55 families</text>
+<rect x="960.0" y="445" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="466" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="490" x2="1122" y2="490" stroke="#30363d"/>
+<text x="8" y="508" font-size="13" fill="#f0efec" font-weight="600">javascript</text>
+<text x="8" y="522" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="494" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="507" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="494" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="507" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="525" font-size="10" fill="#8b949e">20 files</text>
+<rect x="290" y="494" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="507" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="494" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="507" font-size="11" fill="#06121f">98.1% p</text>
+<text x="290" y="525" font-size="10" fill="#8b949e">632 functions</text>
+<rect x="450" y="494" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="507" font-size="11" fill="#06121f">99.4% p</text>
+<rect x="507" y="494" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="507" font-size="11" fill="#ffffff">87.9% r</text>
+<text x="450" y="525" font-size="10" fill="#8b949e">528 reference edges</text>
+<rect x="610" y="494" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="507" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="494" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="507" font-size="11" fill="#06121f">99.8% r</text>
+<text x="610" y="525" font-size="10" fill="#8b949e">433 imports</text>
+<rect x="770.0" y="497" width="68.2" height="9" fill="#4f9be8"/>
+<rect x="838.2" y="497" width="13.6" height="9" fill="#2f6aa8"/>
+<rect x="851.8" y="497" width="13.6" height="9" fill="#1f3b5c"/>
+<rect x="865.5" y="497" width="54.5" height="9" fill="#e5534b"/>
+<text x="804.1" y="516" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="804.1" y="526" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="845.0" y="516" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="858.6" y="516" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="892.7" y="516" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="892.7" y="526" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="538" font-size="10" fill="#8b949e">11 of 66 families</text>
+<rect x="960.0" y="497" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="518" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="542" x2="1122" y2="542" stroke="#30363d"/>
+<text x="8" y="560" font-size="13" fill="#f0efec" font-weight="600">kotlin</text>
+<text x="8" y="574" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="559" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="559" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="577" font-size="10" fill="#8b949e">6 files</text>
+<rect x="290" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="559" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="559" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="577" font-size="10" fill="#8b949e">28 functions</text>
+<rect x="450" y="546" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="559" font-size="11" fill="#06121f">97.5% p</text>
+<rect x="507" y="546" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="559" font-size="11" fill="#ff8f88">42.5% r</text>
+<text x="450" y="577" font-size="10" fill="#8b949e">1,386 reference edges</text>
+<rect x="610" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="559" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="546" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="559" font-size="11" fill="#06121f">99.2% r</text>
+<text x="610" y="577" font-size="10" fill="#8b949e">377 imports</text>
+<rect x="770.0" y="549" width="50.0" height="9" fill="#4f9be8"/>
+<rect x="820.0" y="549" width="25.0" height="9" fill="#2f6aa8"/>
+<rect x="845.0" y="549" width="12.5" height="9" fill="#1f3b5c"/>
+<rect x="857.5" y="549" width="62.5" height="9" fill="#e5534b"/>
+<text x="795.0" y="568" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="795.0" y="578" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="832.5" y="568" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="851.2" y="568" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="888.8" y="568" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="888.8" y="578" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="590" font-size="10" fill="#8b949e">12 of 57 families</text>
+<rect x="960.0" y="549" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="570" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<line x1="8" y1="594" x2="1122" y2="594" stroke="#30363d"/>
+<text x="8" y="612" font-size="13" fill="#f0efec" font-weight="600">lua</text>
+<text x="8" y="626" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="598" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="611" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="598" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="611" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="629" font-size="10" fill="#8b949e">113 files</text>
+<rect x="290" y="598" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="611" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="598" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="611" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="629" font-size="10" fill="#8b949e">623 functions</text>
+<rect x="450" y="598" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="611" font-size="11" fill="#06121f">97.5% p</text>
+<rect x="507" y="598" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="611" font-size="11" fill="#06121f">98.2% r</text>
+<text x="450" y="629" font-size="10" fill="#8b949e">1,356 calls</text>
+<rect x="610" y="598" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="611" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="598" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="611" font-size="11" fill="#06121f">99.2% r</text>
+<text x="610" y="629" font-size="10" fill="#8b949e">354 imports</text>
+<rect x="770.0" y="601" width="75.0" height="9" fill="#4f9be8"/>
+<rect x="845.0" y="601" width="15.0" height="9" fill="#1f3b5c"/>
+<rect x="860.0" y="601" width="60.0" height="9" fill="#e5534b"/>
+<text x="807.5" y="620" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="807.5" y="630" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="852.5" y="620" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="890.0" y="620" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="890.0" y="630" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="642" font-size="10" fill="#8b949e">10 of 52 families</text>
+<rect x="960.0" y="601" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="622" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="646" x2="1122" y2="646" stroke="#30363d"/>
+<text x="8" y="664" font-size="13" fill="#f0efec" font-weight="600">matlab</text>
+<text x="8" y="678" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="650" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="663" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="650" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="663" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="681" font-size="10" fill="#8b949e">6 files</text>
+<rect x="290" y="650" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="663" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="650" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="663" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="681" font-size="10" fill="#8b949e">23 functions</text>
+<rect x="450" y="650" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="456" y="663" font-size="11" fill="#ffffff">72.4% p</text>
+<rect x="507" y="650" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="513" y="663" font-size="11" fill="#ff8f88">47.8% r</text>
+<text x="450" y="681" font-size="10" fill="#8b949e">460 calls</text>
+<rect x="610" y="650" width="34" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="663" font-size="11" fill="#ff8f88">0% r</text>
+<text x="610" y="681" font-size="10" fill="#8b949e">9 imports</text>
+<text x="770" y="664" font-size="11" fill="#8b949e">decoy test only (26)</text>
+<rect x="960.0" y="653" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="674" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="684" x2="1122" y2="684" stroke="#30363d"/>
+<text x="8" y="702" font-size="13" fill="#f0efec" font-weight="600">objective-c</text>
+<text x="8" y="716" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="701" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="701" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="719" font-size="10" fill="#8b949e">6 files</text>
+<rect x="290" y="688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="701" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="688" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="701" font-size="11" fill="#06121f">99.4% p</text>
+<text x="290" y="719" font-size="10" fill="#8b949e">153 functions</text>
+<rect x="450" y="688" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="701" font-size="11" fill="#06121f">97.8% p</text>
+<rect x="507" y="688" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="701" font-size="11" fill="#06121f">98.1% r</text>
+<text x="450" y="719" font-size="10" fill="#8b949e">321 calls</text>
+<rect x="610" y="688" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="701" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="688" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="701" font-size="11" fill="#06121f">99.6% r</text>
+<text x="610" y="719" font-size="10" fill="#8b949e">2,767 imports</text>
+<text x="770" y="702" font-size="11" fill="#8b949e">decoy test only (28)</text>
+<rect x="960.0" y="691" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="712" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="722" x2="1122" y2="722" stroke="#30363d"/>
+<text x="8" y="740" font-size="13" fill="#f0efec" font-weight="600">perl</text>
+<text x="8" y="754" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="726" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="739" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="726" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="739" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="757" font-size="10" fill="#8b949e">21 files</text>
+<rect x="290" y="726" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="739" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="726" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="739" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="757" font-size="10" fill="#8b949e">943 functions</text>
+<rect x="450" y="726" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="739" font-size="11" fill="#06121f">97.1% p</text>
+<rect x="507" y="726" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="739" font-size="11" fill="#06121f">97.8% r</text>
+<text x="450" y="757" font-size="10" fill="#8b949e">4,524 calls</text>
+<rect x="610" y="726" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="739" font-size="11" fill="#06121f">98.7% p</text>
+<rect x="667" y="726" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="739" font-size="11" fill="#06121f">99.2% r</text>
+<text x="610" y="757" font-size="10" fill="#8b949e">397 imports</text>
+<text x="770" y="740" font-size="11" fill="#8b949e">decoy test only (20)</text>
+<rect x="960.0" y="729" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="750" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="760" x2="1122" y2="760" stroke="#30363d"/>
+<text x="8" y="778" font-size="13" fill="#f0efec" font-weight="600">php</text>
+<text x="8" y="792" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="764" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="777" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="764" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="777" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="795" font-size="10" fill="#8b949e">36 files</text>
+<rect x="290" y="764" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="777" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="764" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="777" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="795" font-size="10" fill="#8b949e">1,707 functions</text>
+<rect x="450" y="764" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="777" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="507" y="764" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="777" font-size="11" fill="#06121f">97.9% r</text>
+<text x="450" y="795" font-size="10" fill="#8b949e">3,059 reference edges</text>
+<rect x="610" y="764" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="777" font-size="11" fill="#06121f">99.2% p</text>
+<rect x="667" y="764" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="777" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="795" font-size="10" fill="#8b949e">390 imports</text>
+<rect x="770.0" y="767" width="87.5" height="9" fill="#4f9be8"/>
+<rect x="857.5" y="767" width="25.0" height="9" fill="#2f6aa8"/>
+<rect x="882.5" y="767" width="12.5" height="9" fill="#1f3b5c"/>
+<rect x="895.0" y="767" width="25.0" height="9" fill="#e5534b"/>
+<text x="813.8" y="786" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
+<text x="813.8" y="796" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="870.0" y="786" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="888.8" y="786" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="907.5" y="786" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="770" y="808" font-size="10" fill="#8b949e">12 of 56 families</text>
+<rect x="960.0" y="767" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="788" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="812" x2="1122" y2="812" stroke="#30363d"/>
+<text x="8" y="830" font-size="13" fill="#f0efec" font-weight="600">powershell</text>
+<text x="8" y="844" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="816" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="829" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="816" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="829" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="847" font-size="10" fill="#8b949e">126 files</text>
+<rect x="290" y="816" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="829" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="816" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="829" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="847" font-size="10" fill="#8b949e">489 functions</text>
+<rect x="450" y="816" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="456" y="829" font-size="11" fill="#06121f">97.4% p</text>
+<rect x="507" y="816" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="829" font-size="11" fill="#06121f">96.4% r</text>
+<text x="450" y="847" font-size="10" fill="#8b949e">2,740 calls</text>
+<rect x="610" y="816" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="829" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="816" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="829" font-size="11" fill="#06121f">98.8% r</text>
+<text x="610" y="847" font-size="10" fill="#8b949e">83 imports</text>
+<text x="770" y="830" font-size="11" fill="#8b949e">decoy test only (17)</text>
+<rect x="960.0" y="819" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="840" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="850" x2="1122" y2="850" stroke="#30363d"/>
+<text x="8" y="868" font-size="13" fill="#f0efec" font-weight="600">python</text>
+<text x="8" y="882" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="854" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="867" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="854" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="867" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="885" font-size="10" fill="#8b949e">269 files</text>
+<rect x="290" y="854" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="867" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="854" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="867" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="885" font-size="10" fill="#8b949e">2,408 functions</text>
+<rect x="450" y="854" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="867" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="507" y="854" width="53" height="18" rx="4" fill="#1f3b5c" stroke="#8b949e" stroke-width="1"/><text x="513" y="867" font-size="11" fill="#ffffff">54.8% r</text>
+<text x="450" y="885" font-size="10" fill="#8b949e">3,565 reference edges</text>
+<rect x="610" y="854" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="867" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="667" y="854" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="867" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="885" font-size="10" fill="#8b949e">2,101 imports</text>
+<rect x="770.0" y="857" width="65.2" height="9" fill="#4f9be8"/>
+<rect x="835.2" y="857" width="13.0" height="9" fill="#2f6aa8"/>
+<rect x="848.3" y="857" width="26.1" height="9" fill="#1f3b5c"/>
+<rect x="874.3" y="857" width="45.7" height="9" fill="#e5534b"/>
+<text x="802.6" y="876" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">10</text>
+<text x="802.6" y="886" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="841.7" y="876" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="861.3" y="876" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="897.2" y="876" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
+<text x="897.2" y="886" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="898" font-size="10" fill="#8b949e">23 of 67 families</text>
+<rect x="960.0" y="857" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="878" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="902" x2="1122" y2="902" stroke="#30363d"/>
+<text x="8" y="920" font-size="13" fill="#f0efec" font-weight="600">ruby</text>
+<text x="8" y="934" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="906" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="919" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="906" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="919" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="937" font-size="10" fill="#8b949e">13 files</text>
+<rect x="290" y="906" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="919" font-size="11" fill="#06121f">98.5% r</text>
+<rect x="347" y="906" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="919" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="937" font-size="10" fill="#8b949e">135 functions</text>
+<rect x="450" y="906" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="919" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="507" y="906" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="919" font-size="11" fill="#06121f">96.3% r</text>
+<text x="450" y="937" font-size="10" fill="#8b949e">1,045 calls</text>
+<rect x="610" y="906" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="919" font-size="11" fill="#06121f">99.6% p</text>
+<rect x="667" y="906" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="919" font-size="11" fill="#06121f">99.6% r</text>
+<text x="610" y="937" font-size="10" fill="#8b949e">239 imports</text>
+<rect x="770.0" y="909" width="27.3" height="9" fill="#4f9be8"/>
+<rect x="797.3" y="909" width="13.6" height="9" fill="#2f6aa8"/>
+<rect x="810.9" y="909" width="54.5" height="9" fill="#1f3b5c"/>
+<rect x="865.5" y="909" width="54.5" height="9" fill="#e5534b"/>
+<text x="783.6" y="928" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="804.1" y="928" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="838.2" y="928" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="838.2" y="938" font-size="9" fill="#8b949e" text-anchor="middle">75-50</text>
+<text x="892.7" y="928" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="892.7" y="938" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="950" font-size="10" fill="#8b949e">11 of 56 families</text>
+<rect x="960.0" y="909" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="930" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="954" x2="1122" y2="954" stroke="#30363d"/>
+<text x="8" y="972" font-size="13" fill="#f0efec" font-weight="600">rust</text>
+<text x="8" y="986" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="958" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="971" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="958" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="971" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="989" font-size="10" fill="#8b949e">46 files</text>
+<rect x="290" y="958" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="971" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="958" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="971" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="989" font-size="10" fill="#8b949e">2,127 functions</text>
+<rect x="450" y="958" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="971" font-size="11" fill="#06121f">98.3% p</text>
+<rect x="507" y="958" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="513" y="971" font-size="11" fill="#ffffff">81.5% r</text>
+<text x="450" y="989" font-size="10" fill="#8b949e">1,084 reference edges</text>
+<rect x="610" y="958" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="971" font-size="11" fill="#06121f">99.5% p</text>
+<rect x="667" y="958" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="971" font-size="11" fill="#06121f">99.3% r</text>
+<text x="610" y="989" font-size="10" fill="#8b949e">814 imports</text>
+<rect x="770.0" y="961" width="54.5" height="9" fill="#4f9be8"/>
+<rect x="824.5" y="961" width="27.3" height="9" fill="#1f3b5c"/>
+<rect x="851.8" y="961" width="68.2" height="9" fill="#e5534b"/>
+<text x="797.3" y="980" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="797.3" y="990" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
+<text x="838.2" y="980" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="885.9" y="980" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="885.9" y="990" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="1002" font-size="10" fill="#8b949e">11 of 59 families</text>
+<rect x="960.0" y="961" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="982" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="1006" x2="1122" y2="1006" stroke="#30363d"/>
+<text x="8" y="1024" font-size="13" fill="#f0efec" font-weight="600">scala</text>
+<text x="8" y="1038" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="1010" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1023" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1010" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1023" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1041" font-size="10" fill="#8b949e">7 files</text>
+<rect x="290" y="1010" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1023" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="1010" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1023" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="1041" font-size="10" fill="#8b949e">541 functions</text>
+<rect x="450" y="1010" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1023" font-size="11" fill="#06121f">99.2% p</text>
+<rect x="507" y="1010" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="1023" font-size="11" fill="#06121f">93.8% r</text>
+<text x="450" y="1041" font-size="10" fill="#8b949e">3,359 calls</text>
+<rect x="610" y="1010" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1023" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1010" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1023" font-size="11" fill="#06121f">98.3% r</text>
+<text x="610" y="1041" font-size="10" fill="#8b949e">529 imports</text>
+<rect x="770.0" y="1013" width="37.5" height="9" fill="#4f9be8"/>
+<rect x="807.5" y="1013" width="37.5" height="9" fill="#2f6aa8"/>
+<rect x="845.0" y="1013" width="12.5" height="9" fill="#1f3b5c"/>
+<rect x="857.5" y="1013" width="62.5" height="9" fill="#e5534b"/>
+<text x="788.8" y="1032" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="826.2" y="1032" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="851.2" y="1032" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="888.8" y="1032" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="888.8" y="1042" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="1054" font-size="10" fill="#8b949e">12 of 57 families</text>
+<rect x="960.0" y="1013" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1034" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="1058" x2="1122" y2="1058" stroke="#30363d"/>
+<text x="8" y="1076" font-size="13" fill="#f0efec" font-weight="600">shell</text>
+<text x="8" y="1090" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="1062" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1075" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1062" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1075" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1093" font-size="10" fill="#8b949e">264 files</text>
+<rect x="290" y="1062" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="296" y="1075" font-size="11" fill="#ffffff">84.2% r</text>
+<rect x="347" y="1062" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="1075" font-size="11" fill="#06121f">98.1% p</text>
+<text x="290" y="1093" font-size="10" fill="#8b949e">970 functions</text>
+<rect x="450" y="1062" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1075" font-size="11" fill="#06121f">98.3% p</text>
+<rect x="507" y="1062" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="1075" font-size="11" fill="#06121f">98.2% r</text>
+<text x="450" y="1093" font-size="10" fill="#8b949e">1,743 calls</text>
+<rect x="610" y="1062" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1075" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1062" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1075" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="1093" font-size="10" fill="#8b949e">100 imports</text>
+<rect x="770.0" y="1065" width="33.3" height="9" fill="#4f9be8"/>
+<rect x="803.3" y="1065" width="33.3" height="9" fill="#2f6aa8"/>
+<rect x="836.7" y="1065" width="33.3" height="9" fill="#1f3b5c"/>
+<rect x="870.0" y="1065" width="50.0" height="9" fill="#e5534b"/>
+<text x="786.7" y="1084" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="820.0" y="1084" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="853.3" y="1084" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="895.0" y="1084" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="895.0" y="1094" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="1106" font-size="10" fill="#8b949e">9 of 51 families</text>
+<rect x="960.0" y="1065" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1086" font-size="10" fill="#c9d1d9">57 of 57 passed</text>
+<line x1="8" y1="1110" x2="1122" y2="1110" stroke="#30363d"/>
+<text x="8" y="1128" font-size="13" fill="#f0efec" font-weight="600">solidity</text>
+<text x="8" y="1142" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="1114" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1127" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1114" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1127" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1145" font-size="10" fill="#8b949e">7 files</text>
+<rect x="290" y="1114" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1127" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="1114" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="346" y="1127" font-size="11" fill="#06121f">94.3% p</text>
+<text x="290" y="1145" font-size="10" fill="#8b949e">99 functions</text>
+<rect x="450" y="1114" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1127" font-size="11" fill="#06121f">114% p</text>
+<rect x="500" y="1114" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="506" y="1127" font-size="11" fill="#06121f">99.3% r</text>
+<text x="450" y="1145" font-size="10" fill="#8b949e">149 calls</text>
+<rect x="610" y="1114" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1127" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1114" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1127" font-size="11" fill="#06121f">99.8% r</text>
+<text x="610" y="1145" font-size="10" fill="#8b949e">812 imports</text>
+<text x="770" y="1128" font-size="11" fill="#8b949e">decoy test only (17)</text>
+<rect x="960.0" y="1117" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1138" font-size="10" fill="#c9d1d9">57 of 57 passed</text>
+<line x1="8" y1="1148" x2="1122" y2="1148" stroke="#30363d"/>
+<text x="8" y="1166" font-size="13" fill="#f0efec" font-weight="600">swift</text>
+<text x="8" y="1180" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="1152" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1165" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1152" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1165" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1183" font-size="10" fill="#8b949e">6 files</text>
+<rect x="290" y="1152" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1165" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="1152" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1165" font-size="11" fill="#06121f">99.2% p</text>
+<text x="290" y="1183" font-size="10" fill="#8b949e">132 functions</text>
+<rect x="450" y="1152" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1165" font-size="11" fill="#06121f">99.7% p</text>
+<rect x="507" y="1152" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="513" y="1165" font-size="11" fill="#06121f">95.6% r</text>
+<text x="450" y="1183" font-size="10" fill="#8b949e">387 calls</text>
+<rect x="610" y="1152" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1165" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1152" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1165" font-size="11" fill="#06121f">98.8% r</text>
+<text x="610" y="1183" font-size="10" fill="#8b949e">510 imports</text>
+<rect x="770.0" y="1155" width="25.0" height="9" fill="#4f9be8"/>
+<rect x="795.0" y="1155" width="62.5" height="9" fill="#2f6aa8"/>
+<rect x="857.5" y="1155" width="50.0" height="9" fill="#1f3b5c"/>
+<rect x="907.5" y="1155" width="12.5" height="9" fill="#e5534b"/>
+<text x="782.5" y="1174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="826.2" y="1174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="826.2" y="1184" font-size="9" fill="#8b949e" text-anchor="middle">90-75</text>
+<text x="882.5" y="1174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="882.5" y="1184" font-size="9" fill="#8b949e" text-anchor="middle">75-50</text>
+<text x="913.8" y="1174" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
+<text x="770" y="1196" font-size="10" fill="#8b949e">12 of 57 families</text>
+<rect x="960.0" y="1155" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1176" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<line x1="8" y1="1200" x2="1122" y2="1200" stroke="#30363d"/>
+<text x="8" y="1218" font-size="13" fill="#f0efec" font-weight="600">tcl</text>
+<text x="8" y="1232" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="1204" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1217" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1204" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1217" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1235" font-size="10" fill="#8b949e">32 files</text>
+<rect x="290" y="1204" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1217" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="1204" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="346" y="1217" font-size="11" fill="#06121f">96.6% p</text>
+<text x="290" y="1235" font-size="10" fill="#8b949e">369 functions</text>
+<rect x="450" y="1204" width="59" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1217" font-size="11" fill="#06121f">121.3% p</text>
+<rect x="513" y="1204" width="40" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="519" y="1217" font-size="11" fill="#06121f">90% r</text>
+<text x="450" y="1235" font-size="10" fill="#8b949e">2,199 calls</text>
+<rect x="610" y="1204" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="1217" font-size="11" fill="#06121f">96.4% p</text>
+<rect x="667" y="1204" width="40" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="1217" font-size="11" fill="#06121f">90% r</text>
+<text x="610" y="1235" font-size="10" fill="#8b949e">836 imports</text>
+<text x="770" y="1218" font-size="11" fill="#8b949e">decoy test only (14)</text>
+<rect x="960.0" y="1207" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1228" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<line x1="8" y1="1238" x2="1122" y2="1238" stroke="#30363d"/>
+<text x="8" y="1256" font-size="13" fill="#f0efec" font-weight="600">typescript</text>
+<text x="8" y="1270" font-size="10" fill="#8b949e">6 of 6 stats</text>
+<rect x="130" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1255" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1255" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1273" font-size="10" fill="#8b949e">29 files</text>
+<rect x="290" y="1242" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1255" font-size="11" fill="#06121f">99.8% r</text>
+<rect x="347" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="1255" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="1273" font-size="10" fill="#8b949e">8,484 functions</text>
+<rect x="450" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1255" font-size="11" fill="#06121f">100% p</text>
+<rect x="500" y="1242" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="506" y="1255" font-size="11" fill="#ffffff">82.3% r</text>
+<text x="450" y="1273" font-size="10" fill="#8b949e">2,661 reference edges</text>
+<rect x="610" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1255" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1242" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1255" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="1273" font-size="10" fill="#8b949e">870 imports</text>
+<rect x="770.0" y="1245" width="37.5" height="9" fill="#4f9be8"/>
+<rect x="807.5" y="1245" width="25.0" height="9" fill="#2f6aa8"/>
+<rect x="832.5" y="1245" width="25.0" height="9" fill="#1f3b5c"/>
+<rect x="857.5" y="1245" width="62.5" height="9" fill="#e5534b"/>
+<text x="788.8" y="1264" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="820.0" y="1264" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="845.0" y="1264" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
+<text x="888.8" y="1264" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="888.8" y="1274" font-size="9" fill="#8b949e" text-anchor="middle">&lt;50</text>
+<text x="770" y="1286" font-size="10" fill="#8b949e">12 of 66 families</text>
+<rect x="960.0" y="1245" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1266" font-size="10" fill="#c9d1d9">59 of 59 passed</text>
+<line x1="8" y1="1290" x2="1122" y2="1290" stroke="#30363d"/>
+<text x="8" y="1308" font-size="13" fill="#f0efec" font-weight="600">zig</text>
+<text x="8" y="1322" font-size="10" fill="#8b949e">5 of 6 stats</text>
+<rect x="130" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="1307" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="1307" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="1325" font-size="10" fill="#8b949e">37 files</text>
+<rect x="290" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1307" font-size="11" fill="#06121f">100% r</text>
+<rect x="340" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="1307" font-size="11" fill="#06121f">100% p</text>
+<text x="290" y="1325" font-size="10" fill="#8b949e">3,538 functions</text>
+<rect x="450" y="1294" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="1307" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="507" y="1294" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="513" y="1307" font-size="11" fill="#06121f">99.9% r</text>
+<text x="450" y="1325" font-size="10" fill="#8b949e">20,686 calls</text>
+<rect x="610" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="1307" font-size="11" fill="#06121f">100% p</text>
+<rect x="660" y="1294" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="1307" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="1325" font-size="10" fill="#8b949e">272 imports</text>
+<text x="770" y="1308" font-size="11" fill="#8b949e">decoy test only (9)</text>
+<rect x="960.0" y="1297" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="1318" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
 </svg>

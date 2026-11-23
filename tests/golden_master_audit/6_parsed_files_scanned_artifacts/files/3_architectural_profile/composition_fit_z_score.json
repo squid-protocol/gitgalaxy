@@ -919,7 +919,7 @@
       "cobol/cics-genapp/lgcmarea.cpy": 0.083,
       "cobol/cics-genapp/lgdpdb01.cbl": 2.566,
       "cobol/cics-genapp/lgdpol01.cbl": 3.247,
-      "cobol/cics-genapp/lgdpvs01.cbl": 2.612,
+      "cobol/cics-genapp/lgdpvs01.cbl": 2.64,
       "cobol/cics-genapp/lgicdb01.cbl": 2.37,
       "cobol/cics-genapp/lgicus01.cbl": 2.542,
       "cobol/cics-genapp/lgicvs01.cbl": 3.19,
@@ -2186,7 +2186,7 @@
       "kotlin/SOURCES.md": 0.0
     },
     "kotlin/okhttp": {
-      "kotlin/okhttp/Call.kt": 2.006,
+      "kotlin/okhttp/Call.kt": 1.952,
       "kotlin/okhttp/Dispatcher.kt": -0.325,
       "kotlin/okhttp/LICENSE.txt": 0.0,
       "kotlin/okhttp/OkHttp.android.kt": 0.788,

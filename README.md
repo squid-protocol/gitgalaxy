@@ -124,12 +124,42 @@ The full record is in [the validation program](docs/validation.md) (continued �
 [language detection accuracy](docs/wiki/03-11-claim-11-multi-signal-detection.md) ·
 [known blind spots](docs/known_blind_spots.md)).
 
+**Per language.** Each language has its own sheet of six stats that do not depend on each other: detection, functions, call links,
+imports, keywords and Rosetta. Each stat carries its value, its sample size, and the method and reference it was measured against, so a
+language with no parser or compiler to check against is not scored against one that has them. There is no overall score.
+Languages are grouped by how many of the six are measured, which says how much evidence exists, not how good the engine is.
+
+<details open>
+<summary><strong>Measured on four or more of the six stats</strong> (A to Z)</summary>
+
+<p><img src="docs/language_sheets/matrix.svg" width="100%" alt="Per-language evidence for the languages measured on four or more of six stats: detection, functions, call links, imports, keyword families and Rosetta"></p>
+
+Colour is the keyword chart's scale (blue is better, red is under 50%). `p` is precision and `r` is recall. Keyword bars count families by score,
+high to low.
+
+</details>
+
+<details>
+<summary><strong>Sparsely measured languages</strong> (A to Z)</summary>
+
+<p><img src="docs/language_sheets/matrix_sparse.svg" width="100%" alt="Per-language evidence for the languages measured on fewer than four of six stats"></p>
+
+</details>
+
+Every language has a sheet with the method, the reference tool and a note on what was possible for it: [all language sheets](docs/language_sheets/README.md).
+
+<details>
+<summary><strong>Function extraction: the numbers</strong></summary>
+
 **Functions.** On the pinned Language Crucible, GitGalaxy is benchmarked against Tree-sitter and Universal Ctags.
 - Validated function precision is 100% across the 31 languages Tree-sitter can compare (audit of 2026-08-30).
 - Every disagreement is checked against the real source, with a verdict: 200 of 201 logged shapes are validated
   ([ledger](docs/self_scan/tri_comparison_ledger.json)).
 
-![Function, class and argument agreement: GitGalaxy vs Tree-sitter vs Ctags](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/tri_comparison_chart.svg)
+</details>
+
+<details>
+<summary><strong>Call graph and import graph: the numbers</strong></summary>
 
 **The graphs.** Blast radius and the "structural pillars" come from the import graph. The function rankings come from
 the call graph.
@@ -141,16 +171,20 @@ the call graph.
 - **Recall:** from 41.5% (C++) and 42.5% (Kotlin) to 87.9% (JavaScript) and 97.9% (PHP) of calls are linked, so
   function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
   [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).
-- **Import graph:** measured in 34 of 73 languages (49 repos). The chart names every language not yet measured
+- **Import graph:** measured in 34 of 73 languages (49 repos). The [language sheets](docs/language_sheets/README.md) name every language not yet measured
   ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
 
-![Graph accuracy coverage by language](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/graph_coverage_chart.svg)
+</details>
 
 **Keyword families.** Every per-function signal (I/O, regex, time, decorators, bitwise, ...) is a keyword family with a
 written contract ([`signal_contracts.py`](gitgalaxy/standards/signal_contracts.py): 71 families, 73 code languages).
 A parser (Python `ast`, tree-sitter) says what each function does, and each family is scored against that on recall and
 precision (the family-validity tool, [PR #8864](https://github.com/squid-protocol/gitgalaxy/pull/8864)). Each cell shows the weaker of the two, so a family that
 finds every construct but also fires on strings does not look good.
+
+<details>
+<summary><strong>How the keyword numbers are built</strong></summary>
+
 - Tested so far (2026-11-21): 2,894 language-by-family rules are defined; 181 are measured against a parser (15 languages),
   677 more only by a parserless decoy test, and 2,036 are not tested yet. The measured cells range from 0% to 100%
   (lower of recall and precision), so the figure prints every score. The decoy test plants each family's keyword in a
@@ -160,6 +194,8 @@ finds every construct but also fires on strings does not look good.
   Cells marked † come from repositories that are not pinned, so they are exploratory
   ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)). The full 73 x 71 matrix, with hover numbers, is
   [`family_validity_matrix.svg`](docs/self_scan/family_validity_matrix.svg).
+
+</details>
 
 ![Keyword families: how much is checked, and how well](docs/self_scan/family_validity_chart.svg)
 

@@ -43,8 +43,10 @@ _ANNOT_MACRO = (
     r"[ \t]*\n[ \t]+(?=[A-Z0-9_]{0,63}(?:LOCK|EXCLUDE|REQUIRE|ACQUIRE|RELEASE|GUARDED))[A-Z][A-Z0-9_]{1,63}[ \t]*"
     + _PARENS
 )
-# A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
-_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
+# A trailing return type token: a qualified name with optional template arguments
+# (`std::map<int, int>`, `join_view<decltype(a), decltype(b)>`). Excludes `{};` to stay bounded.
+_RET_TPL = r"(?:<(?:[^<>{};]|<(?:[^<>{};]|<[^<>{};]*>)*>)*>)?"
+_RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*]+" + _RET_TPL
 
 DEFINITION: dict[str, Any] = {
     "_meta": {

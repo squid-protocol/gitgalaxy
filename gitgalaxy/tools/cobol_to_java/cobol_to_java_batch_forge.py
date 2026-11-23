@@ -87,6 +87,7 @@ class Step:
     lowered: str | None = None  # #4268: a DFSORT step lowered to COBOL (dfsort.cobol_program)
     sort_service: str = ""  # #4268: the class of its det translation (a service the step runs), "" until ported
     sort_java: str = ""  # that service's source
+    concat: int = 0  # a SORT whose SORTIN is a concatenation: its datasets (the k-th, k > 1, is the DD `SORTIN<k>`)
     not_ported: str = ""  # why the lowered program is not run (the det translation failed or holds holes)
     lowered_note: str = ""  # where its record length came from
     lowered_path: str = ""  # its resource, set once the job's class is named
@@ -319,16 +320,21 @@ class BatchForge:
         except dfsort.Refused as e:
             return f"uses {e}, which the DFSORT model refuses"
         merge = ctl.verb == "MERGE"
+        n_in = sum(1 for d in st.dds if d.get("dd") == "SORTIN")
+        # SORTIN followed by unnamed DDs is a concatenation (unless the job names a SORTIN2 itself): input k is `SORTIN<k>`
+        st.concat = n_in if (not merge and n_in > 1 and not any(d.get("dd") == "SORTIN2" for d in st.dds)) else 0
         names = (
             sorted({d["dd"] for d in st.dds if re.fullmatch(r"SORTIN[0-9]{2}", d.get("dd") or "")})
             if merge
-            else ["SORTIN"]
+            else ["SORTIN"] + [f"SORTIN{k}" for k in range(2, st.concat + 1)]
         )
-        if not names or not all(any(d.get("dd") == n and d.get("dsn") for d in st.dds) for n in names):
+        if not names or not all(self._input_dsn(st, n) for n in names):
             return f"is a DFSORT {ctl.verb} the model lowers, but {'/'.join(names) or 'SORTINnn'} is not a dataset"
         if not any(d.get("dd") == "SORTOUT" and d.get("dsn") for d in st.dds):
             return f"is a DFSORT {ctl.verb} the model lowers, but SORTOUT is not a dataset"
-        reclen = self._sort_reclen(file, st, names, bool(ctl.outrec))
+        reclen = self._sort_reclen(
+            file, st, ["SORTIN"] if st.concat or names == ["SORTIN"] else names, bool(ctl.outrec)
+        )
         if isinstance(reclen, str):
             return f"is a DFSORT {ctl.verb} the model lowers, but {reclen}"
         try:
@@ -337,6 +343,14 @@ class BatchForge:
             return f"is a DFSORT {ctl.verb} the model reads, but lowering refuses {e}"
         st.lowered_note = f"{reclen[0]}-byte fixed records, LRECL from {reclen[1]}"
         return None
+
+    @staticmethod
+    def _input_dsn(st: Step, name: str) -> bool:
+        """Whether the input DD `name` of a SORT / MERGE is a dataset (a concatenated SORTIN's k-th is the k-th SORTIN row)."""
+        if st.concat and (m := re.fullmatch(r"SORTIN([0-9]+)", name)):
+            rows = [d for d in st.dds if d.get("dd") == "SORTIN"]
+            return len(rows) >= int(m.group(1)) and bool(rows[int(m.group(1)) - 1].get("dsn"))
+        return any(d.get("dd") == name and d.get("dsn") for d in st.dds)
 
     def _port_sort(self, base: str, st: Step) -> None:
         """#4268: the det translation of a lowered SORT step (the port `test_dfsort_4268.py` proves against GnuCOBOL),
@@ -378,8 +392,14 @@ class BatchForge:
         own = [d for d in st.dds if d.get("dd") in inputs]
         out = [d for d in st.dds if d.get("dd") == "SORTOUT"]
         key = {(d.get("dsn"), d.get("generation")) for d in own}
+        dsns = {k[0] for k in key}
+        # a row with no generation is a dataset-level DCB fact (a GDG's model DCB, or a base the job case states): it
+        # holds for every generation; a row that names a generation is matched on that generation only
         elsewhere = [
-            d for d in self.file_dds.get(file, []) if (d.get("dsn"), d.get("generation")) in key and d not in own
+            d
+            for d in self.file_dds.get(file, [])
+            if d not in own
+            and ((d.get("dsn"), d.get("generation")) in key or (d.get("dsn") in dsns and not d.get("generation")))
         ]
         tiers = [("the input DD", own), ("the same dataset elsewhere in the job", elsewhere)]
         if not rebuilt:
@@ -584,9 +604,22 @@ class BatchForge:
 
     @staticmethod
     def _dds(st: Step) -> str:
-        return ", ".join(f"new Dd({_jstr(d['dd'])}, {_jstr(d.get('dsn'))}, {_jstr(d.get('disp'))}, "
-                         f"{_jstr(d.get('disp_normal'))}, {_jstr(d.get('generation'))})"
-                         for d in st.dds if d.get("dd"))  # fmt: skip
+        seen = 0
+        out = []
+        for d in st.dds:
+            if not d.get("dd"):
+                continue
+            name = d["dd"]
+            if (
+                st.concat and st.lowered and name == "SORTIN"
+            ):  # the k-th dataset of the concatenation is the lowered input SORTIN<k>
+                seen += 1
+                name = "SORTIN" if seen == 1 else f"SORTIN{seen}"
+            out.append(
+                f"new Dd({_jstr(name)}, {_jstr(d.get('dsn'))}, {_jstr(d.get('disp'))}, "
+                f"{_jstr(d.get('disp_normal'))}, {_jstr(d.get('generation'))})"
+            )
+        return ", ".join(out)
 
     def _step_todo(self, st: Step) -> str | None:
         p = st.program or "?"

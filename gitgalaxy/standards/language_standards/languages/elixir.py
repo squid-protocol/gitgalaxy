@@ -69,8 +69,13 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|unless|else|case|cond|with|for|try|rescue|catch|receive)\b|->"),
-        "short_circuit": re.compile(r"&&|\|\||\band\b|\bor\b"),
+        # #8922: `->` counts once per arm line; the arrow of an `fn` line and of an `@spec` type is no arm-opener.
+        "branch": re.compile(
+            r"\b(?:if|unless|else|case|cond|with|for|try|rescue|catch|receive)\b"
+            r"|(?m:^)(?![ \t]*@)(?![^\n]*\bfn\b)(?=[^\n]*->)"
+        ),
+        # `&&` is the short-circuit AND; `&&&` is bitwise AND.
+        "short_circuit": re.compile(r"(?<!&)&&(?!&)|\|\||\band\b|\bor\b"),
         # args: group 1 is the parenthesised parameter list of a `def` / `defp` / `defmacro` / `defmacrop`.
         "args": re.compile(
             r"\b(?:def|defp|defmacro|defmacrop|defguard|defguardp)[ \t]+" + _FN + r"[ \t]*\(([^)\n]*)\)"

@@ -27,6 +27,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CORPT00C](carddemo-report.md) | carddemo-report | cics | proven, unapproved |  | 30 | 10/10 / 52/59 | 59/87 / 59/60 | 0 | - |
 | [COSGN00C](carddemo-signon.md) | carddemo-signon | cics | proven, unapproved |  | 22 | 6/6 / 17/17 | 67/99 / 67/72 | 0 | - |
 | [DFSORTST](carddemo-sort-combtran.md) | carddemo-sort-combtran | batch | proven, unapproved |  | 3 | 1/1 / 0/0 | - | 0 | - |
+| [DFSORTST](carddemo-sort-creastmt.md) | carddemo-sort-creastmt | batch | proven, unapproved |  | 1 | 1/1 / 0/0 | - | 0 | - |
 | [DFSORTST](carddemo-sort-creastmt-padded.md) | carddemo-sort-creastmt-padded | batch | proven, unapproved |  | 1 | 1/1 / 0/0 | - | 0 | - |
 | [DFSORTST](carddemo-sort-tranrept.md) | carddemo-sort-tranrept | batch | proven, unapproved |  | 2 | 1/1 / 0/0 | - | 0 | - |
 | [COTRN02C](carddemo-tranadd.md) | carddemo-tranadd | cics | proven, unapproved |  | 78 | 18/18 / 72/75 | 70/91 / 70/73 | 0 | - |

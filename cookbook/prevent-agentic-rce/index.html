@@ -12739,7 +12739,7 @@
 <p>Run the GitGalaxy engine against your agent framework:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/your/llm_agent_repo<span class="w"> </span>--ai-guardrails
 </code></pre></div>
-<p>(The <code>--ai-guardrails</code> flag enables the Zero-Trust Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)</p>
+<p>(The <code>--ai-guardrails</code> flag enables the AI Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)</p>
 <h3 id="2-identify-the-choke-points">2. Identify the Choke Points</h3>
 <p>GitGalaxy generates an <code>_llm.md</code> context brief and an <code>_audit.json</code> file. Look specifically for the <strong>Injection Surface Risk Exposure</strong>.</p>
 <p>The engine calculates this by cross-multiplying the density of external network inputs against dangerous execution vectors, removing the "Agentic Shield" if the file is explicitly designed to handle LLM orchestration.</p>

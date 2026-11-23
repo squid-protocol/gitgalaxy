@@ -3,18 +3,15 @@
  "internal_only": "Q16: MVS 3.8J results are not published",
  "fixture": "tests/equivalence/jcl/restart/scenarios.json",
  "skipped": {
-  "checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-  "checkpoint-restart-rd-does-not-change-the-steps": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
   "step-restart-if-reads-restart-step": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "step-restart-if-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
   "restart-if-referback-false": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
-  "restart-if-referback-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)",
-  "restart-star-checkpoint": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)",
-  "procstep-checkpoint-restart": "a checkpoint restart needs a SYSCHK dataset written by a checkpointed run (a later slice)"
+  "restart-if-referback-else": "IF / THEN / ELSE is not in 3.8J (tier 1 only)"
  },
  "unobserved": [
-  "what a program does (every step is IDCAMS with SET MAXCC)",
-  "a checkpoint restart (SYSCHK, checkid, RD=): not run",
+  "what a program does (every step is IDCAMS with SET MAXCC, except the checkpointed step: CHKPGM, which takes one CHKPT)",
+  "the checkid the fixture names (CK1, CKPT2, CHECK8): 3.8J's CHKPT names its checkpoint itself (C0000001), the restart deck uses that",
+  "the completion code of a restarted step (the box shows IEFRSTRT, code 0000, whatever the checkpointed program returned)",
   "the restart rule for a bare COND=(code,op) over skipped steps (assumption A1): only its outcome on the box is compared"
  ],
  "results": [
@@ -400,6 +397,100 @@
    "unparsed_ief": 0
   },
   {
+   "id": "checkpoint-restart",
+   "job": "RSTJOB4",
+   "expect": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "engine": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "box": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "V3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 7968,
+     "message": "IEF142I"
+    },
+    {
+     "step": "V4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "checkpoint": {
+    "step": "V3",
+    "taken_IHJ004I": true,
+    "restarted_IHJ008I": true
+   }
+  },
+  {
+   "id": "checkpoint-restart-rd-does-not-change-the-steps",
+   "job": "RSTJOB4",
+   "expect": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "engine": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "box": {
+    "V1": "skipped",
+    "V2": "skipped",
+    "V3": "run",
+    "V4": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "V3",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 7968,
+     "message": "IEF142I"
+    },
+    {
+     "step": "V4",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "checkpoint": {
+    "step": "V3",
+    "taken_IHJ004I": true,
+    "restarted_IHJ008I": true
+   }
+  },
+  {
    "id": "restart-cond-referback-ignored",
    "job": "RSTJOB6",
    "expect": {
@@ -561,6 +652,91 @@
    "box_abends": [],
    "jcl_error": false,
    "unparsed_ief": 0
+  },
+  {
+   "id": "restart-star-checkpoint",
+   "job": "RSTJOB11",
+   "expect": {
+    "K1": "run",
+    "K2": "run"
+   },
+   "engine": {
+    "K1": "run",
+    "K2": "run"
+   },
+   "box": {
+    "K1": "run",
+    "K2": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "K1",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 7968,
+     "message": "IEF142I"
+    },
+    {
+     "step": "K2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "checkpoint": {
+    "step": "K1",
+    "taken_IHJ004I": true,
+    "restarted_IHJ008I": true
+   }
+  },
+  {
+   "id": "procstep-checkpoint-restart",
+   "job": "RSTJOB12",
+   "expect": {
+    "PAY.DAILY": "skipped",
+    "PAY.WEEKLY": "run",
+    "AFTER": "run"
+   },
+   "engine": {
+    "PAY.DAILY": "skipped",
+    "PAY.WEEKLY": "run",
+    "AFTER": "run"
+   },
+   "box": {
+    "PAY.DAILY": "skipped",
+    "PAY.WEEKLY": "run",
+    "AFTER": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "PAY",
+     "procstep": "WEEKLY",
+     "executed": true,
+     "cond_code": 7968,
+     "message": "IEF142I"
+    },
+    {
+     "step": "AFTER",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0,
+   "checkpoint": {
+    "step": "WEEKLY",
+    "taken_IHJ004I": true,
+    "restarted_IHJ008I": true
+   }
   },
   {
    "id": "procstep-restart-cond-override-on-restart-step",

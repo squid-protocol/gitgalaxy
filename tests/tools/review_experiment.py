@@ -9,6 +9,7 @@ with no model in the loop, and compares models (Sonnet vs Opus) on the same set.
     python tests/tools/review_experiment.py run --models sonnet,opus   # DRY RUN: prints the size and stops
     python tests/tools/review_experiment.py run --models sonnet,opus --owner-ok --out DIR/results.json
     python tests/tools/review_experiment.py report DIR/results.json    # catch rate, false alarms, model delta
+    python tests/tools/review_experiment.py report DIR/results.json --markdown   # the same as a table for a page
 
 `run` calls a model, so it is the experiment lane's (Opus design, owner OK, cost-vs-reward gate): it makes no call
 without `--owner-ok`. The set is three defects and three twins, so every rate is printed with its n and no verdict is
@@ -176,6 +177,28 @@ def report(results: list[dict]) -> dict:
     return out
 
 
+def render_markdown(rep: dict) -> str:
+    """The report as a table for a committed page: counts with n per model, errored calls apart, then the delta."""
+    lines = ["| model | caught | false alarms on twins | stray findings on defects | errored | malformed |",
+             "|---|---|---|---|---|---|"]  # fmt: skip
+    for name, m in rep["models"].items():
+        by_cls = ", ".join(f"{k} {v[0]}/{v[1]}" for k, v in sorted(m["catch"].items()))
+        caught = f"{m['catch_rate'][0]}/{m['catch_rate'][1]}" + (f" ({by_cls})" if by_cls else "")
+        fa = m["twin_false_alarms"]
+        lines.append(
+            f"| {name} | {caught} | {fa[0]}/{fa[1]} | {m['stray_on_defective']} | {m['errored']} | {m['malformed']} |"
+        )
+    if "delta" in rep:
+        d = rep["delta"]
+        ca, cb = d["catch_rate"]
+        fa, fb = d["twin_false_alarms"]
+        lines.append("")
+        lines.append(f"Delta {d['a']} vs {d['b']}: caught {ca[0]}/{ca[1]} vs {cb[0]}/{cb[1]}; "
+                     f"false alarms {fa[0]}/{fa[1]} vs {fb[0]}/{fb[1]}.")  # fmt: skip
+    lines += ["", rep["note"]]
+    return "\n".join(lines)
+
+
 def estimate(models: list[str], repeats: int) -> dict:
     """The size of a run, for the dry run: reviews and rough input tokens (output is a short JSON object)."""
     chars = sum(len(prompt_for(c)) for c in rc.CONTROLS)
@@ -216,7 +239,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--max-reviews", type=int, help="refuse a run larger than this many reviews")
     r.add_argument("--owner-ok", action="store_true", help="the experiment lane's OK: without it nothing is called")
     r.add_argument("--out", help="where to write the raw reviews (outside the repo)")
-    sub.add_parser("report").add_argument("results")
+    rp = sub.add_parser("report")
+    rp.add_argument("results")
+    rp.add_argument("--markdown", action="store_true", help="print a table instead of JSON")
     args = ap.parse_args(argv)
     bad = rc.problems()
     if bad:
@@ -225,7 +250,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "prompt":
         print(prompt_for(rc.BY_KEY[args.key]))
     elif args.cmd == "report":
-        print(json.dumps(report(json.loads(Path(args.results).read_text(encoding="utf-8"))), indent=2))
+        rep = report(json.loads(Path(args.results).read_text(encoding="utf-8")))
+        print(render_markdown(rep) if args.markdown else json.dumps(rep, indent=2))
     else:
         models = [m for m in re.split(r"[,\s]+", args.models) if m]
         size = estimate(models, args.repeats)

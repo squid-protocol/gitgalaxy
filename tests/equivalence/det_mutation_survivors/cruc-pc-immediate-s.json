@@ -72,6 +72,22 @@
    ]
   },
   {
+   "id": "b423896b20",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "unreachable",
+   "reason": "GG-RETURN-CODE (initial image and field definition) is read only by runProgram(), the standalone batch entry; PCIMMS is a CICS transaction run through runTask / handleTransaction, and no statement of it sets or reads RETURN-CODE.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "921f29700b",
    "op": "CON",
    "line": 49,
@@ -348,6 +364,22 @@
    ]
   },
   {
+   "id": "426d381edd",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "unreachable",
+   "reason": "GG-RETURN-CODE (initial image and field definition) is read only by runProgram(), the standalone batch entry; PCIMMS is a CICS transaction run through runTask / handleTransaction, and no statement of it sets or reads RETURN-CODE.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "8fac6f08a0",
    "op": "CON",
    "line": 60,
@@ -357,6 +389,22 @@
    "reason": "f41_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
    "tried": [
     "zero-image-read"
+   ]
+  },
+  {
+   "id": "9e2efea0af",
+   "op": "CON",
+   "line": 60,
+   "before": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f41_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "unreachable",
+   "reason": "GG-RETURN-CODE (initial image and field definition) is read only by runProgram(), the standalone batch entry; PCIMMS is a CICS transaction run through runTask / handleTransaction, and no statement of it sets or reads RETURN-CODE.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -417,6 +465,38 @@
    "reason": "abended() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
+   ]
+  },
+  {
+   "id": "4d054aaa25",
+   "op": "CON",
+   "line": 78,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
+   "verdict": "unreachable",
+   "reason": "The PARAGRAPHS entry for MAIN-PARA is read only by DetCics.paragraph() when HANDLE ABEND / HANDLE CONDITION names a label; PCIMMS has none, so abendOnCondition() is null and the map is never read.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "cfa3b37f30",
+   "op": "LIT",
+   "line": 78,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
+   "verdict": "unreachable",
+   "reason": "The PARAGRAPHS entry for MAIN-PARA is read only by DetCics.paragraph() when HANDLE ABEND / HANDLE CONDITION names a label; PCIMMS has none, so abendOnCondition() is null and the map is never read.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -528,6 +608,102 @@
    ]
   },
   {
+   "id": "22fab4f72d",
+   "op": "DEL",
+   "line": 123,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "caBack is initialised to the no-op lambda `() -> { }` at its declaration and this program (no COMMAREA, no LINK back) never assigns it, so deleting the reset or a caBack.run() call runs the same empty lambda.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "47ce3b1c54",
+   "op": "DEL",
+   "line": 124,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "handlers.clear() empties a map that this program never fills: it has no HANDLE CONDITION, IGNORE CONDITION or HANDLE ABEND, so handlers is empty at entry on every task and deleting the clear leaves it empty.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "e7fff4ab46",
+   "op": "DEL",
+   "line": 127,
+   "before": "Cobol.move(task.transid(), f12_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f12_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "Deleting the store into EIBTRNID / EIBTASKN: PCIMMS reads neither (the paragraph's statements are RETURN IMMEDIATE, two MOVEs of WS-RESP / WS-RESP2 and WRITEQ TS of WS-SLOG), and nothing in the runtime reads the EIB image, so no event, output or abend depends on them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "385988ecc9",
+   "op": "DEL",
+   "line": 129,
+   "before": "Cobol.store(f13_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f13_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Deleting the store into EIBTRNID / EIBTASKN: PCIMMS reads neither (the paragraph's statements are RETURN IMMEDIATE, two MOVEs of WS-RESP / WS-RESP2 and WRITEQ TS of WS-SLOG), and nothing in the runtime reads the EIB image, so no event, output or abend depends on them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "1f825730a1",
+   "op": "ROR",
+   "line": 133,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "The switch over task.aid() has only a `default -> { }` arm (PCIMMS has no HANDLE AID), so whichever string the ternary yields the switch does nothing; the flipped test only changes the string switched on.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "affac9a202",
+   "op": "NEG",
+   "line": 138,
+   "before": "if (ca instanceof CaaddrWsArea) {",
+   "after": "if (!(ca instanceof CaaddrWsArea)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "3e4f994e6a",
    "op": "DEL",
    "line": 140,
@@ -537,6 +713,54 @@
    "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
    "tried": [
     "never-populated"
+   ]
+  },
+  {
+   "id": "e99fc2986e",
+   "op": "NEG",
+   "line": 140,
+   "before": "} else if (ca instanceof CabllDfhcommarea) {",
+   "after": "} else if (!(ca instanceof CabllDfhcommarea)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "b6bbe3f2b2",
+   "op": "NEG",
+   "line": 142,
+   "before": "} else if (ca instanceof CaboffWsOut) {",
+   "after": "} else if (!(ca instanceof CaboffWsOut)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "6645178e89",
+   "op": "NEG",
+   "line": 144,
+   "before": "} else if (ca instanceof CaboffWsPre) {",
+   "after": "} else if (!(ca instanceof CaboffWsPre)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -600,6 +824,22 @@
    ]
   },
   {
+   "id": "e06c2e5558",
+   "op": "NEG",
+   "line": 146,
+   "before": "} else if (ca instanceof CaboffWsSrc) {",
+   "after": "} else if (!(ca instanceof CaboffWsSrc)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "59401122df",
    "op": "AOR",
    "line": 147,
@@ -660,6 +900,38 @@
    ]
   },
   {
+   "id": "1e789bf18c",
+   "op": "NEG",
+   "line": 148,
+   "before": "} else if (ca instanceof CabrerrWsData) {",
+   "after": "} else if (!(ca instanceof CabrerrWsData)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "987bf15a2a",
+   "op": "NEG",
+   "line": 150,
+   "before": "} else if (ca instanceof CaccsidWsAsc) {",
+   "after": "} else if (!(ca instanceof CaccsidWsAsc)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "e020e3b4f5",
    "op": "CON",
    "line": 152,
@@ -669,6 +941,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "ff38d3f2c8",
+   "op": "NEG",
+   "line": 152,
+   "before": "} else if (ca instanceof CachanWsBin) {",
+   "after": "} else if (!(ca instanceof CachanWsBin)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -696,6 +984,22 @@
    ]
   },
   {
+   "id": "bd2fc6f2d3",
+   "op": "NEG",
+   "line": 154,
+   "before": "} else if (ca instanceof CachanWsMore) {",
+   "after": "} else if (!(ca instanceof CachanWsMore)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "36ec144f3b",
    "op": "CON",
    "line": 156,
@@ -720,6 +1024,22 @@
    ]
   },
   {
+   "id": "f61ee2ce50",
+   "op": "NEG",
+   "line": 156,
+   "before": "} else if (ca instanceof CachanWsReq) {",
+   "after": "} else if (!(ca instanceof CachanWsReq)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "0249ac3e60",
    "op": "CON",
    "line": 158,
@@ -741,6 +1061,38 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "cb3f0c5e34",
+   "op": "NEG",
+   "line": 158,
+   "before": "} else if (ca instanceof CachsubWsReply) {",
+   "after": "} else if (!(ca instanceof CachsubWsReply)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "17c6d910ec",
+   "op": "NEG",
+   "line": 160,
+   "before": "} else if (ca instanceof CachsubWsShort) {",
+   "after": "} else if (!(ca instanceof CachsubWsShort)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -780,6 +1132,22 @@
    ]
   },
   {
+   "id": "b9b0095aac",
+   "op": "NEG",
+   "line": 162,
+   "before": "} else if (ca instanceof CachxbWsOwn) {",
+   "after": "} else if (!(ca instanceof CachxbWsOwn)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "d71d00fcaf",
    "op": "CON",
    "line": 162,
@@ -804,6 +1172,22 @@
    ]
   },
   {
+   "id": "69ff62bda4",
+   "op": "NEG",
+   "line": 164,
+   "before": "} else if (ca instanceof CagcstWsPtr) {",
+   "after": "} else if (!(ca instanceof CagcstWsPtr)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "cc70c7f75f",
    "op": "CON",
    "line": 164,
@@ -825,6 +1209,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "dcc9882741",
+   "op": "NEG",
+   "line": 166,
+   "before": "} else if (ca instanceof CagcstWsSrc2) {",
+   "after": "} else if (!(ca instanceof CagcstWsSrc2)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -864,6 +1264,22 @@
    ]
   },
   {
+   "id": "650e4283d7",
+   "op": "NEG",
+   "line": 168,
+   "before": "} else if (ca instanceof GtasgnWsCa) {",
+   "after": "} else if (!(ca instanceof GtasgnWsCa)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "c98a85892e",
    "op": "DEL",
    "line": 170,
@@ -876,6 +1292,22 @@
    ]
   },
   {
+   "id": "cdd9ab1b28",
+   "op": "NEG",
+   "line": 170,
+   "before": "} else if (ca instanceof HcrparWsV1) {",
+   "after": "} else if (!(ca instanceof HcrparWsV1)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "d7f26a4798",
    "op": "CON",
    "line": 170,
@@ -885,6 +1317,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6400ad8182",
+   "op": "NEG",
+   "line": 172,
+   "before": "} else if (ca instanceof HcrparWsV2) {",
+   "after": "} else if (!(ca instanceof HcrparWsV2)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -924,6 +1372,22 @@
    ]
   },
   {
+   "id": "eefe37629d",
+   "op": "NEG",
+   "line": 174,
+   "before": "} else if (ca instanceof PcconfWsState) {",
+   "after": "} else if (!(ca instanceof PcconfWsState)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "fe287a3c96",
    "op": "CON",
    "line": 174,
@@ -948,6 +1412,22 @@
    ]
   },
   {
+   "id": "399895ad2c",
+   "op": "NEG",
+   "line": 176,
+   "before": "} else if (ca instanceof PcrcaWsCarry) {",
+   "after": "} else if (!(ca instanceof PcrcaWsCarry)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "b22a15e489",
    "op": "DEL",
    "line": 176,
@@ -957,6 +1437,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "4adc11a626",
+   "op": "NEG",
+   "line": 178,
+   "before": "} else if (ca instanceof PcrcaWsModify) {",
+   "after": "} else if (!(ca instanceof PcrcaWsModify)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -981,6 +1477,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "09d689d9b7",
+   "op": "NEG",
+   "line": 180,
+   "before": "} else if (ca instanceof PcrcbWsExtra) {",
+   "after": "} else if (!(ca instanceof PcrcbWsExtra)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1020,6 +1532,22 @@
    ]
   },
   {
+   "id": "ef1f6ca288",
+   "op": "NEG",
+   "line": 182,
+   "before": "} else if (ca instanceof PcrcbWsNew1) {",
+   "after": "} else if (!(ca instanceof PcrcbWsNew1)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "fba4755a13",
    "op": "DEL",
    "line": 182,
@@ -1029,6 +1557,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "12cfc872ce",
+   "op": "NEG",
+   "line": 184,
+   "before": "} else if (ca instanceof PcrcbWsNew2) {",
+   "after": "} else if (!(ca instanceof PcrcbWsNew2)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1053,6 +1597,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "431086ee00",
+   "op": "NEG",
+   "line": 186,
+   "before": "} else if (ca instanceof PcrclWsLinked) {",
+   "after": "} else if (!(ca instanceof PcrclWsLinked)) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1104,6 +1664,22 @@
    ]
   },
   {
+   "id": "94295e9b10",
+   "op": "ROR",
+   "line": 189,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen != 0 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "2ca95452b2",
    "op": "CON",
    "line": 190,
@@ -1113,6 +1689,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "81fd4898fa",
+   "op": "DEL",
+   "line": 190,
+   "before": "calen = DetCics.eibCalen(task, task.linkArea().length);",
+   "after": "/* calen = DetCics.eibCalen(task, task.linkArea().length); */",
+   "verdict": "equivalent",
+   "reason": "The ca instanceof ladder and the calen == 0 / eibCalen(link area) step only compute calen, a pure function (DetCics.eibCalen reads task.eibcalen() or the given size), and calen's only use is the store into EIBCALEN. PCIMMS has no COMMAREA and no statement reads EIBCALEN, and no runtime code reads that field, so a flipped branch changes a value nobody reads. The LINK scenarios (link-4, link-20, link-1000-noterm) and the started-task scenarios held every one of them.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1176,6 +1768,22 @@
    ]
   },
   {
+   "id": "ec634e372e",
+   "op": "CON",
+   "line": 194,
+   "before": "perform(0, 0);",
+   "after": "perform(0, 1);",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "5b48bbc32a",
    "op": "DEL",
    "line": 196,
@@ -1221,6 +1829,22 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fbc20432a3",
+   "op": "DEL",
+   "line": 199,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack is initialised to the no-op lambda `() -> { }` at its declaration and this program (no COMMAREA, no LINK back) never assigns it, so deleting the reset or a caBack.run() call runs the same empty lambda.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1272,6 +1896,19 @@
    ]
   },
   {
+   "id": "b6914a49d6",
+   "op": "DEL",
+   "line": 203,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "drops the finally-restore of the TRUNC setting after runTask: the setting leaks to the next task of the same JVM, but every PCIMMS entry stores TRUNC(STD) again at line 119 before any statement runs, and the case enters no other program (nothing LINKs or XCTLs to PCIMMS in the crucible); six scenarios over terminal, AID, startcode and injected RETURN / WRITEQ TS faults all gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
+   ]
+  },
+  {
    "id": "19f7380c1a",
    "op": "CON",
    "line": 204,
@@ -1281,6 +1918,19 @@
    "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
    "tried": [
     "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fa62b307a5",
+   "op": "DEL",
+   "line": 204,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "drops the finally-restore of the NUMPROC setting after runTask: the next PCIMMS entry stores NOPFD again at line 120 before any statement runs and PCIMMS has no numeric sign handling that depends on it; the same six scenarios gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
    ]
   },
   {
@@ -1296,6 +1946,83 @@
    ]
   },
   {
+   "id": "f7253d3791",
+   "op": "LIT",
+   "line": 211,
+   "before": "region.run(task, \"PCIMMS\", this::runTask);",
+   "after": "region.run(task, \"XCIMMS\", this::runTask);",
+   "verdict": "equivalent",
+   "reason": "renames the program in the byte-less handleTransaction overload (PCIMMS to XCIMMS): PCIMMS issues only RETURN TRANSID IMMEDIATE and WRITEQ TS, no ASSIGN PROGRAM / LINK / XCTL / INQUIRE PROGRAM, so the run name is read by nothing it shows; the same six scenarios (no-terminal, another terminal and AID, startcode S, RETURN INVREQ, WRITEQ TS INVREQ) gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
+   ]
+  },
+  {
+   "id": "109d045fd2",
+   "op": "DEL",
+   "line": 218,
+   "before": "lastAnswerBytes = task.returnedBytes();",
+   "after": "/* lastAnswerBytes = task.returnedBytes(); */",
+   "verdict": "equivalent",
+   "reason": "lastAnswerBytes is the facade's copy of the bytes the RETURN passed on; PCIMMS RETURNs with no COMMAREA, so task.returnedBytes() is null every time and the deleted assignment leaves the field at its null initial value.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "76b93111ea",
+   "op": "CON",
+   "line": 239,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "perform bookkeeping (performDepth++ vs --, the performThru array size, the initial performDepth): p0 never returns to perform() normally, so nothing reads performThru, and the finally block resets performDepth to `mine` on every exit, so the depth is not carried between tasks.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "14001aad05",
+   "op": "CON",
+   "line": 240,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "perform bookkeeping (performDepth++ vs --, the performThru array size, the initial performDepth): p0 never returns to perform() normally, so nothing reads performThru, and the finally block resets performDepth to `mine` on every exit, so the depth is not carried between tasks.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "6cf9fe6e46",
+   "op": "DEL",
+   "line": 248,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Goback's constructor passes null message, no cause and no suppression / stack trace to RuntimeException; the exception is caught by type in runTask and perform() and neither its message nor its trace is read, so the call changes nothing observable.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "388b6c4de0",
    "op": "DEL",
    "line": 251,
@@ -1305,6 +2032,598 @@
    "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
    "tried": [
     "exception-ctor"
+   ]
+  },
+  {
+   "id": "2459df333e",
+   "op": "DEL",
+   "line": 259,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "6fd04fbcf8",
+   "op": "CON",
+   "line": 259,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "a588f35ae4",
+   "op": "AOR",
+   "line": 259,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "89e0180442",
+   "op": "AOR",
+   "line": 261,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "perform bookkeeping (performDepth++ vs --, the performThru array size, the initial performDepth): p0 never returns to perform() normally, so nothing reads performThru, and the finally block resets performDepth to `mine` on every exit, so the depth is not carried between tasks.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "7a0d034ee4",
+   "op": "CON",
+   "line": 266,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "deb9e7d4ef",
+   "op": "ROR",
+   "line": 266,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "eea76dd055",
+   "op": "NEG",
+   "line": 268,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "f0edee129d",
+   "op": "NEG",
+   "line": 269,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "fc1a48fbc7",
+   "op": "ROR",
+   "line": 269,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "a899412f01",
+   "op": "DEL",
+   "line": 270,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "4d8c45029b",
+   "op": "ROR",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "5fe9b0d395",
+   "op": "CON",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "71c33a0208",
+   "op": "AOR",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "75ec02c29d",
+   "op": "CON",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "b100fe4b57",
+   "op": "AOR",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "fab10465d5",
+   "op": "ROR",
+   "line": 272,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d < 0; d--) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "3ecce0a923",
+   "op": "NEG",
+   "line": 273,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "c896e57e5b",
+   "op": "ROR",
+   "line": 273,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "2219574bef",
+   "op": "ROR",
+   "line": 278,
+   "before": "if (next >= 1) {",
+   "after": "if (next < 1) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "5d45cf7c5b",
+   "op": "NEG",
+   "line": 278,
+   "before": "if (next >= 1) {",
+   "after": "if (!(next >= 1)) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "a0305cab8f",
+   "op": "CON",
+   "line": 278,
+   "before": "if (next >= 1) {",
+   "after": "if (next >= 2) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "c1a9b9da1b",
+   "op": "ROR",
+   "line": 278,
+   "before": "if (next >= 1) {",
+   "after": "if (next > 1) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "a78fbffd90",
+   "op": "DEL",
+   "line": 281,
+   "before": "i = next;",
+   "after": "/* i = next; */",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "2006705b9a",
+   "op": "ROR",
+   "line": 284,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "bbc810dce9",
+   "op": "NEG",
+   "line": 284,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "001d270fff",
+   "op": "DEL",
+   "line": 288,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "d5c480e7df",
+   "op": "LIT",
+   "line": 295,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "Code in perform() after `int next = run(i)` (or the array growth at depth 64, or the default arm of run()): the program is one paragraph and p0 ends in `throw new Goback()` (or throws an abend from condition()), so run(0) never returns a value; perform() runs once, at depth 0, with paragraph 0 only. No input reaches the lines after the call.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "cd8bb17504",
+   "op": "CON",
+   "line": 303,
+   "before": "if (rr1[0] == 0) { caBack.run(); throw new Goback(); }",
+   "after": "if (rr1[1] == 0) { caBack.run(); throw new Goback(); }",
+   "verdict": "equivalent",
+   "reason": "rr1[1] == 0 in place of rr1[0] == 0: returnImmediate answers {0, 0} on success and, on every failure it can give (lower level RESP2 2, no terminal RESP2 1, LENGERR RESP2 11, a planned fault with RESP2 of 1, 2, 4, 11, 26, 27 or 200), a non-zero RESP2 together with a non-zero RESP, so the two tests agree on every answer.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "7c06747690",
+   "op": "CON",
+   "line": 306,
+   "before": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(rr1[0]), 8, true, false, CS);",
+   "after": "f1_WS_RESP = Cobol.binary(BigDecimal.valueOf(rr1[0]), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-RESP / WS-RESP2 are stored through Cobol.binary at 8 vs 9 digits: the values come from returnImmediate (0, 16 or 22 for RESP; 0, 1, 2, 11 or a planned INVREQ/LENGERR RESP2 of at most 200), far below 10^8, so the extra digit changes neither the stored value nor any truncation.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "a39dc9e3a9",
+   "op": "CON",
+   "line": 307,
+   "before": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(rr1[1]), 8, true, false, CS);",
+   "after": "f2_WS_RESP2 = Cobol.binary(BigDecimal.valueOf(rr1[1]), 9, true, false, CS);",
+   "verdict": "equivalent",
+   "reason": "WS-RESP / WS-RESP2 are stored through Cobol.binary at 8 vs 9 digits: the values come from returnImmediate (0, 16 or 22 for RESP; 0, 1, 2, 11 or a planned INVREQ/LENGERR RESP2 of at most 200), far below 10^8, so the extra digit changes neither the stored value nor any truncation.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "9282ba74b1",
+   "op": "LIT",
+   "line": 313,
+   "before": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"WRITEQ TS\", CS), CS, REGION));",
+   "after": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"XRITEQ TS\", CS), CS, REGION));",
+   "verdict": "unreachable",
+   "reason": "The `what` text of DetCics.padded is used only in the PastFrom message when LENGTH exceeds MAX_RECORD; this WRITEQ TS passes 13, so the message is never built.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "b7502c68ed",
+   "op": "CON",
+   "line": 313,
+   "before": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 13, \"WRITEQ TS\", CS), CS, REGION));",
+   "after": "CicsTask.TsResult ts2 = task.writeqTs(\"PCLOG\".strip(), DetCics.toRegion(DetCics.padded(f3_WS_SLOG, 14, \"WRITEQ TS\", CS), CS, REGION));",
+   "verdict": "harness-gap",
+   "reason": "WRITEQ TS LENGTH 13 -> 14 writes the 13-byte WS-SLOG plus one blank: the TS item is one byte longer, but the compare (equivalence_cics_compare.py) strips trailing blanks from the event's data, so the proof cannot see the longer record. The compare would have to check the written length.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "1136270a98",
+   "op": "DEL",
+   "line": 314,
+   "before": "Cobol.store(f38_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS);",
+   "after": "/* Cobol.store(f38_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts2.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "Deleting the store of the WRITEQ TS response into EIBRESP: the program has no RESP option on it and no statement reads EIBRESP, and a non-zero response goes straight to condition() from the local resp value, not from EIBRESP. The INVREQ and IOERR faults on PCLOG (wq-noterm-invreq, wq-noterm-ioerr) abended identically.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "1ca4a9dcf8",
+   "op": "NEG",
+   "line": 318,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "The `to >= 0` test after a non-zero WRITEQ TS response: condition() can return only a HANDLE label, -1 for EOC / EXPIRED (a WRITEQ TS answers INVREQ, IOERR, NOSPACE, NOTAUTH or LOCKED, per the fault table's own notes in equivalence_cics_faults.py, never EOC or EXPIRED), or the ERROR label, and the program has no HANDLE, so every non-zero WRITEQ TS response abends inside condition() before the test.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "d4be085924",
+   "op": "ROR",
+   "line": 318,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "The `to >= 0` test after a non-zero WRITEQ TS response: condition() can return only a HANDLE label, -1 for EOC / EXPIRED (a WRITEQ TS answers INVREQ, IOERR, NOSPACE, NOTAUTH or LOCKED, per the fault table's own notes in equivalence_cics_faults.py, never EOC or EXPIRED), or the ERROR label, and the program has no HANDLE, so every non-zero WRITEQ TS response abends inside condition() before the test.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "e56e56a527",
+   "op": "ROR",
+   "line": 318,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "The `to >= 0` test after a non-zero WRITEQ TS response: condition() can return only a HANDLE label, -1 for EOC / EXPIRED (a WRITEQ TS answers INVREQ, IOERR, NOSPACE, NOTAUTH or LOCKED, per the fault table's own notes in equivalence_cics_faults.py, never EOC or EXPIRED), or the ERROR label, and the program has no HANDLE, so every non-zero WRITEQ TS response abends inside condition() before the test.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "e6d40a4652",
+   "op": "CON",
+   "line": 318,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "The `to >= 0` test after a non-zero WRITEQ TS response: condition() can return only a HANDLE label, -1 for EOC / EXPIRED (a WRITEQ TS answers INVREQ, IOERR, NOSPACE, NOTAUTH or LOCKED, per the fault table's own notes in equivalence_cics_faults.py, never EOC or EXPIRED), or the ERROR label, and the program has no HANDLE, so every non-zero WRITEQ TS response abends inside condition() before the test.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {
@@ -1332,6 +2651,38 @@
    ]
   },
   {
+   "id": "b4bf497fd4",
+   "op": "DEL",
+   "line": 321,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack is initialised to the no-op lambda `() -> { }` at its declaration and this program (no COMMAREA, no LINK back) never assigns it, so deleting the reset or a caBack.run() call runs the same empty lambda.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
+   "id": "06c89da2a5",
+   "op": "DEL",
+   "line": 322,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "equivalent",
+   "reason": "After the final RETURN the program throws Goback; runTask then runs `if (!task.ended()) { caBack.run(); task.returnTransid(null, null); }`, the same RETURN the deleted call made, and the negated `if (true) throw` only moves the throw to perform(), whose `next >= 1` test throws Goback again. The started-task scenario (three events: RETURN, WRITEQ TS, RETURN) is identical both ways.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
+   ]
+  },
+  {
    "id": "af876f2aa6",
    "op": "DEL",
    "line": 322,
@@ -1341,6 +2692,22 @@
    "reason": "f39_EIBRESP2 at line 322 is unconditionally overwritten by f39_EIBRESP2 at line 332 before any read (store-dominates-read)",
    "tried": [
     "store-dominates-read"
+   ]
+  },
+  {
+   "id": "992d41ad1a",
+   "op": "NEG",
+   "line": 323,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "After the final RETURN the program throws Goback; runTask then runs `if (!task.ended()) { caBack.run(); task.returnTransid(null, null); }`, the same RETURN the deleted call made, and the negated `if (true) throw` only moves the throw to perform(), whose `next >= 1` test throws Goback again. The started-task scenario (three events: RETURN, WRITEQ TS, RETURN) is identical both ways.",
+   "tried": [
+    "link-1000-noterm",
+    "link-20",
+    "link-4",
+    "wq-noterm-invreq",
+    "wq-noterm-ioerr"
    ]
   },
   {

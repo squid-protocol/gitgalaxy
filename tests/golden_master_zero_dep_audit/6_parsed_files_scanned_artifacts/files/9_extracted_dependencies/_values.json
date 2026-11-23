@@ -15903,6 +15903,7 @@
         "portutil"
       ],
       "tcl/macports_port_api/portlivecheck.tcl": [
+        "$defaults_file",
         "portfetch",
         "portutil"
       ],
@@ -15975,7 +15976,8 @@
         "$::testdir/tester.tcl",
         "$estworkfile",
         "$script",
-        "[file"
+        "pkgIndex.tcl",
+        "sqlite3"
       ]
     },
     "tcl/sqlite_core_dml": {

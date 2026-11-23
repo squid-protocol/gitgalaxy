@@ -1,0 +1,2382 @@
+{
+ "provenance": "mvs38j-run",
+ "internal_only": "Q16: MVS 3.8J results are not published",
+ "fixture": "tests/equivalence/jcl/carddemo/scenarios.json",
+ "corpus_commit": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+ "unobserved": [
+  "what a CardDemo step does (every EXEC is IDCAMS with SET MAXCC; the COND cards are kept as written)",
+  "the PROC call of TRANBKP (one step row, assumption A5; the procedure is not expanded)",
+  "TYPRUN=SCAN on CREADB21 (dropped, as the manual answers assume)"
+ ],
+ "results": [
+  {
+   "id": "DEFGDGD:all-zero",
+   "job": "DEFGDGD",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "run"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "run"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "DEFGDGD:step10-rc8",
+   "job": "DEFGDGD",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "DEFGDGD:step20-rc4",
+   "job": "DEFGDGD",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "DEFGDGD:step50-rc4",
+   "job": "DEFGDGD",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run",
+    "STEP60": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "DEFGDGD:step10-abend",
+   "job": "DEFGDGD",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass",
+    "STEP60": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass",
+    "STEP60": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass",
+    "STEP60": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP60",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "STEP10",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREASTMT:all-zero",
+   "job": "CREASTMT",
+   "expect": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "run",
+    "STEP040": "run"
+   },
+   "engine": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "run",
+    "STEP040": "run"
+   },
+   "box": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "run",
+    "STEP040": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "DELDEF01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP010",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREASTMT:deldef01-rc12",
+   "job": "CREASTMT",
+   "expect": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "engine": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "box": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "DELDEF01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 12,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP010",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREASTMT:step010-rc4",
+   "job": "CREASTMT",
+   "expect": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "engine": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "box": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "DELDEF01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP010",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREASTMT:step020-rc4",
+   "job": "CREASTMT",
+   "expect": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "engine": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "box": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "run",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "DELDEF01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP010",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREASTMT:step010-abend",
+   "job": "CREASTMT",
+   "expect": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "engine": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "box": {
+    "DELDEF01": "run",
+    "STEP010": "run",
+    "STEP020": "bypass",
+    "STEP030": "bypass",
+    "STEP040": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "DELDEF01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP020",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP030",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP040",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "STEP010",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANBKP:all-zero",
+   "job": "TRANBKP",
+   "expect": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "engine": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "box": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP05R",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANBKP:step05-rc4",
+   "job": "TRANBKP",
+   "expect": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "engine": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "box": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP05R",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANBKP:step05-rc5",
+   "job": "TRANBKP",
+   "expect": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "engine": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "box": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP05R",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 5,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANBKP:proc-step-rc8",
+   "job": "TRANBKP",
+   "expect": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "engine": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "box": {
+    "STEP05R": "run",
+    "STEP05": "run",
+    "STEP10": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP05R",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANBKP:proc-step-abend",
+   "job": "TRANBKP",
+   "expect": {
+    "STEP05R": "run",
+    "STEP05": "bypass",
+    "STEP10": "bypass"
+   },
+   "engine": {
+    "STEP05R": "run",
+    "STEP05": "bypass",
+    "STEP10": "bypass"
+   },
+   "box": {
+    "STEP05R": "run",
+    "STEP05": "bypass",
+    "STEP10": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "STEP05R",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:all-zero",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:step10-rc4",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:step10-rc8",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "bypass",
+    "STEP30": "bypass",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:step40-rc4",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:step40-rc5",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "run",
+    "STEP50": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP30",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 5,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TRANEXTR:step30-abend",
+   "job": "TRANEXTR",
+   "expect": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "engine": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "box": {
+    "STEP10": "run",
+    "STEP20": "run",
+    "STEP30": "run",
+    "STEP40": "bypass",
+    "STEP50": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP10",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP20",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP40",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "STEP50",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "STEP30",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREADB2:all-zero",
+   "job": "CREADB2",
+   "expect": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "run"
+   },
+   "engine": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "run"
+   },
+   "box": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "FREEPLN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CRCRDDB",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "RUNTEP2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREADB2:freepln-rc8",
+   "job": "CREADB2",
+   "expect": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "engine": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "box": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "FREEPLN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CRCRDDB",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "RUNTEP2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREADB2:crcrddb-rc4",
+   "job": "CREADB2",
+   "expect": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "engine": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "box": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "FREEPLN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CRCRDDB",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "RUNTEP2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREADB2:runtep2-rc4",
+   "job": "CREADB2",
+   "expect": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "engine": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "box": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "run",
+    "RUNTEP2": "run",
+    "LDTCCAT": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "FREEPLN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "CRCRDDB",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "RUNTEP2",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "CREADB2:crcrddb-abend",
+   "job": "CREADB2",
+   "expect": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "bypass",
+    "LDTCCAT": "bypass"
+   },
+   "engine": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "bypass",
+    "LDTCCAT": "bypass"
+   },
+   "box": {
+    "FREEPLN": "run",
+    "CRCRDDB": "run",
+    "LDTTYPE": "bypass",
+    "RUNTEP2": "bypass",
+    "LDTCCAT": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "FREEPLN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LDTTYPE",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "RUNTEP2",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "LDTCCAT",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [
+    {
+     "step": "CRCRDDB",
+     "system": "S806",
+     "user": "U0000"
+    }
+   ],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TXT2PDF1:rc0",
+   "job": "TXT2PDF1",
+   "expect": {
+    "TXT2PDF": "run"
+   },
+   "engine": {
+    "TXT2PDF": "run"
+   },
+   "box": {
+    "TXT2PDF": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TXT2PDF",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "TXT2PDF1:rc8",
+   "job": "TXT2PDF1",
+   "expect": {
+    "TXT2PDF": "run"
+   },
+   "engine": {
+    "TXT2PDF": "run"
+   },
+   "box": {
+    "TXT2PDF": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TXT2PDF",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "IMSMQCMP:all-zero",
+   "job": "IMSMQCMP",
+   "expect": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "engine": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "box": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TRN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COBOL",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYIMS",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "IMSMQCMP:trn-rc4",
+   "job": "IMSMQCMP",
+   "expect": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "engine": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "box": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "run",
+    "COPYMQ": "run",
+    "LKED": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TRN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COBOL",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYIMS",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "IMSMQCMP:trn-rc8",
+   "job": "IMSMQCMP",
+   "expect": {
+    "TRN": "run",
+    "COBOL": "bypass",
+    "COPYIMS": "bypass",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "engine": {
+    "TRN": "run",
+    "COBOL": "bypass",
+    "COPYIMS": "bypass",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "box": {
+    "TRN": "run",
+    "COBOL": "bypass",
+    "COPYIMS": "bypass",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TRN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 8,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COBOL",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COBOL",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "COPYIMS",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COPYIMS",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "IMSMQCMP:copyims-rc5",
+   "job": "IMSMQCMP",
+   "expect": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "engine": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "box": {
+    "TRN": "run",
+    "COBOL": "run",
+    "COPYIMS": "run",
+    "COPYLINK": "bypass",
+    "COPYMQ": "bypass",
+    "LKED": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "TRN",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COBOL",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYIMS",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 5,
+     "message": "IEF142I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COPYLINK",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "COPYMQ",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "LKED",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "LISTFILS:all-zero",
+   "job": "LISTFILS",
+   "expect": {
+    "STEP01": "run",
+    "STEP05": "run"
+   },
+   "engine": {
+    "STEP01": "run",
+    "STEP05": "run"
+   },
+   "box": {
+    "STEP01": "run",
+    "STEP05": "run"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 0,
+     "message": "IEF142I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  },
+  {
+   "id": "LISTFILS:step01-rc4",
+   "job": "LISTFILS",
+   "expect": {
+    "STEP01": "run",
+    "STEP05": "bypass"
+   },
+   "engine": {
+    "STEP01": "run",
+    "STEP05": "bypass"
+   },
+   "box": {
+    "STEP01": "run",
+    "STEP05": "bypass"
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "step": "STEP01",
+     "procstep": null,
+     "executed": true,
+     "cond_code": 4,
+     "message": "IEF142I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF202I"
+    },
+    {
+     "step": "STEP05",
+     "procstep": null,
+     "executed": false,
+     "cond_code": null,
+     "message": "IEF272I"
+    }
+   ],
+   "box_abends": [],
+   "jcl_error": false,
+   "unparsed_ief": 0
+  }
+ ]
+}

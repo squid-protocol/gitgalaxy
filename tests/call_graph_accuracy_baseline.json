@@ -1,4 +1,13 @@
 {
+  "ada": {
+    "fn": 1158,
+    "fp": 355,
+    "matched_functions": 604,
+    "parse_failures": 0,
+    "precision_pct": 82.2,
+    "recall_pct": 58.6,
+    "tp": 1637
+  },
   "apex": {
     "fn": 7,
     "fp": 12,
@@ -9,16 +18,16 @@
     "tp": 269
   },
   "c": {
-    "fn": 470,
+    "fn": 457,
     "fp": 306,
     "matched_functions": 2561,
     "parse_failures": 0,
     "precision_pct": 97.6,
-    "recall_pct": 96.4,
+    "recall_pct": 96.5,
     "tp": 12594
   },
   "cpp": {
-    "fn": 182,
+    "fn": 180,
     "fp": 167,
     "matched_functions": 1291,
     "parse_failures": 0,
@@ -44,14 +53,32 @@
     "recall_pct": 99.1,
     "tp": 2619
   },
+  "fortran": {
+    "fn": 111,
+    "fp": 138,
+    "matched_functions": 120,
+    "parse_failures": 0,
+    "precision_pct": 66.8,
+    "recall_pct": 67.4,
+    "tp": 278
+  },
   "go": {
-    "fn": 29,
+    "fn": 3,
     "fp": 9,
     "matched_functions": 1314,
     "parse_failures": 0,
     "precision_pct": 99.9,
-    "recall_pct": 99.6,
+    "recall_pct": 100.0,
     "tp": 6648
+  },
+  "groovy": {
+    "fn": 35,
+    "fp": 77,
+    "matched_functions": 355,
+    "parse_failures": 0,
+    "precision_pct": 90.1,
+    "recall_pct": 95.3,
+    "tp": 702
   },
   "haskell": {
     "fn": 4,
@@ -72,12 +99,12 @@
     "tp": 2524
   },
   "javascript": {
-    "fn": 56,
+    "fn": 49,
     "fp": 45,
     "matched_functions": 626,
     "parse_failures": 0,
     "precision_pct": 98.1,
-    "recall_pct": 97.7,
+    "recall_pct": 98.0,
     "tp": 2343
   },
   "kotlin": {
@@ -98,6 +125,15 @@
     "recall_pct": 98.2,
     "tp": 1331
   },
+  "matlab": {
+    "fn": 240,
+    "fp": 84,
+    "matched_functions": 23,
+    "parse_failures": 0,
+    "precision_pct": 72.4,
+    "recall_pct": 47.8,
+    "tp": 220
+  },
   "objective-c": {
     "fn": 6,
     "fp": 7,
@@ -108,22 +144,22 @@
     "tp": 315
   },
   "perl": {
-    "fn": 166,
+    "fn": 120,
     "fp": 286,
     "matched_functions": 943,
     "parse_failures": 0,
     "precision_pct": 93.9,
-    "recall_pct": 96.3,
-    "tp": 4378
+    "recall_pct": 97.3,
+    "tp": 4404
   },
   "php": {
-    "fn": 80,
-    "fp": 24,
+    "fn": 47,
+    "fp": 8,
     "matched_functions": 1721,
     "parse_failures": 0,
-    "precision_pct": 99.6,
-    "recall_pct": 98.7,
-    "tp": 6234
+    "precision_pct": 99.9,
+    "recall_pct": 99.3,
+    "tp": 6254
   },
   "powershell": {
     "fn": 99,
@@ -135,12 +171,12 @@
     "tp": 2641
   },
   "python": {
-    "fn": 37,
+    "fn": 21,
     "fp": 0,
     "matched_functions": 4210,
     "parse_failures": 0,
     "precision_pct": 100.0,
-    "recall_pct": 99.7,
+    "recall_pct": 99.8,
     "tp": 11562
   },
   "ruby": {
@@ -162,13 +198,22 @@
     "tp": 7570
   },
   "scala": {
-    "fn": 252,
+    "fn": 227,
     "fp": 25,
     "matched_functions": 541,
     "parse_failures": 0,
     "precision_pct": 99.2,
-    "recall_pct": 92.6,
+    "recall_pct": 93.2,
     "tp": 3132
+  },
+  "scheme": {
+    "fn": 360,
+    "fp": 1759,
+    "matched_functions": 147,
+    "parse_failures": 0,
+    "precision_pct": 35.3,
+    "recall_pct": 72.7,
+    "tp": 961
   },
   "shell": {
     "fn": 32,
@@ -189,12 +234,12 @@
     "tp": 148
   },
   "swift": {
-    "fn": 18,
+    "fn": 17,
     "fp": 1,
     "matched_functions": 132,
     "parse_failures": 0,
     "precision_pct": 99.7,
-    "recall_pct": 95.4,
+    "recall_pct": 95.6,
     "tp": 370
   },
   "tcl": {
@@ -207,12 +252,12 @@
     "tp": 1980
   },
   "typescript": {
-    "fn": 173,
+    "fn": 147,
     "fp": 51,
     "matched_functions": 8473,
     "parse_failures": 0,
     "precision_pct": 99.8,
-    "recall_pct": 99.4,
+    "recall_pct": 99.5,
     "tp": 27383
   },
   "zig": {

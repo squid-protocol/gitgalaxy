@@ -1,0 +1,27 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "DFSORTST",
+  "program_source": "@case/DFSORTST.cbl",
+  "copy_dirs": [
+    "app/cpy"
+  ],
+  "job": "CREASTMT",
+  "step": "STEP010",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "SORTIN": {
+      "input": "@case/sortin.txt",
+      "organization": "sequential",
+      "reclen": 350
+    },
+    "SORTOUT": {
+      "organization": "sequential",
+      "reclen": 350,
+      "compare": true,
+      "copybook": "app/cpy/CVTRA05Y.cpy",
+      "record": "TRAN-RECORD"
+    }
+  },
+  "notes": "AUTHORED VARIANT of carddemo-sort-creastmt (not CardDemo's deck): the same SORT and OUTREC, plus 329:22X, so each record is 350 bytes and matches the LRECL=350 of CardDemo's JCL SORTOUT DD and the 350-byte KSDS. IBM ends CardDemo's own 328-byte step with ICE043A (z/OS DFSORT Messages, Codes and Diagnosis Guide SC23-6879; register F4); padding the OUTREC to the LRECL is the manual's remedy. Used by carddemo-job-creastmt-padded to run STEP020 (IDCAMS) and STEP040 (CBSTM03A + CBSTM03B). Same 100 records (seed 8884), keys distinct. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

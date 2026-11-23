@@ -1,7 +1,7 @@
 {
  "provenance": "mvs38j-run",
  "internal_only": "Q16: MVS 3.8J results are not published",
- "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB)",
+ "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB / SSJOB / DUPJOB)",
  "results": [
   {
    "id": "sym-defaults",
@@ -659,6 +659,476 @@
     {
      "procstep": "B3",
      "step": "C2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "set-loses-to-proc-default",
+   "job": "SSJOB",
+   "call": "E1",
+   "expect": {
+    "E1.U1": {
+     "dd": [
+      [
+       "D1",
+       "PROCA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQDFLT.F3"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "E1.U1": {
+     "dd": [
+      [
+       "D1",
+       "PROCA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQDFLT.F3"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "E1.U1": {
+     "dd": [
+      [
+       "D1",
+       "PROCA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQDFLT.F3"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "U1",
+     "step": "E1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "exec-value-and-nullified-symbol",
+   "job": "SSJOB",
+   "call": "E2",
+   "expect": {
+    "E2.U1": {
+     "dd": [
+      [
+       "D1",
+       "EXECA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQ.F3"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "E2.U1": {
+     "dd": [
+      [
+       "D1",
+       "EXECA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQ.F3"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "E2.U1": {
+     "dd": [
+      [
+       "D1",
+       "EXECA.F1"
+      ],
+      [
+       "D2",
+       "PROCB.F2"
+      ],
+      [
+       "D3",
+       "HLQ.F3"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "U1",
+     "step": "E2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-override-dummy-and-nullfile",
+   "job": "KNDJOB",
+   "call": "W1",
+   "expect": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-untouched-dummies-stay-dummy",
+   "job": "KNDJOB",
+   "call": "W2",
+   "expect": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-sysout-over-dummy",
+   "job": "KNDJOB",
+   "call": "W3",
+   "expect": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W3",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dup-proc-default-first-wins",
+   "job": "DUPJOB",
+   "call": "E1",
+   "expect": {
+    "E1.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "FIRST.DATA"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "E1.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "FIRST.DATA"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "E1.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "FIRST.DATA"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "DS1",
+     "step": "E1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dup-exec-first-wins",
+   "job": "DUPJOB",
+   "call": "E2",
+   "expect": {
+    "E2.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "XA.DATA"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "E2.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "XA.DATA"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "E2.DS1": {
+     "dd": [
+      [
+       "DDQ",
+       "XA.DATA"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "DS1",
+     "step": "E2",
      "executed": true,
      "cond_code": 0
     }

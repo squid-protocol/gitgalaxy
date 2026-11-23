@@ -398195,6 +398195,20 @@
           "Structural Impact": 129.2
         },
         {
+          "Control Flow Branches": 34,
+          "Control Flow Ratio": "58.6%",
+          "End Line": 2870,
+          "Function Name": "_set_product",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 155,
+          "Reflection Hits": 0,
+          "Start Line": 2716,
+          "Structural Impact": 77.8
+        },
+        {
           "Control Flow Branches": 31,
           "Control Flow Ratio": "73.8%",
           "End Line": 1588,
@@ -398235,20 +398249,6 @@
           "Reflection Hits": 0,
           "Start Line": 4514,
           "Structural Impact": 69.0
-        },
-        {
-          "Control Flow Branches": 27,
-          "Control Flow Ratio": "57.4%",
-          "End Line": 2834,
-          "Function Name": "_set_product",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 119,
-          "Reflection Hits": 0,
-          "Start Line": 2716,
-          "Structural Impact": 62.0
         },
         {
           "Control Flow Branches": 27,

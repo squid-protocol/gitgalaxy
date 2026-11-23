@@ -2220,8 +2220,20 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   to more than one data record", and states one BLDINDEX error outcome (UNIQUEKEY over duplicate keys: "the BLDINDEX processing ends
   with an error message", no message number). It states **no outcome** for a record over the maximum: no IDC message, no condition
   code, no statement that BLDINDEX stops, truncates or spans. **ASSUMED / not citable:** that it ends with a nonzero code. The
-  outcome stays **REFUSED**: not an `ibm_stops` (that needs a citation, rule 10), not modelled. Not read: the z/OS MVS System
-  Messages (IDC) manual, which could carry a message for it; that read is the one step that could still close this.
+  outcome stays **REFUSED**: not an `ibm_stops` (that needs a citation, rule 10), not modelled.
+  **IDC manual read (2026-11-23, #8885 slice 2).** z/OS 2.4 MVS System Messages Vol 6 (GOS-IEA), SA38-0673-40, Chapter 24 IDC
+  messages, read as text (p. 587; module IDCBI01), every IDC message naming BLDINDEX searched. **IDC1646I** `nnnnn EXCESS PRIME
+  {KEY|RBL} VALUES FOR AIX KEY key` names the case: "the key of an alternate index record that was too short to contain all the
+  prime key or relative block address (RBA) pointer values"; system action: "The alternate index record is created with only those
+  pointers that could fit"; programmer response: delete the AIX and redefine it with a RECORDSIZE long enough for the maximum number
+  of pointers for any one key, then rebuild. So IBM's outcome is **truncation with a message, not a stop**: BLDINDEX does not end,
+  which is why this is not an `ibm_stops` entry (it ends no step) and slice 1's guess that it "ends with a nonzero code" is refuted
+  as a stop. The manual still states **no return / condition code** for it (IDC1646I carries none), **no rule for which pointers
+  fit** (the sort order of equal alternate keys' pointers is not said), and not whether the later reads of the path see the
+  short record. The sibling IDC1645I (UNIQUEKEY over duplicate keys) likewise keeps the first pointer and is a message, not a
+  stop. **ASSUMED, not citable:** the step's condition code and which `n` pointers are kept. Both decide TRANIDX's compared output
+  (records of the path read by CBACT/TRAN readers), so the model keeps **refusing by name** (now citing IDC1646I); modelling
+  the truncation would be a guess presented as IBM's. No IDC message exists for an over-RECORDSIZE stop: none read.
   **Why TRANIDX stays refused (searched 2026-11-23).** No IBM text found states what BLDINDEX does when an alternate index record
   exceeds the AIX's maximum RECORDSIZE or which IDC message / condition code it gives. What exists is VSE/VSAM and CICS material
   (RPL feedback x'6C', "too many alternate index keys for record size", on UPGRADE writes), not a z/OS IDCAMS BLDINDEX statement, so

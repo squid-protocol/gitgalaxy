@@ -19,57 +19,57 @@
     },
     "ada/alire": {
       "ada/alire/LICENSE.txt": 0.0,
-      "ada/alire/alire-conditional_trees.adb": 5.328,
-      "ada/alire/alire-crate_configuration.adb": 6.614,
+      "ada/alire/alire-conditional_trees.adb": 6.303,
+      "ada/alire/alire-crate_configuration.adb": 7.085,
       "ada/alire/alire-dependencies-states.ads": 5.203,
-      "ada/alire/alire-directories.adb": 5.317,
-      "ada/alire/alire-index_on_disk-loading.adb": 5.839,
-      "ada/alire/alire-origins.adb": 6.548,
-      "ada/alire/alire-properties-configurations.adb": 5.38,
-      "ada/alire/alire-publish.adb": 5.623,
-      "ada/alire/alire-releases.adb": 5.689,
+      "ada/alire/alire-directories.adb": 5.342,
+      "ada/alire/alire-index_on_disk-loading.adb": 5.815,
+      "ada/alire/alire-origins.adb": 6.433,
+      "ada/alire/alire-properties-configurations.adb": 6.733,
+      "ada/alire/alire-publish.adb": 5.934,
+      "ada/alire/alire-releases.adb": 5.63,
       "ada/alire/alire-releases.ads": 4.57,
-      "ada/alire/alire-roots-editable.adb": 4.873,
-      "ada/alire/alire-roots.adb": 5.463,
+      "ada/alire/alire-roots-editable.adb": 5.405,
+      "ada/alire/alire-roots.adb": 6.442,
       "ada/alire/alire-roots.ads": 4.699,
-      "ada/alire/alire-solutions-diffs.adb": 7.503,
-      "ada/alire/alire-solutions.adb": 5.319,
+      "ada/alire/alire-solutions-diffs.adb": 5.905,
+      "ada/alire/alire-solutions.adb": 5.356,
       "ada/alire/alire-solutions.ads": 4.791,
-      "ada/alire/alire-solver.adb": 7.16,
-      "ada/alire/alire-test-runner.adb": 5.182,
-      "ada/alire/alire-toml_index.adb": 4.803,
-      "ada/alire/alire-toolchains.adb": 5.941,
-      "ada/alire/alire-user_pins.adb": 6.721,
-      "ada/alire/alire-vcss-git.adb": 5.109,
-      "ada/alire/alr-commands-init.adb": 6.183,
-      "ada/alire/alr-commands-self_update.adb": 5.466,
-      "ada/alire/alr-commands-show.adb": 5.676,
-      "ada/alire/alr-commands.adb": 6.607
+      "ada/alire/alire-solver.adb": 6.25,
+      "ada/alire/alire-test-runner.adb": 6.236,
+      "ada/alire/alire-toml_index.adb": 5.331,
+      "ada/alire/alire-toolchains.adb": 5.186,
+      "ada/alire/alire-user_pins.adb": 6.134,
+      "ada/alire/alire-vcss-git.adb": 5.001,
+      "ada/alire/alr-commands-init.adb": 6.137,
+      "ada/alire/alr-commands-self_update.adb": 5.703,
+      "ada/alire/alr-commands-show.adb": 5.674,
+      "ada/alire/alr-commands.adb": 5.404
     },
     "ada/functional": {
-      "ada/functional/functional-either.adb": 4.568,
+      "ada/functional/functional-either.adb": 4.685,
       "ada/functional/functional-either.ads": 4.946,
-      "ada/functional/functional-option.adb": 4.511,
+      "ada/functional/functional-option.adb": 4.396,
       "ada/functional/functional-option.ads": 4.852,
-      "ada/functional/functional-result.adb": 4.499,
+      "ada/functional/functional-result.adb": 4.625,
       "ada/functional/functional-result.ads": 4.837,
-      "ada/functional/functional-scoped.adb": 6.813,
+      "ada/functional/functional-scoped.adb": 6.817,
       "ada/functional/functional-scoped.ads": 6.547,
-      "ada/functional/functional-try-map_to_result.adb": 5.841,
+      "ada/functional/functional-try-map_to_result.adb": 5.712,
       "ada/functional/functional-try-map_to_result.ads": 5.706,
-      "ada/functional/functional-try-map_to_result_with_param.adb": 4.651,
+      "ada/functional/functional-try-map_to_result_with_param.adb": 4.456,
       "ada/functional/functional-try-map_to_result_with_param.ads": 6.505,
-      "ada/functional/functional-try-to_option.adb": 6.282,
+      "ada/functional/functional-try-to_option.adb": 6.487,
       "ada/functional/functional-try-to_option.ads": 6.095,
-      "ada/functional/functional-try-to_result.adb": 6.05,
+      "ada/functional/functional-try-to_result.adb": 6.262,
       "ada/functional/functional-try-to_result.ads": 6.765,
-      "ada/functional/functional-try.adb": 6.0,
+      "ada/functional/functional-try.adb": 5.988,
       "ada/functional/functional-try.ads": 7.249,
       "ada/functional/functional.ads": 4.492,
       "ada/functional/functional_tests_config.ads": 5.809,
-      "ada/functional/test_framework.adb": 5.979,
+      "ada/functional/test_framework.adb": 5.983,
       "ada/functional/test_framework.ads": 3.767,
-      "ada/functional/test_try_map_to_result.adb": 6.394
+      "ada/functional/test_try_map_to_result.adb": 6.86
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": 0.0
@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 8.045,
-      "dart/flutter/events.dart": 8.438,
-      "dart/flutter/framework.dart": 9.787,
-      "dart/flutter/navigator.dart": 8.627,
-      "dart/flutter/object.dart": 9.964,
-      "dart/flutter/semantics.dart": 9.226,
-      "dart/flutter/theme_data.dart": 9.199
+      "dart/flutter/editable_text.dart": 8.214,
+      "dart/flutter/events.dart": 7.954,
+      "dart/flutter/framework.dart": 9.126,
+      "dart/flutter/navigator.dart": 7.897,
+      "dart/flutter/object.dart": 9.699,
+      "dart/flutter/semantics.dart": 7.806,
+      "dart/flutter/theme_data.dart": 9.073
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0.0
@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 5.422,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 6.826,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 7.416,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 7.057,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 7.11,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 7.265,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 6.842
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": 8.728,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": 5.553,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": 7.667,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 7.955,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 7.899,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": 5.241,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 5.312,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 4.124,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 7.391,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 7.608,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 7.928,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 7.34
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 7.283
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": 3.423,
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 4.207,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 2.101,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": 2.101,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 2.25,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 1.566,
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": 3.901,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": 4.133,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": 3.242,
@@ -1585,7 +1585,7 @@
       "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": 3.03,
       "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": 4.929,
       "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": 2.468,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 2.381,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 2.306,
       "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": 2.574
     },
     "groovy/kotlin_build_gradle": {
@@ -1594,7 +1594,7 @@
       "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": 2.597,
       "groovy/kotlin_build_gradle/js_npm_settings.gradle": 5.595,
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 3.293,
-      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 6.277,
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 5.838,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 5.723,
       "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 7.552,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": 5.672,
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 7.45,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 5.611,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 4.771,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 9.689,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 8.176,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 6.765,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 6.733,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 7.296,
@@ -1750,16 +1750,16 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 0.0,
-      "haskell/pandoc/App.hs": 6.65,
+      "haskell/pandoc/App.hs": 6.711,
       "haskell/pandoc/CONTRIBUTING.md": 0.0,
       "haskell/pandoc/COPYING.md": 0.0,
       "haskell/pandoc/COPYRIGHT": 0.0,
       "haskell/pandoc/Class.hs": 3.738,
-      "haskell/pandoc/Filter.hs": 7.003,
-      "haskell/pandoc/Options.hs": 5.942,
-      "haskell/pandoc/Pandoc.hs": 4.11,
+      "haskell/pandoc/Filter.hs": 7.035,
+      "haskell/pandoc/Options.hs": 6.119,
+      "haskell/pandoc/Pandoc.hs": 4.733,
       "haskell/pandoc/Parsing.hs": 2.575,
-      "haskell/pandoc/Shared.hs": 6.652
+      "haskell/pandoc/Shared.hs": 6.706
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 0.0,
@@ -3303,7 +3303,7 @@
       "scheme/racket/fun.c": 8.047,
       "scheme/racket/io.ss": 9.001,
       "scheme/racket/schemify.rkt": 6.856,
-      "scheme/racket/thread.rkt": 7.773
+      "scheme/racket/thread.rkt": 7.769
     },
     "shell": {
       "shell/SOURCES.md": 0.0
@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": 0.0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 6.997,
+      "swift/alamofire/AFError.swift": 6.777,
       "swift/alamofire/Alamofire.podspec": 4.009,
       "swift/alamofire/Package.swift": 2.036,
-      "swift/alamofire/ParameterEncoder.swift": 7.727,
-      "swift/alamofire/Request.swift": 8.808,
-      "swift/alamofire/Response.swift": 6.291,
-      "swift/alamofire/Session.swift": 7.692
+      "swift/alamofire/ParameterEncoder.swift": 7.4,
+      "swift/alamofire/Request.swift": 8.533,
+      "swift/alamofire/Response.swift": 6.089,
+      "swift/alamofire/Session.swift": 6.694
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0

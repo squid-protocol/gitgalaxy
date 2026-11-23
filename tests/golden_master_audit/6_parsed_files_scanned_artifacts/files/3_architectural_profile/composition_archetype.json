@@ -26,14 +26,14 @@
       "ada/alire/alire-index_on_disk-loading.adb": "Large Core Modules (3)",
       "ada/alire/alire-origins.adb": "Large Core Modules (3)",
       "ada/alire/alire-properties-configurations.adb": "Compute Cores Files",
-      "ada/alire/alire-publish.adb": "Large Core Modules (3)",
+      "ada/alire/alire-publish.adb": "Compute Cores Files",
       "ada/alire/alire-releases.adb": "Large Core Modules (3)",
       "ada/alire/alire-releases.ads": "Parameter Forwarders Files",
-      "ada/alire/alire-roots-editable.adb": "Parameter Forwarders Files",
+      "ada/alire/alire-roots-editable.adb": "Large Core Modules (3)",
       "ada/alire/alire-roots.adb": "Large Core Modules (3)",
       "ada/alire/alire-roots.ads": "Large Core Modules (3)",
       "ada/alire/alire-solutions-diffs.adb": "Large Core Modules (3)",
-      "ada/alire/alire-solutions.adb": "Parameter Forwarders Files",
+      "ada/alire/alire-solutions.adb": "Large Core Modules (3)",
       "ada/alire/alire-solutions.ads": "Parameter Forwarders Files",
       "ada/alire/alire-solver.adb": "Large Core Modules (3)",
       "ada/alire/alire-test-runner.adb": "Large Core Modules (3)",
@@ -69,7 +69,7 @@
       "ada/functional/functional_tests_config.ads": "Declarative / Non-Code",
       "ada/functional/test_framework.adb": "Interface Declarations Files",
       "ada/functional/test_framework.ads": "Declarative / Non-Code",
-      "ada/functional/test_try_map_to_result.adb": "Interface Declarations Files"
+      "ada/functional/test_try_map_to_result.adb": "Large Core Modules (3)"
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": "Data / Markup / Trivial"
@@ -1228,7 +1228,7 @@
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": "Large Core Modules (2)",
-      "dart/flutter/events.dart": "Large Core Modules (2)",
+      "dart/flutter/events.dart": "Large Core Modules (3)",
       "dart/flutter/framework.dart": "Large Core Modules (2)",
       "dart/flutter/navigator.dart": "Large Core Modules (2)",
       "dart/flutter/object.dart": "Large Core Modules (2)",
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "Callbacks & Closures Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": "State Mutators Files",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "Callbacks & Closures Files",
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Large Core Modules (3)"
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "Encapsulated Accessors Files"
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": "Declarative / Non-Code",

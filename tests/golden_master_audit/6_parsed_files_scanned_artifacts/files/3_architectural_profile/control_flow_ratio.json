@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": "0.0%"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "27.4%",
-      "dart/flutter/events.dart": "41.3%",
-      "dart/flutter/framework.dart": "17.5%",
-      "dart/flutter/navigator.dart": "24.1%",
-      "dart/flutter/object.dart": "23.2%",
-      "dart/flutter/semantics.dart": "30.0%",
-      "dart/flutter/theme_data.dart": "25.8%"
+      "dart/flutter/editable_text.dart": "20.9%",
+      "dart/flutter/events.dart": "16.4%",
+      "dart/flutter/framework.dart": "10.3%",
+      "dart/flutter/navigator.dart": "12.7%",
+      "dart/flutter/object.dart": "16.8%",
+      "dart/flutter/semantics.dart": "17.1%",
+      "dart/flutter/theme_data.dart": "16.5%"
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": "0.0%"
@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": "7.3%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": "1.1%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": "15.1%",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": "6.1%",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": "2.3%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "4.8%",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": "12.7%"
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": "5.3%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": "6.7%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": "0.0%",
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": "9.5%",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": "0.0%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": "0.0%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": "9.1%",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": "0.0%",
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "3.7%",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": "5.0%",
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "1.9%",
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "10.3%"
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "8.8%"
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": "0.0%",
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": "18.8%",
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": "0.0%",
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": "0.0%",
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": "26.1%",
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": "8.7%",
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": "4.9%",
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": "0.0%",
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": "14.3%",
@@ -1585,7 +1585,7 @@
       "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": "0.0%",
       "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": "0.0%",
       "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": "9.1%",
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": "9.1%",
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": "0.0%",
       "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": "0.0%"
     },
     "groovy/kotlin_build_gradle": {
@@ -1594,7 +1594,7 @@
       "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": "0.0%",
       "groovy/kotlin_build_gradle/js_npm_settings.gradle": "0.0%",
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": "0.0%",
-      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": "50.0%",
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": "25.0%",
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": "14.3%",
       "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "3.9%",
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "0.0%",
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": "4.0%",
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": "0.0%",
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": "0.0%",
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": "17.7%",
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": "3.8%",
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": "0.0%",
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": "5.0%",
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": "0.0%",
@@ -1750,16 +1750,16 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": "0.0%",
-      "haskell/pandoc/App.hs": "21.3%",
+      "haskell/pandoc/App.hs": "21.1%",
       "haskell/pandoc/CONTRIBUTING.md": "0.0%",
       "haskell/pandoc/COPYING.md": "0.0%",
       "haskell/pandoc/COPYRIGHT": "0.0%",
       "haskell/pandoc/Class.hs": "0.0%",
-      "haskell/pandoc/Filter.hs": "6.5%",
-      "haskell/pandoc/Options.hs": "10.0%",
+      "haskell/pandoc/Filter.hs": "6.2%",
+      "haskell/pandoc/Options.hs": "9.8%",
       "haskell/pandoc/Pandoc.hs": "0.0%",
       "haskell/pandoc/Parsing.hs": "0.0%",
-      "haskell/pandoc/Shared.hs": "14.0%"
+      "haskell/pandoc/Shared.hs": "13.8%"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "0.0%",
@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": "0.0%"
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": "41.7%",
+      "swift/alamofire/AFError.swift": "20.2%",
       "swift/alamofire/Alamofire.podspec": "5.0%",
       "swift/alamofire/Package.swift": "0.0%",
-      "swift/alamofire/ParameterEncoder.swift": "23.8%",
-      "swift/alamofire/Request.swift": "25.9%",
-      "swift/alamofire/Response.swift": "17.9%",
-      "swift/alamofire/Session.swift": "25.3%"
+      "swift/alamofire/ParameterEncoder.swift": "14.9%",
+      "swift/alamofire/Request.swift": "12.7%",
+      "swift/alamofire/Response.swift": "4.6%",
+      "swift/alamofire/Session.swift": "6.2%"
     },
     "tabular": {
       "tabular/SOURCES.md": "0.0%"

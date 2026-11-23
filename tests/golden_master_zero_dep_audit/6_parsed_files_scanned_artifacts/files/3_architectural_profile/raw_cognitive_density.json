@@ -24,19 +24,19 @@
       "ada/alire/alire-dependencies-states.ads": 0.218,
       "ada/alire/alire-directories.adb": 0.326,
       "ada/alire/alire-index_on_disk-loading.adb": 0.375,
-      "ada/alire/alire-origins.adb": 0.495,
+      "ada/alire/alire-origins.adb": 0.492,
       "ada/alire/alire-properties-configurations.adb": 0.57,
       "ada/alire/alire-publish.adb": 0.206,
-      "ada/alire/alire-releases.adb": 0.398,
+      "ada/alire/alire-releases.adb": 0.288,
       "ada/alire/alire-releases.ads": 0.25,
       "ada/alire/alire-roots-editable.adb": 0.197,
-      "ada/alire/alire-roots.adb": 0.285,
+      "ada/alire/alire-roots.adb": 0.209,
       "ada/alire/alire-roots.ads": 0.139,
-      "ada/alire/alire-solutions-diffs.adb": 0.644,
-      "ada/alire/alire-solutions.adb": 0.46,
+      "ada/alire/alire-solutions-diffs.adb": 0.474,
+      "ada/alire/alire-solutions.adb": 0.448,
       "ada/alire/alire-solutions.ads": 0.133,
-      "ada/alire/alire-solver.adb": 0.483,
-      "ada/alire/alire-test-runner.adb": 0.397,
+      "ada/alire/alire-solver.adb": 0.357,
+      "ada/alire/alire-test-runner.adb": 0.386,
       "ada/alire/alire-toml_index.adb": 0.33,
       "ada/alire/alire-toolchains.adb": 0.324,
       "ada/alire/alire-user_pins.adb": 0.351,
@@ -44,7 +44,7 @@
       "ada/alire/alr-commands-init.adb": 0.437,
       "ada/alire/alr-commands-self_update.adb": 0.255,
       "ada/alire/alr-commands-show.adb": 0.301,
-      "ada/alire/alr-commands.adb": 0.385
+      "ada/alire/alr-commands.adb": 0.383
     },
     "ada/functional": {
       "ada/functional/functional-either.adb": 0.322,
@@ -69,7 +69,7 @@
       "ada/functional/functional_tests_config.ads": 0.0,
       "ada/functional/test_framework.adb": 0.267,
       "ada/functional/test_framework.ads": 0.0,
-      "ada/functional/test_try_map_to_result.adb": 0.179
+      "ada/functional/test_try_map_to_result.adb": 0.171
     },
     "agc_assembly": {
       "agc_assembly/SOURCES.md": 0.0
@@ -1227,13 +1227,13 @@
       "dart/SOURCES.md": 0.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 0.594,
-      "dart/flutter/events.dart": 0.642,
-      "dart/flutter/framework.dart": 0.812,
-      "dart/flutter/navigator.dart": 0.687,
-      "dart/flutter/object.dart": 1.181,
-      "dart/flutter/semantics.dart": 1.358,
-      "dart/flutter/theme_data.dart": 0.897
+      "dart/flutter/editable_text.dart": 0.52,
+      "dart/flutter/events.dart": 0.288,
+      "dart/flutter/framework.dart": 0.685,
+      "dart/flutter/navigator.dart": 0.772,
+      "dart/flutter/object.dart": 1.074,
+      "dart/flutter/semantics.dart": 1.129,
+      "dart/flutter/theme_data.dart": 0.764
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0.0
@@ -1402,7 +1402,7 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 0.823,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 0.361,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 0.377,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 0.276,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 0.343,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 0.28,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 0.491
     },
@@ -1457,7 +1457,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedViolationsProvider.groovy": 0.18,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": 0.02,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": 0.0,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 0.04,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": 0.0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": 0.0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 0.02,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 0.0,
@@ -1473,7 +1473,7 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 0.02,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": 0.183,
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": 0.087,
-      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 0.378
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": 0.36
     },
     "groovy/gradle_dsl_snippets": {
       "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": 0.0,
@@ -1569,7 +1569,7 @@
       "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": 0.06,
       "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": 0.0,
       "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": 0.0,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 0.24,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 0.08,
       "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": 0.08,
       "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": 0.0,
       "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": 0.02,
@@ -1585,7 +1585,7 @@
       "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": 0.0,
       "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": 0.0,
       "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": 0.02,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 0.02,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": 0.0,
       "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": 0.0
     },
     "groovy/kotlin_build_gradle": {
@@ -1594,7 +1594,7 @@
       "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": 0.0,
       "groovy/kotlin_build_gradle/js_npm_settings.gradle": 0.0,
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 0.0,
-      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 0.08,
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 0.04,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 0.2,
       "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 0.273,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": 0.0,
@@ -1644,7 +1644,7 @@
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 1.787,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 0.0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": 0.0,
-      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 0.203,
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": 0.063,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": 0.0,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflowWorkAction.groovy": 0.24,
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 0.0,
@@ -1750,16 +1750,16 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 0.0,
-      "haskell/pandoc/App.hs": 0.303,
+      "haskell/pandoc/App.hs": 0.3,
       "haskell/pandoc/CONTRIBUTING.md": 0.0,
       "haskell/pandoc/COPYING.md": 0.0,
       "haskell/pandoc/COPYRIGHT": 0.0,
       "haskell/pandoc/Class.hs": 0.0,
-      "haskell/pandoc/Filter.hs": 0.327,
-      "haskell/pandoc/Options.hs": 0.302,
+      "haskell/pandoc/Filter.hs": 0.317,
+      "haskell/pandoc/Options.hs": 0.31,
       "haskell/pandoc/Pandoc.hs": 0.0,
       "haskell/pandoc/Parsing.hs": 0.0,
-      "haskell/pandoc/Shared.hs": 0.203
+      "haskell/pandoc/Shared.hs": 0.2
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 0.0,
@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": 0.0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 0.475,
+      "swift/alamofire/AFError.swift": 0.26,
       "swift/alamofire/Alamofire.podspec": 0.77,
       "swift/alamofire/Package.swift": 0.0,
-      "swift/alamofire/ParameterEncoder.swift": 0.762,
-      "swift/alamofire/Request.swift": 1.495,
-      "swift/alamofire/Response.swift": 0.621,
-      "swift/alamofire/Session.swift": 0.676
+      "swift/alamofire/ParameterEncoder.swift": 0.673,
+      "swift/alamofire/Request.swift": 1.773,
+      "swift/alamofire/Response.swift": 0.358,
+      "swift/alamofire/Session.swift": 0.674
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0

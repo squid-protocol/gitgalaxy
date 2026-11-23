@@ -22,7 +22,7 @@
       "ada/alire/alire-solutions-diffs.adb": 15,
       "ada/alire/alire-solutions.adb": 42,
       "ada/alire/alire-solver.adb": 84,
-      "ada/alire/alire-test-runner.adb": 57,
+      "ada/alire/alire-test-runner.adb": 55,
       "ada/alire/alire-toml_index.adb": 33,
       "ada/alire/alire-toolchains.adb": 18,
       "ada/alire/alire-user_pins.adb": 30,
@@ -473,12 +473,12 @@
       "csharp/roslyn/Workspace.cs": 102
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 538,
+      "dart/flutter/editable_text.dart": 518,
       "dart/flutter/events.dart": 33,
-      "dart/flutter/framework.dart": 632,
-      "dart/flutter/navigator.dart": 632,
-      "dart/flutter/object.dart": 1230,
-      "dart/flutter/semantics.dart": 1325,
+      "dart/flutter/framework.dart": 572,
+      "dart/flutter/navigator.dart": 588,
+      "dart/flutter/object.dart": 1162,
+      "dart/flutter/semantics.dart": 1191,
       "dart/flutter/theme_data.dart": 414
     },
     "db2_sql/db2unit": {
@@ -626,7 +626,6 @@
     },
     "groovy/jenkins_view_groovy": {
       "groovy/jenkins_view_groovy/Jenkinsfile": 73,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": 3,
       "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": 3
     },
     "groovy/kotlin_build_gradle": {
@@ -1479,8 +1478,7 @@
     "swift/alamofire": {
       "swift/alamofire/Alamofire.podspec": 32,
       "swift/alamofire/ParameterEncoder.swift": 18,
-      "swift/alamofire/Request.swift": 168,
-      "swift/alamofire/Response.swift": 21,
+      "swift/alamofire/Request.swift": 146,
       "swift/alamofire/Session.swift": 43
     },
     "tcl/macports_port_api": {

@@ -13,15 +13,15 @@
       ],
       "ada/alire/alr-commands.adb": [
         {
-          "Call Sites": 6,
-          "Calling Files": 1,
+          "Call Sites": 9,
+          "Calling Files": 2,
           "Kind": "function",
           "Name": "Reportaise_Command_Failed",
           "Rule": "panics_and_aborts",
           "Via": "primitive"
         },
         {
-          "Call Sites": 9,
+          "Call Sites": 13,
           "Calling Files": 3,
           "Kind": "function",
           "Name": "Reportaise_Wrong_Arguments",

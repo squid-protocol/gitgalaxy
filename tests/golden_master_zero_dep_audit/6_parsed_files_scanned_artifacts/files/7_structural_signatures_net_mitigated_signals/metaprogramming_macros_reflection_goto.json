@@ -1756,7 +1756,7 @@
       "haskell/pandoc/COPYRIGHT": 0,
       "haskell/pandoc/Class.hs": 0,
       "haskell/pandoc/Filter.hs": 3,
-      "haskell/pandoc/Options.hs": 15,
+      "haskell/pandoc/Options.hs": 16,
       "haskell/pandoc/Pandoc.hs": 2,
       "haskell/pandoc/Parsing.hs": 0,
       "haskell/pandoc/Shared.hs": 0

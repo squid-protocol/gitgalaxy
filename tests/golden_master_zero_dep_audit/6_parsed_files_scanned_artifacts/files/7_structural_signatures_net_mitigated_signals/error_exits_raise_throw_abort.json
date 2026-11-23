@@ -3301,9 +3301,9 @@
       "scheme/racket/cpnanopass.ss": 2,
       "scheme/racket/eval.c": 2,
       "scheme/racket/fun.c": 13,
-      "scheme/racket/io.ss": 6,
+      "scheme/racket/io.ss": 9,
       "scheme/racket/schemify.rkt": 0,
-      "scheme/racket/thread.rkt": 0
+      "scheme/racket/thread.rkt": 3
     },
     "shell": {
       "shell/SOURCES.md": 0

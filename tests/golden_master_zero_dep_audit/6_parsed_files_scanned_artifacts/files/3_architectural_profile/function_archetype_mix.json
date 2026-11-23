@@ -48,19 +48,21 @@
     "ada/alire": {
       "ada/alire/LICENSE.txt": {},
       "ada/alire/alire-conditional_trees.adb": {
-        "Compute Cores": 17,
+        "Compute Cores": 16,
+        "Generic / Templated Code": 1,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 18,
-        "Type Conversions": 2
+        "Parameter Forwarders": 17,
+        "Type Conversions": 3
       },
       "ada/alire/alire-crate_configuration.adb": {
-        "Compute Cores": 8,
+        "Compute Cores": 9,
         "Defensive Guards": 1,
+        "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 12,
-        "Type Conversions": 1
+        "Many-Argument Workhorses": 10,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 2
       },
       "ada/alire/alire-dependencies-states.ads": {
         "Annotated & Test Methods": 5,
@@ -70,52 +72,54 @@
         "Type Conversions": 1
       },
       "ada/alire/alire-directories.adb": {
-        "Compute Cores": 14,
+        "Compute Cores": 17,
         "Defensive Guards": 2,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 4,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 23,
-        "Stateful Encapsulated Methods": 1
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 15,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
       },
       "ada/alire/alire-index_on_disk-loading.adb": {
-        "Compute Cores": 6,
-        "Interface Declarations": 3,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 6
-      },
-      "ada/alire/alire-origins.adb": {
-        "Compute Cores": 17,
-        "Defensive Guards": 4,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 22,
-        "Type Conversions": 2
-      },
-      "ada/alire/alire-properties-configurations.adb": {
-        "Compute Cores": 15,
+        "Compute Cores": 5,
         "Defensive Guards": 1,
         "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 4
+      },
+      "ada/alire/alire-origins.adb": {
+        "Compute Cores": 18,
+        "Defensive Guards": 4,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 21,
+        "Type Conversions": 1
+      },
+      "ada/alire/alire-properties-configurations.adb": {
+        "Compute Cores": 16,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 6,
+        "Parameter Forwarders": 4,
         "Type Conversions": 1
       },
       "ada/alire/alire-publish.adb": {
-        "Compute Cores": 15,
+        "Compute Cores": 19,
         "Defensive Guards": 2,
         "I/O & Config Routines": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 12,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 7,
         "Stateful Encapsulated Methods": 1
       },
       "ada/alire/alire-releases.adb": {
-        "Compute Cores": 16,
+        "Compute Cores": 21,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 29
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 23
       },
       "ada/alire/alire-releases.ads": {
         "Compute Cores": 3,
@@ -126,15 +130,17 @@
       "ada/alire/alire-roots-editable.adb": {
         "Compute Cores": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 3,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 9
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-roots.adb": {
-        "Compute Cores": 29,
+        "Compute Cores": 22,
         "Defensive Guards": 1,
-        "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 37,
+        "I/O & Config Routines": 3,
+        "Many-Argument Workhorses": 15,
+        "Parameter Forwarders": 33,
         "Type Conversions": 1
       },
       "ada/alire/alire-roots.ads": {
@@ -143,16 +149,17 @@
         "Parameter Forwarders": 5
       },
       "ada/alire/alire-solutions-diffs.adb": {
-        "Compute Cores": 4,
+        "Compute Cores": 6,
         "I/O & Config Routines": 6,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 7
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 5
       },
       "ada/alire/alire-solutions.adb": {
-        "Compute Cores": 18,
+        "Compute Cores": 28,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 47
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 36
       },
       "ada/alire/alire-solutions.ads": {
         "Compute Cores": 1,
@@ -160,62 +167,64 @@
         "Parameter Forwarders": 6
       },
       "ada/alire/alire-solver.adb": {
-        "Compute Cores": 12,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 16,
-        "Interface Declarations": 11,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 10
+        "Compute Cores": 8,
+        "I/O & Config Routines": 21,
+        "Interface Declarations": 8,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 9,
+        "State Mutators": 1
       },
       "ada/alire/alire-test-runner.adb": {
-        "Compute Cores": 9,
+        "Compute Cores": 11,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 3,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 15,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 10,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       },
       "ada/alire/alire-toml_index.adb": {
         "Compute Cores": 5,
         "Defensive Guards": 1,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 4,
-        "Stateful Encapsulated Methods": 1
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 3
       },
       "ada/alire/alire-toolchains.adb": {
-        "Compute Cores": 10,
+        "Compute Cores": 12,
+        "Defensive Guards": 1,
         "I/O & Config Routines": 2,
         "Interface Declarations": 4,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 8
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-user_pins.adb": {
-        "Compute Cores": 8,
-        "I/O & Config Routines": 3,
-        "Parameter Forwarders": 9
+        "Compute Cores": 7,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 5,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 6
       },
       "ada/alire/alire-vcss-git.adb": {
-        "Compute Cores": 7,
+        "Compute Cores": 10,
         "Defensive Guards": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 13,
+        "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 2
+        "Type Conversions": 1
       },
       "ada/alire/alr-commands-init.adb": {
-        "Compute Cores": 8,
+        "Compute Cores": 7,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 4,
-        "Many-Argument Workhorses": 1,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 2
       },
       "ada/alire/alr-commands-self_update.adb": {
         "Compute Cores": 7,
-        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 1
       },
@@ -225,13 +234,12 @@
         "Parameter Forwarders": 2
       },
       "ada/alire/alr-commands.adb": {
-        "Compute Cores": 4,
+        "Compute Cores": 5,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 8,
-        "Type Conversions": 1
+        "Parameter Forwarders": 7
       }
     },
     "ada/functional": {
@@ -241,9 +249,9 @@
       },
       "ada/functional/functional-either.ads": {},
       "ada/functional/functional-option.adb": {
-        "Compute Cores": 14,
+        "Compute Cores": 11,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 7
+        "Parameter Forwarders": 10
       },
       "ada/functional/functional-option.ads": {},
       "ada/functional/functional-result.adb": {
@@ -294,8 +302,8 @@
       "ada/functional/test_framework.ads": {},
       "ada/functional/test_try_map_to_result.adb": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 14,
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 7,
         "Parameter Forwarders": 7
       }
     },
@@ -3818,99 +3826,100 @@
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": {
-        "Annotated & Test Methods": 20,
-        "Callbacks & Closures": 14,
-        "Compute Cores": 10,
-        "Defensive Guards": 61,
-        "Encapsulated Accessors": 43,
+        "Annotated & Test Methods": 29,
+        "Callbacks & Closures": 2,
+        "Compute Cores": 9,
+        "Defensive Guards": 57,
+        "Encapsulated Accessors": 46,
         "Generic / Templated Code": 2,
-        "I/O & Config Routines": 17,
-        "Interface Declarations": 6,
+        "I/O & Config Routines": 18,
+        "Interface Declarations": 12,
         "Many-Argument Workhorses": 8,
-        "State Mutators": 20,
-        "Stateful Encapsulated Methods": 43
+        "State Mutators": 21,
+        "Stateful Encapsulated Methods": 40
       },
       "dart/flutter/events.dart": {
-        "Annotated & Test Methods": 37,
-        "Callbacks & Closures": 7,
-        "Compute Cores": 1,
-        "Defensive Guards": 37,
+        "Annotated & Test Methods": 52,
+        "Compute Cores": 2,
+        "Defensive Guards": 22,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 3,
-        "Interface Declarations": 1,
+        "Interface Declarations": 4,
         "Many-Argument Workhorses": 31,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 4,
         "State Mutators": 25
       },
       "dart/flutter/framework.dart": {
-        "Annotated & Test Methods": 32,
-        "Callbacks & Closures": 25,
-        "Defensive Guards": 115,
-        "Encapsulated Accessors": 44,
-        "Generic / Templated Code": 15,
+        "Annotated & Test Methods": 51,
+        "Callbacks & Closures": 3,
+        "Defensive Guards": 100,
+        "Encapsulated Accessors": 48,
+        "Generic / Templated Code": 24,
         "I/O & Config Routines": 5,
+        "Interface Declarations": 7,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 2,
         "State Mutators": 46,
-        "Stateful Encapsulated Methods": 37,
+        "Stateful Encapsulated Methods": 34,
         "Type Conversions": 2
       },
       "dart/flutter/navigator.dart": {
-        "Annotated & Test Methods": 15,
-        "Callbacks & Closures": 16,
-        "Defensive Guards": 120,
+        "Annotated & Test Methods": 21,
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 91,
         "Encapsulated Accessors": 31,
-        "Generic / Templated Code": 13,
-        "I/O & Config Routines": 5,
-        "Interface Declarations": 7,
+        "Generic / Templated Code": 38,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 16,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 4,
-        "State Mutators": 31,
-        "Stateful Encapsulated Methods": 26,
-        "Type Conversions": 1
-      },
-      "dart/flutter/object.dart": {
-        "Annotated & Test Methods": 14,
-        "Callbacks & Closures": 25,
-        "Compute Cores": 1,
-        "Defensive Guards": 98,
-        "Encapsulated Accessors": 55,
-        "Generic / Templated Code": 7,
-        "I/O & Config Routines": 18,
-        "Interface Declarations": 3,
-        "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 7,
         "State Mutators": 31,
-        "Stateful Encapsulated Methods": 30,
+        "Stateful Encapsulated Methods": 25,
+        "Type Conversions": 2
+      },
+      "dart/flutter/object.dart": {
+        "Annotated & Test Methods": 17,
+        "Callbacks & Closures": 3,
+        "Compute Cores": 1,
+        "Defensive Guards": 96,
+        "Encapsulated Accessors": 56,
+        "Generic / Templated Code": 7,
+        "I/O & Config Routines": 19,
+        "Interface Declarations": 21,
+        "Many-Argument Workhorses": 9,
+        "Parameter Forwarders": 8,
+        "State Mutators": 32,
+        "Stateful Encapsulated Methods": 29,
         "Type Conversions": 1
       },
       "dart/flutter/semantics.dart": {
-        "Annotated & Test Methods": 14,
-        "Callbacks & Closures": 87,
-        "Compute Cores": 7,
-        "Defensive Guards": 182,
-        "Encapsulated Accessors": 19,
-        "Generic / Templated Code": 5,
+        "Annotated & Test Methods": 22,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 8,
+        "Defensive Guards": 179,
+        "Encapsulated Accessors": 22,
+        "Generic / Templated Code": 9,
         "I/O & Config Routines": 8,
+        "Interface Declarations": 73,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 3,
         "State Mutators": 46,
-        "Stateful Encapsulated Methods": 36
+        "Stateful Encapsulated Methods": 34
       },
       "dart/flutter/theme_data.dart": {
         "Annotated & Test Methods": 5,
-        "Callbacks & Closures": 6,
-        "Compute Cores": 2,
-        "Defensive Guards": 20,
+        "Compute Cores": 3,
+        "Defensive Guards": 17,
         "Encapsulated Accessors": 3,
-        "Generic / Templated Code": 1,
+        "Generic / Templated Code": 3,
         "I/O & Config Routines": 3,
-        "Interface Declarations": 1,
+        "Interface Declarations": 5,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 2,
+        "Parameter Forwarders": 3,
         "State Mutators": 4,
-        "Stateful Encapsulated Methods": 1
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
       }
     },
     "db2_sql": {
@@ -4548,10 +4557,11 @@
         "Stateful Encapsulated Methods": 1
       },
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": {
-        "Compute Cores": 3,
+        "Compute Cores": 1,
         "Defensive Guards": 1,
         "Generic / Templated Code": 1,
         "Interface Declarations": 1,
+        "Parameter Forwarders": 2,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 1
       },
@@ -4733,9 +4743,9 @@
       },
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": {
         "Callbacks & Closures": 2,
-        "Encapsulated Accessors": 3,
+        "Encapsulated Accessors": 4,
         "Parameter Forwarders": 4,
-        "Stateful Encapsulated Methods": 2,
+        "Stateful Encapsulated Methods": 1,
         "Type Conversions": 1
       }
     },
@@ -5108,8 +5118,7 @@
         "Annotated & Test Methods": 1
       },
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": {
-        "Callbacks & Closures": 1,
-        "Stateful Encapsulated Methods": 1
+        "Callbacks & Closures": 2
       },
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": {
         "Annotated & Test Methods": 1,
@@ -11283,29 +11292,29 @@
       "swift/alamofire/Request.swift": {
         "Annotated & Test Methods": 7,
         "Callbacks & Closures": 7,
-        "Compute Cores": 5,
+        "Compute Cores": 2,
         "Defensive Guards": 13,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Interface Declarations": 4,
-        "Parameter Forwarders": 11
+        "Parameter Forwarders": 14
       },
       "swift/alamofire/Response.swift": {
-        "Compute Cores": 2,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 8,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 3
       },
       "swift/alamofire/Session.swift": {
         "Annotated & Test Methods": 2,
-        "Compute Cores": 7,
-        "Defensive Guards": 10,
-        "Generic / Templated Code": 13,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 5,
+        "Defensive Guards": 9,
+        "Generic / Templated Code": 21,
         "Interface Declarations": 5,
-        "Many-Argument Workhorses": 14,
-        "Parameter Forwarders": 5,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 7,
         "Type Conversions": 1
       }
     },

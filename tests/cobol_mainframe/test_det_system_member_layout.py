@@ -23,7 +23,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import program_lines
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
-MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA", "DLIUIB", "AIB")
+MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA", "DLIUIB", "AIB", "BAQRINFO")
 
 
 def _program(member: str) -> str:
@@ -106,6 +106,23 @@ def test_aib_is_the_manuals_128_byte_mask_and_its_odba_tail(tmp_path):
     assert at["AIBRESV4"] == (88 + shift, 40) and at["AIBRESV4"][0] + 40 == 128 + shift
 
 
+def test_baqrinfo_response_info_is_the_manuals_layout_and_the_request_info_only_its_named_level(tmp_path):
+    """#8412: z/OS Connect "Handling errors from API requester calls" (BAQ-RESPONSE-INFO, S9(9) COMP-5 SYNC fullwords);
+    BAQ-REQUEST-INFO is ASSUMED to hold only the compatibility level the "Developing API requester applications" page names."""
+    src = tmp_path / "P.cbl"
+    src.write_text(_program("BAQRINFO"), encoding="utf-8")
+    recs = {r.name: r for r in L.parse(program_lines(src, [COPY]))}
+    resp = recs["BAQ-RESPONSE-INFO"]
+    assert [_at(resp, n) for n in ("BAQ-RESPONSE-INFO", "BAQ-RESPONSE-INFO-COMP-LEVEL", "BAQ-STUB-NAME", "BAQ-RETURN-CODE",
+                                   "BAQ-STATUS-CODE", "BAQ-STATUS-MESSAGE", "BAQ-STATUS-MESSAGE-LEN")] == [
+        (0, 1048), (0, 4), (4, 8), (12, 4), (16, 4), (20, 1024), (1044, 4)]  # fmt: skip
+    assert _at(recs["BAQ-REQUEST-INFO"], "BAQ-REQUEST-INFO-COMP-LEVEL") == (0, 4)
+    rc = next(x for x in resp.walk() if x.name == "BAQ-RETURN-CODE")
+    assert [(x.name, [int(v[1]) for v in x.values]) for x in rc.conditions] == [
+        ("BAQ-SUCCESS", [0]), ("BAQ-ERROR-IN-API", [1]), ("BAQ-ERROR-IN-ZCEE", [2]), ("BAQ-ERROR-IN-STUB", [3]),
+        ("BAQ-ERROR-NO-RESPONSE", [4])]  # fmt: skip
+
+
 @pytest.mark.parametrize("member", ("DFHAID", "DFHBMSCA"))
 def test_the_attribute_and_aid_constants_are_each_one_byte_back_to_back(tmp_path, member):
     rec = _record(tmp_path, member)
@@ -146,7 +163,8 @@ def test_the_engine_lays_out_each_system_member_from_the_shipped_text_and_agrees
     `stand-in#`), so the translator takes the engine's layout of every one of the five; at the translator's POINTER width
     no offset or width differs from the translator's own."""
     recs, own, lay = _laid(estate, "engine", POINTER_BYTES)
-    assert lay.consumed == ["WS-FIRST", *MEMBERS] and lay.own == []
+    records = [r for m in MEMBERS for r in (("BAQ-REQUEST-INFO", "BAQ-RESPONSE-INFO") if m == "BAQRINFO" else (m,))]  # BAQRINFO holds two 01s
+    assert lay.consumed == ["WS-FIRST", *records] and lay.own == []
     assert {r.name: [(x.name, x.offset, x.size) for x in r.walk()] for r in recs} == own
     ef = estate[0].files["SYSTOY.cbl"]
     assert sorted(f.file_path for f in ef.stand_in_copies) == sorted(f"stand-in#{m}" for m in MEMBERS)

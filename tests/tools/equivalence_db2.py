@@ -535,7 +535,10 @@ def create(case: dict[str, Any], corpus: Path) -> None:
     """The case's tables, dropped and created again from its DDL (every table the DDL creates, compared or not)."""
     ensure()
     _META.clear()
-    ddls = [ddl_text(corpus / ddl, case["db2"].get("symbols")) for ddl in case["db2"].get("ddl", [])]
+    ddls = [
+        ddl_text(common._input_path(case, corpus, ddl), case["db2"].get("symbols"))
+        for ddl in case["db2"].get("ddl", [])
+    ]
     made = [t for text in ddls for t in re.findall(r"CREATE\s+TABLE\s+([A-Z0-9_.$#@]+)", text, re.I)]
     # one CLP call: each DROP fails alone when its table is not there (CLP goes on to the next statement); a row
     # longer than a 4K page (GenApp's ENDOWMENT VARCHAR(32606)) needs a table space whose pages hold it, created
@@ -917,7 +920,7 @@ def declared_tables(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, A
     symbols = spec.get("symbols")
     tables: dict[str, dict[str, Any]] = {}
     for ddl in spec.get("ddl", []):
-        for name, t in parse_tables(ddl_text(corpus / ddl, symbols)).items():
+        for name, t in parse_tables(ddl_text(common._input_path(case, corpus, ddl), symbols)).items():
             old = tables.setdefault(name, {"columns": [], "keys": [], "fks": []})
             old["columns"] = t["columns"] or old["columns"]
             old["keys"] += [k for k in t["keys"] if k not in old["keys"]]

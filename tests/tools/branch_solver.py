@@ -2005,10 +2005,12 @@ def evaluate_arms(source: Path) -> dict[int, list[str]]:
 def corpus_root(name: str) -> Path:
     import mainframe_corpus as mc  # noqa: PLC0415
 
-    if name in getattr(mc, "CRUCIBLE_CORPORA", {}):
+    if name == "cics-crucible":
         import cics_crucible as ccr  # noqa: PLC0415
 
         return Path(ccr.crucible_path(None))
+    if name in getattr(mc, "CRUCIBLE_CORPORA", {}):  # estate-crucible: its pin's checkout
+        return mc.clone_path(mc.select([name])[0])
     return mc.cache_root() / name
 
 

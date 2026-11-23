@@ -1,0 +1,22 @@
+{
+ "corpus": "estate-crucible",
+ "program": "BDLDRPT",
+ "program_source": "estate/apps/BDLD/cobol/BDLDRPT.cbl",
+ "copy_dirs": [
+  "estate/apps/BDLD/copybook"
+ ],
+ "job": "BDLDNITE",
+ "step": "RPT030",
+ "parm": "",
+ "clock": "2026/11/21 10:30:15.00",
+ "datasets": {
+  "RPTOUT": {
+   "organization": "sequential",
+   "reclen": 80,
+   "compare": true,
+   "copybook": "estate/apps/BDLD/cobol/BDLDRPT.cbl",
+   "record": "RPT-LINE"
+  }
+ },
+ "notes": "estate-crucible Batch Badlands (#7065, BDLD): BDLDRPT, the load report, as BDLDNITE step RPT030 runs it (EXEC PGM=BDLDRPT, no PARM). Its PROCEDURE DIVISION USING LS-PARM reads the halfword-prefixed parameter list z/OS passes a main program (IBM Enterprise COBOL for z/OS 6.4 Programming Guide, 'Accessing main program parameters under z/OS'), so the case passes an empty PARM (length 0, the 'REPORT DAILY' arm): with \"parm\": null the harness's driver passes no parameter list and LS-PARM-LEN is unaddressable. The PARM='MONTHLY' run of BDLDRST step RPT030 is not a case: BDLDRPT moves 8 bytes of a 7-byte PARM, and the eighth byte is whatever storage follows the parameter list, on z/OS as in the oracle. The oracle is GnuCOBOL, not z/OS."
+}

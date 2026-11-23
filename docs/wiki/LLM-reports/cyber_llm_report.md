@@ -14,7 +14,7 @@ The dependency graph indicates a "Spaghetti" coupling topology (Modularity: 0.16
 * **Fragile Orchestrators:** Files acting as operational controllers exhibit the highest outbound coupling. `src/cyber.zig` (20 outbound dependencies) and `src/compiler.zig` (16 outbound dependencies) function as massive routing hubs, tightly binding the parsing, typing, and emission logic into a single cohesive, yet fragile, execution context.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter. The repository represents a traditional programming language runtime. While files handling raw memory allocation and FFI bindings present inherent memory-safety considerations standard for Zig/C/C++ environments, no immediate weaponizable injection vectors or exploit generation surfaces were flagged by the security lens.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim. The repository represents a traditional programming language runtime. While files handling raw memory allocation and FFI bindings present inherent memory-safety considerations standard for Zig/C/C++ environments, no immediate weaponizable injection vectors or exploit generation surfaces were flagged by the security lens.
 
 ## 4. Outliers & Extremes
 The repository contains concentrated complexity and structural density within the parsing and VM evaluation stages:

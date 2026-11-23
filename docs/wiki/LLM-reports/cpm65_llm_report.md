@@ -14,7 +14,7 @@ Despite the low-level nature of the codebase, the network graph reveals a high M
 * **Fragile Orchestrators:** The C-based emulator utilities exhibit the highest outbound coupling. Files such as `tools/cpmemu/biosbdos.c` (12 outbound dependencies) and `tools/cpmemu/fileio.c` (11 outbound) function as fragile orchestrators. They bridge modern POSIX filesystem/I/O logic with simulated 6502 memory states, making them highly sensitive to changes in either the host OS or the internal BDOS specification.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged `tools/cpmemu/biosbdos.c` and `apps/sys.c` with minor "Raw Memory Manipulation" exposures. In the context of a 6502 emulator and OS system utilities, this is standard operational behavior. These files are explicitly designed to perform direct pointer arithmetic, memory-mapped I/O, and page-boundary crossings to simulate the target hardware. No significant web-facing or injection vulnerabilities were detected.
 

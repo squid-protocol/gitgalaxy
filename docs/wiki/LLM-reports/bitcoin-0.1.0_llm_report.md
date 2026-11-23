@@ -14,7 +14,7 @@ The network topology reveals a low modularity score (0.2008) and a negative asso
 * **Fragile Orchestrators:** `src/uibase.h` and `src/headers.h` pull in the highest number of external dependencies. The UI components are heavily interwoven with the core consensus and wallet logic rather than operating over a cleanly abstracted API boundary.
 
 ## 3. Security & Vulnerabilities
-**✅ SECURE: No Malware Detected.** The XGBoost Structural DNA model found no malicious artifacts.
+**Malware classifier removed (2026-11-19, research pending, #8430):** it never ran with a trained model, so this report makes no malware claim.
 
 The rule-based lens flagged several core files (e.g., `src/main.cpp`, `src/script.cpp`, `src/bignum.h`) with a 20% Exploit Generation Surface exposure. In the context of a cryptocurrency node, this is expected: these files are explicitly responsible for parsing, validating, and executing untrusted binary payloads (transactions and blocks) from the public internet. Minor "Raw Memory Manipulation" signatures were detected in `src/main.cpp` and the SHA hashing implementations, which is inherent to low-level cryptographic byte manipulation in C++. 
 

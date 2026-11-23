@@ -190,6 +190,19 @@ def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
                 (root / dsn).write_bytes(data)
 
 
+def _listing(ds: Path) -> dict[str, dict]:
+    """The files under a datasets directory (size and digest); a GDG base is a directory, each generation `DSN(Gnnnn)`."""
+    files = {p.name: {"size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+             for p in sorted(ds.iterdir()) if p.is_file()}  # fmt: skip
+    for gdg in sorted(p for p in ds.iterdir() if p.is_dir()):
+        for g in sorted(gdg.iterdir()):
+            files[f"{gdg.name}({g.name})"] = {
+                "size": g.stat().st_size,
+                "sha256": hashlib.sha256(g.read_bytes()).hexdigest(),
+            }
+    return files
+
+
 def forge_estate(
     ir,
     corpus: Path,
@@ -298,33 +311,44 @@ def run_forged(
     configs = [f"{PKG}.{n}" for n in src if n.endswith("JobConfig")]
     out: dict[str, dict] = {}
     for mode, skip in (("strict", "false"), ("skip", "true")):
-        ds = datasets / mode
-        ds.mkdir(parents=True)
-        seed_datasets(seeds or {}, ds)
-        cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
-               "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, *configs]  # fmt: skip
-        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=300)
-        if r.returncode:
-            raise RuntimeError(r.stderr[-4000:])
         jobs: dict[str, dict] = {}
-        cur = None
-        for ln in r.stdout.splitlines():
-            f = ln.split("\t")
-            if f[0] == "JOB":
-                cur = jobs[f[1]] = {"status": f[2], "exit": f[3], "steps": {}}
-            elif f[0] == "STEP" and cur is not None:
-                cur["steps"][f[1]] = (f[2], None if f[3] == "-" else f[3])
+        by_job: dict[str, dict] = {}
+        seeded_by_job: dict[str, dict] = {}
+        for (
+            config
+        ) in configs:  # one JVM and a freshly seeded directory per job: each job is its own case (#8886 slice 8)
+            ds = datasets / mode / config.rsplit(".", 1)[-1]
+            ds.mkdir(parents=True)
+            seed_datasets(seeds or {}, ds)
+            seeded = _listing(ds)
+            cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
+                   "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, config]  # fmt: skip
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=300)
+            if r.returncode:
+                raise RuntimeError(r.stderr[-4000:])
+            cur = None
+            ran: list[str] = []
+            for ln in r.stdout.splitlines():
+                f = ln.split("\t")
+                if f[0] == "JOB":
+                    cur = jobs[f[1]] = {"status": f[2], "exit": f[3], "steps": {}}
+                    ran.append(f[1])
+                elif f[0] == "STEP" and cur is not None:
+                    cur["steps"][f[1]] = (f[2], None if f[3] == "-" else f[3])
+            after = _listing(ds)
+            for name in ran:
+                by_job[name], seeded_by_job[name] = after, seeded
         out[mode] = jobs
-        # what the jobs left in the datasets directory (size and digest: the run's own files, compared by the caller)
-        files = {p.name: {"size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
-                 for p in sorted(ds.iterdir()) if p.is_file()}  # fmt: skip
-        for gdg in sorted(p for p in ds.iterdir() if p.is_dir()):  # a GDG base: each generation as `DSN(Gnnnn)`
-            for g in sorted(gdg.iterdir()):
-                files[f"{gdg.name}({g.name})"] = {
-                    "size": g.stat().st_size,
-                    "sha256": hashlib.sha256(g.read_bytes()).hexdigest(),
-                }
-        out.setdefault("datasets", {})[mode] = files
+        # what the jobs left in their datasets directories (size and digest): `datasets_by_job` per job; `datasets` the
+        # union, a job's output (a file it created or changed against its own seeds) overriding a seeded copy
+        union: dict[str, dict] = {}
+        for listing in by_job.values():
+            for k, v in listing.items():
+                union.setdefault(k, v)
+        for name, listing in by_job.items():
+            union.update({k: v for k, v in listing.items() if seeded_by_job[name].get(k) != v})
+        out.setdefault("datasets", {})[mode] = union
+        out.setdefault("datasets_by_job", {})[mode] = by_job
     return out
 
 

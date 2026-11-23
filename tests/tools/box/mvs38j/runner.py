@@ -34,7 +34,7 @@ _JCLERR = re.compile(r"IEF452I\s+(\S+)\s+(?:-\s+)?JOB NOT RUN - JCL ERROR")
 _ANY_IEF = re.compile(r"\bIEF\d{3}[A-Z]\b")
 _KNOWN_IEF = {"IEF142I", "IEF272I", "IEF202I", "IEF285I", "IEF450I", "IEF452I", "IEF403I", "IEF404I"}
 # informational messages seen live in a 3.8J job log (allocation, step and job timing, completion code): read, not parsed
-_KNOWN_IEF |= {f"IEF{n}I" for n in (236, 237, 373, 374, 375, 376, 472, 643)}
+_KNOWN_IEF |= {f"IEF{n}I" for n in (236, 237, 287, 373, 374, 375, 376, 472, 643)}
 _STARTED = re.compile(r"IEF403I\s+(\S+)\s+-\s+STARTED")
 _JOBEND = re.compile(r"\$HASP39[56]\s+(\S+)\s+(?:ENDED|TERMINATED)")
 

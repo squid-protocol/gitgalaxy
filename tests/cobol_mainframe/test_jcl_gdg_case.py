@@ -47,6 +47,7 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "bypassed",
         "pass-then",
         "limit-",
+        "roll-off-",
         "mod-plus-one",
         "delete-whole-group",
         "delete-the-oldest",
@@ -78,6 +79,9 @@ def test_the_scenarios_cover_every_construct_of_the_checklist_line():
         "pass-then-delete-leaves",
         "pass-then-keep-is",
         "pass-then-uncatlg-is",
+        "if-proc-step-true",
+        "if-proc-step-false",
+        "if-proc-step-that-did-not-execute",
     ):
         assert word in ids, word
     assert len(BY_ID) == len(DOC["scenarios"])
@@ -114,6 +118,18 @@ def test_the_resolver_reproduces_every_generation_and_catalog_answer(sc):
         names, after = resolve_gdg(rows, sc["job"], catalog, JclFlow(rows).run(sc["job"], sc["given"]))
     assert names == sc["expect"], sc["id"]
     assert after == sc["catalog_after"], sc["id"]
+
+
+def test_a_rolled_off_generation_has_a_fate_only_when_the_group_states_scratch_or_noscratch():
+    """DFSMS Using Data Sets, 'Generation data groups': SCRATCH scratches it, NOSCRATCH recatalogs it as rolled off."""
+    text = "\n".join(DOC["flow_jcl"]) + "\n"
+    base = {"limit": 3, "generations": [5, 6, 7]}
+    given = {"C1": {"rc": 0}, "C2": {"rc": 0}, "C3": {"rc": 0}}
+    _, plain = _run(text, "MAKEJOB", {"PAY.GDG": dict(base)}, given)
+    assert plain["PAY.GDG"] == {"limit": 3, "generations": [6, 7, 8]}
+    for flag, word in ((True, "scratched"), (False, "recataloged")):
+        _, after = _run(text, "MAKEJOB", {"PAY.GDG": {**base, "scratch": flag}}, given)
+        assert after["PAY.GDG"]["rolled_off"] == {word: [5]} and after["PAY.GDG"]["scratch"] is flag
 
 
 def test_a_catalog_given_to_the_resolver_is_not_changed():

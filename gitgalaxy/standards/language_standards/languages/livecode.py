@@ -110,9 +110,10 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes English-like loops and try-catch.
         "branch": re.compile(
-            r"\b((?<!end )if|else|(?<!end )switch|case|default|(?<!end )repeat|next\s+repeat|and|or|not)\b",
+            r"\b((?<!end )if|else|(?<!end )switch|case|default|(?<!end )repeat|next\s+repeat)\b",
             re.I,
         ),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
         # BUG FIX (livecode tri-comparison manual verification, 2026-08-28): this
         # `^`-anchored per-line pattern was compiled `re.I` only -- missing the
@@ -139,7 +140,7 @@ DEFINITION: dict[str, Any] = {
             r")",
             re.I | re.M,
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries and state transformation verbs.
         # BUG FIX (#593): "constant" used to be listed here too, duplicating
         # immutability_locks and violating this key's own documented EXCLUDES
         # rule (immutability keywords belong in immutability_locks, not here).

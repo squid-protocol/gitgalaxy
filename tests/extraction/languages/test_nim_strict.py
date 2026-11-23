@@ -95,6 +95,33 @@ def test_proc_types_and_non_definitions_are_not_units():
     assert _starts(src) == []
 
 
+TRY_PROC = (
+    "proc tryProc(a: int): int =\n"
+    "  try:\n"
+    "    result = a\n"
+    "  except ValueError:\n"
+    "    result = 0\n"
+    "  finally:\n"
+    "    discard\n"
+)
+
+
+def test_an_exception_handler_is_not_a_branch():
+    # branch contract corollary 1 (#8926): try / except / finally are not decisions.
+    assert _hits("branch", TRY_PROC) == []
+
+
+def test_a_real_decision_still_branches_beside_a_handler():
+    src = TRY_PROC + "\nproc realIf(a: int): int =\n  if a > 1:\n    return 1\n  return 0\n"
+    assert _hits("branch", src) == ["if"]
+
+
+def test_boolean_operators_are_short_circuit_not_branch():
+    src = "proc boolOps(a, b: bool): bool =\n  return a and b or a\n"
+    assert _hits("branch", src) == []
+    assert _hits("short_circuit", src) == ["and", "or"]
+
+
 def test_classes_are_found():
     src = (
         "type\n"
@@ -132,8 +159,15 @@ def test_dependencies_capture_the_target():
         "  import indented\n"
         "importantThing = 1\n"
     )
-    got = [m.group(1) for m in RULES["_dependency_capture"].finditer(src)]
-    assert got == ["std/os", "std", "strutils", "../common/defs", "mypkg", "indented"]
+    got = [m.group(1) or m.group(2) or m.group(3) for m in RULES["_dependency_capture"].finditer(src)]
+    assert got == [
+        "std/os, strutils",
+        "std/[tables, sets]",
+        "strutils",
+        "../common/defs",
+        "mypkg",
+        "indented",
+    ]
 
 
 def test_import_capture_blank_hides_comments_and_strings():
@@ -146,7 +180,7 @@ def test_import_capture_blank_hides_comments_and_strings():
     )
     blank = re.compile(NIM["import_capture_blank"])
     kept = blank.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), src)
-    assert [m.group(1) for m in RULES["_dependency_capture"].finditer(kept)] == ["real"]
+    assert [m.group(1) or m.group(2) or m.group(3) for m in RULES["_dependency_capture"].finditer(kept)] == ["real"]
 
 
 def test_safety_bypasses_and_high_risk():

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
-from gitgalaxy.core.call_resolver import class_alias_tables, confident_file_pairs, resolve_calls
+from gitgalaxy.core.call_resolver import class_alias_tables_full, confident_file_pairs, resolve_calls
 from gitgalaxy.core.copy_libraries import load_copy_libraries
 from gitgalaxy.core.dense_source import is_dense_source
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
@@ -646,19 +646,20 @@ def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
 
 
 # #3595: a brace selector group opens right after an import-path separator
-# (`a.b.{`, `a::{`, `A\\{`). Only then is a brace a group; `${VAR}` and an HTML
-# `{{ placeholder }}` are not, and keep the plain comma split.
-_SELECTOR_GROUP = re.compile(r"(?:\.|::|\\)[ \t]*\{")
+# (`a.b.{`, `a::{`, `A\\{`), or a Nim bracket group after `/` (`chronos/[a, b]`).
+# Only then is a brace/bracket a group; `${VAR}` and an HTML `{{ placeholder }}`
+# are not, and keep the plain comma split.
+_SELECTOR_GROUP = re.compile(r"(?:\.|::|\\)[ \t]*\{|/[ \t]*\[")
 
 
 def _split_top_level(text: str) -> list[str]:
-    """`text` split on the commas that are not inside braces."""
+    """`text` split on the commas that are not inside braces or brackets."""
     parts, depth, start = [], 0, 0
     for i, ch in enumerate(text):
-        if ch == "{":
+        if ch in "{[":
             depth += 1
-        elif ch == "}":
-            depth -= 1
+        elif ch in "}]":
+            depth = max(0, depth - 1)
         elif ch == "," and depth == 0:
             parts.append(text[start:i])
             start = i + 1
@@ -669,28 +670,41 @@ def _split_top_level(text: str) -> list[str]:
 def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
     """#3595: `io.circe.{ Decoder, Json }` is `io.circe.Decoder` and
     `io.circe.Json` -- the prefix before a brace applies to every selector in
-    it. Deleting the braces and splitting on commas (the old reading) gave
+    it (and Nim `chronos/[a, b]` expands to `chronos/a`, `chronos/b`).
+    Deleting the braces and splitting on commas (the old reading) gave
     `io.circe. Decoder` and a bare `Json`, neither of which resolves. Nested
     groups recurse (bounded); a Rust `self` selector names the prefix itself."""
     out: list[str] = []
     for part in _split_top_level(text):
-        part = part.strip()
+        part = re.split(r"\bexcept\b", part, maxsplit=1)[0].strip()
+        if not part:
+            continue
         brace = part.find("{")
-        # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
-        # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
+        bracket = part.find("[")
+        # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`, `a/[`)
+        # or opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
         # A part that opens with `{` and closes with its `}` is an unprefixed group
         # (Rust `use { a::B, c::{D, E} };`, #3798): its items expand with no prefix.
         if (brace == 0 and not part.endswith("}")) or (
             brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")
         ):
             brace = -1
-        if brace == -1 or depth > 8:
+        if bracket <= 0 or part[:bracket].rstrip()[-1:] != "/":
+            bracket = -1
+        if brace != -1 and (bracket == -1 or brace < bracket):
+            open_idx, close_ch = brace, "}"
+        elif bracket != -1:
+            open_idx, close_ch = bracket, "]"
+        else:
+            open_idx, close_ch = -1, ""
+        if open_idx == -1 or depth > 8:
             leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()
             if leaf:
                 out.append(leaf)
             continue
-        prefix = re.sub(r"\s+", "", part[:brace])
-        inner = part[brace + 1 : part.rfind("}") if part.rfind("}") > brace else len(part)]
+        prefix = re.sub(r"\s+", "", part[:open_idx])
+        close_idx = part.rfind(close_ch)
+        inner = part[open_idx + 1 : close_idx if close_idx > open_idx else len(part)]
         for item in _expand_import_selectors(inner, depth + 1):
             if item == "self":
                 out.append(prefix.rstrip(":.\\/"))
@@ -2879,11 +2893,11 @@ class Orchestrator:
         # the "unparsable_artifacts" list order.
         self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
 
-    def _cpp_alias_tables(self) -> tuple[frozenset[str], dict[str, frozenset[str]]]:
-        """#6266: the class-typedef names and each header's foreign-type aliases (`call_resolver.class_alias_tables`) over
-        the C++ headers of the scan, the delta scan's cached files included. Empty when no parsed file is C++."""
+    def _cpp_alias_tables(self) -> tuple[frozenset[str], dict[str, frozenset[str]], dict[str, str]]:
+        """#6266: the class-typedef names, each header's foreign-type aliases, and unambiguous
+        alias->target map (`call_resolver.class_alias_tables_full`) over the C++ headers of the scan."""
         if not any(f.get("lang_id") == "cpp" for f in self.parsed_files):
-            return frozenset(), {}
+            return frozenset(), {}, {}
         rels = sorted({*self.stem_map.values(), *self.ram_cache.keys()})
         headers = [r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS]
 
@@ -2894,7 +2908,7 @@ class Orchestrator:
                 except OSError:
                     continue
 
-        return class_alias_tables(texts())
+        return class_alias_tables_full(texts())
 
     def _resolve_function_calls(self) -> None:
         """#3328: resolve every function's calls_out_to against the whole repository.
@@ -2902,7 +2916,7 @@ class Orchestrator:
         Runs after the import graph (step 3 of the ladder reads its edges). The
         per-step counts are logged here and kept on `fcall_stats` for #3331.
         """
-        class_aliases, foreign_aliases = self._cpp_alias_tables()
+        class_aliases, foreign_aliases, class_alias_targets = self._cpp_alias_tables()
         self.fcall_sites, self.fcall_stats = resolve_calls(
             self.parsed_files,
             self.network_sensor.dependency_edges,
@@ -2910,6 +2924,7 @@ class Orchestrator:
             self.network_sensor.star_exports,
             class_aliases,
             foreign_aliases,
+            class_alias_targets,
         )
         by_step = self.fcall_stats.get("by_step", {})
         logger.info(

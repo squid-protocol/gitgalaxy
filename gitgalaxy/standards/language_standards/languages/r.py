@@ -21,8 +21,9 @@ _NAME = r"(?:[^\W\d_]|\.(?![0-9]))[" + ID_CONTINUE + r".]*"
 _ASSIGN = r"(?:<<-|<-|=(?!=))"
 # `obj$method <- function`, `self@slot = function`: the receiver chain before the bound name.
 _RECEIVER = r"(?:" + _NAME + r"[$@])*"
-# A call's parameter list: one level of nested parentheses (`function(x = c(1, 2))`), no newline.
-_PARAMS = r"(?:[^()\n]|\([^()\n]*\))*"
+# A call's parameter list: may span lines and nest two levels of parentheses (`function(a,\n b = g(h()))`, #8925).
+# The three alternatives start on disjoint characters, so it backtracks linearly.
+_PARAMS = r"(?:[^()]|\((?:[^()]|\([^()]*\))*\))*"
 # A package attach call: `library(x)`, `require(x)`, `requireNamespace("x")`, `loadNamespace("x")`.
 _ATTACH = r"(?:library|require|requireNamespace|loadNamespace)"
 
@@ -50,8 +51,12 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"(?<![\w.$@])(?:if|else|for|while|repeat|switch|ifelse)\b(?![\w.])|&&|\|\|"),
+        "branch": re.compile(r"(?<![\w.$@])(?:if|else|for|while|repeat|switch|ifelse)\b(?![\w.])"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: group 1 is the parameter list of a `function(...)` header.
+        # #8925: the capture is the bare list (no signature prefix), so a call in a default (`b = g()`)
+        # must not be read as the list's own wrapper parentheses.
+        "_args_bare_body_groups": {1},
         "args": re.compile(r"\bfunction[ \t]*\((" + _PARAMS + r")\)"),
         "structural_boundaries": re.compile(
             r"(?<![\w.$@])(?:function|setClass|setRefClass|setClassUnion|R6Class|setGeneric|setMethod|library|require)\b"
@@ -112,7 +117,10 @@ DEFINITION: dict[str, Any] = {
             r"|renderText|plotOutput|tableOutput|uiOutput|textOutput|ggplot|plot_ly|leaflet)\(|\bshiny::\w+"
             r"|\blibrary\([ \t]*(?:shiny|shinydashboard|bslib|ggplot2|plotly|leaflet)[ \t]*\)"
         ),
-        "closures": re.compile(r"\\\([^)\n]*\)|~[ \t]*\.|[(,][ \t]*function[ \t]*\("),
+        # #8925: an anonymous function passed as a value, also as a named argument (`error = function(e) 1`).
+        "closures": re.compile(
+            r"\\\([^)\n]*\)|~[ \t]*\.|[(,][ \t\n]*(?:[A-Za-z.][\w.]*[ \t]*=(?!=)[ \t]*)?function[ \t]*\("
+        ),
         "globals": re.compile(r"<<-|\bglobalenv\(|\.GlobalEnv\b|(?<![\w.$@])(?:Sys\.getenv|options|getOption)\("),
         "decorators": re.compile(
             r"^[ \t]*#'[ \t]*@(?:export|param|return|importFrom|import|examples|rdname|inheritParams|keywords"

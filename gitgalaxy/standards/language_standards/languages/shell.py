@@ -27,28 +27,134 @@ _WRAPPER = (
 _HEREDOC_OPEN = re.compile(r"<<-?[ \t]*(?P<q>['\"]?)(?P<tag>[A-Za-z_][A-Za-z0-9_]{0,63})(?P=q)[^\n]*\n")
 
 
-def _blank_shell_heredocs(text: str) -> str:
-    """Blank heredoc body + closing delimiter lines (`<<'EOF' ... EOF`) at the same length so
-    embedded text and `EOF` terminators are never scanned as shell commands."""
-    if "<<" not in text:
-        return text
-    out: list[str] | None = None
-    pos = 0
-    while (m := _HEREDOC_OPEN.search(text, pos)) is not None:
-        tag = m.group("tag")
-        body_start = m.end()
-        term = re.search(rf"^[ \t]*{re.escape(tag)}[ \t]*$", text[body_start:], re.M)
-        if term is None:
-            pos = body_start
+def _sh_cmd_subst_end(text: str, i: int) -> int:
+    """Index of the `)` closing a `$(...)` command substitution whose body starts at `i`."""
+    n, depth = len(text), 0
+    while i < n:
+        ch = text[i]
+        if ch == "\\":
+            i += 2
             continue
-        end = body_start + term.end()
-        if out is None:
-            out = list(text)
-        for i in range(body_start, end):
-            if out[i] != "\n":
-                out[i] = " "
-        pos = end
-    return text if out is None else "".join(out)
+        if ch == "'":
+            end = text.find("'", i + 1)
+            i = n if end == -1 else end + 1
+            continue
+        if ch == '"':
+            i += 1
+            while i < n:
+                c = text[i]
+                if c == "\\":
+                    i += 2
+                    continue
+                if c == '"':
+                    i += 1
+                    break
+                if c == "$" and i + 1 < n and text[i + 1] == "(":
+                    i = _sh_cmd_subst_end(text, i + 2) + 1
+                    continue
+                i += 1
+            continue
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            if depth == 0:
+                return i
+            depth -= 1
+        i += 1
+    return n
+
+
+def _sh_expose_subshells(text: str) -> str:
+    """`_calls_out_pre_shield`: expose `$(...)` command substitutions inside double-quoted
+    strings (`target="$(readlink "$1")"`) before the literal shield blanks `"..."`.
+    Single-pass linear scan; preserves newlines."""
+    if "$(" not in text:
+        return text
+    out: list[str] = []
+    n, i = len(text), 0
+    while i < n:
+        ch = text[i]
+        if ch == "\\":
+            out.append(text[i : i + 2])
+            i += 2
+            continue
+        if ch == "#" and (i == 0 or text[i - 1] in " \t\n;|&({"):
+            # Comment only at start of line or after whitespace
+            end = text.find("\n", i + 1)
+            j = n if end == -1 else end
+            out.append(text[i:j])
+            i = j
+            continue
+        if ch == "'":
+            end = text.find("'", i + 1)
+            j = n if end == -1 else end + 1
+            out.append(text[i:j])
+            i = j
+            continue
+        if ch == '"':
+            start = i
+            j = i + 1
+            holes: list[str] = []
+            while j < n:
+                c = text[j]
+                if c == "\\":
+                    j += 2
+                    continue
+                if c == '"':
+                    j += 1
+                    break
+                if c == "$" and j + 1 < n and text[j + 1] == "(":
+                    if j + 2 < n and text[j + 2] == "(":
+                        # Arithmetic $((...)) is not a command substitution
+                        j += 3
+                        continue
+                    end = _sh_cmd_subst_end(text, j + 2)
+                    holes.append(text[j + 2 : end])
+                    j = end + 1
+                    continue
+                j += 1
+            if holes:
+                newlines = text[start:j].count("\n")
+                exposed = "; ".join(f"$({_sh_expose_subshells(h)})" for h in holes)
+                out.append('""' + "\n" * newlines + " ; " + exposed + " ")
+            else:
+                out.append(text[start:j])
+            i = j
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+_SH_LINE_CONT = re.compile(r"\\(?:\r?\n)+[ \t]*")
+
+
+def _blank_shell_heredocs(text: str) -> str:
+    """Blank heredoc body + closing delimiter lines (`<<'EOF' ... EOF`) and join `\\` line
+    continuations so continued argument lines (`cmd arg1 \\\n    arg2`) are never scanned as
+    new shell commands."""
+    if "<<" in text:
+        out: list[str] | None = None
+        pos = 0
+        while (m := _HEREDOC_OPEN.search(text, pos)) is not None:
+            tag = m.group("tag")
+            body_start = m.end()
+            term = re.search(rf"^[ \t]*{re.escape(tag)}[ \t]*$", text[body_start:], re.M)
+            if term is None:
+                pos = body_start
+                continue
+            end = body_start + term.end()
+            if out is None:
+                out = list(text)
+            for i in range(body_start, end):
+                if out[i] != "\n":
+                    out[i] = " "
+            pos = end
+        if out is not None:
+            text = "".join(out)
+    if "\\\n" in text or "\\\r\n" in text:
+        text = _SH_LINE_CONT.sub(" ", text)
+    return text
 
 
 DEFINITION: dict[str, Any] = {
@@ -113,7 +219,7 @@ DEFINITION: dict[str, Any] = {
             # prefix of the alternative that follows it
             # a case arm `pattern)` opens a command (tried first: `a|b)` must not read `a` as one)
             r"(?m)(?:^[ \t]*\(?[^\s()]+\)[ \t]*(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
-            r"|(?:^|[;&|{!])[ \t]*(?!(?:then|do|else|elif|if|while|until)\b)"
+            r"|(?:^|[;&|!]|(?<!\$)\{)[ \t]*(?!(?:then|do|else|elif|if|while|until)\b)"
             + _WRAPPER
             + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|}`\r]|$))"
             r"|\b(?:then|do|else|elif|if|while|until)\b[ \t]*"
@@ -127,6 +233,7 @@ DEFINITION: dict[str, Any] = {
             r"|(?:\$\((?!\()|`)[ \t]*" + _WRAPPER + r"(?=[A-Za-z_][A-Za-z0-9_.:-]*(?:[ \t;&|)}`\r]|$)))"
             r"([A-Za-z_][A-Za-z0-9_.:-]*)"
         ),
+        "_calls_out_pre_shield": _sh_expose_subshells,
         "_calls_out_rewrite": _blank_shell_heredocs,
         "_calls_out_ignore": frozenset(
             {
@@ -181,7 +288,8 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].
         # CRITICAL: Excluded bare '((' and '))' to prevent ReDoS on massive subshell nesting.
-        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Positional parameters and expansion markers.
         # BUG FIX (epic #813/#835): the braced form only matched a bare

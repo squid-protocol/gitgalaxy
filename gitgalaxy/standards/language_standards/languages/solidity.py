@@ -19,6 +19,41 @@ from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PL
 _SOLIDITY_EVENT_OR_ERROR = re.compile(
     r"\b(?:emit|revert)[ \t]+(?:[A-Za-z_]\w*\.){0,4}(?P<pat>[A-Za-z_]\w*)(?=[ \t]*\()"
 )
+# Solidity call options (`target.call{value: v, gas: g}(data)`): blank `{...}` (when it holds no
+# nested call) to spaces so `CALLS_OUT_C_STYLE` sees `call   (data)` with its receiver intact.
+_SOLIDITY_CALL_OPTIONS = re.compile(r"(?<=\w)\{[^{}()\n]{1,200}\}(?=[ \t]*\()")
+_SOLIDITY_ASSEMBLY_START = re.compile(r"\bassembly\b[ \t]*(?:\"[^\"]*\"[ \t]*)?(?:\([^()\n]{0,120}\)[ \t]*)?\{")
+
+
+def _blank_solidity_assembly(text: str) -> str:
+    """Blank inline Yul `assembly { ... }` blocks (preserving newlines) because Yul EVM opcodes
+    (`mload`, `add`, `call`, `staticcall`, `invalid`, ...) are inline assembly, not Solidity calls."""
+    if "assembly" not in text:
+        return text
+    out: list[str] | None = None
+    pos = 0
+    n = len(text)
+    while (m := _SOLIDITY_ASSEMBLY_START.search(text, pos)) is not None:
+        brace = m.end() - 1
+        depth = 0
+        j = brace
+        while j < n:
+            ch = text[j]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    j += 1
+                    break
+            j += 1
+        if out is None:
+            out = list(text)
+        for k in range(brace + 1, min(j - 1, n)):
+            if out[k] != "\n":
+                out[k] = " "
+        pos = j
+    return text if out is None else "".join(out)
 
 
 def _blank_solidity_non_calls(text: str) -> str:
@@ -27,7 +62,11 @@ def _blank_solidity_non_calls(text: str) -> str:
         lo, hi = m.start("pat") - m.start(), m.end("pat") - m.start()
         return raw[:lo] + " " * (hi - lo) + raw[hi:]
 
-    return _SOLIDITY_EVENT_OR_ERROR.sub(_blank, text)
+    text = _blank_solidity_assembly(text)
+    text = _SOLIDITY_EVENT_OR_ERROR.sub(_blank, text)
+    if "{" in text:
+        text = _SOLIDITY_CALL_OPTIONS.sub(lambda m: " " * len(m.group(0)), text)
+    return text
 
 
 DEFINITION: dict[str, Any] = {
@@ -62,7 +101,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         "_calls_out_rewrite": _blank_solidity_non_calls,
@@ -98,6 +137,7 @@ DEFINITION: dict[str, Any] = {
         # since solidity had no other rule tracking it. Corpus impact: solidity branch 19
         # (planted 3, +280%) -> exact.
         "branch": re.compile(r"\b(if|else|for|while|do)\b|\?"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
         # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
         # #1209: parameter-list span wrapped in its own capture group in

@@ -765,3 +765,15 @@ def test_fortran_exit_cycle_are_boundaries_not_branches_8911():
     # do + 2 ifs = 3 decisions; cycle/exit are unconditional transfers
     assert _fortran_count("branch", src) == 3
     assert _fortran_count("structural_boundaries", "cycle\nexit\nreturn") == 3
+
+
+def test_fortran_module_declaration_capture():
+    """Fortran `MODULE name` declares a module (not `MODULE PROCEDURE` / `MODULE SUBROUTINE`)."""
+    decl = FORTRAN_RULES["_declaration_capture"]
+    dep = FORTRAN_RULES["_dependency_capture"]
+    assert [
+        m.group(1) for m in decl.finditer("module fpm_cmd_export\n  module procedure foo\n  module subroutine bar\n")
+    ] == ["fpm_cmd_export"]
+    m = dep.search("use, non_intrinsic :: my_mod, only: foo")
+    assert m is not None and m.group(1) == "my_mod"
+    assert_redos_immune(decl, "module " + " " * 50000, timeout_sec=3.0)

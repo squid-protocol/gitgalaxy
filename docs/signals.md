@@ -22,7 +22,8 @@ densities of these columns.
 
 | column | rule key | display name | function | file | typical matches |
 |---|---|---|---:|---:|---|
-| `struct_branch` | `branch` | Branches & Conditionals | 40.6% | 42.9% | `if`, `else`, `for`, `case`, `&&`, `?` |
+| `struct_branch` | `branch` | Branches & Conditionals | 40.6% | 42.9% | `if`, `else`, `for`, `case`, `?` |
+| `struct_short_circuit` | `short_circuit` | Short-Circuit Boolean Operators | n/a | n/a | `&&`, `\|\|`, `and`, `or` |
 | `struct_linear` | `structural_boundaries` | Structural Keywords (return/def/void/export) | 85.3% | 71.7% | `return`, `void`, `auto`, `def`, `=>`, `let` |
 | `struct_args` | `args` | Calls & Signatures With Arguments | 89.0% | 59.3% | `def __init__(self)`, `def _get_value(self)`, `() =>`, `function ()`, `function()`, `::` |
 | `struct_func_start` | `func_start` | Function Declarations | 98.4% | 54.9% | `def __init__(`, `def update(`, `constructor`, `dispose`, `getmaterialtype`, `fn deserialize<d>` |

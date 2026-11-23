@@ -79,7 +79,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264 / ledger: `@Name(` is an attribute (C1); dotted trailing closures (`q.async { }`) are calls
         "calls_out": CALLS_OUT_SWIFT,
         "_calls_out_rewrite": _blank_swift_patterns,
@@ -101,8 +101,9 @@ DEFINITION: dict[str, Any] = {
         # it is io/events' hit. The `(?<!\.)` guard keeps the switch case and drops
         # the accessor, the mirror of the fix #2858 made on the `globals` side.
         "branch": re.compile(
-            r"\b(if|guard|switch|case|for|while|repeat|break|continue)\b|(?<!\.)\bdefault\b|\}\s*else\b|&&|\|\||\?\?|\?"
+            r"\b(if|guard|switch|case|for|while|repeat|break|continue)\b|(?<!\.)\bdefault\b|\}\s*else\b|\?\?|\?"
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded negation [^)]* and <[^>]*> to prevent ReDoS.
         "args": re.compile(

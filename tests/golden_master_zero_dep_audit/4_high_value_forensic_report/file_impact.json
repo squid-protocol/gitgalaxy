@@ -8,12 +8,12 @@
       {
         "name": "checker.ts",
         "path": "typescript/typescript_compiler/checker.ts",
-        "value": 59498.24
+        "value": 59250.24
       },
       {
         "name": "Sema.zig",
         "path": "zig/zig/Sema.zig",
-        "value": 18922.48
+        "value": 20285.38
       },
       {
         "name": "module_physics_init.F",

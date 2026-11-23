@@ -196,7 +196,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`), the checkpoint restarts (`RSTJOB4` / `11` / `12`, SYSCHK) and `carddemo` where 3.8J has the construct. IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`, no OUTPUT statement in 3.8J); the checkpoint restarts are done (`RSTJOB4` / `11` / `12`, SYSCHK, below); the `carddemo` COND slice is done (below). IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here. The PROC `KNDJOB`, `SSJOB` E1 / E2 and `DUPJOB` E1 / E2 scenarios are done (SSJOB's `SET` and the one DD whose symbol only the `SET` defines are dropped from the deck, that DD is not compared). Every other unrun `proc` / `gdg` / `restart` scenario needs `SET`, `JCLLIB`, `INCLUDE`, a nested or library procedure, `IF`, `GDGBIAS` or `OUTPUT` (the "cannot test" list).
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -215,13 +215,13 @@ the fixture's; an abend code other than S806 (a user abend would need a program 
 
 ## Probe run (#8414): PROC symbolics and overrides
 
-`probe.py proc --printer FILE` runs the eight `tests/equivalence/jcl/proc` scenarios 3.8J can express: `SYMJOB` S1 to S3 (symbolics and
-defaults), `OVRJOB` O1 to O3 (EXEC `PARM.` / `COND.` overrides, a DD override, an added DD), `PCJOB` C1 and C2 (PARM / COND on the call). The
+`probe.py proc --printer FILE` runs the fifteen `tests/equivalence/jcl/proc` scenarios 3.8J can express: `SYMJOB` S1 to S3 (symbolics and
+defaults), `OVRJOB` O1 to O3 (EXEC `PARM.` / `COND.` overrides, a DD override, an added DD), `PCJOB` C1 and C2 (PARM / COND on the call), `SSJOB` E1 / E2 (PROC defaults and an EXEC value or nullified `C=` over them), `DUPJOB` E1 / E2 (a symbolic duplicated on the PROC statement or the EXEC call), `KNDJOB` W1 to W3 (a DD's kind: `DUMMY`, `DSN=NULLFILE` and `SYSOUT` overrides of a procedure DD; the log's `DMY` / `JES2` allocation lines name no dataset). The
 SET, JCLLIB, INCLUDE and nested-procedure jobs have no 3.8J form. The deck keeps the job's procedure and that one call with its override
 DDs; every `PGM=` becomes IEFBR14 and every DD keeps its DSN, allocated new on SYSDA (so the log names it). The observation channel is the
 job log itself: `IEF236I` (the step, `procstep call`), `IEF237I` (each ddname), `IEF285I` (each DSN, in DD order) and `IEF653I`
 (a symbol's substituted PARM). `tests/equivalence/jcl/proc/mvs38j_probe.json` holds `expect`, `engine` (`jcl_proc.resolve_job`) and `box`
-per scenario. Run 2026-11-20: **8 of 8 agree**, and the first live `PROCSTEP` lines (`IEF142I OVRJOB A1 O3`, `A2 O3`) came from it.
+per scenario. Run 2026-11-20: **8 of 8 agree**, and the first live `PROCSTEP` lines (`IEF142I OVRJOB A1 O3`, `A2 O3`) came from it. Rerun 2026-11-23 with `KNDJOB`: **11 of 11 agree** (3.8J accepts a `DUMMY` override, `DSN=NULLFILE` and `SYSOUT` over a `DUMMY` as the manuals say). Rerun 2026-11-23 with `SSJOB` and `DUPJOB`: **15 of 15 agree**; 3.8J accepts a duplicated symbolic (no JCL error) and takes the first value, on the PROC statement (`FIRST`) and on the EXEC (`XA`), as the Reference says.
 
 What the box cannot show, so it is listed as `unobserved` in every result and not compared: the resolved `PGM` (replaced by IEFBR14), a
 `PARM` that is not symbolic and every `COND` (IEFBR14 ends 0 and each COND here runs the step). The override rules for PARM / COND are
@@ -291,18 +291,27 @@ A5: 3.8J has the VSAM-catalog form), and the model DSCB after a base-name delete
 
 ## Probe run (#8414): JOB RESTART= (deferred step restart)
 
-`probe.py restart --printer FILE` runs the seventeen `tests/equivalence/jcl/restart` scenarios of the jobs 3.8J can express: `RSTJOB1` (`RESTART=S3`),
+`probe.py restart --printer FILE` runs the twenty-one `tests/equivalence/jcl/restart` scenarios of the jobs 3.8J can express: `RSTJOB1` (`RESTART=S3`),
 `RSTJOB2` (`RESTART=*`), `RSTJOB3` (`RESTART=CALL1.P2`, a procedure step), `RSTJOB6` / `RSTJOB7` (COND naming a skipped step, a mixed COND) and
 `RSTJOB8` (`COND=ONLY` on the restart step) and `RSTJOB13` to `16` (#8835: a COND override on the procedure call, `COND.K2=` and a bare
-`COND=` on the EXEC of the procedure, with the restart step inside it). Every `PGM=` becomes IDCAMS with `SET MAXCC=n` from `given`; a procedure's steps run `SYSIN DD DUMMY`
+`COND=` on the EXEC of the procedure, with the restart step inside it) and the four checkpoint restarts (below). Every `PGM=` becomes IDCAMS with `SET MAXCC=n` from `given`; a procedure's steps run `SYSIN DD DUMMY`
 and the call overrides each `procstep.SYSIN`. The JOB card keeps `RESTART=` and every COND stays as written. The log gives each step one of
 `skipped` (no step record: the box did not start it and did not bypass it), `run` (`IEF142I`) or `bypass` (`IEF202I`).
 `tests/equivalence/jcl/restart/mvs38j_probe.json` holds `expect` (IBM text), `engine` (`jcl_restart.restart_flow`) and `box`.
-Run 2026-11-21: **11 of 11 agree three ways**; rerun 2026-11-22 with `RSTJOB13` to `16`: **17 of 17 agree three ways**, `unparsed_ief` 0, no JCL error. Notably the box ignores a `COND` stepname that names a skipped
+Run 2026-11-21: **11 of 11 agree three ways**; rerun 2026-11-22 with `RSTJOB13` to `16`: **17 of 17 agree three ways**, `unparsed_ief` 0, no JCL error; with the checkpoint restarts (same day, #8414): **21 of 21 agree three ways**. Notably the box ignores a `COND` stepname that names a skipped
 step (`RSTJOB6` Z3 runs) and a bare `COND=(0,NE)` reads only the steps that ran (assumption A1 on its outcome: S5 runs). Internal only (Q16).
 
-Skipped, with the reason in the file: the checkpoint restarts (`RSTJOB4`, `11`, `12`: a SYSCHK dataset from a checkpointed run is needed) and the
-IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). Both stay tier 1. A JOB card longer than column 71 is folded after a comma onto a `//` continuation card (`fold_card`:
+**Checkpoint restarts** (`RSTJOB4` x2, `11`, `12`). Each scenario is two real jobs. `CHKPGM` (assembled and linked once into `PUB001.CHK.LOAD`, source in
+`probe.py`) opens a `RECFM=U` `CHKDD` and issues one `CHKPT` (SVC 63); it replaces the checkpointed step, returns its PARM digit, and every other step stays
+IDCAMS. First job: the fixture's job with `RESTART=` and `SYSCHK` removed, `CHKDD` `NEW,CATLG` on `PUB001.CHK.DATA`. Second job: the fixture's JOB card, its
+checkid replaced, a `//SYSCHK DD DSN=PUB001.CHK.DATA,DISP=OLD` before the first step, `CHKDD` `OLD`. A result counts only when the console shows `IHJ004I`
+(checkpoint taken) and `IHJ008I` (restarted); the file records both. Skipped steps and the resumed step (`IEFRSTRT`) read as in a step restart. Traps: 3.8J names
+the checkpoint itself (`C0000001`, the fixture's `CK1` / `CKPT2` / `CHECK8` cannot be asked for); `CHKPT` raises operator WTORs `IEC254D` (a new checkpoint
+data set) and `IEC255D` (a secure checkpoint volume), both answered `YES` by a thread of the probe through the `box.cmd` console channel of `sysgen.py serve`
+(one `r NN,yes` line per file, consumed once read); with no answer the job waits forever and `mvs38j.sh stop` takes minutes. The restart job needs the dataset
+cataloged (`IKJ56228I` / `IHJ007I (231)` otherwise). Not observed: the completion code of the restarted step (the box reports `IEFRSTRT`, 0000).
+
+Skipped, with the reason in the file: the IF / THEN / ELSE jobs (`RSTJOB5`, `9`, `10`). They stay tier 1. A JOB card longer than column 71 is folded after a comma onto a `//` continuation card (`fold_card`:
 unfolded, `RSTJOB13`'s `RESTART=CALL3.K2` read as `RESTART=CALL`, IEF618I / IEF621I). Not observed: what a program does (every step is IDCAMS).
 
 ## Probe run (#8414): IEBGENER / IEBCOPY / IEFBR14
@@ -329,6 +338,14 @@ allocation and flushes the later steps) and A2 (IEBGENER with no `SYSUT1` ends R
 
 Not observed: the engine's answer, a dataset's record format / length / block size (no VTOC listing), which members a PDS holds beyond the one read
 back per step. Not in the fixture (`refused`): IEBGENER `GENERATE`, IEBCOPY unload / reload, VTOC and DCB checks.
+
+## Probe run (#8414): CardDemo COND jobs
+
+`probe.py carddemo --printer FILE` (a started box; needs the pinned CardDemo corpus, `GITGALAXY_MAINFRAME_CORPORA`, each member checked against its sha256)
+builds one deck per scenario of `tests/equivalence/jcl/carddemo/scenarios.json` from the real job's EXEC cards, COND as written, with the same IDCAMS `SET MAXCC`
+and S806 abend steps as the COND probe. Results: `tests/equivalence/jcl/carddemo/mvs38j_probe.json`.
+Run 2026-11-22: **34 of 34 agree three ways** (manual / engine / box), 8 jobs, `unparsed_ief` 0, no JCL error. Not observed: what a CardDemo step does,
+the one-row PROC call of `TRANBKP` (assumption A5) and `TYPRUN=SCAN` on `CREADB21` (dropped, as the answers assume). Internal only (Q16).
 
 ## What this tier cannot test
 

@@ -67,7 +67,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
-        "branch": re.compile(r"\b(if|elseif|else|for|while|repeat|and|or|not)\b"),
+        "branch": re.compile(r"\b(if|elseif|else|for|while|repeat)\b"),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the
@@ -79,7 +80,7 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             r"\bfunction\s*([a-zA-Z_][\w.:]*\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))"
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # 3. structural_boundaries (Structural Keywords). Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
             r"\b(local|end|require|module|return|break|export\s+type|type|then|in|do|until|goto)\b|<\s*(?:const|close|toclose)\s*>"
         ),

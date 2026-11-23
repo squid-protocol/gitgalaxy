@@ -45,19 +45,25 @@ DEFINITION: dict[str, Any] = {
     + "|"
     + r"#[^\n]*"
     + "|"
-    + r'"(?:[^"\\\n]|\\.){0,20000}"',
+    + r'(?!"\.\.?"/)"(?:[^"\\\n]|\\.){0,20000}"',
+    "import_name_quote": '"',
+    # Nim resolves relative to the importing file first, and imports `.nim` modules (never `.nimble` manifests).
+    "imports_resolve_from_importer_dir": True,
+    "import_target_langs": frozenset({"nim"}),
+    "import_target_extensions": frozenset({".nim"}),
     "rules": {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # A keyword inside a string literal is not a decision.
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        # branch: if / elif / else / when / case / of arms / loops / try-except-finally. An `of` counts only as a
+        # branch: if / elif / else / when / case / of arms / loops. A handler (try / except / finally) is not a decision (#8926). An `of` counts only as a
         # case arm (line-leading): `object of RootObj` is inheritance.
         "branch": re.compile(
-            r"\b(?:if|elif|else|when|case|for|while|try|except|finally)\b|^[ \t]*of\b",
+            r"\b(?:if|elif|else|when|case|for|while)\b|^[ \t]*of\b",
             re.M,
         ),
+        "short_circuit": re.compile(r"\b(?:and|or)\b"),
         # args: group 1 is the parenthesised parameter list of a routine, after an optional `*` export mark and
         # generic parameters.
         "args": re.compile(
@@ -142,10 +148,11 @@ DEFINITION: dict[str, Any] = {
             r"|NimNode|typedesc|compiles|declared|hasCustomPragma)\b|\bnnk[A-Z]\w*|\bquote[ \t]+do\b"
         ),
         "import": re.compile(r"^[ \t]*(?:import|from|include)[ \t]+[./A-Za-z_]", re.M),
-        # Group 1 is the first module of an `import a, b`, the module of a `from m import x`, or an `include`d path
-        # (`std/os`, `../util/strs`). A `std/[os, strutils]` bracket group reads as its base (`std`).
+        # Group 1: `from <module> import ...`; Group 2: single-line `import`/`include` comma-separated list
+        # (including `prefix/[a, b]` bracket groups, stopping before `except`); Group 3: multi-line `import`/`include`
+        # followed by indented module lines (bounded to 40 lines).
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:import|from|include)[ \t]+((?:\.{1,2}/)*["
+            r"^[ \t]*from[ \t]+((?:\.{1,2}/)*["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -153,7 +160,9 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*)*)",
+            + r"]*)*)[ \t]+import\b"
+            r"|^[ \t]*(?:import|include)[ \t]+([^\n]+)"
+            r"|^[ \t]*(?:import|include)[ \t]*\r?\n((?:(?:[ \t]+[^\n]*|[ \t]*)\r?\n?){1,40})",
             re.M,
         ),
         "ownership": re.compile(

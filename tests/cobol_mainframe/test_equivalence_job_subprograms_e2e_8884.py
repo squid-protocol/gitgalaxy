@@ -69,3 +69,35 @@ def test_a_sort_step_then_a_subprograms_step_is_proved_end_to_end(tmp_path):
     for step in report["steps"]:
         assert step["ok"] and step["outputs"], step
         assert all(d["equal"] == d["records"] and d["records"] > 0 for d in step["outputs"].values()), step
+
+
+def test_creastmt_padded_variant_chain_is_valid_with_no_stop_and_its_sort_is_the_padded_lowering():
+    """The authored padded variant (#8884): OUTREC 329:22X makes SORTOUT 350 bytes, so the whole chain checks with no stop."""
+    from gitgalaxy.tools.cobol_to_java.det import dfsort
+
+    job = eq.load_case("carddemo-job-creastmt-padded")
+    assert "ibm_stops" not in job
+    cases = ej.load_steps(job, eq.load_case)
+    assert ej.step_names(job) == ["carddemo-sort-creastmt-padded", "creastmt-step020", "carddemo-cbstm03a"]
+    assert cases["carddemo-sort-creastmt-padded"]["datasets"]["SORTOUT"]["reclen"] == 350
+    assert cases["carddemo-cbstm03a"]["subprograms"] == ["app/cbl/CBSTM03B.CBL"]
+    ej.check_job(job, cases)
+    jcl = " SORT FIELDS=(263,16,CH,A,1,16,CH,A)\n OUTREC FIELDS=(1:263,16,17:1,262,279:279,50,329:22X)"
+    want = dfsort.cobol_program(dfsort.parse(jcl), 350, ["SORTIN"])
+    assert (eq.CASES / "carddemo-sort-creastmt-padded" / "DFSORTST.cbl").read_text(encoding="utf-8") == want
+
+
+@pytest.mark.slow(reason="a real GnuCOBOL + Java run of the padded CREASTMT job: SORT, IDCAMS, CBSTM03A + CBSTM03B")
+@pytest.mark.skipif(
+    os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL), a JDK + Maven and the CardDemo corpus"
+)
+def test_the_padded_creastmt_job_runs_sort_idcams_and_the_subprograms_step_in_order(tmp_path):
+    code = ej.run_case(eq, eq.load_case("carddemo-job-creastmt-padded"), tmp_path)
+    report = json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))
+    assert [s["case"] for s in report["steps"]] == [
+        "carddemo-sort-creastmt-padded",
+        "creastmt-step020",
+        "carddemo-cbstm03a",
+    ]
+    assert code == 0 and report["proven"], report
+    assert report["steps"][2]["subprograms"] == ["app/cbl/CBSTM03B.CBL"]

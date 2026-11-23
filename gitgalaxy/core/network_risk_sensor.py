@@ -283,6 +283,7 @@ class NetworkRiskSensor:
         # #8412: PROGRAM -> the library names its compile JCL's SYSLIB lists; read once per scan, on first use
         self._jcl_syslib: dict[str, list[str]] | None = None
         self._named_cache: dict[str, dict[str, list[str]]] = {}
+        self._flat_decl_langs: set[str] = set()
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -306,6 +307,7 @@ class NetworkRiskSensor:
         self._packages = {}
         self._workspace_pkgs = None
         self._declared_in = defaultdict(list)
+        self._flat_decl_langs = set()
         self._dir_tails = None
         for f in files:
             path = f.get("path", "")
@@ -313,14 +315,17 @@ class NetworkRiskSensor:
                 continue
             self._by_norm_path.setdefault(path.replace("\\", "/"), path)
             # #3596: where each declaration lives, for languages whose import
-            # names a declaration rather than a file (Kotlin top-level functions).
-            if str(f.get("lang_id", "")).lower() in DECLARATION_IMPORT_LANGS:
+            # names a declaration rather than a file (Kotlin top-level functions,
+            # Fortran modules, Tcl `package provide`).
+            lang_low = str(f.get("lang_id", "")).lower()
+            if lang_low in DECLARATION_IMPORT_LANGS:
+                is_flat = bool(LANGUAGE_DEFINITIONS.get(lang_low, {}).get("imports_declaration_is_flat"))
+                fold_decl = lang_low in CASE_INSENSITIVE_IMPORT_LANGS
                 # #3798: a Swift file's `_declaration_capture` reads top-level names only; its units also
                 # hold nested types (`struct BuildParameters` inside an enum), which a multi-file scoped
                 # import must not link, so the captured names stand in for the units when present.
-                units: list[Any] | None = (
-                    [] if (str(f.get("lang_id", "")).lower() == "swift" and f.get("declared_names")) else None
-                )
+                # Flat module-declaration languages (Fortran, Tcl) index ONLY `_declaration_capture`.
+                units: list[Any] | None = [] if (is_flat or (lang_low == "swift" and f.get("declared_names"))) else None
                 for unit in (f.get("functions") or []) + (f.get("classes") or []) if units is None else units:
                     name = unit.get("name") if isinstance(unit, dict) else None
                     if name:
@@ -328,8 +333,11 @@ class NetworkRiskSensor:
                 # #3660: top-level properties (`val KmConstructor.isPrimary`), which are
                 # neither units nor classes: the language's `_declaration_capture`.
                 for name in f.get("declared_names") or ():
-                    if path not in self._declared_in[name]:
-                        self._declared_in[name].append(path)
+                    if is_flat:
+                        self._flat_decl_langs.add(lang_low)
+                    key = name.casefold() if (is_flat and fold_decl) else name
+                    if path not in self._declared_in[key]:
+                        self._declared_in[key].append(path)
             name = f.get("name", Path(path).name)
             stem = Path(path).stem
 
@@ -623,7 +631,26 @@ class NetworkRiskSensor:
                 return None
             return hit
 
-        resolved = by_name(target_token)
+        resolved = None
+        if src_def.get("imports_declaration_is_flat"):
+            resolved = self._resolve_declaration(target_token, curr_path, file_facts, src_lang)
+            # When the repo supplies flat declarations for this language (Tcl `package provide`,
+            # Fortran `MODULE`), bare tokens (external/stdlib `package require msgcat`, `use mpi`)
+            # only resolve via a matching declaration, never by falling back to an unrelated file
+            # whose stem happens to match (`doctools2base/msgcat.tcl`). Synthetic fixtures without
+            # `declared_names` and path/file forms (`source foo.tcl`, `INCLUDE 'bar.inc'`) still
+            # fall through to `by_name`.
+            if (
+                resolved is None
+                and src_lang in self._flat_decl_langs
+                and "/" not in target_token
+                and "." not in target_token
+            ):
+                return None
+        if resolved is None:
+            resolved = by_name(target_token)
+        if resolved is None and src_def.get("import_module_first_segment") and "." in target_token:
+            resolved = by_name(target_token.split(".", 1)[0])
         # #3554: a Java `import static a.b.C.member` / nested `a.b.Outer.Inner`
         # names something INSIDE a class file; when the full name resolves to
         # nothing, the class it belongs to is the file.
@@ -835,6 +862,25 @@ class NetworkRiskSensor:
             return None
 
         candidates = list(dict.fromkeys(candidates))  # de-dupe, preserve order
+        src_def = LANGUAGE_DEFINITIONS.get(src_lang or "", {})
+        target_langs = src_def.get("import_target_langs")
+        if target_langs and file_facts and len(candidates) > 1:
+            lang_filtered = [c for c in candidates if (file_facts.get(c) or ("", False))[0] in target_langs]
+            if lang_filtered:
+                candidates = lang_filtered
+        target_exts = src_def.get("import_target_extensions")
+        if target_exts:
+            ext_filtered = [c for c in candidates if posixpath.splitext(c)[1].lower() in target_exts]
+            candidates = ext_filtered
+            if not candidates:
+                return None
+        preferred_ext = src_def.get("import_preferred_ext")
+        if preferred_ext and len(candidates) > 1:
+            stems = {self._stem_path(c) for c in candidates}
+            if len(stems) == 1:
+                pref = [c for c in candidates if posixpath.splitext(c)[1].lower() == preferred_ext]
+                if len(pref) == 1:
+                    candidates = pref
         if len(candidates) == 1:
             # #3544: in a language whose import path IS the file path, a token
             # that spells a package path (`starlette.requests`) only names a
@@ -977,12 +1023,15 @@ class NetworkRiskSensor:
         if ext and ext not in _ESM_EMITTED_EXTS:
             return None
         allowed = _ESM_SOURCE_EXTS if ext else None
+        target_exts = LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("import_target_extensions")
         for want in (_without_extension(base), posixpath.join(base, "index")):
             name = posixpath.basename(want)
             same = [
                 c
                 for c in dict.fromkeys(resolution_map.get(name, ()))
-                if self._stem_path(c) == want and (allowed is None or c.lower().endswith(allowed))
+                if self._stem_path(c) == want
+                and (allowed is None or c.lower().endswith(allowed))
+                and (not target_exts or posixpath.splitext(c)[1].lower() in target_exts)
             ]
             if len(same) > 1 and file_facts:
                 same = [c for c in same if (file_facts.get(c) or ("", False))[0] == src_lang] or same
@@ -1214,7 +1263,24 @@ class NetworkRiskSensor:
         src_lang: str | None,
     ) -> list[str]:
         """#3596/#4125: every file of the importer's language that declares
-        `parts[-1]` and sits under a directory ending in `a/b`."""
+        `parts[-1]` and sits under a directory ending in `a/b` (or, for flat
+        module-declaration languages like Fortran/Tcl, declares `target_token` directly)."""
+        if LANGUAGE_DEFINITIONS.get(src_lang or "", {}).get("imports_declaration_is_flat"):
+            key = target_token.casefold() if src_lang in CASE_INSENSITIVE_IMPORT_LANGS else target_token
+            hits = [
+                c
+                for c in dict.fromkeys(self._declared_in.get(key, ()))
+                if not file_facts or (file_facts.get(c) or ("", False))[0] == src_lang
+            ]
+            if not _is_test_path(curr_path):
+                non_test = [c for c in hits if not _is_test_path(c)]
+                if non_test:
+                    hits = non_test
+            if len(hits) > 1:
+                nearest = self._nearest_tree(hits, curr_path)
+                if nearest is not None:
+                    return [nearest]
+            return hits
         parts = target_token.split(".")
         if len(parts) < 2:
             return []

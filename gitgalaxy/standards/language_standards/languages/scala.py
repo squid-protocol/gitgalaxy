@@ -83,7 +83,7 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # Epic #3264 / ledger: `@Name(` is an annotation (C1); `f[T](...)` and `new pkg.T[A]` are calls
         "calls_out": CALLS_OUT_SCALA,
         "_calls_out_rewrite": _blank_scala_patterns,
@@ -102,9 +102,10 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes Scala 3 if-then and match-case.
         "branch": re.compile(
-            r"\b(if|else|match|case|for|while|do|yield)\b|&&|\|\|",
+            r"\b(if|else|match|case|for|while|do|yield)\b",
             re.I,
         ),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters in method signatures and lambdas.
         # RULE 11 FIX (epic #813/#825): the generic-parameter step-over was the flat
         # `\[[^\]]*\]`, truncating at the FIRST `]` and breaking any nested generic bound

@@ -35,13 +35,14 @@ DEFINITION: dict[str, Any] = {
     # Rationale: C-style `//` and `/* */` comments.
     "lexical_family": "standard_block",
     "rules": {
-        "_scope_filters": {"branch": "outside_literals"},
+        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         "calls_out": CALLS_OUT_C_STYLE,
         # keywords and special forms, never calls
         "_calls_out_ignore": frozenset({"if", "while", "until", "for", "switch", "return", "script", "function"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow (`?:`, `&&`, `||` included; `case` labels are arms).
-        "branch": re.compile(r"\b(?:if|else|switch|case|while|until|for|do)\b|&&|\|\||\?", re.I),
+        "branch": re.compile(r"\b(?:if|else|switch|case|while|until|for|do)\b|\?", re.I),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: the parameter list a script or function DECLARES (`script 1 (int a)` / `function int F(int a)`).
         "args": re.compile(
             r"^[ \t]*(?:script[ \t]+" + _SCRIPT_NAME + r"|" + _FUNC_HEAD + r")[ \t]*"

@@ -385,6 +385,31 @@ def jcl_answer_sets() -> dict[str, list[tuple[dict[str, Any], bool]]]:
     return out
 
 
+def _carddemo_tier2(checked: dict[str, dict[str, int]], unchecked: dict[str, int]) -> None:
+    """The CardDemo COND scenarios the box ran. `jcl_answer_sets` skips `carddemo` (its live run needs the pinned corpus),
+    so its `scenarios.json` and `mvs38j_probe.json` are read here: a probe result id is `JOB:scenario`."""
+    base = JCL_CASES / "carddemo"
+    probe = base / PROBE_FILE
+    scen = base / "scenarios.json"
+    if not scen.is_file():
+        return
+    ids = {
+        f"{j['job']}:{sc['id']}" for j in json.loads(scen.read_text(encoding="utf-8"))["jobs"] for sc in j["scenarios"]
+    }
+    verdicts: dict[str, str] = {}
+    if probe.is_file():
+        verdicts = {r["id"]: r["verdict"] for r in json.loads(probe.read_text(encoding="utf-8"))["results"]}
+    ran = [i for i in ids if i in verdicts]
+    if ran:
+        checked["carddemo/scenarios.json"] = {
+            "ran": len(ran),
+            "agree": sum(verdicts[i] == "agree" for i in ran),
+            "of": len(ids),
+        }
+    if len(ids) - len(ran):
+        unchecked["carddemo/scenarios.json"] = len(ids) - len(ran)
+
+
 def mvs38j_tier2() -> dict[str, Any]:
     """What tier 2 (MVS 3.8J, the live box) checked, read from the data: each `mvs38j_probe.json` beside its answer file
     gives the scenarios it ran and their verdicts; every other scenario on main is not checked there. `cannot_test` is
@@ -404,6 +429,7 @@ def mvs38j_tier2() -> dict[str, Any]:
             checked[name] = {"ran": len(known), "agree": sum(ids[sc["id"]] == "agree" for sc in known), "of": len(res)}
         if len(res) - len(known):
             unchecked[name] = len(res) - len(known)
+    _carddemo_tier2(checked, unchecked)
     text = MVS38J_DOC.read_text(encoding="utf-8") if MVS38J_DOC.is_file() else ""
     m = re.search(r"## What this tier cannot test\s+(.+?) do(?:es)? not exist", text, re.S)
     cannot = [c.strip() for c in re.split(r",| and ", m.group(1).replace("\n", " ")) if c.strip()] if m else []

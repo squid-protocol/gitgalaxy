@@ -81,7 +81,12 @@ def test_the_tier_two_note_is_read_from_the_probe_files_and_the_doc():
         probe = cl.JCL_CASES / name.split("/")[0] / cl.PROBE_FILE
         got = json.loads(probe.read_text(encoding="utf-8"))["results"]
         assert v["ran"] == len(got) and v["agree"] == sum(r["verdict"] == "agree" for r in got)
-    assert {"fixture/scenarios.json", "proc/scenarios.json"} <= set(t["checked"])
+    assert {"fixture/scenarios.json", "proc/scenarios.json", "carddemo/scenarios.json"} <= set(t["checked"])
+    assert t["checked"]["carddemo/scenarios.json"] == {
+        "ran": 34,
+        "agree": 34,
+        "of": 34,
+    }  # the CardDemo COND probe (#9073)
     assert "fixture/ifflow_scenarios.json" in t["unchecked"] and "fixture/ifflow_scenarios.json" not in t["checked"]
     for construct in ("IF / THEN / ELSE", "JCLLIB", "INCLUDE", "SET", "CICS"):
         assert construct in t["cannot_test"]

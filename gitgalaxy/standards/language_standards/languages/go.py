@@ -62,7 +62,8 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes select/case and range-based loops. EXCLUDES panic (bailout_hits).
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|select)\b|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|select)\b"),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks for functions and methods. Bounded generics [^\]]* and params [^)]*.
         # #1209: parameter-list span wrapped in its own capture group (was
@@ -333,6 +334,7 @@ DEFINITION: dict[str, Any] = {
         "_scope_filters": {
             "globals": "go_declaration_group",
             "branch": "outside_literals",
+            "short_circuit": "outside_literals",
             "encapsulation": "go_package_main",  # #5897: lowercase in `package main` is not a visibility choice
         },
         # #3072: every state_mutation arm requires one of `=`/`++`/`--`/`<-`/

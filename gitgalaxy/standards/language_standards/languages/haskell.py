@@ -325,6 +325,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.
         "branch": re.compile(r"\b(if|else|case|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
+        "short_circuit": re.compile(r"&&|\|\|"),
         # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
         # #1209: the type-signature and lambda-parameter spans wrapped in
         # their own capture groups (was only reachable via group(0), the
@@ -422,7 +423,7 @@ DEFINITION: dict[str, Any] = {
         # comment above for why this can't reuse the generic
         # comma/whitespace fallback.
         "_args_pattern_list_groups": {3},
-        # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # structural_boundaries (Structural Keywords). Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
             r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern|then|of)\b|%1\s*->|⊸"
         ),
@@ -508,7 +509,7 @@ DEFINITION: dict[str, Any] = {
             + SMALL
             + r"]["
             + ID_CONTINUE
-            + r"\']*)(?=[ \t]+[^\s=][^\n=]*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
+            + r"\']*)(?=[ \t]+[^\s={}](?:[^\n={}]|\{[^{}\n]{0,200}\})*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
             re.M,
         ),
         # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.

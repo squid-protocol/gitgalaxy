@@ -34,6 +34,8 @@ MUTATION_PENDING: dict[str, str] = {
     "carddemo-copaus1c": "#5233: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
     "carddemo-sort-tranrept": "#4268: a det batch port of a lowered DFSORT step; its L5 mutation run (det_mutation.py run) is a follow-up",
     "carddemo-sort-combtran": "#4268: a det batch port of a lowered DFSORT step; its L5 mutation run (det_mutation.py run) is a follow-up",
+    "carddemo-sort-creastmt": "#8885: a det batch port of a lowered DFSORT step (the nightly's CREASTMT STEP010); its L5 mutation run (det_mutation.py run) is a follow-up",
+    "carddemo-sort-creastmt-padded": "#8884: a det batch port of a lowered DFSORT step; its L5 mutation run (det_mutation.py run) is a follow-up",
 }
 
 

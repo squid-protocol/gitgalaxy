@@ -2650,6 +2650,9 @@
       "powershell/core/build.psm1": [
         "fcall:powershell/core/RegisterManifest.ps1"
       ],
+      "powershell/core/ci.psm1": [
+        "fcall:powershell/core/packaging.psm1"
+      ],
       "powershell/core/ciModule.Tests.ps1": [
         "import:powershell/core/ci.psm1"
       ],
@@ -4246,6 +4249,7 @@
       "tcl/macports_registry/registry.tcl": [
         "fcall:tcl/sqlite/tester.tcl",
         "import:tcl/macports_registry/portimage.tcl",
+        "import:tcl/macports_registry/portuninstall.tcl",
         "import:tcl/macports_registry/receipt_flat.tcl",
         "import:tcl/macports_registry/receipt_sqlite.tcl"
       ]

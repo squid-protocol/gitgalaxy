@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "b5c933258c4f",
+      "a_dists": "a0d5ea83a23b",
       "a_ids": "d50bb34b714a",
       "author_distribution": "702f60aa030f",
       "c_ids": "2977f69f41d7",
@@ -28,7 +28,7 @@
       "tel_cfr": "4b505d732782",
       "tel_lt": "407ea6635fae",
       "tel_pid": "fcb5e1bed07e",
-      "tel_pop": "3f984ce1410f",
+      "tel_pop": "e1f3871009e0",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -1885,8 +1885,8 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "465794bf2032",
       "json/kafka/message/VoteRequest.json": "f8a5e6fb1a8b",
       "kotlin/SOURCES.md": "5783d7be91b9",
-      "kotlin/okhttp/Call.kt": "40c7dac61139",
-      "kotlin/okhttp/Dispatcher.kt": "9a9544fe88f6",
+      "kotlin/okhttp/Call.kt": "3888ccca88c7",
+      "kotlin/okhttp/Dispatcher.kt": "d6a54494c287",
       "kotlin/okhttp/LICENSE.txt": "5ea422c42328",
       "kotlin/okhttp/OkHttp.android.kt": "ed63058d2ebd",
       "kotlin/okhttp/OkHttp.jvm.kt": "07a8daffc09b",
@@ -3411,7 +3411,7 @@
       "ecosystem_audits": "ab59a9d1584c",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "ca41210c52ad",
-      "network_macro": "9caf8cded004",
+      "network_macro": "b5b77748a242",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "101658ea216e",
       "typosquat_hits": "5feceb66ffc8",

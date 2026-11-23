@@ -1413,6 +1413,28 @@ def _parent_names(raw: Any) -> list[str]:
     return [_leaf(m.group(0))[0] for m in heads if m and m.group(0) not in _PARENT_LIST_KEYWORDS]
 
 
+def _qualified_parent_pairs(raw: Any) -> list[tuple[str, str]]:
+    """Extract `(outer, inner)` pairs from qualified parent entries like `Annotatable.Builder<Builder>`."""
+    text = str(raw)
+    for _ in range(8):
+        stripped = _PARENT_TYPE_ARGS.sub("", text)
+        if stripped == text:
+            break
+        text = stripped
+    out: list[tuple[str, str]] = []
+    for part in re.split(r"[,\s]+", text):
+        if not part or "=" in part:
+            continue
+        m = _PARENT_NAME.match(part)
+        if not m or m.group(0) in _PARENT_LIST_KEYWORDS:
+            continue
+        tok = m.group(0)
+        if "." in tok:
+            outer, inner = tok.rsplit(".", 1)
+            out.append((outer.rsplit(".", 1)[-1], inner))
+    return out
+
+
 def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(link group, class key) -> the names it inherits from, directly."""
     parents: dict[tuple[str, str], set[str]] = {}
@@ -1545,6 +1567,7 @@ class _File:
         "path",
         "pkg",
         "rust",
+        "super_stems",
     )
 
     def __init__(
@@ -1557,6 +1580,7 @@ class _File:
         includes: set[str] | None = None,
     ) -> None:
         self.path = path
+        self.super_stems: dict[str, set[str]] = {}
         # #8161 (X4): C/C++ -- how many include hops away each visible file is (a header's paired source counts
         # one past its header), and the files the caller's translation unit actually includes (its closure)
         self.depth = depth
@@ -2023,6 +2047,11 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         if step == "unique" and d is not None and _in_test_dir(d.path) and not _in_test_dir(caller.path):
             return "unseen", d  # production code never links to a test-only definition
+        if step == "none" and qualifier == "" and caller.lang == "kotlin":
+            # Kotlin `import pkg.ObjectName.fn` lets a singleton `object` / companion method be called bare.
+            imp_methods = [m for p, m in bucket.methods.by_path.items() if p in caller.imported]
+            if len(imp_methods) == 1:
+                return "import", imp_methods[0]
         return step, d
 
     if caller.lang in _PATH_QUALIFIED_LANGS and qualifier is not None and qualifier.startswith("::"):
@@ -2048,6 +2077,19 @@ def _resolve_one(
             d = owned(owner_key)
             if d is not None:
                 return "class", d
+        if lineage and caller.super_stems:
+            stems = caller.super_stems.get(lineage[0])
+            if stems:
+                hits = [
+                    d
+                    for d in by_owner.get(lineage[0], ())
+                    if d.path != caller.path and _key(d.stem, caller.lang) in stems
+                ]
+                if hits:
+                    visible = [d for d in hits if d.path in caller.imported or d.pkg == caller.pkg]
+                    pool = visible or hits
+                    if len({d.path for d in pool}) == 1 and (caller.lang != "kotlin" or len(pool) == 1):
+                        return "class", pool[0]
         return "none", None
     if typed and qualifier in typed and not ns:
         # The receiver's class is known from this function (`app = FastAPI()`):
@@ -2110,10 +2152,12 @@ def _resolve_one(
     if qualifier in _BUILTIN_NAMESPACES.get(caller.lang, ()) and bucket.defs:
         return "none", None  # #3756: `Number.isFinite`, `JSON.parse`: the global, not a repo method
     if ns:
-        # only a free function the caller can see: `std::move(x)` must not reach a repo `move` elsewhere
+        # only a free function the caller can see: `std::move(x)` must not reach a repo `move` elsewhere,
+        # nor may a namespace-qualified call (`fmt::scan`) fall through to a class method (`scanner::scan`).
         step, d = _ladder(bucket.free, caller, True, cache)
         if step in ("file", "import"):
             return step, d
+        return "none", None
     cset = bucket.methods
     step, d = _ladder(cset, caller, True, cache)
     if (
@@ -2246,7 +2290,12 @@ def _choose_overloads(
         if not sites or any(k is None for k in chosen):
             if lang == "cpp":
                 exact = _arity_matches(overloads, n)
-                if len(exact) == 1:
+                if len(exact) == 1 and (
+                    exact[0].max_arity is not None
+                    or not any(
+                        d is not exact[0] and d.max_arity is None and d.arity is not None and d.arity < n for d in match
+                    )
+                ):
                     if exact[0] not in picked:
                         picked.append(exact[0])
                     continue
@@ -2645,10 +2694,17 @@ def resolve_calls(
         caller.class_files = class_files
         lang_counts = by_lang.setdefault(lang, Counter())
         file_parents: dict[str, set[str]] = {}
+        super_stems: dict[str, set[str]] = {}
         for cls in f.get("classes", []) or []:
             if cls.get("name"):
+                cname_key = _key(str(cls["name"]), lang)
                 bases = {n for b in cls.get("inheritance", []) or [] for n in _parent_names(b)}
-                file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
+                file_parents.setdefault(cname_key, set()).update(_key(b, lang) for b in bases)
+                for b in cls.get("inheritance", []) or []:
+                    for outer, inner in _qualified_parent_pairs(b):
+                        if _key(inner, lang) == cname_key:
+                            super_stems.setdefault(cname_key, set()).add(_key(outer, lang))
+        caller.super_stems = super_stems
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.
         module_types: dict[str, str] = {}
@@ -2703,6 +2759,8 @@ def resolve_calls(
                     else _is_class(index, group, str(c), lang)
                 )
             }
+            if lang == "kotlin" and "this" in typed:
+                lineage = list(dict.fromkeys((*lineage, *typed["this"])))
             typed_scope: dict[str, set[str]] = {}
             for q, c in receiver_types.items():
                 if lang == "rust" and c == "Self" and lineage:

@@ -23,7 +23,7 @@ from gitgalaxy.tools.cobol_to_java.det.source import program_lines
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 
-MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA")
+MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA", "DLIUIB", "AIB")
 
 
 def _program(member: str) -> str:
@@ -83,6 +83,27 @@ def test_sqlda_header_is_16_bytes_and_an_sqlvar_is_the_pointer_width_dependent_s
         4 + 8,
         4 + 16,
     ]
+
+
+def test_dliuib_is_the_cics_dli_uib_of_the_ims_manual(tmp_path):
+    """#8412: IMS 15.4 Application Programming, "Defining the UIB ...": UIBPCBAL a fullword, then the two return bytes."""
+    rec = _record(tmp_path, "DLIUIB")
+    assert [_at(rec, n) for n in ("DLIUIB", "UIBPCBAL", "UIBRCODE", "UIBFCTR", "UIBDLTR")] == [
+        (0, 6), (0, 4), (4, 2), (4, 1), (5, 1)]  # fmt: skip
+
+
+def test_aib_is_the_manuals_128_byte_mask_and_its_odba_tail(tmp_path):
+    """#8412: IMS 15.4 Application Programming, "Specifying the AIB mask" (Table 36: 128 bytes at a 4-byte POINTER)."""
+    rec = _record(tmp_path, "AIB")
+    shift = 3 * (POINTER_BYTES - 4)  # the three resource addresses, laid at the translator's POINTER width
+    at = {n: _at(rec, n) for n in ("AIBRID", "AIBRLEN", "AIBRSFUNC", "AIBRSNM1", "AIBRSNM2", "AIBRSNM3", "AIBOALEN",
+                                   "AIBOAUSE", "AIBRESV2", "AIBRETRN", "AIBREASN", "AIBERRXT", "AIBRESA1", "AIBRESV4")}  # fmt: skip
+    assert [at[n] for n in ("AIBRID", "AIBRLEN", "AIBRSFUNC", "AIBRSNM1", "AIBRSNM2", "AIBRSNM3")] == [
+        (0, 8), (8, 4), (12, 8), (20, 8), (28, 8), (36, 8)]  # fmt: skip
+    assert [at[n] for n in ("AIBOALEN", "AIBOAUSE", "AIBRESV2", "AIBRETRN", "AIBREASN", "AIBERRXT")] == [
+        (44, 4), (48, 4), (52, 12), (64, 4), (68, 4), (72, 4)]  # fmt: skip
+    assert at["AIBRESA1"] == (76, POINTER_BYTES)
+    assert at["AIBRESV4"] == (88 + shift, 40) and at["AIBRESV4"][0] + 40 == 128 + shift
 
 
 @pytest.mark.parametrize("member", ("DFHAID", "DFHBMSCA"))

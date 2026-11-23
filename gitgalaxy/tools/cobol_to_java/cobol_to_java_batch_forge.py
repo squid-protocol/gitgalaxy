@@ -1127,22 +1127,38 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * Datasets as files (#3622): DSN A.B.C is `<gitgalaxy.datasets.directory>/A.B.C`; a GDG base is a directory
- * of generations G0001V00, G0002V00, ... -- (+1) the next, (0) the current, (-n) n before it.
+ * of generations G0001V00, G0002V00, ... -- (+1) the next, (0) the current, (-n) n before it. As on z/OS, a relative
+ * number is resolved ONCE per job (#8886): the newest generation is read the first time the job names the base, so
+ * (+1) is the same generation for the step that writes it and the steps after it, and (0) stays the generation the
+ * job started with. `enter(jobId)` (each step does it) starts a new job's snapshot; a caller that never enters one
+ * (a service run alone) counts the generations live.
  */
 @Component
 public class DatasetResolver {
 
     private final Path root;
+    private final ThreadLocal<Long> job = new ThreadLocal<>();
+    private final ThreadLocal<Map<Path, Integer>> newest = ThreadLocal.withInitial(HashMap::new);
 
     public DatasetResolver(@Value("${gitgalaxy.datasets.directory:datasets}") String root) {
         this.root = Path.of(root);
+    }
+
+    /** A step of job execution `jobId` is starting: a different job than the last drops the generation snapshot. */
+    public void enter(long jobId) {
+        if (!Long.valueOf(jobId).equals(job.get())) {
+            job.set(jobId);
+            newest.get().clear();
+        }
     }
 
     public Path path(Dd dd) {
@@ -1153,7 +1169,7 @@ public class DatasetResolver {
         if (dd.generation() == null) {
             return base;
         }
-        int current = latest(base);
+        int current = job.get() == null ? latest(base) : newest.get().computeIfAbsent(base, this::latest);
         int g = current + Integer.parseInt(dd.generation().replace("+", ""));
         return base.resolve(String.format(Locale.ROOT, "G%04dV00", Math.max(g, 1)));
     }
@@ -1521,6 +1537,7 @@ public class JclSteps {
                 contribution.setExitStatus(new ExitStatus("BYPASSED"));
                 return RepeatStatus.FINISHED;
             }
+            datasets.enter(chunk.getStepContext().getStepExecution().getJobExecutionId());
             int rc = run.getAsInt();
             rcs.put(jcl, rc);
             ctx.put("jcl.rc", rcs);

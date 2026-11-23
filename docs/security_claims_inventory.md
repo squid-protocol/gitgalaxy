@@ -56,7 +56,7 @@ TESTED**, **10 UNTESTED**, **39 FALSE**, **14 VAGUE**.
    Vault Sentinel. Reproduced: an AWS key alone reads `hardcoded_secrets: 1`; on a 300-character line it reads nothing.
    Entropy also scans the armored text, so string literals longer than about 248 characters are never entropy-checked,
    which contradicts "payloads hidden inside massive string literals" (gitgalaxy/security/README.md).
-4. **Removed features documented as live:** taint/data-flow analysis (02-06, 08-21, SecurityLens docstrings; removed
+4. **Removed features documented as live:** taint/data-flow analysis (02-06, 08-21; the SecurityLens docstrings were fixed in #8616; removed
    #3101), Obscured Payload Exposure (08-19; `_calc_obscured_payload` no longer exists, removed #1020), agentic-RCE and
    "RCE Funnels" (02-06, wiki/index.md; removed #1020/#1102).
 5. **"Shadow patch detection" detects nothing.** `--shadow-patch-detected` is a manual flag; no hash or version is
@@ -94,9 +94,9 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Multilingual secret names (`senha`, `PASSWORT`), compound and JSON-quoted keys, token formats (JWT, `github_pat_`, `glpat-`, `sk-ant-`) | security/README.md:36; signal_coverage_verdicts.md:24 | TESTED | `credential_lexicon.py`; `test_embedded_credentials_probe_4108.py`, `test_embedded_credentials_real_scan_4108.py` | Link the known misses |
 | Self-propagation flags a file copying itself | security/README.md:51; signal_coverage_verdicts.md:21 | TESTED | `security_lens.py:615-645`; `test_security_lens.py::test_self_propagation_*`, `test_signal_probes_4108_slice4.py` | — |
 | Unicode steganography, zero-width and homoglyph detection | 02-06:15; security/README.md:51; signal_coverage_verdicts.md:16 | TESTED | `test_hidden_text_*_4108.py`, `test_zero_coverage_signals_4108.py::test_planted_file_fires_exactly_its_signal` | — |
-| Data-flow taint analysis from untrusted I/O into sinks | 02-06:9,18,39,45; 08-21:39; `security_lens.py:264,820` docstrings | FALSE | Removed #3101 (`security_lens.py:979-980`); column always 0 | Delete; mark the column a retired placeholder |
+| Data-flow taint analysis from untrusted I/O into sinks | 02-06:9,18,39,45; 08-21:39; `security_lens.py:264,820` docstrings | FALSE (docs only) | Removed #3101 (`security_lens.py:1081`); column always 0. The `security_lens.py` docstrings and the `galaxyscope.py` / `detector.py` comments now say it was removed (FIXED #8616, #8694) | Delete from the docs; mark the column a retired placeholder |
 | `threat_api_near_db_sink` has about 0% precision | 08-21:43-46 | UNTESTED | Number cited only to #3018/#3019; no artifact | Commit the count or cite as issue-reported |
-| Threat density "scaled exponentially by network centrality" | 02-06:18,21,23; README.md:5 | FALSE | Lens never reads centrality; only the opt-in import policy gate applies a linear multiplier (`import_policy_gate.py:225-240`) | Scope to the gate, linear, opt-in |
+| Threat density "scaled exponentially by network centrality" | 02-06:18,21,23; README.md:5 | FALSE | Lens never reads centrality; only the opt-in import policy gate applies a linear multiplier (`import_policy_gate.py:225-240`). The `security_lens.py` docstring and `galaxyscope.py` comments now say so (FIXED #8616, #8694); the doc pages still claim it | Scope to the gate, linear, opt-in |
 | Entropy threshold "> 7.9" detects packing | 02-06:34 | FALSE | Strings use 4.8 (`security_lens.py:970`); 7.95 is `scan_binary` (`:1019`), reached only from X-Ray | State 4.8 for strings, 7.95 for binaries in X-Ray |
 | Entropy finds payloads in "massive string literals"; "thousands of strings in milliseconds" | security/README.md:20,50 | FALSE | Literal extractor caps at 1024 chars and reads armored text; nothing past ~248 chars is checked; no benchmark | "String literals of 64 to ~248 chars" |
 | Entropy skips machine-generated files | 02-06:34 | UNTESTED | `security_lens.py:279-283,962`; the auto-gen test does not assert entropy | Add the assertion |
@@ -132,7 +132,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | `--fail-on-secrets` fails on "any" unmitigated hardcoded secret | CLI ref:70,176; github-action-readme.md:71 | TESTED | `test_cli_contract.py::test_a_tripped_gate_exits_1_with_every_report_written`; misses long lines and some config types | "A detected secret"; link blind spots |
 | `--max-risk-exposure`; gates off by default | github-action-readme.md:71; CLI ref:66-68,152 | TESTED | `test_cli_contract.py` | — |
 | `--max-systemic-threat` | CLI ref:73 | UNTESTED | `test_galaxyscope.py::test_cicd_policy_enforcement_gates` reimplements the logic inline and never calls the gate | Add a CLI-contract test |
-| `--paranoid` changes only secrets thresholds | CLI ref:81; github-action-readme.md:103-106 | TESTED | `test_signal_processor.py::..._paranoid_mode_skips_clamp`; log line overstates; `ThreatPolicy` "paranoid" is dead code | Fix the log line |
+| `--paranoid` changes only secrets thresholds | CLI ref:81; github-action-readme.md:103-106 | TESTED | `test_signal_processor.py::..._paranoid_mode_skips_clamp`; the log line and `--paranoid` help were reworded (FIXED #8642); `ThreatPolicy` "paranoid" is dead code | Doc pages only |
 | `--ai-guardrails` off by default; NULL vs 0 columns | CLI ref:82 | TESTED | `test_record_keeper.py`, `test_galaxyscope.py::test_ai_guardrails_off_by_default` | — |
 | AI sensors hunt "RCE Funnels, God-Mode Agents, Context Window Shredders" | wiki/index.md:52 | FALSE | RCE detectors removed | Describe the heuristics plainly |
 | Sentinel tools exit 1 and break the build | github-action-readme.md:17,74 | TESTED | `test_vault_sentinel_control.py`, `test_xray_control.py`, `test_import_policy_gate.py::test_strict_mode_enforcement` (the gate CLI part was FALSE, problem 2, fixed in #8595) | — |
@@ -194,7 +194,7 @@ and the tests show them fixed. github-action-readme.md:71 says gates do not run 
 | Inference plumbing works; detection quality unproven | zero_dependency_mode.md:81 | TESTED | `test_ml_real_model_2986.py`, `test_ml_boundary_2986.py` | Keep; move it to the short version |
 | Rule-based detection unaffected by missing deps | zero_dependency_mode.md:86 | TESTED | zero-dep golden; `test_cli_contract.py` | — |
 | `binary_anomaly` / `obfuscation_flag` come from regex signals | zero_dependency_mode.md:84 | TESTED | `record_keeper.py:1859-1897`; `test_record_keeper.py` | — |
-| `threat_extension_mismatch` "never set" | signals.md:113,163; `analysis_lens.py:1903` | FALSE (undersells) | Set by #4126 (`galaxyscope.py:781`); tested | "Zero in the population", not "never set" |
+| `threat_extension_mismatch` "never set" | signals.md:113,163 (`analysis_lens.py:1902` FIXED #8616) | FALSE (undersells, docs only) | Set by #4126 (`galaxyscope.py:781`); tested | "Zero in the population", not "never set" |
 | Tainted-injection, prompt-injection, agentic-RCE columns are placeholders | signals.md:115-117,164-166; signal_coverage_verdicts.md:15; vectors.md:572 | TESTED | `security_lens.py:979-980`; `test_surface_families_contract.py` | Say why (about 0% P/R) |
 | Security signals are file-level only | signals.md:12-13,103-162 | TESTED | `test_function_level_scope_8012.py` | — |
 | TLS-verification bypass across Go, Python, curl, env, Java, .NET, PowerShell, wget | signal_coverage_verdicts.md:20,44 | TESTED | `test_tls_bypass_*_6239.py` | Add "planted samples only" |

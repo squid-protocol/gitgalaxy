@@ -1,5 +1,5 @@
 {
- "commit": "b4362ef2a",
+ "commit": "fdf892916",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T13:27:15Z",
+  "as_of": "2026-11-23T13:30:28Z",
   "core": {
    "closed": 260,
    "open": 15,
@@ -1096,9 +1096,9 @@
   },
   "eta": "52 days",
   "frontier": {
-   "closed": 134,
+   "closed": 135,
    "found_last_window": 5,
-   "open": 80,
+   "open": 79,
    "total": 214
   },
   "frontier_milestone": {
@@ -1367,9 +1367,9 @@
     "total": 30
    },
    {
-    "closed": 0,
+    "closed": 1,
     "number": 39,
-    "open": 5,
+    "open": 4,
     "title": "CICS Security - Full CICS Cross-Program SAST",
     "total": 5
    },
@@ -1409,7 +1409,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 131,
+    "closed": 132,
     "total": 146
    },
    "cobol": {

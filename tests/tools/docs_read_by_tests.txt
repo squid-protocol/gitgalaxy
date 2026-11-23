@@ -113,6 +113,7 @@
 /b.c	tests/core_engine
 /bad.forbidden	tests/security_auditing
 /baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
+/batch	tests/cobol_mainframe
 /bitbucket-pipelines.yml	tests/core_engine
 /bms_src	tests/cobol_mainframe
 /build.log	tests/core_engine
@@ -121,6 +122,7 @@
 /cbl	tests/cobol_mainframe
 /census	tests/tools/census_check.py,tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/cics_preflight.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
 /ci.sh	tests/core_engine
+/cics	tests/cobol_mainframe
 /cics-banking-sample-application-cbsa	tests/cobol_mainframe
 /cics-crucible	tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
 /classes	tests/cobol_mainframe,tests/tools/cultural_gauntlet.py
@@ -198,7 +200,7 @@
 /service	tests/cobol_mainframe
 /shared	tests/cobol_mainframe
 /site	tests/core_engine
-/src	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/cultural_gauntlet.py,tests/tools/test_outcome_pilot.py
+/src	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/tools/cultural_gauntlet.py,tests/tools/test_outcome_pilot.py,tests/tools/test_rebless_batch.py
 /suite.json	tests/tools/at_extract.py
 /swagger1.json	tests/security_auditing
 /swagger2.json	tests/security_auditing
@@ -268,7 +270,7 @@ ai_agent_jobs/port_order.md	tests/cobol_mainframe
 ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md	tests/cobol_mainframe
 alphafold_teardown.html	tests/core_engine
 answer.md	gitgalaxy
-b.md	tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py
+b.md	tests/extraction,tests/security_auditing,tests/tools/test_doc_drift_issues.py,tests/tools/test_rebless_batch.py
 blind1_run_b_causes.md	tests/cobol_mainframe
 blob/main/docs/language_status/cics_field_testing.md	tests/tools/publish_examples.py
 blocker_report.anon.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
@@ -626,7 +628,7 @@ survey.md	tests/tools/det_survey.py
 tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progress_report.py,tests/tools/test_readme_hand_counts.py
 tests/equivalence/det_mutation/notes.md	tests/tools/test_docs_only_required_checks.py
 tests/extraction/how_to_extend_class_start_named_extraction.md	tests/tools/tree_sitter_accuracy_audit.py
-tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
+tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py,tests/tools/test_rebless_batch.py
 tests/tools/referees/README.md	tests/tools/referees
 tilde.md	tests/core_engine
 transferability.md	tests/tools/test_status_page_snapshots.py

@@ -301,7 +301,7 @@ def test_a_nonzero_condition_code_bypasses_the_later_steps(stub, tmp_path, monke
     ("step", "why"),
     [(_idcams(deck="gone.idc"), "no such file beside the job case"),
      (_idcams(inputs={"INFILE": "x"}), "inputs on an IDCAMS step"),
-     (_idcams(gdg_in={"INFILE": {}}), "gdg_in on an IDCAMS step"),
+     (_idcams(gdg_in={"INFILE": {}}), "gdg_in INFILE must be"),
      (_idcams(reclen=0), "needs a record length"),
      (_idcams(reclen=20), "record length"),  # the feed rule reads the DD spec like a program step's
      ({**_idcams(), "idcams": {"deck": "step.idc", "dds": {"INFILE": {"reclen": 10}}}}, "no output dataset"),

@@ -27,7 +27,9 @@ datasets; not modelled in the job). A step that abended feeds nothing (the job s
 A job may declare `"ibm_stops": {"step": case, "reason": "ICE043A"}` (#8884, CREASTMT): that lowered DFSORT step writes
 fewer bytes than a later step's DD LRECL, so IBM ends the step (ICE043A reason 9, SC23-6879) and COND=(0,NE) bypasses the
 rest. The harness proves the steps up to it, reports the later ones as not reached, and refuses the declaration when no
-later step reads such a short DFSORT output. The job is proven for the steps IBM runs, nothing more.
+later step reads such a short DFSORT output. The job is proven for the steps IBM runs, nothing more. The stop ends the JCL
+job that step belongs to (its `job` key, #8885), not the case: a step of a later job runs, and is refused when it reads a step
+the stop never reached.
 A step may be an IDCAMS step (#8884, `"idcams": {"deck": file beside the job case, "dds": {DD: dataset spec}}`): there is no
 COBOL to run, so the oracle is the model of the step (`det/idcams_model.py`, no GnuCOBOL IDCAMS exists), run on the
 datasets fed to it; a DD carrying `"cluster": NAME` is a cluster the step starts with (empty), a later step reads its
@@ -35,7 +37,9 @@ records (key order for a KSDS) as any other output. The Java runtime of the step
 deck on the same input and must agree with the model line for line (`equivalence_idcams_java.py`: return codes, log,
 catalog incl. alternate indexes and paths, datasets, each path's records in alternate-key order, refusals, #8881); with no
 JDK the step reports `model_only` and the job is never `proven`. A model refusal, or a nonzero condition code (the
-JCL's COND=(0,NE) bypasses the later steps), stops the job. Refused by name: GDG, `inputs`, a subprogram on such a step.
+JCL's COND=(0,NE) bypasses the later steps), stops the job. Refused by name: `inputs`, a subprogram on such a step, a GDG on a cluster / path DD. A sequential DD may read or write a
+generation (`gdg_in` / `gdg_out`, #8885: TRANBKP's REPRO to BKUP(+1), COMBTRAN's REPRO from COMBINED(+1)), and may be fed a KSDS an
+IDCAMS step left (read in primary-key order).
 The oracle is GnuCOBOL plus our stub, not z/OS; the JCL that wires the steps is the case's `feeds`, not a read job.
 An IDCAMS cluster DD fed by an indexed output starts loaded (CardDemo's TRANSACT KSDS from POSTTRAN); a `"path": NAME` DD is
 an output only, the records read through that path in alternate-key order (#8881). The catalog lives for one step, so the
@@ -124,6 +128,8 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
     if stop is not None and stop == len(steps) - 1:
         raise Unsupported("ibm_stops names the last step: nothing follows it to be stopped")
     stopped_join = False
+    jnames = gdg.job_names(job) if stop is not None else []
+    skipped = [names[k] for k in range(stop + 1, len(steps)) if jnames[k] == jnames[stop]] if stop is not None else []
     for i, step in enumerate(steps):
         name = step["case"]
         case = cases.get(name)
@@ -142,7 +148,15 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
                 names[stop]]["datasets"] and _is_short_dfsort_join(cases[names[stop]], feed, case["datasets"].get(dd) or {}):  # fmt: skip
                 stopped_join = True  # the declared ICE043A join: IBM ends the job before this step reads it
                 continue
+            if stop is not None and feed.get("step") in skipped and jnames[i] != jnames[stop]:
+                raise Unsupported(f"step {name}: reads a dataset of a step the IBM stop never reached")
             _check_feed(name, dd, feed, case, names[:i], cases)
+    if stop is not None:  # #8885: IBM ends one JCL job, not the nightly: its not-reached steps catalogue nothing
+        for k in range(stop + 1, len(steps)):
+            if jnames[k] == jnames[stop] and steps[k].get("gdg_out"):
+                raise Unsupported(
+                    f"step {names[k]}: not reached after the IBM stop, so it cannot catalogue a generation"
+                )
     if stop is not None and not stopped_join:
         raise Unsupported(f"ibm_stops {job['ibm_stops']['step']}: no later step reads a DFSORT output shorter than its "
                           "own LRECL, so IBM does not end the job there (nothing is declared stopped that is not)")  # fmt: skip
@@ -167,9 +181,12 @@ def _check_idcams(step: dict[str, Any], case: dict[str, Any]) -> None:
     name, spec = step["case"], step["idcams"]
     if not isinstance(spec.get("deck"), str) or not (JOBS / spec["deck"]).is_file():
         raise Unsupported(f"step {name}: idcams deck {spec.get('deck')!r}: no such file beside the job case")
-    for k in ("inputs", "gdg_in", "gdg_out"):
-        if step.get(k):
-            raise Unsupported(f"step {name}: {k} on an IDCAMS step is not modelled")
+    if step.get("inputs"):
+        raise Unsupported(f"step {name}: inputs on an IDCAMS step is not modelled")
+    for k in ("gdg_in", "gdg_out"):  # #8885: a generation is a sequential dataset, so a cluster / path DD cannot be one
+        for dd in step.get(k) or {}:
+            if dd not in spec["dds"] or "cluster" in spec["dds"][dd] or "path" in spec["dds"][dd]:
+                raise Unsupported(f"step {name}: {k} {dd} must be a sequential DD of the IDCAMS step")
     for dd, d in spec["dds"].items():
         if not isinstance(d.get("reclen"), int) or d["reclen"] < 1:
             raise Unsupported(f"step {name}: idcams DD {dd} needs a record length")
@@ -205,7 +222,9 @@ def _check_feed(name: str, dd: str, feed: dict[str, Any], case: dict[str, Any], 
     if out is None or not out.get("compare"):
         raise Unsupported(f"step {name}: feed {dd} reads {src}.{feed.get('dd')}, which that step does not compare")
     orgs = (spec.get("organization"), out.get("organization"))
-    if "indexed" in orgs:
+    if orgs == ("sequential", "indexed") and cases[src].get("kind") == "idcams":
+        pass  # #8885: a utility reads a KSDS front to back, in primary-key order, as the IDCAMS step's records stand
+    elif "indexed" in orgs:
         if orgs != ("indexed", "indexed"):
             raise Unsupported(f"step {name}: feed {dd} ({orgs[0]}) reads {src}.{feed['dd']} ({orgs[1]}): "
                               "an indexed feed needs an indexed dataset on both sides")  # fmt: skip
@@ -248,11 +267,17 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     jobs = gdg.job_names(job)
     ok = True
     stop = ibm_stop(job)
+    stopped_job: str | None = None  # #8885: the JCL job IBM ended; its later steps are not reached, other jobs run
+    not_reached: list[str] = []
     for i, step in enumerate(job["steps"]):
         name = step["case"]
         case = cases[name]
+        if stopped_job is not None and jobs[i] == stopped_job:
+            not_reached.append(name)
+            continue
         if "idcams" in step:
-            ok &= _idcams_step(step, outputs, report)
+            catalog.begin_step(jobs[i])
+            ok &= _idcams_step(step, outputs, report, catalog)
             if not ok:
                 break
             continue
@@ -302,16 +327,16 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
-                report["ibm_stop"] = {"step": name, "reason": "ICE043A",
-                                      "not_reached": [s["case"] for s in job["steps"][i + 1 :]]}  # fmt: skip
-                break
+                stopped_job = jobs[i]
+                report["ibm_stop"] = {"step": name, "reason": "ICE043A", "job": stopped_job, "not_reached": not_reached}
+                continue
             if "ABEND" in cobol and i + 1 < len(job["steps"]):
                 report["steps"][-1]["stopped"] = "the step abended: its datasets are not defined, the job stops"
                 ok = False
                 break
             continue
         break  # a feed had no source
-    ran = len(job["steps"]) if stop is None else stop + 1
+    ran = len(job["steps"]) - len(not_reached)
     report["proven"] = (ok and not cobol_only and len(report["steps"]) == ran
                         and not any(s.get("model_only") for s in report["steps"]))  # fmt: skip
     work.mkdir(parents=True, exist_ok=True)
@@ -331,10 +356,11 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     return 0 if report["proven"] or cobol_only else 1
 
 
-def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
-                 report: dict[str, Any]) -> bool:  # fmt: skip
+def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]], report: dict[str, Any],
+                 gens: gdg.Catalog | None = None) -> bool:  # fmt: skip
     """Run an IDCAMS step on the model with what the earlier steps left it. Returns False when the job stops here."""
     name, spec = step["case"], step["idcams"]
+    gens = gens if gens is not None else gdg.Catalog({})
     entry: dict[str, Any] = {"case": name, "program": "IDCAMS", "ok": False, "model_only": True}
     report["steps"].append(entry)
     catalog: dict[str, Any] = {}
@@ -364,8 +390,15 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
                 )
                 dds[dd] = idc.Vsam(d["cluster"])
                 continue
-            feed = step.get("feeds", {}).get(dd)
-            data = b"" if feed is None else outputs.get(feed["step"], {}).get(feed["dd"])
+            if dd in step.get("gdg_in", {}):  # #8885: a generation, the COBOL-side bytes both sides read
+                ref = step["gdg_in"][dd]
+                what, parts = gens.read(ref["base"], ref["gen"])
+                data = b"".join(parts)
+                feed = None
+                fed[dd] = f"{what} ({len(data) // d['reclen']} records)"
+            else:
+                feed = step.get("feeds", {}).get(dd)
+                data = b"" if feed is None else outputs.get(feed["step"], {}).get(feed["dd"])
             if data is None:
                 entry["stopped"] = f"{feed['step']} left no {feed['dd']}"
                 return False
@@ -402,6 +435,8 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]],
     if res.rc:  # COND=(0,NE) on the next step: it is bypassed, the job's chain stops
         entry["stopped"] = f"IDCAMS ended with condition code {res.rc}"
         return False
+    for dd, base in step.get("gdg_out", {}).items():  # #8885: the step ended clean, base(+1) is catalogued
+        fed[f"{dd} (out)"] = gens.create(base, outputs[name][dd])
     entry["ok"] = True
     return True
 

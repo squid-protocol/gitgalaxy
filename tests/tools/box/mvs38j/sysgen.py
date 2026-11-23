@@ -828,6 +828,7 @@ def custom(work, image, name, job_timeout=900):
 
 
 SERVE_READY, SERVE_PID = "box.ready", "box.pid"
+SERVE_CMD = "box.cmd"  # console lines for the resident box (an operator reply such as `r 02,yes`), one per line; consumed once read
 
 
 def serve(work, image, name, ready_timeout=900):
@@ -853,7 +854,14 @@ def serve(work, image, name, ready_timeout=900):
         (work / SERVE_PID).write_text(f"{os.getpid()}\n")
         (work / SERVE_READY).write_text("JES2 ready\n")
         print("serve: JES2 ready; card reader on 127.0.0.1:3505", flush=True)
+        cmd_file = work / SERVE_CMD
         while not stop.is_set() and herc.proc.poll() is None:
+            if cmd_file.is_file():
+                text = cmd_file.read_bytes().decode("ascii", "ignore")  # console commands are ASCII
+                cmd_file.unlink(missing_ok=True)
+                for line in text.splitlines():
+                    if line.strip():
+                        herc.send("/" + line.strip())
             stop.wait(1.0)
         if herc.proc.poll() is None:
             shutdown_system(herc)

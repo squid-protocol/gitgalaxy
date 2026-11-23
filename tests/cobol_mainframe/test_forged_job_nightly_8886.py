@@ -5,9 +5,9 @@ guard (`JclConditions`, compiled with javac) over the chain's step return codes 
 bypass and the DD wiring with the case. The chain's report is embedded here (the shape `equivalence.py run
 carddemo-nightly` writes, trimmed to what the comparison reads), so no Docker is needed; the corpus and a JDK are.
 
-Pinned result: 7 of 9 steps equal. TRANBKP and the step that reads its output differ for one reason: the DDs
-`//STEP05R.PRC001.FILEIN` / `FILEOUT` are PROC overrides, which `galaxy_ir.job_dds` does not read, so the forged plan
-has no `FILEIN` / `FILEOUT` Dd. A fix to that makes these two tests fail on purpose: update the pin with it.
+Pinned result: 9 of 9 steps equal. TRANBKP's `//PRC001.FILEIN` / `FILEOUT` are PROC override DDs; slice 1 found
+`galaxy_ir.job_dds` dropped them (7 of 9), and it now reads them (the override replaces the procedure's DD of that name
+for that procedure step, else is added; `test_batch_jobs.py`). One feed stays unchecked: TRANIDX's `TRANKSDS`.
 """
 
 from __future__ import annotations
@@ -80,24 +80,22 @@ def result():
 
 @needs_corpus
 @needs_javac
-def test_seven_of_nine_steps_are_equal_and_the_two_proc_override_steps_differ(result):
+def test_every_step_of_the_nightly_is_equal(result):
     status = {r["case"]: r["status"] for r in result["rows"]}
-    assert [c for c, s in status.items() if s == "differs"] == ["tranbkp-idcams", "combtran-step10-idcams"]
-    assert sum(s == "equal" for s in status.values()) == 7
+    assert [c for c, s in status.items() if s != "equal"] == []
+    assert sum(s == "equal" for s in status.values()) == 9
 
 
 @needs_corpus
 @needs_javac
-def test_the_differences_are_the_unread_proc_override_dds(result):
+def test_the_proc_override_dds_are_in_the_forged_plan(result):
     rows = {r["case"]: r for r in result["rows"]}
-    assert rows["tranbkp-idcams"]["issues"] == [
-        "gdg_out FILEOUT: no forged DD FILEOUT (a PROC override DD the forge does not read)"
-    ]
-    assert rows["combtran-step10-idcams"]["issues"] == [
-        "feeds TRANVSAM: producer DD tranbkp-idcams.FILEIN is not in the forged plan"
-    ]
+    assert rows["tranbkp-idcams"]["issues"] == []
+    assert rows["combtran-step10-idcams"]["issues"] == []
     assert [o["dd"] for o in result["overrides"]["TRANBKP"]] == ["FILEIN", "FILEOUT"]
-    assert "STEP05R.PRC001" in [s["name"] for s in result["forged"]["TRANBKP"]]
+    (step,) = (s for s in result["forged"]["TRANBKP"] if s["name"] == "STEP05R.PRC001")
+    assert "FILEOUT" in step["dds"] and "FILEIN" in step["dds"]
+    assert rows["carddemo-tranidx"]["notes"] == ["feeds TRANKSDS: unchecked, no forged DD TRANKSDS"]
 
 
 @needs_corpus

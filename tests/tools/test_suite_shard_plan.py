@@ -362,13 +362,22 @@ def test_no_history_and_empty_history_plan_the_same_as_before(durations):
     assert plan.gate_plan(durations, history={}) == plan.gate_plan(durations, history=None) == plan.gate_plan(durations)
 
 
-def test_a_leg_measured_slow_at_n_parts_gets_a_part_before_its_cap_is_raised(durations):
-    # the 2026-11-19 night: windows 3.12 at 2 parts ran 25 min against a 25-min step cap and was cut
+@pytest.mark.parametrize("room", [True, False])
+def test_a_leg_measured_slow_at_n_parts_gets_a_part_before_its_cap_is_raised(durations, monkeypatch, room):
+    # the 2026-11-19 night: windows 3.12 at 2 parts ran 25 min against a 25-min step cap and was cut.
+    # The maximum is pinned: with room (50) the leg gets one more part; already AT the maximum (1) it can only get a
+    # longer cap. Unpinned, the answer follows the committed durations (CI's merge with main planned 4 of 4 parts).
+    monkeypatch.setattr(plan, "GATE_MAX_PARTS", 50 if room else 1)
     base = plan.gate_plan(durations)
     n0 = _leg(base, "windows-latest", "3.12")["splits"]
     hist = plan.leg_walls(_runs("windows-latest", "3.12", n0, [24, 25, 25], step_cap=25))
     got = _leg(plan.gate_plan(durations, history=hist), "windows-latest", "3.12")
-    assert got["splits"] == n0 + 1  # rebalanced, not just given a longer cap
+    if room:
+        assert got["splits"] == n0 + 1  # rebalanced, not just given a longer cap
+    else:
+        # no part to add: the cap never drops below the planned one and always covers the worst measured wall x 1.3
+        assert n0 == 1 and got["splits"] == 1
+        assert got["timeout"] >= max(_leg(base, "windows-latest", "3.12")["timeout"], 25 * 1.3)
     assert got["timeout"] <= plan.GATE_TIMEOUT_CEILING and got["step_timeout"] == got["timeout"] - plan.STEP_MARGIN_MIN
 
 

@@ -1,5 +1,5 @@
 {
- "commit": "5f8ff476e",
+ "commit": "e1fd585f4",
  "components": {
   "capabilities": {
    "groups": [
@@ -726,7 +726,7 @@
      "closed": 1,
      "closed_caught": 240,
      "closed_survived": 252,
-     "equivalent": 826,
+     "equivalent": 831,
      "l5": 1,
      "measured": 4,
      "mutants": 2487,
@@ -736,7 +736,7 @@
      "sampled": 2486,
      "sampled_pct": 100.0,
      "survived": 1182,
-     "unreachable": 352
+     "unreachable": 354
     }
    },
    "total": {
@@ -744,7 +744,7 @@
     "closed": 7,
     "closed_caught": 1610,
     "closed_survived": 1053,
-    "equivalent": 6363,
+    "equivalent": 6368,
     "l5": 7,
     "measured": 61,
     "mutants": 56170,
@@ -754,7 +754,7 @@
     "sampled": 38346,
     "sampled_pct": 68.3,
     "survived": 18337,
-    "unreachable": 1341
+    "unreachable": 1343
    }
   },
   "mutation": {
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T12:35:05Z",
+  "as_of": "2026-11-23T12:43:27Z",
   "core": {
    "closed": 260,
    "open": 15,

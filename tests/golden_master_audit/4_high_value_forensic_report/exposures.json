@@ -403,6 +403,11 @@
     "tech_debt": {
       "highest": [
         {
+          "name": "functional-result.adb",
+          "path": "ada/functional/functional-result.adb",
+          "value": 100.0
+        },
+        {
           "name": "IC1074.2.cbl",
           "path": "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl",
           "value": 100.0
@@ -410,11 +415,6 @@
         {
           "name": "IF4014.2.cbl",
           "path": "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl",
-          "value": 100.0
-        },
-        {
-          "name": "IF4024.2.cbl",
-          "path": "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl",
           "value": 100.0
         }
       ],

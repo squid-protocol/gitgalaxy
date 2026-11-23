@@ -41,6 +41,7 @@ on:
       - "Muninn Security Scan"
       - "OS Smoke Grid"
       - "Ports Compile"
+      - "rosetta-audit"
       - "Tree-sitter Accuracy Audit"
       - "unicode-gauntlet"
     types: [completed]

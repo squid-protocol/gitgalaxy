@@ -150,3 +150,23 @@ def test_the_jobs_become_spring_batch_jobs(scanned, tmp_path):
     assert run["facts"][0]["source"] == "jcl/NIGHTLY.jcl:10" and run["facts"][0]["ledger_field"] == "JCL job flow"
     cats = {i["category"] for i in json.loads((java / "migration_worklist.json").read_text())["items"]}
     assert {"batch-utility", "business-logic"} <= cats  # SORT1; POSTIT's main line
+
+
+def test_job_dds_read_a_proc_call_override_dd_8886(tmp_path):
+    """`//GEN.SYSUT1 DD` after the EXEC replaces the PROC's SYSUT1 (in place) and a DD the PROC lacks is added."""
+    repo = tmp_path / "estate"
+    files = {
+        "jcl/OVR.jcl": "//OVR      JOB (ACCT),'OVR'\n//CP       EXEC COPYP\n"
+        "//GEN.SYSUT1 DD DSN=APP.OTHER.IN,DISP=SHR\n//GEN.EXTRA  DD DSN=APP.EXTRA,DISP=SHR\n",
+        "proc/COPYP.prc": COPYP,
+    }
+    for rel, text in files.items():
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text, encoding="utf-8")
+    rows = [r for r in load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).job_dds() if r["job"] == "OVR"]
+    got = [(r["step"], r["proc_step"], r["dd"], r["dsn"], r["source"]) for r in rows]
+    assert got == [
+        ("CP", "GEN", "SYSUT1", "APP.OTHER.IN", "jcl/OVR.jcl"),  # replaced where the PROC had it
+        ("CP", "GEN", "SYSUT2", "APP.TRANS.BACKUP", "proc/COPYP.prc"),
+        ("CP", "GEN", "EXTRA", "APP.EXTRA", "jcl/OVR.jcl"),  # added
+    ]

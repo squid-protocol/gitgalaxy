@@ -3,8 +3,6 @@
   "archetype-validation.yml|archetype-validation|Close the retrain issue once every level recovers|gh-api",
   "archetype-validation.yml|archetype-validation|Find the open retrain issue|gh-api",
   "archetype-validation.yml|archetype-validation|Open or update the retrain issue|gh-api",
-  "cache-prune.yml|prune|Cache usage after|gh-api",
-  "cache-prune.yml|prune|Cache usage before|gh-api",
   "cics-crucible.yml|measure|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "cics-crucible.yml|runner-tests|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "codeql.yml|analyze|Report the results this PR adds|gh-api",
@@ -20,13 +18,7 @@
   "evidence-refresh.yml|records|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "evidence-refresh.yml|refresh|Advance gitgalaxy to latest origin/main before staging the bot PR|git-fetch",
   "evidence-refresh.yml|refresh|Enable squash auto-merge on the bot PR|gh-api",
-  "evidence-refresh.yml|refresh|Push lane - hold the PR back if a full run has started meanwhile (#4743)|gh-api",
   "evidence-refresh.yml|sweep|Load or build the oracle image, and check it against its pin (#4309)|docker",
-  "referee-panel.yml|panel|Install Che4z COBOL Language Support|gh-download",
-  "referee-panel.yml|panel|Install Cobrix|git-fetch",
-  "referee-panel.yml|panel|Install Cobrix|maven-gradle",
-  "referee-panel.yml|panel|Install mapa|git-fetch",
-  "referee-panel.yml|panel|Install tree-sitter-cobol-enterprise|git-fetch",
   "smoke-test.yml|suite-time|Total against the budget|gh-api"
  ],
  "advisory_uploads": []

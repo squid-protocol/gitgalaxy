@@ -57,6 +57,7 @@ TARGETS: dict[str, list[str] | str] = {
     "estate-crucible.yml": FROM_PR_FILTER,
     "fact-crosscheck.yml": FROM_PR_FILTER,
     "ports-compile.yml": FROM_PR_FILTER,
+    "rosetta-audit.yml": FROM_PR_FILTER,  # 2026-11-23: no baseline on main, so a corpus behind main is a red main (the PR run keeps its baseline)
     "unicode-gauntlet.yml": FROM_PR_FILTER,
     # #4599: deliberately every file -- a change outside its PR filter (aperture.py, #4569) moved every baseline once
     "tree-sitter-accuracy-audit.yml": ["**"],

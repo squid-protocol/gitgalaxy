@@ -4,16 +4,16 @@
 This module asks the other half of #8886: does the job `BatchForge` GENERATES from the real JCL do what that chain did?
 For each JCL job of a job case it
 
-1. forges the job from the real JCL (`job_flow` rows shaped as the `job_steps` / `job_dds` facts of `galaxy_ir`, a
-   called PROC expanded from its member) and reads the generated `<Job>JobConfig` and `DDS_<STEP>` constants back;
+1. scans the corpus's JCL and PROC members and forges the job from the scan's own `job_steps` / `job_dds` rows (the
+   facts `cobol_to_java_controller` hands the forge; nothing is mirrored here) and reads the generated `<Job>JobConfig` and `DDS_<STEP>` constants back;
 2. replays the forged guard (`JclConditions.bypass / holds`, the Java the forge emits, compiled with javac, in the order
    and with the decision `JclSteps.guarded` makes) over the chain's own step return codes;
 3. compares, per case step: the step order, run or bypass against ran / not reached in the chain, and the DD wiring
    (each `gdg_in` / `gdg_out` / `feeds` the case states against the forged `Dd(dd, dsn, disp, disp_normal, generation)`).
 
 It does NOT run Spring: `JclSteps.guarded` is replayed, not executed (a later slice). A DD the JCL states only as a PROC
-override (`//STEP.PROCSTEP.DD`) is outside `galaxy_ir.job_dds`, so the forge never sees it: that is reported as a
-difference, not worked around.
+override (`//PROCSTEP.DD`) replaces the procedure's DD of that name: `galaxy_ir.job_dds` applies it (#8886: slice 1 found
+it did not, and reported 7 of 9 steps equal), and this module now reads those rows instead of re-deriving the rule.
 """
 
 from __future__ import annotations
@@ -30,8 +30,6 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))  # before any gitgalaxy import: a shared venv may install another checkout
 
-from gitgalaxy.core import job_flow  # noqa: E402
-from gitgalaxy.core.source_text import read_source  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_batch_forge as forge_mod  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.java_target import load_target  # noqa: E402
@@ -97,65 +95,23 @@ def _unq(g: str) -> str | None:
 # -- 1. forge the job from the real JCL --------------------------------------------------------------------------
 
 
-def _rows(path: Path) -> list[dict]:
-    return job_flow.jcl_job_flow(read_source(path).text)
+def scan_estate(jcl_dir: Path, proc_dir: Path, work: Path):
+    """A real scan of the corpus's JCL and PROC members (copied side by side under `work`): the `GalaxyIR` whose
+    `job_steps()` / `job_dds()` rows the forge reads, as `cobol_to_java_controller` reads them (#8886 slice 2)."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    estate = work / "estate"
+    for sub, src in (("jcl", jcl_dir), ("proc", proc_dir)):
+        shutil.copytree(src, estate / sub)
+    return load_galaxy_ir(scan_to_db(estate, work / "scan"))
 
 
-def job_facts(jcl: Path, proc_dir: Path, file: str) -> tuple[dict, list[dict], list[dict]]:
-    """`(job_steps fact, job_dds facts, override DD rows)` for one JCL member, built the way `galaxy_ir` builds them."""
-    rows = _rows(jcl)
-    job = next(r for r in rows if r["kind"] == "JOB")
-    steps: list[dict] = []
-    dds: list[dict] = []
-    overrides: list[dict] = []
-    current: dict | None = None
-    for r in rows:
-        if r["kind"] == "STEP":
-            current = {
-                "ordinal": r["step_ordinal"],
-                "step": r["step_name"],
-                "program": r["program"],
-                "proc": r["proc"],
-                "cond": r["cond"],
-                "if_cond": r["if_cond"],
-                "line": r["line"],
-                "parm": r.get("parm"),
-                "runner_programs": [],
-            }
-            if r["proc"]:
-                member = next((p for p in sorted(proc_dir.iterdir()) if p.stem.upper() == r["proc"].upper()), None)
-                inner = [x for x in _rows(member) if x["kind"] == "STEP" and x["in_proc"]] if member else []
-                current["expands_to"] = [
-                    {"step": x["step_name"], "program": x["program"], "cond": x["cond"], "if_cond": x["if_cond"]}
-                    for x in inner
-                ]
-                current["_inner"] = [x["step_name"] for x in inner]
-            steps.append(current)
-        elif r["kind"] == "DD" and current is not None:
-            if r["step_name"] != current["step"]:  # `//STEP.PROCSTEP.DD`: galaxy_ir.job_dds leaves these out
-                overrides.append(
-                    {"step": current["step"], "proc_step": r["step_name"], "dd": r["dd_name"], "dsn": r["dsn"]}
-                )
-                continue
-            dds.append(
-                {"file": file, "job": job["name"], "step": current["step"], "proc_step": None, "ordinal": current["ordinal"],
-                 "dd": r["dd_name"], "dsn": r["dsn"], "disp": r["disp"], "disp_normal": r.get("disp_normal"),
-                 "generation": r.get("generation"), "line": r["line"]}
-            )  # fmt: skip
-    for s in steps:  # a PROC step's own DDs (the member's DD rows, per procedure step)
-        for ps in s.pop("_inner", []):
-            member = next(p for p in sorted(proc_dir.iterdir()) if p.stem.upper() == s["proc"].upper())
-            cur = None
-            for x in _rows(member):
-                if x["kind"] == "STEP":
-                    cur = x["step_name"]
-                elif x["kind"] == "DD" and cur == ps and x["in_proc"]:
-                    dds.append(
-                        {"file": file, "job": job["name"], "step": s["step"], "proc_step": ps, "ordinal": s["ordinal"],
-                         "dd": x["dd_name"], "dsn": x["dsn"], "disp": x["disp"], "disp_normal": x.get("disp_normal"),
-                         "generation": x.get("generation"), "line": x["line"]}
-                    )  # fmt: skip
-    fact = {"file": file, "job": job["name"], "cond": job["cond"], "steps": steps}
+def job_facts(ir, file: str) -> tuple[dict, list[dict], list[dict]]:
+    """`(job_steps fact, job_dds facts, PROC override DD rows)` the scan holds for one JCL member `file`."""
+    fact = next(f for f in ir.job_steps() if f["file"] == file)
+    dds = [d for d in ir.job_dds() if d["file"] == file]
+    # an override is a DD the job file itself states under a procedure step (`//PROCSTEP.DD`)
+    overrides = [d for d in dds if d["proc_step"] and d["source"] == file]
     return fact, dds, overrides
 
 
@@ -253,15 +209,16 @@ def compare(spec: dict, case: dict, report: dict, corpus: Path) -> dict:
     ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])
     forged: dict[str, list[dict]] = {}
     overrides: dict[str, list[dict]] = {}
-    for job, member in spec["jobs"].items():
-        fact, dds, over = job_facts(jcl_dir / member, proc_dir, f"app/jcl/{member}")
-        forged[job] = forge_job(fact, dds)
-        overrides[job] = over
     by_case = {m["case"]: m for m in spec["steps"]}
     case_steps = {s["case"]: s for s in case["steps"]}
     # run each JCL job's forged guard over the chain's RCs
     work = Path(tempfile.mkdtemp(prefix="forged-job-"))
     try:
+        ir = scan_estate(jcl_dir, proc_dir, work)
+        for job, member in spec["jobs"].items():
+            fact, dds, over = job_facts(ir, f"jcl/{member}")
+            forged[job] = forge_job(fact, dds)
+            overrides[job] = over
         classes = _build_driver(work)
         lines, keys = [], []
         for job, fsteps in forged.items():

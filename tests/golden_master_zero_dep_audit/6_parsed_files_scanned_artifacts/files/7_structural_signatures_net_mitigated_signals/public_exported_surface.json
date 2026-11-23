@@ -67,7 +67,7 @@
       "ada/functional/functional-try.ads": 0,
       "ada/functional/functional.ads": 0,
       "ada/functional/functional_tests_config.ads": 1,
-      "ada/functional/test_framework.adb": 4,
+      "ada/functional/test_framework.adb": 5,
       "ada/functional/test_framework.ads": 1,
       "ada/functional/test_try_map_to_result.adb": 1
     },

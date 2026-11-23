@@ -189,6 +189,24 @@ POST_MERGE_ONLY = {
 }
 
 
+def test_rosetta_audit_is_a_main_canary_with_no_baseline_and_a_watched_red():
+    """2026-11-23: a corpus behind engine main was a notice on every PR and nobody's red: #8939's clist/short_circuit n/a cell
+    held ~13 PRs for two days. On main the audit has no baseline (main is the baseline), so it fails, Main Watch opens
+    `main is red: rosetta-audit`, and the fleet works it. The PR run keeps its baseline and its rebless-owed label."""
+    doc, _ = load("rosetta-audit.yml")
+    assert pmd.TARGETS.get("rosetta-audit.yml") == pmd.FROM_PR_FILTER
+    assert pmd.pr_paths((pmd.WORKFLOWS / "rosetta-audit.yml").read_text(encoding="utf-8")), "lost the paths the dispatch reads"
+    steps = doc["jobs"]["rosetta-audit"]["steps"]
+    for name in ("Checkout GitGalaxy baseline (PR base branch)", "Install GitGalaxy baseline build (full precision, separate venv)"):
+        step = next(x for x in steps if x.get("name") == name)
+        assert step.get("if") == "github.event_name == 'pull_request'", f"{name!r} must be PR-only"
+    run = next(x for x in steps if x.get("name") == "Run all language gates, classify against the baseline")["run"]
+    assert 'if [ "${{ github.event_name }}" = "pull_request" ]' in run and "$baseline" in run
+    assert "--baseline-bin" not in run.split("$baseline")[0].rsplit("python gitgalaxy", 1)[-1], "baseline passed unconditionally"
+    watched = load("main-watch.yml")[0]
+    assert "rosetta-audit" in (watched.get("on") or watched.get(True))["workflow_run"]["workflows"]
+
+
 @pytest.mark.parametrize("name", sorted(POST_MERGE_ONLY))
 def test_a_post_merge_only_check_skips_on_a_pr_and_is_dispatched(name):
     doc, _ = load(name)

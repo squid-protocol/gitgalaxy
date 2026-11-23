@@ -1513,7 +1513,7 @@ class Orchestrator:
     3. Structural Impact Analysis (Phases 2-4): Returns extracted features to the main thread. Maps out
        DAGs (Directed Acyclic Graphs) and converts token frequencies into actionable metrics. Note:
        risk exposures are calculated metrics from the raw Structural Signatures, not the hits themselves.
-    4. Threat Inference (Phases 5-10): Resolves transitive dependency counts and applies zero-trust policies
+    4. Threat Inference (Phases 5-10): Resolves transitive dependency counts and applies the import policy gate
        (AppSec/Import Policy Gate) to hunt behavioral anomalies.
     5. Output Routing (Phases 11-12): Transforms the global RAM state into columnar
        JSON payloads, native SQLite bases, and LLM-ready markdown artifacts.
@@ -1635,7 +1635,7 @@ class Orchestrator:
             fresh_scan_budget=_budget,
         )
 
-        # Zero-Trust execution validation
+        # Pattern-based security lens (regex signatures; no sandboxed execution)
         self.security_analyzer = SecurityLens()
 
         # Transitive dependency counts and the manual shadow-patch hint (#8430: no model)
@@ -2063,7 +2063,7 @@ class Orchestrator:
             self.wrappers = resolve_wrappers(self.parsed_files)
             attach_wrappers(self.parsed_files, self.wrappers)
 
-            # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
+            # PHASE 5: AI Guardrails (AI & AppSec heuristics)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
             # Opt-in (#1178): most scan targets have no AI/agentic surface, so the phase is off by
             # default and only runs when explicitly requested -- never auto-detected, so enabling it
@@ -2075,9 +2075,9 @@ class Orchestrator:
 
                 appsec_sensor = AIAppSecSensor(parent_logger=logger)
                 self.parsed_files = appsec_sensor.hunt_threats(self.parsed_files)
-                logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
+                logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - AI Guardrails]: {time.time() - t_phase:.2f}s")
             else:
-                logger.debug("⏭️ Phase 5 (Zero-Trust Guardrails) off by default -- enable with --ai-guardrails")
+                logger.debug("⏭️ Phase 5 (AI Guardrails) off by default -- enable with --ai-guardrails")
 
             # PHASE 6: Spectral Audit & Verification
             # Uses standard deviations to identify and drop un-parseable data dumps or log files.
@@ -4363,7 +4363,7 @@ def main():
         "--ai-guardrails",
         action="store_true",
         default=None,
-        help="Enable Phase 5 (Zero-Trust AI Guardrails) for targets with an AI/agentic surface. "
+        help="Enable Phase 5 (AI Guardrails) for targets with an AI/agentic surface. "
         "Off by default; when off, the guardrail columns record NULL (not evaluated)",
     )
     parser.add_argument(

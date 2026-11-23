@@ -72,6 +72,13 @@ report and chart, commits them, and keeps one issue — *"corpus owes a re-bless
 main"* — open with the failing languages until the re-bless lands. That issue, not a red check
 on someone else's PR, is where drift shows up.
 
+That issue lives in keyword-rosetta, where the engine fleet does not look, and it counts failing language gates only. So
+engine main also runs this audit itself: `post-merge.yml` dispatches `rosetta-audit` on main (cadence-capped, only when main
+changed a file in the workflow's `paths`) **with no baseline**. Main is the baseline there, so a corpus that is behind
+engine main, or a new unreviewed n/a cell, fails the run, Main Watch opens `main is red: rosetta-audit`, and the fleet works
+it like any red main. A PR run is unchanged: baselined, advisory, and `rosetta:rebless-owed` still downgrades it. (2026-11-23:
+#8939 left `clist/short_circuit` an unreviewed n/a cell and ~13 PRs sat red on it for two days.)
+
 ## Reproducing locally
 
 ```sh

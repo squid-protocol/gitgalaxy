@@ -15,17 +15,17 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | node-packages | 2 | 0 | 0 | 0 | 0 |
 | toolchain | 1 | 0 | 0 | 0 | 0 |
 | docker | 4 | 0 | 0 | 0 | 10 |
-| maven-gradle | 7 | 0 | 0 | 0 | 1 |
-| git-fetch | 22 | 0 | 0 | 0 | 4 |
-| gh-download | 0 | 0 | 0 | 0 | 1 |
-| gh-api | 15 | 0 | 0 | 0 | 12 |
+| maven-gradle | 8 | 0 | 0 | 0 | 0 |
+| git-fetch | 25 | 0 | 0 | 0 | 1 |
+| gh-download | 1 | 0 | 0 | 0 | 0 |
+| gh-api | 18 | 0 | 0 | 0 | 9 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 122 | 84 | 54 | 208 | 28 |
+| **total** | 130 | 84 | 54 | 208 | 20 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -34,11 +34,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `gh-api` - archetype-validation / Find the open retrain issue
 - `gh-api` - archetype-validation / Open or update the retrain issue
 - `gh-api` - archetype-validation / Close the retrain issue once every level recovers
-
-### cache-prune.yml
-
-- `gh-api` - prune / Cache usage before
-- `gh-api` - prune / Cache usage after
 
 ### cics-crucible.yml
 
@@ -67,18 +62,9 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `docker` - det-mutation / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - lane / Pin the commit of main this run is of
 - `docker` - records / Load or build the oracle image, and check it against its pin (#4309)
-- `gh-api` - refresh / Push lane - hold the PR back if a full run has started meanwhile (#4743)
 - `git-fetch` - refresh / Advance gitgalaxy to latest origin/main before staging the bot PR
 - `gh-api` - refresh / Enable squash auto-merge on the bot PR
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)
-
-### referee-panel.yml
-
-- `git-fetch` - panel / Install Cobrix
-- `maven-gradle` - panel / Install Cobrix
-- `git-fetch` - panel / Install tree-sitter-cobol-enterprise
-- `gh-download` - panel / Install Che4z COBOL Language Support
-- `git-fetch` - panel / Install mapa
 
 ### smoke-test.yml
 

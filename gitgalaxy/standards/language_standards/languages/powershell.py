@@ -282,7 +282,9 @@ DEFINITION: dict[str, Any] = {
         # `structural_boundaries` below (`(?:return|exit)\b`), so this is a pure
         # de-duplication. Corpus impact: powershell branch 10 (planted 3, +100%) -> exact.
         "branch": re.compile(
-            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|break|continue)\b|\?\?|(?<=\s)\?(?=\s|\{)",
+            # #8903: `[switch]` is a parameter TYPE (preceded by `[`), and `ForEach-Object` is an
+            # iteration cmdlet (the `comprehensions` rule owns it), not a statement.
+            r"(?<![-$.\[])\b(if|else|elseif|switch|for|foreach(?!-)|while|do|until|break|continue)\b|\?\?|(?<=\s)\?(?=\s|\{)",
             re.I,
         ),
         "short_circuit": re.compile(r"(?<![-$.\w])-(?:and|or|xor)\b"),
@@ -328,7 +330,7 @@ DEFINITION: dict[str, Any] = {
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(" + _PS_PARENS + r")\s*[ \t\n]*\{",
             re.I | re.M,
         ),
-        # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
+        # structural_boundaries (Structural Keywords). Structural boundaries defining scope (process, begin, end).
         # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
         "structural_boundaries": re.compile(
             r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[" + ID_START + r"]"
@@ -504,7 +506,15 @@ DEFINITION: dict[str, Any] = {
         # ~n chars before failing) -- confirmed via scaling measurements
         # (~4x slowdown per input-size doubling). Bounded quantifiers cap
         # the per-position scan cost, same fix shape as go/dart closures.
-        "closures": re.compile(r"\{\s{0,20}(?:param\s{0,10}\([^)]{0,300}\))?[^}]{0,500}\}", re.I),
+        # #8903: a scriptblock counts only where it is a VALUE (right of `=`, `|`, `(`, `,`, `&`,
+        # `.`, a `-Param` name, or a cmdlet that takes one), never the body of `function f {`,
+        # `if (...) {`, `else {` or a `@{` hashtable.
+        "closures": re.compile(
+            r"(?:[|=(,&.]|-[A-Za-z]\w{0,40}|(?<![\w$-])(?:ForEach-Object|Where-Object|Select-Object"
+            r"|Sort-Object|Group-Object|Start-Job|Start-ThreadJob|Invoke-Command|ForEach|Where)|%|\?)"
+            r"[ \t]{0,20}\{\s{0,20}(?:param\s{0,10}\([^)]{0,300}\))?[^}]{0,500}\}",
+            re.I,
+        ),
         # globals: Global / Shared State. Environment and global/script scope variables.
         "globals": re.compile(
             r"\$(?:global|env|script):["

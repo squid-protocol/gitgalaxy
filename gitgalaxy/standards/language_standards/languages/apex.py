@@ -128,7 +128,7 @@ DEFINITION: dict[str, Any] = {
             r"([a-zA-Z_]\w*)\s*(\([^)]*\))(?=[ \t\n]*\{)",
             re.M | re.I,
         ),
-        # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and sharing keywords.
+        # 3. structural_boundaries (Structural Keywords): structural boundaries. EXCLUDES access modifiers and sharing keywords.
         "structural_boundaries": re.compile(
             r"\b(class|interface|trigger|enum|final|transient|implements|extends|virtual|abstract|return)\b",
             re.I,

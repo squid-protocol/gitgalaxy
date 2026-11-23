@@ -57,7 +57,7 @@ DEFINITION: dict[str, Any] = {
         # A keyword inside a string literal is not a decision.
         "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        # branch: if / elif / else / when / case / of arms / loops / try-except-finally. An `of` counts only as a
+        # branch: if / elif / else / when / case / of arms / loops. A handler (try / except / finally) is not a decision (#8926). An `of` counts only as a
         # case arm (line-leading): `object of RootObj` is inheritance.
         "branch": re.compile(
             r"\b(?:if|elif|else|when|case|for|while)\b|^[ \t]*of\b",

@@ -162,6 +162,27 @@ def test_roxygen_and_testthat_signals():
     assert _hits("test", 'test_that("a", {\n  expect_equal(1, 1)\n})\n') == ["test_that(", "expect_equal("]
 
 
+def test_args_span_lines_and_calls_in_defaults_8925():
+    src = (
+        "f_call <- function(a, b = g()) {\n  a\n}\n"
+        "f_multi <- function(a,\n                    b) {\n  a\n}\n"
+        "f_plain <- function(a, b) { a }\n"
+        "f_deep <- function(a,\n  b = g(h(1)),\n  c = 3) {\n  a\n}\n"
+        "f_none <- function(\n) {\n  1\n}\n"
+    )
+    fns = {f["name"]: f["args"] for f in _splice(src)["functions"]}
+    assert fns == {"f_call": 2, "f_multi": 2, "f_plain": 2, "f_deep": 3, "f_none": 0}
+
+
+def test_closures_count_named_argument_and_wrapped_functions_8925():
+    assert len(_hits("closures", "tryCatch(x, error = function(e) 1)\n")) == 1
+    assert len(_hits("closures", "lapply(xs,\n  function(x) x)\n")) == 1
+    assert len(_hits("closures", "sapply(xs, \\(x) x + 1)\n")) == 1
+    # a named definition at statement start is a function, not a closure; `==` is not a named argument
+    assert _hits("closures", "total = function(xs) sum(xs)\n") == []
+    assert _hits("closures", "f(a == function(x) 1)\n") == []
+
+
 def test_every_rule_survives_pathological_input():
     payloads = [
         "x <- function(" + "a, " * 4000 + "\n",
@@ -174,6 +195,8 @@ def test_every_rule_survives_pathological_input():
         "# " + "function(" * 5000 + "\n",
         "library(" + "a." * 5000 + "\n",
         "R6Class(" + "R6Class(" * 3000 + "\n",
+        "x <- function(" + "a,\n" * 5000 + "(" * 3000,
+        "f(" + "a,\n  function(" * 3000 + "\n",
     ]
     pairs = [(rule, p) for rule in [r for r in RULES.values() if hasattr(r, "finditer")] for p in payloads]
     assert_redos_immune_all(pairs)

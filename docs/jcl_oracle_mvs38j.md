@@ -196,7 +196,7 @@ another worker's slot and the box ran on.
 
 1. Hercules restart between smp1 and smp2 (each stage is its own Hercules run today; verified live on fresh volumes).
 2. Moseley's "Customizing MVS" page (not read beyond the IPL replies).
-3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`, no OUTPUT statement in 3.8J); the checkpoint restarts are done (`RSTJOB4` / `11` / `12`, SYSCHK, below); the `carddemo` COND slice is done (below). IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here.
+3. Probe run, remaining classes (the COND / EVEN / ONLY, PROC, data-flow, GDG, step-restart and IEBGENER / IEBCOPY / IEFBR14 slices are done, below): SYSOUT class (`SYSJOB`, no OUTPUT statement in 3.8J); the checkpoint restarts are done (`RSTJOB4` / `11` / `12`, SYSCHK, below); the `carddemo` COND slice is done (below). IF / THEN / ELSE (`ifelse`, `ifflow_scenarios.json`) cannot run here. The PROC `KNDJOB` DD-kind scenarios are done; still expressible and not run: `DUPJOB` E1 / E2 (a duplicated symbolic in a PROC statement or EXEC call: 3.8J may reject it as a JCL error, which would itself be the finding) and `SSJOB` E2 (nullified symbol `C=`, once its `SET` is dropped). Every other unrun `proc` / `gdg` / `restart` scenario needs `SET`, `JCLLIB`, `INCLUDE`, a nested or library procedure, `IF`, `GDGBIAS` or `OUTPUT` (the "cannot test" list).
 
 ## Probe run (#8414): COND / EVEN / ONLY
 
@@ -215,13 +215,13 @@ the fixture's; an abend code other than S806 (a user abend would need a program 
 
 ## Probe run (#8414): PROC symbolics and overrides
 
-`probe.py proc --printer FILE` runs the eight `tests/equivalence/jcl/proc` scenarios 3.8J can express: `SYMJOB` S1 to S3 (symbolics and
-defaults), `OVRJOB` O1 to O3 (EXEC `PARM.` / `COND.` overrides, a DD override, an added DD), `PCJOB` C1 and C2 (PARM / COND on the call). The
+`probe.py proc --printer FILE` runs the eleven `tests/equivalence/jcl/proc` scenarios 3.8J can express: `SYMJOB` S1 to S3 (symbolics and
+defaults), `OVRJOB` O1 to O3 (EXEC `PARM.` / `COND.` overrides, a DD override, an added DD), `PCJOB` C1 and C2 (PARM / COND on the call), `KNDJOB` W1 to W3 (a DD's kind: `DUMMY`, `DSN=NULLFILE` and `SYSOUT` overrides of a procedure DD; the log's `DMY` / `JES2` allocation lines name no dataset). The
 SET, JCLLIB, INCLUDE and nested-procedure jobs have no 3.8J form. The deck keeps the job's procedure and that one call with its override
 DDs; every `PGM=` becomes IEFBR14 and every DD keeps its DSN, allocated new on SYSDA (so the log names it). The observation channel is the
 job log itself: `IEF236I` (the step, `procstep call`), `IEF237I` (each ddname), `IEF285I` (each DSN, in DD order) and `IEF653I`
 (a symbol's substituted PARM). `tests/equivalence/jcl/proc/mvs38j_probe.json` holds `expect`, `engine` (`jcl_proc.resolve_job`) and `box`
-per scenario. Run 2026-11-20: **8 of 8 agree**, and the first live `PROCSTEP` lines (`IEF142I OVRJOB A1 O3`, `A2 O3`) came from it.
+per scenario. Run 2026-11-20: **8 of 8 agree**, and the first live `PROCSTEP` lines (`IEF142I OVRJOB A1 O3`, `A2 O3`) came from it. Rerun 2026-11-23 with `KNDJOB`: **11 of 11 agree** (3.8J accepts a `DUMMY` override, `DSN=NULLFILE` and `SYSOUT` over a `DUMMY` as the manuals say).
 
 What the box cannot show, so it is listed as `unobserved` in every result and not compared: the resolved `PGM` (replaced by IEFBR14), a
 `PARM` that is not symbolic and every `COND` (IEFBR14 ends 0 and each COND here runs the step). The override rules for PARM / COND are

@@ -1896,6 +1896,19 @@
    ]
   },
   {
+   "id": "b6914a49d6",
+   "op": "DEL",
+   "line": 203,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "drops the finally-restore of the TRUNC setting after runTask: the setting leaks to the next task of the same JVM, but every PCIMMS entry stores TRUNC(STD) again at line 119 before any statement runs, and the case enters no other program (nothing LINKs or XCTLs to PCIMMS in the crucible); six scenarios over terminal, AID, startcode and injected RETURN / WRITEQ TS faults all gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
+   ]
+  },
+  {
    "id": "19f7380c1a",
    "op": "CON",
    "line": 204,
@@ -1908,6 +1921,19 @@
    ]
   },
   {
+   "id": "fa62b307a5",
+   "op": "DEL",
+   "line": 204,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "drops the finally-restore of the NUMPROC setting after runTask: the next PCIMMS entry stores NOPFD again at line 120 before any statement runs and PCIMMS has no numeric sign handling that depends on it; the same six scenarios gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
+   ]
+  },
+  {
    "id": "1380dcde82",
    "op": "DEL",
    "line": 207,
@@ -1917,6 +1943,19 @@
    "reason": "f17_EIBCALEN is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f7253d3791",
+   "op": "LIT",
+   "line": 211,
+   "before": "region.run(task, \"PCIMMS\", this::runTask);",
+   "after": "region.run(task, \"XCIMMS\", this::runTask);",
+   "verdict": "equivalent",
+   "reason": "renames the program in the byte-less handleTransaction overload (PCIMMS to XCIMMS): PCIMMS issues only RETURN TRANSID IMMEDIATE and WRITEQ TS, no ASSIGN PROGRAM / LINK / XCTL / INQUIRE PROGRAM, so the run name is read by nothing it shows; the same six scenarios (no-terminal, another terminal and AID, startcode S, RETURN INVREQ, WRITEQ TS INVREQ) gave the same events",
+   "tried": [
+    "return-invreq",
+    "return-then-writeq-fails"
    ]
   },
   {

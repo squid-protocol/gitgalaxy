@@ -107,6 +107,10 @@ ABSENT_OK = {
         "db2.ccsid.EBCDIC_CCSID": "no bind card or precompile PARM names one",
         "db2.bind.ISOLATION": "no bind card in the corpus names an isolation",
     },
+    "estate-crucible": {  # Batch Badlands (#7065): its one bind is BDLDUT5.jcl step BND040, BIND PACKAGE / PLAN with ACTION(REPLACE) only
+        "db2.ccsid.EBCDIC_CCSID": "the corpus's only bind (BDLDUT5.jcl BND040) names no ENCODING and there is no precompile PARM",
+        "db2.bind.ISOLATION": "the corpus's only bind (BDLDUT5.jcl BND040) names no ISOLATION",
+    },
     "example-health-apis": {
         "db2.format.DATE": "no Db2 format card in the corpus (the Visit Db2 cases take the engine defaults)",
         "db2.format.TIME": "same",

@@ -2278,6 +2278,31 @@ _DECORATOR_LOOKBACK_LINES = 60
 _BRACKET_DEPTH = str.maketrans({"(": "(", "[": "(", "{": "(", ")": ")", "]": ")", "}": ")"})
 
 
+def _erlang_leading_attributes(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
+    """#8923: count `-spec` / `-type`-style attribute lines in the unbroken block directly above a clause head.
+
+    A `-spec` may continue on indented lines; the walk stops at a blank line or a column-0 line that is not an
+    attribute (the previous function's head), so a clause after `;` finds none.
+    """
+    if rule is None:
+        return 0
+    pos = code.rfind("\n", 0, def_idx) + 1
+    count = 0
+    seen = 0
+    while pos > 0 and seen < _DECORATOR_LOOKBACK_LINES:
+        prev = code.rfind("\n", 0, pos - 1) + 1
+        line = code[prev : pos - 1]
+        seen += 1
+        pos = prev
+        if not line.strip():
+            break
+        if rule.match(line):
+            count += 1
+        elif line[0] not in " \t%":
+            break
+    return count
+
+
 def _haskell_leading_pragmas(code: str, def_idx: int, rule: "re.Pattern[str] | None") -> int:
     """Count of `{-# ... #-}` pragmas in the contiguous run of pragma/blank lines directly above `def_idx`."""
     if rule is None:
@@ -10515,6 +10540,11 @@ class StructuralExtractor:
                         sat_end_char,
                         spatial_map,
                     )
+                    if lang_id == "erlang" and satellite_name != "Declarative_Block":
+                        # #8923: the `-spec` above a function sits outside its unit.
+                        attrs = _erlang_leading_attributes(code, sat_start_char, rules.get("decorators"))
+                        if attrs:
+                            sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + attrs
                     satellites.append(sat)
                     sum_fxn_impact += mag
 

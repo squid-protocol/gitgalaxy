@@ -203,7 +203,8 @@ def test_crucible_missing_checkout_is_refused(tmp_path, monkeypatch):
 
 def test_bare_fetch_takes_the_crucible_and_a_named_fetch_does_not():
     bare = mc.fetch_targets([])
-    assert bare[: len(CORPORA)] == CORPORA and [c["name"] for c in bare[len(CORPORA) :]] == ["cics-crucible"]
+    crucibles = [c["name"] for c in bare[len(CORPORA) :]]
+    assert bare[: len(CORPORA)] == CORPORA and crucibles == ["cics-crucible", "estate-crucible"]
     assert mc.fetch_targets([CORPORA[0]["name"]]) == [CORPORA[0]]
 
 

@@ -104,6 +104,13 @@ swift and apex listed `\?` before `\?\?`, so the single `?` arm won and `a ?? b`
 read 2.
 Dart's bare `?` is anchored on a ternary position (whitespace before it, not `?.`, `?[`, `?..`): a nullable type `T?` and null-aware access are not decisions (#8906); an unspaced `a?b:c` is a known undercount.
 
+**Erlang's clause arrow (#8923).** A function's own head-to-body `->` is not a decision (`inc(X) -> X + 1.` is 0). A
+`case`/`if`/`receive`/`try` is one hit, each arm (an indented `->` line outside a `fun`) is one hit, and `of` is not
+counted. A clause head after a `;` line is an arm-opener by pattern, so the second and later clauses of a multi-clause
+function count (a three-clause function is 2). A `fun(X) -> ...` arrow is not an arm. Limit: a multi-line clause head
+whose guard `->` sits on an indented line counts once. A `-spec` / `-type` attribute directly above a function is that
+function's `decorators` hit.
+
 **Swift's `?`, `for`, `case` and `default` (#8895).** Swift counts the ternary `?`
 only where it has whitespace on both sides: an optional type (`Int?`), a chain
 (`x?.y`), `try?` and `as?` are not decisions. `for` is a loop, not an argument

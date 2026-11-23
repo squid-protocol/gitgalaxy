@@ -457,7 +457,7 @@ def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: 
             x_rel = f"service/{x.service}.java"
             (work / "linked" / x_rel).write_text(x.java, encoding="utf-8")
             files[x_rel] = work / "linked" / x_rel
-        for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
+        for rt, text in P.project_runtime(PKG, project).items():
             dest = work / "linked" / rt
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(text, encoding="utf-8")
@@ -476,7 +476,7 @@ def det_runtime(overlay: list[str], sources: dict[str, Path], project: Path, wor
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     files: dict[str, Path] = {}
-    for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
+    for rt, text in P.project_runtime(PKG, project).items():
         dest = work / "det_runtime" / rt
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(text, encoding="utf-8")

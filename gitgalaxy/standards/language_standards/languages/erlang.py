@@ -48,7 +48,15 @@ DEFINITION: dict[str, Any] = {
         # A call-graph extractor is not built yet (#6572 sibling): declare it unsupported rather than guess.
         "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|case|of|try|catch|after|receive)\b|->"),
+        # #8923: one hit per arm-opener. The keyword opens the construct, each indented `->` line (outside a `fun`)
+        # is an arm, and a clause head after a `;` line is a later clause. A function's own head-to-body arrow and
+        # `of` (the case's own word) are not decisions.
+        "branch": re.compile(
+            r"\b(?:if|case|try|catch|after|receive)\b"
+            r"|^[ \t]+(?:(?!\bfun\b)[^\n%]){0,200}->"
+            r"|(?:(?<=;\n)|(?<=;\r\n))" + _ATOM + r"(?=[ \t]*\()",
+            re.M,
+        ),
         "short_circuit": re.compile(r"\b(?:andalso|orelse)\b"),
         # args: group 1 is the parameter list of a function clause head at the start of a line.
         "args": re.compile(r"^" + _ATOM + r"[ \t]*\((" + _PARAMS + r")\)[ \t]*(?:when\b|->|$)", re.M),

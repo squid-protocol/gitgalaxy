@@ -138,7 +138,10 @@ def test_safety_bypasses_and_high_risk():
 
 
 def test_branches_and_concurrency():
-    assert _hits("branch", "case X of\n    a -> 1\nend") == ["case", "of", "->"]
+    # #8923: the case and its arm count; `of` and a function's own head arrow do not.
+    assert _hits("branch", "case X of\n    a -> 1\nend") == ["case", "a ->"]
+    assert _hits("branch", "inc(X) -> X + 1.\n") == []
+    assert _hits("branch", "f() ->\n    G = fun(Y) -> Y end,\n    G(1).\n") == []
     assert _hits("concurrency", "Pid = spawn(fun() -> ok end),\nPid ! stop,\n") == ["spawn(", "! s"]
 
 
@@ -162,3 +165,60 @@ def test_every_rule_survives_pathological_input():
     ]
     pairs = [(rule, p) for rule in [r for r in RULES.values() if hasattr(r, "finditer")] for p in payloads]
     assert_redos_immune_all(pairs)
+
+
+_ISSUE_8923 = (
+    "-module(m).\n"
+    "-spec inc(integer()) -> integer().\n"
+    "inc(X) -> X + 1.\n"
+    "\n"
+    "real(X) ->\n"
+    "    case X of\n"
+    "        1 -> one;\n"
+    "        _ -> other\n"
+    "    end.\n"
+    "\n"
+    "multi(a) ->\n"
+    "    1;\n"
+    "multi(b) ->\n"
+    "    2;\n"
+    "multi(_) ->\n"
+    "    F = fun(Y) -> Y end,\n"
+    "    F(3).\n"
+    "\n"
+    "recv() ->\n"
+    "    receive\n"
+    "        ping -> pong;\n"
+    "        _ -> ok\n"
+    "    end.\n"
+    "\n"
+    "guarded(X) ->\n"
+    "    if\n"
+    "        X > 1 -> big;\n"
+    "        true -> small\n"
+    "    end.\n"
+    "\n"
+    "ref() ->\n"
+    "    fun inc/1.\n"
+)
+
+
+def _vectors() -> dict:
+    return {f["name"]: f["hit_vector"] for f in _splice(_ISSUE_8923)["functions"] if f["name"] != "Declarative_Block"}
+
+
+def test_issue_8923_branch_counts_decisions_not_the_head_arrow():
+    v = _vectors()
+    assert v["inc"].get("branch", 0) == 0
+    assert v["real"]["branch"] == 3  # the case and its two arms
+    assert v["multi"]["branch"] == 2  # the second and third clause heads; the fun arrow is not an arm
+    assert v["recv"]["branch"] == 3  # receive + two arms
+    assert v["guarded"]["branch"] == 3  # if + two arms
+    assert v["ref"].get("branch", 0) == 0
+
+
+def test_issue_8923_spec_above_a_function_is_its_decorator():
+    v = _vectors()
+    assert v["inc"]["decorators"] == 1
+    assert "decorators" not in v["real"]
+    assert v["ref"]["closures"] == 1

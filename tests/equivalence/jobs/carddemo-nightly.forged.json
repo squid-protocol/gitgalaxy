@@ -11,6 +11,7 @@
     "CREASTMT": "CREASTMT.JCL",
     "TRANIDX": "TRANIDX.jcl"
   },
+  "forge_utility_jobs": ["TRANBKP", "COMBTRAN", "TRANIDX"],
   "datasets": {
     "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
       "job": "CREASTMT", "lrecl": 350, "recfm": "FB",

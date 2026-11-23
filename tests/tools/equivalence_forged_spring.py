@@ -186,10 +186,21 @@ def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
 
 
 def forge_estate(
-    ir, corpus: Path, cbl_dir: str, jcl_members: dict[str, str], package: str = "com.gitgalaxy", datasets=None
+    ir,
+    corpus: Path,
+    cbl_dir: str,
+    jcl_members: dict[str, str],
+    package: str = "com.gitgalaxy",
+    datasets=None,
+    utility_jobs=(),
 ):
-    """The real forge over the estate: skeletons for the corpus's own COBOL programs, the scan's job rows."""
-    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge
+    """The real forge over the estate: skeletons for the corpus's own COBOL programs, the scan's job rows.
+
+    `utility_jobs` (#8886 slice 6) names utility-only jobs (IDCAMS / SORT steps, no program) to generate anyway. The
+    forge lists those and generates none, by design (`BatchForge` docstring); here each is planned as an application
+    job so its steps RUN under Spring and the forge's own named refusal for each step is read back, not assumed. The
+    forge is untouched: only the classification of the named jobs is overridden, and the job keeps `forged_utility`."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge as _Forge
     from gitgalaxy.tools.cobol_to_java.java_target import load_target
 
     files = {f"jcl/{m}" for m in jcl_members.values()}
@@ -204,7 +215,21 @@ def forge_estate(
         "job_dds": {"facts": dds},
         "job_sysin": {"facts": sysin},
     }
+    names = set(utility_jobs)
+
+    class BatchForge(_Forge):
+        def _plan(self, j, dds):
+            job = super()._plan(j, dds)
+            job.forged_utility = job.kind == "utility" and job.job in names
+            if job.forged_utility:
+                job.kind, job.reason = "application", f"utility-only, forged on request ({job.reason})"
+            return job
+
     return BatchForge(skeletons, {"sections": sections}, package, load_target(None))
+
+
+def _kind(job) -> str:
+    return "utility (forged)" if getattr(job, "forged_utility", False) else job.kind
 
 
 def _service_class(key: str) -> str:
@@ -292,6 +317,15 @@ def run_forged(
     return out
 
 
+def _not_run(forge, job, jcl_step: str) -> str | None:
+    """Why the forge runs no code for this step (its own `steps.utility` TODO), None when it runs one."""
+    for st in job.steps:
+        if st.jcl == jcl_step:
+            todo = forge._step_todo(st)
+            return todo.split(": ", 1)[-1] if todo else None
+    return None
+
+
 def compare_run(forge, spec: dict, rcs: dict, ran: set[str], run: dict) -> list[dict]:
     """Per case step, what each Spring run did against what the chain did. `rcs` is `chain_rcs(report)`, `ran` the
     case steps IBM reached."""
@@ -301,7 +335,7 @@ def compare_run(forge, spec: dict, rcs: dict, ran: set[str], run: dict) -> list[
         cname = m["case"]
         job = kinds[m["job"]]
         want = f"RC={rcs[cname]}" if cname in ran and rcs.get(cname) is not None else None
-        row = {"case": cname, "job": m["job"], "jcl_steps": m["jcl_steps"], "kind": job.kind, "modes": {}}
+        row = {"case": cname, "job": m["job"], "jcl_steps": m["jcl_steps"], "kind": _kind(job), "modes": {}}
         for mode in ("strict", "skip"):
             issues: list[str] = []
             if job.kind != "application":
@@ -320,6 +354,9 @@ def compare_run(forge, spec: dict, rcs: dict, ran: set[str], run: dict) -> list[
                 elif cname not in ran:
                     if code != "BYPASSED":
                         issues.append(f"{j}: forged job ran it ({code}), the chain never reached it")
+                elif mode == "skip" and (why := _not_run(forge, job, j)):
+                    # skip-unimplemented returns 0 for a step the forge cannot run: never an RC the chain's answer matches
+                    issues.append(f"{j}: not run, skip-unimplemented returned {code}: {why}")
                 elif want is not None and code != want:
                     issues.append(f"{j}: forged {code}, chain {want}")
             row["modes"][mode] = {
@@ -339,7 +376,14 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
         for sub, d in (("jcl", spec["jcl_dir"]), ("proc", spec["proc_dir"])):
             shutil.copytree(corpus / d, estate / sub)
         ir = load_galaxy_ir(scan_to_db(estate, work / "scan"))
-        forge = forge_estate(ir, corpus, spec.get("cbl_dir", "app/cbl"), spec["jobs"], datasets=spec.get("datasets"))
+        forge = forge_estate(
+            ir,
+            corpus,
+            spec.get("cbl_dir", "app/cbl"),
+            spec["jobs"],
+            datasets=spec.get("datasets"),
+            utility_jobs=spec.get("forge_utility_jobs", ()),
+        )
         rcs = chain_rcs(report)
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])
         # a program step's stub returns the RC of the case step that covers it
@@ -350,7 +394,7 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
-            "jobs": {j.job: {"kind": j.kind, "reason": j.reason} for j in forge.jobs},
+            "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`
                 f"{j.job}.{st.jcl}" for j in forge.applications for st in j.steps if st.idcams_deck

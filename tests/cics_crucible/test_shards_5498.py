@@ -148,8 +148,10 @@ def test_cics_busy_queue_halves_the_cap(monkeypatch):
 def test_cics_unmeasured_cases_are_a_grace_then_a_loud_failure():
     ids = sorted(runner.CASE_SECONDS)
     assert plan.cics_plan([*ids, "new-a", "new-b"])["shards"] >= 1  # a PR adding a couple of cases
+    # 2026-11-23: past a quarter unmeasured the plan warns and plans at the median; it fails only past half
+    assert plan.cics_plan([*ids, *_cases(len(ids) // 2)])["shards"] >= 1
     with pytest.raises(plan.sp.PlanError, match="no measured duration"):
-        plan.cics_plan([*ids, *_cases(len(ids))])
+        plan.cics_plan([*ids, *_cases(len(ids) + 1)])
 
 
 def test_case_ids_are_the_discovered_case_directories(tmp_path):
@@ -191,8 +193,9 @@ def test_doom_growth_adds_shards_up_to_the_cap_and_busy_halves_it():
 def test_doom_port_without_a_golden_fails_loudly_past_the_grace():
     loc = _ports(10)
     assert plan.doom_plan(loc, [*sorted(loc), "extra"])["shards"] >= 1
+    assert plan.doom_plan(loc, [*sorted(loc), *_cases(8)])["shards"] >= 1  # 8 of 18 unmeasured: a warning, not a failure
     with pytest.raises(plan.sp.PlanError, match="port"):
-        plan.doom_plan(loc, [*sorted(loc), *_cases(8)])
+        plan.doom_plan(loc, [*sorted(loc), *_cases(12)])  # 12 of 22: past half, the feed has stopped
 
 
 def test_the_real_doom_manifest_and_goldens_plan_cleanly():

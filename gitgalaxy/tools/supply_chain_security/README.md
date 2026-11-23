@@ -73,7 +73,7 @@ repos:
 The tools can run through the [GitGalaxy GitHub Action](https://github.com/marketplace/actions/gitgalaxy-scanner). The example below runs the gate step; it fails the job when the gate counts a threat. `BLACKLISTED_IMPORTS` ships empty and `STRICT_IMPORT_MODE` is off, so configure them first or the step passes.
 
 ~~~yaml
-name: GitGalaxy Zero-Trust Audit
+name: GitGalaxy Import Policy Audit
 on: [pull_request]
 
 jobs:

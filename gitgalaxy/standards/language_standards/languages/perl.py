@@ -76,6 +76,8 @@ DEFINITION: dict[str, Any] = {
     # #3544: ...and a candidate must end in A/B even when it is the only B.pm.
     "import_path_mirrors_module_path": True,
     "rules": {
+        # #8908: strings and regex literals are not code for these three rules (detector `perl_literals`).
+        "_scope_filters": {"branch": "perl_literals", "decorators": "perl_literals", "bitwise_ops": "perl_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_PERL,  # #6433: paren-less calls
         "_calls_out_ignore": frozenset(
@@ -103,8 +105,10 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
         "branch": re.compile(
-            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|continue|default)\b|//|\?|(?<!:):(?!:)"
+            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|continue|default)\b|//|\?"
         ),
+        # #8908: a ternary is one decision, counted at its `?` (as java/ruby, #2833); its `:` and a statement
+        # label's `:` are not decisions (the label's loop keyword counts). Literal text never counts.
         "short_circuit": re.compile(r"&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
         # #1209: parameter-list span wrapped in its own capture group in

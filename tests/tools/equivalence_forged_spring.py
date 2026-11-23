@@ -178,14 +178,19 @@ def run_forged(forge, rc_by_step: dict[tuple[str, str], int | None], datasets: P
     jars = classpath()
     if jars is None or not shutil.which("javac") or not shutil.which("java"):
         return None
-    (src,) = forge.sources().values()
+    sources = forge.sources()
+    src = sources[("base_pkg", "batch")]
     srcdir = work / "src"
-    for name, text in src.items():
-        if name == "BatchJobController":  # the REST endpoint: needs spring-web, not part of a job's run
-            continue
-        d = srcdir / "com/gitgalaxy/batch"
-        d.mkdir(parents=True, exist_ok=True)
-        (d / f"{name}.java").write_text(text, "utf-8")
+    for (
+        _,
+        where,
+    ), group in sources.items():  # the batch classes, and the IDCAMS twin (cobolrt/job) when a step runs it
+        for name, text in group.items():
+            if name == "BatchJobController":  # the REST endpoint: needs spring-web, not part of a job's run
+                continue
+            d = srcdir / "com/gitgalaxy" / where
+            d.mkdir(parents=True, exist_ok=True)
+            (d / f"{name}.java").write_text(text, "utf-8")
     sd = srcdir / "com/gitgalaxy/service"
     sd.mkdir(parents=True)
     rcs: dict[str, int] = {}
@@ -289,6 +294,9 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
             "rows": rows,
             "jobs": {j.job: {"kind": j.kind, "reason": j.reason} for j in forge.jobs},
             "raw": run,
+            "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`
+                f"{j.job}.{st.jcl}" for j in forge.applications for st in j.steps if st.idcams_deck
+            ),
         }
     finally:
         shutil.rmtree(work, ignore_errors=True)

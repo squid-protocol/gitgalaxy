@@ -1,6 +1,7 @@
 """#4268: an IDCAMS step of a generated JCL job runs as a record copy only while its SYSIN is one
 `REPRO INFILE(dd) OUTFILE(dd)` over two datasets of the step (`det/idcams.py`, proven against GnuCOBOL in
-test_dfsort_4268.py); any other command or parameter is refused by name through `steps.utility`."""
+test_dfsort_4268.py); any other deck the IDCAMS model (`det/idcams_model.py`, #8886) can run becomes `steps.idcams`, and what the model
+refuses is refused by name through `steps.utility`."""
 
 import pytest
 
@@ -28,9 +29,8 @@ def _forge(decks: list[str], dds: list[dict] = DDS) -> BatchForge:
 
 
 def _tasklet(forge: BatchForge) -> str:
-    (src,) = forge.sources().values()
-    (cfg,) = (t for k, t in src.items() if k.endswith("JobConfig"))
-    (line,) = (ln for ln in cfg.splitlines() if 'steps.copy("IDC"' in ln or 'steps.utility("IDC"' in ln)
+    cfg = next(t for k, t in forge.sources()[("base_pkg", "batch")].items() if k.endswith("JobConfig"))
+    (line,) = (ln for ln in cfg.splitlines() if any(f'steps.{m}("IDC"' in ln for m in ("copy", "utility", "idcams")))
     return line.strip()
 
 
@@ -53,22 +53,42 @@ def test_a_repro_is_a_copy_over_its_two_dds(deck):
 @pytest.mark.parametrize(
     ("deck", "named"),
     [
-        (" DELETE APP.OUT\n", "the IDCAMS DELETE command"),
-        (" DEFINE CLUSTER(NAME(APP.K))\n", "the IDCAMS DEFINE command"),
         (" LISTCAT ENTRIES(APP.IN)\n", "the IDCAMS LISTCAT command"),
         (" PRINT INFILE(IN1)\n", "the IDCAMS PRINT command"),
-        (" REPRO INFILE(IN1) OUTFILE(OUT1) SKIP(2)\n", "the IDCAMS REPRO SKIP parameter"),
-        (" REPRO INFILE(IN1) OUTFILE(OUT1) REPLACE\n", "the IDCAMS REPRO REPLACE parameter"),
-        (" REPRO INFILE(IN1/PW) OUTFILE(OUT1)\n", "the IDCAMS REPRO INFILE password"),
-        (" REPRO INFILE(IN1)\n", "the IDCAMS REPRO without OUTFILE"),
-        (" REPRO INFILE(IN1) OUTFILE(OUT1)\n DELETE APP.IN\n", "more than one IDCAMS command"),
         (" REPRO INFILE(IN1) OUTFILE(NOPE)\n", "names the DD NOPE"),
     ],
 )
-def test_anything_else_is_refused_by_name(deck, named):
+def test_what_the_model_refuses_is_refused_by_name(deck, named):
     line = _tasklet(_forge([deck]))
     assert 'steps.utility("IDC"' in line and named in line
     assert "1 utility steps to port" in _forge([deck]).audit_line()
+
+
+@pytest.mark.parametrize(
+    "deck",
+    [
+        " DELETE APP.OUT\n",
+        " DEFINE CLUSTER(NAME(APP.K))\n",
+        " REPRO INFILE(IN1) OUTFILE(OUT1)\n DELETE APP.IN\n",
+    ],
+)
+def test_a_deck_the_model_runs_is_lowered_with_its_text(deck):
+    forge = _forge([deck])
+    line = _tasklet(forge)
+    assert 'steps.idcams("IDC"' in line and 'DDS_IDC, "' in line and "\n" not in line
+    assert "0 utility steps to port" in forge.audit_line()
+    sources = forge.sources()
+    assert "Idcams" in sources[("base_pkg", "cobolrt/job")]
+    (steps,) = (t for k, t in sources[("base_pkg", "batch")].items() if k.endswith("JclSteps"))
+    assert "public Tasklet idcams(" in steps and "cobolrt.job.Idcams" in steps and "//{" not in steps
+
+
+def test_an_estate_with_no_lowered_idcams_step_carries_no_model():
+    forge = _forge([" REPRO INFILE(IN1) OUTFILE(OUT1)\n"])
+    sources = forge.sources()
+    assert ("base_pkg", "cobolrt/job") not in sources
+    (steps,) = (t for k, t in sources[("base_pkg", "batch")].items() if k.endswith("JclSteps"))
+    assert "Idcams" not in steps and "//{" not in steps
 
 
 def test_a_sysin_dataset_is_refused_not_copied():
@@ -81,7 +101,7 @@ def test_no_in_stream_sysin_is_refused():
 
 
 def test_the_java_copy_is_one_method_for_both_utilities():
-    (src,) = _forge([" REPRO INFILE(IN1) OUTFILE(OUT1)\n"]).sources().values()
+    src = _forge([" REPRO INFILE(IN1) OUTFILE(OUT1)\n"]).sources()[("base_pkg", "batch")]
     (steps,) = (t for k, t in src.items() if k.endswith("JclSteps"))
     assert steps.count("public Tasklet copy(") == 2 and "inDd, outDd" in steps
     assert '"SYSUT1", "SYSUT2"' in steps

@@ -46,7 +46,7 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams, ims_region, tso
+from gitgalaxy.tools.cobol_to_java.det import dfsort, idcams, idcams_model, ims_region, tso
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget, record_charset_java
 
 SUBPACKAGE = "batch"
@@ -91,6 +91,9 @@ class Step:
     lowered_note: str = ""  # where its record length came from
     lowered_path: str = ""  # its resource, set once the job's class is named
     copy_dds: tuple[str, str] | None = None  # #4268: the (input, output) DDs of an IDCAMS REPRO copy
+    idcams_deck: str | None = (
+        None  # #8886: an IDCAMS deck the det model runs (cobolrt/job/Idcams.java), not a REPRO copy
+    )
 
 
 @dataclass
@@ -105,10 +108,13 @@ class Job:
     spring: str = ""  # the Spring Batch job name
 
 
-def _jstr(v: Any) -> str:
+def _jstr(v: Any, text: bool = False) -> str:
     if v is None:
         return "null"
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
+    out = str(v).replace("\\", "\\\\").replace('"', '\\"')
+    if text:  # a multi-line deck: the line ends are escapes, so the literal stays on one source line
+        out = out.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+    return '"' + out + '"'
 
 
 class BatchForge:
@@ -246,7 +252,14 @@ class BatchForge:
         try:
             repro = idcams.parse(decks[0])
         except dfsort.Refused as e:
-            return f"uses {e}, which the IDCAMS model refuses"
+            # #8886: not one REPRO copy: the catalog-and-datasets model (idcams_model, Java twin cobolrt/job/Idcams)
+            # runs a deck of any commands it covers; a deck it cannot parse stays refused by name.
+            try:
+                idcams_model.parse_check(decks[0])
+            except dfsort.Refused as m:
+                return f"uses {e}, which the IDCAMS model refuses ({m})"
+            st.idcams_deck = decks[0]
+            return None
         have = {d.get("dd") for d in st.dds if d.get("dsn")}
         for dd in (repro.infile, repro.outfile):
             if dd not in have:
@@ -433,8 +446,11 @@ class BatchForge:
         if not self.applications and not self.file_runtime_only:
             return {}
         pkg = f"{self.package}.{SUBPACKAGE}"
+        idcams_used = any(st.idcams_deck for j in self.applications for st in j.steps)
         out = {
-            name: text.replace("{pkg}", pkg)
+            name: self._idcams_part(text, idcams_used)
+            .replace("{pkg}", pkg)
+            .replace("{base}", self.package)
             .replace("{zone}", self.target.culture.zone)
             .replace("{record_charset}", record_charset_java(self.target.data.record_charset))
             for name, text in _RUNTIME.items()
@@ -446,7 +462,29 @@ class BatchForge:
             out["BatchJobController"] = _CONTROLLER.replace("{pkg}", pkg)
         for j in self.applications:
             out[j.cls] = self._job_source(j)
-        return {("base_pkg", SUBPACKAGE): out, **self._sort_sources()}
+        return {("base_pkg", SUBPACKAGE): out, **self._sort_sources(), **self._idcams_sources(idcams_used)}
+
+    @staticmethod
+    def _idcams_part(text: str, used: bool) -> str:
+        """#8886: JclSteps carries the `idcams` tasklet (and its import of the model) only for an estate with a step that
+        runs it; the marker lines go away with it, so every other estate's JclSteps is unchanged."""
+        for tag in ("IDCAMS_IMPORT", "IDCAMS_METHOD"):
+            start, end = f"//{{{tag}}}\n", f"//{{/{tag}}}\n"
+            while start in text:
+                head, _, rest = text.partition(start)
+                body, _, tail = rest.partition(end)
+                text = head + (body if used else "") + tail
+        return text
+
+    def _idcams_sources(self, used: bool) -> dict[tuple[str, ...], dict[str, str]]:
+        """#8886: the IDCAMS model's Java twin (cobolrt/job/Idcams.java, the catalog-and-datasets run of the step), only
+        when a step runs it. It imports nothing but java.*, so it needs none of the rest of cobolrt."""
+        if not used:
+            return {}
+        from gitgalaxy.tools.cobol_to_java.det import program as P
+
+        text = (P.RUNTIME / "job" / "Idcams.java").read_text(encoding="utf-8").replace("__PACKAGE__", self.package)
+        return {("base_pkg", "cobolrt/job"): {"Idcams": text}}
 
     def _sort_sources(self) -> dict[tuple[str, ...], dict[str, str]]:
         """#4268: the det services of the lowered SORT steps and the det runtime they run on (cobolrt, without its CICS
@@ -556,7 +594,7 @@ class BatchForge:
             return f"TODO: {st.jcl} runs {p} through {st.runner}, which {st.refused} -- not run: a utility step to port"
         if p in IDCAMS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a record copy: a utility step to port"
-        if p in IDCAMS and st.copy_dds:
+        if p in IDCAMS and (st.copy_dds or st.idcams_deck):
             return None
         if p in COPY and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
@@ -596,6 +634,8 @@ class BatchForge:
             return f"steps.copy({head}, {consts})"
         if st.program in IDCAMS and st.copy_dds:
             return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
+        if st.program in IDCAMS and st.idcams_deck:  # #8886: the model's run, the job's catalog kept between steps
+            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1248,6 +1288,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+//{IDCAMS_IMPORT}
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.ToIntFunction;
+import {base}.cobolrt.job.Idcams;
+//{/IDCAMS_IMPORT}
 import java.util.function.IntSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1269,6 +1316,9 @@ public class JclSteps {
     private static final Logger LOG = LoggerFactory.getLogger(JclSteps.class);
     private final DatasetResolver datasets;
     private final boolean skipUnimplemented;
+//{IDCAMS_IMPORT}
+    private final Map<Long, Map<String, Idcams.Entry>> catalogs = new ConcurrentHashMap<>();
+//{/IDCAMS_IMPORT}
 
     public JclSteps(DatasetResolver datasets,
             @Value("${gitgalaxy.batch.skip-unimplemented:false}") boolean skipUnimplemented) {
@@ -1329,6 +1379,87 @@ public class JclSteps {
             return 0;
         });
     }
+
+//{IDCAMS_METHOD}
+    /**
+     * An IDCAMS step the det model runs (#8886): the commands of `deck` against the catalog the job's earlier IDCAMS
+     * steps left (kept per job execution) and this step's DDs, then the step's return code is MAXCC. A DD naming a
+     * cluster of the catalog is a VSAM DD; any other DD with a dataset is a sequential file of lines, one record each,
+     * padded to the longest line (80 for an empty one). A sequential dataset the deck changed is written back. A
+     * command or operand the model does not cover fails the step by name (Idcams.Refused), never a silent success.
+     */
+    public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String deck) {
+        return guardedJob(jcl, jobCond, cond, ifCond, jobId -> {
+            Map<String, Idcams.Entry> catalog = catalogs.computeIfAbsent(jobId, k -> new LinkedHashMap<>());
+            Map<String, Object> ddMap = new LinkedHashMap<>();
+            Map<String, Path> files = new LinkedHashMap<>();
+            try {
+                for (Dd dd : dds) {
+                    Path p = datasets.path(dd);
+                    if (p == null) {
+                        continue;
+                    }
+                    if (catalog.containsKey(dd.dsn())) {
+                        ddMap.put(dd.name(), new Idcams.Vsam(dd.dsn()));
+                        continue;
+                    }
+                    List<String> lines = Files.exists(p) ? Files.readAllLines(p, StandardCharsets.ISO_8859_1) : List.of();
+                    int lrecl = lines.stream().mapToInt(String::length).max().orElse(80);
+                    Idcams.Sequential seq = new Idcams.Sequential(Math.max(lrecl, 1), dd.status() == null ? "OLD" : dd.status());
+                    for (String ln : lines) {
+                        seq.records.add(String.format("%-" + seq.lrecl + "s", ln).getBytes(StandardCharsets.ISO_8859_1));
+                    }
+                    ddMap.put(dd.name(), seq);
+                    files.put(dd.name(), p);
+                }
+                Idcams.Result r = Idcams.run(deck, catalog, ddMap);
+                catalogs.put(jobId, r.catalog);
+                for (String ln : r.log) {
+                    LOG.info("{}: {}", jcl, ln);
+                }
+                for (Map.Entry<String, Path> f : files.entrySet()) {
+                    Idcams.Sequential before = (Idcams.Sequential) ddMap.get(f.getKey());
+                    Idcams.Sequential after = r.datasets.get(f.getKey());
+                    if (after == null || sameRecords(before.records, after.records)) {
+                        continue;
+                    }
+                    List<String> out = new ArrayList<>();
+                    for (byte[] rec : after.records) {
+                        out.add(new String(rec, StandardCharsets.ISO_8859_1));
+                    }
+                    Files.createDirectories(f.getValue().getParent() == null ? Path.of(".") : f.getValue().getParent());
+                    Files.write(f.getValue(), out, StandardCharsets.ISO_8859_1);
+                }
+                return r.rc;
+            } catch (Idcams.Refused e) {
+                throw new UnsupportedOperationException(jcl + " IDCAMS: " + e.getMessage(), e);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    /** `guarded`, for a step whose run needs the job execution's id (the catalog is kept per job). */
+    private Tasklet guardedJob(String jcl, String jobCond, String cond, String ifCond, ToIntFunction<Long> run) {
+        return (contribution, chunk) -> {
+            long id = chunk.getStepContext().getStepExecution().getJobExecutionId();
+            return guarded(jcl, jobCond, cond, ifCond, () -> run.applyAsInt(id)).execute(contribution, chunk);
+        };
+    }
+
+    private static boolean sameRecords(List<byte[]> a, List<byte[]> b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        for (int i = 0; i < a.size(); i++) {
+            if (!java.util.Arrays.equals(a.get(i), b.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+//{/IDCAMS_METHOD}
 
     /** A utility not implemented here (SORT, IDCAMS, a TSO / IMS runner, ...): fails the job, unless
      *  gitgalaxy.batch.skip-unimplemented is set -- then it logs and returns 0. Never a silent success. */

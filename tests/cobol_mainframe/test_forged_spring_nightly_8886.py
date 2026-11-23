@@ -8,8 +8,9 @@ step order and guard under Spring, the utility steps (IDCAMS / SORT) the runtime
 
 Pinned result (evidence level: executed under Spring, program bodies stubbed): 2 of 9 case steps equal (POSTTRAN,
 INTCALC). TRANBKP, COMBTRAN and TRANIDX are utility-only jobs: the forge lists them and generates no job. CREASTMT is
-generated, but its first step (an IDCAMS with more than one command) is refused by the IDCAMS model, so the job fails
-as shipped; with `skip-unimplemented` the utility steps log and return 0 and the SORT of STEP020 finds no dataset.
+generated; its first step DELDEF01 (an IDCAMS with several commands) runs through the IDCAMS model's Java twin (#8886
+slice 4, RC=0), and the job then fails at the SORT of STEP010 (no input dataset is seeded: the next slice); with
+`skip-unimplemented` the SORT logs and returns 0 and STEP020's REPRO finds no dataset.
 """
 
 from __future__ import annotations
@@ -72,12 +73,21 @@ def test_a_utility_only_job_has_no_forged_job_to_run(res, case):
         assert "listed not generated" in md["issues"][0]
 
 
-def test_the_creastmt_chain_fails_as_shipped_and_diverges_when_the_utilities_are_skipped(res):
+def test_creastmts_idcams_deck_runs_under_spring_through_the_model(res):
+    """#8886 slice 4: DELDEF01 (DELETE, DELETE CLUSTER, SET MAXCC, DEFINE CLUSTER with DATA CISZ) is lowered to
+    `steps.idcams` (the det model's Java twin, the catalog kept per job), not `steps.utility`: it ends RC=0 in both modes."""
+    assert res["idcams_lowered"] == ["CREASTMT.DELDEF01"]
+    for mode in ("strict", "skip"):
+        assert res["raw"][mode]["CREASTMT"]["steps"]["DELDEF01"] == ("RC=0", None)
+    assert _row(res, "creastmt-step020")["modes"]["strict"]["got"] == {"STEP020": "not started"}
+
+
+def test_the_creastmt_chain_still_fails_at_the_sort_and_diverges_when_the_utilities_are_skipped(res):
     strict = res["raw"]["strict"]["CREASTMT"]
-    assert strict["status"] == "FAILED" and list(strict["steps"]) == ["DELDEF01"]
-    assert "IDCAMS model refuses" in strict["steps"]["DELDEF01"][1]
+    assert strict["status"] == "FAILED" and list(strict["steps"]) == ["DELDEF01", "STEP010"]
+    assert "no record length (LRECL)" in strict["steps"]["STEP010"][1]  # the SORT is the next slice, not the IDCAMS
     skip = res["raw"]["skip"]["CREASTMT"]
-    assert skip["steps"]["DELDEF01"][0] == "RC=0" and skip["steps"]["STEP020"][0] == "FAILED"
+    assert skip["steps"]["STEP010"][0] == "RC=0" and skip["steps"]["STEP020"][0] == "FAILED"
     assert "NoSuchFileException" in skip["steps"]["STEP020"][1]
     assert "STEP040" not in skip["steps"]
     assert _row(res, "carddemo-sort-creastmt")["modes"]["skip"]["issues"] == ["STEP010: forged RC=0, chain RC=16"]

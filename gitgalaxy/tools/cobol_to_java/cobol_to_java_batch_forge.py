@@ -255,7 +255,7 @@ class BatchForge:
             # #8886: not one REPRO copy: the catalog-and-datasets model (idcams_model, Java twin cobolrt/job/Idcams)
             # runs a deck of any commands it covers; a deck it cannot parse stays refused by name.
             try:
-                idcams_model.parse_check(decks[0])
+                idcams_model._parse(decks[0])  # the model's own parse, asked for its refusals
             except dfsort.Refused as m:
                 return f"uses {e}, which the IDCAMS model refuses ({m})"
             st.idcams_deck = decks[0]

@@ -673,12 +673,6 @@ def path_records(catalog: dict[str, Cluster | Aix | Path], path_name: str) -> li
     return sorted(base.records, key=lambda r: r[aix.key_off : aix.key_off + aix.key_len])
 
 
-def parse_check(sysin: str) -> None:
-    """Raise `Refused` (by name) when the model cannot parse the deck; a deck that parses may still be refused when it
-    runs (a DD or catalog entry it needs is missing). The batch forge asks this before lowering a step (#8886)."""
-    _parse(sysin)
-
-
 def run(
     sysin: str, catalog: dict[str, Cluster | Aix | Path], dds: dict[str, Sequential | Vsam] | None = None
 ) -> Result:

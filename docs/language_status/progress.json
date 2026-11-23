@@ -1,5 +1,5 @@
 {
- "commit": "ee9f7240f",
+ "commit": "a766aaa22",
  "components": {
   "capabilities": {
    "groups": [
@@ -620,20 +620,20 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 6121,
+     "caught": 6120,
      "closed": 3,
-     "closed_caught": 351,
-     "closed_survived": 89,
+     "closed_caught": 309,
+     "closed_survived": 132,
      "equivalent": 2249,
      "l5": 3,
      "measured": 25,
      "mutants": 30382,
      "programs": 44,
-     "raw_pct": 51.1,
+     "raw_pct": 51.0,
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.3,
-     "survived": 5856,
+     "survived": 5869,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
@@ -740,10 +740,10 @@
     }
    },
    "total": {
-    "caught": 17795,
+    "caught": 17794,
     "closed": 7,
-    "closed_caught": 1610,
-    "closed_survived": 1053,
+    "closed_caught": 1568,
+    "closed_survived": 1096,
     "equivalent": 6368,
     "l5": 7,
     "measured": 61,
@@ -753,7 +753,7 @@
     "ready": 0,
     "sampled": 38346,
     "sampled_pct": 68.3,
-    "survived": 18337,
+    "survived": 18350,
     "unreachable": 1343
    }
   },
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T14:17:57Z",
+  "as_of": "2026-11-23T14:46:00Z",
   "core": {
    "closed": 260,
    "open": 16,

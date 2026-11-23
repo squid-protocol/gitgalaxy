@@ -90,3 +90,42 @@ def test_build_is_deterministic():
     first, _ = ls.build()
     second, _ = ls.build()
     assert first == second
+
+
+def _stat(**extra):
+    return ls.Stat(extra=extra) if extra else ls.Stat()
+
+
+def test_coverage_counts_measured_stats_and_ignores_decoy_only_keywords():
+    stats = {name: {} for name in ls.STATS}
+    stats["detection"]["a"] = ls.Stat()
+    stats["functions"]["a"] = ls.Stat()
+    stats["keywords"]["a"] = _stat(scored=0, decoy_only=9, defined=20, bins=[0, 0, 0, 0])  # decoy only: not counted
+    stats["keywords"]["b"] = _stat(scored=3, decoy_only=0, defined=20, bins=[3, 0, 0, 0])
+    assert ls.coverage("a", stats) == 2
+    assert ls.coverage("b", stats) == 1
+    assert ls.coverage("none", stats) == 0
+
+
+def test_split_by_coverage_puts_well_measured_first_and_sorts_each_group_a_to_z():
+    stats = {name: {} for name in ls.STATS}
+    for lang in ("zig", "ada", "mid"):  # zig and ada reach the cutoff, mid does not
+        for name in ls.STATS[: ls.COVERAGE_MIN] if lang != "mid" else ls.STATS[:1]:
+            if name != "keywords":
+                stats[name][lang] = ls.Stat()
+    stats["keywords"]["zig"] = _stat(scored=1, decoy_only=0, defined=5, bins=[1, 0, 0, 0])
+    stats["keywords"]["ada"] = _stat(scored=1, decoy_only=0, defined=5, bins=[1, 0, 0, 0])
+    well, sparse = ls.split_by_coverage(["zig", "mid", "ada", "unmeasured"], stats)
+    assert well == ["ada", "zig"]
+    assert sparse == ["mid", "unmeasured"]
+
+
+def test_build_writes_two_matrices_and_every_well_measured_language_is_in_the_first():
+    files, _problems = ls.build()
+    langs, stats = ls.load_all()
+    well, sparse = ls.split_by_coverage(langs, stats)
+    assert well and sparse and set(well).isdisjoint(sparse)
+    assert {"matrix.svg", "matrix_sparse.svg"} <= set(files)
+    assert all(f">{lang}</text>" in files["matrix.svg"] for lang in well)
+    assert all(f">{lang}</text>" in files["matrix_sparse.svg"] for lang in sparse)
+    assert all(f">{lang}</text>" not in files["matrix.svg"] for lang in sparse)

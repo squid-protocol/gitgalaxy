@@ -138,15 +138,15 @@
 <text class="n" x="630" y="223">n=7,755 calls</text>
 <text class="n" x="630" y="235">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 95.7% of 1,432, recall 41.5% of 3,301; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 98.6% of 1,397, recall 41.7% of 3,301; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="222.5">Precision</text>
 <rect class="track" x="778" y="215" width="110" height="8" rx="2"/>
-<rect x="778" y="215" width="105.3" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="223">95.7%</text>
+<rect x="778" y="215" width="108.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="223">98.6%</text>
 <text class="pr" x="732" y="234.5">Recall</text>
 <rect class="track" x="778" y="227" width="110" height="8" rx="2"/>
-<rect x="778" y="227" width="45.6" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="235">41.5%</text>
+<rect x="778" y="227" width="45.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="235">41.7%</text>
 <text class="n" x="936" y="223">n=3,301 edges</text>
 <text class="n" x="936" y="235">vs libclang (c++) 18.1.1</text>
 </g>
@@ -635,15 +635,15 @@
 <text class="n" x="630" y="665">n=33 calls</text>
 <text class="n" x="630" y="677">functions 27</text>
 </g>
-<g><title>kotlin call resolution: precision 97.5% of 604, recall 42.5% of 1,386; vs scip-java (kotlin) 0.13.2; corpus import_graph</title>
+<g><title>kotlin call resolution: precision 97.9% of 633, recall 44.7% of 1,386; vs scip-java (kotlin) 0.13.2; corpus import_graph</title>
 <text class="pr" x="732" y="664.5">Precision</text>
 <rect class="track" x="778" y="657" width="110" height="8" rx="2"/>
-<rect x="778" y="657" width="107.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="665">97.5%</text>
+<rect x="778" y="657" width="107.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="665">97.9%</text>
 <text class="pr" x="732" y="676.5">Recall</text>
 <rect class="track" x="778" y="669" width="110" height="8" rx="2"/>
-<rect x="778" y="669" width="46.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="677">42.5%</text>
+<rect x="778" y="669" width="49.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="677">44.7%</text>
 <text class="n" x="936" y="665">n=1,386 edges</text>
 <text class="n" x="936" y="677">vs scip-java (kotlin) 0.13.2</text>
 </g>

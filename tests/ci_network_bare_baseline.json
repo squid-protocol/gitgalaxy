@@ -18,7 +18,6 @@
   "evidence-refresh.yml|records|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "evidence-refresh.yml|refresh|Advance gitgalaxy to latest origin/main before staging the bot PR|git-fetch",
   "evidence-refresh.yml|refresh|Enable squash auto-merge on the bot PR|gh-api",
-  "evidence-refresh.yml|refresh|Push lane - hold the PR back if a full run has started meanwhile (#4743)|gh-api",
   "evidence-refresh.yml|sweep|Load or build the oracle image, and check it against its pin (#4309)|docker",
   "smoke-test.yml|suite-time|Total against the budget|gh-api"
  ],

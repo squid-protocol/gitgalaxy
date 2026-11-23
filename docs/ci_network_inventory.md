@@ -18,14 +18,14 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 | maven-gradle | 8 | 0 | 0 | 0 | 0 |
 | git-fetch | 25 | 0 | 0 | 0 | 1 |
 | gh-download | 1 | 0 | 0 | 0 | 0 |
-| gh-api | 17 | 0 | 0 | 0 | 10 |
+| gh-api | 18 | 0 | 0 | 0 | 9 |
 | grammar | 10 | 0 | 0 | 0 | 0 |
 | artifact-upload | 0 | 15 | 0 | 26 | 0 |
 | artifact-download | 0 | 9 | 0 | 10 | 0 |
 | cache | 0 | 60 | 0 | 93 | 0 |
 | setup-toolchain | 0 | 0 | 0 | 79 | 0 |
 | tool-entry | 0 | 0 | 54 | 0 | 0 |
-| **total** | 129 | 84 | 54 | 208 | 21 |
+| **total** | 130 | 84 | 54 | 208 | 20 |
 
 ## Bare steps (the shrink-only backlog)
 
@@ -62,7 +62,6 @@ it runs retries its own fetches; `action` = a marketplace action does the fetch;
 - `docker` - det-mutation / Load or build the oracle image, and check it against its pin (#4309)
 - `gh-api` - lane / Pin the commit of main this run is of
 - `docker` - records / Load or build the oracle image, and check it against its pin (#4309)
-- `gh-api` - refresh / Push lane - hold the PR back if a full run has started meanwhile (#4743)
 - `git-fetch` - refresh / Advance gitgalaxy to latest origin/main before staging the bot PR
 - `gh-api` - refresh / Enable squash auto-merge on the bot PR
 - `docker` - sweep / Load or build the oracle image, and check it against its pin (#4309)

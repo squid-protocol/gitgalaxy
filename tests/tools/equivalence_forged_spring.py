@@ -182,7 +182,12 @@ def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
             recs = [ln for ln in lines if ln]
             if any(len(r) != d["lrecl"] for r in recs):
                 raise ValueError(f"{d['seed']}: a record is not {d['lrecl']} bytes")
-            (root / dsn).write_bytes(b"".join(recs))
+            data = b"".join(recs)
+            if d.get("gdg"):  # a GDG base is a directory of generations: the seed is its current one, G0001V00
+                (root / dsn).mkdir(parents=True, exist_ok=True)
+                (root / dsn / "G0001V00").write_bytes(data)
+            else:
+                (root / dsn).write_bytes(data)
 
 
 def forge_estate(
@@ -313,6 +318,12 @@ def run_forged(
         # what the jobs left in the datasets directory (size and digest: the run's own files, compared by the caller)
         files = {p.name: {"size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
                  for p in sorted(ds.iterdir()) if p.is_file()}  # fmt: skip
+        for gdg in sorted(p for p in ds.iterdir() if p.is_dir()):  # a GDG base: each generation as `DSN(Gnnnn)`
+            for g in sorted(gdg.iterdir()):
+                files[f"{gdg.name}({g.name})"] = {
+                    "size": g.stat().st_size,
+                    "sha256": hashlib.sha256(g.read_bytes()).hexdigest(),
+                }
         out.setdefault("datasets", {})[mode] = files
     return out
 

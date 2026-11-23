@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -325,3 +326,92 @@ def test_a_windows_part_is_planned_to_finish_inside_the_gate_target_8701(duratio
         weight = dict.fromkeys(durations, mean * speed)
         # a busy durations cache can need more than the part cap: then the plan is at the cap, not under the target
         assert n == plan.GATE_MAX_PARTS or _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S), (py, n)
+
+
+# 2026-11-23 (#8701): the Gate's caps read the measured wall of each leg (history), not a hand table re-typed after each red night
+def _job(os_name: str, py: str, part: int, splits: int, minutes: float, step_cap: int = 25, ok: bool = True) -> dict:
+    """A completed Gate leg job whose `Full Suite` step took `minutes` (a leg named as the matrix writes it)."""
+    even = "true, " if os_name.startswith("windows") else ""
+    name = f"full-suite-matrix ({os_name}, {py}, {part}, {splits}, {even}{step_cap + 3}, {step_cap})"
+    start, end = "2026-11-19T10:00:00Z", f"2026-11-19T{10 + int(minutes) // 60:02d}:{int(minutes) % 60:02d}:00Z"
+    step = {"name": f"Full Suite ({os_name}, Python {py})", "conclusion": "success" if ok else "failure",
+            "started_at": start, "completed_at": end}  # fmt: skip
+    return {
+        "name": name,
+        "conclusion": "success" if ok else "failure",
+        "completed_at": end,
+        "started_at": start,
+        "steps": [step],
+    }
+
+
+def _runs(os_name: str, py: str, splits: int, minutes: list[float], step_cap: int = 25) -> list[list[dict]]:
+    return [[_job(os_name, py, 1, splits, m, step_cap)] for m in minutes]
+
+
+def _leg(matrix: dict, os_name: str, py: str) -> dict:
+    return next(x for x in matrix["matrix"] if x["os"] == os_name and x["python-version"] == py)
+
+
+def test_leg_walls_reads_the_measured_minutes_per_os_python_and_parts():
+    walls = plan.leg_walls([*_runs("windows-latest", "3.12", 2, [18, 25]), [{"name": "plan", "completed_at": "x"}]])
+    assert walls == {("windows-latest", "3.12", 2): [18.0, 25.0]}
+
+
+def test_no_history_and_empty_history_plan_the_same_as_before(durations):
+    assert plan.gate_plan(durations, history={}) == plan.gate_plan(durations, history=None) == plan.gate_plan(durations)
+
+
+def test_a_leg_measured_slow_at_n_parts_gets_a_part_before_its_cap_is_raised(durations):
+    # the 2026-11-19 night: windows 3.12 at 2 parts ran 25 min against a 25-min step cap and was cut
+    base = plan.gate_plan(durations)
+    n0 = _leg(base, "windows-latest", "3.12")["splits"]
+    hist = plan.leg_walls(_runs("windows-latest", "3.12", n0, [24, 25, 25], step_cap=25))
+    got = _leg(plan.gate_plan(durations, history=hist), "windows-latest", "3.12")
+    assert got["splits"] == n0 + 1  # rebalanced, not just given a longer cap
+    assert got["timeout"] <= plan.GATE_TIMEOUT_CEILING and got["step_timeout"] == got["timeout"] - plan.STEP_MARGIN_MIN
+
+
+def test_a_measured_slow_leg_raises_its_cap_and_a_fast_one_never_undercuts_the_planned_window(durations):
+    base = plan.gate_plan(durations)
+    n0 = _leg(base, "macos-latest", "3.12")["splits"]
+    slow = plan.leg_walls(
+        _runs("macos-latest", "3.12", n0, [19.5, 21.5, 22.0])
+    )  # under SPLIT_ABOVE_MIN: same parts, higher cap
+    fast = plan.leg_walls(_runs("macos-latest", "3.12", n0, [6.0, 7.0, 6.5]))
+    up = _leg(plan.gate_plan(durations, history=slow), "macos-latest", "3.12")
+    assert (
+        up["splits"] == n0
+        and up["timeout"] >= math.ceil(22.0 * plan.SEEN_HEADROOM) > _leg(base, "macos-latest", "3.12")["timeout"]
+    )
+    assert (
+        plan.gate_plan(durations, history=fast) == base
+    )  # history is a floor over the durations plan, never a cut under it
+
+
+def test_too_few_observations_fall_back_to_the_committed_table(durations):
+    n0 = _leg(plan.gate_plan(durations), "windows-latest", "3.11")["splits"]
+    hist = plan.leg_walls(
+        _runs("windows-latest", "3.11", n0, [5.0, 5.0])
+    )  # 2 < HISTORY_MIN_OBS: the table still floors it
+    assert plan.gate_plan(durations, history=hist) == plan.gate_plan(durations)
+
+
+def test_history_that_cannot_be_read_never_fails_the_plan(monkeypatch, capsys):
+    import gate_leg_margin as glm
+
+    def boom(_n):
+        raise OSError("gh unreachable")
+
+    monkeypatch.setattr(glm, "scheduled_jobs", boom)
+    assert plan.load_history(3) == {}
+    assert "history: unavailable" in capsys.readouterr().err
+
+
+def test_the_gate_workflow_plans_with_history_and_checks_out_what_it_reads():
+    text = (WORKFLOWS / "full-suite-gate.yml").read_text(encoding="utf-8")
+    assert "suite_shard_plan.py --gate --history-runs" in text
+    for f in ("gate_leg_margin.py", "ci_rerun_stats.py"):
+        assert (
+            f"tests/tools/{f}" in text.split("Plan the legs for this trigger")[0]
+        )  # in the plan job's sparse checkout

@@ -152,10 +152,12 @@ def parse_prs(text: str) -> list[int]:
 
 def run(*cmd: str, cwd: Path, check: bool = True, env: dict[str, str] | None = None, raw: bool = False) -> str:
     """Run a command, return its stdout (stripped unless raw: a patch must keep its trailing bytes)."""
-    r = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True, check=False)
+    # bytes, decoded without newline translation: text=True turns a patch's LF into CRLF (and back) on Windows
+    r = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, check=False)
+    out = r.stdout.decode("utf-8", errors="surrogateescape")
     if check and r.returncode:
-        raise subprocess.CalledProcessError(r.returncode, cmd, r.stdout, r.stderr)
-    return r.stdout if raw else r.stdout.strip()
+        raise subprocess.CalledProcessError(r.returncode, cmd, out, r.stderr.decode("utf-8", errors="replace"))
+    return out if raw else out.strip()
 
 
 def hand_written_diff(repo: Path, base: str, head: str) -> str:
@@ -173,9 +175,10 @@ def apply_diff(worktree: Path, diff: str) -> tuple[bool, str]:
     caller discards the worktree, it never commits or continues from it."""
     r = subprocess.run(
         ["git", "apply", "--3way", "--index", "--binary", "-"],
-        cwd=worktree, input=diff, capture_output=True, text=True, check=False,
+        cwd=worktree, input=diff.encode("utf-8", errors="surrogateescape"), capture_output=True, check=False,
     )  # fmt: skip
-    return r.returncode == 0, (r.stderr or r.stdout).strip()
+    msg = (r.stderr or r.stdout).decode("utf-8", errors="replace")
+    return r.returncode == 0, msg.strip()
 
 
 def gh_title(number: int) -> str:

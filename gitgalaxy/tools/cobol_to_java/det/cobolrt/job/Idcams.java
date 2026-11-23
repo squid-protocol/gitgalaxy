@@ -569,10 +569,6 @@ public final class Idcams {
             }
         }
 
-        private boolean aixWord(String n) {
-            return n.equals("ALTERNATEINDEX") || n.equals("AIX");
-        }
-
         private boolean plainDeleteWord(String n) {
             return n.equals("CLUSTER") || n.equals("PURGE") || n.equals("NOPURGE") || n.equals("ERASE")
                 || n.equals("NOERASE");
@@ -585,12 +581,12 @@ public final class Idcams {
             }
             String name = entry(ops.get(0).name, "DELETE");
             for (Op op : ops.subList(1, ops.size())) {
-                if (!(plainDeleteWord(op.name) || aixWord(op.name)) || op.args != null) {
+                if (!(plainDeleteWord(op.name) || op.name.equals("ALTERNATEINDEX") || op.name.equals("AIX")) || op.args != null) {
                     throw new Refused("the IDCAMS DELETE " + op.name + " parameter");
                 }
             }
             Entry ent = catalog.get(name);
-            boolean aixType = ops.subList(1, ops.size()).stream().anyMatch(o -> aixWord(o.name));
+            boolean aixType = ops.subList(1, ops.size()).stream().anyMatch(o -> o.name.equals("ALTERNATEINDEX") || o.name.equals("AIX"));
             if (aixType && ent == null) {
                 end(8, "DELETE " + name + ": entry not found"); // the type keyword changes nothing for an absent entry
                 return;

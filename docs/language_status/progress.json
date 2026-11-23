@@ -1,5 +1,5 @@
 {
- "commit": "38b215662",
+ "commit": "45e1264fd",
  "components": {
   "capabilities": {
    "groups": [
@@ -258,13 +258,13 @@
      "unit": "IBM-written scenarios"
     },
     {
-     "done": 95,
+     "done": 98,
      "found": "",
      "group": "Batch",
-     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 67); proc/scenarios.json: 8 of 8 agree (file has 46); restart/scenarios.json: 21 of 21 agree (file has 25); carddemo/scenarios.json: 34 of 34 agree (file has 34); 177 scenarios in 12 answer files not run on the box",
+     "have": "dataflow/scenarios.json: 6 of 6 agree (file has 7); fixture/scenarios.json: 8 of 8 agree (file has 14); gdg/scenarios.json: 18 of 20 agree (file has 67); proc/scenarios.json: 11 of 11 agree (file has 46); restart/scenarios.json: 21 of 21 agree (file has 25); carddemo/scenarios.json: 34 of 34 agree (file has 34); 174 scenarios in 12 answer files not run on the box",
      "name": "JCL on MVS 3.8J (tier 2)",
      "note": "not checked on 3.8J: IF / THEN / ELSE, JCLLIB, INCLUDE, SET, modern DFSORT / ICETOOL, Enterprise COBOL, CICS",
-     "of": 97,
+     "of": 100,
      "state": "works",
      "unit": "scenarios agreeing on the box"
     },
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-23T04:24:25Z",
+  "as_of": "2026-11-23T05:04:30Z",
   "core": {
    "closed": 259,
    "open": 16,

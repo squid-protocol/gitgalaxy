@@ -156,7 +156,7 @@ def run(*cmd: str, cwd: Path, check: bool = True, env: dict[str, str] | None = N
     r = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, check=False)
     out = r.stdout.decode("utf-8", errors="surrogateescape")
     if check and r.returncode:
-        raise subprocess.CalledProcessError(r.returncode, cmd, out, r.stderr.decode("utf-8", errors="replace"))
+        raise subprocess.CalledProcessError(r.returncode, cmd, out, r.stderr.decode("utf-8", errors="surrogateescape"))
     return out if raw else out.strip()
 
 
@@ -177,7 +177,7 @@ def apply_diff(worktree: Path, diff: str) -> tuple[bool, str]:
         ["git", "apply", "--3way", "--index", "--binary", "-"],
         cwd=worktree, input=diff.encode("utf-8", errors="surrogateescape"), capture_output=True, check=False,
     )  # fmt: skip
-    msg = (r.stderr or r.stdout).decode("utf-8", errors="replace")
+    msg = (r.stderr or r.stdout).decode("utf-8", errors="surrogateescape")
     return r.returncode == 0, msg.strip()
 
 

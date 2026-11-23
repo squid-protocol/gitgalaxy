@@ -1,7 +1,7 @@
 {
  "provenance": "mvs38j-run",
  "internal_only": "Q16: MVS 3.8J results are not published",
- "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB)",
+ "fixture": "tests/equivalence/jcl/proc/scenarios.json (SYMJOB / OVRJOB / PCJOB / KNDJOB)",
  "results": [
   {
    "id": "sym-defaults",
@@ -659,6 +659,228 @@
     {
      "procstep": "B3",
      "step": "C2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-override-dummy-and-nullfile",
+   "job": "KNDJOB",
+   "call": "W1",
+   "expect": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W1.K1": {
+     "dd": [
+      [
+       "D3",
+       "NEW.D3"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ],
+      [
+       "D7",
+       "NEW.D7"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W1",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-untouched-dummies-stay-dummy",
+   "job": "KNDJOB",
+   "call": "W2",
+   "expect": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W2.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W2",
+     "executed": true,
+     "cond_code": 0
+    }
+   ],
+   "jcl_error": false,
+   "unobserved": [
+    "pgm (every PGM= is IEFBR14)",
+    "parm unless a symbolic",
+    "cond (every step ends 0, every COND here runs)"
+   ]
+  },
+  {
+   "id": "dd-kind-sysout-over-dummy",
+   "job": "KNDJOB",
+   "call": "W3",
+   "expect": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "engine": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "box": {
+    "W3.K1": {
+     "dd": [
+      [
+       "D1",
+       "PROC.D1"
+      ],
+      [
+       "D2",
+       "PROC.D2"
+      ],
+      [
+       "D5",
+       "PROC.D5"
+      ]
+     ]
+    }
+   },
+   "verdict": "agree",
+   "box_steps": [
+    {
+     "procstep": "K1",
+     "step": "W3",
      "executed": true,
      "cond_code": 0
     }

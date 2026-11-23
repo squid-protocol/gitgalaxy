@@ -161,7 +161,7 @@ def test_qualified_bare_constructor_and_callback_callees(lang, src, expected):
 
 @pytest.mark.parametrize("lang", cga.LANGS)
 def test_every_measured_language_has_a_function_map_and_a_firing_call_node(lang):
-    spec = audit.NODE_MAPS[lang]
+    spec = audit.NODE_MAPS.get(lang) or cga._CALL_ONLY_NODE_MAPS[lang]
     assert spec["func_node_types"] and cga.CALL_NODE_TYPES
 
 
@@ -326,3 +326,19 @@ def test_php_new_self_and_static_resolve_to_enclosing_class_and_match_is_not_a_c
         "}\n"
     )
     assert _calls("php", src) == {"batch": {"Pool"}, "make": {"Pool"}}
+
+
+def test_groovy_ada_fortran_matlab_and_scheme_callees():
+    assert _calls("groovy", "class A { def run(x) { foo(1); a.b.save(x); new Bar(2) } }\n") == {
+        "run": {"foo", "save", "Bar"}
+    }
+    assert _calls("ada", "procedure Run is\nbegin\n  Foo(1);\n  X := Pkg.Bar(2);\nend Run;\n") == {
+        "Run": {"Foo", "Bar"}
+    }
+    assert _calls("fortran", "subroutine run(x)\n  call foo(x)\n  y = bar(x)\nend subroutine\n") == {"run": {"foo"}}
+    assert _calls("matlab", "function y = run(x)\n  y = foo(x) + a.bar(1);\nend\n") == {"run": {"foo", "bar"}}
+    assert _calls("scheme", "(define (run x) (foo (bar x) (quote (baz 1))))\n") == {"run": {"foo", "bar"}}
+
+
+def test_groovy_ada_fortran_matlab_and_scheme_are_measured():
+    assert {"groovy", "ada", "fortran", "matlab", "scheme"} <= set(cga.LANGS)

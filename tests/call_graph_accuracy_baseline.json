@@ -1,4 +1,13 @@
 {
+  "ada": {
+    "fn": 1158,
+    "fp": 355,
+    "matched_functions": 604,
+    "parse_failures": 0,
+    "precision_pct": 82.2,
+    "recall_pct": 58.6,
+    "tp": 1637
+  },
   "apex": {
     "fn": 7,
     "fp": 12,
@@ -44,6 +53,15 @@
     "recall_pct": 99.1,
     "tp": 2619
   },
+  "fortran": {
+    "fn": 111,
+    "fp": 138,
+    "matched_functions": 120,
+    "parse_failures": 0,
+    "precision_pct": 66.8,
+    "recall_pct": 67.4,
+    "tp": 278
+  },
   "go": {
     "fn": 3,
     "fp": 9,
@@ -52,6 +70,15 @@
     "precision_pct": 99.9,
     "recall_pct": 100.0,
     "tp": 6648
+  },
+  "groovy": {
+    "fn": 35,
+    "fp": 77,
+    "matched_functions": 355,
+    "parse_failures": 0,
+    "precision_pct": 90.1,
+    "recall_pct": 95.3,
+    "tp": 702
   },
   "haskell": {
     "fn": 4,
@@ -97,6 +124,15 @@
     "precision_pct": 97.5,
     "recall_pct": 98.2,
     "tp": 1331
+  },
+  "matlab": {
+    "fn": 240,
+    "fp": 84,
+    "matched_functions": 23,
+    "parse_failures": 0,
+    "precision_pct": 72.4,
+    "recall_pct": 47.8,
+    "tp": 220
   },
   "objective-c": {
     "fn": 6,
@@ -169,6 +205,15 @@
     "precision_pct": 99.2,
     "recall_pct": 93.2,
     "tp": 3132
+  },
+  "scheme": {
+    "fn": 360,
+    "fp": 1759,
+    "matched_functions": 147,
+    "parse_failures": 0,
+    "precision_pct": 35.3,
+    "recall_pct": 72.7,
+    "tp": 961
   },
   "shell": {
     "fn": 32,

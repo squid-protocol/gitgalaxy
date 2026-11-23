@@ -97,7 +97,69 @@ LANGS = (
     "tcl",
     "objective-c",
     "shell",
+    "groovy",
+    "ada",
+    "fortran",
+    "matlab",
+    "scheme",
 )
+
+# Languages measured here for Level-1 call extraction that are not in tree_sitter_accuracy_audit.NODE_MAPS.
+_CALL_ONLY_NODE_MAPS: dict[str, dict[str, Any]] = {
+    "groovy": {"ts_lang": "groovy", "func_node_types": {"block"}},
+    "ada": {"ts_lang": "ada", "func_node_types": {"subprogram_body"}},
+    "scheme": {"ts_lang": "scheme", "func_node_types": {"list"}},
+}
+
+_GROOVY_CONTROL_KEYWORDS = frozenset(
+    {"if", "for", "while", "switch", "catch", "synchronized", "assert", "return", "throw", "super", "this"}
+)
+_SCHEME_SPECIAL_FORMS = frozenset(
+    {
+        "define",
+        "define-public",
+        "define*",
+        "define-syntax",
+        "define-record-type",
+        "define-values",
+        "lambda",
+        "case-lambda",
+        "named-lambda",
+        "let",
+        "let*",
+        "letrec",
+        "letrec*",
+        "let-values",
+        "let*-values",
+        "let-syntax",
+        "letrec-syntax",
+        "if",
+        "cond",
+        "case",
+        "else",
+        "when",
+        "unless",
+        "and",
+        "or",
+        "begin",
+        "do",
+        "set!",
+        "quote",
+        "quasiquote",
+        "unquote",
+        "unquote-splicing",
+        "syntax-rules",
+        "syntax-case",
+        "import",
+        "export",
+        "library",
+        "include",
+        "cond-expand",
+        "guard",
+        "parameterize",
+    }
+)
+_SCHEME_QUOTED_FORMS = frozenset({"quote", "quasiquote", "syntax-rules"})
 
 CALL_NODE_TYPES = frozenset(
     {
@@ -127,10 +189,13 @@ CALL_NODE_TYPES = frozenset(
         "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
         "command",  # powershell `Get-Item $x`, tcl `puts $x`
         "invokation_expression",  # powershell `$o.Save(1)`, `[Foo]::Make(2)`
+        "func",  # groovy `foo(1)`, `a.b.save(x)`
+        "procedure_call_statement",  # ada `Foo(1);`, `Init;`
+        "subroutine_call",  # fortran `call foo(x)`
     }
 )
-_CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
-_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method", "suffix")
+_CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type", "subroutine")
+_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method", "suffix", "selector_name")
 _LEAF_SUFFIXES = ("identifier", "constant")
 _QUALIFIED_TYPES = frozenset({"scoped_identifier", "qualified_identifier", "scoped_type_identifier"})
 _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
@@ -384,6 +449,9 @@ def _callee(node: Any) -> str | None:
         child = node.child_by_field_name(field)
         if child is not None:
             return _leaf_name(child)
+    if node.type == "func" and node.named_children and node.named_children[0].type == "identifier":  # groovy
+        nm = node.named_children[0].text.decode("utf-8", "replace")
+        return None if nm in _GROOVY_CONTROL_KEYWORDS else nm
     if node.type in ("call_expression", "instance_expression", "constructor_expression") and node.named_children:
         # kotlin, swift `f(x)` / `Foo<T>(x)` and scala `new Foo(x)` carry no callee field: the callee comes first
         return _leaf_name(node.named_children[0])
@@ -470,14 +538,94 @@ def _bodies_of(node: Any) -> list[Any]:
     return bodies
 
 
+def _func_name_for_lang(node: Any, lang: str, audit: Any) -> str | None:
+    """Function name for `node` under `lang`, handling languages whose grammar nests the name."""
+    if lang == "ada" and node.type == "subprogram_body":
+        spec = next(
+            (c for c in node.named_children if c.type in ("procedure_specification", "function_specification")),
+            None,
+        )
+        nm = spec.child_by_field_name("name") if spec is not None else None
+        return nm.text.decode("utf-8", "replace") if nm is not None else None
+    if lang == "fortran" and node.type in ("subroutine", "function", "program"):
+        hdr = next((c for c in node.named_children if c.type.endswith("_statement")), None)
+        nm = hdr.child_by_field_name("name") if hdr is not None else None
+        return nm.text.decode("utf-8", "replace") if nm is not None else None
+    if lang == "groovy" and node.type == "block" and node.named_children:
+        first = node.named_children[0]
+        if first.type == "unit" and len(first.named_children) == 1 and first.named_children[0].type == "func":
+            fn_node = first.named_children[0]
+            if fn_node.named_children and fn_node.named_children[0].type == "identifier":
+                nm = fn_node.named_children[0].text.decode("utf-8", "replace")
+                return None if nm in _GROOVY_CONTROL_KEYWORDS else nm
+        return None
+    return audit._get_node_name(node)
+
+
+def _ts_functions_scheme(root: Any) -> list[tuple[str, int, set[str], Any]]:
+    """Scheme S-expression walker: `(define (f x) ...)` / `(define f (lambda ...))` and `(callee ...)`."""
+    out: list[tuple[str, int, set[str], Any]] = []
+    stack: list[tuple[Any, list[tuple[str, set[str]]]]] = [(root, [])]
+    while stack:
+        node, owners = stack.pop()
+        if node.type == "list" and node.named_children:
+            head = node.named_children[0]
+            if head.type == "symbol":
+                sym = head.text.decode("utf-8", "replace")
+                if sym in ("define", "define-public", "define*") and len(node.named_children) >= 2:
+                    sig = node.named_children[1]
+                    fname: str | None = None
+                    if sig.type == "list" and sig.named_children and sig.named_children[0].type == "symbol":
+                        fname = sig.named_children[0].text.decode("utf-8", "replace")
+                    elif (
+                        sig.type == "symbol" and len(node.named_children) >= 3 and node.named_children[2].type == "list"
+                    ):
+                        rhs = node.named_children[2]
+                        if rhs.named_children and rhs.named_children[0].text in (
+                            b"lambda",
+                            b"case-lambda",
+                            b"named-lambda",
+                        ):
+                            fname = sig.text.decode("utf-8", "replace")
+                    if fname:
+                        calls: set[str] = set()
+                        out.append((fname, node.start_point[0] + 1, calls, node))
+                        owners = [*owners, (fname, calls)]
+                        stack.extend((child, owners) for child in reversed(node.named_children[2:]))
+                        continue
+                if sym in _SCHEME_QUOTED_FORMS:
+                    continue
+                if sym in ("lambda", "named-lambda") and len(node.named_children) >= 3:
+                    # Skip parameter list (`named_children[1]`); walk only body expressions.
+                    stack.extend((child, owners) for child in reversed(node.named_children[2:]))
+                    continue
+                if sym in ("let", "let*", "letrec", "letrec*") and len(node.named_children) >= 3:
+                    # Named let `(let loop ((x init)) body...)` vs plain `(let ((x init)) body...)`.
+                    idx = 2 if node.named_children[1].type == "symbol" else 1
+                    bindings = node.named_children[idx]
+                    body_children = node.named_children[idx + 1 :]
+                    stack.extend((child, owners) for child in reversed(body_children))
+                    if bindings.type == "list":
+                        for b in reversed(bindings.named_children):
+                            if b.type == "list" and len(b.named_children) >= 2:
+                                stack.extend((val, owners) for val in reversed(b.named_children[1:]))
+                    continue
+                if owners and sym not in _SCHEME_SPECIAL_FORMS and sym != owners[-1][0]:
+                    owners[-1][1].add(sym)
+        stack.extend((child, owners) for child in reversed(node.children))
+    return out
+
+
 def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, set[str], Any]]:
     """(name, start_line, callee names, node) for every function tree-sitter finds."""
     import tree_sitter_language_pack
 
-    spec = audit.NODE_MAPS[lang]
+    spec = audit.NODE_MAPS.get(lang) or _CALL_ONLY_NODE_MAPS[lang]
     tree = tree_sitter_language_pack.get_parser(spec["ts_lang"]).parse(source)
     _KEEP_TREE[0] = tree  # the returned nodes are only valid while their tree lives
-    func_types = spec["func_node_types"]
+    if lang == "scheme":
+        return _ts_functions_scheme(tree.root_node)
+    func_types = {"subroutine", "function", "program"} if lang == "fortran" else spec["func_node_types"]
     non_calls = CONTRACT_NON_CALLS.get(lang, frozenset())
     out: list[tuple[str, int, set[str], Any]] = []
     # Haskell defines a multi-clause function as consecutive sibling `function` nodes with the
@@ -491,7 +639,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
         node, owners = stack.pop()
         owners = body_owners.pop(node.id, owners)
         if node.type in func_types:
-            name = audit._get_node_name(node)
+            name = _func_name_for_lang(node, lang, audit)
             # C8 (#3641): an anonymous function is no unit of its own -- its calls stay with the
             # enclosing named unit. Only a named function starts a new owner.
             if name:
@@ -501,23 +649,30 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
                     calls = prev[1]
                 else:
                     calls = set()
-                    out.append((name, node.start_point[0] + 1, calls, node))
+                    start_node = node.named_children[0] if lang == "groovy" and node.named_children else node
+                    out.append((name, start_node.start_point[0] + 1, calls, node))
                     if lang == "haskell":
                         hs_last_by_parent[parent_id] = (name, calls)
                 owners = [*owners, (name, calls)]
                 for body in _bodies_of(node):
                     body_owners[body.id] = owners
+                if lang == "groovy":
+                    stack.extend((child, owners) for child in reversed(node.named_children[1:]))
+                    continue
         elif (node.type in CALL_NODE_TYPES or (lang == "tcl" and node.type in _TCL_BUILTIN_NODE_TYPES)) and owners:
-            name = (
-                _TCL_BUILTIN_NODE_TYPES[node.type]
-                if lang == "tcl" and node.type in _TCL_BUILTIN_NODE_TYPES
-                else _callee(node)
-            )
-            owner, calls = owners[-1]
-            if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
-                name = None
-            if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
-                calls.add(name)
+            if lang == "fortran" and node.type != "subroutine_call":
+                pass
+            else:
+                name = (
+                    _TCL_BUILTIN_NODE_TYPES[node.type]
+                    if lang == "tcl" and node.type in _TCL_BUILTIN_NODE_TYPES
+                    else _callee(node)
+                )
+                owner, calls = owners[-1]
+                if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
+                    name = None
+                if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
+                    calls.add(name)
         stack.extend((child, owners) for child in reversed(node.children))
     return out
 
@@ -631,7 +786,8 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
     comparative-correctness rule): a `ts-...` label says the ground truth side
     may be the one that is wrong.
     """
-    func_types = frozenset(audit.NODE_MAPS[lang]["func_node_types"])
+    spec = audit.NODE_MAPS.get(lang) or _CALL_ONLY_NODE_MAPS[lang]
+    func_types = frozenset({"subroutine", "function", "program"} if lang == "fortran" else spec["func_node_types"])
     bodies = _bodies_of(fn)
     calls = [
         n

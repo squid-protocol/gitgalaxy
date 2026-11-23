@@ -2216,7 +2216,8 @@ page for the whole of the local CICS region, which is specified on the LOCALCCSI
   exceeds the AIX's maximum RECORDSIZE or which IDC message / condition code it gives. What exists is VSE/VSAM and CICS material
   (RPL feedback x'6C', "too many alternate index keys for record size", on UPGRADE writes), not a z/OS IDCAMS BLDINDEX statement, so
   no outcome is modelled and none is declared an `ibm_stops` (policy: no citation, no stated outcome). The chain is therefore wired and
-  proven for steps 1-6 only; the det sweep has no port in this case (job cases are proven by `equivalence.py run`).
+  proven for steps 1-6 only; the job case itself has no det port (job cases are proven by `equivalence.py run`).
+  **Det sweep over the nightly's COBOL step programs (2026-11-23, `det_port.py run carddemo-posttran carddemo-intcalc carddemo-cbstm03a --faults all`):** `carddemo-posttran` 339/339 translated, PROVED; `carddemo-intcalc` 294/294 translated, PROVED; `carddemo-cbstm03a` 477/477 translated, PROVED. The sort, IDCAMS and BLDINDEX steps are not COBOL programs and have no det port. Oracle is GnuCOBOL, not z/OS.
 
 - **GDG generations across a job case (#8883, `tests/tools/equivalence_gdg.py`).** A job case declares `gdgs` (base, LIMIT,
   record length, existing generations beside the case); a step's `gdg_out` {DD: base} writes `(+1)`, catalogued when the step

@@ -450,7 +450,7 @@ class BatchForge:
         out = {
             name: self._idcams_part(text, idcams_used)
             .replace("{pkg}", pkg)
-            .replace("{base}", self.package)
+            .replace("__BASE__", self.package)
             .replace("{zone}", self.target.culture.zone)
             .replace("{record_charset}", record_charset_java(self.target.data.record_charset))
             for name, text in _RUNTIME.items()
@@ -1293,7 +1293,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.ToIntFunction;
-import {base}.cobolrt.job.Idcams;
+import __BASE__.cobolrt.job.Idcams;
 //{/IDCAMS_IMPORT}
 import java.util.function.IntSupplier;
 import org.slf4j.Logger;

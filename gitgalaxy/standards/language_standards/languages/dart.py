@@ -80,7 +80,10 @@ DEFINITION: dict[str, Any] = {
         # #6097: `break`/`continue` are unconditional transfers, so they sit in structural_boundaries beside
         # `return` (branch_rule_contract.md, #2832), as in C.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|when)\b|\?\?|\?",
+            # #8906: a ternary's `?` (whitespace before it, as dart format writes it) and `??`
+            # count once. A nullable type `T?`, `?.`, `?..` and `?[` are not decisions. Known
+            # undercount: an unspaced `a?b:c`.
+            r"\b(if|else|switch|case|default|for|while|do|when)\b|\?\?|(?<=\s)\?(?![.\[?=])",
             re.I,
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
@@ -539,7 +542,11 @@ DEFINITION: dict[str, Any] = {
         # #2898: the paren-block arm matched `if (...) {` and every parameter list
         # (3282 crucible hits). An anonymous function's list sits in expression
         # position -- directly after `(`/`,`/`=`/`:`/`[` -- a statement keyword's never does.
-        "closures": re.compile(r"=>|(?:^|(?<=[,(=:\[]))\s*\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
+        # #8906: the `=>` of a declaration (named function, getter, operator, switch arm) is its
+        # own body, not an anonymous callable: `=>` counts only after an expression-position list.
+        "closures": re.compile(
+            r"(?:^|(?<=[,(=:\[?])|(?<=\breturn))\s*\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*(?:\{|=>)"
+        ),
         # 18. globals: Global / Shared State. Static class fields and environmental bindings.
         # BUG FIX (#2651): Anchored to true column-0 (no indentation) to prevent
         # function-local var/const declarations from being incorrectly counted as globals.
@@ -684,7 +691,10 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval)\s*\(", re.I),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~(?!=|/)"),
+        # #8866: a `>>` closing a generic list is not a shift.
+        "bitwise_ops": re.compile(
+            r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|(?:(?<=[\s)\]])>>>?|(?<=\w)>>>?(?=\w))|\^|~(?!=|/)"
+        ),
         # 44. sync_locks (Resource Management & Stability) Coordinated threading.
         "sync_locks": re.compile(r"\b(Mutex|Lock|synchronized|Semaphore|Completer)\b", re.I),
         # 45. immutability_locks (Immutability Constraints) Immutability.

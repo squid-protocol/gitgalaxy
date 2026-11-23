@@ -258,7 +258,8 @@ def test_dart_closures_redos_immunity():
     assert pattern.search("(int x) { return x + 1; }")
     assert pattern.search("() async { await foo(); }")
     assert pattern.search("() sync* { yield 1; }")
-    assert pattern.search("foo(a, b) => a + b;")
+    assert pattern.search("x = (a, b) => a + b;")
+    assert not pattern.search("foo(a, b) => a + b;"), "a declaration arrow is not a closure (#8906)"
 
 
 def test_dart_ambiguity_sweep_shared_literals_are_not_bugs():
@@ -431,14 +432,14 @@ def test_dart_api_contract_2730():
     api = DART_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('int probeGlobals(int env) {'), 'top-level public function'
-    assert api.search('Future<void> main() async {'), 'generic return type'
-    assert api.search("export 'src/foo.dart';"), 'export directive (kept)'
+    assert api.search("int probeGlobals(int env) {"), "top-level public function"
+    assert api.search("Future<void> main() async {"), "generic return type"
+    assert api.search("export 'src/foo.dart';"), "export directive (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search("@pragma('vm:prefer-inline')"), 'compiler pragma'
-    assert not api.search('  int helper(int x) {'), 'indented method'
-    assert not api.search('int _private(int x) {'), 'underscore-private top-level function'
+    assert not api.search("@pragma('vm:prefer-inline')"), "compiler pragma"
+    assert not api.search("  int helper(int x) {"), "indented method"
+    assert not api.search("int _private(int x) {"), "underscore-private top-level function"
 
     # ReDoS detonation on an unclosed generic argument list.
     assert_redos_immune(api, "int " + "<" * 40000, timeout_sec=3.0)

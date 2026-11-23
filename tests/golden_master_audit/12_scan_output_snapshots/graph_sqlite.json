@@ -3187,7 +3187,7 @@
       "tcl/macports_registry/portuninstall.tcl": "28e66bef1e98",
       "tcl/macports_registry/receipt_flat.tcl": "453f2a6706ff",
       "tcl/macports_registry/receipt_sqlite.tcl": "160720e5b061",
-      "tcl/macports_registry/registry.tcl": "412ad3f1ab05",
+      "tcl/macports_registry/registry.tcl": "4d3fb0a2bfb3",
       "tcl/macports_registry/registry_util.tcl": "08b6ebf1aa2d",
       "tcl/sqlite/LICENSE.md": "33fb396396f9",
       "tcl/sqlite/README.md": "391522eac52d",
@@ -9619,9 +9619,9 @@
       "ecosystem_baseline": "Unvalidated",
       "engine": "GitGalaxy Scope vlatest (Delta Mode)",
       "network_articulation_points": "216",
-      "network_assortativity": "-0.0881",
-      "network_avg_path_length": "1.8009",
-      "network_cyclic_density": "0.0317",
+      "network_assortativity": "-0.0885",
+      "network_avg_path_length": "1.8008",
+      "network_cyclic_density": "0.032",
       "network_modularity": "0.8479",
       "project": "data",
       "repo_z_score": "0.0",
@@ -11004,7 +11004,7 @@
       "tcl/macports_port_api/portfetch.tcl": "4f2d41c30212",
       "tcl/macports_port_api/portinstall.tcl": "6f4b4f2bf0db",
       "tcl/macports_port_api/portlint.tcl": "7c885bab4f49",
-      "tcl/macports_port_api/portlivecheck.tcl": "4e808df59c84",
+      "tcl/macports_port_api/portlivecheck.tcl": "453bce71ca94",
       "tcl/macports_port_api/portload.tcl": "9be5e0311957",
       "tcl/macports_port_api/portmain.tcl": "9be5e0311957",
       "tcl/macports_registry/depends.tcl": "42a5feab43a3",
@@ -11017,7 +11017,7 @@
       "tcl/macports_registry/registry_util.tcl": "27670de8a401",
       "tcl/sqlite/README.md": "50b75f47b12b",
       "tcl/sqlite/tester.tcl": "d95763b64282",
-      "tcl/sqlite/testrunner.tcl": "83d8cb34f7d8",
+      "tcl/sqlite/testrunner.tcl": "0af792171e95",
       "text/baseline/control-readme.md": "d46f5a2f321c",
       "typescript/angular_zonejs_mocha/mocha.ts": "69c809280dd5",
       "typescript/assemblyscript/ast.ts": "8e539231582b",
@@ -11130,7 +11130,7 @@
       "Directory Groups": 369,
       "Functions": 55867,
       "Inbound Dependencies": 914,
-      "Outbound Dependencies": 11733
+      "Outbound Dependencies": 11735
     }
   }
 }

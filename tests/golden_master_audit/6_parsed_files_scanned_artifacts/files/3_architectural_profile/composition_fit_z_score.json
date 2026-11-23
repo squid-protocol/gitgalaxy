@@ -3795,7 +3795,7 @@
       "tcl/macports_port_api/portfetch.tcl": -0.157,
       "tcl/macports_port_api/portinstall.tcl": 0.898,
       "tcl/macports_port_api/portlint.tcl": 1.633,
-      "tcl/macports_port_api/portlivecheck.tcl": 0.847,
+      "tcl/macports_port_api/portlivecheck.tcl": 0.665,
       "tcl/macports_port_api/portload.tcl": 2.136,
       "tcl/macports_port_api/portmain.tcl": 1.307
     },
@@ -3804,7 +3804,7 @@
       "tcl/macports_registry/depends.tcl": 3.235,
       "tcl/macports_registry/entry.tcl": 3.196,
       "tcl/macports_registry/portimage.tcl": 1.209,
-      "tcl/macports_registry/portuninstall.tcl": 2.044,
+      "tcl/macports_registry/portuninstall.tcl": 2.109,
       "tcl/macports_registry/receipt_flat.tcl": 0.648,
       "tcl/macports_registry/receipt_sqlite.tcl": 0.427,
       "tcl/macports_registry/registry.tcl": 1.684,
@@ -3816,7 +3816,7 @@
       "tcl/sqlite/malloc_common.tcl": 1.626,
       "tcl/sqlite/speedtest.tcl": 0.389,
       "tcl/sqlite/tester.tcl": 0.741,
-      "tcl/sqlite/testrunner.tcl": -0.109
+      "tcl/sqlite/testrunner.tcl": -0.12
     },
     "tcl/sqlite_core_dml": {
       "tcl/sqlite_core_dml/LICENSE.md": 0.0

@@ -12787,7 +12787,7 @@
 * <strong>The I/O Boundaries:</strong> High I/O latency risks are centralized in ALV converter classes (<code>zcl_excel_converter_alv.clas.abap</code>) and the primary 2007 reader (<code>zcl_excel_reader_2007.clas.abap</code>).
 * <em>(Note: The dependency graph identifies root documentation and configuration files like <code>README.md</code> and <code>abap_transpile.json</code> as having 0 inbound connections, confirming they act as static foundational config rather than executed logic).</em></p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts, and ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. </p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim. Ecosystem audits confirm 0 binary anomalies and 0 blacklisted dependencies. </p>
 <p>There is a localized 100% exposure alert for <em>Exploit Generation Surface</em> in <code>src/zcl_excel_reader_2007.clas.abap</code> and <code>src/zcl_excel_worksheet.clas.abap</code>. In the context of a file parser, this is expected behavior: these files dynamically process external input (Excel files/XML), which inherently surfaces deserialization and dynamic execution risks. While no active weaponization is present, these ingress points should strictly validate inputs to prevent malicious XML payloads.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The architecture exhibits severe structural density and technical debt in specific modules:

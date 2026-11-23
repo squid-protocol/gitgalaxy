@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> <code>src/flask/typing.py</code> acts as a critical structural pillar with 22 inbound connections, defining the type contracts that the entire codebase relies upon. 
 * <strong>Fragile Orchestrators:</strong> The primary application interface, <code>src/flask/app.py</code>, pulls in 37 outbound dependencies, making it the most fragile orchestrator in the system. Similarly, <code>src/flask/cli.py</code> (30 outbound dependencies) heavily couples environment parsing, application discovery, and development server execution into a single operational unit.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts within the scanned perimeter.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based security lens flagged core routing and generation modules, such as <code>src/flask/sansio/scaffold.py</code> and various test suites, for "Exploit Generation Surface" and "Weaponizable Injection Vectors." In the context of a web framework, this is the expected operational baseline. These files are explicitly designed to parse unvalidated HTTP paths, configure dynamic application states, and construct responses from client inputs. </p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains concentrated technical debt, severe state flux, and critical ownership silos within its core context and execution logic:

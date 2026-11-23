@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> Exception classes (<code>InvalidArgumentException.php</code>, <code>RuntimeException.php</code>) and base factories (<code>LocalFactory.php</code>) act as the system's structural pillars, carrying the highest inbound connections.
 * <strong>Fragile Orchestrators:</strong> The primary surface classes, <code>CarbonInterval.php</code> (38 outbound dependencies) and <code>CarbonPeriod.php</code> (37 outbound dependencies), function as massive aggregators, pulling in dozens of distinct traits to compose their public API. This makes them highly fragile to internal logic changes within any single trait.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based lens flagged <code>tests/remove-comments-in-switch.php</code> with 100% "Weaponizable Injection Vectors" and "Exploit Generation Surface" exposure. Given that this is explicitly a test fixture designed to parse and potentially execute edge-case string manipulations, this is expected behavior and does not represent a runtime vulnerability in the core library. Ecosystem audits confirm 0 blacklisted or unknown dependencies, indicating a secure supply chain.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains concentrated complexity and structural density within its trait definitions and localization logic:

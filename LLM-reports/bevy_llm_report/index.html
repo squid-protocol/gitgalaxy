@@ -12785,7 +12785,7 @@
 * <strong>Foundational Load-Bearers:</strong> At a macro level, utility traits like <code>crates/bevy_platform/src/time/fallback.rs</code> and <code>crates/bevy_reflect/src/impls/uuid.rs</code> act as foundational infrastructure.
 * <strong>Fragile Orchestrators:</strong> The <code>lib.rs</code> files at the root of core crates (<code>bevy_internal</code>, <code>bevy_reflect</code>, <code>bevy_pbr</code>) exhibit extreme outbound coupling (up to 53 dependencies). These orchestrators act as public API facades, making them fragile and highly sensitive to internal structural changes within their respective sub-modules.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based lens flagged several areas for "Raw Memory Manipulation," particularly in <code>crates/bevy_ptr/src/lib.rs</code> and <code>crates/bevy_math/src/primitives/dim3.rs</code>. In the context of a high-performance game engine, this is expected behavior: raw pointers and unsafe blocks are heavily utilized for zero-copy memory access and ECS storage alignment. The engine relies on Rust's compiler to mitigate traditional buffer overflows, but these specific <code>unsafe</code> boundaries require stringent auditing to prevent silent memory corruption during parallel execution.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains concentrated complexity and structural density within the core ECS and rendering pipelines:

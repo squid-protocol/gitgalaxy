@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> <code>lib/ansible/parsing/utils/yaml.py</code> acts as the primary structural pillar. As the central parser for Ansible's core declarative language, any mutation to this file cascades globally across the execution environment.
 * <strong>Fragile Orchestrators:</strong> Files such as <code>lib/ansible/utils/display.py</code> and <code>packaging/release.py</code> exhibit the highest outbound coupling. <code>display.py</code> acts as a heavy routing hub for console output and logging, making it susceptible to API changes in underlying formatters or state managers.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based lens flagged several <code>.pem</code> files in <code>test/units/module_utils/urls/fixtures/cbt/</code> with 100% "Hardcoded Payload Artifacts" exposure. Given their location within the <code>test/fixtures</code> directory, these are benign mock certificates used for validating SSL/TLS connection logic and do not represent leaked operational secrets. An isolated Exploit Generation Surface alert in <code>hacking/azp/incidental.py</code> is an artifact of the script parsing external test reports dynamically and does not pose a runtime threat to the core Ansible engine.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains several severe structural bottlenecks characterized by extreme historical volatility and deep coupling:

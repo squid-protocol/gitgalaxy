@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> At the lowest level, tokenization logic (<code>src/blib2to3/pgen2/tokenize.py</code>) and type stubs (<code>src/_black_version.pyi</code>) serve as foundational pillars. Their changes have immediate downstream effects on the parsing phases.
 * <strong>Fragile Orchestrators:</strong> Files acting as the primary entry points and API surfaces, such as <code>src/black/__init__.py</code> (38 outbound dependencies) and <code>tests/test_black.py</code> (36 outbound dependencies), are highly fragile. They orchestrate the traversal and file I/O operations, coupling the execution context tightly to the underlying AST transformation rules.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based lens flagged several core modules (e.g., <code>src/black/trans.py</code> and <code>tests/test_black.py</code>) with 100% "Exploit Generation Surface" exposure. In the context of a code formatter, this is intended operational behavior: the system is designed to parse, tokenize, and manipulate raw, unvalidated string inputs representing executable code. Ecosystem security audits confirm no blacklisted dependencies and minimal supply chain risk.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains severe algorithmic bottlenecks and structural hotspots, primarily localized in the tree manipulation and string-formatting phases:

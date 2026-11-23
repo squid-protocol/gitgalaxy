@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> Core serialization and type-definition modules (<code>typing.py</code>, <code>datetime.py</code>, and <code>json.py</code>) act as the absolute base of the architecture, carrying up to 1,601 inbound connections. Modifications here will cascade globally.
 * <strong>Fragile Orchestrators:</strong> High outbound coupling is centralized in test configurations (<code>pytest_plugin.py</code> - 100 imports) and core scheduling logic (<code>scheduler_job_runner.py</code>). These orchestrators are highly sensitive to API mutations in the underlying data models.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts. </p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim. </p>
 <p>While the system imports 629 "Unknown Dependencies," this is standard for a heavily extensible plugin architecture. The rule-based lens flagged FastAPI public routes (<code>auth/tokens.py</code>, <code>public/dag_run.py</code>) with 100% Exploit Generation Surface. Given their role in JWT token exchange and external API ingress, this is expected behavior, but these boundaries require rigorous input sanitization and strict RBAC enforcement to prevent injection attacks.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains several critical bottlenecks characterized by high algorithmic complexity and severe developer friction:

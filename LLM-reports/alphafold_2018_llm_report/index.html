@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> Core utility modules are virtually non-existent; instead, <code>config_dict.py</code> and global parameter scopes act as the functional foundation. Documentation and <code>README.md</code> files possess the highest inbound dependencies, emphasizing the repository's role as a static research artifact rather than a living framework.
 * <strong>Fragile Orchestrators:</strong> Files like <code>contacts.py</code> and <code>paste_contact_maps.py</code> serve as orchestrators. They exhibit high outbound dependencies because they must coordinate data loading, model inference, and output processing across the disparate network definitions.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The engine classified 39.4% of the codebase as <code>BINARY_THREAT</code>. In this specific context, these are not malicious payloads but rather massive serialized binary files (<code>saved_model.pb</code>, <code>mocap_data.h5</code>) containing the pre-trained weights for the neural networks. While these pose no traditional security threat, their presence as unanalyzable "Dark Matter" means the logic encapsulated within them is opaque to static analysis.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains extreme structural density and technical debt within its core experimental configurations:

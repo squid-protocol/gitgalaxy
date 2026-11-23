@@ -12786,7 +12786,7 @@
 * <strong>Foundational Load-Bearers:</strong> Core global state and type definitions act as the system's structural pillars. <code>linuxdoom-1.10/doomdef.h</code> (48 inbound connections) and <code>linuxdoom-1.10/doomstat.h</code> (35 inbound) define the foundational contracts for the entire engine. Changes here require a full recompilation and risk widespread regression.
 * <strong>Fragile Orchestrators:</strong> The primary execution and game loop files exhibit extreme outbound coupling. <code>linuxdoom-1.10/d_main.c</code> (30 outbound dependencies) and <code>linuxdoom-1.10/g_game.c</code> (28 outbound) act as fragile orchestrators, binding together input processing, rendering, and sound synchronization into highly sensitive unified contexts.</p>
 <h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
+<p><strong>Malware classifier removed (2026-11-19, research pending, #8430):</strong> it never ran with a trained model, so this report makes no malware claim.</p>
 <p>The rule-based security lens flagged minor "Raw Memory Manipulation" exposure in <code>linuxdoom-1.10/d_net.c</code> (3.5%). In the context of a C-based networking subsystem parsing raw byte packets (IPX), this is standard operational behavior. There are no modern injection surfaces or obfuscated payloads detected; the system is structurally secure within its domain constraints.</p>
 <h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
 <p>The repository contains localized technical debt, high cognitive load, and significant design slop within the core game logic:

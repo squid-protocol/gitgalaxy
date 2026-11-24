@@ -4863,10 +4863,16 @@
           "line": 397
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CRDTCHK.cbl": {
@@ -4898,10 +4904,16 @@
           "line": 81
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CSSTATS2.cbl": {
@@ -4933,10 +4945,16 @@
           "line": 96
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CSSTATUS.cbl": {
@@ -4968,10 +4986,16 @@
           "line": 91
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETADDR.cbl": {
@@ -5016,10 +5040,16 @@
           "line": 94
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETNAME.cbl": {
@@ -5051,10 +5081,16 @@
           "line": 82
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/SEQPNT.cbl": {
@@ -5229,10 +5265,16 @@
           "line": 326
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -5254,10 +5296,16 @@
         "L75 LINK GETPOL -> GETPOL",
         "L78 LINK GETSPND -> GETSPND"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/SEQPNT.cbl": {
@@ -5268,10 +5316,16 @@
         "L254 LINK CSSTATUS -> CSSTATUS",
         "L276 LINK DB-CACHE -> UPDCSDB"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -5546,10 +5600,16 @@
           "line": 397
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CRDTCHK.cbl": {
@@ -5577,10 +5637,16 @@
           "line": 81
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CSSTATS2.cbl": {
@@ -5608,10 +5674,16 @@
           "line": 96
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CSSTATUS.cbl": {
@@ -5639,10 +5711,16 @@
           "line": 91
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETADDR.cbl": {
@@ -5681,10 +5759,16 @@
           "line": 94
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETNAME.cbl": {
@@ -5712,10 +5796,16 @@
           "line": 82
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/SEQPNT.cbl": {
@@ -5875,10 +5965,16 @@
           "line": 326
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -6010,10 +6106,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CRDTCHK.cbl": {
@@ -6032,10 +6134,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/CSSTATS2.cbl": {
@@ -6066,10 +6174,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETADDR.cbl": {
@@ -6088,10 +6202,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETPOL.cbl": {
@@ -6110,10 +6230,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/GETSPND.cbl": {
@@ -6132,10 +6258,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "src/UPDCSDB.cbl": {
@@ -6154,10 +6286,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -6571,6 +6709,20 @@
       "asked": 158,
       "key_errors": 0,
       "upper_bound_95": 0.01878
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": []
+      }
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": []
+      }
     }
   },
   "section_census": [
@@ -6681,6 +6833,209 @@
         "records": {
           "agree": 30,
           "asked": 30
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 0,
+          "asked": 0
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ],
+      "wide": true,
+      "suite": "channels",
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 17,
+          "asked": 17
+        },
+        "children": {
+          "agree": 0,
+          "asked": 7
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 34,
+          "asked": 34
+        },
+        "jobs": {
+          "agree": 0,
+          "asked": 0
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "children:src/ASYNCPNT.cbl::RUN GETA": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/ASYNCPNT.cbl::RUN GETN": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/ASYNCPNT.cbl::RUN ICCK": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/ASYNCPNT.cbl::RUN STUS": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/ASYNCPNT.cbl::RUN UPDB": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/CSSTATS2.cbl::RUN GETP": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        },
+        "children:src/CSSTATS2.cbl::RUN SPND": {
+          "verdict": "key_correct",
+          "why": "Children are the CSD transaction ids (DEFINE TRANSACTION in *.csd) a RUN/START can reach; this repo has no .csd, so none can be named. The RUN targets themselves (ICCK, GETA, ...) are in the tasks list, which agreed."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/SEQPNT.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 7,
+          "asked": 7
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/CRDTCHK.cbl",
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/GETPOL.cbl",
+        "src/GETSPND.cbl",
+        "src/SEQPNT.cbl",
+        "src/UPDCSDB.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 37,
+          "asked": 37
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
         }
       },
       "rulings": {}

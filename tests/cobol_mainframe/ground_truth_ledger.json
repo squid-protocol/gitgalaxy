@@ -587,7 +587,7 @@
             "truth": 37
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": {
@@ -596,7 +596,7 @@
             "truth": 17
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CSD resources": {
           "engine": null,
@@ -717,7 +717,7 @@
             "truth": 0
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "call targets": {
           "engine": {
@@ -810,7 +810,7 @@
             "truth": 7
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "entry transactions": {
           "engine": {
@@ -941,7 +941,7 @@
             "truth": 34
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "web services": {
           "engine": null,
@@ -2656,16 +2656,16 @@
             "truth": 70
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CALL USING": {
           "engine": {
-            "got": 53,
-            "tp": 53,
-            "truth": 53
+            "got": 50,
+            "tp": 50,
+            "truth": 50
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS RIDFLD": {
           "engine": null,
@@ -2679,7 +2679,7 @@
             "truth": 14
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": null,
@@ -2698,7 +2698,7 @@
             "truth": 1
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table columns": {
           "engine": {
@@ -2707,7 +2707,7 @@
             "truth": 1
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DD names": {
           "engine": {
@@ -2754,7 +2754,7 @@
             "truth": 50
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -2763,7 +2763,7 @@
             "truth": 40
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL runner programs": {
           "engine": null,
@@ -2910,7 +2910,7 @@
             "truth": 2
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "entry transactions": {
           "engine": {
@@ -3045,7 +3045,7 @@
             "truth": 4
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "web services": {
           "engine": null,
@@ -3575,7 +3575,7 @@
             "truth": 210
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CALL USING": {
           "engine": null,
@@ -3594,7 +3594,7 @@
             "truth": 60
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": null,
@@ -3608,7 +3608,7 @@
             "truth": 44
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -3617,7 +3617,7 @@
             "truth": 12
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table columns": {
           "engine": null,
@@ -3669,7 +3669,7 @@
             "truth": 116
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -3678,7 +3678,7 @@
             "truth": 38
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "JCL runner programs": {
           "engine": null,
@@ -3825,7 +3825,7 @@
             "truth": 65
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "entry transactions": {
           "engine": {
@@ -3838,7 +3838,7 @@
             "tp": 9,
             "truth": 9
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": null,
@@ -3960,7 +3960,7 @@
             "truth": 113
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "web services": {
           "engine": null,

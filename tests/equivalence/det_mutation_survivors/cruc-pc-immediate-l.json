@@ -72,18 +72,6 @@
    ]
   },
   {
-   "id": "fba8e07c08",
-   "op": "CON",
-   "line": 53,
-   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
-   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 14);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses WS-LLOG (WS-LLOG) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "2a9c721d9d",
    "op": "CON",
    "line": 57,

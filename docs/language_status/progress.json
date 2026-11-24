@@ -1,5 +1,5 @@
 {
- "commit": "f31ee3b00",
+ "commit": "d5a3a1f2d",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T02:35:42Z",
+  "as_of": "2026-11-24T02:54:39Z",
   "core": {
    "closed": 262,
    "open": 14,

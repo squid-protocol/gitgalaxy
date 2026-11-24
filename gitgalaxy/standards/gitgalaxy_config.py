@@ -594,6 +594,7 @@ LEXICAL_FAMILY_HEURISTICS = {
                 "zig": ["//"],
                 "dockerfile": ["#"],
                 "matlab": ["%"],
+                "erlang": ["%"],  # #9200: `#` is a record sigil (`#state{}`), not a comment
                 "makefile": ["#"],
                 "csv": ["#"],
                 "yaml": ["#"],

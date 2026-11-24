@@ -9720,7 +9720,18 @@ class StructuralExtractor:
             # entities; they must bypass the multi-line floor or they are completely dropped.
             if not block or (
                 len(block.splitlines()) < 2
-                and lang_id not in ("haskell", "python", "embedded_python", "typescript", "javascript", "yaml")
+                and lang_id
+                not in (
+                    "haskell",
+                    "python",
+                    "embedded_python",
+                    "typescript",
+                    "javascript",
+                    "yaml",
+                    "nim",
+                    "fsharp",
+                    "ocaml",
+                )
             ):
                 continue
 
@@ -13301,6 +13312,12 @@ class StructuralExtractor:
         # what the rule captured IS the whole name. An unnamed step captures the
         # bare keyword (`run`) instead and passes through this branch unchanged.
         if self.primary_lang_id == "yaml":
+            return match_strip
+
+        # #9200: a Nim backticked operator proc (`+`, `==`, `[]`, `$`) keeps its backticks, as nim.py's
+        # func_start documents. The identifier tokenizer below has no operator characters, so it named
+        # these `Unknown_Block` (or truncated `[]` to a bare bracket pair).
+        if self.primary_lang_id == "nim" and len(match_strip) >= 3 and match_strip[0] == match_strip[-1] == "`":
             return match_strip
 
         # #3772: a class-template qualifier (`Foo<A, B>::bar`) names the class `Foo`, as the compiler

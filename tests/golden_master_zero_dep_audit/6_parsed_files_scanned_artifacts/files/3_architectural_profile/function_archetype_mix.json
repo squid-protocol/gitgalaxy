@@ -4762,16 +4762,15 @@
       "erlang/cowboy_http_server/cowboy.erl": {
         "Compute Cores": 2,
         "Defensive Guards": 2,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 9
       },
       "erlang/cowboy_http_server/cowboy_app.erl": {
         "Annotated & Test Methods": 2
       },
       "erlang/cowboy_http_server/cowboy_children.erl": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 3,
         "Compute Cores": 5,
         "Defensive Guards": 2,
-        "Generic / Templated Code": 1,
         "Parameter Forwarders": 2
       },
       "erlang/cowboy_http_server/cowboy_clear.erl": {
@@ -4780,16 +4779,18 @@
         "Many-Argument Workhorses": 1
       },
       "erlang/cowboy_http_server/cowboy_clock.erl": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 5,
         "Compute Cores": 3,
-        "Defensive Guards": 1,
+        "Defensive Guards": 3,
         "I/O & Config Routines": 2,
+        "Parameter Forwarders": 1,
         "Type Conversions": 1
       },
       "erlang/cowboy_http_server/cowboy_compress_h.erl": {
-        "Defensive Guards": 3,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 7
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 2,
+        "Defensive Guards": 5,
+        "Parameter Forwarders": 10
       },
       "erlang/cowboy_http_server/cowboy_constraints.erl": {
         "Annotated & Test Methods": 1,
@@ -4799,9 +4800,10 @@
         "Type Conversions": 2
       },
       "erlang/cowboy_http_server/cowboy_decompress_h.erl": {
-        "Compute Cores": 1,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 3,
+        "Compute Cores": 3,
+        "Defensive Guards": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 4,
         "Type Conversions": 4
       },
       "erlang/cowboy_http_server/cowboy_handler.erl": {
@@ -4809,26 +4811,25 @@
         "Defensive Guards": 1
       },
       "erlang/cowboy_http_server/cowboy_http3.erl": {
-        "Compute Cores": 7,
-        "Defensive Guards": 8,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 19,
-        "Interface Declarations": 1,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 8,
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 12,
+        "Defensive Guards": 12,
+        "I/O & Config Routines": 10,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 13,
         "Type Conversions": 1
       },
       "erlang/cowboy_http_server/cowboy_loop.erl": {
         "Annotated & Test Methods": 3,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2
       },
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": {
-        "Compute Cores": 1,
-        "Generic / Templated Code": 1,
+        "Compute Cores": 2,
         "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 4
       },
       "erlang/cowboy_http_server/cowboy_middleware.erl": {},
       "erlang/cowboy_http_server/cowboy_quicer.erl": {
@@ -4836,14 +4837,13 @@
         "Parameter Forwarders": 12
       },
       "erlang/cowboy_http_server/cowboy_req.erl": {
-        "Annotated & Test Methods": 30,
+        "Annotated & Test Methods": 40,
         "Callbacks & Closures": 1,
-        "Compute Cores": 10,
-        "Defensive Guards": 20,
-        "Generic / Templated Code": 16,
-        "I/O & Config Routines": 6,
-        "Parameter Forwarders": 7,
-        "Type Conversions": 3
+        "Compute Cores": 12,
+        "Defensive Guards": 22,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 16,
+        "Type Conversions": 4
       },
       "erlang/cowboy_http_server/cowboy_router.erl": {
         "Annotated & Test Methods": 3,
@@ -4857,10 +4857,10 @@
     },
     "erlang/ranch_socket_pool": {
       "erlang/ranch_socket_pool/ranch.erl": {
-        "Annotated & Test Methods": 14,
-        "Callbacks & Closures": 4,
+        "Annotated & Test Methods": 16,
+        "Callbacks & Closures": 6,
         "Compute Cores": 13,
-        "Defensive Guards": 29,
+        "Defensive Guards": 31,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 16
@@ -4882,20 +4882,19 @@
       },
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": {
         "Annotated & Test Methods": 2,
-        "Compute Cores": 5,
-        "Defensive Guards": 4,
-        "I/O & Config Routines": 2,
+        "Compute Cores": 4,
+        "Defensive Guards": 5,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 10
       },
       "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": {
         "Defensive Guards": 1,
         "Parameter Forwarders": 1
       },
       "erlang/ranch_socket_pool/ranch_crc32c.erl": {
-        "Annotated & Test Methods": 1,
         "Parameter Forwarders": 1,
-        "Type Conversions": 1
+        "Type Conversions": 3
       },
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": {
         "Defensive Guards": 1,
@@ -4909,19 +4908,20 @@
       "erlang/ranch_socket_pool/ranch_protocol.erl": {},
       "erlang/ranch_socket_pool/ranch_proxy_header.erl": {
         "Annotated & Test Methods": 1,
-        "Compute Cores": 13,
+        "Compute Cores": 17,
         "Defensive Guards": 14,
-        "I/O & Config Routines": 20,
+        "I/O & Config Routines": 18,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 13,
+        "Parameter Forwarders": 12,
         "Type Conversions": 1
       },
       "erlang/ranch_socket_pool/ranch_server.erl": {
-        "Annotated & Test Methods": 22,
+        "Annotated & Test Methods": 24,
         "Callbacks & Closures": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 1,
-        "I/O & Config Routines": 2,
+        "Compute Cores": 4,
+        "Defensive Guards": 2,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 4
       }
     },
@@ -4999,21 +4999,24 @@
       "fsharp/giraffe_web/Auth.fs": {
         "Callbacks & Closures": 9
       },
-      "fsharp/giraffe_web/ComputationExpressions.fs": {},
+      "fsharp/giraffe_web/ComputationExpressions.fs": {
+        "Defensive Guards": 2,
+        "State Mutators": 4
+      },
       "fsharp/giraffe_web/Core.fs": {
         "Callbacks & Closures": 15,
         "Compute Cores": 1,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 4,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 2,
         "Stateful Encapsulated Methods": 1
       },
       "fsharp/giraffe_web/Csrf.fs": {
         "Defensive Guards": 1
       },
       "fsharp/giraffe_web/DateTimeExtensions.fs": {
-        "State Mutators": 1
+        "State Mutators": 5
       },
       "fsharp/giraffe_web/EndpointRouting.fs": {
         "Callbacks & Closures": 2,
@@ -5029,15 +5032,15 @@
         "Stateful Encapsulated Methods": 1
       },
       "fsharp/giraffe_web/Helpers.fs": {
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 8
       },
       "fsharp/giraffe_web/HttpContextExtensions.fs": {
         "Compute Cores": 2,
         "Parameter Forwarders": 2,
-        "State Mutators": 4
+        "State Mutators": 5
       },
       "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": {
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 21
       },
       "fsharp/giraffe_web/Json.fs": {
         "Defensive Guards": 1,
@@ -5053,7 +5056,8 @@
       "fsharp/giraffe_web/ModelParser.fs": {
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 1,
+        "State Mutators": 2
       },
       "fsharp/giraffe_web/ModelValidation.fs": {
         "Generic / Templated Code": 1
@@ -5089,7 +5093,8 @@
         "Callbacks & Closures": 4
       },
       "fsharp/giraffe_web/Streaming.fs": {
-        "Compute Cores": 2
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 1
       },
       "fsharp/giraffe_web/Xml.fs": {
         "Parameter Forwarders": 1
@@ -8452,7 +8457,7 @@
         "Compute Cores": 1,
         "Defensive Guards": 18,
         "Encapsulated Accessors": 3,
-        "Generic / Templated Code": 2,
+        "Generic / Templated Code": 4,
         "I/O & Config Routines": 5,
         "Stateful Encapsulated Methods": 4
       },
@@ -8472,7 +8477,7 @@
         "Defensive Guards": 3,
         "Encapsulated Accessors": 9,
         "Generic / Templated Code": 8,
-        "Interface Declarations": 1,
+        "Interface Declarations": 3,
         "Parameter Forwarders": 4,
         "Stateful Encapsulated Methods": 11
       },
@@ -8486,7 +8491,7 @@
         "Stateful Encapsulated Methods": 7
       },
       "nim/nim_stdlib/asyncmacro.nim": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 2,
         "Compute Cores": 2,
         "Encapsulated Accessors": 6,
         "Many-Argument Workhorses": 1,
@@ -8506,13 +8511,13 @@
       },
       "nim/nim_stdlib/asyncstreams.nim": {
         "Defensive Guards": 3,
-        "Encapsulated Accessors": 1,
+        "Encapsulated Accessors": 2,
         "Generic / Templated Code": 4,
         "Stateful Encapsulated Methods": 2
       },
       "nim/nim_stdlib/base64.nim": {
         "Defensive Guards": 1,
-        "Encapsulated Accessors": 9,
+        "Encapsulated Accessors": 10,
         "Generic / Templated Code": 1,
         "Stateful Encapsulated Methods": 3,
         "Type Conversions": 1
@@ -8520,8 +8525,8 @@
       "nim/nim_stdlib/bitops.nim": {
         "Annotated & Test Methods": 24,
         "Defensive Guards": 10,
-        "Encapsulated Accessors": 47,
-        "Generic / Templated Code": 4,
+        "Encapsulated Accessors": 59,
+        "Generic / Templated Code": 5,
         "Stateful Encapsulated Methods": 6
       },
       "nim/nim_stdlib/browsers.nim": {
@@ -8558,7 +8563,7 @@
         "Annotated & Test Methods": 1,
         "Compute Cores": 1,
         "Defensive Guards": 19,
-        "Encapsulated Accessors": 11,
+        "Encapsulated Accessors": 13,
         "Generic / Templated Code": 4,
         "Many-Argument Workhorses": 1,
         "Stateful Encapsulated Methods": 3,
@@ -8571,10 +8576,14 @@
       "nim/nim_stdlib/collections_heapqueue.nim": {
         "Annotated & Test Methods": 1,
         "Defensive Guards": 7,
+        "Encapsulated Accessors": 1,
         "Generic / Templated Code": 6,
+        "Parameter Forwarders": 1,
         "Stateful Encapsulated Methods": 3
       },
-      "nim/nim_stdlib/collections_intsets.nim": {},
+      "nim/nim_stdlib/collections_intsets.nim": {
+        "Annotated & Test Methods": 2
+      },
       "nim/nim_stdlib/collections_lists.nim": {
         "Defensive Guards": 33,
         "Encapsulated Accessors": 2,
@@ -8583,6 +8592,7 @@
         "Interface Declarations": 4
       },
       "nim/nim_stdlib/collections_rtarrays.nim": {
+        "Encapsulated Accessors": 1,
         "Generic / Templated Code": 1,
         "Type Conversions": 1
       },
@@ -8598,7 +8608,7 @@
         "Type Conversions": 1
       },
       "nim/nim_stdlib/collections_setimpl.nim": {
-        "Encapsulated Accessors": 9,
+        "Encapsulated Accessors": 11,
         "Stateful Encapsulated Methods": 4
       },
       "nim/nim_stdlib/collections_sets.nim": {
@@ -8619,7 +8629,7 @@
       "nim/nim_stdlib/collections_sharedtables.nim": {
         "Compute Cores": 1,
         "Defensive Guards": 1,
-        "Encapsulated Accessors": 2,
+        "Encapsulated Accessors": 6,
         "Generic / Templated Code": 6,
         "I/O & Config Routines": 2,
         "Parameter Forwarders": 1,
@@ -8631,6 +8641,7 @@
         "Stateful Encapsulated Methods": 8
       },
       "nim/nim_stdlib/colors.nim": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 2,
         "Defensive Guards": 5,
         "Encapsulated Accessors": 7,
@@ -8642,14 +8653,14 @@
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 52,
-        "Parameter Forwarders": 7,
+        "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 1
       },
       "nim/nim_stdlib/concurrency_atomics.nim": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 10,
         "Compute Cores": 1,
-        "Encapsulated Accessors": 3,
-        "Generic / Templated Code": 14,
+        "Encapsulated Accessors": 35,
+        "Generic / Templated Code": 26,
         "Parameter Forwarders": 2,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 17
@@ -8728,12 +8739,12 @@
       "ocaml/janestreet_base/applicative.mli": {},
       "ocaml/janestreet_base/applicative_intf.ml": {},
       "ocaml/janestreet_base/array.ml": {
-        "Annotated & Test Methods": 5,
-        "Callbacks & Closures": 14,
+        "Annotated & Test Methods": 6,
+        "Callbacks & Closures": 19,
         "Compute Cores": 11,
         "Defensive Guards": 4,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 10
+        "Parameter Forwarders": 18
       },
       "ocaml/janestreet_base/array.mli": {},
       "ocaml/janestreet_base/array0.ml": {
@@ -8741,7 +8752,7 @@
         "Callbacks & Closures": 1,
         "Compute Cores": 1,
         "Defensive Guards": 1,
-        "Parameter Forwarders": 7
+        "Parameter Forwarders": 8
       },
       "ocaml/janestreet_base/array0.mli": {},
       "ocaml/janestreet_base/array_intf.ml": {},
@@ -8756,8 +8767,9 @@
       },
       "ocaml/janestreet_base/avltree.mli": {},
       "ocaml/janestreet_base/backtrace.ml": {
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1
+        "Callbacks & Closures": 1,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 2
       },
       "ocaml/janestreet_base/backtrace.mli": {},
       "ocaml/janestreet_base/base.ml": {},
@@ -8776,14 +8788,15 @@
       "ocaml/janestreet_base/blit.mli": {},
       "ocaml/janestreet_base/blit_intf.ml": {},
       "ocaml/janestreet_base/bool.ml": {
-        "Parameter Forwarders": 2
+        "Compute Cores": 1,
+        "Parameter Forwarders": 5
       },
       "ocaml/janestreet_base/bool.mli": {},
       "ocaml/janestreet_base/bool0.ml": {},
       "ocaml/janestreet_base/bool0.mli": {},
       "ocaml/janestreet_base/buffer.ml": {
         "Interface Declarations": 1,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 9
       },
       "ocaml/janestreet_base/buffer.mli": {},
       "ocaml/janestreet_base/buffer_intf.ml": {}

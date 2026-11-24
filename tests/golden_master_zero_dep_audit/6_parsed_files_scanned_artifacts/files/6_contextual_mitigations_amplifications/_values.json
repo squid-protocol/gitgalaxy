@@ -941,7 +941,6 @@
       "erlang/cowboy_http_server/cowboy_app.erl": "None Detected",
       "erlang/cowboy_http_server/cowboy_children.erl": "None Detected",
       "erlang/cowboy_http_server/cowboy_clear.erl": "None Detected",
-      "erlang/cowboy_http_server/cowboy_clock.erl": "None Detected",
       "erlang/cowboy_http_server/cowboy_compress_h.erl": "None Detected",
       "erlang/cowboy_http_server/cowboy_constraints.erl": "None Detected",
       "erlang/cowboy_http_server/cowboy_decompress_h.erl": "None Detected",

@@ -1437,12 +1437,12 @@
       "erlang/cowboy_http_server/cowboy_constraints.erl": 15,
       "erlang/cowboy_http_server/cowboy_decompress_h.erl": 33,
       "erlang/cowboy_http_server/cowboy_handler.erl": 2,
-      "erlang/cowboy_http_server/cowboy_http3.erl": 135,
+      "erlang/cowboy_http_server/cowboy_http3.erl": 126,
       "erlang/cowboy_http_server/cowboy_loop.erl": 1,
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": 39,
       "erlang/cowboy_http_server/cowboy_middleware.erl": 0,
       "erlang/cowboy_http_server/cowboy_quicer.erl": 9,
-      "erlang/cowboy_http_server/cowboy_req.erl": 50,
+      "erlang/cowboy_http_server/cowboy_req.erl": 49,
       "erlang/cowboy_http_server/cowboy_router.erl": 31
     },
     "erlang/ranch_socket_pool": {

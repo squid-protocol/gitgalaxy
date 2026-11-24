@@ -1437,7 +1437,7 @@
       "erlang/cowboy_http_server/cowboy_constraints.erl": 0,
       "erlang/cowboy_http_server/cowboy_decompress_h.erl": 0,
       "erlang/cowboy_http_server/cowboy_handler.erl": 0,
-      "erlang/cowboy_http_server/cowboy_http3.erl": 9,
+      "erlang/cowboy_http_server/cowboy_http3.erl": 3,
       "erlang/cowboy_http_server/cowboy_loop.erl": 1,
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": 0,
       "erlang/cowboy_http_server/cowboy_middleware.erl": 0,

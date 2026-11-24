@@ -1446,7 +1446,7 @@
       "erlang/cowboy_http_server/cowboy_router.erl": 0
     },
     "erlang/ranch_socket_pool": {
-      "erlang/ranch_socket_pool/ranch.erl": 29,
+      "erlang/ranch_socket_pool/ranch.erl": 31,
       "erlang/ranch_socket_pool/ranch_acceptor.erl": 0,
       "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_app.erl": 0,
@@ -1456,7 +1456,7 @@
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_protocol.erl": 0,
-      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 4,
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 6,
       "erlang/ranch_socket_pool/ranch_server.erl": 0
     },
     "fortran": {

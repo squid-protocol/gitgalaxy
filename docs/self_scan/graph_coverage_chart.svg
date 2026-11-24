@@ -90,16 +90,16 @@
 <text class="n" x="630" y="189">n=13,051 calls</text>
 <text class="n" x="630" y="201">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 6,875, recall 51.7% of 13,285; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 7,040, recall 53.0% of 13,286; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
 <rect x="778" y="181" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="189">100.0%</text>
 <text class="pr" x="732" y="200.5">Recall</text>
 <rect class="track" x="778" y="193" width="110" height="8" rx="2"/>
-<rect x="778" y="193" width="56.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="201">51.7%</text>
-<text class="n" x="936" y="189">n=13,285 edges</text>
+<rect x="778" y="193" width="58.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="201">53.0%</text>
+<text class="n" x="936" y="189">n=13,286 edges</text>
 <text class="n" x="936" y="201">vs libclang 18.1.1</text>
 </g>
 <g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
@@ -560,15 +560,15 @@
 <text class="n" x="630" y="597">n=2,392 calls</text>
 <text class="n" x="630" y="609">functions 626</text>
 </g>
-<g><title>javascript call resolution: precision 99.4% of 467, recall 87.9% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
+<g><title>javascript call resolution: precision 99.4% of 480, recall 90.3% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="596.5">Precision</text>
 <rect class="track" x="778" y="589" width="110" height="8" rx="2"/>
 <rect x="778" y="589" width="109.3" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="597">99.4%</text>
 <text class="pr" x="732" y="608.5">Recall</text>
 <rect class="track" x="778" y="601" width="110" height="8" rx="2"/>
-<rect x="778" y="601" width="96.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="609">87.9%</text>
+<rect x="778" y="601" width="99.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="609">90.3%</text>
 <text class="n" x="936" y="597">n=528 edges</text>
 <text class="n" x="936" y="609">vs tsc (allowJs) 6.0.2</text>
 </g>
@@ -635,15 +635,15 @@
 <text class="n" x="630" y="665">n=33 calls</text>
 <text class="n" x="630" y="677">functions 27</text>
 </g>
-<g><title>kotlin call resolution: precision 97.9% of 633, recall 44.7% of 1,386; vs scip-java (kotlin) 0.13.2; corpus import_graph</title>
+<g><title>kotlin call resolution: precision 98.3% of 701, recall 49.7% of 1,386; vs scip-java (kotlin) 0.13.2; corpus import_graph</title>
 <text class="pr" x="732" y="664.5">Precision</text>
 <rect class="track" x="778" y="657" width="110" height="8" rx="2"/>
-<rect x="778" y="657" width="107.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="665">97.9%</text>
+<rect x="778" y="657" width="108.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="665">98.3%</text>
 <text class="pr" x="732" y="676.5">Recall</text>
 <rect class="track" x="778" y="669" width="110" height="8" rx="2"/>
-<rect x="778" y="669" width="49.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="677">44.7%</text>
+<rect x="778" y="669" width="54.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="677">49.7%</text>
 <text class="n" x="936" y="665">n=1,386 edges</text>
 <text class="n" x="936" y="677">vs scip-java (kotlin) 0.13.2</text>
 </g>
@@ -1333,15 +1333,15 @@
 <text class="n" x="630" y="1311">n=27,530 calls</text>
 <text class="n" x="630" y="1323">functions 8,473</text>
 </g>
-<g><title>typescript call resolution: precision 100.0% of 2,190, recall 82.3% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<g><title>typescript call resolution: precision 100.0% of 2,208, recall 83.0% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="1310.5">Precision</text>
 <rect class="track" x="778" y="1303" width="110" height="8" rx="2"/>
 <rect x="778" y="1303" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="1311">100.0%</text>
 <text class="pr" x="732" y="1322.5">Recall</text>
 <rect class="track" x="778" y="1315" width="110" height="8" rx="2"/>
-<rect x="778" y="1315" width="90.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="1323">82.3%</text>
+<rect x="778" y="1315" width="91.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="1323">83.0%</text>
 <text class="n" x="936" y="1311">n=2,661 edges</text>
 <text class="n" x="936" y="1323">vs tsc 6.0.2</text>
 </g>

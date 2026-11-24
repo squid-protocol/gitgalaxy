@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `f0c29ca49` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `8fcc6d58c` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -20,13 +20,13 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 39 | 3 | 42 (95.5%) | 42 (95.5%) | 3 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 38 | 4 | 42 (95.5%) | 42 (95.5%) | 4 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 28 | 3 | 31 (100.0%) | 31 (100.0%) | 3 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
 | `example-health-apis` | 29 | 1 | 0 | 4 | 4 | 20 | 0 | 28 (96.6%) | 20 (69.0%) | 0 |
-| `zecs` | 7 | 0 | 0 | 0 | 0 | 6 | 1 | 7 (100.0%) | 7 (100.0%) | 1 |
+| `zecs` | 7 | 0 | 0 | 0 | 0 | 7 | 0 | 7 (100.0%) | 7 (100.0%) | 0 |
 | **Total** | 158 | 4 | 0 | 4 | 4 | 139 | 7 | 154 (97.5%) | 146 (92.4%) | 7 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
@@ -36,7 +36,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 139 | 6 | 48 | 0 | 0 | 84 | 1 |
+| `cics-crucible` | 139 | 6 | 48 | 0 | 0 | 83 | 2 |
 
 
 Code we had never seen when we met it, never in the denominator above. L1 is measured from first contact; L2
@@ -57,14 +57,14 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 3 | 0 | 51.1% (6110 of 11958) | 41.3% (12559 of 30382) | 2249 | 209 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 89.7% (5212 of 5809) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 10 | 3 | 0 | 43.3% (2627 of 6069) | 100.0% (6395 of 6395) | 2234 | 754 |
-| `cics-genapp` | 31 | 11 | 0 | 0 | 26.4% (2722 of 10318) | 100.0% (10993 of 10993) | 1014 | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 4 | 0 | 51.1% (6098 of 11932) | 41.3% (12559 of 30382) | 2249 | 209 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 87.8% (4990 of 5683) | 100.0% (6284 of 6284) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 12 | 3 | 0 | 42.1% (3026 of 7182) | 89.7% (7560 of 8425) | 2596 | 819 |
+| `cics-genapp` | 31 | 11 | 0 | 0 | 25.9% (2752 of 10615) | 100.0% (10993 of 10993) | 1014 | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 4 | 1 | 0 | 49.9% (1178 of 2360) | 100.0% (2486 of 2487) | 831 | 354 |
-| **Total** | 158 | 62 | 7 | 0 | 48.9% (18171 of 37150) | 68.8% (39361 of 57185) | 6622 | 1387 |
+| `zecs` | 7 | 4 | 0 | 0 | 50.0% (1179 of 2356) | 100.0% (2486 of 2487) | 831 | 354 |
+| **Total** | 158 | 64 | 7 | 0 | 47.8% (18367 of 38404) | 68.4% (40526 of 59215) | 6984 | 1452 |
 
 ## Capability ledger
 
@@ -134,7 +134,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-24T00:56:48Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-24T01:09:29Z.
 
 - `scope:core`: 14 open, 262 closed.
 - Milestone 28: 0 open, 136 closed.

@@ -1,5 +1,5 @@
 {
- "commit": "f0c29ca49",
+ "commit": "8fcc6d58c",
  "components": {
   "capabilities": {
    "groups": [
@@ -620,12 +620,12 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 6110,
-     "closed": 3,
-     "closed_caught": 308,
-     "closed_survived": 130,
+     "caught": 6098,
+     "closed": 4,
+     "closed_caught": 447,
+     "closed_survived": 140,
      "equivalent": 2249,
-     "l5": 3,
+     "l5": 4,
      "measured": 25,
      "mutants": 30382,
      "programs": 44,
@@ -633,11 +633,11 @@
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.3,
-     "survived": 5848,
+     "survived": 5834,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 5212,
+     "caught": 4990,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -646,32 +646,32 @@
      "measured": 10,
      "mutants": 6284,
      "programs": 10,
-     "raw_pct": 89.7,
+     "raw_pct": 87.8,
      "ready": 0,
      "sampled": 6284,
      "sampled_pct": 100.0,
-     "survived": 597,
+     "survived": 693,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 2627,
+     "caught": 3026,
      "closed": 3,
-     "closed_caught": 888,
+     "closed_caught": 881,
      "closed_survived": 649,
-     "equivalent": 2234,
+     "equivalent": 2596,
      "l5": 3,
-     "measured": 10,
-     "mutants": 6395,
+     "measured": 12,
+     "mutants": 8425,
      "programs": 31,
-     "raw_pct": 43.3,
+     "raw_pct": 42.1,
      "ready": 0,
-     "sampled": 6395,
-     "sampled_pct": 100.0,
-     "survived": 3442,
-     "unreachable": 754
+     "sampled": 7560,
+     "sampled_pct": 89.7,
+     "survived": 4156,
+     "unreachable": 819
     },
     "cics-genapp": {
-     "caught": 2722,
+     "caught": 2752,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -680,11 +680,11 @@
      "measured": 11,
      "mutants": 10993,
      "programs": 31,
-     "raw_pct": 26.4,
+     "raw_pct": 25.9,
      "ready": 0,
      "sampled": 10993,
      "sampled_pct": 100.0,
-     "survived": 7596,
+     "survived": 7863,
      "unreachable": 0
     },
     "dbb-mortgage-application": {
@@ -722,39 +722,39 @@
      "unreachable": 0
     },
     "zecs": {
-     "caught": 1178,
-     "closed": 1,
-     "closed_caught": 240,
-     "closed_survived": 252,
+     "caught": 1179,
+     "closed": 0,
+     "closed_caught": 0,
+     "closed_survived": 0,
      "equivalent": 831,
-     "l5": 1,
+     "l5": 0,
      "measured": 4,
      "mutants": 2487,
      "programs": 7,
-     "raw_pct": 49.9,
+     "raw_pct": 50.0,
      "ready": 0,
      "sampled": 2486,
      "sampled_pct": 100.0,
-     "survived": 1182,
+     "survived": 1177,
      "unreachable": 354
     }
    },
    "total": {
-    "caught": 18171,
+    "caught": 18367,
     "closed": 7,
-    "closed_caught": 1436,
-    "closed_survived": 1031,
-    "equivalent": 6622,
+    "closed_caught": 1328,
+    "closed_survived": 789,
+    "equivalent": 6984,
     "l5": 7,
-    "measured": 62,
-    "mutants": 57185,
+    "measured": 64,
+    "mutants": 59215,
     "programs": 158,
-    "raw_pct": 48.9,
+    "raw_pct": 47.8,
     "ready": 0,
-    "sampled": 39361,
-    "sampled_pct": 68.8,
-    "survived": 18979,
-    "unreachable": 1387
+    "sampled": 40526,
+    "sampled_pct": 68.4,
+    "survived": 20037,
+    "unreachable": 1452
    }
   },
   "mutation": {
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T00:56:48Z",
+  "as_of": "2026-11-24T01:09:29Z",
   "core": {
    "closed": 262,
    "open": 14,
@@ -1524,14 +1524,14 @@
     "l2_plus_pct": 95.5,
     "l4_plus": 42,
     "l4_plus_pct": 95.5,
-    "l5": 3,
+    "l5": 4,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 39,
-     "L5": 3
+     "L4": 38,
+     "L5": 4
     },
     "netted": {
      "infeasible_netted": 157,
@@ -1832,14 +1832,14 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 7,
     "l4_plus_pct": 100.0,
-    "l5": 1,
+    "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 6,
-     "L5": 1
+     "L4": 7,
+     "L5": 0
     },
     "netted": {
      "infeasible_netted": 175,
@@ -1884,14 +1884,14 @@
     "l2_plus_pct": 61.2,
     "l4_plus": 85,
     "l4_plus_pct": 61.2,
-    "l5": 1,
+    "l5": 2,
     "levels": {
      "L0": 6,
      "L1": 48,
      "L2": 0,
      "L3": 0,
-     "L4": 84,
-     "L5": 1
+     "L4": 83,
+     "L5": 2
     },
     "netted": {
      "infeasible_netted": 23,

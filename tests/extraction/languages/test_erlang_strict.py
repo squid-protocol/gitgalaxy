@@ -222,3 +222,24 @@ def test_issue_8923_spec_above_a_function_is_its_decorator():
     assert v["inc"]["decorators"] == 1
     assert "decorators" not in v["real"]
     assert v["ref"]["closures"] == 1
+
+
+def test_record_sigil_in_a_spec_is_not_a_comment_9200():
+    # `#` is a record sigil in Erlang (comments are `%`): `#state{}` in a `-spec` must not swallow the clause end.
+    src = (
+        "-module(t).\n"
+        "-record(state, {}).\n"
+        "start() -> ok.\n"
+        "\n"
+        "-spec init([]) -> {ok, #state{}}.\n"
+        "init([]) ->\n"
+        "\tok.\n"
+        "\n"
+        "-spec handle_cast(term(), #state{}) -> {noreply, #state{}}.\n"
+        "handle_cast(_Msg, State) ->\n"
+        "\t{noreply, State}.\n"
+        "\n"
+        "foo(X) -> X.\n"
+    )
+    names = sorted(f["name"] for f in _splice(src)["functions"] if f["name"] != "Declarative_Block")
+    assert names == ["foo", "handle_cast", "init", "start"]

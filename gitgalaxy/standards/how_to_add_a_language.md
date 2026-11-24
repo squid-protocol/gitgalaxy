@@ -120,7 +120,7 @@ needs a validated deviation-ledger entry there (`tools/na_check.py --ci` says wh
 *Copy everything below this line and feed it directly to the LLM.*
 
 **Prompt:**
-You are an expert compiler engineer and static analysis specialist. Please generate a GitGalaxy REGISTRY regex dictionary for **[TARGET LANGUAGE]** using the strict Zero-Trust framework defined below. 
+You are an expert compiler engineer and static analysis specialist. Please generate a GitGalaxy REGISTRY regex dictionary for **[TARGET LANGUAGE]** using the strict rules defined below. 
 
 This dictionary defines the **Structural Signatures** used by an AST-free parsing engine to create a system of consistent 1:1 cross-language comparisons. The engine calculates risk exposures across implicit and explicit language behaviors. The engine uses `re.M` (Multiline) to scan 50,000+ line enterprise files at extreme velocity.
 

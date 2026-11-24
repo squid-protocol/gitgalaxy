@@ -1002,7 +1002,9 @@ def test_inert_image_dominated_by_cobol_store_or_move():
     assert got_copy and got_copy["result"] == "inert-image"
 
     # Negative: if f2_STAT1 is read before any top-level store in another method, must not settle.
-    unread_dom = _DOM_TXT.replace("private void liveStore() {", 'private void liveStore() { Cobol.compare(f2_STAT1, "0", CS);')
+    unread_dom = _DOM_TXT.replace(
+        "private void liveStore() {", 'private void liveStore() { Cobol.compare(f2_STAT1, "0", CS);'
+    )
     assert _plumb(unread_dom, '        "ICA="));', '        "XCA="));') is None
 
 
@@ -1017,14 +1019,17 @@ def test_cobol_store_dominated():
     # Negative: perform() between store and overwrite blocks dominance.
     lines = _DOM_TXT.splitlines()
     live_line = next(i for i, ln in enumerate(lines, 1) if "private void liveStore()" in ln) + 1
-    assert sa.port_fact(
-        _DOM_TXT,
-        {
-            "line": live_line,
-            "before": '        Cobol.store(f2_STAT1, "A", false, CS);',
-            "after": '        /* Cobol.store(f2_STAT1, "A", false, CS); */',
-        },
-    ) is None
+    assert (
+        sa.port_fact(
+            _DOM_TXT,
+            {
+                "line": live_line,
+                "before": '        Cobol.store(f2_STAT1, "A", false, CS);',
+                "after": '        /* Cobol.store(f2_STAT1, "A", false, CS); */',
+            },
+        )
+        is None
+    )
 
 
 def test_screen_command_detects_divergence_without_cobol(tmp_path, monkeypatch):
@@ -1060,7 +1065,9 @@ def test_screen_command_detects_divergence_without_cobol(tmp_path, monkeypatch):
     monkeypatch.setattr(mu, "compiles", lambda p, cp, out, only_file=None: (True, ""))
     monkeypatch.setattr(ej, "entry_names", lambda trial: [])
 
-    def fake_run_java(trial, corpus, work, inputs, envs, port=True, port_dir=None, faults=(), stop=None, entries=(), one_jvm=False):
+    def fake_run_java(
+        trial, corpus, work, inputs, envs, port=True, port_dir=None, faults=(), stop=None, entries=(), one_jvm=False
+    ):
         txt = (port_dir / "service" / "P.java").read_text(encoding="utf-8")
         out = {"SYSOUT": b"2" if "return 2" in txt else b"1"}
         if stop:
@@ -1115,10 +1122,12 @@ def test_auto_state_and_apply_inputs(tmp_path, monkeypatch):
     work = tmp_path / "work"
     work.mkdir()
     (work / "attempts.json").write_text(
-        json.dumps({
-            "m1": [{"result": "inert-image", "fact": "image byte(s) [0] never read"}],
-            "m2": [{"result": "no-entry-path", "fact": "p99() is reached from no entry point"}],
-        }),
+        json.dumps(
+            {
+                "m1": [{"result": "inert-image", "fact": "image byte(s) [0] never read"}],
+                "m2": [{"result": "no-entry-path", "fact": "p99() is reached from no entry point"}],
+            }
+        ),
         encoding="utf-8",
     )
     recorded: dict[str, dict[str, object]] = {}
@@ -1311,3 +1320,157 @@ def test_input_layout_reads_a_program_the_case_carries_8885(tmp_path, monkeypatc
     assert [(f["name"], f["offset"], f["bytes"]) for f in fields] == [("ACCT", 0, 5), ("NAME", 5, 5)]
     case["datasets"]["NOPE"] = {"input": "x", "reclen": 10}
     assert st.input_layout(case, tmp_path / "corpus", "NOPE") is None  # no SELECT for it: None, not a crash
+
+
+# ---- the PERFORM stack / HANDLE CONDITION plumbing of a handler-free program (#7955) ---------------------------------
+FLOW_PORT = """\
+public class PcimmbService {
+    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();
+    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(
+            java.util.Map.entry("LOG-B", 1),
+            java.util.Map.entry("MAIN-PARA", 0)
+    );
+
+    private static int paragraph(String name) { return DetCics.paragraph(PARAGRAPHS, name); }
+    private int condition(String cond) { return DetCics.resolveCondition(handlers, task, cond, PARAGRAPHS, this::abended); }
+
+    /** GOBACK / STOP RUN. */
+    private static final class Goback extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        Goback() {
+            super(null, null, false, false);
+        }
+    }
+
+    /** The active PERFORMs' last paragraphs, outermost first. */
+    private int[] performThru = new int[64];
+    private int performDepth = 0;
+
+    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */
+    private static final class PerformExit extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        final int depth;
+
+        PerformExit(int depth) {
+            super(null, null, false, false);
+            this.depth = depth;
+        }
+    }
+
+    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM
+     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning
+     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */
+    private void perform(int from, int thru) {
+        int mine = performDepth;
+        if (mine == performThru.length) {
+            performThru = java.util.Arrays.copyOf(performThru, mine * 2);
+        }
+        performThru[performDepth++] = thru;
+        try {
+            int i = from;
+            while (true) {
+                int next = run(i);
+                boolean jumped = (next & GOTO) != 0;
+                next &= ~GOTO;
+                if (!jumped) {
+                    if (i == thru) {
+                        return;
+                    }
+                    for (int d = mine - 1; d >= 0; d--) {
+                        if (performThru[d] == i) {
+                            throw new PerformExit(d);
+                        }
+                    }
+                }
+                if (next >= 2) {
+                    throw new Goback();
+                }
+                i = next;
+            }
+        } catch (PerformExit e) {
+            if (e.depth != mine) {
+                throw e;
+            }
+        } finally {
+            performDepth = mine;
+        }
+    }
+
+    private int run(int i) {
+        switch (i) {
+            case 0: return p0();
+            case 1: return p1();
+            default: throw new IllegalStateException("paragraph " + i);
+        }
+    }
+
+    /** MAIN-PARA. */
+    private int p0() {
+        f1_WS_CALEN = Cobol.zoned(Cobol.num(f18_EIBCALEN, CS), 2, 0, false, false, CS);
+        Cobol.move(f1_WS_CALEN, f6_BLOG_CALEN, CS);
+        Cobol.move(f9_CA_TEXT, f4_BLOG_TEXT, CS);
+        if (Cobol.compare(f8_CA_STAGE, "1", CS) == 0) {
+            Cobol.move("B1 ", f3_BLOG_TAG, CS);
+            perform(1, 1);
+            Cobol.move("2", f8_CA_STAGE, CS);
+            caBack.run();
+            task.returnTransid("PC52".strip(), out_PcimmaWsCa(f7_DFHCOMMAREA.storage(), f7_DFHCOMMAREA.offset()), 8, Cobol.commarea(f7_DFHCOMMAREA, 8).bytes);
+            if (true) throw new Goback();
+        } else {
+            Cobol.move("B2 ", f3_BLOG_TAG, CS);
+            perform(1, 1);
+            caBack.run();
+            task.returnTransid(null, null);
+            if (true) throw new Goback();
+        }
+        return 1;
+    }
+
+    /** LOG-B. */
+    private int p1() {
+        CicsTask.TsResult ts1 = task.writeqTs("PCLOG".strip(), DetCics.toRegion(DetCics.padded(f2_WS_BLOG, 15, "WRITEQ TS", CS), CS, REGION));
+        Cobol.store(f39_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts1.resp())), false, CS);
+        Cobol.store(f40_EIBRESP2, BigDecimal.valueOf(0), false, CS);
+        if (DetCics.resp(ts1.resp()) != 0) {
+            int to = condition(DetCics.condition(DetCics.resp(ts1.resp())));
+            if (to >= 0) return GOTO | to;
+        }
+        return 2;
+    }
+
+}
+"""
+
+
+def _flow_mutant(needle, after):
+    line = next(k for k, ln in enumerate(FLOW_PORT.splitlines(), 1) if needle in ln)
+    before = FLOW_PORT.splitlines()[line - 1]
+    return {"id": "ffff000001", "op": "ROR", "file": "service/X.java", "line": line, "before": before, "after": after}
+
+
+def test_a_program_with_no_handler_label_settles_its_perform_plumbing():
+    # condition() passes the (never filled) handler map to DetCics.resolveCondition, and p0 ends in an IF / ELSE whose
+    # two branches both throw Goback: the `return 1;` after it is dead, so perform(0, 1) never returns to its tail
+    spans = sa.methods(FLOW_PORT)
+    assert sa._no_label_flow(FLOW_PORT, spans) is not None
+    fact = sa.flow_plumbing(FLOW_PORT, spans, _flow_mutant("if (performThru[d] == i) {", "if (performThru[d] != i) {"))
+    assert fact and fact["result"] == "flow-plumbing"
+    fact = sa.flow_plumbing(FLOW_PORT, spans, _flow_mutant("if (to >= 0) return", "if (to >= 1) return GOTO | to;"))
+    assert fact and fact["result"] == "flow-plumbing"
+
+
+def test_a_handle_abend_label_or_a_handler_put_keeps_the_plumbing_open():
+    spans = sa.methods(FLOW_PORT)
+    assert sa._no_label_flow(FLOW_PORT.replace("int to = ", 'task.handleAbend("X"); int to = '), spans) is None
+    put = FLOW_PORT.replace("int to = ", 'handlers.put("A", 1); int to = ')
+    assert sa._no_label_flow(put, sa.methods(put)) is None
+
+
+def test_a_paragraph_that_can_return_is_not_a_throwing_paragraph():
+    lines = FLOW_PORT.splitlines()
+    spans = sa.methods(FLOW_PORT)
+    assert sa._paragraph_kind(lines, *spans["p0"][0]) == "throws"
+    assert sa._paragraph_kind(lines, *spans["p1"][0]) == "falls"
+    first = FLOW_PORT.replace("            if (true) throw new Goback();\n        } else {", "        } else {", 1)
+    assert sa._paragraph_kind(first.splitlines(), *sa.methods(first)["p0"][0]) == "falls"

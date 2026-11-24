@@ -4288,8 +4288,7 @@
         "Parameter Forwarders": 9
       },
       "dockerfile/moby/builder/dockerfile/utils_test.go": {
-        "Defensive Guards": 1,
-        "Type Conversions": 1
+        "Defensive Guards": 2
       }
     },
     "dockerfile/moby/builder/remotecontext": {

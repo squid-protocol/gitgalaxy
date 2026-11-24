@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
       "dockerfile/moby/builder/dockerfile/metrics.go": 2.903,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.438,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 1.473
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 1.892
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": -0.858,

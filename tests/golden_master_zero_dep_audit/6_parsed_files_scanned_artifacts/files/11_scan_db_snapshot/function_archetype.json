@@ -23950,7 +23950,7 @@
       },
       "dockerfile/moby/builder/dockerfile/utils_test.go": {
         "createTestSymlink@22": "Defensive Guards",
-        "createTestTempFile@11": "Type Conversions"
+        "createTestTempFile@11": "Defensive Guards"
       }
     },
     "dockerfile/moby/builder/remotecontext": {

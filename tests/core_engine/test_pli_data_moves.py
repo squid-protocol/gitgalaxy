@@ -71,6 +71,12 @@ def test_sequence_debris_does_not_hide_a_statement():
     ]
 
 
+def test_qualified_name_split_at_a_glued_sequence_number_is_one_source_9214():
+    src = "\n".join(["   SEARCH_FNR = W01_STATUS_TILKN.00002950", "      FNR_TILKN;", "   N = 12.00002950;"])
+    got = [(r[0], r[1], r[3]) for r in _rows(src)]
+    assert got[0] == (1, "W01_STATUS_TILKN.FNR_TILKN", "SEARCH_FNR")
+
+
 def test_the_pli_dialect_carries_data_moves():
     rows = extract_boundary("pli", " R: PROC; X = Y; END R;")["data_moves"]
     assert [(r["verb"], r["source"], r["target"]) for r in rows] == [("ASSIGN", "Y", "X")]

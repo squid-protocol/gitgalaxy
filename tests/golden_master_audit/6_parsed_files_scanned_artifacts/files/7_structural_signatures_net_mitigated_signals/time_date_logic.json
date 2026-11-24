@@ -1059,8 +1059,8 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 2,
-      "cobol/gnucobol_internals/fileio.c": 2,
+      "cobol/gnucobol_internals/codegen.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 3,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
       "cobol/gnucobol_internals/scanner.l": 0,
@@ -2089,7 +2089,7 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 2
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0,
+      "java/springboot/AutoConfigurationImportSelector.java": 3,
       "java/springboot/Binder.java": 0,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,

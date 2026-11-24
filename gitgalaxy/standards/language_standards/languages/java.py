@@ -569,7 +569,8 @@ DEFINITION: dict[str, Any] = {
         ),
         "regex_execution": re.compile(r"\b(?:Pattern\.compile|Matcher\.find)\b|\.matches\("),
         "time_date_logic": re.compile(
-            r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance)\b"
+            r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance|System\.nanoTime)\b"
+            r"|\bTimeUnit\."
         ),
         # The det port's CICS program control (cobol.py's EXEC CICS LINK / XCTL / RETURN). Not `task.start(`:
         # Kafka and Elasticsearch name their worker tasks `task` and start them.

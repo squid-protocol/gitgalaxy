@@ -34,7 +34,7 @@
 <rect class="stripe" x="16" y="106" width="1212" height="34"/>
 <text class="lang" x="22" y="127.0">ada</text>
 <text class="none" x="120" y="126.0">not measured</text>
-<g><title>ada callee names: precision 82.2% of 1,992, recall 58.6% of 2,795 (raw 82.2% / 58.6%; 29 shapes without a verdict)</title>
+<g><title>ada callee names: precision 82.2% of 1,992, recall 58.6% of 2,795 (raw 82.2% / 58.6%; 27 shapes without a verdict)</title>
 <text class="pr" x="426" y="120.5">Precision</text>
 <rect class="track" x="472" y="113" width="110" height="8" rx="2"/>
 <rect x="472" y="113" width="90.4" height="8" rx="2" fill="#4a3aa7"/>

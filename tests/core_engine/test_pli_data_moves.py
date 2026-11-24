@@ -74,3 +74,26 @@ def test_sequence_debris_does_not_hide_a_statement():
 def test_the_pli_dialect_carries_data_moves():
     rows = extract_boundary("pli", " R: PROC; X = Y; END R;")["data_moves"]
     assert [(r["verb"], r["source"], r["target"]) for r in rows] == [("ASSIGN", "Y", "X")]
+
+
+def _sources(src: str) -> list[str]:
+    return [r["source"] for r in pli_data_moves(f"P: PROC;\n{src}\nEND P;")]
+
+
+def test_alternate_operator_spellings_match_canonical():
+    cases = [
+        ("X = X ! (A < B & C > 5);", "X = X | (A < B & C > 5);"),
+        ("X = A !! B !! C;", "X = A || B || C;"),
+        ("X = A ! B ! (C ! D);", "X = A | B | (C | D);"),
+        ("X ! = A;", "X | = A;"),
+        ("X !! = A;", "X || = A;"),
+        ("X = A ¬< B ! C;", "X = A ¬< B | C;"),
+        ("X = A ^> B ! C;", "X = A ^> B | C;"),
+    ]
+    for alt, canon in cases:
+        assert _sources(alt) == _sources(canon), alt
+    assert _sources("X = X ! (A < B & C > 5);") == ["X", "A", "B", "C"]
+
+
+def test_bang_inside_string_is_not_an_operator():
+    assert _sources("X = 'A!B' ! C;") == _sources("X = 'A!B' | C;")

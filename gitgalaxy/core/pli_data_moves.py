@@ -46,7 +46,7 @@ _TOKEN = re.compile(
     r"|(?P<number>[0-9]+(?:\.[0-9]*)?(?:E[+-]?[0-9]+)?[BI]?(?![\w@#$]))"
     r"|(?P<word>[\w@#$]+)"
     r"|(?P<arrow>->)"
-    r"|(?P<op><=|>=|\^=|¬=|<>|\|\||\*\*|[-+*/|&=<>^¬(),.;:%])",
+    r"|(?P<op><=|>=|\^=|¬=|<>|\|\||!!|\*\*|[-+*/|!&=<>^¬(),.;:%])",
     re.I,
 )
 _KEYWORDS = frozenset(
@@ -225,12 +225,19 @@ _CICS_CONSTANTS = frozenset({"DFHRESP", "DFHVALUE"})
 _STATEMENT_LIMIT = 4000  # tokens one statement may run over
 
 
+# PL/I alternate spellings: `!` is `|` (OR), `!!` is `||` (concatenation).
+_ALT_OPS = {"!": "|", "!!": "||"}
+
+
 def _tokens(text: str) -> list[tuple[str, str, int]]:
     """(kind, TEXT, offset): comments already gone from the code stream, words upper-cased."""
     out = []
     for m in _TOKEN.finditer(text):
         kind = m.lastgroup or "op"
-        out.append((kind, m.group(0) if kind == "string" else m.group(0).upper(), m.start()))
+        text_ = m.group(0) if kind == "string" else m.group(0).upper()
+        if kind == "op" and text_ in _ALT_OPS:
+            text_ = _ALT_OPS[text_]
+        out.append((kind, text_, m.start()))
     return out
 
 

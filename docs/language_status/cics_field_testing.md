@@ -24,8 +24,8 @@ counted in it (their fact counts are not recorded here).
 | BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
 | units | 9 | 0 | 6 | 2,527 | 7 | 4 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
-| unit extents | 8 | 0 | 2 | 2,376 | 0 | 0 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
-| intra-program edges | 8 | 0 | 2 | 2,112 | 1 | 0 | 2 | 184 | 1.6% | open | 116 more clean fresh facts |
+| unit extents | 7 | 0 | 2 | 2,210 | 0 | 0 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
+| intra-program edges | 7 | 0 | 2 | 1,989 | 1 | 0 | 2 | 184 | 1.6% | open | 116 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
 | copybook paths | 7 | 0 | 4 | 503 | 9 | 1 | 1 | 72 | 4.2% | open | 1 more clean fresh round(s), 228 more clean fresh facts |
 | dead | 6 | 0 | 4 | 177 | 0 | 7 | 4 | 68 | 4.4% | open | 232 more clean fresh facts |
@@ -59,11 +59,11 @@ counted in it (their fact counts are not recorded here).
 | file control | 4 | 0 | 1 | 89 | 1 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| PL/I data moves | 2 | 0 | 0 | 1,657 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I layouts | 2 | 0 | 0 | 6,729 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | IMS definitions | 1 | 0 | 0 | 39 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | JCICS | 1 | 0 | 0 | 36 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MQ calls | 1 | 0 | 0 | 22 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| PL/I data moves | 1 | 0 | 0 | 97 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | job submissions | 1 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | symbolic maps | 1 | 0 | 0 | 5,307 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | web services | 1 | 0 | 0 | 18 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |

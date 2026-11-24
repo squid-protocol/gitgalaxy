@@ -188,7 +188,7 @@
       "fresh_rounds": 0,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 2
+      "tested_on_public": 1
     },
     "PL/I layouts": {
       "clean_fresh_facts": 0,
@@ -359,7 +359,7 @@
       "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 7
     },
     "job submissions": {
       "clean_fresh_facts": 0,
@@ -422,7 +422,7 @@
       "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 8
+      "tested_on_public": 7
     },
     "units": {
       "clean_fresh_facts": 200,

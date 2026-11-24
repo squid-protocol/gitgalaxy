@@ -74,3 +74,27 @@ def test_sequence_debris_does_not_hide_a_statement():
 def test_the_pli_dialect_carries_data_moves():
     rows = extract_boundary("pli", " R: PROC; X = Y; END R;")["data_moves"]
     assert [(r["verb"], r["source"], r["target"]) for r in rows] == [("ASSIGN", "Y", "X")]
+
+
+def _sources(src: str, target: str) -> list[str]:
+    return [r["source"] for r in pli_data_moves(src) if r["target"] == target]
+
+
+def test_bang_is_the_alternate_or_and_does_not_end_the_source_list():
+    """#9213: `!` is PL/I's alternate `|`, `!!` its alternate `||`. DSF R0016023 chains `ENDRET = ENDRET ! (...) ! (...)`;
+    an unread `!` made `ENDRET (...)` look like a subscripted name and dropped every operand after it."""
+    assert _sources("P: PROC;\n ENDRET = ENDRET ! (A < B & C > 5);\nEND P;\n", "ENDRET") == ["ENDRET", "A", "B", "C"]
+    assert _sources("P: PROC;\n ENDRET = ENDRET | (A < B & C > 5);\nEND P;\n", "ENDRET") == ["ENDRET", "A", "B", "C"]
+    assert _sources("P: PROC;\n X = A !! B;\nEND P;\n", "X") == ["A", "B"]
+
+
+def test_a_dot_glued_to_a_sequence_number_continues_the_qualified_name():
+    """#9214: DSF R0013101 `SEARCH_FNR = W01_STATUS_TILKN.00002950` then `FNR_TILKN;` -- one name, not two sources."""
+    src = "P: PROC;\n  SEARCH_FNR  =  W01_STATUS_TILKN.00002950\n               FNR_TILKN;       00002960\nEND P;\n"
+    assert _sources(src, "SEARCH_FNR") == ["W01_STATUS_TILKN.FNR_TILKN"]
+
+
+def test_a_decimal_literal_before_a_number_at_line_end_is_not_a_glued_sequence_field():
+    """#9214 guard: `3.00002950` ends in digits after a `.` but the `.` follows a digit, so it stays a literal."""
+    src = "P: PROC;\n  X  =  3.00002950\n    + Y;       00002960\nEND P;\n"
+    assert _sources(src, "X") == ["Y"]

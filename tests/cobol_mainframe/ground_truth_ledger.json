@@ -21,16 +21,6 @@
       "kind": "defect",
       "summary": "The engine's transfers_to records only the FIRST target of GO TO a b c ... DEPENDING ON x (languages/cobol.py _transfers_out, one capture group; #3362 chose it when the whole crucible had one such statement). DBB epscsmrd.cbl EPSCSMRI has dispatch tables of 80+ targets (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA), so 184 keyed edges are missed. Owner is this PR's issue until a sibling issue is filed."
     },
-    "engine_pli_dot_glued_sequence_splits_name": {
-      "issue": 9214,
-      "kind": "defect",
-      "summary": "A `.` glued to the columns 73-80 sequence number is not blanked, so a qualified name continued on the next line reads as two sources."
-    },
-    "engine_pli_or_bang_operator_ends_sources": {
-      "issue": 9213,
-      "kind": "defect",
-      "summary": "PL/I `!` (alternate OR) is not tokenized in core/pli_data_moves.py, so an assignment ends its source list at the first `!` (R0016023 ENDRET statements)."
-    },
     "engine_unit_end_counts_noncode_lines": {
       "issue": 4300,
       "kind": "defect",
@@ -46,10 +36,10 @@
       "kind": "deliberate",
       "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies them. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
     },
-    "key_pli_unit_end_mislabelled_end": {
+    "key_pli_source_damaged_no_balanced_extent": {
       "issue": 9215,
       "kind": "defect",
-      "summary": "The key reader ends a PL/I procedure at an inner END when the closing END names a label that is not in the file; the engine is right (key defect)."
+      "summary": "DSF R001O301.pli is damaged (lines cut out: WHEN with no SELECT, an END naming no label), so its procedure extents have no balanced reading; key scope needs a ruling."
     },
     "system_copybook_resolved_to_shipped_copy": {
       "issue": 8120,
@@ -3071,40 +3061,6 @@
     },
     "dsf": {
       "mismatches": {
-        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN FNR_TILKN -> SEARCH_FNR | fp": "engine_pli_dot_glued_sequence_splits_name",
-        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN W01_STATUS_TILKN -> SEARCH_FNR | fp": "engine_pli_dot_glued_sequence_splits_name",
-        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN W01_STATUS_TILKN.FNR_TILKN -> SEARCH_FNR | fn": "engine_pli_dot_glued_sequence_splits_name",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.BUP -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.OPPH\u00d8RSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.UFT_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.BUP -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.OPPH\u00d8RSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.UFT_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.RF0PERSN.TKNR -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.SPESOPPL.BOSATT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.SPESOPPL.STATSBORGER -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.D\u00d8DSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.D\u00d8D_AV_YRKESSKADE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.TT_ANV -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_OPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_P\u00c5 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_P\u00c5_E91 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_SPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_SPT_GML -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_TT_EGEN -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.RF0PERSN.TKNR -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.SPESOPPL.BOSATT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.SPESOPPL.STATSBORGER -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.D\u00d8DSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.D\u00d8D_AV_YRKESSKADE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.TT_ANV -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_OPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_P\u00c5 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_P\u00c5_E91 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_SPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_SPT_GML -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_TT_EGEN -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
-        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN TRANS_OPPL_OMR.BLANKETTYPE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
         "engine | dead (non-trivial) | src/GML/FO04D1X1.cobol | TEST-TRK-TAB | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/GML/FO04F1X1.cobol | LES-KORT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/GML/FRMERK.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
@@ -3164,8 +3120,8 @@
         "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-77 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-408 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-417 | fp": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-677 | fn": "key_pli_unit_end_mislabelled_end",
-        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-693 | fp": "key_pli_unit_end_mislabelled_end",
+        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-677 | fn": "key_pli_source_damaged_no_balanced_extent",
+        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-693 | fp": "key_pli_source_damaged_no_balanced_extent",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-175 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-179 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010424.pli | R001B1 L21-253 | fn": "engine_unit_end_counts_noncode_lines",
@@ -3328,8 +3284,8 @@
         },
         "PL/I data moves": {
           "engine": {
-            "got": 9627,
-            "tp": 9625,
+            "got": 9657,
+            "tp": 9657,
             "truth": 9657
           },
           "forge": null,

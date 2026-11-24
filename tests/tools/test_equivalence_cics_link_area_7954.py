@@ -75,3 +75,12 @@ def test_the_cobol_side_records_length_and_bytes_in_stub_order():
 def test_a_link_with_no_area_keeps_only_its_target():
     res = {"screens": [], "text": [], "events": ["LINK pgm=P target=ABNDPROC len=0 area=0 resp=0 resp2=0"], "links": []}
     assert ec.cobol_events(res) == [{"event": "LINK", "program": "ABNDPROC"}]
+
+
+def test_a_db2_timestamp_and_a_buffer_past_the_cobol_area_are_no_difference():
+    """GenApp's LGAPDB01 / LGUPDB01 pass CURRENT TIMESTAMP (the legs run seconds apart) and the port's buffer is larger."""
+    cobol = b"ID01" + b"2026-11-24-09.04.49.531614" + b"TAIL"
+    java = b"ID01" + b"2026-11-24-09.05.08.123984" + b"TAIL" + b"\x00" * 64
+    assert ec.compare_events([_link(area=cobol)], [_link(area=java, length=len(cobol))])["diffs"] == []
+    other = b"ID02" + b"2026-11-24-09.05.08.123984" + b"TAIL"
+    assert _fields(ec.compare_events([_link(area=cobol)], [_link(area=other)])) == ["area"]

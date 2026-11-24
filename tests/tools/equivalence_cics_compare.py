@@ -178,6 +178,15 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
+_DB2_TIMESTAMP = re.compile(rb"\d{4}-\d\d-\d\d-\d\d\.\d\d\.\d\d\.\d{6}")
+
+
+def _area_without_clock(area: str) -> bytes:
+    """A LINK's COMMAREA bytes with each Db2 timestamp (`CURRENT TIMESTAMP`, e.g. LGUPDB01's LASTCHANGED) blanked: the
+    two legs run seconds apart, so the clock differs while every other byte must match (#7954)."""
+    return _DB2_TIMESTAMP.sub(b"#" * 26, base64.b64decode(area))
+
+
 def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     """A LINK event as both sides compare it: its target and, when the event carries the area's bytes (#7954: a det
     port's, and the COBOL stub's), its LENGTH and those bytes. The Java side's DTO snapshot and RESP are not compared."""
@@ -282,7 +291,8 @@ def compare_events(
             # LENGTH; compared only when both sides gave the bytes, so a port that passes a DTO is unchanged
             if c.get("length") is not None and j.get("length") is not None and int(c["length"]) != int(j["length"]):
                 bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
-            if c["area"] != j["area"]:
+            cobol_area = _area_without_clock(c["area"])  # the port's buffer may run past what the LINK passed
+            if _area_without_clock(j["area"])[: len(cobol_area)] != cobol_area:
                 bad.append({"field": "area", "cobol": c["area"], "java": j["area"]})
         if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
             bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})

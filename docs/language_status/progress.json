@@ -1,5 +1,5 @@
 {
- "commit": "0786172ee",
+ "commit": "19fab4977",
  "components": {
   "capabilities": {
    "groups": [
@@ -442,7 +442,7 @@
     "scenarios": 309
    },
    "estate_crucible": {
-    "horrors": 122,
+    "horrors": 132,
     "levels": [
      {
       "about": "JCL and batch utilities",
@@ -613,8 +613,8 @@
       "region": 4
      }
     ],
-    "pass": 120,
-    "ref": "v0.8.0"
+    "pass": 130,
+    "ref": "v0.9.0"
    }
   },
   "det_mutation": {
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T01:50:30Z",
+  "as_of": "2026-11-24T01:54:59Z",
   "core": {
    "closed": 262,
    "open": 14,

@@ -1456,7 +1456,7 @@
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_protocol.erl": 0,
-      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 4,
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 3,
       "erlang/ranch_socket_pool/ranch_server.erl": 0
     },
     "fortran": {

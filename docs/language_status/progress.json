@@ -620,12 +620,12 @@
   "det_mutation": {
    "estates": {
     "aws-mainframe-modernization-carddemo": {
-     "caught": 6098,
-     "closed": 4,
-     "closed_caught": 447,
-     "closed_survived": 140,
+     "caught": 6091,
+     "closed": 2,
+     "closed_caught": 205,
+     "closed_survived": 78,
      "equivalent": 2249,
-     "l5": 4,
+     "l5": 2,
      "measured": 25,
      "mutants": 30382,
      "programs": 44,
@@ -633,11 +633,11 @@
      "ready": 0,
      "sampled": 12559,
      "sampled_pct": 41.3,
-     "survived": 5834,
+     "survived": 5833,
      "unreachable": 209
     },
     "cics-async-api-credit-card-application-example": {
-     "caught": 4990,
+     "caught": 5212,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -646,32 +646,32 @@
      "measured": 10,
      "mutants": 6284,
      "programs": 10,
-     "raw_pct": 87.8,
+     "raw_pct": 89.7,
      "ready": 0,
      "sampled": 6284,
      "sampled_pct": 100.0,
-     "survived": 693,
+     "survived": 597,
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 3026,
-     "closed": 3,
-     "closed_caught": 881,
-     "closed_survived": 649,
+     "caught": 3040,
+     "closed": 4,
+     "closed_caught": 1088,
+     "closed_survived": 908,
      "equivalent": 2635,
-     "l5": 3,
+     "l5": 4,
      "measured": 12,
      "mutants": 8407,
      "programs": 31,
-     "raw_pct": 42.1,
+     "raw_pct": 42.3,
      "ready": 0,
      "sampled": 7542,
      "sampled_pct": 89.7,
-     "survived": 4156,
+     "survived": 4153,
      "unreachable": 831
     },
     "cics-genapp": {
-     "caught": 2752,
+     "caught": 2729,
      "closed": 0,
      "closed_caught": 0,
      "closed_survived": 0,
@@ -680,11 +680,11 @@
      "measured": 11,
      "mutants": 10993,
      "programs": 31,
-     "raw_pct": 25.9,
+     "raw_pct": 26.3,
      "ready": 0,
      "sampled": 10993,
      "sampled_pct": 100.0,
-     "survived": 7863,
+     "survived": 7628,
      "unreachable": 0
     },
     "dbb-mortgage-application": {
@@ -740,20 +740,20 @@
     }
    },
    "total": {
-    "caught": 18367,
-    "closed": 7,
-    "closed_caught": 1328,
-    "closed_survived": 789,
+    "caught": 18573,
+    "closed": 6,
+    "closed_caught": 1293,
+    "closed_survived": 986,
     "equivalent": 7023,
-    "l5": 7,
+    "l5": 6,
     "measured": 64,
     "mutants": 59197,
     "programs": 158,
-    "raw_pct": 47.8,
+    "raw_pct": 48.5,
     "ready": 0,
     "sampled": 40508,
     "sampled_pct": 68.4,
-    "survived": 20037,
+    "survived": 19702,
     "unreachable": 1464
    }
   },
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T15:30:45Z",
+  "as_of": "2026-11-24T15:51:55Z",
   "core": {
    "closed": 262,
    "open": 14,
@@ -1524,14 +1524,14 @@
     "l2_plus_pct": 95.5,
     "l4_plus": 42,
     "l4_plus_pct": 95.5,
-    "l5": 4,
+    "l5": 2,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 38,
-     "L5": 4
+     "L4": 40,
+     "L5": 2
     },
     "netted": {
      "infeasible_netted": 157,
@@ -1633,17 +1633,17 @@
     "l2_plus_pct": 100.0,
     "l4_plus": 31,
     "l4_plus_pct": 100.0,
-    "l5": 3,
+    "l5": 4,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 0,
      "L3": 0,
-     "L4": 28,
-     "L5": 3
+     "L4": 27,
+     "L5": 4
     },
     "netted": {
-     "infeasible_netted": 125,
+     "infeasible_netted": 123,
      "practically_unreachable": 1,
      "undefined_by_ibm": 4
     },
@@ -1885,14 +1885,14 @@
     "l2_plus_pct": 61.2,
     "l4_plus": 85,
     "l4_plus_pct": 61.2,
-    "l5": 2,
+    "l5": 3,
     "levels": {
      "L0": 6,
      "L1": 48,
      "L2": 0,
      "L3": 0,
-     "L4": 83,
-     "L5": 2
+     "L4": 82,
+     "L5": 3
     },
     "netted": {
      "infeasible_netted": 23,
@@ -1909,17 +1909,17 @@
    "l2_plus_pct": 97.5,
    "l4_plus": 146,
    "l4_plus_pct": 92.4,
-   "l5": 7,
+   "l5": 6,
    "levels": {
     "L0": 4,
     "L1": 0,
     "L2": 4,
     "L3": 4,
-    "L4": 139,
-    "L5": 7
+    "L4": 140,
+    "L5": 6
    },
    "netted": {
-    "infeasible_netted": 495,
+    "infeasible_netted": 493,
     "practically_unreachable": 1,
     "undefined_by_ibm": 5
    },

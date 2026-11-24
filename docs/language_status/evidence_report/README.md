@@ -12,10 +12,10 @@ These files are derived output, published on the `generated` branch and not comm
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 38 | 4 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 0 | 0 | 40 | 2 |
 | [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 28 | 3 |
-| [cics-crucible](cics-crucible/report.md) | 139 | 6 | 48 | 0 | 0 | 83 | 2 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 0 | 0 | 27 | 4 |
+| [cics-crucible](cics-crucible/report.md) | 139 | 6 | 48 | 0 | 0 | 82 | 3 |
 | [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 0 | 0 | 31 | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 1 | 0 | 0 | 0 | 5 | 0 |
 | [example-health-apis](example-health-apis/report.md) | 29 | 1 | 0 | 4 | 4 | 20 | 0 |

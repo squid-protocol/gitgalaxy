@@ -681,7 +681,7 @@
    "cbsa-crdtagy1": [
     7,
     7,
-    5,
+    6,
     6
    ],
    "cbsa-crdtagy2": [
@@ -699,7 +699,7 @@
    "cbsa-crdtagy4": [
     7,
     7,
-    5,
+    6,
     6
    ],
    "cbsa-crdtagy5": [
@@ -2422,10 +2422,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "sha": "028ba4fc102a02b2e913e6d3b803245016664541",
    "translator": {
-    "files": 188,
-    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+    "files": 189,
+    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
    }
   },
   "sweeps": {}
@@ -4878,8 +4878,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "python tests/tools/cics_census.py survey --baseline --sha 028ba4fc102a02b2e913e6d3b803245016664541",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 028ba4fc102a02b2e913e6d3b803245016664541",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4890,8 +4890,8 @@
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
    "cics": "v0.19.0",
-   "estate": "v0.8.0",
-   "language": "v1.7.0"
+   "estate": "v0.9.0",
+   "language": "v1.8.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
@@ -4900,13 +4900,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "sha": "028ba4fc102a02b2e913e6d3b803245016664541",
    "translator": {
-    "files": 188,
-    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+    "files": 189,
+    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
    }
   },
-  "translator_commit": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+  "translator_commit": "028ba4fc102a02b2e913e6d3b803245016664541",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4949,6 +4949,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+  "fingerprint": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
  }
 }

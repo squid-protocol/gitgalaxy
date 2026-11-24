@@ -632,7 +632,7 @@
    "cbsa-crdtagy1": [
     7,
     7,
-    5,
+    6,
     6
    ],
    "cbsa-crdtagy2": [
@@ -650,7 +650,7 @@
    "cbsa-crdtagy4": [
     7,
     7,
-    5,
+    6,
     6
    ],
    "cbsa-crdtagy5": [
@@ -3884,10 +3884,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "sha": "028ba4fc102a02b2e913e6d3b803245016664541",
    "translator": {
-    "files": 188,
-    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+    "files": 189,
+    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
    }
   },
   "sweeps": {}
@@ -4563,6 +4563,246 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
+    "branch_pct": null,
+    "branches": {
+     "covered": 0,
+     "total": 0
+    },
+    "branches_net": {
+     "covered": 0,
+     "total": 0
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 1,
+     "live": 1
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cruc-pc-immediate-s",
+      "case_scenarios": 2,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cruc-pc-immediate-s",
+     "case_scenarios": 2,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L5",
+   "level_current": true,
+   "mutation": {
+    "accounted": 189,
+    "chosen": 237,
+    "current": true,
+    "det_port": "raw 19% (45/234 caught; 237 of 237 mutants, seed 0); every survivor accounted for (189) (recorded generator differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator"
+    ],
+    "killed": 45,
+    "l5": true,
+    "mutants": 237,
+    "score": 0.1923,
+    "stale_inputs": [],
+    "survived": 189,
+    "unaccounted": 0
+   },
+   "next": [],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 5,
+    "translated": 5,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
     "branch_pct": 75.0,
     "branches": {
      "covered": 6,
@@ -5132,20 +5372,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 10,
-    "chosen": 145,
+    "accounted": 16,
+    "chosen": 152,
     "current": true,
-    "det_port": "raw 27% (39/142 caught; 145 of 682 mutants, seed 0); 93 of 103 survivors unaccounted",
+    "det_port": "raw 27% (39/145 caught; 152 of 731 mutants, seed 0); 90 of 106 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 39,
     "l5": false,
-    "mutants": 682,
-    "score": 0.2746,
+    "mutants": 731,
+    "score": 0.269,
     "stale_inputs": [],
-    "survived": 103,
-    "unaccounted": 93
+    "survived": 106,
+    "unaccounted": 90
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 27% (39/142 caught; 145 of 682 mutants, seed 0); 93 of 103 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 27% (39/145 caught; 152 of 731 mutants, seed 0); 90 of 106 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -5382,20 +5627,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 21,
-    "chosen": 135,
+    "accounted": 31,
+    "chosen": 153,
     "current": true,
-    "det_port": "raw 14% (19/134 caught; 135 of 257 mutants, seed 0); 94 of 115 survivors unaccounted",
+    "det_port": "raw 13% (19/149 caught; 153 of 281 mutants, seed 0); 99 of 130 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 19,
     "l5": false,
-    "mutants": 257,
-    "score": 0.1418,
+    "mutants": 281,
+    "score": 0.1275,
     "stale_inputs": [],
-    "survived": 115,
-    "unaccounted": 94
+    "survived": 130,
+    "unaccounted": 99
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 14% (19/134 caught; 135 of 257 mutants, seed 0); 94 of 115 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 13% (19/149 caught; 153 of 281 mutants, seed 0); 99 of 130 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -5653,25 +5903,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 15,
-    "chosen": 153,
+    "accounted": 10,
+    "chosen": 146,
     "current": true,
-    "det_port": "raw 28% (41/147 caught; 153 of 935 mutants, seed 0); 91 of 106 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 41,
+    "det_port": "raw 28% (40/145 caught; 146 of 885 mutants, seed 0); 95 of 105 survivors unaccounted",
+    "killed": 40,
     "l5": false,
-    "mutants": 935,
-    "score": 0.2789,
+    "mutants": 885,
+    "score": 0.2759,
     "stale_inputs": [],
-    "survived": 106,
-    "unaccounted": 91
+    "survived": 105,
+    "unaccounted": 95
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 28% (41/147 caught; 153 of 935 mutants, seed 0); 91 of 106 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 28% (40/145 caught; 146 of 885 mutants, seed 0); 95 of 105 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6414,25 +6659,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 32,
-    "chosen": 153,
+    "accounted": 22,
+    "chosen": 137,
     "current": true,
-    "det_port": "raw 13% (20/149 caught; 153 of 283 mutants, seed 0); 97 of 129 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "det_port": "raw 15% (20/136 caught; 137 of 259 mutants, seed 0); 94 of 116 survivors unaccounted",
     "killed": 20,
     "l5": false,
-    "mutants": 283,
-    "score": 0.1342,
+    "mutants": 259,
+    "score": 0.1471,
     "stale_inputs": [],
-    "survived": 129,
-    "unaccounted": 97
+    "survived": 116,
+    "unaccounted": 94
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 13% (20/149 caught; 153 of 283 mutants, seed 0); 97 of 129 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 15% (20/136 caught; 137 of 259 mutants, seed 0); 94 of 116 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -6658,20 +6898,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 12,
-    "chosen": 130,
+    "accounted": 18,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 36% (45/126 caught; 130 of 411 mutants, seed 0); 69 of 81 survivors unaccounted",
+    "det_port": "raw 31% (45/143 caught; 150 of 453 mutants, seed 0); 80 of 98 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 45,
     "l5": false,
-    "mutants": 411,
-    "score": 0.3571,
+    "mutants": 453,
+    "score": 0.3147,
     "stale_inputs": [],
-    "survived": 81,
-    "unaccounted": 69
+    "survived": 98,
+    "unaccounted": 80
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (45/126 caught; 130 of 411 mutants, seed 0); 69 of 81 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 31% (45/143 caught; 150 of 453 mutants, seed 0); 80 of 98 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -7916,20 +8161,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 2,
-    "chosen": 136,
+    "accounted": 6,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 42% (56/134 caught; 136 of 483 mutants, seed 0); 76 of 78 survivors unaccounted",
-    "killed": 56,
+    "det_port": "raw 39% (57/145 caught; 150 of 507 mutants, seed 0); 82 of 88 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 57,
     "l5": false,
-    "mutants": 483,
-    "score": 0.4179,
+    "mutants": 507,
+    "score": 0.3931,
     "stale_inputs": [],
-    "survived": 78,
-    "unaccounted": 76
+    "survived": 88,
+    "unaccounted": 82
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (56/134 caught; 136 of 483 mutants, seed 0); 76 of 78 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (57/145 caught; 150 of 507 mutants, seed 0); 82 of 88 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -12499,25 +12749,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 16,
-    "chosen": 149,
+    "accounted": 15,
+    "chosen": 142,
     "current": true,
-    "det_port": "raw 33% (48/147 caught; 149 of 828 mutants, seed 0); 83 of 99 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 48,
+    "det_port": "raw 33% (46/141 caught; 142 of 802 mutants, seed 0); 80 of 95 survivors unaccounted",
+    "killed": 46,
     "l5": false,
-    "mutants": 828,
-    "score": 0.3265,
+    "mutants": 802,
+    "score": 0.3262,
     "stale_inputs": [],
-    "survived": 99,
-    "unaccounted": 83
+    "survived": 95,
+    "unaccounted": 80
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (48/147 caught; 149 of 828 mutants, seed 0); 83 of 99 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 33% (46/141 caught; 142 of 802 mutants, seed 0); 80 of 95 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -12754,20 +12999,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 18,
-    "chosen": 135,
+    "accounted": 20,
+    "chosen": 141,
     "current": true,
-    "det_port": "raw 25% (33/130 caught; 135 of 311 mutants, seed 0); 79 of 97 survivors unaccounted",
+    "det_port": "raw 24% (33/135 caught; 141 of 324 mutants, seed 0); 82 of 102 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 33,
     "l5": false,
-    "mutants": 311,
-    "score": 0.2538,
+    "mutants": 324,
+    "score": 0.2444,
     "stale_inputs": [],
-    "survived": 97,
-    "unaccounted": 79
+    "survived": 102,
+    "unaccounted": 82
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 25% (33/130 caught; 135 of 311 mutants, seed 0); 79 of 97 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 24% (33/135 caught; 141 of 324 mutants, seed 0); 82 of 102 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -13233,24 +13483,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 151,
+    "chosen": 147,
     "current": true,
-    "det_port": "raw 43% (63/145 caught; 151 of 925 mutants, seed 0); 82 of 82 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "det_port": "raw 44% (63/144 caught; 147 of 900 mutants, seed 0); 81 of 81 survivors unaccounted",
     "killed": 63,
     "l5": false,
-    "mutants": 925,
-    "score": 0.4345,
+    "mutants": 900,
+    "score": 0.4375,
     "stale_inputs": [],
-    "survived": 82,
-    "unaccounted": 82
+    "survived": 81,
+    "unaccounted": 81
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (63/145 caught; 151 of 925 mutants, seed 0); 82 of 82 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (63/144 caught; 147 of 900 mutants, seed 0); 81 of 81 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13716,19 +13961,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 148,
+    "chosen": 151,
     "current": true,
-    "det_port": "raw 40% (59/146 caught; 148 of 773 mutants, seed 0); 87 of 87 survivors unaccounted",
-    "killed": 59,
+    "det_port": "raw 42% (61/146 caught; 151 of 798 mutants, seed 0); 85 of 85 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 61,
     "l5": false,
-    "mutants": 773,
-    "score": 0.4041,
+    "mutants": 798,
+    "score": 0.4178,
     "stale_inputs": [],
-    "survived": 87,
-    "unaccounted": 87
+    "survived": 85,
+    "unaccounted": 85
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 40% (59/146 caught; 148 of 773 mutants, seed 0); 87 of 87 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (61/146 caught; 151 of 798 mutants, seed 0); 85 of 85 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -13955,24 +14205,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 153,
+    "chosen": 135,
     "current": true,
-    "det_port": "raw 32% (47/147 caught; 153 of 321 mutants, seed 0); 100 of 100 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 47,
+    "det_port": "raw 30% (40/132 caught; 135 of 296 mutants, seed 0); 92 of 92 survivors unaccounted",
+    "killed": 40,
     "l5": false,
-    "mutants": 321,
-    "score": 0.3197,
+    "mutants": 296,
+    "score": 0.303,
     "stale_inputs": [],
-    "survived": 100,
-    "unaccounted": 100
+    "survived": 92,
+    "unaccounted": 92
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 32% (47/147 caught; 153 of 321 mutants, seed 0); 100 of 100 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 30% (40/132 caught; 135 of 296 mutants, seed 0); 92 of 92 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -14199,19 +14444,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 149,
+    "chosen": 151,
     "current": true,
-    "det_port": "raw 47% (66/140 caught; 149 of 615 mutants, seed 0); 74 of 74 survivors unaccounted",
+    "det_port": "raw 47% (66/141 caught; 151 of 633 mutants, seed 0); 75 of 75 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 66,
     "l5": false,
-    "mutants": 615,
-    "score": 0.4714,
+    "mutants": 633,
+    "score": 0.4681,
     "stale_inputs": [],
-    "survived": 74,
-    "unaccounted": 74
+    "survived": 75,
+    "unaccounted": 75
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 47% (66/140 caught; 149 of 615 mutants, seed 0); 74 of 74 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 47% (66/141 caught; 151 of 633 mutants, seed 0); 75 of 75 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -14440,22 +14690,17 @@
     "accounted": 0,
     "chosen": 152,
     "current": true,
-    "det_port": "raw 39% (57/147 caught; 152 of 591 mutants, seed 0); 90 of 90 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "det_port": "raw 39% (57/148 caught; 152 of 573 mutants, seed 0); 91 of 91 survivors unaccounted",
     "killed": 57,
     "l5": false,
-    "mutants": 591,
-    "score": 0.3878,
+    "mutants": 573,
+    "score": 0.3851,
     "stale_inputs": [],
-    "survived": 90,
-    "unaccounted": 90
+    "survived": 91,
+    "unaccounted": 91
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (57/147 caught; 152 of 591 mutants, seed 0); 90 of 90 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (57/148 caught; 152 of 573 mutants, seed 0); 91 of 91 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -15170,19 +15415,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 146,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 38% (54/144 caught; 146 of 656 mutants, seed 0); 90 of 90 survivors unaccounted",
+    "det_port": "raw 37% (54/145 caught; 150 of 681 mutants, seed 0); 91 of 91 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 54,
     "l5": false,
-    "mutants": 656,
-    "score": 0.375,
+    "mutants": 681,
+    "score": 0.3724,
     "stale_inputs": [],
-    "survived": 90,
-    "unaccounted": 90
+    "survived": 91,
+    "unaccounted": 91
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (54/144 caught; 146 of 656 mutants, seed 0); 90 of 90 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/145 caught; 150 of 681 mutants, seed 0); 91 of 91 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -15887,24 +16137,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 150,
+    "chosen": 141,
     "current": true,
-    "det_port": "raw 37% (54/146 caught; 150 of 439 mutants, seed 0); 92 of 92 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 54,
+    "det_port": "raw 36% (50/140 caught; 141 of 414 mutants, seed 0); 90 of 90 survivors unaccounted",
+    "killed": 50,
     "l5": false,
-    "mutants": 439,
-    "score": 0.3699,
+    "mutants": 414,
+    "score": 0.3571,
     "stale_inputs": [],
-    "survived": 92,
-    "unaccounted": 92
+    "survived": 90,
+    "unaccounted": 90
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/146 caught; 150 of 439 mutants, seed 0); 92 of 92 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (50/140 caught; 141 of 414 mutants, seed 0); 90 of 90 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -16131,24 +16376,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 150,
+    "chosen": 136,
     "current": true,
-    "det_port": "raw 27% (39/143 caught; 150 of 507 mutants, seed 0); 104 of 104 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 39,
+    "det_port": "raw 29% (38/132 caught; 136 of 482 mutants, seed 0); 94 of 94 survivors unaccounted",
+    "killed": 38,
     "l5": false,
-    "mutants": 507,
-    "score": 0.2727,
+    "mutants": 482,
+    "score": 0.2879,
     "stale_inputs": [],
-    "survived": 104,
-    "unaccounted": 104
+    "survived": 94,
+    "unaccounted": 94
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 27% (39/143 caught; 150 of 507 mutants, seed 0); 104 of 104 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 29% (38/132 caught; 136 of 482 mutants, seed 0); 94 of 94 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -16374,25 +16614,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 22,
-    "chosen": 147,
+    "accounted": 21,
+    "chosen": 143,
     "current": true,
-    "det_port": "raw 38% (55/144 caught; 147 of 623 mutants, seed 0); 67 of 89 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "det_port": "raw 39% (55/142 caught; 143 of 610 mutants, seed 0); 66 of 87 survivors unaccounted",
     "killed": 55,
     "l5": false,
-    "mutants": 623,
-    "score": 0.3819,
+    "mutants": 610,
+    "score": 0.3873,
     "stale_inputs": [],
-    "survived": 89,
-    "unaccounted": 67
+    "survived": 87,
+    "unaccounted": 66
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 38% (55/144 caught; 147 of 623 mutants, seed 0); 67 of 89 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 39% (55/142 caught; 143 of 610 mutants, seed 0); 66 of 87 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -16858,19 +17093,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 145,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 36% (51/143 caught; 145 of 474 mutants, seed 0); 92 of 92 survivors unaccounted",
-    "killed": 51,
+    "det_port": "raw 37% (54/145 caught; 150 of 499 mutants, seed 0); 91 of 91 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 54,
     "l5": false,
-    "mutants": 474,
-    "score": 0.3566,
+    "mutants": 499,
+    "score": 0.3724,
     "stale_inputs": [],
-    "survived": 92,
-    "unaccounted": 92
+    "survived": 91,
+    "unaccounted": 91
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 36% (51/143 caught; 145 of 474 mutants, seed 0); 92 of 92 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (54/145 caught; 150 of 499 mutants, seed 0); 91 of 91 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -19836,24 +20076,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 668,
+    "chosen": 620,
     "current": true,
-    "det_port": "raw 18% (121/656 caught; 668 of 680 mutants, seed 0); 535 of 535 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "det_port": "raw 20% (121/614 caught; 620 of 630 mutants, seed 0); 493 of 493 survivors unaccounted",
     "killed": 121,
     "l5": false,
-    "mutants": 680,
-    "score": 0.1845,
+    "mutants": 630,
+    "score": 0.1971,
     "stale_inputs": [],
-    "survived": 535,
-    "unaccounted": 535
+    "survived": 493,
+    "unaccounted": 493
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 18% (121/656 caught; 668 of 680 mutants, seed 0); 535 of 535 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 20% (121/614 caught; 620 of 630 mutants, seed 0); 493 of 493 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -21081,26 +21316,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 249,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 13% (32/243 caught; 249 of 249 mutants, seed 0); 211 of 211 survivors unaccounted",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
+    "chosen": 230,
+    "current": true,
+    "det_port": "raw 14% (32/227 caught; 230 of 230 mutants, seed 0); 195 of 195 survivors unaccounted",
     "killed": 32,
     "l5": false,
-    "mutants": 249,
-    "score": 0.1317,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 211,
-    "unaccounted": 211
+    "mutants": 230,
+    "score": 0.141,
+    "stale_inputs": [],
+    "survived": 195,
+    "unaccounted": 195
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 13% (32/243 caught; 249 of 249 mutants, seed 0); 211 of 211 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 14% (32/227 caught; 230 of 230 mutants, seed 0); 195 of 195 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -22295,7 +22523,7 @@
      },
      {
       "case": "cruc-pc-detl",
-      "case_scenarios": 7,
+      "case_scenarios": 12,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -22307,7 +22535,7 @@
     ],
     "chosen": {
      "case": "cruc-pc-detl",
-     "case_scenarios": 7,
+     "case_scenarios": 12,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -22320,25 +22548,23 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 70,
+    "accounted": 98,
     "chosen": 287,
     "current": true,
-    "det_port": "raw 42% (118/281 caught; 287 of 287 mutants, seed 0); 93 of 163 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "det_port": "raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 61 of 159 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh)",
     "drifted": [
-     "generator",
-     "harness",
-     "oracle"
+     "generator"
     ],
-    "killed": 118,
+    "killed": 122,
     "l5": false,
     "mutants": 287,
-    "score": 0.4199,
+    "score": 0.4342,
     "stale_inputs": [],
-    "survived": 163,
-    "unaccounted": 93
+    "survived": 159,
+    "unaccounted": 61
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (118/281 caught; 287 of 287 mutants, seed 0); 93 of 163 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 61 of 159 survivors unaccounted (recorded generator differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -23775,20 +24001,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 43,
+    "accounted": 68,
     "chosen": 233,
     "current": true,
-    "det_port": "raw 47% (106/225 caught; 233 of 233 mutants, seed 0); 76 of 119 survivors unaccounted",
-    "killed": 106,
+    "det_port": "raw 48% (107/225 caught; 233 of 233 mutants, seed 0); 50 of 118 survivors unaccounted",
+    "killed": 107,
     "l5": false,
     "mutants": 233,
-    "score": 0.4711,
+    "score": 0.4756,
     "stale_inputs": [],
-    "survived": 119,
-    "unaccounted": 76
+    "survived": 118,
+    "unaccounted": 50
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 47% (106/225 caught; 233 of 233 mutants, seed 0); 76 of 119 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (107/225 caught; 233 of 233 mutants, seed 0); 50 of 118 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -24198,251 +24424,6 @@
     "source_defects": [],
     "statements": 7,
     "translated": 7,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": null,
-    "branches": {
-     "covered": 0,
-     "total": 0
-    },
-    "branches_net": {
-     "covered": 0,
-     "total": 0
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 1,
-     "live": 1
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cruc-pc-immediate-s",
-      "case_scenarios": 2,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cruc-pc-immediate-s",
-     "case_scenarios": 2,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "accounted": 189,
-    "chosen": 237,
-    "current": false,
-    "det_port": "stale (survivors moved), last measured: raw 19% (45/234 caught; 237 of 237 mutants, seed 0); every survivor accounted for (189)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 45,
-    "l5": true,
-    "mutants": 237,
-    "score": 0.1923,
-    "stale_inputs": [
-     "survivors"
-    ],
-    "survived": 189,
-    "unaccounted": 0
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (survivors moved), last measured: raw 19% (45/234 caught; 237 of 237 mutants, seed 0); every survivor accounted for (189))"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/pseudo-conversational/pc-return-immediate/src/PCIMMS.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 0,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 5,
-    "translated": 5,
     "whole": true
    }
   },
@@ -35829,8 +35810,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "python tests/tools/cics_census.py survey --baseline --sha 028ba4fc102a02b2e913e6d3b803245016664541",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 028ba4fc102a02b2e913e6d3b803245016664541",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-hx-extended-linked,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -35841,8 +35822,8 @@
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
    "cics": "v0.19.0",
-   "estate": "v0.8.0",
-   "language": "v1.7.0"
+   "estate": "v0.9.0",
+   "language": "v1.8.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
@@ -35851,13 +35832,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "sha": "028ba4fc102a02b2e913e6d3b803245016664541",
    "translator": {
-    "files": 188,
-    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+    "files": 189,
+    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
    }
   },
-  "translator_commit": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
+  "translator_commit": "028ba4fc102a02b2e913e6d3b803245016664541",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -35868,8 +35849,8 @@
    "L1": 48,
    "L2": 0,
    "L3": 0,
-   "L4": 83,
-   "L5": 2
+   "L4": 82,
+   "L5": 3
   },
   "histogram_stale": {
    "L0": 0,
@@ -35900,6 +35881,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
+  "fingerprint": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
  }
 }

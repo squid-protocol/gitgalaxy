@@ -2703,7 +2703,7 @@
       "nim/nim_stdlib/algorithm.nim": 0,
       "nim/nim_stdlib/async.nim": 0,
       "nim/nim_stdlib/asyncfile.nim": 0,
-      "nim/nim_stdlib/asyncfutures.nim": 1,
+      "nim/nim_stdlib/asyncfutures.nim": 0,
       "nim/nim_stdlib/asynchttpserver.nim": 0,
       "nim/nim_stdlib/asyncmacro.nim": 0,
       "nim/nim_stdlib/asyncnet.nim": 0,

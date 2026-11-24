@@ -3640,6 +3640,212 @@
         "Type Conversions": 2
       }
     },
+    "crystal": {
+      "crystal/SOURCES.md": {}
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": {
+        "Callbacks & Closures": 9,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 14,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 8,
+        "Stateful Encapsulated Methods": 11
+      },
+      "crystal/crystal_stdlib_http/client_response.cr": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 3,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 7,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 3
+      },
+      "crystal/crystal_stdlib_http/common.cr": {
+        "Callbacks & Closures": 4,
+        "Compute Cores": 5,
+        "Defensive Guards": 3,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 2,
+        "Type Conversions": 2
+      },
+      "crystal/crystal_stdlib_http/content.cr": {
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 9,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 8,
+        "Type Conversions": 1
+      },
+      "crystal/crystal_stdlib_http/cookie.cr": {
+        "Callbacks & Closures": 3,
+        "Compute Cores": 2,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 6,
+        "Stateful Encapsulated Methods": 3
+      },
+      "crystal/crystal_stdlib_http/cookies.cr": {
+        "Callbacks & Closures": 10,
+        "Generic / Templated Code": 3,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 9
+      },
+      "crystal/crystal_stdlib_http/formdata.cr": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 2
+      },
+      "crystal/crystal_stdlib_http/formdata_builder.cr": {
+        "Callbacks & Closures": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "crystal/crystal_stdlib_http/formdata_parser.cr": {
+        "Callbacks & Closures": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
+      },
+      "crystal/crystal_stdlib_http/formdata_part.cr": {
+        "Defensive Guards": 1
+      },
+      "crystal/crystal_stdlib_http/headers.cr": {
+        "Callbacks & Closures": 7,
+        "Compute Cores": 6,
+        "Encapsulated Accessors": 7,
+        "Generic / Templated Code": 7,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 16,
+        "Stateful Encapsulated Methods": 6
+      },
+      "crystal/crystal_stdlib_http/log.cr": {
+        "Encapsulated Accessors": 1
+      },
+      "crystal/crystal_stdlib_http/params.cr": {},
+      "crystal/crystal_stdlib_http/request.cr": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 3,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 3,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 10,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 4,
+        "Type Conversions": 1
+      },
+      "crystal/crystal_stdlib_http/server.cr": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 2,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 11,
+        "Stateful Encapsulated Methods": 1
+      },
+      "crystal/crystal_stdlib_http/server_context.cr": {
+        "Parameter Forwarders": 1
+      },
+      "crystal/crystal_stdlib_http/server_handler.cr": {
+        "Compute Cores": 1
+      },
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": {
+        "Compute Cores": 1,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 3,
+        "Stateful Encapsulated Methods": 1
+      }
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": {
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 3,
+        "Stateful Encapsulated Methods": 2
+      },
+      "crystal/kemal_framework/kemal_base_log_handler.cr": {},
+      "crystal/kemal_framework/kemal_cli.cr": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "crystal/kemal_framework/kemal_config.cr": {
+        "Encapsulated Accessors": 6,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 8,
+        "Parameter Forwarders": 6,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 2
+      },
+      "crystal/kemal_framework/kemal_dsl.cr": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 8
+      },
+      "crystal/kemal_framework/kemal_event_stream.cr": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 3,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1
+      },
+      "crystal/kemal_framework/kemal_exception_handler.cr": {
+        "Defensive Guards": 1,
+        "Stateful Encapsulated Methods": 6
+      },
+      "crystal/kemal_framework/kemal_ext_context.cr": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 7,
+        "Parameter Forwarders": 9,
+        "Type Conversions": 3
+      },
+      "crystal/kemal_framework/kemal_ext_response.cr": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1
+      },
+      "crystal/kemal_framework/kemal_file_upload.cr": {
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 2,
+        "Interface Declarations": 1
+      },
+      "crystal/kemal_framework/kemal_filter_handler.cr": {
+        "Encapsulated Accessors": 3,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 2,
+        "Type Conversions": 1
+      },
+      "crystal/kemal_framework/kemal_handler.cr": {
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 2
+      }
+    },
     "csd": {
       "csd/SOURCES.md": {}
     },
@@ -4237,6 +4443,226 @@
         "Interface Declarations": 1
       }
     },
+    "elixir": {
+      "elixir/SOURCES.md": {}
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": {
+        "Callbacks & Closures": 6,
+        "Compute Cores": 2,
+        "Defensive Guards": 20,
+        "Encapsulated Accessors": 29,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 11
+      },
+      "elixir/elixir_stdlib/agent.ex": {
+        "Parameter Forwarders": 16
+      },
+      "elixir/elixir_stdlib/agent_server.ex": {
+        "Compute Cores": 1,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 5,
+        "Parameter Forwarders": 3
+      },
+      "elixir/elixir_stdlib/application.ex": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 26,
+        "Encapsulated Accessors": 22,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 2
+      },
+      "elixir/elixir_stdlib/atom.ex": {
+        "Parameter Forwarders": 2,
+        "Type Conversions": 1
+      },
+      "elixir/elixir_stdlib/base.ex": {
+        "Compute Cores": 1,
+        "Defensive Guards": 22,
+        "Encapsulated Accessors": 37,
+        "I/O & Config Routines": 1,
+        "Stateful Encapsulated Methods": 11
+      },
+      "elixir/elixir_stdlib/behaviour.ex": {
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 9,
+        "Parameter Forwarders": 3,
+        "Stateful Encapsulated Methods": 3
+      },
+      "elixir/elixir_stdlib/bitwise.ex": {
+        "Compute Cores": 1,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 8
+      },
+      "elixir/elixir_stdlib/calendar.ex": {
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 49,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 10
+      },
+      "elixir/elixir_stdlib/calendar_date.ex": {
+        "Compute Cores": 7,
+        "Defensive Guards": 14,
+        "Encapsulated Accessors": 8,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 41,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 5
+      },
+      "elixir/elixir_stdlib/calendar_date_range.ex": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 2,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 11,
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 1
+      },
+      "elixir/elixir_stdlib/calendar_duration.ex": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 24,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 1
+      },
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": {
+        "Compute Cores": 2,
+        "Defensive Guards": 21,
+        "Encapsulated Accessors": 5,
+        "I/O & Config Routines": 7,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 22,
+        "Stateful Encapsulated Methods": 3,
+        "Type Conversions": 3
+      },
+      "elixir/elixir_stdlib/calendar_time.ex": {
+        "Compute Cores": 2,
+        "Defensive Guards": 14,
+        "Encapsulated Accessors": 9,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 18,
+        "Type Conversions": 2
+      },
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": {
+        "Defensive Guards": 4
+      },
+      "elixir/elixir_stdlib/code_fragment.ex": {
+        "Defensive Guards": 4,
+        "Encapsulated Accessors": 88,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 25
+      }
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": {},
+      "elixir/elixir_tests/agent_test.exs": {
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 1
+      },
+      "elixir/elixir_tests/application_test.exs": {
+        "Encapsulated Accessors": 5,
+        "Parameter Forwarders": 2
+      },
+      "elixir/elixir_tests/atom_test.exs": {}
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": {},
+      "elixir/phoenix_framework/channel.ex": {
+        "Defensive Guards": 4,
+        "Encapsulated Accessors": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 13,
+        "Stateful Encapsulated Methods": 1
+      },
+      "elixir/phoenix_framework/channel_server.ex": {
+        "Compute Cores": 3,
+        "Defensive Guards": 12,
+        "Encapsulated Accessors": 9,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 12,
+        "Stateful Encapsulated Methods": 9
+      },
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 4
+      },
+      "elixir/phoenix_framework/code_reloader_proxy.ex": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 7,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 3
+      },
+      "elixir/phoenix_framework/code_reloader_server.ex": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 21,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 15
+      },
+      "elixir/phoenix_framework/config.ex": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 2
+      },
+      "elixir/phoenix_framework/controller_pipeline.ex": {
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 11,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 11,
+        "Stateful Encapsulated Methods": 2
+      },
+      "elixir/phoenix_framework/debug.ex": {
+        "Defensive Guards": 5,
+        "Encapsulated Accessors": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "elixir/phoenix_framework/digester.ex": {
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 30,
+        "Stateful Encapsulated Methods": 9
+      },
+      "elixir/phoenix_framework/digester_compressor.ex": {},
+      "elixir/phoenix_framework/digester_gzip.ex": {
+        "Defensive Guards": 1,
+        "Interface Declarations": 1
+      },
+      "elixir/phoenix_framework/endpoint.ex": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 2,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 6,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 6,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 17,
+        "Stateful Encapsulated Methods": 6
+      },
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": {
+        "Compute Cores": 1,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 5,
+        "Stateful Encapsulated Methods": 2
+      }
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": {}
     },
@@ -4329,6 +4755,176 @@
         "Stateful Encapsulated Methods": 1
       }
     },
+    "erlang": {
+      "erlang/SOURCES.md": {}
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": {
+        "Compute Cores": 2,
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 8
+      },
+      "erlang/cowboy_http_server/cowboy_app.erl": {
+        "Annotated & Test Methods": 2
+      },
+      "erlang/cowboy_http_server/cowboy_children.erl": {
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 5,
+        "Defensive Guards": 2,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 2
+      },
+      "erlang/cowboy_http_server/cowboy_clear.erl": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 3,
+        "Many-Argument Workhorses": 1
+      },
+      "erlang/cowboy_http_server/cowboy_clock.erl": {
+        "Annotated & Test Methods": 3,
+        "Compute Cores": 3,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
+        "Type Conversions": 1
+      },
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": {
+        "Defensive Guards": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 7
+      },
+      "erlang/cowboy_http_server/cowboy_constraints.erl": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 3,
+        "Defensive Guards": 10,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 2
+      },
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 3,
+        "Type Conversions": 4
+      },
+      "erlang/cowboy_http_server/cowboy_handler.erl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1
+      },
+      "erlang/cowboy_http_server/cowboy_http3.erl": {
+        "Compute Cores": 7,
+        "Defensive Guards": 8,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 19,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 1
+      },
+      "erlang/cowboy_http_server/cowboy_loop.erl": {
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 2
+      },
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": {
+        "Compute Cores": 1,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 1
+      },
+      "erlang/cowboy_http_server/cowboy_middleware.erl": {},
+      "erlang/cowboy_http_server/cowboy_quicer.erl": {
+        "Defensive Guards": 4,
+        "Parameter Forwarders": 12
+      },
+      "erlang/cowboy_http_server/cowboy_req.erl": {
+        "Annotated & Test Methods": 30,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 10,
+        "Defensive Guards": 20,
+        "Generic / Templated Code": 16,
+        "I/O & Config Routines": 6,
+        "Parameter Forwarders": 7,
+        "Type Conversions": 3
+      },
+      "erlang/cowboy_http_server/cowboy_router.erl": {
+        "Annotated & Test Methods": 3,
+        "Callbacks & Closures": 3,
+        "Compute Cores": 4,
+        "Defensive Guards": 10,
+        "I/O & Config Routines": 2,
+        "Parameter Forwarders": 2,
+        "Type Conversions": 2
+      }
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": {
+        "Annotated & Test Methods": 14,
+        "Callbacks & Closures": 4,
+        "Compute Cores": 13,
+        "Defensive Guards": 29,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 16
+      },
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": {
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 1
+      },
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": {
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 1,
+        "Defensive Guards": 4,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "erlang/ranch_socket_pool/ranch_app.erl": {
+        "Annotated & Test Methods": 3,
+        "Defensive Guards": 1
+      },
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": {
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 5,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 8
+      },
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": {
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 1
+      },
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": {
+        "Annotated & Test Methods": 1,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      },
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": {
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 1
+      },
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 1
+      },
+      "erlang/ranch_socket_pool/ranch_protocol.erl": {},
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 13,
+        "Defensive Guards": 14,
+        "I/O & Config Routines": 20,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 13,
+        "Type Conversions": 1
+      },
+      "erlang/ranch_socket_pool/ranch_server.erl": {
+        "Annotated & Test Methods": 22,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
+        "Parameter Forwarders": 4
+      }
+    },
     "fortran": {
       "fortran/SOURCES.md": {}
     },
@@ -4394,6 +4990,109 @@
       "fortran/wrf/wrf_timeseries.F": {
         "Compute Cores": 1,
         "Many-Argument Workhorses": 3
+      }
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": {}
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": {
+        "Callbacks & Closures": 9
+      },
+      "fsharp/giraffe_web/ComputationExpressions.fs": {},
+      "fsharp/giraffe_web/Core.fs": {
+        "Callbacks & Closures": 15,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "fsharp/giraffe_web/Csrf.fs": {
+        "Defensive Guards": 1
+      },
+      "fsharp/giraffe_web/DateTimeExtensions.fs": {
+        "State Mutators": 1
+      },
+      "fsharp/giraffe_web/EndpointRouting.fs": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 4,
+        "Generic / Templated Code": 2,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 2
+      },
+      "fsharp/giraffe_web/FormatExpressions.fs": {
+        "Compute Cores": 4,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "fsharp/giraffe_web/Helpers.fs": {
+        "Parameter Forwarders": 2
+      },
+      "fsharp/giraffe_web/HttpContextExtensions.fs": {
+        "Compute Cores": 2,
+        "Parameter Forwarders": 2,
+        "State Mutators": 4
+      },
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": {
+        "Parameter Forwarders": 1
+      },
+      "fsharp/giraffe_web/Json.fs": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 2
+      },
+      "fsharp/giraffe_web/Middleware.fs": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "State Mutators": 2
+      },
+      "fsharp/giraffe_web/ModelParser.fs": {
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "fsharp/giraffe_web/ModelValidation.fs": {
+        "Generic / Templated Code": 1
+      },
+      "fsharp/giraffe_web/Negotiation.fs": {
+        "Callbacks & Closures": 1,
+        "Parameter Forwarders": 1
+      },
+      "fsharp/giraffe_web/Preconditional.fs": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 1,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 3
+      },
+      "fsharp/giraffe_web/RequestLimitation.fs": {
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 1
+      },
+      "fsharp/giraffe_web/ResponseCaching.fs": {
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 2
+      },
+      "fsharp/giraffe_web/Routing.fs": {
+        "Callbacks & Closures": 10,
+        "Compute Cores": 1,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 1
+      },
+      "fsharp/giraffe_web/ShortGuid.fs": {
+        "Callbacks & Closures": 4
+      },
+      "fsharp/giraffe_web/Streaming.fs": {
+        "Compute Cores": 2
+      },
+      "fsharp/giraffe_web/Xml.fs": {
+        "Parameter Forwarders": 1
       }
     },
     "go": {
@@ -5490,6 +6189,95 @@
         "State Mutators": 46
       }
     },
+    "hcl": {
+      "hcl/SOURCES.md": {}
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 3
+      },
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": {
+        "Interface Declarations": 108
+      },
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": {
+        "I/O & Config Routines": 7,
+        "Interface Declarations": 4
+      },
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": {
+        "Interface Declarations": 106
+      },
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": {
+        "I/O & Config Routines": 15,
+        "Interface Declarations": 4
+      },
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": {
+        "Interface Declarations": 7
+      },
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": {
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 5
+      },
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": {
+        "Interface Declarations": 103
+      },
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 3
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": {
+        "Interface Declarations": 103
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 3
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": {
+        "Interface Declarations": 103
+      },
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": {
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 3
+      },
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": {
+        "Interface Declarations": 18
+      },
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": {},
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": {
+        "I/O & Config Routines": 1
+      },
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1
+      },
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": {
+        "Interface Declarations": 103
+      }
+    },
     "hlasm": {
       "hlasm/PROVENANCE.md": {},
       "hlasm/SOURCES.md": {}
@@ -6569,6 +7357,186 @@
       "json/kafka/message/SaslAuthenticateRequest.json": {},
       "json/kafka/message/VoteRequest.json": {}
     },
+    "julia": {
+      "julia/SOURCES.md": {}
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": {},
+      "julia/dataframes_jl/LICENSE.md": {},
+      "julia/dataframes_jl/abstractdataframe_io.jl": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 5
+      },
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 2,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 5,
+        "Type Conversions": 1
+      },
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": {
+        "Defensive Guards": 2
+      },
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": {
+        "Defensive Guards": 2
+      },
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 1,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 3
+      },
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 14,
+        "Parameter Forwarders": 3
+      },
+      "julia/dataframes_jl/abstractdataframe_show.jl": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 3,
+        "Type Conversions": 1
+      },
+      "julia/dataframes_jl/abstractdataframe_sort.jl": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 5,
+        "Generic / Templated Code": 3,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 3
+      },
+      "julia/dataframes_jl/abstractdataframe_subset.jl": {
+        "Compute Cores": 2,
+        "Defensive Guards": 8,
+        "Parameter Forwarders": 1
+      },
+      "julia/dataframes_jl/abstractdataframe_unique.jl": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "julia/dataframes_jl/dataframe_dataframe.jl": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 12,
+        "Defensive Guards": 18,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 15,
+        "Type Conversions": 3
+      },
+      "julia/dataframes_jl/dataframe_insertion.jl": {
+        "Callbacks & Closures": 4,
+        "Defensive Guards": 5,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 2
+      },
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": {
+        "Callbacks & Closures": 2,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 6
+      },
+      "julia/dataframes_jl/dataframerow_show.jl": {
+        "Parameter Forwarders": 5
+      },
+      "julia/dataframes_jl/deprecated.jl": {},
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 5
+      },
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 2
+      },
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 2
+      },
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": {
+        "Annotated & Test Methods": 3,
+        "Callbacks & Closures": 6,
+        "Compute Cores": 9,
+        "Defensive Guards": 5,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 15,
+        "Type Conversions": 1
+      },
+      "julia/dataframes_jl/groupeddataframe_show.jl": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 3
+      },
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 19,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 2
+      },
+      "julia/dataframes_jl/groupeddataframe_utils.jl": {
+        "Compute Cores": 2,
+        "Defensive Guards": 2,
+        "Generic / Templated Code": 1,
+        "Many-Argument Workhorses": 4,
+        "Type Conversions": 3
+      },
+      "julia/dataframes_jl/join_core.jl": {
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 5,
+        "Defensive Guards": 5,
+        "Many-Argument Workhorses": 12,
+        "Type Conversions": 2
+      },
+      "julia/dataframes_jl/join_inplace.jl": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "julia/dataframes_jl/other_broadcasting.jl": {
+        "Compute Cores": 2,
+        "Defensive Guards": 9,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 5,
+        "Type Conversions": 1
+      },
+      "julia/dataframes_jl/other_index.jl": {
+        "Annotated & Test Methods": 3,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 12,
+        "Defensive Guards": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 10,
+        "Type Conversions": 1
+      },
+      "julia/dataframes_jl/other_metadata.jl": {
+        "Compute Cores": 19,
+        "Defensive Guards": 4,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 13
+      },
+      "julia/dataframes_jl/other_names.jl": {
+        "Compute Cores": 1
+      },
+      "julia/dataframes_jl/other_precompile.jl": {}
+    },
     "kotlin": {
       "kotlin/SOURCES.md": {}
     },
@@ -7475,6 +8443,224 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": {}
     },
+    "nim": {
+      "nim/SOURCES.md": {}
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 18,
+        "Encapsulated Accessors": 3,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 5,
+        "Stateful Encapsulated Methods": 4
+      },
+      "nim/nim_stdlib/async.nim": {},
+      "nim/nim_stdlib/asyncfile.nim": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 7,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 7
+      },
+      "nim/nim_stdlib/asyncfutures.nim": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 5,
+        "Compute Cores": 4,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 9,
+        "Generic / Templated Code": 8,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 11
+      },
+      "nim/nim_stdlib/asynchttpserver.nim": {
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 7,
+        "I/O & Config Routines": 3,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 7
+      },
+      "nim/nim_stdlib/asyncmacro.nim": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 6,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 8
+      },
+      "nim/nim_stdlib/asyncnet.nim": {
+        "Annotated & Test Methods": 5,
+        "Compute Cores": 4,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 5,
+        "I/O & Config Routines": 13,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 9,
+        "Stateful Encapsulated Methods": 9,
+        "Type Conversions": 2
+      },
+      "nim/nim_stdlib/asyncstreams.nim": {
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 4,
+        "Stateful Encapsulated Methods": 2
+      },
+      "nim/nim_stdlib/base64.nim": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 9,
+        "Generic / Templated Code": 1,
+        "Stateful Encapsulated Methods": 3,
+        "Type Conversions": 1
+      },
+      "nim/nim_stdlib/bitops.nim": {
+        "Annotated & Test Methods": 24,
+        "Defensive Guards": 10,
+        "Encapsulated Accessors": 47,
+        "Generic / Templated Code": 4,
+        "Stateful Encapsulated Methods": 6
+      },
+      "nim/nim_stdlib/browsers.nim": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "nim/nim_stdlib/cgi.nim": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 3,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 35,
+        "Parameter Forwarders": 5,
+        "Stateful Encapsulated Methods": 2
+      },
+      "nim/nim_stdlib/collections_chains.nim": {
+        "Compute Cores": 3
+      },
+      "nim/nim_stdlib/collections_critbits.nim": {
+        "Annotated & Test Methods": 3,
+        "Compute Cores": 1,
+        "Defensive Guards": 13,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 8,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 3,
+        "Stateful Encapsulated Methods": 4
+      },
+      "nim/nim_stdlib/collections_deques.nim": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 19,
+        "Encapsulated Accessors": 11,
+        "Generic / Templated Code": 4,
+        "Many-Argument Workhorses": 1,
+        "Stateful Encapsulated Methods": 3,
+        "Type Conversions": 4
+      },
+      "nim/nim_stdlib/collections_hashcommon.nim": {
+        "Encapsulated Accessors": 9,
+        "Stateful Encapsulated Methods": 2
+      },
+      "nim/nim_stdlib/collections_heapqueue.nim": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 7,
+        "Generic / Templated Code": 6,
+        "Stateful Encapsulated Methods": 3
+      },
+      "nim/nim_stdlib/collections_intsets.nim": {},
+      "nim/nim_stdlib/collections_lists.nim": {
+        "Defensive Guards": 33,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 10,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 4
+      },
+      "nim/nim_stdlib/collections_rtarrays.nim": {
+        "Generic / Templated Code": 1,
+        "Type Conversions": 1
+      },
+      "nim/nim_stdlib/collections_sequtils.nim": {
+        "Callbacks & Closures": 4,
+        "Compute Cores": 2,
+        "Defensive Guards": 28,
+        "Encapsulated Accessors": 4,
+        "Generic / Templated Code": 5,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 4,
+        "Stateful Encapsulated Methods": 5,
+        "Type Conversions": 1
+      },
+      "nim/nim_stdlib/collections_setimpl.nim": {
+        "Encapsulated Accessors": 9,
+        "Stateful Encapsulated Methods": 4
+      },
+      "nim/nim_stdlib/collections_sets.nim": {
+        "Annotated & Test Methods": 2,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 3,
+        "Defensive Guards": 29,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 15,
+        "Stateful Encapsulated Methods": 1
+      },
+      "nim/nim_stdlib/collections_sharedlist.nim": {
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 4,
+        "Type Conversions": 1
+      },
+      "nim/nim_stdlib/collections_sharedtables.nim": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 6,
+        "I/O & Config Routines": 2,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "nim/nim_stdlib/collections_tableimpl.nim": {
+        "Encapsulated Accessors": 14,
+        "Stateful Encapsulated Methods": 8
+      },
+      "nim/nim_stdlib/colors.nim": {
+        "Compute Cores": 2,
+        "Defensive Guards": 5,
+        "Encapsulated Accessors": 7,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 2
+      },
+      "nim/nim_stdlib/complex.nim": {
+        "Compute Cores": 3,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 52,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 1
+      },
+      "nim/nim_stdlib/concurrency_atomics.nim": {
+        "Annotated & Test Methods": 2,
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 3,
+        "Generic / Templated Code": 14,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 17
+      },
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": {
+        "Annotated & Test Methods": 1,
+        "Encapsulated Accessors": 5,
+        "Stateful Encapsulated Methods": 1
+      },
+      "nim/nim_stdlib/copying.txt": {}
+    },
     "nix": {
       "nix/SOURCES.md": {}
     },
@@ -7532,6 +8718,75 @@
         "Many-Argument Workhorses": 1,
         "Type Conversions": 1
       }
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": {}
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": {},
+      "ocaml/janestreet_base/applicative.ml": {},
+      "ocaml/janestreet_base/applicative.mli": {},
+      "ocaml/janestreet_base/applicative_intf.ml": {},
+      "ocaml/janestreet_base/array.ml": {
+        "Annotated & Test Methods": 5,
+        "Callbacks & Closures": 14,
+        "Compute Cores": 11,
+        "Defensive Guards": 4,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 10
+      },
+      "ocaml/janestreet_base/array.mli": {},
+      "ocaml/janestreet_base/array0.ml": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 7
+      },
+      "ocaml/janestreet_base/array0.mli": {},
+      "ocaml/janestreet_base/array_intf.ml": {},
+      "ocaml/janestreet_base/array_permute.ml": {
+        "Defensive Guards": 1
+      },
+      "ocaml/janestreet_base/array_permute.mli": {},
+      "ocaml/janestreet_base/avltree.ml": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 6,
+        "Many-Argument Workhorses": 2
+      },
+      "ocaml/janestreet_base/avltree.mli": {},
+      "ocaml/janestreet_base/backtrace.ml": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
+      },
+      "ocaml/janestreet_base/backtrace.mli": {},
+      "ocaml/janestreet_base/base.ml": {},
+      "ocaml/janestreet_base/binary_search.ml": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 1
+      },
+      "ocaml/janestreet_base/binary_search.mli": {},
+      "ocaml/janestreet_base/binary_searchable.ml": {},
+      "ocaml/janestreet_base/binary_searchable.mli": {},
+      "ocaml/janestreet_base/binary_searchable_intf.ml": {},
+      "ocaml/janestreet_base/blit.ml": {
+        "Parameter Forwarders": 1
+      },
+      "ocaml/janestreet_base/blit.mli": {},
+      "ocaml/janestreet_base/blit_intf.ml": {},
+      "ocaml/janestreet_base/bool.ml": {
+        "Parameter Forwarders": 2
+      },
+      "ocaml/janestreet_base/bool.mli": {},
+      "ocaml/janestreet_base/bool0.ml": {},
+      "ocaml/janestreet_base/bool0.mli": {},
+      "ocaml/janestreet_base/buffer.ml": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 2
+      },
+      "ocaml/janestreet_base/buffer.mli": {},
+      "ocaml/janestreet_base/buffer_intf.ml": {}
     },
     "perl": {
       "perl/SOURCES.md": {}
@@ -8079,6 +9334,30 @@
       "pli/zopeneditor_sample/PSAM2.pli": {
         "Many-Argument Workhorses": 1
       }
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": {}
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": {
+        "Annotated & Test Methods": 1
+      },
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": {},
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": {}
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": {},
+      "postgresql/pgvector_tests/halfvec.sql": {},
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": {},
+      "postgresql/pgvector_tests/hnsw_vector.sql": {},
+      "postgresql/pgvector_tests/ivfflat_vector.sql": {},
+      "postgresql/pgvector_tests/sparsevec.sql": {},
+      "postgresql/pgvector_tests/vector_type.sql": {}
     },
     "powershell": {
       "powershell/SOURCES.md": {}
@@ -9865,6 +11144,182 @@
       },
       "python/wtfpython/noxfile.py": {
         "Generic / Templated Code": 1
+      }
+    },
+    "r": {
+      "r/SOURCES.md": {}
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": {},
+      "r/dplyr_package/across.R": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 7,
+        "I/O & Config Routines": 4,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 1
+      },
+      "r/dplyr_package/all-equal.R": {
+        "Many-Argument Workhorses": 2
+      },
+      "r/dplyr_package/arrange.R": {
+        "Compute Cores": 1,
+        "Generic / Templated Code": 1,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 3
+      },
+      "r/dplyr_package/bind-cols.R": {
+        "Compute Cores": 1
+      },
+      "r/dplyr_package/bind-rows.R": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 1
+      },
+      "r/dplyr_package/by.R": {
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 5
+      },
+      "r/dplyr_package/case-match.R": {
+        "Many-Argument Workhorses": 2
+      },
+      "r/dplyr_package/case-when.R": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 4
+      },
+      "r/dplyr_package/coalesce.R": {
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1
+      },
+      "r/dplyr_package/colwise-arrange.R": {
+        "Many-Argument Workhorses": 3
+      },
+      "r/dplyr_package/colwise-distinct.R": {
+        "Many-Argument Workhorses": 3
+      },
+      "r/dplyr_package/colwise-filter.R": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 3
+      },
+      "r/dplyr_package/colwise-funs.R": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1
+      },
+      "r/dplyr_package/colwise-group-by.R": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 3
+      },
+      "r/dplyr_package/colwise-mutate.R": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 10,
+        "Parameter Forwarders": 4
+      }
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": {},
+      "r/rlang_package/aaa-topics.R": {
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 1
+      },
+      "r/rlang_package/aaa.R": {
+        "Compute Cores": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 4
+      },
+      "r/rlang_package/arg.R": {
+        "Compute Cores": 3,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 5
+      },
+      "r/rlang_package/attr.R": {
+        "Compute Cores": 2,
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 5,
+        "Type Conversions": 1
+      },
+      "r/rlang_package/bytes.R": {
+        "Compute Cores": 2,
+        "Defensive Guards": 4,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 2
+      },
+      "r/rlang_package/c-lib.R": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 7,
+        "Parameter Forwarders": 62
+      },
+      "r/rlang_package/call.R": {
+        "Compute Cores": 14,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 10,
+        "Type Conversions": 1
+      },
+      "r/rlang_package/cnd-abort.R": {
+        "Compute Cores": 11,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 7,
+        "Parameter Forwarders": 8,
+        "Type Conversions": 1
+      },
+      "r/rlang_package/cnd-entrace.R": {
+        "Compute Cores": 4,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2
+      },
+      "r/rlang_package/cnd-handlers.R": {
+        "Compute Cores": 4,
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 3
+      },
+      "r/rlang_package/cnd-last.R": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 2,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 8
+      },
+      "r/rlang_package/cnd-message.R": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 3,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 14
+      },
+      "r/rlang_package/cnd-signal.R": {
+        "Compute Cores": 3,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 5,
+        "Parameter Forwarders": 5
+      },
+      "r/rlang_package/cnd.R": {
+        "Compute Cores": 3,
+        "Defensive Guards": 5,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 8,
+        "Parameter Forwarders": 11
+      },
+      "r/rlang_package/deparse.R": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 18,
+        "Defensive Guards": 3,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 9,
+        "Parameter Forwarders": 30
       }
     },
     "rexx": {

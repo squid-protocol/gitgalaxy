@@ -465,6 +465,34 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 9,
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 97
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": 122,
+      "crystal/crystal_stdlib_http/client_response.cr": 67,
+      "crystal/crystal_stdlib_http/common.cr": 225,
+      "crystal/crystal_stdlib_http/content.cr": 154,
+      "crystal/crystal_stdlib_http/cookie.cr": 90,
+      "crystal/crystal_stdlib_http/cookies.cr": 29,
+      "crystal/crystal_stdlib_http/formdata.cr": 53,
+      "crystal/crystal_stdlib_http/formdata_builder.cr": 74,
+      "crystal/crystal_stdlib_http/formdata_part.cr": 8,
+      "crystal/crystal_stdlib_http/headers.cr": 116,
+      "crystal/crystal_stdlib_http/request.cr": 169,
+      "crystal/crystal_stdlib_http/server.cr": 40,
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": 18
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": 24,
+      "crystal/kemal_framework/kemal_cli.cr": 27,
+      "crystal/kemal_framework/kemal_config.cr": 105,
+      "crystal/kemal_framework/kemal_dsl.cr": 4,
+      "crystal/kemal_framework/kemal_event_stream.cr": 9,
+      "crystal/kemal_framework/kemal_exception_handler.cr": 30,
+      "crystal/kemal_framework/kemal_ext_context.cr": 34,
+      "crystal/kemal_framework/kemal_ext_response.cr": 3,
+      "crystal/kemal_framework/kemal_file_upload.cr": 12,
+      "crystal/kemal_framework/kemal_filter_handler.cr": 71,
+      "crystal/kemal_framework/kemal_handler.cr": 19
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 521,
       "csharp/roslyn/CSharpSyntaxTree.cs": 76,
@@ -526,6 +554,10 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 24,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 21
     },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/channel.ex": 6,
+      "elixir/phoenix_framework/config.ex": 9
+    },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": 306,
       "embedded_python/meow_turtle/app.py": 804,
@@ -541,6 +573,15 @@
       "embedded_python/meow_turtle/tsl2591.py": 45,
       "embedded_python/meow_turtle/vibration_driver.py": 43
     },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy_quicer.erl": 6
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": 3,
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": 3,
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 18,
+      "erlang/ranch_socket_pool/ranch_server.erl": 44
+    },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": 41,
       "fortran/wrf/configure_reader.py": 307,
@@ -552,6 +593,11 @@
       "fortran/wrf/module_sf_noahdrv.F": 2680,
       "fortran/wrf/sourcetree.py": 179,
       "fortran/wrf/wrf_timeseries.F": 759
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/FormatExpressions.fs": 13,
+      "fsharp/giraffe_web/Negotiation.fs": 9,
+      "fsharp/giraffe_web/ResponseCaching.fs": 12
     },
     "go/core": {
       "go/core/main.go": 113,
@@ -742,6 +788,25 @@
       "javascript/threejs/WebGLProgram.js": 117,
       "javascript/threejs/WebGLRenderer.js": 828
     },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": 19,
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": 19,
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": 39,
+      "julia/dataframes_jl/abstractdataframe_show.jl": 6,
+      "julia/dataframes_jl/abstractdataframe_sort.jl": 24,
+      "julia/dataframes_jl/abstractdataframe_subset.jl": 19,
+      "julia/dataframes_jl/dataframe_dataframe.jl": 92,
+      "julia/dataframes_jl/dataframe_insertion.jl": 226,
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": 6,
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": 22,
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": 9,
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": 6,
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": 48,
+      "julia/dataframes_jl/groupeddataframe_utils.jl": 7,
+      "julia/dataframes_jl/join_core.jl": 60,
+      "julia/dataframes_jl/other_broadcasting.jl": 37,
+      "julia/dataframes_jl/other_index.jl": 84
+    },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": 35,
       "kotlin/okhttp/OkHttp.android.kt": 3,
@@ -876,6 +941,27 @@
       "matlab/eeglab/runica.m": 1073,
       "matlab/eeglab/supergui.m": 336
     },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": 114,
+      "nim/nim_stdlib/asyncfile.nim": 42,
+      "nim/nim_stdlib/asyncfutures.nim": 50,
+      "nim/nim_stdlib/asynchttpserver.nim": 54,
+      "nim/nim_stdlib/asyncmacro.nim": 31,
+      "nim/nim_stdlib/asyncnet.nim": 47,
+      "nim/nim_stdlib/base64.nim": 27,
+      "nim/nim_stdlib/bitops.nim": 6,
+      "nim/nim_stdlib/collections_critbits.nim": 56,
+      "nim/nim_stdlib/collections_deques.nim": 28,
+      "nim/nim_stdlib/collections_heapqueue.nim": 23,
+      "nim/nim_stdlib/collections_lists.nim": 69,
+      "nim/nim_stdlib/collections_sequtils.nim": 92,
+      "nim/nim_stdlib/collections_setimpl.nim": 18,
+      "nim/nim_stdlib/collections_sets.nim": 68,
+      "nim/nim_stdlib/collections_sharedlist.nim": 9,
+      "nim/nim_stdlib/collections_sharedtables.nim": 3,
+      "nim/nim_stdlib/collections_tableimpl.nim": 19,
+      "nim/nim_stdlib/concurrency_atomics.nim": 6
+    },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 3
     },
@@ -885,6 +971,16 @@
       "objective-c/worldwideweb/HyperManager.m": 91,
       "objective-c/worldwideweb/HyperText.m": 862,
       "objective-c/worldwideweb/TcpAccess.m": 13
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/applicative.ml": 17,
+      "ocaml/janestreet_base/applicative_intf.ml": 44,
+      "ocaml/janestreet_base/array.ml": 69,
+      "ocaml/janestreet_base/array0.ml": 8,
+      "ocaml/janestreet_base/array_intf.ml": 16,
+      "ocaml/janestreet_base/avltree.ml": 76,
+      "ocaml/janestreet_base/blit_intf.ml": 28,
+      "ocaml/janestreet_base/buffer_intf.ml": 18
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/file-permission.t": 6
@@ -1192,6 +1288,27 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": 3,
       "python/wtfpython/notebook_generator.py": 240,
       "python/wtfpython/noxfile.py": 4
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/across.R": 18,
+      "r/dplyr_package/arrange.R": 3,
+      "r/dplyr_package/bind-cols.R": 3,
+      "r/dplyr_package/bind-rows.R": 6,
+      "r/dplyr_package/case-when.R": 15,
+      "r/dplyr_package/colwise-funs.R": 4,
+      "r/dplyr_package/colwise-mutate.R": 12
+    },
+    "r/rlang_package": {
+      "r/rlang_package/bytes.R": 5,
+      "r/rlang_package/call.R": 9,
+      "r/rlang_package/cnd-abort.R": 65,
+      "r/rlang_package/cnd-entrace.R": 3,
+      "r/rlang_package/cnd-handlers.R": 4,
+      "r/rlang_package/cnd-last.R": 30,
+      "r/rlang_package/cnd-message.R": 7,
+      "r/rlang_package/cnd-signal.R": 15,
+      "r/rlang_package/cnd.R": 18,
+      "r/rlang_package/deparse.R": 69
     },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/sample.rexx": 12

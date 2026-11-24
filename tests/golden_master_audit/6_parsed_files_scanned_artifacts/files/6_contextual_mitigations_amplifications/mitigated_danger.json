@@ -17,6 +17,15 @@
     "cpp/NVDA": {
       "cpp/NVDA/ensureuv.ps1": "4 instances"
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "1 instances",
+      "crystal/crystal_stdlib_http/cookies.cr": "4 instances",
+      "crystal/crystal_stdlib_http/request.cr": "2 instances"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal_cli.cr": "1 instances",
+      "crystal/kemal_framework/kemal_file_upload.cr": "2 instances"
+    },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/copy_windows.go": "1 instances"
     },
@@ -32,6 +41,9 @@
     },
     "fortran/wrf": {
       "fortran/wrf/module_physics_init.F": "2 instances"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "1 instances"
     },
     "go/core": {
       "go/core/main.go": "4 instances",
@@ -52,6 +64,21 @@
     },
     "jcl/cics-genapp": {
       "jcl/cics-genapp/db2cre.jcl": "8 instances"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "6 instances",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "9 instances",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "3 instances",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "1 instances",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "9 instances",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "1 instances",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "28 instances",
+      "julia/dataframes_jl/dataframe_insertion.jl": "39 instances",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "1 instances",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "18 instances",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "2 instances",
+      "julia/dataframes_jl/other_index.jl": "9 instances",
+      "julia/dataframes_jl/other_metadata.jl": "23 instances"
     },
     "livecode/livecode": {
       "livecode/livecode/builder_utilities.livecodescript": "1 instances",
@@ -87,6 +114,9 @@
     },
     "lua/redis": {
       "lua/redis/luac.lua": "1 instances"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/browsers.nim": "3 instances"
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/HText.c": "1 instances"

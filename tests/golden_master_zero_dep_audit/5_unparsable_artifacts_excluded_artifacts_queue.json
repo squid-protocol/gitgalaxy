@@ -4,12 +4,12 @@
   ],
   "value": [
     {
-      "Diagnostic Reason": "Blocked (Massive Static Asset Blob: 3156 LOC)",
+      "Diagnostic Reason": "Blocked (Massive Static Asset Blob: 3332 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "PROVENANCE.json",
-      "Size": "99502 bytes"
+      "Size": "106866 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -448,6 +448,22 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "crystal/crystal_stdlib_http/LICENSE",
+      "Size": "11798 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "crystal/kemal_framework/LICENSE",
+      "Size": "1059 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "csd/carddemo/LICENSE",
       "Size": "10142 bytes"
     },
@@ -744,6 +760,54 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "elixir/elixir_stdlib/LICENSE",
+      "Size": "10173 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "elixir/elixir_tests/LICENSE",
+      "Size": "10173 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 98 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "elixir/phoenix_framework/code_reloader.ex",
+      "Size": "15222 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "erlang/cowboy_http_server/LICENSE",
+      "Size": "757 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "erlang/ranch_socket_pool/LICENSE",
+      "Size": "757 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "fsharp/giraffe_web/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "go/core/LICENSE",
       "Size": "1453 bytes"
     },
@@ -866,6 +930,14 @@
       "Identity Confidence": "0.0%",
       "Path": "haskell/pandoc/CITATION.cff",
       "Size": "492 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "hcl/terraform_aws_vpc/LICENSE",
+      "Size": "10173 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -1282,6 +1354,22 @@
       "Identity Confidence": "0.0%",
       "Path": "pli/zopeneditor_sample/LICENSE",
       "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "postgresql/pgvector_extension/LICENSE",
+      "Size": "1104 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "postgresql/pgvector_tests/LICENSE",
+      "Size": "1104 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",

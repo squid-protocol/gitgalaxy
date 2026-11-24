@@ -968,7 +968,7 @@
         "stability": 48.89,
         "state_flux": 66.98,
         "tech_debt": 10.51,
-        "verification": 5.47
+        "verification": 5.48
       },
       "file_count": 45,
       "total_mass": 3255.36
@@ -1006,7 +1006,7 @@
         "stability": 50.0,
         "state_flux": 25.82,
         "tech_debt": 23.14,
-        "verification": 2.21
+        "verification": 2.22
       },
       "file_count": 45,
       "total_mass": 931.48
@@ -1234,10 +1234,67 @@
         "stability": 50.0,
         "state_flux": 99.59,
         "tech_debt": 38.74,
-        "verification": 41.19
+        "verification": 41.2
       },
       "file_count": 2,
       "total_mass": 181.94
+    },
+    "crystal": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "crystal/crystal_stdlib_http": {
+      "avg_exposures": {
+        "api_exposure": 10.76,
+        "churn": 0.0,
+        "cognitive_load": 55.86,
+        "concurrency": 5.09,
+        "dead_code": 12.24,
+        "documentation": 94.44,
+        "safety_score": 51.33,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 73.02,
+        "tech_debt": 31.33,
+        "verification": 32.45
+      },
+      "file_count": 18,
+      "total_mass": 2755.28
+    },
+    "crystal/kemal_framework": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 63.2,
+        "concurrency": 0.0,
+        "dead_code": 4.34,
+        "documentation": 91.67,
+        "safety_score": 57.16,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 82.79,
+        "tech_debt": 52.28,
+        "verification": 21.88
+      },
+      "file_count": 12,
+      "total_mass": 840.28
     },
     "csd": {
       "avg_exposures": {
@@ -1752,6 +1809,82 @@
       "file_count": 4,
       "total_mass": 201.04
     },
+    "elixir": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "elixir/elixir_stdlib": {
+      "avg_exposures": {
+        "api_exposure": 1.75,
+        "churn": 0.0,
+        "cognitive_load": 20.77,
+        "concurrency": 10.45,
+        "dead_code": 0.0,
+        "documentation": 88.54,
+        "safety_score": 8.52,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 2.53,
+        "tech_debt": 16.04,
+        "verification": 50.9
+      },
+      "file_count": 16,
+      "total_mass": 3641.84
+    },
+    "elixir/elixir_tests": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 30.48,
+        "concurrency": 29.36,
+        "dead_code": 0.0,
+        "documentation": 50.0,
+        "safety_score": 13.36,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 14.3,
+        "tech_debt": 2.88,
+        "verification": 0.0
+      },
+      "file_count": 4,
+      "total_mass": 116.52
+    },
+    "elixir/phoenix_framework": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 17.52,
+        "concurrency": 29.81,
+        "dead_code": 0.0,
+        "documentation": 55.01,
+        "safety_score": 12.3,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.43,
+        "state_flux": 5.78,
+        "tech_debt": 40.95,
+        "verification": 41.05
+      },
+      "file_count": 14,
+      "total_mass": 1483.79
+    },
     "embedded_python": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -1785,10 +1918,67 @@
         "stability": 50.0,
         "state_flux": 92.86,
         "tech_debt": 23.46,
-        "verification": 30.23
+        "verification": 30.24
       },
       "file_count": 14,
       "total_mass": 3592.72
+    },
+    "erlang": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "erlang/cowboy_http_server": {
+      "avg_exposures": {
+        "api_exposure": 1.77,
+        "churn": 0.0,
+        "cognitive_load": 12.19,
+        "concurrency": 16.34,
+        "dead_code": 0.0,
+        "documentation": 93.75,
+        "safety_score": 12.03,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 2.85,
+        "tech_debt": 13.42,
+        "verification": 46.1
+      },
+      "file_count": 16,
+      "total_mass": 2758.9
+    },
+    "erlang/ranch_socket_pool": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 19.74,
+        "concurrency": 52.8,
+        "dead_code": 0.0,
+        "documentation": 91.67,
+        "safety_score": 15.64,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 12.68,
+        "tech_debt": 0.67,
+        "verification": 41.2
+      },
+      "file_count": 12,
+      "total_mass": 2091.58
     },
     "fortran": {
       "avg_exposures": {
@@ -1827,6 +2017,44 @@
       },
       "file_count": 15,
       "total_mass": 50565.52
+    },
+    "fsharp": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "fsharp/giraffe_web": {
+      "avg_exposures": {
+        "api_exposure": 3.21,
+        "churn": 0.0,
+        "cognitive_load": 8.58,
+        "concurrency": 23.71,
+        "dead_code": 0.0,
+        "documentation": 23.74,
+        "safety_score": 17.34,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 13.58,
+        "tech_debt": 45.58,
+        "verification": 23.54
+      },
+      "file_count": 22,
+      "total_mass": 986.6
     },
     "go": {
       "avg_exposures": {
@@ -2284,6 +2512,44 @@
       "file_count": 11,
       "total_mass": 779.96
     },
+    "hcl": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "hcl/terraform_aws_vpc": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 1.38,
+        "concurrency": 0.0,
+        "dead_code": 0.44,
+        "documentation": 52.18,
+        "safety_score": 1.68,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 24.58,
+        "verification": 17.87
+      },
+      "file_count": 30,
+      "total_mass": 1084.42
+    },
     "hlasm": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -2336,7 +2602,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 11.56,
-        "verification": 2.36
+        "verification": 2.37
       },
       "file_count": 2,
       "total_mass": 78.04
@@ -3139,6 +3405,44 @@
       "file_count": 3,
       "total_mass": 46.8
     },
+    "julia": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "julia/dataframes_jl": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 13.52,
+        "concurrency": 2.15,
+        "dead_code": 0.2,
+        "documentation": 59.08,
+        "safety_score": 57.52,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 48.39,
+        "state_flux": 28.61,
+        "tech_debt": 8.22,
+        "verification": 59.9
+      },
+      "file_count": 31,
+      "total_mass": 7068.06
+    },
     "kotlin": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -3595,6 +3899,44 @@
       "file_count": 1,
       "total_mass": 16.94
     },
+    "nim": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "nim/nim_stdlib": {
+      "avg_exposures": {
+        "api_exposure": 0.14,
+        "churn": 0.0,
+        "cognitive_load": 19.8,
+        "concurrency": 21.74,
+        "dead_code": 2.96,
+        "documentation": 70.54,
+        "safety_score": 35.34,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 48.39,
+        "state_flux": 38.91,
+        "tech_debt": 63.43,
+        "verification": 37.41
+      },
+      "file_count": 31,
+      "total_mass": 5683.46
+    },
     "nix": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -3689,6 +4031,44 @@
       },
       "file_count": 6,
       "total_mass": 2561.4
+    },
+    "ocaml": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "ocaml/janestreet_base": {
+      "avg_exposures": {
+        "api_exposure": 2.74,
+        "churn": 0.0,
+        "cognitive_load": 6.63,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 23.59,
+        "safety_score": 24.88,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 48.39,
+        "state_flux": 26.23,
+        "tech_debt": 8.86,
+        "verification": 12.26
+      },
+      "file_count": 31,
+      "total_mass": 1219.38
     },
     "perl": {
       "avg_exposures": {
@@ -4103,7 +4483,7 @@
         "stability": 41.67,
         "state_flux": 79.75,
         "tech_debt": 13.99,
-        "verification": 14.93
+        "verification": 14.94
       },
       "file_count": 12,
       "total_mass": 980.02
@@ -4126,6 +4506,63 @@
       },
       "file_count": 4,
       "total_mass": 279.08
+    },
+    "postgresql": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "postgresql/pgvector_extension": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 12.5,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 12.03
+      },
+      "file_count": 8,
+      "total_mass": 68.14
+    },
+    "postgresql/pgvector_tests": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 3.43,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 34.29,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 80.0
+      },
+      "file_count": 7,
+      "total_mass": 934.7
     },
     "powershell": {
       "avg_exposures": {
@@ -4735,6 +5172,63 @@
       "file_count": 6,
       "total_mass": 490.92
     },
+    "r": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "r/dplyr_package": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 6.64,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 39.21,
+        "safety_score": 23.32,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.88,
+        "state_flux": 19.19,
+        "tech_debt": 48.52,
+        "verification": 31.41
+      },
+      "file_count": 16,
+      "total_mass": 1006.74
+    },
+    "r/rlang_package": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 9.33,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 40.81,
+        "safety_score": 34.88,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.88,
+        "state_flux": 28.1,
+        "tech_debt": 62.51,
+        "verification": 50.78
+      },
+      "file_count": 16,
+      "total_mass": 2608.86
+    },
     "rexx": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -5167,7 +5661,7 @@
         "stability": 44.44,
         "state_flux": 55.53,
         "tech_debt": 20.88,
-        "verification": 19.4
+        "verification": 19.41
       },
       "file_count": 9,
       "total_mass": 1945.0
@@ -5547,7 +6041,7 @@
         "stability": 37.5,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.82
+        "verification": 1.83
       },
       "file_count": 4,
       "total_mass": 53.78
@@ -5566,7 +6060,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.36
+        "verification": 2.37
       },
       "file_count": 1,
       "total_mass": 6.08
@@ -5927,7 +6421,7 @@
         "stability": 50.0,
         "state_flux": 92.97,
         "tech_debt": 13.2,
-        "verification": 39.17
+        "verification": 39.18
       },
       "file_count": 19,
       "total_mass": 3893.3
@@ -6250,7 +6744,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 81.76,
-        "verification": 2.41
+        "verification": 2.42
       },
       "file_count": 1,
       "total_mass": 19.72
@@ -6972,7 +7466,7 @@
         "stability": 50.0,
         "state_flux": 55.5,
         "tech_debt": 11.8,
-        "verification": 15.45
+        "verification": 15.46
       },
       "file_count": 6,
       "total_mass": 39493.56

@@ -67,6 +67,11 @@
       "lua/cosmopolitan/sort.lua": 0,
       "lua/cosmopolitan/tracegc.lua": 0
     },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/asyncfile.nim": 3,
+      "nim/nim_stdlib/asynchttpserver.nim": 0,
+      "nim/nim_stdlib/collections_sharedtables.nim": 1
+    },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 8,
       "objective-c/worldwideweb/HText.c": 6,
@@ -110,6 +115,9 @@
     "php/wordpress": {
       "php/wordpress/class-wp-query.php": 2,
       "php/wordpress/wp-settings.php": 0
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/across.R": 0
     },
     "scheme/racket": {
       "scheme/racket/eval.c": 1,

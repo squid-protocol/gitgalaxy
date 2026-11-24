@@ -397,6 +397,8 @@ def _compat(param: str, arg: str, loose: bool, subtype: Subtype | None) -> bool 
 
     `loose` adds boxing and unboxing (JLS 5.3 loose invocation); strict allows identity and widening only.
     """
+    if not arg or not param:
+        return None
     if param == arg:
         return True
     if arg == "null":
@@ -445,11 +447,18 @@ def _more_specific(a: list[str], b: list[str], subtype: Subtype | None) -> bool:
 
 def choose(candidates: list[list[str] | None], args: list[str], subtype: Subtype | None = None) -> int | None:
     """The index of the one overload (same arity as `args`) Java picks for these argument types, or None
-    when the scan cannot be certain: an unknown argument or parameter list, a maybe-applicable candidate,
-    no applicable one, or no single most specific one."""
-    if not args or any(not a for a in args) or any(c is None or len(c) != len(args) for c in candidates):
+    when the scan cannot be certain: all arguments unknown, an unknown parameter list, 2+ maybe-applicable
+    candidates, no applicable one, or no single most specific one."""
+    if not args or not any(args) or any(c is None or len(c) != len(args) for c in candidates):
         return None
     params = [c for c in candidates if c is not None]
+    if any(not a for a in args):
+        # Partial-argument elimination: only eliminate candidates incompatible even under loose (boxing) invocation.
+        verdicts = [[_compat(p, a, True, subtype) for p, a in zip(c, args, strict=True)] for c in params]
+        possible = [k for k, v in enumerate(verdicts) if False not in v]
+        if len(possible) == 1 and any(x is True for x in verdicts[possible[0]]):
+            return possible[0]
+        return None
     exact = [k for k, c in enumerate(params) if c == args]
     if len(exact) == 1:
         return exact[0]

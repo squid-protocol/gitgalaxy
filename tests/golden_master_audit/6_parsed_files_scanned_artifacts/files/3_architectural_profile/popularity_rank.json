@@ -1446,7 +1446,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 0,
-      "groovy/gradle/DefaultProject.java": 1,
+      "groovy/gradle/DefaultProject.java": 0,
       "groovy/gradle/DefaultTask.java": 9
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1634,8 +1634,8 @@
     },
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 1,
-      "groovy/spock/SpecParser.java": 2,
-      "groovy/spock/SpecRewriter.java": 2,
+      "groovy/spock/SpecParser.java": 1,
+      "groovy/spock/SpecRewriter.java": 1,
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
@@ -1912,13 +1912,13 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 2,
-      "java/springboot/Binder.java": 4,
+      "java/springboot/AutoConfigurationImportSelector.java": 1,
+      "java/springboot/Binder.java": 3,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
-      "java/springboot/OnClassCondition.java": 1,
+      "java/springboot/OnClassCondition.java": 0,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
-      "java/springboot/SpringApplication.java": 4,
+      "java/springboot/SpringApplication.java": 3,
       "java/springboot/WebMvcAutoConfiguration.java": 0
     },
     "javascript": {

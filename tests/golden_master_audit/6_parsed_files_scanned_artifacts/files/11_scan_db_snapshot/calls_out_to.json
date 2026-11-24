@@ -7991,7 +7991,8 @@
           "Close",
           "Msyscall",
           "Launch",
-          "IsFreebsd"
+          "IsFreebsd",
+          "IsLinux"
         ],
         "StrCmp@239": [],
         "StrLen@232": [],
@@ -10388,7 +10389,9 @@
           "_TAIL_CALL_error",
           "_TAIL_CALL_start_frame",
           "_PyErr_Occurred",
-          "_Py_LeaveRecursiveCallPy"
+          "_Py_LeaveRecursiveCallPy",
+          "__attribute__",
+          "optimize"
         ],
         "_PyEval_ExceptionGroupMatch@2260": [
           "Py_IsNone",
@@ -18037,11 +18040,13 @@
         "type_is_subtype_base_chain@2890": [],
         "type_lock_allow_release@164": [
           "_PyThreadState_GET",
-          "assert"
+          "assert",
+          "_PyInterpreterState_GET"
         ],
         "type_lock_prevent_release@142": [
           "_PyThreadState_GET",
-          "assert"
+          "assert",
+          "_PyInterpreterState_GET"
         ],
         "type_modified_unlocked@1169": [
           "ASSERT_NEW_TYPE_OR_LOCKED",
@@ -49647,7 +49652,8 @@
           "cob_add_int"
         ],
         "mpz_get_sll@175": [
-          "mpz_size"
+          "mpz_size",
+          "COB_S64_C"
         ],
         "mpz_get_ull@155": [
           "mpz_size"
@@ -62189,7 +62195,8 @@
           "get_method",
           "get_class_name",
           "is_const",
-          "call"
+          "call",
+          "_debug_lock"
         ],
         "Object::call_deferredp@1984": [
           "get_singleton",
@@ -62203,7 +62210,8 @@
           "callp",
           "get_method",
           "get_class_name",
-          "call"
+          "call",
+          "_debug_lock"
         ],
         "Object::callv@736": [
           "size",
@@ -62294,7 +62302,8 @@
           "~Callable",
           "memfree",
           "unreference",
-          "memdelete"
+          "memdelete",
+          "_debug_lock"
         ],
         "Object::free_instance_binding@2206": [
           "MutexLock",
@@ -62591,7 +62600,8 @@
           "placeholder_instance_create",
           "notify_property_list_changed",
           "emit_signal",
-          "CoreStringName"
+          "CoreStringName",
+          "_debug_lock"
         ],
         "Object::set_script_instance@983": [
           "memdelete"
@@ -62791,7 +62801,8 @@
           "ERR_FAIL_COND_V",
           "lock",
           "unlikely",
-          "unlock"
+          "unlock",
+          "uint64_t"
         ],
         "get_instance@926": [],
         "notification@716": [
@@ -66882,7 +66893,8 @@
           "ReadOnlyBindingDiagnostic"
         ],
         "GetCompilationNamespace@1525": [
-          "GetNestedNamespace"
+          "GetNestedNamespace",
+          "GetCompilationNamespace"
         ],
         "GetCompilationNamespace@1549": [
           "GetNestedNamespace",
@@ -72287,12 +72299,15 @@
           "WorkspaceEventHandlerAndOptions",
           "func",
           "Create",
-          "ConfigureAwait"
+          "ConfigureAwait",
+          "ScheduleTask"
         ],
         "SetCurrentSolution@169": [
           "SetCurrentSolutionEx"
         ],
-        "SetCurrentSolution@201": [],
+        "SetCurrentSolution@201": [
+          "SetCurrentSolution"
+        ],
         "SetCurrentSolution@230": [
           "SetCurrentSolutionAsync",
           "VerifyCompleted"
@@ -90896,7 +90911,8 @@
           "newNamedDomainObjectContainer"
         ],
         "copy@1184": [
-          "configureUsing"
+          "configureUsing",
+          "copy"
         ],
         "copy@1189": [
           "copy",
@@ -97521,7 +97537,8 @@
           "Binder"
         ],
         "bind@235": [
-          "of"
+          "of",
+          "bind"
         ],
         "bind@248": [
           "of",
@@ -97579,7 +97596,8 @@
           "bindDataObject"
         ],
         "bindOrCreate@303": [
-          "of"
+          "of",
+          "bindOrCreate"
         ],
         "bindOrCreate@318": [
           "of",

@@ -142,13 +142,36 @@ def _rs_leaf(m: re.Match[str]) -> str:
     return t
 
 
+_RS_GENERIC_BOUND = re.compile(
+    r"(?:[<,]|where)[ \t\r\n]*+(?P<tp>[A-Z])[ \t]*+:[ \t]*+(?:'\w{1,32}[ \t]*+\+[ \t]*+)?"
+    r"(?P<p>" + _RS_PATH + r")(?P<tr_>[A-Z]\w{1,127})"
+)
+
+
 def _rust_declared(text: str) -> _Found:
     found: _Found = {}
+    # Map single-letter generic type params to their first trait bound (`<F: Float>`, `where V: de::Visitor<'de>`).
+    # Keep foreign path prefixes (`de::Visitor`, `io::Write`, `fmt::Display`) so they never collide with a
+    # same-named repo struct and are guarded as external; bare/crate/self/super bounds resolve via `typed`.
+    bounds: dict[str, str] = {}
+    header_end = text.find("{")
+    header = text[:header_end] if 0 < header_end < 2000 else text[:600]
+    for m in _RS_GENERIC_BOUND.finditer(header):
+        p = m.group("p")
+        tr_ = m.group("tr_")
+        if p and not p.startswith(("crate::", "self::", "super::")):
+            bounds.setdefault(m.group("tp"), f"{p}{tr_}")
+        else:
+            bounds.setdefault(m.group("tp"), tr_)
     for m in _RS_PARAM.finditer(text):
         if m.group("n") != "self":
-            _note(found, m.group("n"), _rs_leaf(m) or None)
+            leaf = _rs_leaf(m)
+            leaf = bounds.get(leaf, leaf) if len(leaf) == 1 else leaf
+            _note(found, m.group("n"), leaf or None)
     for m in _RS_LET_TYPED.finditer(text):
-        _note(found, m.group("n"), _rs_leaf(m) or None)
+        leaf = _rs_leaf(m)
+        leaf = bounds.get(leaf, leaf) if len(leaf) == 1 else leaf
+        _note(found, m.group("n"), leaf or None)
     typed_lets = set()
     for m in _RS_LET.finditer(text):
         if m.group("call") is not None:
@@ -481,14 +504,29 @@ _CPP_FOR_AUTO = re.compile(
 )
 
 
+_CPP_STD_NS = re.compile(r"\bstd[ \t]*::")
+
+
 def _cpp_decl_type(m: re.Match[str]) -> str | None:
-    """The class a declaration's object is (or points to); None for an array."""
+    """The class a declaration's object is (or points to); None for an array.
+
+    Explicit `std::` namespace qualification is preserved (`std::string_view`, `std::string`) so the resolver
+    does not confuse stdlib types with same-named repository classes (e.g. `fmt::string_view`).
+    """
     if m.group("after") == "[":
         return None
     t, g = m.group("t"), m.group("g")
     if t in _CPP_POINTER_WRAPPERS and g:
         inner = re.match(r"<[ \t]*(?:const[ \t]+)?" + _CPP_SCOPE + r"(" + _CPP_IDENT + r")[ \t]*>", g)
-        return inner.group(1) if inner else None
+        if not inner:
+            return None
+        inner_t = inner.group(1)
+        if _CPP_STD_NS.search(g[: inner.start(1)]):
+            return f"std::{inner_t}"
+        return inner_t
+    prefix = m.group(0)[: m.start("t") - m.start()]
+    if _CPP_STD_NS.search(prefix):
+        return f"std::{t}"
     return t
 
 

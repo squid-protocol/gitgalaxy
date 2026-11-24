@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "utf-8",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "utf-8"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "utf-8"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "utf-8",
+      "crystal/crystal_stdlib_http/client_response.cr": "utf-8",
+      "crystal/crystal_stdlib_http/common.cr": "utf-8",
+      "crystal/crystal_stdlib_http/content.cr": "utf-8",
+      "crystal/crystal_stdlib_http/cookie.cr": "utf-8",
+      "crystal/crystal_stdlib_http/cookies.cr": "utf-8",
+      "crystal/crystal_stdlib_http/formdata.cr": "utf-8",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "utf-8",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "utf-8",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "utf-8",
+      "crystal/crystal_stdlib_http/headers.cr": "utf-8",
+      "crystal/crystal_stdlib_http/log.cr": "utf-8",
+      "crystal/crystal_stdlib_http/params.cr": "utf-8",
+      "crystal/crystal_stdlib_http/request.cr": "utf-8",
+      "crystal/crystal_stdlib_http/server.cr": "utf-8",
+      "crystal/crystal_stdlib_http/server_context.cr": "utf-8",
+      "crystal/crystal_stdlib_http/server_handler.cr": "utf-8",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "utf-8"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "utf-8",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "utf-8",
+      "crystal/kemal_framework/kemal_cli.cr": "utf-8",
+      "crystal/kemal_framework/kemal_config.cr": "utf-8",
+      "crystal/kemal_framework/kemal_dsl.cr": "utf-8",
+      "crystal/kemal_framework/kemal_event_stream.cr": "utf-8",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "utf-8",
+      "crystal/kemal_framework/kemal_ext_context.cr": "utf-8",
+      "crystal/kemal_framework/kemal_ext_response.cr": "utf-8",
+      "crystal/kemal_framework/kemal_file_upload.cr": "utf-8",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "utf-8",
+      "crystal/kemal_framework/kemal_handler.cr": "utf-8"
+    },
     "csd": {
       "csd/SOURCES.md": "utf-8"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "utf-8",
       "dockerfile/moby/test_targets/windows.Dockerfile": "utf-8"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "utf-8"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "utf-8",
+      "elixir/elixir_stdlib/agent.ex": "utf-8",
+      "elixir/elixir_stdlib/agent_server.ex": "utf-8",
+      "elixir/elixir_stdlib/application.ex": "utf-8",
+      "elixir/elixir_stdlib/atom.ex": "utf-8",
+      "elixir/elixir_stdlib/base.ex": "utf-8",
+      "elixir/elixir_stdlib/behaviour.ex": "utf-8",
+      "elixir/elixir_stdlib/bitwise.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_date.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_duration.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_time.ex": "utf-8",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "utf-8",
+      "elixir/elixir_stdlib/code_fragment.ex": "utf-8"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "utf-8",
+      "elixir/elixir_tests/agent_test.exs": "utf-8",
+      "elixir/elixir_tests/application_test.exs": "utf-8",
+      "elixir/elixir_tests/atom_test.exs": "utf-8"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "utf-8",
+      "elixir/phoenix_framework/channel.ex": "utf-8",
+      "elixir/phoenix_framework/channel_server.ex": "utf-8",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "utf-8",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "utf-8",
+      "elixir/phoenix_framework/code_reloader_server.ex": "utf-8",
+      "elixir/phoenix_framework/config.ex": "utf-8",
+      "elixir/phoenix_framework/controller_pipeline.ex": "utf-8",
+      "elixir/phoenix_framework/debug.ex": "utf-8",
+      "elixir/phoenix_framework/digester.ex": "utf-8",
+      "elixir/phoenix_framework/digester_compressor.ex": "utf-8",
+      "elixir/phoenix_framework/digester_gzip.ex": "utf-8",
+      "elixir/phoenix_framework/endpoint.ex": "utf-8",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "utf-8"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "utf-8"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "utf-8",
       "embedded_python/meow_turtle/tsl2591.py": "utf-8",
       "embedded_python/meow_turtle/vibration_driver.py": "utf-8"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "utf-8"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_app.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_children.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_req.erl": "utf-8",
+      "erlang/cowboy_http_server/cowboy_router.erl": "utf-8"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_app.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "utf-8",
+      "erlang/ranch_socket_pool/ranch_server.erl": "utf-8"
     },
     "fortran": {
       "fortran/SOURCES.md": "utf-8"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "utf-8",
       "fortran/wrf/sourcetree.py": "utf-8",
       "fortran/wrf/wrf_timeseries.F": "utf-8"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "utf-8"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "utf-8",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "utf-8",
+      "fsharp/giraffe_web/Core.fs": "utf-8",
+      "fsharp/giraffe_web/Csrf.fs": "utf-8",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "utf-8",
+      "fsharp/giraffe_web/EndpointRouting.fs": "utf-8",
+      "fsharp/giraffe_web/FormatExpressions.fs": "utf-8",
+      "fsharp/giraffe_web/Helpers.fs": "utf-8",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "utf-8",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "utf-8",
+      "fsharp/giraffe_web/Json.fs": "utf-8",
+      "fsharp/giraffe_web/Middleware.fs": "utf-8",
+      "fsharp/giraffe_web/ModelParser.fs": "utf-8",
+      "fsharp/giraffe_web/ModelValidation.fs": "utf-8",
+      "fsharp/giraffe_web/Negotiation.fs": "utf-8",
+      "fsharp/giraffe_web/Preconditional.fs": "utf-8",
+      "fsharp/giraffe_web/RequestLimitation.fs": "bom",
+      "fsharp/giraffe_web/ResponseCaching.fs": "utf-8",
+      "fsharp/giraffe_web/Routing.fs": "utf-8",
+      "fsharp/giraffe_web/ShortGuid.fs": "utf-8",
+      "fsharp/giraffe_web/Streaming.fs": "utf-8",
+      "fsharp/giraffe_web/Xml.fs": "utf-8"
     },
     "go": {
       "go/SOURCES.md": "utf-8"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "utf-8",
       "haskell/pandoc/Parsing.hs": "utf-8",
       "haskell/pandoc/Shared.hs": "utf-8"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "utf-8"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "utf-8",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "utf-8"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "utf-8",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "utf-8",
       "json/kafka/message/VoteRequest.json": "utf-8"
     },
+    "julia": {
+      "julia/SOURCES.md": "utf-8"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "utf-8",
+      "julia/dataframes_jl/LICENSE.md": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "utf-8",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "utf-8",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "utf-8",
+      "julia/dataframes_jl/dataframe_insertion.jl": "utf-8",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "utf-8",
+      "julia/dataframes_jl/dataframerow_show.jl": "utf-8",
+      "julia/dataframes_jl/deprecated.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "utf-8",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "utf-8",
+      "julia/dataframes_jl/join_core.jl": "utf-8",
+      "julia/dataframes_jl/join_inplace.jl": "utf-8",
+      "julia/dataframes_jl/other_broadcasting.jl": "utf-8",
+      "julia/dataframes_jl/other_index.jl": "utf-8",
+      "julia/dataframes_jl/other_metadata.jl": "utf-8",
+      "julia/dataframes_jl/other_names.jl": "utf-8",
+      "julia/dataframes_jl/other_precompile.jl": "utf-8"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "utf-8"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "utf-8"
     },
+    "nim": {
+      "nim/SOURCES.md": "utf-8"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "utf-8",
+      "nim/nim_stdlib/async.nim": "utf-8",
+      "nim/nim_stdlib/asyncfile.nim": "utf-8",
+      "nim/nim_stdlib/asyncfutures.nim": "utf-8",
+      "nim/nim_stdlib/asynchttpserver.nim": "utf-8",
+      "nim/nim_stdlib/asyncmacro.nim": "utf-8",
+      "nim/nim_stdlib/asyncnet.nim": "utf-8",
+      "nim/nim_stdlib/asyncstreams.nim": "utf-8",
+      "nim/nim_stdlib/base64.nim": "utf-8",
+      "nim/nim_stdlib/bitops.nim": "utf-8",
+      "nim/nim_stdlib/browsers.nim": "utf-8",
+      "nim/nim_stdlib/cgi.nim": "utf-8",
+      "nim/nim_stdlib/collections_chains.nim": "utf-8",
+      "nim/nim_stdlib/collections_critbits.nim": "utf-8",
+      "nim/nim_stdlib/collections_deques.nim": "utf-8",
+      "nim/nim_stdlib/collections_hashcommon.nim": "utf-8",
+      "nim/nim_stdlib/collections_heapqueue.nim": "utf-8",
+      "nim/nim_stdlib/collections_intsets.nim": "utf-8",
+      "nim/nim_stdlib/collections_lists.nim": "utf-8",
+      "nim/nim_stdlib/collections_rtarrays.nim": "utf-8",
+      "nim/nim_stdlib/collections_sequtils.nim": "utf-8",
+      "nim/nim_stdlib/collections_setimpl.nim": "utf-8",
+      "nim/nim_stdlib/collections_sets.nim": "utf-8",
+      "nim/nim_stdlib/collections_sharedlist.nim": "utf-8",
+      "nim/nim_stdlib/collections_sharedtables.nim": "utf-8",
+      "nim/nim_stdlib/collections_tableimpl.nim": "utf-8",
+      "nim/nim_stdlib/colors.nim": "utf-8",
+      "nim/nim_stdlib/complex.nim": "utf-8",
+      "nim/nim_stdlib/concurrency_atomics.nim": "utf-8",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "utf-8",
+      "nim/nim_stdlib/copying.txt": "utf-8"
+    },
     "nix": {
       "nix/SOURCES.md": "utf-8"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "utf-8",
       "objective-c/worldwideweb/HyperText.m": "utf-8",
       "objective-c/worldwideweb/TcpAccess.m": "utf-8"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "utf-8"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "utf-8",
+      "ocaml/janestreet_base/applicative.ml": "utf-8",
+      "ocaml/janestreet_base/applicative.mli": "utf-8",
+      "ocaml/janestreet_base/applicative_intf.ml": "utf-8",
+      "ocaml/janestreet_base/array.ml": "utf-8",
+      "ocaml/janestreet_base/array.mli": "utf-8",
+      "ocaml/janestreet_base/array0.ml": "utf-8",
+      "ocaml/janestreet_base/array0.mli": "utf-8",
+      "ocaml/janestreet_base/array_intf.ml": "utf-8",
+      "ocaml/janestreet_base/array_permute.ml": "utf-8",
+      "ocaml/janestreet_base/array_permute.mli": "utf-8",
+      "ocaml/janestreet_base/avltree.ml": "utf-8",
+      "ocaml/janestreet_base/avltree.mli": "utf-8",
+      "ocaml/janestreet_base/backtrace.ml": "utf-8",
+      "ocaml/janestreet_base/backtrace.mli": "utf-8",
+      "ocaml/janestreet_base/base.ml": "utf-8",
+      "ocaml/janestreet_base/binary_search.ml": "utf-8",
+      "ocaml/janestreet_base/binary_search.mli": "utf-8",
+      "ocaml/janestreet_base/binary_searchable.ml": "utf-8",
+      "ocaml/janestreet_base/binary_searchable.mli": "utf-8",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "utf-8",
+      "ocaml/janestreet_base/blit.ml": "utf-8",
+      "ocaml/janestreet_base/blit.mli": "utf-8",
+      "ocaml/janestreet_base/blit_intf.ml": "utf-8",
+      "ocaml/janestreet_base/bool.ml": "utf-8",
+      "ocaml/janestreet_base/bool.mli": "utf-8",
+      "ocaml/janestreet_base/bool0.ml": "utf-8",
+      "ocaml/janestreet_base/bool0.mli": "utf-8",
+      "ocaml/janestreet_base/buffer.ml": "utf-8",
+      "ocaml/janestreet_base/buffer.mli": "utf-8",
+      "ocaml/janestreet_base/buffer_intf.ml": "utf-8"
     },
     "perl": {
       "perl/SOURCES.md": "utf-8"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "utf-8",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "utf-8",
       "pli/zopeneditor_sample/PSAM2.pli": "utf-8"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "utf-8"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "utf-8",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "utf-8"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "utf-8",
+      "postgresql/pgvector_tests/halfvec.sql": "utf-8",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "utf-8",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "utf-8",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "utf-8",
+      "postgresql/pgvector_tests/sparsevec.sql": "utf-8",
+      "postgresql/pgvector_tests/vector_type.sql": "utf-8"
     },
     "powershell": {
       "powershell/SOURCES.md": "utf-8"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "utf-8",
       "python/wtfpython/notebook_generator.py": "utf-8",
       "python/wtfpython/noxfile.py": "utf-8"
+    },
+    "r": {
+      "r/SOURCES.md": "utf-8"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "utf-8",
+      "r/dplyr_package/across.R": "utf-8",
+      "r/dplyr_package/all-equal.R": "utf-8",
+      "r/dplyr_package/arrange.R": "utf-8",
+      "r/dplyr_package/bind-cols.R": "utf-8",
+      "r/dplyr_package/bind-rows.R": "utf-8",
+      "r/dplyr_package/by.R": "utf-8",
+      "r/dplyr_package/case-match.R": "utf-8",
+      "r/dplyr_package/case-when.R": "utf-8",
+      "r/dplyr_package/coalesce.R": "utf-8",
+      "r/dplyr_package/colwise-arrange.R": "utf-8",
+      "r/dplyr_package/colwise-distinct.R": "utf-8",
+      "r/dplyr_package/colwise-filter.R": "utf-8",
+      "r/dplyr_package/colwise-funs.R": "utf-8",
+      "r/dplyr_package/colwise-group-by.R": "utf-8",
+      "r/dplyr_package/colwise-mutate.R": "utf-8"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "utf-8",
+      "r/rlang_package/aaa-topics.R": "utf-8",
+      "r/rlang_package/aaa.R": "utf-8",
+      "r/rlang_package/arg.R": "utf-8",
+      "r/rlang_package/attr.R": "utf-8",
+      "r/rlang_package/bytes.R": "utf-8",
+      "r/rlang_package/c-lib.R": "utf-8",
+      "r/rlang_package/call.R": "utf-8",
+      "r/rlang_package/cnd-abort.R": "utf-8",
+      "r/rlang_package/cnd-entrace.R": "utf-8",
+      "r/rlang_package/cnd-handlers.R": "utf-8",
+      "r/rlang_package/cnd-last.R": "utf-8",
+      "r/rlang_package/cnd-message.R": "utf-8",
+      "r/rlang_package/cnd-signal.R": "utf-8",
+      "r/rlang_package/cnd.R": "utf-8",
+      "r/rlang_package/deparse.R": "utf-8"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "utf-8",

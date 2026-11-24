@@ -64,6 +64,11 @@
       "impact": 27174.34,
       "loc": 35147
     },
+    "crystal": {
+      "files": 30,
+      "impact": 3595.56,
+      "loc": 3618
+    },
     "csd": {
       "files": 6,
       "impact": 220.12,
@@ -99,15 +104,30 @@
       "impact": 250.29999999999995,
       "loc": 765
     },
+    "elixir": {
+      "files": 33,
+      "impact": 5241.149999999999,
+      "loc": 13088
+    },
     "embedded_python": {
       "files": 14,
       "impact": 3592.720000000001,
       "loc": 2621
     },
+    "erlang": {
+      "files": 28,
+      "impact": 4850.48,
+      "loc": 8494
+    },
     "fortran": {
       "files": 6,
       "impact": 42783.31999999999,
       "loc": 18871
+    },
+    "fsharp": {
+      "files": 22,
+      "impact": 986.6,
+      "loc": 2462
     },
     "go": {
       "files": 71,
@@ -123,6 +143,11 @@
       "files": 7,
       "impact": 747.8,
       "loc": 1830
+    },
+    "hcl": {
+      "files": 30,
+      "impact": 1084.4199999999996,
+      "loc": 3519
     },
     "hlasm": {
       "files": 20,
@@ -159,6 +184,11 @@
       "impact": 142.91999999999996,
       "loc": 396
     },
+    "julia": {
+      "files": 30,
+      "impact": 7067.059999999999,
+      "loc": 12483
+    },
     "kotlin": {
       "files": 6,
       "impact": 238.9,
@@ -185,8 +215,8 @@
       "loc": 2940
     },
     "markdown": {
-      "files": 143,
-      "impact": 466.2800000000003,
+      "files": 158,
+      "impact": 481.2800000000003,
       "loc": 0
     },
     "matlab": {
@@ -199,6 +229,11 @@
       "impact": 47.14,
       "loc": 132
     },
+    "nim": {
+      "files": 30,
+      "impact": 5682.459999999999,
+      "loc": 7867
+    },
     "nix": {
       "files": 5,
       "impact": 82.33999999999999,
@@ -208,6 +243,11 @@
       "files": 5,
       "impact": 1815.96,
       "loc": 1623
+    },
+    "ocaml": {
+      "files": 30,
+      "impact": 1218.38,
+      "loc": 3929
     },
     "perl": {
       "files": 23,
@@ -220,8 +260,8 @@
       "loc": 28355
     },
     "plaintext": {
-      "files": 106,
-      "impact": 442.2200000000001,
+      "files": 107,
+      "impact": 443.2200000000001,
       "loc": 0
     },
     "pli": {
@@ -230,9 +270,9 @@
       "loc": 2320
     },
     "postgresql": {
-      "files": 2,
-      "impact": 34.32,
-      "loc": 46
+      "files": 17,
+      "impact": 1037.1599999999999,
+      "loc": 853
     },
     "powershell": {
       "files": 126,
@@ -248,6 +288,11 @@
       "files": 293,
       "impact": 62450.40000000005,
       "loc": 74568
+    },
+    "r": {
+      "files": 30,
+      "impact": 3613.6,
+      "loc": 6120
     },
     "rexx": {
       "files": 25,

@@ -26,6 +26,7 @@ def make_repo(tmp_path: Path) -> Path:
     git(repo, "init", "-q", "-b", "main")
     git(repo, "config", "user.email", "t@example.com")
     git(repo, "config", "user.name", "t")
+    git(repo, "config", "core.autocrlf", "false")
     (repo / "src").mkdir()
     (repo / "src" / "a.py").write_text("".join(f"line {i}\n" for i in range(1, 41)))
     (repo / "src" / "b.py").write_text("b1\nb2\nb3\n")
@@ -172,6 +173,21 @@ def test_binary_hand_written_files_survive_the_diff(tmp_path):
     ok, why = rb.apply_diff(repo, diff)
     assert ok, why
     assert (repo / "src" / "blob.bin").read_bytes() == bytes(range(256)) * 4
+
+
+def test_crlf_content_survives_the_diff_byte_for_byte(tmp_path):
+    repo = make_repo(tmp_path)
+    git(repo, "checkout", "-q", "-b", "crlfpr", "main")
+    (repo / "src" / "b.py").write_bytes(b"b1\r\nb2\r\nb3\r\nb4\r\n")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "crlf")
+    git(repo, "checkout", "-q", "main")
+    diff = rb.hand_written_diff(repo, "main", "crlfpr")
+    assert "\r\n" in diff  # not normalised to LF on the way out of git
+    git(repo, "checkout", "-q", "-b", "batch", "main")
+    ok, why = rb.apply_diff(repo, diff)
+    assert ok, why
+    assert (repo / "src" / "b.py").read_bytes() == b"b1\r\nb2\r\nb3\r\nb4\r\n"
 
 
 def test_bless_env_puts_the_venv_first_and_sets_crucible_paths(monkeypatch):

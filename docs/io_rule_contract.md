@@ -220,6 +220,14 @@ open defects (javascript 4, jcl 5, sqlite 9, tcl 7) and the two grey
 probe-idiom surpluses (c 4, lua 4). `rosetta_audit.py` against the re-blessed
 corpus: 46/46.
 
+## Go filesystem forms (#8868, 2026-11-24)
+
+Go's rule named only `os.Open`, `os.Create` and `os.ReadFile`, and `os.Open` had no boundary-safe form for
+`os.OpenFile`. The oracle run on prometheus (recall 0.33) found `os.ReadDir`, `os.RemoveAll`, `os.MkdirAll`,
+`os.WriteFile` and `os.OpenFile` missed. The rule now also counts `os.Mkdir`, `os.Remove`, `os.Rename`, `os.Stat`,
+`os.Lstat`, `ioutil.` and `filepath.Walk(Dir)`: each moves data to or from the file system, and `rename` is a transfer
+form (C2). Go's `Close` stays `cleanup`'s (C2), so the oracle's `close` reading is not an io gap.
+
 ## Ledger dispositions this contract settles
 
 | entry | disposition |

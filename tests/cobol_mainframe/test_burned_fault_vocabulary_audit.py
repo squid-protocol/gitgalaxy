@@ -33,7 +33,10 @@ def _uncovered(case: str) -> set[str]:
 
 
 def _stated(case: str) -> set[str]:
-    entries = _json(EQUIV / "infeasible_outcomes" / f"{case}.json")["entries"]
+    path = EQUIV / "infeasible_outcomes" / f"{case}.json"
+    if not path.exists():  # a case whose planned faults reach every outcome states none (cbsa-crdtagy4, #7954)
+        return set()
+    entries = _json(path)["entries"]
     return {f"{e['line']}:{e['outcome']}" for e in entries if e.get("line")}
 
 

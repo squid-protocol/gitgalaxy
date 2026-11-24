@@ -1,0 +1,12 @@
+{
+  "args_comparable": 422,
+  "args_exact_match": 280,
+  "corpus_path": "language-crucible/data/julia",
+  "extra_classes": 24,
+  "extra_functions": 5,
+  "files_scanned": 30,
+  "found_classes": 0,
+  "found_functions": 422,
+  "real_classes": 0,
+  "real_functions": 981
+}

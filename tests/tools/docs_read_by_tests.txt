@@ -143,6 +143,7 @@
 /data	tests/cobol_mainframe
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
+/deviation_ledger.json	tests/tools/test_family_rosetta_consistency.py
 /doxygen.css	tests/core_engine
 /doxygen_header.html	tests/core_engine
 /empty.png	tests/security_auditing

@@ -618,7 +618,7 @@ class BatchForge:
         java.append("")
         bean = j.cls[0].lower() + j.cls[1 : -len("Config")]  # unique, as the class is
         java += ["    @Bean", f"    public Job {bean}({', '.join(params)}) {{",
-                 f"        return new JobBuilder({_jstr(j.spring)}, jobRepository)"]  # fmt: skip
+                 f"        return new JobBuilder({_jstr(j.spring)}, jobRepository)", "                .listener(steps.abends())"]  # fmt: skip
         for i, st in enumerate(j.steps):
             verb = ".start" if i == 0 else ".next"
             java.append(f"                {verb}(new StepBuilder({_jstr(st.name)}, jobRepository)")
@@ -1250,19 +1250,25 @@ import java.util.regex.Pattern;
 /**
  * JCL step conditions (#3622), against the return codes of the steps before.
  *   COND=(code,op[,step]),... bypasses the step when ANY test holds: `code op RC` for the named step,
- *   else for every step before (COND=(4,LT): bypass if 4 < some RC). An abend stops a Spring Batch job, so
- *   no step ever follows one: EVEN changes nothing, and ONLY (a step that runs only after an abend) always
- *   bypasses.
+ *   else for every step before (COND=(4,LT): bypass if 4 < some RC). A step that abended has no return code
+ *   (its tests are false) and is recorded with its completion code (#8886): after it a step is bypassed unless
+ *   its COND names EVEN or ONLY, or its IF names ABEND / ABENDCC (startsAfterAbend, IBM's default). ONLY
+ *   bypasses while no step has abended.
  *   IF (expression) THEN: RC, step.RC, relational operators, AND / & / OR / | / NOT; RC alone is the
- *   highest return code so far. step.RUN is true when the step ran (it recorded a return code); ABEND and
- *   step.ABEND are false, as is step.ABENDCC = code, because no abended step continues the job. Each of
- *   them reads and drops its own `= value`.
+ *   highest return code so far. step.RUN is true when the step ran (a return code or an abend); ABEND is true
+ *   once any step abended, step.ABEND once that step did, step.ABENDCC = code when its completion code is
+ *   `code` (false for a step that did not abend). Each reads and drops its own `= value`.
  */
 public final class JclConditions {
 
     private static final Pattern TEST = Pattern.compile("(\\\\d+)\\\\s*,\\\\s*(GT|GE|EQ|LT|LE|NE)\\\\s*(?:,\\\\s*([A-Z0-9#@$.]+))?");
 
     private static final Pattern ONLY = Pattern.compile("(?<![A-Z0-9#@$])ONLY(?![A-Z0-9#@$])");
+
+    private static final Pattern EVEN = Pattern.compile("(?<![A-Z0-9#@$])EVEN(?![A-Z0-9#@$])");
+
+    private static final Pattern NAMES_ABEND = Pattern.compile(
+            "(?<![A-Z0-9#@$])(?:[A-Z0-9#@$]+\\\\.)*ABEND(?:CC)?(?![A-Z0-9#@$])");
 
     private JclConditions() {
     }
@@ -1275,6 +1281,11 @@ public final class JclConditions {
         if (ONLY.matcher(upper).find()) {
             return true;
         }
+        return testsHold(upper, rcs);
+    }
+
+    /** Whether any `code op RC` test of a COND (upper case) holds; a step with no return code (bypassed, abended) tests false. */
+    private static boolean testsHold(String upper, Map<String, Integer> rcs) {
         Matcher m = TEST.matcher(upper);
         while (m.find()) {
             int code = Integer.parseInt(m.group(1));
@@ -1295,6 +1306,24 @@ public final class JclConditions {
         return false;
     }
 
+    /**
+     * Whether a step starts once some step has abended (`abends`: step -> completion code, in order). IBM's default
+     * is to bypass it; a COND naming EVEN or ONLY, or an IF naming ABEND / ABENDCC, lifts that default, and the
+     * step's own IF, JOB COND and COND tests still decide (jcl_flow's `_starts`, the engine's reading, is the twin).
+     */
+    public static boolean startsAfterAbend(String jobCond, String cond, String ifCond, Map<String, Integer> rcs,
+            Map<String, String> abends) {
+        String upper = cond == null ? "" : cond.toUpperCase(Locale.ROOT);
+        boolean inIf = ifCond != null && !ifCond.isBlank();
+        if (inIf && (!NAMES_ABEND.matcher(ifCond.toUpperCase(Locale.ROOT)).find() || !holds(ifCond, rcs, abends))) {
+            return false;
+        }
+        if (!(EVEN.matcher(upper).find() || ONLY.matcher(upper).find()) && !inIf) {
+            return false;
+        }
+        return !(jobCond != null && testsHold(jobCond.toUpperCase(Locale.ROOT), rcs)) && !testsHold(upper, rcs);
+    }
+
     static boolean compare(int left, String op, int right) {
         return switch (op) {
             case "GT", ">" -> left > right;
@@ -1309,10 +1338,15 @@ public final class JclConditions {
 
     /** Whether an IF expression holds (true when there is none). */
     public static boolean holds(String expression, Map<String, Integer> rcs) {
+        return holds(expression, rcs, Map.of());
+    }
+
+    /** `holds`, with the steps that abended and their completion codes. */
+    public static boolean holds(String expression, Map<String, Integer> rcs, Map<String, String> abends) {
         if (expression == null || expression.isBlank()) {
             return true;
         }
-        return new Parser(tokens(expression), rcs).or();
+        return new Parser(tokens(expression), rcs, abends).or();
     }
 
     private static List<String> tokens(String text) {
@@ -1328,11 +1362,13 @@ public final class JclConditions {
     private static final class Parser {
         private final List<String> t;
         private final Map<String, Integer> rcs;
+        private final Map<String, String> abends;
         private int i;
 
-        Parser(List<String> t, Map<String, Integer> rcs) {
+        Parser(List<String> t, Map<String, Integer> rcs, Map<String, String> abends) {
             this.t = t;
             this.rcs = rcs;
+            this.abends = abends;
         }
 
         private String peek() {
@@ -1375,20 +1411,41 @@ public final class JclConditions {
 
         boolean relation() {
             String left = t.get(i++);
+            if (left.endsWith("ABENDCC")) {
+                return abendCode(left.length() > 7 ? left.substring(0, left.length() - 8) : "");
+            }
             if (!left.endsWith("RC")) {
-                boolean v = left.endsWith("RUN") ? rcs.containsKey(left.substring(0, Math.max(0, left.length() - 4)))
-                        : !left.contains("ABEND");  // no abended step continues a Spring Batch job
-                return operand(v, left.endsWith("ABENDCC"));
+                String step = left.contains(".") ? left.substring(0, left.lastIndexOf('.')) : "";
+                boolean v = left.endsWith("RUN") ? rcs.containsKey(step) || abends.containsKey(step)
+                        : step.isEmpty() ? !abends.isEmpty() : abends.containsKey(step);
+                return operand(v);
             }
             String op = t.get(i++);
             int right = Integer.parseInt(t.get(i++));
+            String step = left.equals("RC") ? "" : left.substring(0, left.length() - 3);
+            if (abends.containsKey(step)) {
+                return false;  // an abended step has no return code
+            }
             int rc = left.equals("RC") ? rcs.values().stream().mapToInt(Integer::intValue).max().orElse(0)
-                    : rcs.getOrDefault(left.substring(0, left.length() - 3), 0);
+                    : rcs.getOrDefault(step, 0);
             return compare(rc, op, right);
         }
 
-        /** `value`, after reading the `= TRUE|FALSE` (or `= code` for ABENDCC) that follows a flag; none leaves it as is. */
-        private boolean operand(boolean value, boolean code) {
+        /** `[step.]ABENDCC = code` (or NE): the step's completion code, else the latest abend's; none abended is false. */
+        private boolean abendCode(String step) {
+            String op = peek();
+            i++;
+            String want = peek();
+            i++;
+            String have = step.isEmpty() ? abends.values().stream().reduce((a, b) -> b).orElse(null) : abends.get(step);
+            if (have == null) {
+                return false;
+            }
+            return op.equals("=") == have.equals(want);
+        }
+
+        /** `value`, after reading the `= TRUE|FALSE` that follows a flag; none leaves it as is. */
+        private boolean operand(boolean value) {
             String op = peek();
             if (!(op.equals("=") || op.equals("\\u00ac=") || op.equals("^="))) {
                 return value;
@@ -1396,9 +1453,6 @@ public final class JclConditions {
             i++;
             String operand = peek();
             i++;
-            if (code) {
-                return false;
-            }
             boolean same = operand.equals("TRUE") == value;
             return op.equals("=") ? same : !same;
         }
@@ -1425,7 +1479,10 @@ import __BASE__.cobolrt.job.Idcams;
 import java.util.function.IntSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -1668,17 +1725,47 @@ public class JclSteps {
         return (contribution, chunk) -> {
             ExecutionContext ctx = chunk.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
             Map<String, Integer> rcs = new LinkedHashMap<>((Map<String, Integer>) ctx.get("jcl.rc", Map.class, Map.of()));
-            if (JclConditions.bypass(jobCond, rcs) || JclConditions.bypass(cond, rcs)
+            Map<String, String> abends = new LinkedHashMap<>(
+                    (Map<String, String>) ctx.get("jcl.abend", Map.class, Map.of()));
+            if (!abends.isEmpty()) {  // an earlier step abended: IBM bypasses this one unless EVEN / ONLY / IF ABEND says so
+                if (!JclConditions.startsAfterAbend(jobCond, cond, ifCond, rcs, abends)) {
+                    contribution.setExitStatus(new ExitStatus("BYPASSED"));
+                    return RepeatStatus.FINISHED;
+                }
+            } else if (JclConditions.bypass(jobCond, rcs) || JclConditions.bypass(cond, rcs)
                     || !JclConditions.holds(ifCond, rcs)) {
                 contribution.setExitStatus(new ExitStatus("BYPASSED"));
                 return RepeatStatus.FINISHED;
             }
             datasets.enter(chunk.getStepContext().getStepExecution().getJobExecutionId());
-            int rc = run.getAsInt();
+            int rc;
+            try {
+                rc = run.getAsInt();
+            } catch (CobolAbend abend) {  // ABEND Unnnn: no return code; the job goes on as IBM's flush rules say
+                abends.put(jcl, abend.code());
+                ctx.put("jcl.abend", abends);
+                LOG.warn("{} ended ABEND {}: {}", jcl, abend.code(), abend.getMessage());
+                contribution.setExitStatus(new ExitStatus("ABEND " + abend.code()));
+                return RepeatStatus.FINISHED;
+            }
             rcs.put(jcl, rc);
             ctx.put("jcl.rc", rcs);
             contribution.setExitStatus(new ExitStatus("RC=" + rc));
             return RepeatStatus.FINISHED;
+        };
+    }
+
+    /** A job that had a step abend ends FAILED (ABEND Unnnn), though its later steps ran as IBM's flush rules say. */
+    public JobExecutionListener abends() {
+        return new JobExecutionListener() {
+            @Override
+            public void afterJob(JobExecution job) {
+                Map<?, ?> abended = job.getExecutionContext().get("jcl.abend", Map.class, Map.of());
+                if (!abended.isEmpty()) {
+                    job.setStatus(BatchStatus.FAILED);
+                    job.setExitStatus(new ExitStatus("ABEND " + abended.values().iterator().next()));
+                }
+            }
         };
     }
 }

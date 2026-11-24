@@ -673,7 +673,7 @@
             "truth": 0
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -762,7 +762,7 @@
             "truth": 42
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -899,7 +899,7 @@
             "tp": 158,
             "truth": 158
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,
@@ -2777,7 +2777,7 @@
             "truth": 4
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -2862,7 +2862,7 @@
             "truth": 578
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -2999,7 +2999,7 @@
             "tp": 94,
             "truth": 287
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,
@@ -3282,7 +3282,7 @@
             "truth": 9127
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "PL/I layouts": {
           "engine": {
@@ -3740,7 +3740,7 @@
             "truth": 18
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -3825,7 +3825,7 @@
             "truth": 702
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -3962,7 +3962,7 @@
             "tp": 350,
             "truth": 350
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,

@@ -158948,8 +158948,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159015,8 +159015,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159040,8 +159040,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159072,8 +159072,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159094,8 +159094,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159116,8 +159116,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -159145,8 +159145,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -160635,11 +160635,65 @@
             "src/R0019963.pli@10-21",
             "src/R001NO1A.pli@117-128"
           ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "windows": [
+            "src/GML/R0013101.pli@159-170",
+            "src/GML/R0013101.pli@640-651",
+            "src/GML/R0013101.pli@1018-1029",
+            "src/GML/R00152N6.pli@107-118",
+            "src/GML/R00153NC.pli@46-57",
+            "src/GML/R0017035.pli@46-57",
+            "src/GML/R0017035.pli@96-107",
+            "src/GML/R001N509.pli@108-119",
+            "src/GML/R001N522.pli@152-163",
+            "src/GML/R001N807.pli@32-43",
+            "src/R0010602.pli@100-111",
+            "src/R0011201.pli@142-153",
+            "src/R0014011.pli@376-387"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "windows": [
+            "src/R0014011.pli@957-968",
+            "src/R0014011.pli@1102-1113",
+            "src/R0014128.pli@210-221",
+            "src/R0014143.pli@22-33",
+            "src/R0014244.pli@206-217",
+            "src/R0015602.pli@182-193",
+            "src/R0017001.pli@82-93",
+            "src/R0017024.pli@58-69",
+            "src/R0017037.pli@272-283",
+            "src/R001N605.pli@195-206",
+            "src/R001NC22.pli@29-40",
+            "src/R001TK61.pli@363-374",
+            "src/R001U621.pli@322-333",
+            "src/R001U621.pli@454-465",
+            "src/R001U621.pli@1000-1011"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "windows": [
+            "src/R001U802.pli@45-56",
+            "src/R001U803.pli@115-126",
+            "src/R001U803.pli@255-266",
+            "src/R001U803.pli@277-288",
+            "src/R001UE06.pli@416-427"
+          ]
         }
       ],
-      "asked": 266,
+      "asked": 397,
       "key_errors": 0,
-      "upper_bound_95": 0.0112
+      "upper_bound_95": 0.00752
     },
     "pli_calls": {
       "plan": {
@@ -162010,6 +162064,21 @@
             "to": 397
           },
           {
+            "file": "src/GML/R0013101.pli",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "src/GML/R0013101.pli",
+            "from": 640,
+            "to": 651
+          },
+          {
+            "file": "src/GML/R0013101.pli",
+            "from": 1018,
+            "to": 1029
+          },
+          {
             "file": "src/GML/R0014131.pli",
             "from": 658,
             "to": 669
@@ -162033,6 +162102,41 @@
             "file": "src/GML/R0014168.pli",
             "from": 109,
             "to": 120
+          },
+          {
+            "file": "src/GML/R00152N6.pli",
+            "from": 107,
+            "to": 118
+          },
+          {
+            "file": "src/GML/R00153NC.pli",
+            "from": 46,
+            "to": 57
+          },
+          {
+            "file": "src/GML/R0017035.pli",
+            "from": 46,
+            "to": 57
+          },
+          {
+            "file": "src/GML/R0017035.pli",
+            "from": 96,
+            "to": 107
+          },
+          {
+            "file": "src/GML/R001N509.pli",
+            "from": 108,
+            "to": 119
+          },
+          {
+            "file": "src/GML/R001N522.pli",
+            "from": 152,
+            "to": 163
+          },
+          {
+            "file": "src/GML/R001N807.pli",
+            "from": 32,
+            "to": 43
           },
           {
             "file": "src/GML/R001UE20.pli",
@@ -162085,6 +162189,11 @@
             "to": 154
           },
           {
+            "file": "src/R0010602.pli",
+            "from": 100,
+            "to": 111
+          },
+          {
             "file": "src/R0010607.pli",
             "from": 103,
             "to": 114
@@ -162105,9 +162214,54 @@
             "to": 405
           },
           {
+            "file": "src/R0011201.pli",
+            "from": 142,
+            "to": 153
+          },
+          {
+            "file": "src/R0014011.pli",
+            "from": 376,
+            "to": 387
+          },
+          {
+            "file": "src/R0014011.pli",
+            "from": 957,
+            "to": 968
+          },
+          {
+            "file": "src/R0014011.pli",
+            "from": 1102,
+            "to": 1113
+          },
+          {
+            "file": "src/R0014128.pli",
+            "from": 210,
+            "to": 221
+          },
+          {
+            "file": "src/R0014143.pli",
+            "from": 22,
+            "to": 33
+          },
+          {
             "file": "src/R0014161.pli",
             "from": 88,
             "to": 99
+          },
+          {
+            "file": "src/R0014244.pli",
+            "from": 206,
+            "to": 217
+          },
+          {
+            "file": "src/R0015602.pli",
+            "from": 182,
+            "to": 193
+          },
+          {
+            "file": "src/R0017001.pli",
+            "from": 82,
+            "to": 93
           },
           {
             "file": "src/R0017022.pli",
@@ -162120,6 +162274,16 @@
             "to": 68
           },
           {
+            "file": "src/R0017024.pli",
+            "from": 58,
+            "to": 69
+          },
+          {
+            "file": "src/R0017037.pli",
+            "from": 272,
+            "to": 283
+          },
+          {
             "file": "src/R0019954.pli",
             "from": 49,
             "to": 60
@@ -162130,9 +162294,64 @@
             "to": 21
           },
           {
+            "file": "src/R001N605.pli",
+            "from": 195,
+            "to": 206
+          },
+          {
+            "file": "src/R001NC22.pli",
+            "from": 29,
+            "to": 40
+          },
+          {
             "file": "src/R001NO1A.pli",
             "from": 117,
             "to": 128
+          },
+          {
+            "file": "src/R001TK61.pli",
+            "from": 363,
+            "to": 374
+          },
+          {
+            "file": "src/R001U621.pli",
+            "from": 322,
+            "to": 333
+          },
+          {
+            "file": "src/R001U621.pli",
+            "from": 454,
+            "to": 465
+          },
+          {
+            "file": "src/R001U621.pli",
+            "from": 1000,
+            "to": 1011
+          },
+          {
+            "file": "src/R001U802.pli",
+            "from": 45,
+            "to": 56
+          },
+          {
+            "file": "src/R001U803.pli",
+            "from": 115,
+            "to": 126
+          },
+          {
+            "file": "src/R001U803.pli",
+            "from": 255,
+            "to": 266
+          },
+          {
+            "file": "src/R001U803.pli",
+            "from": 277,
+            "to": 288
+          },
+          {
+            "file": "src/R001UE06.pli",
+            "from": 416,
+            "to": 427
           }
         ]
       },
@@ -162189,11 +162408,71 @@
             "src/R0019963.pli@10-21",
             "src/R001NO1A.pli@117-128"
           ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "windows": [
+            "src/GML/R0013101.pli@159-170",
+            "src/GML/R0013101.pli@640-651",
+            "src/GML/R0013101.pli@1018-1029",
+            "src/GML/R00152N6.pli@107-118",
+            "src/GML/R00153NC.pli@46-57",
+            "src/GML/R0017035.pli@46-57",
+            "src/GML/R0017035.pli@96-107",
+            "src/GML/R001N509.pli@108-119",
+            "src/GML/R001N522.pli@152-163",
+            "src/GML/R001N807.pli@32-43",
+            "src/R0010602.pli@100-111",
+            "src/R0011201.pli@142-153",
+            "src/R0014011.pli@376-387"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "windows": [
+            "src/R0014011.pli@957-968",
+            "src/R0014011.pli@1102-1113",
+            "src/R0014128.pli@210-221",
+            "src/R0014143.pli@22-33",
+            "src/R0014244.pli@206-217",
+            "src/R0015602.pli@182-193",
+            "src/R0017001.pli@82-93",
+            "src/R0017024.pli@58-69",
+            "src/R0017037.pli@272-283",
+            "src/R001N605.pli@195-206",
+            "src/R001NC22.pli@29-40",
+            "src/R001TK61.pli@363-374",
+            "src/R001U621.pli@322-333",
+            "src/R001U621.pli@454-465",
+            "src/R001U621.pli@1000-1011"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "windows": [
+            "src/R001U802.pli@45-56",
+            "src/R001U803.pli@115-126",
+            "src/R001U803.pli@255-266",
+            "src/R001U803.pli@277-288",
+            "src/R001UE06.pli@416-427"
+          ]
         }
       ],
-      "asked": 151,
+      "asked": 282,
       "key_errors": 0,
-      "upper_bound_95": 0.01964
+      "upper_bound_95": 0.01057,
+      "extensions": [
+        {
+          "seed": 3493,
+          "windows": 33
+        }
+      ]
     },
     "pli_resources": {
       "plan": {
@@ -163711,6 +163990,146 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/GML/R0013101.pli",
+        "src/GML/R00152N6.pli",
+        "src/GML/R00153NC.pli",
+        "src/GML/R0017035.pli",
+        "src/GML/R001N509.pli",
+        "src/GML/R001N522.pli",
+        "src/GML/R001N807.pli",
+        "src/R0010602.pli",
+        "src/R0011201.pli",
+        "src/R0014011.pli"
+      ],
+      "wide": false,
+      "suite": "plimoves",
+      "tasks": {
+        "moves": {
+          "agree": 48,
+          "asked": 57
+        }
+      },
+      "rulings": {
+        "moves:src/GML/R0017035.pli@96-107::L100 ASSIGN F_ALDER -> AE_ALDER": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R0017035.pli@96-107::L100 ASSIGN TRANS_OPPL_OMR.F\u00d8DSNUMMER -> AE_ALDER": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R0017035.pli@96-107::L100 ASSIGN TRANS_OPPL_OMR.VIRKNINGSDATO -> AE_ALDER": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R0017035.pli@96-107::L99 ASSIGN F_SNU_DATO -> OMR_DATO": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R0017035.pli@96-107::L99 ASSIGN TRANS_OPPL_OMR.VIRKNINGSDATO -> OMR_DATO": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R001N509.pli@108-119::L111 ASSIGN F_FELT_CHAR_PIC4 -> A1S.VIRK_DATO_M\u00c5": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R001N509.pli@108-119::L111 ASSIGN VIRK_DATO_M\u00c5I -> A1S.VIRK_DATO_M\u00c5": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R001N509.pli@108-119::L113 ASSIGN FNR_EKI -> A1S.FNR_EK": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/GML/R001N509.pli@108-119::L113 ASSIGN F_FELT_CHAR_PIC11 -> A1S.FNR_EK": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "src/R0014011.pli",
+        "src/R0014128.pli",
+        "src/R0014143.pli",
+        "src/R0014244.pli",
+        "src/R0015602.pli",
+        "src/R0017001.pli",
+        "src/R0017024.pli",
+        "src/R0017037.pli",
+        "src/R001N605.pli",
+        "src/R001NC22.pli",
+        "src/R001TK61.pli",
+        "src/R001U621.pli"
+      ],
+      "wide": false,
+      "suite": "plimoves",
+      "tasks": {
+        "moves": {
+          "agree": 54,
+          "asked": 56
+        }
+      },
+      "rulings": {
+        "moves:src/R001U621.pli@454-465::L456 ASSIGN '268' -> FEIL_VED_LABEL": {
+          "verdict": "key_correct",
+          "why": "Lines 452-460 of R001U621 are inside a /* ... */ comment (it opens at 452 and the first */ is at 460; PL/I comments do not nest), so no move; the reviewer read commented-out code."
+        },
+        "moves:src/R001U621.pli@454-465::L457 ASSIGN 444 -> FEIL_MELD_NR": {
+          "verdict": "key_correct",
+          "why": "Lines 452-460 of R001U621 are inside a /* ... */ comment (it opens at 452 and the first */ is at 460; PL/I comments do not nest), so no move; the reviewer read commented-out code."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [
+        "src/R001U802.pli",
+        "src/R001U803.pli",
+        "src/R001UE06.pli"
+      ],
+      "wide": false,
+      "suite": "plimoves",
+      "tasks": {
+        "moves": {
+          "agree": 13,
+          "asked": 18
+        }
+      },
+      "rulings": {
+        "moves:src/R001U802.pli@45-56::L47 ASSIGN DIV_PARAM_OMR.DATO_2000 -> EES.REGDATO_\u00c5MD": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/R001U802.pli@45-56::L47 ASSIGN KONV_H\u00c5MD_\u00c5MD -> EES.REGDATO_\u00c5MD": {
+          "verdict": "key_correct",
+          "why": "User-defined function call: the name is not a built-in and the file holds no declaration, so a name followed by '(' is read as a subscripted data item (subscript dropped), the same convention the engine uses. The reviewer's brief did not say how to read it. Question for the owner filed as an issue."
+        },
+        "moves:src/R001U803.pli@255-266::L257 ASSIGN '1'B -> FEIL_FUNNET": {
+          "verdict": "key_correct",
+          "why": "A plain assignment of a bit-string literal: the brief says a single literal is one entry as written ('1'B); the reviewer left it out."
+        },
+        "moves:src/R001U803.pli@255-266::L263 ASSIGN '1'B -> FEIL_FUNNET": {
+          "verdict": "key_correct",
+          "why": "A plain assignment of a bit-string literal: the brief says a single literal is one entry as written ('1'B); the reviewer left it out."
+        },
+        "moves:src/R001U803.pli@277-288::L279 ASSIGN '1'B -> FEIL_FUNNET": {
+          "verdict": "key_correct",
+          "why": "A plain assignment of a bit-string literal: the brief says a single literal is one entry as written ('1'B); the reviewer left it out."
+        }
+      }
     }
   ],
   "pli_moves": {
@@ -163748,8 +164167,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -163771,8 +164190,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -163808,8 +164227,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -163837,8 +164256,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -163908,8 +164327,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164009,8 +164428,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164107,8 +164526,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164277,8 +164696,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164317,8 +164736,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164611,8 +165030,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164756,8 +165175,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164842,8 +165261,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -164997,8 +165416,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165133,8 +165552,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165157,8 +165576,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165230,8 +165649,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165262,8 +165681,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165308,8 +165727,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165335,8 +165754,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165387,8 +165806,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165418,8 +165837,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165445,8 +165864,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165491,8 +165910,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165579,8 +165998,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165643,8 +166062,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (dsf PL/I data moves)",
-          "at": "2026-09-25",
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
           "sampled": true
         }
       }
@@ -165749,20 +166168,32 @@
         "L448 ASSIGN 'I' -> S001013O.FUNKSJONSKODEA",
         "L457 ASSIGN 'R030' -> TRANSKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010104.pli": {
       "moves": [
         "L35 ASSIGN 'UGYLDIG STYRINGSKODE' -> S001014O.MELDINGO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010422.pli": {
@@ -165843,10 +166274,16 @@
         "L87 ASSIGN S001A2I.FUNKSJONSKODEI -> FUNKSJONSKODE",
         "L94 ASSIGN S001A2I.STYRE_KODEI -> STYREKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010509.pli": {
@@ -165923,10 +166360,16 @@
         "L98 ASSIGN LOW -> TT_F67O",
         "L99 ASSIGN LOW -> TT_E66_\u00c5O"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010520.pli": {
@@ -166036,10 +166479,16 @@
         "L782 ASSIGN SEKSTISJU_\u00c5RSDATO -> B02.YRKEHIST.OPPH_DATO_\u00c5M",
         "L784 ASSIGN 'A' -> B02.YRKEHIST.OPPH_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010701.pli": {
@@ -166088,10 +166537,16 @@
         "L330 ASSIGN 'NBNBNBNBNB***    TRANSAKSJONEN ER FORKASTET.    ***NBNBNBNBNB' -> S001071O.MELDING6O",
         "L342 ASSIGN 'R041' -> TRANSKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010821.pli": {
@@ -166168,10 +166623,16 @@
         "L95 ASSIGN 'J' -> B02.F\u00d8RSTE_GANG_REG",
         "L96 ASSIGN EPS.SPR\u00c5K -> B02.SPR\u00c5K"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010903.pli": {
@@ -166242,10 +166703,16 @@
         "L95 ASSIGN '1'B -> FEIL_FUNNET",
         "L96 ASSIGN 200 -> EFS.FNRNR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011203.pli": {
@@ -166332,10 +166799,16 @@
         "L94 ASSIGN '0'B -> FEIL_FUNNET",
         "L95 ASSIGN FTS.TKNR -> KEY_PEKER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011206.pli": {
@@ -166483,10 +166956,16 @@
         "L95 ASSIGN BRI_NUM -> S001121O.TKNRA",
         "L96 ASSIGN CURSOR_POS -> S001121I.TKNRL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011403.pli": {
@@ -166564,10 +167043,16 @@
         "L485 ASSIGN E1S.FNR -> F\u00d8DSNUMMER",
         "L486 ASSIGN E1S.VIRK_DATO_M\u00c5 -> VIRKNINGSDATO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011430.pli": {
@@ -166619,10 +167104,16 @@
         "L94 ASSIGN '305' -> FEIL_VED_LABEL",
         "L95 ASSIGN 1530 -> FEIL_MELD_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011702.pli": {
@@ -166644,10 +167135,16 @@
         "L71 ASSIGN 0 -> O2.FNR_BARNNR",
         "L73 ASSIGN 0 -> O2.OPPH\u00d8R_KODENR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011820.pli": {
@@ -166722,10 +167219,16 @@
         "L439 ASSIGN FEIL_MELD_NR -> FEIL_STRUC.FEIL_NR",
         "L455 ASSIGN 'R041' -> TRANS_OPPL_OMR.TRANS_RETURKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011908.pli": {
@@ -166736,10 +167239,16 @@
         "L66 ASSIGN W_FNR_\u00c5R -> MAKS_TT_F\u00d8R_1967",
         "L68 ASSIGN TPK_\u00c5M -> TT_TIL_TPK"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011920.pli": {
@@ -166828,10 +167337,16 @@
         "L656 ASSIGN OPPH_\u00c5M -> B02.YRKEHIST.OPPH_DATO_\u00c5M",
         "L659 ASSIGN 'J' -> B02.YRKEHIST.OPPH_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011922.pli": {
@@ -166908,10 +167423,16 @@
         "L72 ASSIGN 'N' -> B02.F\u00d8RSTE_GANG_REG",
         "L81 ASSIGN ' ' -> AFP.TILL_EK"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0012201.pli": {
@@ -166998,10 +167519,16 @@
         "L360 ASSIGN 226 -> FEIL_MELD_NR",
         "L92 ASSIGN 'R0012201' -> PROGRAM_ID"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0013101.pli": {
@@ -167138,10 +167665,16 @@
         "L990 ASSIGN '170' -> FEIL_VED_LABEL",
         "L991 ASSIGN RF1.STATUS_KODE -> DB_STATUS_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014128.pli": {
@@ -167225,10 +167758,16 @@
         "L84 ASSIGN YHIST_IND -> YHIST_IND",
         "L94 ASSIGN 7 -> I"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014136.pli": {
@@ -167265,10 +167804,16 @@
         "L91 ASSIGN 75 -> W_APD_80",
         "L94 ASSIGN 100 -> W_APD_80"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014144.pli": {
@@ -167281,10 +167826,16 @@
         "L41 ASSIGN 0 -> POREKKE_P67.POENG",
         "L42 ASSIGN 0 -> POREKKE_P67.POENG"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014153.pli": {
@@ -167345,10 +167896,16 @@
         "L93 ASSIGN 67 -> START_\u00c5R",
         "L95 ASSIGN I -> SIST_REG"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014154.pli": {
@@ -167399,10 +167956,16 @@
         "L89 ASSIGN W_FNR_R.\u00c5R -> START_\u00c5R",
         "L92 ASSIGN START_\u00c5R -> START_\u00c5R"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014163.pli": {
@@ -167436,10 +167999,16 @@
         "L86 ASSIGN W_POENG -> INNTEKT_POENG",
         "L99 ASSIGN GV -> W_INNTEKT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014221.pli": {
@@ -167473,10 +168042,16 @@
         "L78 ASSIGN B02.TP_BRUTTO -> SUM_TP",
         "L99 ASSIGN 0 -> B02.ALDERSP.ET"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014241.pli": {
@@ -167587,10 +168162,16 @@
         "L96 ASSIGN B02.YRKEPENS.P\u00c5 -> FAKTOR1",
         "L96 ASSIGN B02.YRKEPENS.P\u00c5_ETTER91 -> FAKTOR1"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014323.pli": {
@@ -167630,10 +168211,16 @@
         "L79 ASSIGN POREKKE.P\u00c5_ETTER91 -> B02.ETTEPENS.P\u00c5_ETTER91",
         "L97 ASSIGN W_FNR_EK_\u00c5R -> FRADRAG"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014426.pli": {
@@ -167656,10 +168243,16 @@
         "L94 ASSIGN KAP_FAKTOR_MENN -> W_KAPITALVERDI",
         "L94 ASSIGN W_SUM_YTELSE -> W_KAPITALVERDI"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0014601.pli": {
@@ -167682,10 +168275,16 @@
         "L87 ASSIGN F_BEREGN_KOMPENSASJONSTILLEGG -> W_KT",
         "L99 ASSIGN 0 -> W_KT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0015214.pli": {
@@ -167721,10 +168320,16 @@
         "L69 ASSIGN ENDRBLAN.FRAMLEGGSDATO_M\u00c5 -> E1K10.FRAML_DATO_M\u00c5",
         "L70 ASSIGN ENDRBLAN.OPPH\u00d8REO -> E1K10.OPPH\u00d8R_EO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R00152N6.pli": {
@@ -167786,10 +168391,16 @@
         "L98 ASSIGN GRUNNBYP.KAP11_7_UTL\u00d8ST -> U2Y.KAP_11_7_UTL\u00d8ST",
         "L99 ASSIGN GRUNNBYP.YRKE11 -> U2Y.YRKE11"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R00152UJ.pli": {
@@ -167822,10 +168433,16 @@
         "L60 ASSIGN GRUNNBKF.OVERKOMP_UTL -> KFPSP.OVERKOMP_UTL",
         "L61 ASSIGN GRUNNBKF.PI_SISTE_\u00c5R -> KFP.PI_SISTE_\u00c5R"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R00153NC.pli": {
@@ -167854,10 +168471,16 @@
         "L84 ASSIGN F7B.FELLES_BARN -> BARN.FELLES_BARN",
         "L85 ASSIGN BARN -> W001_HJELPE_PEKER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0015502.pli": {
@@ -167900,10 +168523,16 @@
         "L405 ASSIGN 500 -> FEIL_MELD_NR",
         "L406 ASSIGN '180' -> FEIL_VED_LABEL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0016038.pli": {
@@ -167934,10 +168563,16 @@
         "L82 ASSIGN 6 -> APOPPL.BEREGN_ALT",
         "L89 ASSIGN 7 -> APOPPL.BEREGN_ALT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0016301.pli": {
@@ -167977,10 +168612,16 @@
         "L328 ASSIGN 'L140' -> FEIL_VED_LABEL",
         "L329 ASSIGN 500 -> FEIL_MELD_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0017035.pli": {
@@ -168152,10 +168793,16 @@
         "L98 ASSIGN '' -> W_HENDELSE",
         "L99 ASSIGN F_SNU_DATO -> OMR_DATO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0017413.pli": {
@@ -168179,10 +168826,16 @@
         "L48 ASSIGN 9 -> W_HENDELSE.TEKSTYPE_B2_KODE",
         "L50 ASSIGN 9 -> W_HENDELSE.TEKSTYPE_C_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0017601.pli": {
@@ -168204,10 +168857,16 @@
         "L137 ASSIGN 1904 -> FEIL_MELD_NR",
         "L138 ASSIGN 'L100' -> FEIL_VED_LABEL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019023.pli": {
@@ -168220,10 +168879,16 @@
         "L34 ASSIGN FEILTYPE_LINJE_D -> FEILLISTE_LINJE",
         "L36 ASSIGN FE_TELLER -> FE_TELLER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019703.pli": {
@@ -168235,10 +168900,16 @@
         "L52 ASSIGN 'J' -> B02.UF\u00d8RPENS.TIDSBEGR_ATTF",
         "L55 ASSIGN ' ' -> B02.UF\u00d8RPENS.TIDSBEGR_ATTF"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019903.pli": {
@@ -168250,10 +168921,16 @@
         "L44 ASSIGN '0'B -> RETUR",
         "L48 ASSIGN '0'B -> RETUR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019926.pli": {
@@ -168282,10 +168959,16 @@
         "L97 ASSIGN ANT -> ANT",
         "L98 ASSIGN 14 -> J"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019928.pli": {
@@ -168321,10 +169004,16 @@
         "L84 ASSIGN 2 -> T_IND",
         "L92 ASSIGN 'R0019928' -> PROGRAM_ID"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019938.pli": {
@@ -168341,10 +169030,16 @@
         "L83 ASSIGN 'O' -> B02.STATUS_KODE_HIST",
         "L85 ASSIGN 55 -> TRANS_OPPL_OMR.TRANSTYPE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019945.pli": {
@@ -168359,10 +169054,16 @@
         "L46 ASSIGN I -> MAX",
         "L48 ASSIGN I -> MIN"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019959.pli": {
@@ -168375,10 +169076,16 @@
         "L56 ASSIGN '0'B -> KODE",
         "L60 ASSIGN '0'B -> KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019961.pli": {
@@ -168386,10 +169093,16 @@
         "L45 ASSIGN DATE -> PIC4",
         "L46 ASSIGN F_SNU_DATO -> DAGENS_DATO_M\u00c5"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019967.pli": {
@@ -168409,10 +169122,16 @@
         "L71 ASSIGN I -> I",
         "L72 ASSIGN PERIODE_START_\u00c5MD -> FIXED_DEC4"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019968.pli": {
@@ -168432,10 +169151,16 @@
         "L71 ASSIGN I -> I",
         "L72 ASSIGN PERIODE_START_\u00c5MD -> FIXED_DEC4"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I406.pli": {
@@ -168524,10 +169249,16 @@
         "L95 ASSIGN DFHBMBRY -> S001I04O.AVSENDERA",
         "L96 ASSIGN CURSOR_POS -> S001I04I.AVSENDERL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I801.pli": {
@@ -168624,10 +169355,16 @@
         "L501 ASSIGN -1 -> S001I01I.STYREKODEL",
         "L502 ASSIGN CICSINFO -> S001I01O.CICS_INFOO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N501.pli": {
@@ -168692,10 +169429,16 @@
         "L491 ASSIGN 'NBNBNBNBNB***    TRANSAKSJONEN ER FORKASTET.    ***NBNBNBNBNB' -> S001N51O.MELDING6O",
         "L504 ASSIGN 'R041' -> TRANSKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N509.pli": {
@@ -168756,10 +169499,16 @@
         "L97 ASSIGN SIVILSTANDI -> A1S.SIVILSTAND",
         "L99 ASSIGN SPR\u00c5KI -> A1S.SPR\u00c5K"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N522.pli": {
@@ -168848,10 +169597,16 @@
         "L92 ASSIGN ' ' -> A1S.TILL_EK",
         "L97 ASSIGN 'E' -> B02.PENSJONSTYPE2"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N807.pli": {
@@ -168959,10 +169714,16 @@
         "L98 ASSIGN DFHBMASK -> S001N81O.BEREGNING_KONVA",
         "L99 ASSIGN DFHBMASK -> S001N81O.TT_KONV_\u00c5RA"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N820.pli": {
@@ -169035,10 +169796,16 @@
         "L583 ASSIGN '245' -> FEIL_VED_LABEL",
         "L584 ASSIGN 1412 -> FEIL_MELD_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N823.pli": {
@@ -169099,10 +169866,16 @@
         "L92 ASSIGN 1810 -> FEIL_MELD_NR",
         "L96 ASSIGN I -> NY_YIND"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NAPL.pli": {
@@ -169111,10 +169884,16 @@
         "L22 ASSIGN TKNRTAB.TKNAVN -> IN_TKNAVN",
         "L24 ASSIGN 'UGYLDIG TRYGDEKONTOR' -> IN_TKNAVN"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NC20.pli": {
@@ -169219,10 +169998,16 @@
         "L88 ASSIGN '090' -> FEIL_VED_LABEL",
         "L89 ASSIGN 1501 -> FEIL_MELD_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NN11.pli": {
@@ -169291,10 +170076,16 @@
         "L96 ASSIGN A1_BLANKETT.FAI -> A1S.FAI",
         "L99 ASSIGN A1_BLANKETT.INNTEKT_EK -> A1S.INNT_EK"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK04.pli": {
@@ -169320,10 +170111,16 @@
         "L92 ASSIGN S001014I.STYREKODEI -> STYREKODE",
         "L99 ASSIGN 'DU HAR IKKE TILGANG TIL REGISTRERING AV KONTI' -> S001014O.MELDING1O"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UC22.pli": {
@@ -169349,10 +170146,16 @@
         "L92 ASSIGN 'M' -> B02.PENSJONSTYPE2",
         "L94 ASSIGN 'U' -> B02.PENSJONSTYPE2"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UJ02.pli": {
@@ -169406,10 +170209,16 @@
         "L94 ASSIGN ' ' -> KFPSP.FRAVIK_FLYKT",
         "L95 ASSIGN ' ' -> KFPSP.OVERKOMP_UTL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010101.pli": {
@@ -169447,18 +170256,30 @@
         "L92 ASSIGN 'R020' -> TRANSKODE",
         "L93 ASSIGN 'R010' -> EIBTRNID"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010202.pli": {
       "moves": [],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00104BP.pli": {
@@ -169472,10 +170293,16 @@
         "L76 ASSIGN TRANS_PTR -> KOM_OMR.PEKER_LISTE.TRANS_PEKER",
         "L83 ASSIGN '\u00d8' -> S001111O.DUMMYA"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00104F7.pli": {
@@ -169489,10 +170316,16 @@
         "L78 ASSIGN TRANS_PTR -> KOM_OMR.PEKER_LISTE.TRANS_PEKER",
         "L83 ASSIGN '\u00d8' -> S001NC1O.DUMMYA"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010520.pli": {
@@ -169603,10 +170436,16 @@
         "L99 ASSIGN MN -> SEKSTISJU_\u00c5RSDATO_\u00c5MD",
         "L99 ASSIGN \u00c5R -> SEKSTISJU_\u00c5RSDATO_\u00c5MD"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010602.pli": {
@@ -169739,10 +170578,16 @@
         "L84 ASSIGN 0 -> UPS.FNR_GML_EK",
         "L86 ASSIGN ' ' -> UPS.EK_INNT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010809.pli": {
@@ -169871,10 +170716,16 @@
         "L98 ASSIGN LOW -> FNR_Y_BARNO",
         "L99 ASSIGN LOW -> PLEIEBARNO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010820.pli": {
@@ -169940,10 +170791,16 @@
         "L97 ASSIGN EPS.FNR_EK -> SEARCH_FNR",
         "L98 ASSIGN AVD\u00d8D_IND -> POS_I_B01"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0010902.pli": {
@@ -170005,10 +170862,16 @@
         "L98 ASSIGN 0 -> EFSP.FRA_TRY_3\u00c5RNR",
         "L99 ASSIGN 0 -> EFSP.FRAVIK_10_1NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0011201.pli": {
@@ -170068,10 +170931,16 @@
         "L93 ASSIGN 'R041' -> TRANSKODE",
         "L99 ASSIGN 'R041' -> TRANSKODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0011204.pli": {
@@ -170123,10 +170992,16 @@
         "L96 ASSIGN '1'B -> FEIL21",
         "L97 ASSIGN 21 -> FTB.FNR_BARNNR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0011802.pli": {
@@ -170139,10 +171014,16 @@
         "L48 ASSIGN 0 -> AUS.STBREVNR",
         "L49 ASSIGN 0 -> AUS.TRANSTYPENR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014011.pli": {
@@ -170672,10 +171553,16 @@
         "L992 ASSIGN GRAD -> W_BT",
         "L992 ASSIGN TT_FAKTOR -> W_BT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014015.pli": {
@@ -170816,10 +171703,16 @@
         "L99 ASSIGN B02.TP_BRUTTO -> W_SUM_TP",
         "L99 ASSIGN W_BRUTTO_TP -> W_SUM_TP"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014128.pli": {
@@ -170903,10 +171796,16 @@
         "L81 ASSIGN KONV_FNR11_FNR13 -> FNR_PIC13",
         "L91 ASSIGN YHIST_IND -> YHIST_IND"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014133.pli": {
@@ -170942,10 +171841,16 @@
         "L99 ASSIGN W_ST -> ST",
         "L99 ASSIGN W_ST_FRADRAG -> ST"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014143.pli": {
@@ -170995,10 +171900,16 @@
         "L95 ASSIGN 'C' -> B02.POENGTILLEGG_KODE",
         "L97 ASSIGN 'C' -> B02.POENGTILLEGG_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014154.pli": {
@@ -171046,10 +171957,16 @@
         "L96 ASSIGN I -> SISTE_START_\u00c5R",
         "L97 ASSIGN 1967 -> I"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014155.pli": {
@@ -171060,10 +171977,16 @@
         "L39 ASSIGN G -> W_FAI_MAX",
         "L42 ASSIGN W_FAI_MAX -> W_FAI_MAX"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014172.pli": {
@@ -171079,10 +172002,16 @@
         "L38 ASSIGN 7.00 -> INNTEKT_POENG",
         "L40 ASSIGN W_POENG -> INNTEKT_POENG"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014201.pli": {
@@ -171124,10 +172053,16 @@
         "L362 ASSIGN A1S.APD -> APD_\u00d8NSKET",
         "L367 ASSIGN E1K7.APD -> APD_\u00d8NSKET"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014222.pli": {
@@ -171261,10 +172196,16 @@
         "L97 ASSIGN 0 -> B02.VENTEFAKTOR",
         "L98 ASSIGN 0 -> B02.TT_VENT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014242.pli": {
@@ -171293,10 +172234,16 @@
         "L93 ASSIGN B02.YRKEPENS.YPT -> B02.YRKEPENS.YPT",
         "L96 ASSIGN 8.33 -> B02.YRKEPENS.YPT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014244.pli": {
@@ -171399,10 +172346,16 @@
         "L96 ASSIGN G -> FRADRAG_F",
         "L99 ASSIGN FRADRAG_F -> FRADRAG_F"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014601.pli": {
@@ -171426,10 +172379,16 @@
         "L79 ASSIGN F_BEREGN_KOMPENSASJONSTILLEGG -> W_KT",
         "L91 ASSIGN 0 -> W_KT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0014724.pli": {
@@ -171445,10 +172404,16 @@
         "L42 ASSIGN G -> W_GP_UF\u00d8R",
         "L42 ASSIGN TT_ANV_UF\u00d8R -> W_GP_UF\u00d8R"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0015209.pli": {
@@ -171486,10 +172451,16 @@
         "L61 ASSIGN GRBLFAMP.TT_ETTER_1966_MM -> EFSP.TT_E66_M",
         "L62 ASSIGN GRBLFAMP.TTFMT101 -> EFSP.TT_FRAMT_10_1"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00153N6.pli": {
@@ -171556,10 +172527,16 @@
         "L90 ASSIGN GRUNNBU2 -> W001_HJELPE_PEKER",
         "L91 ASSIGN 'GRUNNBU2          ' -> SSA_UQUAL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00153N8.pli": {
@@ -171625,10 +172602,16 @@
         "L98 ASSIGN E3SP.TT_FRA_1937\u00c5R_EK -> GRUNNBE3.TT_FRA_1937_\u00c5R_EK",
         "L99 ASSIGN E3SP.TT_FRA_1937MND_EK -> GRUNNBE3.TT_FRA_1937_MND_EK"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00153NC.pli": {
@@ -171658,10 +172641,16 @@
         "L85 ASSIGN F7B.FELLES_BARN -> BARN.FELLES_BARN",
         "L86 ASSIGN BARN -> W001_HJELPE_PEKER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R00153UC.pli": {
@@ -171696,10 +172685,16 @@
         "L91 ASSIGN FOB.FELLES_ETTER0591 -> BARN.FELLES_ETTER0591",
         "L92 ASSIGN BARN -> W001_HJELPE_PEKER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0015602.pli": {
@@ -171721,10 +172716,16 @@
         "L209 ASSIGN '140' -> FEIL_VED_LABEL",
         "L210 ASSIGN HF1.STATUS_KODE -> DB_STATUS_KODE"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0016023.pli": {
@@ -172100,10 +173101,16 @@
         "L996 ASSIGN B02_OPT -> REGTPKT.OPT",
         "L998 ASSIGN B02_YPT -> REGTPKT.YPT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0016024.pli": {
@@ -172250,10 +173257,16 @@
         "L95 ASSIGN IO_HELP_AREA -> IO_AREA",
         "L96 ASSIGN 'REGTPKT ' -> SSA_UNQUAL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0016038.pli": {
@@ -172284,10 +173297,16 @@
         "L87 ASSIGN 6 -> APOPPL.BEREGN_ALT",
         "L94 ASSIGN 7 -> APOPPL.BEREGN_ALT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0016201.pli": {
@@ -172313,10 +173332,16 @@
         "L178 ASSIGN 'L110' -> FEIL_VED_LABEL",
         "L179 ASSIGN 500 -> FEIL_MELD_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0017001.pli": {
@@ -172375,18 +173400,30 @@
         "L777 ASSIGN PCB_SB1.STATUS_KODE -> DB_STATUS_KODE",
         "L780 ASSIGN SB0PERSN.VERS_NR -> W_ROT.NESTE_SB_VERSJON_NR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0017024.pli": {
       "moves": [],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0017037.pli": {
@@ -172579,10 +173616,16 @@
         "L98 ASSIGN B02.ETTEPENS.TP_BRUTTO -> W_HENDELSE.TP_BRUTTO",
         "L98 ASSIGN B02.UF\u00d8RPENS.TP -> W_HENDELSE.TP_BRUTTO"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0019949.pli": {
@@ -172603,10 +173646,16 @@
         "L69 ASSIGN W_TT_FRAMT2 -> TT_FRAMT",
         "L72 ASSIGN 0 -> TT_FRAMT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0019957.pli": {
@@ -172635,10 +173684,16 @@
         "L176 ASSIGN '910' -> FEIL_VED_LABEL",
         "L88 ASSIGN 'R0019957' -> PROGRAM_ID"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R0019A02.pli": {
@@ -172713,10 +173768,16 @@
         "L95 ASSIGN 1 -> AUS.FNRNR",
         "L99 ASSIGN AUS.FNR -> FNR_REG.FNR1"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001B401.pli": {
@@ -172750,10 +173811,16 @@
         "L97 ASSIGN KONV_H\u00c5MD_\u00c5MD -> DATO",
         "L98 ASSIGN DIV_PARAM_OMR.TERMINAL_NR -> W_TERMINAL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001N507.pli": {
@@ -172810,10 +173877,16 @@
         "L98 ASSIGN DFHBMASK -> S001N51O.FNR_BARN3A",
         "L99 ASSIGN DFHBMASK -> S001N51O.FNR_BARN4A"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001N510.pli": {
@@ -172832,10 +173905,16 @@
         "L65 ASSIGN F_FELT_CHAR_PIC11 -> A1B.FNR_BARN",
         "L72 ASSIGN 0 -> A1B.FNR_BARN"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001N605.pli": {
@@ -172911,10 +173990,16 @@
         "L95 ASSIGN KONV_FNR11_FNR13 -> FNR13",
         "L96 ASSIGN U2S.FNR -> T_FNR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001NC07.pli": {
@@ -172947,10 +174032,16 @@
         "L84 ASSIGN '   ' -> S001NC1O.TEB1O",
         "L85 ASSIGN '   ' -> S001NC1O.TEB2O"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001NC22.pli": {
@@ -172971,10 +174062,16 @@
         "L76 ASSIGN 'F' -> B02.PENSJONSTYPE2",
         "L77 ASSIGN ' ' -> B02.PENSJONSTYPE2"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001TK03.pli": {
@@ -173001,10 +174098,16 @@
         "L86 ASSIGN '' -> FUNKTAB",
         "L97 ASSIGN '0'B -> SEND_MAP"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001TK06.pli": {
@@ -173168,10 +174271,16 @@
         "L763 ASSIGN FEILKODE -> S001016O.MELDING3O",
         "L767 ASSIGN '.INGEN OPPDATERING ER BLITT UTF\u00d8RT.' -> S001016O.MELDING4O"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001TK61.pli": {
@@ -173261,10 +174370,16 @@
         "L97 ASSIGN 'FEIL' -> FEILKODE",
         "L98 ASSIGN EIBDS -> DSNAVN"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001U621.pli": {
@@ -173521,10 +174636,16 @@
         "L998 ASSIGN B02.SIVILSTAND -> B02.SIVILSTAND",
         "L999 ASSIGN B02.NAVN -> B02.NAVN"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001U802.pli": {
@@ -173683,10 +174804,16 @@
         "L98 ASSIGN 0 -> EESP.STATSBORGER",
         "L99 ASSIGN 0 -> EESP.BOSATT"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001U803.pli": {
@@ -173880,10 +175007,16 @@
         "L94 ASSIGN FNR13_H\u00c5 -> FNR13_H\u00c5M",
         "L94 ASSIGN FNR13_M\u00c5 -> FNR13_H\u00c5M"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001U807.pli": {
@@ -173911,10 +175044,16 @@
         "L59 ASSIGN DFHBMUNP -> S001U81O.FRAVIK_FLYKTA",
         "L60 ASSIGN DFHBMUNP -> S001U81O.TT_ENDRESA"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001U820.pli": {
@@ -173990,10 +175129,16 @@
         "L590 ASSIGN 1412 -> FEIL_MELD_NR",
         "L599 ASSIGN 'E' -> B02.STATUS.SIVILSTAND"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001UC05.pli": {
@@ -174010,10 +175155,16 @@
         "L67 ASSIGN '385' -> FOS.PENSJONSINNTEKT_EKNR",
         "L68 ASSIGN '387' -> FOS.ARBEIDSINNTEKT_EKNR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001UE06.pli": {
@@ -174251,10 +175402,16 @@
         "L95 ASSIGN BRI_NUM -> S001UE1O.FNRA",
         "L96 ASSIGN CURSOR_POS -> S001UE1I.FNRL"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/R001UJ02.pli": {
@@ -174310,10 +175467,16 @@
         "L98 ASSIGN 0 -> KFP.SPR\u00c5KNR",
         "L99 ASSIGN 0 -> KFP.SIVILSTANDNR"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GML/R00104E3.pli": {
@@ -174333,10 +175496,16 @@
         "L83 ASSIGN TRANS_OPPL_PTR -> KOM_OMR.PEKER_LISTE.TRANS_OPPL_PEKER",
         "L84 ASSIGN TRANS_PTR -> KOM_OMR.PEKER_LISTE.TRANS_PEKER"
       ],
-      "pli_moves_validated": false,
+      "pli_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     }
   },

@@ -155,13 +155,13 @@
       "tested_on_public": 4
     },
     "MOVE truncation": {
-      "clean_fresh_facts": 0,
-      "clean_fresh_rounds": 0,
+      "clean_fresh_facts": 18,
+      "clean_fresh_rounds": 1,
       "engine_defects": 1,
-      "fresh_rounds": 3,
+      "fresh_rounds": 5,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 8
     },
     "MQ calls": {
       "clean_fresh_facts": 0,
@@ -188,7 +188,7 @@
       "fresh_rounds": 0,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 1
+      "tested_on_public": 2
     },
     "PL/I layouts": {
       "clean_fresh_facts": 0,
@@ -275,10 +275,10 @@
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
       "engine_defects": 5,
-      "fresh_rounds": 3,
+      "fresh_rounds": 6,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 9
     },
     "dead": {
       "clean_fresh_facts": 68,
@@ -389,13 +389,13 @@
       "tested_on_public": 9
     },
     "record fields": {
-      "clean_fresh_facts": 0,
-      "clean_fresh_rounds": 0,
+      "clean_fresh_facts": 508,
+      "clean_fresh_rounds": 2,
       "engine_defects": 6,
-      "fresh_rounds": 3,
-      "status": "open",
+      "fresh_rounds": 6,
+      "status": "field-tested",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 9
     },
     "refmod spans": {
       "clean_fresh_facts": 0,

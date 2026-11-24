@@ -184,7 +184,7 @@ _DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
 _DD_SIGN_LEADING_SEPARATE = re.compile(r"\bLEADING\s+SEPARATE\b")  # which end the sign byte is at
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
-    r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
+    r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|NATIONAL|INDEX|POINTER)(?![A-Z0-9-])"
 )
 _DD_OCCURS = re.compile(r"\bOCCURS\s+(\d+)(?:\s+TO\s+(\d+))?")
 _DD_DEPENDING = re.compile(rf"\bDEPENDING\s+(?:ON\s+)?({NAME})")

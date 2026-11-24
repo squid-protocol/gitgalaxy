@@ -21,6 +21,16 @@
       "kind": "defect",
       "summary": "The engine's transfers_to records only the FIRST target of GO TO a b c ... DEPENDING ON x (languages/cobol.py _transfers_out, one capture group; #3362 chose it when the whole crucible had one such statement). DBB epscsmrd.cbl EPSCSMRI has dispatch tables of 80+ targets (COMPLETE-NUMERIC-MOVE, LOOKUP-SOURCE, ROUTE-ELEMENT, X000000C7-CA), so 184 keyed edges are missed. Owner is this PR's issue until a sibling issue is filed."
     },
+    "engine_pli_dot_glued_sequence_splits_name": {
+      "issue": 9214,
+      "kind": "defect",
+      "summary": "A `.` glued to the columns 73-80 sequence number is not blanked, so a qualified name continued on the next line reads as two sources."
+    },
+    "engine_pli_or_bang_operator_ends_sources": {
+      "issue": 9213,
+      "kind": "defect",
+      "summary": "PL/I `!` (alternate OR) is not tokenized in core/pli_data_moves.py, so an assignment ends its source list at the first `!` (R0016023 ENDRET statements)."
+    },
     "engine_unit_end_counts_noncode_lines": {
       "issue": 4300,
       "kind": "defect",
@@ -35,6 +45,11 @@
       "issue": 3414,
       "kind": "deliberate",
       "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies them. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
+    },
+    "key_pli_unit_end_mislabelled_end": {
+      "issue": 9215,
+      "kind": "defect",
+      "summary": "The key reader ends a PL/I procedure at an inner END when the closing END names a label that is not in the file; the engine is right (key defect)."
     },
     "system_copybook_resolved_to_shipped_copy": {
       "issue": 8120,
@@ -3056,6 +3071,40 @@
     },
     "dsf": {
       "mismatches": {
+        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN FNR_TILKN -> SEARCH_FNR | fp": "engine_pli_dot_glued_sequence_splits_name",
+        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN W01_STATUS_TILKN -> SEARCH_FNR | fp": "engine_pli_dot_glued_sequence_splits_name",
+        "engine | PL/I data moves | src/GML/R0013101.pli | L296 ASSIGN W01_STATUS_TILKN.FNR_TILKN -> SEARCH_FNR | fn": "engine_pli_dot_glued_sequence_splits_name",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.BUP -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.OPPH\u00d8RSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B01.PERSON.UF\u00d8RHIST.UFT_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.BUP -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.OPPH\u00d8RSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L498 ASSIGN B02.PERSON.UF\u00d8RHIST.UFT_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.RF0PERSN.TKNR -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.SPESOPPL.BOSATT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.SPESOPPL.STATSBORGER -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.D\u00d8DSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.D\u00d8D_AV_YRKESSKADE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01.PERSON.STATUS.TT_ANV -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_OPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_P\u00c5 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_P\u00c5_E91 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_SPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_SPT_GML -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B01_TT_EGEN -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.RF0PERSN.TKNR -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.SPESOPPL.BOSATT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.SPESOPPL.STATSBORGER -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.D\u00d8DSDATO_\u00c5MD -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.D\u00d8D_AV_YRKESSKADE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02.PERSON.STATUS.TT_ANV -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_OPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_P\u00c5 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_P\u00c5_E91 -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_SPT -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_SPT_GML -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN B02_TT_EGEN -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
+        "engine | PL/I data moves | src/R0016023.pli | L878 ASSIGN TRANS_OPPL_OMR.BLANKETTYPE -> ENDRET | fn": "engine_pli_or_bang_operator_ends_sources",
         "engine | dead (non-trivial) | src/GML/FO04D1X1.cobol | TEST-TRK-TAB | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/GML/FO04F1X1.cobol | LES-KORT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/GML/FRMERK.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
@@ -3091,10 +3140,46 @@
         "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-93 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-138 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-139 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010701.pli | R00107 L74-217 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010701.pli | R00107 L74-218 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0011430.pli | MELDING_OM_GIFTEM\u00c5L L34-287 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0011430.pli | MELDING_OM_GIFTEM\u00c5L L34-292 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0012201.pli | R001220 L44-122 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0012201.pli | R001220 L44-123 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0013101.pli | R001310 L28-808 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0013101.pli | R001310 L28-814 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0014601.pli | R001460 L23-128 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0014601.pli | R001460 L23-129 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0015502.pli | R001550 L17-191 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0015502.pli | R001550 L17-197 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019928.pli | R001992 L25-234 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019928.pli | R001992 L25-254 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019961.pli | OMREGNING_PGA_FNRENDRING L36-109 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019961.pli | OMREGNING_PGA_FNRENDRING L36-111 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001I801.pli | R001I80 L4-265 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001I801.pli | R001I80 L4-283 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001N501.pli | R001N5 L74-350 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001N501.pli | R001N5 L74-351 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-69 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-77 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-408 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-417 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-677 | fn": "key_pli_unit_end_mislabelled_end",
+        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-693 | fp": "key_pli_unit_end_mislabelled_end",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-175 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-179 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010424.pli | R001B1 L21-253 | fn": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/R0010424.pli | R001B1 L21-255 | fp": "engine_unit_end_counts_noncode_lines"
+        "engine | unit extents | src/R0010424.pli | R001B1 L21-255 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104BP.pli | R001041 L40-89 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104BP.pli | R001041 L40-90 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104F7.pli | R001041 L40-94 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104F7.pli | R001041 L40-95 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0015602.pli | R001560 L23-219 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0015602.pli | R001560 L23-225 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK06.pli | R001TK6 L32-420 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK06.pli | R001TK6 L32-424 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK61.pli | R001T61 L32-310 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK61.pli | R001T61 L32-311 | fp": "engine_unit_end_counts_noncode_lines"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -3243,12 +3328,12 @@
         },
         "PL/I data moves": {
           "engine": {
-            "got": 1560,
-            "tp": 1560,
-            "truth": 1560
+            "got": 9627,
+            "tp": 9625,
+            "truth": 9657
           },
           "forge": null,
-          "truth": "sample_verified"
+          "truth": "draft"
         },
         "PL/I layouts": {
           "engine": {
@@ -3418,12 +3503,12 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 116,
-            "tp": 116,
-            "truth": 123
+            "got": 238,
+            "tp": 238,
+            "truth": 245
           },
           "forge": null,
-          "truth": "llm_verified"
+          "truth": "draft"
         },
         "job submissions": {
           "engine": null,
@@ -3481,13 +3566,13 @@
         },
         "unit extents": {
           "engine": {
-            "got": 166,
+            "got": 435,
             "outside": 0,
-            "tp": 158,
-            "truth": 166
+            "tp": 409,
+            "truth": 435
           },
           "forge": null,
-          "truth": "llm_verified"
+          "truth": "draft"
         },
         "units": {
           "engine": {

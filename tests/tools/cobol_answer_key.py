@@ -1996,18 +1996,35 @@ def pli_move_rows(text: str) -> list[dict[str, Any]]:
     return rows
 
 
-PLI_MOVES_SAMPLE = 25  # DSF files keyed (seeded); every PL/I file of a corpus at most this large
+PLI_MOVES_BASE = 25  # the first seeded draw of DSF, blind-reviewed by census: always kept, never replaced
+PLI_MOVES_SAMPLE = 150  # files keyed when a corpus has more PL/I files than this: the base plus a second draw
 PLI_MOVES_SEED = 3491
+PLI_MOVES_EXTENSION_SEED = 3492
+
+
+def pli_moves_files(files: list[str]) -> list[str]:
+    """The PL/I files whose moves (and, with them, procedure extents) are keyed: every file of a corpus of at most
+    PLI_MOVES_SAMPLE, else the first draw (PLI_MOVES_BASE files, seed PLI_MOVES_SEED) plus a second seeded draw from
+    the rest. Extending keeps the reviewed files, so widening the key never discards a signed-off one."""
+    files = sorted(files)
+    if len(files) <= PLI_MOVES_SAMPLE:
+        return files
+    base = random.Random(PLI_MOVES_SEED).sample(files, PLI_MOVES_BASE)
+    rest = sorted(set(files) - set(base))
+    extra = random.Random(PLI_MOVES_EXTENSION_SEED).sample(rest, PLI_MOVES_SAMPLE - PLI_MOVES_BASE)
+    return sorted({*base, *extra})
 
 
 def draft_pli_moves(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
-    """Drafted PL/I data moves (#3491 part 3) and the key's scope: every PL/I file,
-    or a seeded sample of PLI_MOVES_SAMPLE when there are more (DSF)."""
-    files = sorted(_pli_files(repo))
-    scope = {"files": len(files), "keyed": len(files), "seed": None}
-    if len(files) > PLI_MOVES_SAMPLE:
-        files = sorted(random.Random(PLI_MOVES_SEED).sample(files, PLI_MOVES_SAMPLE))
-        scope = {"files": scope["files"], "keyed": len(files), "seed": PLI_MOVES_SEED}
+    """Drafted PL/I data moves (#3491 part 3) and the key's scope: every PL/I file, or the seeded sample of
+    pli_moves_files when there are more than PLI_MOVES_SAMPLE (DSF)."""
+    all_files = sorted(_pli_files(repo))
+    files = pli_moves_files(all_files)
+    scope: dict[str, Any] = {"files": len(all_files), "keyed": len(files), "seed": None}
+    if len(all_files) > PLI_MOVES_SAMPLE:
+        scope.update(
+            seed=PLI_MOVES_SEED, base=PLI_MOVES_BASE, extension_seed=PLI_MOVES_EXTENSION_SEED, sample=PLI_MOVES_SAMPLE
+        )
     out = {
         rel: {
             "moves": sorted(data_move_keys(pli_move_rows(read_key_text(repo / rel)))),

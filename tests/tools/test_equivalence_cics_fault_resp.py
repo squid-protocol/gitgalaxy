@@ -205,6 +205,17 @@ def test_the_driver_lets_only_a_resp_coded_plain_return_fail():
     assert "IF GG-RESP = 0" in tested
 
 
+def test_a_return_that_codes_no_resp_clears_gg_item_before_the_stub():
+    # #9247: GGCRETN reads GG-ITEM 2 as "the program codes RESP". A bare RETURN (PCIMMA's last statement) and a RETURN
+    # TRANSID without RESP set no item, so a stale 2 from an earlier statement let a RETURN plan meant for the LINKed
+    # PCIMML fire on the caller's own RETURN in COBOL only (Java never consults the plan there).
+    for body in ("", "TRANSID('OMEN') COMMAREA(CA) LENGTH(1)"):
+        out = ec.translate_command(("RETURN " + body).strip())
+        assert "MOVE 0 TO GG-ITEM" in out and "MOVE 2 TO GG-ITEM" not in out
+        assert out.index("MOVE 0 TO GG-ITEM") < next(i for i, ln in enumerate(out) if "GGCRETN" in ln)
+        assert out[-1] == "GOBACK"
+
+
 # #6271 (X71): SEND TEXT (IBM, the Conditions of -send-text): TSIOERR 35; INVREQ 16 (RESP2 200, the only RESP2 it lists); LENGERR 22
 # (no RESP2). Nameless (`-`), like RETURN.
 TEXT_ACCEPTED = [

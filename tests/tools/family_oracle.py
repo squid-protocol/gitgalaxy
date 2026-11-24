@@ -23,7 +23,7 @@ construct) or no-instances (the oracle never sees it, so nothing can be said).
 
 What the numbers mean, and do not. The oracle is a reading of the family NAME written in `FAMILIES` below, one sentence each. Where a family is
 narrow on purpose (`arch_serialization` is unsafe deserialization only), the sentence says so, and the score is against that sentence. A low
-recall against a sentence nobody agreed to is a definition question, not a bug: the sentences are provisional until the owner answers #8862.
+recall against a sentence nobody agreed to is a definition question, not a bug: the contracts answer most of #8862, and docs/family_oracle_readings.md records each sentence's verdict against its contract.
 Python's oracle is `ast`; Go, Rust, JavaScript, TypeScript, Java and C use tree-sitter (`family_oracle_ts.py`, the `translator` extra); any other language raises a clear error rather than scoring against nothing. Report only: nothing here
 runs in CI, and `--gate` is the hook for a ratchet once the floors are agreed.
 
@@ -142,8 +142,14 @@ FAMILIES: tuple[Family, ...] = (
     Family(
         "struct_branch",
         "branch",
-        "decision points: if/elif arms, loops, conditional expressions, boolean operators, comprehension filters (not except handlers, assert, return or break: contract corollaries 1 and 3)",
+        "decision points: if/elif arms, loops, conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3)",
         "branch",
+    ),
+    Family(
+        "struct_short_circuit",
+        "short_circuit",
+        "boolean operators whose right operand is evaluated only when the left does not decide: and, or",
+        "short_circuit",
     ),
     Family("args", "args", "declared parameters", "args"),
     Family(
@@ -313,7 +319,7 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         ):  # not handlers or assert: branch contract corollary 1
             c.add("branch")
         elif isinstance(node, ast.BoolOp):
-            c.n["branch"] += len(node.values) - 1
+            c.n["short_circuit"] += len(node.values) - 1  # boolean operators are short_circuit's (branch corollary 0, #8939)
         elif isinstance(node, ast.comprehension):
             c.n["branch"] += len(node.ifs)
         if isinstance(node, ast.Lambda):

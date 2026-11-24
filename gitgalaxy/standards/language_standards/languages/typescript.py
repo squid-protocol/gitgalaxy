@@ -633,7 +633,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(try|catch|finally|satisfies|Object\.freeze|z\.(?:string|object|parse)|v\.(?:string|parse))\b|\?\?|\?\.|\b(?:is|asserts)\s+\w+\b"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Force unwrapping, any, and linter bypasses.
         "safety_bypasses": re.compile(
             r"\b(any)\b|as\s+any|!\s*[;,\n)\]\.]|!\.|@ts-ignore|@ts-expect-error|@ts-nocheck|eslint-disable|as\s+unknown\s+as|<any>"

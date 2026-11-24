@@ -382,7 +382,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(if\s+let|while\s+let|let\s+else)\b|\b(?:unwrap_or|unwrap_or_else|unwrap_or_default|ok_or|ok_or_else|map_or|map_or_else)\b|None\s*=>"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Actively bypasses type safety (unwraps and forced expectations).
         "safety_bypasses": re.compile(r"\b(unwrap|expect|unwrap_err|unwrap_unchecked)\b"),
         # 8. danger (High-Risk Execution / System Calls)

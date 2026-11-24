@@ -1,5 +1,5 @@
 {
- "commit": "2bf72c5bd",
+ "commit": "6a9098c0c",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,15 +1070,15 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T22:14:49Z",
+  "as_of": "2026-11-24T22:41:05Z",
   "core": {
-   "closed": 262,
-   "open": 15,
+   "closed": 263,
+   "open": 14,
    "total": 277
   },
   "core_last_window": {
-   "closed": 9,
-   "net_closed": -3,
+   "closed": 10,
+   "net_closed": -2,
    "opened": 12
   },
   "core_milestone": {
@@ -1339,9 +1339,9 @@
     "total": 34
    },
    {
-    "closed": 13,
+    "closed": 14,
     "number": 35,
-    "open": 5,
+    "open": 4,
     "title": "Survival Mode \ud83e\udddf \u2014 L5 Mutation Survivors",
     "total": 18
    },
@@ -1413,7 +1413,7 @@
     "total": 147
    },
    "cobol": {
-    "closed": 147,
+    "closed": 148,
     "total": 160
    }
   },

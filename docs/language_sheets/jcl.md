@@ -12,7 +12,7 @@ Context: legacy/mainframe
 | Imports | not measured | | | | |
 | Keywords | not measured | | | | |
 | Rosetta | 52 of 52 passed, 0 failed | 52 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
-| Answer key | 100% precision / 100% recall; 68% of 2,792 facts cross-verified, weakest tier draft | 2,792 facts | answer-key | answer key over 8 corpora, 5 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
+| Answer key | 100% precision / 100% recall; 68% of 2,792 facts cross-verified, weakest tier draft; blind review of 365 sampled items found 0 key errors (at most 0.8% at 95%) | 2,792 facts | answer-key | answer key over 8 corpora, 5 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 
 ## Answer key fields
 
@@ -27,5 +27,17 @@ weakest review behind a field in each corpus; the mix column counts facts per ti
 | DD names | 89 | 89 | 89 | 89 cross_verified |
 | JCL runner programs | 86 | 86 | 86 | 86 cross_verified |
 | job submissions | 3 | 3 | 3 | 3 cross_verified |
+
+### How much of the key was re-read
+
+For the large fields a blind reviewer re-read a sample of the key's facts, not every fact. The error counts are
+findings against the key **as first drafted**: where a review found a reader defect, it was fixed afterwards, so
+the bound is a conservative one for the key as it is now. A sample bounds the key's error rate; it does not prove
+the unsampled facts correct.
+
+| section | items asked | key errors | upper bound on key error (95%) |
+|---|---|---|---|
+| dsns | 365 | 0 | 0.82% |
+| **all** | **365** | **0** | **0.82%** |
 
 [All languages](README.md)

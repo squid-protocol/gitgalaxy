@@ -6,6 +6,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import language_sheets as ls
@@ -244,3 +246,66 @@ def test_answer_key_cell_text_states_how_much_is_cross_verified(tmp_path):
 
 def test_answer_key_missing_ledger_is_no_stats(tmp_path):
     assert ls.answer_key_stats(tmp_path / "absent.json") == {}
+
+
+def test_upper_bound_matches_the_cross_verify_formula():
+    assert ls.upper_bound_95(0, 0) == 1.0
+    assert ls.upper_bound_95(0, 100) == pytest.approx(1 - 0.05 ** (1 / 100))
+    assert round(ls.upper_bound_95(2, 315), 3) == 0.019  # the figure dsf.json records for its PL/I calls sample
+    assert ls.upper_bound_95(5, 5) <= 1.0
+
+
+def _keys(tmp_path, census_by_key):
+    d = tmp_path / "keys"
+    d.mkdir()
+    for name, census in census_by_key.items():
+        (d / f"{name}.json").write_text(json.dumps({"sample_census": census}))
+    return d
+
+
+def test_sample_review_pools_each_languages_sections_and_skips_nested_or_unknown_ones(tmp_path):
+    keys = _keys(
+        tmp_path,
+        {
+            "a": {
+                "pli_calls": {"asked": 100, "key_errors": 1},
+                "pli_moves": {"asked": 50, "key_errors": 0},
+                "dsns": {"asked": 20, "key_errors": 0},
+                "layouts": {"sampled": {"ridfld": {"asked": 10, "key_errors": 0}}},  # nested: skipped
+                "mystery": {"asked": 5, "key_errors": 0},  # no language owns it
+            },
+            "b": {
+                "pli_layouts": {"sampled": {"asked": 30, "key_errors": 0}},
+                "pli_calls": {"asked": 20, "key_errors": 1},
+            },
+        },
+    )
+    out = ls.sample_review(keys)
+    assert set(out) == {"pli", "jcl"}
+    assert out["pli"]["asked"] == 200 and out["pli"]["key_errors"] == 2
+    assert out["pli"]["sections"]["pli_calls"] == {
+        "asked": 120,
+        "key_errors": 2,
+        "upper_bound_95": out["pli"]["sections"]["pli_calls"]["upper_bound_95"],
+    }
+    assert out["jcl"]["upper_bound_95"] == round(ls.upper_bound_95(0, 20), 5)
+
+
+def test_sample_review_missing_directory_is_empty(tmp_path):
+    assert ls.sample_review(tmp_path / "absent") == {}
+
+
+def test_answer_key_carries_the_sample_and_its_cell_text_says_what_it_does_not_prove(tmp_path):
+    ledger = _ledger(tmp_path, {"k": {"PL/I call sites": (10, 10, 10, "sample_verified")}})
+    keys = _keys(tmp_path, {"k": {"pli_calls": {"asked": 300, "key_errors": 2}}})
+    pli = ls.answer_key_stats(ledger, keys)["pli"]
+    assert pli.extra["sample"]["asked"] == 300
+    text = ls.cell_text("answer_key", pli)
+    assert "blind review of 300 sampled items found 2 key errors" in text and "at most" in text and "95%" in text
+
+
+def test_the_sheet_explains_the_sample_and_that_counts_are_for_the_key_as_first_drafted():
+    files, _ = ls.build()
+    assert "### How much of the key was re-read" in files["pli.md"]
+    assert "as first drafted" in files["pli.md"]
+    assert "sample: key error" in files["matrix_legacy.svg"]

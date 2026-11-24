@@ -59,15 +59,15 @@ cross-verified and how much is still a draft. The reviewers are LLMs, not people
 
 | language | measured | context | Detection | Functions | Call links | Imports | Keywords | Rosetta | Answer key |
 |---|---|---|---|---|---|---|---|---|---|
-| [bms](bms.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 38 of 38 passed, 0 failed | 100% precision / 100% recall; 56% of 9,945 facts cross-verified, weakest tier draft |
+| [bms](bms.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 38 of 38 passed, 0 failed | 100% precision / 100% recall; 56% of 9,945 facts cross-verified, weakest tier draft; blind review of 932 sampled items found 0 key errors (at most 0.3% at 95%) |
 | [clist](clist.md) | 1 of 7 | legacy/mainframe | not measured | not measured | not measured | not measured | not measured | 39 of 47 passed, 8 failed | not measured |
-| [cobol](cobol.md) | 6 of 7 | legacy/mainframe | 100% recall / 100% precision | 100% precision / 100% recall | 100% precision / 92.6% recall | 98.1% precision / 100% recall | not measured | 58 of 58 passed, 0 failed | 99.9% precision / 99.5% recall; 17% of 40,694 facts cross-verified, weakest tier draft |
+| [cobol](cobol.md) | 6 of 7 | legacy/mainframe | 100% recall / 100% precision | 100% precision / 100% recall | 100% precision / 92.6% recall | 98.1% precision / 100% recall | not measured | 58 of 58 passed, 0 failed | 99.9% precision / 99.5% recall; 17% of 40,694 facts cross-verified, weakest tier draft; blind review of 2,787 sampled items found 103 key errors (at most 4.3% at 95%) |
 | [csd](csd.md) | 1 of 7 | legacy/mainframe | not measured | not measured | not measured | not measured | not measured | not measured | 100% precision / 100% recall; 91% of 501 facts cross-verified, weakest tier draft |
 | [db2_sql](db2_sql.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (2) | 56 of 57 passed, 1 failed | 100% precision / 100% recall; 89% of 127 facts cross-verified, weakest tier draft |
 | [easytrieve](easytrieve.md) | 0 of 7 | legacy/mainframe | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
 | [hlasm](hlasm.md) | 2 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 57 of 57 passed, 0 failed | not measured |
-| [jcl](jcl.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 52 of 52 passed, 0 failed | 100% precision / 100% recall; 68% of 2,792 facts cross-verified, weakest tier draft |
-| [pli](pli.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (11) | 58 of 58 passed, 0 failed | 100% precision / 100% recall; 0% of 16,513 facts cross-verified, weakest tier draft |
+| [jcl](jcl.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 52 of 52 passed, 0 failed | 100% precision / 100% recall; 68% of 2,792 facts cross-verified, weakest tier draft; blind review of 365 sampled items found 0 key errors (at most 0.8% at 95%) |
+| [pli](pli.md) | 3 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (11) | 58 of 58 passed, 0 failed | 100% precision / 100% recall; 0% of 16,513 facts cross-verified, weakest tier draft; blind review of 1,350 sampled items found 3 key errors (at most 0.6% at 95%) |
 | [rexx](rexx.md) | 2 of 7 | legacy/mainframe | 100% recall / 100% precision | not measured | not measured | not measured | not measured | 54 of 54 passed, 0 failed | not measured |
 
 </details>

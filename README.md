@@ -146,7 +146,7 @@ high to low.
 Few of these have a parser or compiler to compare against, so most of their evidence is the **answer key**: hand-built truth for real mainframe
 source, drafted by a separately written reader and re-read by blind LLM reviewers, then compared with the engine fact by fact. The bar under each
 answer-key cell shows how much of that evidence is cross-verified and how much is still a draft. **The reviewers are LLMs, not people, and no field
-has a human sign-off.** A language with no answer key shows "not measured", which means nothing has been checked, not that it is wrong.
+has a human sign-off.** Where blind reviewers re-read a sample of a key, the line under the bar gives the upper bound on the key's error rate (counted against the key as first drafted). A language with no answer key shows "not measured", which means nothing has been checked, not that it is wrong.
 
 <p><img src="docs/language_sheets/matrix_legacy.svg" width="100%" alt="Per-language evidence for the legacy and mainframe languages, with the answer-key column and its verification tiers"></p>
 

@@ -22,7 +22,7 @@ Context: legacy/mainframe
 | Imports | 98.1% precision / 100% recall | 503 copybook paths | answer-key | answer key over 9 corpora, 168 programs (COPY members resolved to a file); weakest tier cross_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
 | Keywords | not measured | | | | |
 | Rosetta | 58 of 58 passed, 0 failed | 58 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
-| Answer key | 99.9% precision / 99.5% recall; 17% of 40,694 facts cross-verified, weakest tier draft | 40,694 facts | answer-key | answer key over 9 corpora, 32 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
+| Answer key | 99.9% precision / 99.5% recall; 17% of 40,694 facts cross-verified, weakest tier draft; blind review of 2,787 sampled items found 103 key errors (at most 4.3% at 95%) | 40,694 facts | answer-key | answer key over 9 corpora, 32 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 
 ## Answer key fields
 
@@ -66,6 +66,19 @@ weakest review behind a field in each corpus; the mix column counts facts per ti
 | IMS access check | 15 | 15 | 15 | 15 cross_verified |
 | async children | 6 | 6 | 6 | 6 cross_verified |
 | dynamic CALLs | 5 | 5 | 5 | 5 cross_verified |
+
+### How much of the key was re-read
+
+For the large fields a blind reviewer re-read a sample of the key's facts, not every fact. The error counts are
+findings against the key **as first drafted**: where a review found a reader defect, it was fixed afterwards, so
+the bound is a conservative one for the key as it is now. A sample bounds the key's error rate; it does not prove
+the unsampled facts correct.
+
+| section | items asked | key errors | upper bound on key error (95%) |
+|---|---|---|---|
+| data_moves | 1,675 | 17 | 1.50% |
+| records | 1,112 | 86 | 9.16% |
+| **all** | **2,787** | **103** | **4.33%** |
 
 ## Notes
 

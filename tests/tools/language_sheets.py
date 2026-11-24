@@ -405,7 +405,63 @@ TIER_SHORT = {
 }
 
 
-def answer_key_stats(ledger: Path = GROUND_TRUTH) -> dict[str, Stat]:
+ANSWER_KEY_DIR = TESTS / "cobol_mainframe" / "answer_key"
+# Which sample_census sections in the answer keys review which language's facts. A section whose result is nested
+# (no direct `asked`) is skipped, so every number here is one a key records directly.
+SAMPLE_SECTIONS = {
+    "bms": ("bms",),
+    "jcl": ("dsns",),
+    "pli": ("pli_calls", "pli_layouts", "pli_moves", "pli_resources", "pli_uow"),
+    "cobol": ("data_moves", "layouts", "records"),
+}
+
+
+def upper_bound_95(errors: int, n: int) -> float:
+    """One-sided 95% upper bound on an error rate from `errors` in `n` items: what a sample does and does not prove.
+    The same formula as tests/tools/cross_verify_sections.py (exact for zero errors, a Wilson bound otherwise), so a
+    pooled figure here agrees with each key's own."""
+    if n == 0:
+        return 1.0
+    if errors == 0:
+        return 1 - 0.05 ** (1 / n)
+    z, p = 1.645, errors / n
+    return min(1.0, (p + z * z / (2 * n) + z * ((p * (1 - p) + z * z / (4 * n)) / n) ** 0.5) / (1 + z * z / n))
+
+
+def sample_review(keys_dir: Path = ANSWER_KEY_DIR) -> dict[str, dict]:
+    """{language: {asked, key_errors, upper_bound_95, sections}}: what blind reviewers were asked about a sample of each
+    key's facts and how many errors they found. The counts are findings against the key AS FIRST DRAFTED (a reader
+    defect found by a census was fixed afterwards), so the bound is a conservative one for the key as it is now."""
+    out: dict[str, dict] = {}
+    if not keys_dir.exists():
+        return out
+    owner = {sec: lang for lang, secs in SAMPLE_SECTIONS.items() for sec in secs}
+    for path in sorted(keys_dir.glob("*.json")):
+        sc = json.loads(path.read_text(encoding="utf-8")).get("sample_census") or {}
+        for sec, v in sc.items():
+            lang = owner.get(sec)
+            if lang is None or not isinstance(v, dict):
+                continue
+            res = (
+                v
+                if "asked" in v
+                else (v.get("sampled") if isinstance(v.get("sampled"), dict) and "asked" in v["sampled"] else None)
+            )
+            if not res:
+                continue
+            a = out.setdefault(lang, {"asked": 0, "key_errors": 0, "sections": {}})
+            sec_row = a["sections"].setdefault(sec, {"asked": 0, "key_errors": 0})
+            for tgt in (a, sec_row):
+                tgt["asked"] += int(res["asked"])
+                tgt["key_errors"] += int(res.get("key_errors", 0))
+    for a in out.values():
+        a["upper_bound_95"] = round(upper_bound_95(a["key_errors"], a["asked"]), 5)
+        for r in a["sections"].values():
+            r["upper_bound_95"] = round(upper_bound_95(r["key_errors"], r["asked"]), 5)
+    return out
+
+
+def answer_key_stats(ledger: Path = GROUND_TRUTH, keys_dir: Path = ANSWER_KEY_DIR) -> dict[str, Stat]:
     """{language: Stat} from the ground-truth ledger: the engine against hand-built answer keys (a separately written
     reader plus blind LLM review), summed over the keyed corpora. Each field carries the tier of the weakest review
     behind it, so the bar shows how much of the evidence is cross-verified and how much is still a draft."""
@@ -413,6 +469,7 @@ def answer_key_stats(ledger: Path = GROUND_TRUTH) -> dict[str, Stat]:
     if not data:
         return {}
     owner = {fld: lang for lang, flds in ANSWER_KEY_FIELDS.items() for fld in flds}
+    samples = sample_review(keys_dir)
     acc: dict[str, dict[str, dict]] = {}
     corpora_by_lang: dict[str, set[str]] = {}
     for corpus, rec in data.get("corpora", {}).items():
@@ -459,7 +516,13 @@ def answer_key_stats(ledger: Path = GROUND_TRUTH) -> dict[str, Stat]:
             method="answer-key",
             reference=f"answer key over {len(corpora_by_lang[lang])} corpora, {len(counted)} fields; weakest tier {weakest}",
             source="tests/cobol_mainframe/ground_truth_ledger.json",
-            extra={"tiers": tiers, "fields": rows, "corpora": len(corpora_by_lang[lang]), "weakest": weakest},
+            extra={
+                "tiers": tiers,
+                "fields": rows,
+                "corpora": len(corpora_by_lang[lang]),
+                "weakest": weakest,
+                "sample": samples.get(lang),
+            },
         )
     return out
 
@@ -539,7 +602,11 @@ def cell_text(name: str, s: Stat | None) -> str:
             else 0
         )
         agree = " / ".join(f"{v:g}% {k}" for k, v in s.metrics)
-        return f"{agree}; {cross}% of {total:,} facts cross-verified, weakest tier {e['weakest']}"
+        text = f"{agree}; {cross}% of {total:,} facts cross-verified, weakest tier {e['weakest']}"
+        if e.get("sample"):
+            sm = e["sample"]
+            text += f"; blind review of {sm['asked']:,} sampled items found {sm['key_errors']} key errors (at most {100 * sm['upper_bound_95']:.1f}% at 95%)"
+        return text
     return " / ".join(f"{v:g}% {k}" for k, v in s.metrics)
 
 
@@ -591,6 +658,25 @@ def render_sheet(lang: str, stats: dict[str, dict[str, Stat]], note: dict) -> st
             )
             name = f"{r['field']} (differs by design, not in the aggregate)" if r["by_design"] else r["field"]
             lines.append(f"| {name} | {r['truth']:,} | {r['tp']:,} | {r['got']:,} | {mix} |")
+    if ak is not None and ak.extra.get("sample"):
+        sm = ak.extra["sample"]
+        lines += [
+            "",
+            "### How much of the key was re-read",
+            "",
+            "For the large fields a blind reviewer re-read a sample of the key's facts, not every fact. The error counts are",
+            "findings against the key **as first drafted**: where a review found a reader defect, it was fixed afterwards, so",
+            "the bound is a conservative one for the key as it is now. A sample bounds the key's error rate; it does not prove",
+            "the unsampled facts correct.",
+            "",
+            "| section | items asked | key errors | upper bound on key error (95%) |",
+            "|---|---|---|---|",
+        ]
+        for name, r in sorted(sm["sections"].items()):
+            lines.append(f"| {name} | {r['asked']:,} | {r['key_errors']} | {100 * r['upper_bound_95']:.2f}% |")
+        lines.append(
+            f"| **all** | **{sm['asked']:,}** | **{sm['key_errors']}** | **{100 * sm['upper_bound_95']:.2f}%** |"
+        )
     notes = note.get("stat_notes", {})
     if notes:
         lines += ["", "## Notes", ""]
@@ -724,7 +810,7 @@ COLS = {
 }
 WIDTH = 1290
 COL_W = 150
-ROW_PLAIN, ROW_KW = 38, 52  # a row grows only when it carries a keyword bar
+ROW_PLAIN, ROW_KW, ROW_AK = 38, 52, 64  # a row grows only when it carries a keyword bar or an answer-key bar
 TOP = 58
 
 
@@ -756,7 +842,10 @@ def _bar(x: int, y: int, parts: list[tuple[int, str]], total: int) -> list[str]:
 
 def _row_height(lang: str, stats: dict[str, dict[str, Stat]]) -> int:
     k = stats["keywords"].get(lang)
-    return ROW_KW if (k and k.extra["scored"]) or stats["answer_key"].get(lang) else ROW_PLAIN
+    ak = stats["answer_key"].get(lang)
+    if ak is not None:
+        return ROW_AK if ak.extra.get("sample") else ROW_KW
+    return ROW_KW if k and k.extra["scored"] else ROW_PLAIN
 
 
 def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str:
@@ -858,8 +947,12 @@ def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str
                 total,
             )
             out.append(
-                f'<text x="{x}" y="{y + 44}" font-size="10" fill="{GREY}">{s.n:,} facts, {len(e["fields"])} fields</text>'
+                f'<text x="{x}" y="{y + 44}" font-size="10" fill="{GREY}">{s.n:,} facts, {len(e["fields"])} field{"" if len(e["fields"]) == 1 else "s"}</text>'
             )
+            if e.get("sample"):
+                out.append(
+                    f'<text x="{x}" y="{y + 56}" font-size="10" fill="{GREY}">sample: key error &lt;= {100 * e["sample"]["upper_bound_95"]:.1f}% (95%)</text>'
+                )
         y += rh
     out.append("</svg>")
     return "\n".join(out) + "\n"

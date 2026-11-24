@@ -88,18 +88,6 @@
    ]
   },
   {
-   "id": "921f29700b",
-   "op": "CON",
-   "line": 49,
-   "before": "private final Field f3_WS_SLOG = Field.group(s_WS_SLOG, 0, 13);",
-   "after": "private final Field f3_WS_SLOG = Field.group(s_WS_SLOG, 0, 14);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses WS-SLOG (WS-SLOG) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "1e8b0023b6",
    "op": "CON",
    "line": 52,

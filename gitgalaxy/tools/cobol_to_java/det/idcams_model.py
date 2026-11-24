@@ -539,7 +539,8 @@ class _Step:
             groups[k] = groups.get(k, 0) + 1
         if aix.unique and any(n > 1 for n in groups.values()):
             raise Refused(
-                "the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys (IBM's outcome is not stated)"
+                "the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys (IDC1645I: IBM keeps the "
+                "first pointer and states no condition code; the outcome is not modelled)"
             )
         need = _AIX_HEADER + aix.key_len + pointer * max(groups.values())
         if need > aix.max:

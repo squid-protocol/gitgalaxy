@@ -857,7 +857,8 @@ public final class Idcams {
             }
             if (aix.unique && busiest > 1) {
                 throw new Refused("the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys "
-                    + "(IBM's outcome is not stated)");
+                    + "(IDC1645I: IBM keeps the first pointer and states no condition code; "
+                    + "the outcome is not modelled)");
             }
             int need = AIX_HEADER + aix.keyLen + pointer * busiest;
             if (need > aix.max) {

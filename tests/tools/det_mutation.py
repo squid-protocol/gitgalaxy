@@ -858,6 +858,11 @@ def rerun_moved(cases: list[str], work: Path, budget_min: float | None = None,
     return left, rc
 
 
+def is_db2(case: str) -> bool:
+    """A case with a "db2" section: its baseline proof needs IBM's Db2 container (#9209)."""
+    return "db2" in json.loads((CASES / case / "case.json").read_text(encoding="utf-8"))
+
+
 def _shard_arg(text: str) -> tuple[int, int]:
     try:
         i, n = (int(x) for x in text.split("/"))
@@ -890,7 +895,8 @@ def shard_cases(cases: list[str], ledger: dict[str, dict[str, Any]], shard: tupl
 
 
 def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: float | None = None,
-            shard: tuple[int, int] | None = None, jobs: int | None = None, case_jobs: int = 1) -> int:  # fmt: skip
+            shard: tuple[int, int] | None = None, jobs: int | None = None, case_jobs: int = 1,
+            skip_db2: bool = False) -> int:  # fmt: skip
     """Renew each stale or drifted entry whose det port bytes did not move (#5862). Only generator / harness / oracle
     drifted: translate again, compare the port's bytes, renew the fingerprints. Case / corpus / survivors list moved:
     re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
@@ -913,6 +919,11 @@ def refresh(cases: list[str], work: Path, run_moved: bool = False, budget_min: f
     ledger = load()
     todo = [c for c in (cases or sorted(ledger))
             if c in ledger and (CASES / c / "case.json").is_file() and _outdated(ledger[c], fingerprints(c))]  # fmt: skip
+    if skip_db2:  # #9209: a job with no Db2 container cannot prove a Db2 case's baseline (refuted, exit 1)
+        db2 = [c for c in todo if is_db2(c)]
+        todo = [c for c in todo if c not in db2]
+        if db2:
+            print(f"det mutation: {len(db2)} stale Db2 ledger(s) left for a run with Db2: {', '.join(db2)}")
     if shard is not None:
         every_stale, todo = todo, shard_cases(todo, ledger, shard)
         print(f"det mutation: shard {shard[0]}/{shard[1]}: {len(todo)} of the {len(every_stale)} stale ledger(s)")
@@ -1361,6 +1372,7 @@ def main(argv: list[str] | None = None) -> int:
     rf.add_argument(
         "--shard", type=_shard_arg, metavar="I/N", help="only shard I of N of the stale cases (balanced by survivors)"
     )
+    rf.add_argument("--skip-db2", action="store_true", help="leave the Db2 cases' ledgers for a run with Db2 (#9209)")
     rf.add_argument("--jobs", type=int, default=_default_jobs())
     rf.add_argument("--case-jobs", type=int, default=1, help="stale cases to refresh concurrently")
     sb = sub.add_parser("sibling")
@@ -1387,7 +1399,7 @@ def main(argv: list[str] | None = None) -> int:
         return record(args.case, args.run_dir, args.port)
     if args.cmd == "refresh":
         return refresh(args.cases, args.work, args.run_moved, args.budget_min, args.shard,
-                       jobs=args.jobs, case_jobs=args.case_jobs)  # fmt: skip
+                       jobs=args.jobs, case_jobs=args.case_jobs, skip_db2=args.skip_db2)  # fmt: skip
     if args.cmd == "sibling":
         return sibling(args.case, args.sibling, args.work, args.jobs)
     if args.cmd == "stale-check":

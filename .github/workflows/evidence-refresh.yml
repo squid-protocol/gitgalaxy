@@ -1112,8 +1112,9 @@ jobs:
           cd gitgalaxy
           set +e
           # this shard's stale ledgers; no case starts that cannot finish within 130 of the job's 150 minutes (counted from
-          # the start); a moved port is run again (oldest ledger first) in what is left; the rest wait for the next night
-          python -u tests/tools/det_mutation.py refresh --shard "${{ matrix.shard }}/3" --run-moved --budget-min 130 \
+          # the start); a moved port is run again (oldest ledger first) in what is left; the rest wait for the next night.
+          # --skip-db2 (#9209): this job has no Db2 container, so a Db2 case's baseline proof is refuted (exit 1)
+          python -u tests/tools/det_mutation.py refresh --shard "${{ matrix.shard }}/3" --run-moved --budget-min 130 --skip-db2 \
             --work "$RUNNER_TEMP/detmut" | tee "$RUNNER_TEMP/detmut.txt"
           rc=${PIPESTATUS[0]}
           if [ "$rc" -eq 2 ]; then

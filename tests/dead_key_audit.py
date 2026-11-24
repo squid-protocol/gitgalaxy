@@ -72,6 +72,7 @@ ALLOWLIST = {
     # The forge's estate dict is built by its caller (tests/tools/equivalence_forged_spring.py forge_estate, #8886), outside
     # gitgalaxy/: the library members of a control-statement dataset, read by BatchForge for a `LIB(MEMBER)` SYSIN.
     "control_members": "BatchForge estate key written by the caller in tests/tools/equivalence_forged_spring.py (#8886)",
+    "catalog_seeds": "BatchForge estate key written by the caller in tests/tools/equivalence_forged_spring.py (#8886)",
     # state_rehydrator reads these from a sqlite3.Row of the baseline file_data / excluded_artifacts tables: they are
     # COLUMN names, created by the recorder's CREATE TABLE SQL (record_keeper.py), never a dict literal the walker sees (#8774).
     "raw_state_unreferenced": "file_data column read back from a sqlite3.Row by state_rehydrator (#8774)",

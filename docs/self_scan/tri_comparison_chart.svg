@@ -455,15 +455,15 @@
 <rect class="stripe" x="16" y="954" width="780" height="44"/>
 <text class="lang-label" x="20" y="979.5">erlang</text>
 <rect class="bar-track" x="154" y="959" width="88" height="34" rx="2"/>
-<rect x="154" y="959" width="41.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="967">498*</text>
+<rect x="154" y="959" width="45.9" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="967">547*</text>
 <rect x="154" y="971" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="979">1048*</text>
 <rect class="bar-track" x="286" y="959" width="88" height="34" rx="2"/>
-<rect x="286" y="959" width="87.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="967">494/498*</text>
-<rect x="286" y="971" width="41.5" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="979">494/1048*</text>
+<rect x="286" y="959" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="967">547/547*</text>
+<rect x="286" y="971" width="45.9" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="979">547/1048*</text>
 <rect class="bar-track" x="418" y="959" width="88" height="34" rx="2"/>
 <rect x="418" y="959" width="2.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="967">0*</text>
@@ -474,9 +474,9 @@
 <text class="bar-value-label" x="594.0" y="967">0/52*</text>
 <rect class="bar-track" x="682" y="959" width="88" height="34" rx="2"/>
 <rect x="682" y="959" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="967">494*</text>
+<text class="bar-value-label" x="726.0" y="967">547*</text>
 <rect x="682" y="971" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="979">494*</text>
+<text class="bar-value-label" x="726.0" y="979">547*</text>
 <text class="lang-label" x="20" y="1023.5">fortran</text>
 <rect class="bar-track" x="154" y="1003" width="88" height="34" rx="2"/>
 <rect x="154" y="1003" width="88.0" height="10" rx="2" fill="#2a78d6"/>
@@ -516,15 +516,15 @@
 <rect class="stripe" x="16" y="1042" width="780" height="44"/>
 <text class="lang-label" x="20" y="1067.5">fsharp</text>
 <rect class="bar-track" x="154" y="1047" width="88" height="34" rx="2"/>
-<rect x="154" y="1047" width="42.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1055">126*</text>
+<rect x="154" y="1047" width="56.1" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1055">167*</text>
 <rect x="154" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1067">262*</text>
 <rect class="bar-track" x="286" y="1047" width="88" height="34" rx="2"/>
-<rect x="286" y="1047" width="83.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1055">120/126*</text>
-<rect x="286" y="1059" width="40.3" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1067">120/262*</text>
+<rect x="286" y="1047" width="84.8" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1055">161/167*</text>
+<rect x="286" y="1059" width="54.1" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1067">161/262*</text>
 <rect class="bar-track" x="418" y="1047" width="88" height="34" rx="2"/>
 <rect x="418" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1055">4*</text>
@@ -535,9 +535,9 @@
 <text class="bar-value-label" x="594.0" y="1055">0/4*</text>
 <rect class="bar-track" x="682" y="1047" width="88" height="34" rx="2"/>
 <rect x="682" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1055">120*</text>
+<text class="bar-value-label" x="726.0" y="1055">161*</text>
 <rect x="682" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1067">120*</text>
+<text class="bar-value-label" x="726.0" y="1067">161*</text>
 <text class="lang-label" x="20" y="1111.5">go</text>
 <rect class="bar-track" x="154" y="1091" width="88" height="34" rx="2"/>
 <rect x="154" y="1091" width="88.0" height="10" rx="2" fill="#2a78d6"/>
@@ -919,21 +919,21 @@
 <text class="lang-label" x="20" y="1771.5">nim</text>
 <rect class="bar-track" x="154" y="1751" width="88" height="34" rx="2"/>
 <rect x="154" y="1751" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1759">818*</text>
-<rect x="154" y="1763" width="87.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1759">908*</text>
+<rect x="154" y="1763" width="78.4" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1771">809*</text>
 <rect class="bar-track" x="286" y="1751" width="88" height="34" rx="2"/>
-<rect x="286" y="1751" width="71.6" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1759">666/818*</text>
-<rect x="286" y="1763" width="72.4" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1771">666/809*</text>
+<rect x="286" y="1751" width="78.4" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1759">809/908*</text>
+<rect x="286" y="1763" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1771">809/809*</text>
 <rect class="bar-track" x="418" y="1751" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1751" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1751" width="88" height="34" rx="2"/>
 <rect x="682" y="1751" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1759">666*</text>
+<text class="bar-value-label" x="726.0" y="1759">809*</text>
 <rect x="682" y="1763" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1771">666*</text>
+<text class="bar-value-label" x="726.0" y="1771">809*</text>
 <text class="lang-label" x="20" y="1815.5">objective-c</text>
 <rect class="bar-track" x="154" y="1795" width="88" height="34" rx="2"/>
 <rect x="154" y="1795" width="88.0" height="10" rx="2" fill="#2a78d6"/>

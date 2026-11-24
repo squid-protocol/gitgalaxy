@@ -90,6 +90,8 @@ class Step:
     concat: int = 0  # a SORT whose SORTIN is a concatenation: its datasets (the k-th, k > 1, is the DD `SORTIN<k>`)
     not_ported: str = ""  # why the lowered program is not run (the det translation failed or holds holes)
     lowered_note: str = ""  # where its record length came from
+    # #8886: the lowered SORT builds fewer bytes (OUTREC) than its SORTOUT's fixed LRECL: IBM ends it, RC=16
+    ice043a: str = ""
     lowered_path: str = ""  # its resource, set once the job's class is named
     copy_dds: tuple[str, str] | None = None  # #4268: the (input, output) DDs of an IDCAMS REPRO copy
     idcams_deck: str | None = (
@@ -368,7 +370,25 @@ class BatchForge:
         except dfsort.Refused as e:
             return f"is a DFSORT {ctl.verb} the model reads, but lowering refuses {e}"
         st.lowered_note = f"{reclen[0]}-byte fixed records, LRECL from {reclen[1]}"
+        st.ice043a = self._short_outrec(st, ctl)
         return None
+
+    @staticmethod
+    def _short_outrec(st: Step, ctl: dfsort.Control) -> str:
+        """#8886: DFSORT ends a step with ICE043A (reason 9, SC23-6879) when its SORTOUT states fixed records (RECFM F*) of an
+        LRECL larger than the length OUTREC builds: it never pads (register F4). The words of the stop, or "" when the DD
+        states no such LRECL (then nothing is claimed)."""
+        if not ctl.outrec:
+            return ""
+        built = sum(dfsort._out_len(x) for x in ctl.outrec)
+        for d in st.dds:
+            fixed = d.get("dd") == "SORTOUT" and d.get("lrecl") and str(d.get("recfm") or "").upper().startswith("F")
+            if fixed and built < int(d["lrecl"]):
+                return (
+                    f"ICE043A reason 9: OUTREC builds {built} bytes under SORTOUT's fixed LRECL={d['lrecl']} "
+                    "(IBM ends the step, RC=16; no pad is guessed)"
+                )
+        return ""
 
     @staticmethod
     def _input_dsn(st: Step, name: str) -> bool:
@@ -389,7 +409,7 @@ class BatchForge:
 
         cls = f"DfsortStep{java_class_base(base)}{java_class_base(self._const(st.name))}Service"
         pid = "GGSRT" + format(zlib.crc32(f"{base}/{st.name}".encode()) & 0xFFFFFF, "06X")
-        if st.lowered is None:
+        if st.lowered is None or st.ice043a:  # a step IBM ends before it sorts has no port to run
             return
         src = st.lowered.replace("PROGRAM-ID. DFSORTST.", f"PROGRAM-ID. {pid}.")
         try:
@@ -659,7 +679,7 @@ class BatchForge:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run as a plain copy: a utility step to port"
         if p in SORTS and st.refused:
             return f"TODO: {st.jcl} runs {p}, which {st.refused} -- not run: a utility step to port"
-        if p in SORTS and st.sort_service:
+        if p in SORTS and (st.sort_service or st.ice043a):
             return None
         if p in SORTS and st.lowered:
             why = st.not_ported or "it is not det-ported yet"
@@ -685,6 +705,8 @@ class BatchForge:
             return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
         if st.key:
             return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
+        if st.ice043a:  # #8886: IBM's ICE043A termination, not a run of the sort
+            return f"steps.ended({head}, 16, {_jstr(f'{st.program}: {st.ice043a}')})"
         if st.sort_service:  # #4268: the lowered SORT / MERGE, det-translated, on the step's DDs
             return f"steps.program({head}, () -> {self._sort_var(st)}.runBatch({consts}, null))"
         if st.program == "IEFBR14":
@@ -1618,6 +1640,15 @@ public class JclSteps {
         return true;
     }
 //{/IDCAMS_METHOD}
+
+    /** A step IBM ends before it does its work (a DFSORT ICE043A, #8886): its RC is the one IBM ends it with, the
+     *  reason is logged, so COND / IF on it behave as in the chain. */
+    public Tasklet ended(String name, String jcl, String jobCond, String cond, String ifCond, int rc, String why) {
+        return guarded(jcl, jobCond, cond, ifCond, () -> {
+            LOG.warn("{} ended RC={}: {}", jcl, rc, why);
+            return rc;
+        });
+    }
 
     /** A utility not implemented here (SORT, IDCAMS, a TSO / IMS runner, ...): fails the job, unless
      *  gitgalaxy.batch.skip-unimplemented is set -- then it logs and returns 0. Never a silent success. */

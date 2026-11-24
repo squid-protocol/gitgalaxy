@@ -1,5 +1,5 @@
 {
- "commit": "c11273603",
+ "commit": "6398b0151",
  "components": {
   "capabilities": {
    "groups": [
@@ -283,7 +283,7 @@
      "done": null,
      "found": "",
      "group": "Batch",
-     "have": "9 multi-step job case",
+     "have": "10 multi-step job case",
      "name": "JCL job execution",
      "note": "the programs' steps are wired by the case, not yet run from the JCL",
      "of": null,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T09:14:48Z",
+  "as_of": "2026-11-24T09:50:08Z",
   "core": {
    "closed": 262,
    "open": 14,
@@ -1410,7 +1410,7 @@
   "title_counts": {
    "cics": {
     "closed": 132,
-    "total": 146
+    "total": 147
    },
    "cobol": {
     "closed": 147,
@@ -1558,6 +1558,7 @@
       "INTCALC",
       "POSTTRAN",
       "POSTTRAN-INTCALC",
+      "POSTTRAN-INTCALC-FORGED",
       "POSTTRAN-TRANIDX",
       "POSTTRAN-TRANIDX-ONEKEY",
       "TRANREPT"

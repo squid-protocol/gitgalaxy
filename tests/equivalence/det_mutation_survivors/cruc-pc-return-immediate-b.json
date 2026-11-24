@@ -444,6 +444,48 @@
    ]
   },
   {
+   "id": "81b2ef8415",
+   "op": "DEL",
+   "line": 153,
+   "before": "Cobol.move(task.transid(), f13_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f13_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "deletes the store of EIBTRNID: PCIMMB.cbl (lines 22-42) names only EIBCALEN among the EIB fields and RETURN TRANSID takes the literal PC52, so no statement of the program reads EIBTRNID; the field is not an output the proof compares",
+   "tried": [
+    "clear-s1",
+    "hex-100",
+    "hex-300",
+    "hex-7-s1",
+    "hex-99-s2",
+    "pf1-hex9",
+    "short-calen-3",
+    "stage-1-clear",
+    "stage-1-hex-short",
+    "stage-3"
+   ]
+  },
+  {
+   "id": "84117e8169",
+   "op": "DEL",
+   "line": 155,
+   "before": "Cobol.store(f14_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f14_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "deletes the store of EIBTASKN: PCIMMB.cbl (lines 22-42) names only EIBCALEN among the EIB fields, so no statement of the program reads EIBTASKN; the field is not an output the proof compares",
+   "tried": [
+    "clear-s1",
+    "hex-100",
+    "hex-300",
+    "hex-7-s1",
+    "hex-99-s2",
+    "pf1-hex9",
+    "short-calen-3",
+    "stage-1-clear",
+    "stage-1-hex-short",
+    "stage-3"
+   ]
+  },
+  {
    "id": "f86d1f8c4b",
    "op": "DEL",
    "line": 166,

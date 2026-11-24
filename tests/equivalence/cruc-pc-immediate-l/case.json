@@ -36,6 +36,114 @@
         "CA-TEXT": "LINK-A1"
       },
       "why": "EIBCALEN 8: the text is rewritten to LINKED! and the program returns"
+    },
+    {
+      "name": "nc-ret-invreq",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 1
+        }
+      ],
+      "why": "RETURN IMMEDIATE answers INVREQ resp2 1: logged in WS-LLOG"
+    },
+    {
+      "name": "nc-ret-invreq-wq-fail",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 2
+        },
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "RETURN fails and the log WRITEQ fails"
+    },
+    {
+      "name": "nc-ret-lengerr",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "LENGERR",
+          "resp2": 11
+        }
+      ],
+      "why": "RETURN LENGERR"
+    },
+    {
+      "name": "nc-ret-invreq4-wq-nospace",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 4
+        },
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "NOSPACE"
+        }
+      ],
+      "why": "RETURN INVREQ resp2 4 then the log WRITEQ answers NOSPACE"
+    },
+    {
+      "name": "ca-1",
+      "aid": "DFHENTER",
+      "commarea_hex": "31",
+      "why": "EIBCALEN 1: stage only"
+    },
+    {
+      "name": "ca-7",
+      "aid": "DFHENTER",
+      "commarea_hex": "31414243444546",
+      "why": "EIBCALEN 7 short of layout"
+    },
+    {
+      "name": "ca-9",
+      "aid": "DFHENTER",
+      "commarea_hex": "31414243444546474849",
+      "why": "EIBCALEN 9 long"
+    },
+    {
+      "name": "ca-20-clear",
+      "aid": "DFHCLEAR",
+      "commarea_hex": "3241424344454647484950515253545556575859",
+      "why": "EIBCALEN 20 CLEAR"
+    },
+    {
+      "name": "ca-nul",
+      "aid": "DFHENTER",
+      "commarea_hex": "3100000000000000",
+      "why": "NUL text bytes"
+    },
+    {
+      "name": "ca-ff",
+      "aid": "DFHPF3",
+      "commarea_hex": "FFFFFFFFFFFFFFFF",
+      "why": "high-values area, PF3"
     }
   ]
 }

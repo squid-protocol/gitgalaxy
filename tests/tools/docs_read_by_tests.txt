@@ -584,6 +584,7 @@ loop.md	tests/cobol_mainframe,tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
 matrix.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
+matrix_sparse.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
 migration_worklist.md	gitgalaxy,tests/cobol_mainframe,tests/tools/publish_examples.py
 mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py
 mutation_equivalent_spot_check.md	tests/cobol_mainframe

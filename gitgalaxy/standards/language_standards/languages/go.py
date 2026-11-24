@@ -79,7 +79,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: const/var (freeze_hits) and Capitalization (encapsulation).
         "structural_boundaries": re.compile(
             r"\b(package|import|return|break|continue|fallthrough|type|go|defer|chan|map|interface|struct|goto|range)\b"

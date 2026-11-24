@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cookbook-zero-trust-jcl-forge-for-cobol-modernization" class="md-skip">
+        <a href="#cookbook-deterministic-jcl-forge-for-cobol-modernization" class="md-skip">
           Skip to content
         </a>
       
@@ -1477,15 +1477,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-the-zero-trust-jcl-forge" class="md-nav__link">
+  <a href="#2-the-deterministic-jcl-forge" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. The Zero-Trust JCL Forge
+        2. The Deterministic JCL Forge
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. The Zero-Trust JCL Forge">
+    <nav class="md-nav" aria-label="2. The Deterministic JCL Forge">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -12779,17 +12779,17 @@
   
 
 
-<h1 id="cookbook-zero-trust-jcl-forge-for-cobol-modernization">Cookbook: Zero-Trust JCL Forge for COBOL Modernization</h1>
+<h1 id="cookbook-deterministic-jcl-forge-for-cobol-modernization">Cookbook: Deterministic JCL Forge for COBOL Modernization</h1>
 <h2 id="1-the-legacy-batch-orchestration-crisis">1. The Legacy Batch Orchestration Crisis</h2>
 <p>Enterprise mainframe modernization initiatives routinely collapse not at the application layer, but at the orchestration layer. Decades of COBOL batch processing are heavily reliant on Job Control Language (JCL) scripts, which act as the rigid, implicit connective tissue between mainframe programs and the physical files they mutate. </p>
 <p>Attempting to migrate these batch jobs using standard Large Language Models (LLMs) introduces severe operational risks. LLMs process JCL generation as a probabilistic text completion task, leading to catastrophic downstream effects:
 1. <strong>Hallucinated Dataset Boundaries:</strong> LLMs frequently invent or miss Data Definition (<code>DD</code>) allocations, leading to immediate system ABENDs when the modernized application attempts to execute a <code>READ</code> or <code>WRITE</code> command on an unprovisioned dataset.
 2. <strong>Context Window Fragmentation:</strong> <code>SELECT ... ASSIGN TO</code> clauses in COBOL are often separated from their corresponding <code>FD</code> (File Description) blocks by thousands of lines of code. LLMs lose the structural thread, resulting in invalid record lengths (<code>LRECL</code>) and missing I/O lineage.</p>
-<p>To execute a secure, Zero-Trust modernization of mainframe batch jobs, probabilistic guessing must be replaced with mathematical extraction. </p>
+<p>To execute a secure, deterministic modernization of mainframe batch jobs, probabilistic guessing must be replaced with mathematical extraction. </p>
 <p>The GitGalaxy ecosystem leverages a deterministic function-level knowledge graph driven by the blAST (Bypassing LLMs and ASTs) engine. By mathematically extracting exact I/O intents directly from the raw COBOL syntax, GitGalaxy feeds the LLM or generation script an infallible map of the program's required resources.</p>
-<h2 id="2-the-zero-trust-jcl-forge">2. The Zero-Trust JCL Forge</h2>
+<h2 id="2-the-deterministic-jcl-forge">2. The Deterministic JCL Forge</h2>
 <p>The <code>cobol_jcl_forge.py</code> script is a specialized architectural pipeline designed to bridge the gap between legacy COBOL logic and modernized workload orchestration. </p>
-<p>Mainframe environments operate on strict dataset allocations where a missing file declaration results in catastrophic runtime failure. The Forge ensures zero-trust compliance by extracting the exact file intents from the COBOL source and enforcing explicit <code>DD DSN=</code> declarations. By cross-referencing these intents against the broader repository knowledge graph, it provisions appropriate storage constraints and actively restricts access permissions.</p>
+<p>Mainframe environments operate on strict dataset allocations where a missing file declaration results in catastrophic runtime failure. The Forge ensures explicit dataset declarations by extracting the exact file intents from the COBOL source and enforcing explicit <code>DD DSN=</code> declarations. By cross-referencing these intents against the broader repository knowledge graph, it provisions appropriate storage constraints and actively restricts access permissions.</p>
 <h3 id="21-information-flow-processing-pipeline">2.1 Information Flow &amp; Processing Pipeline</h3>
 <p>The pipeline executes a highly specialized, four-stage deterministic extraction to isolate operational intent before generating the final JCL artifact.</p>
 <table>
@@ -12833,7 +12833,7 @@
 <h3 id="intent-extraction-analyze_cobol_intent">Intent Extraction (analyze_cobol_intent)</h3>
 <p>This function acts as the deterministic scanner. Standard regex parsers fail on COBOL because a single <code>SELECT</code> statement might be broken across three different punch-card lines. The Forge neutralizes this by joining the filtered COBOL source into a <code>monolith_code</code> string. This allows the blAST heuristics to successfully identify and bind internal logical file names to their external physical targets regardless of arbitrary line breaks or formatting debt.</p>
 <h3 id="artifact-generation-generate_zero_trust_jcl">Artifact Generation (generate_zero_trust_jcl)</h3>
-<p>This function acts as the zero-trust artifact forge. It takes the deterministic JSON dictionary generated by the scanner and maps it to rigid JCL boilerplate, enforcing standard 8-character <code>DD</code> limits. Crucially, it implements a primitive security and lineage constraint algorithm:
+<p>This function acts as the deterministic artifact forge. It takes the deterministic JSON dictionary generated by the scanner and maps it to rigid JCL boilerplate, enforcing standard 8-character <code>DD</code> limits. Crucially, it implements a primitive security and lineage constraint algorithm:
 * If a dataset is known to be an output (<code>NEW</code>), the Forge securely provisions block storage (<code>SPACE=(CYL,(5,1),RLSE)</code>).
 * If a dataset is a shared input (<code>SHR</code>), it provisions standard read access.
 * If a dataset requests <code>SHR</code> access but lacks explicit open intent in the provided lineage graph, the Forge injects a strict compiler warning, adhering to the principle of least privilege.</p>

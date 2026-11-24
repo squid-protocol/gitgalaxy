@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ==============================================================================
-# GitGalaxy Tool: Zero-Trust JCL Generator
+# GitGalaxy Tool: JCL Generator
 #
 # PURPOSE:
 # Generates deterministic Job Control Language (JCL) scripts directly from
@@ -9,7 +9,7 @@
 # ARCHITECTURAL DECISION:
 # Modernizing mainframe workloads requires mapping legacy file assignments
 # (SELECT/ASSIGN) to modern cloud infrastructure. This generator enforces
-# a Zero-Trust data allocation model by strictly matching the JCL definitions
+# a least-privilege data allocation model by strictly matching the JCL definitions
 # to the mathematically verified I/O intent extracted during static analysis,
 # preventing over-permissioned datasets.
 # ==============================================================================
@@ -190,9 +190,9 @@ def main():
     from gitgalaxy.licensing import enforce_licensing_guard
     from gitgalaxy.tools.readiness.offline import add_flag, enforce
 
-    enforce_licensing_guard("Zero-Trust JCL Generator")
+    enforce_licensing_guard("JCL Generator")
 
-    parser = argparse.ArgumentParser(description="GitGalaxy Zero-Trust JCL Generator (v5)")
+    parser = argparse.ArgumentParser(description="GitGalaxy JCL Generator (v5)")
     parser.add_argument("target", help="Target directory or specific COBOL file")
     parser.add_argument("--job", default="GITGJOB", help="Job name for the generated JCL")
     parser.add_argument("--acct", default="12345", help="Account code for the generated JCL")
@@ -232,7 +232,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("\n==============================================================")
-    print(" 🚀 GitGalaxy Tool: Zero-Trust JCL Generator (v5)")
+    print(" 🚀 GitGalaxy Tool: JCL Generator (v5)")
     print("==============================================================")
     print(f" [*] Target Path : {target_path}")
     print(f" [*] Output Dir  : {out_dir}")

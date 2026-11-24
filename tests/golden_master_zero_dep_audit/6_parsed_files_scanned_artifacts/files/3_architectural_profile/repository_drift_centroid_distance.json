@@ -2110,21 +2110,21 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 7.239,
-      "javascript/jquery/buildFragment.js": 3.955,
-      "javascript/jquery/core.js": 8.418,
-      "javascript/jquery/css.js": 7.634,
+      "javascript/jquery/ajax.js": 7.369,
+      "javascript/jquery/buildFragment.js": 4.379,
+      "javascript/jquery/core.js": 8.446,
+      "javascript/jquery/css.js": 7.733,
       "javascript/jquery/deferred.js": 8.74,
-      "javascript/jquery/event.js": 8.341,
-      "javascript/jquery/tokenize.js": 4.022
+      "javascript/jquery/event.js": 8.406,
+      "javascript/jquery/tokenize.js": 4.39
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.734,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 7.787,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 3.295,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 5.647,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 5.147,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 3.649,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 4.884,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 5.241,
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 6.072
     },
     "javascript/react": {
@@ -2136,16 +2136,16 @@
       "javascript/react/build.js": 5.827
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": 7.417
+      "javascript/react_error_codes/extract-errors.js": 7.537
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 5.478,
       "javascript/threejs/Editor.js": 7.209,
-      "javascript/threejs/GLTFLoader.js": 6.362,
+      "javascript/threejs/GLTFLoader.js": 6.365,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
-      "javascript/threejs/WebGLProgram.js": 7.633,
-      "javascript/threejs/WebGLRenderer.js": 8.914
+      "javascript/threejs/WebGLProgram.js": 7.661,
+      "javascript/threejs/WebGLRenderer.js": 8.916
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0
@@ -4222,7 +4222,7 @@
       "typescript/excalibur_math/math_ray.ts": 4.863
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.858
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 7.041
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 8.519,
@@ -4266,10 +4266,10 @@
       "typescript/vscode/codeEditorWidget.ts": 7.962,
       "typescript/vscode/eslint.config.js": 6.108,
       "typescript/vscode/extHost.api.impl.ts": 11.672,
-      "typescript/vscode/gulpfile.vscode.ts": 7.76,
+      "typescript/vscode/gulpfile.vscode.ts": 7.772,
       "typescript/vscode/instantiationService.ts": 7.467,
-      "typescript/vscode/ipc.ts": 6.489,
-      "typescript/vscode/lifecycle.ts": 7.826,
+      "typescript/vscode/ipc.ts": 6.5,
+      "typescript/vscode/lifecycle.ts": 7.837,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 9.244
     },

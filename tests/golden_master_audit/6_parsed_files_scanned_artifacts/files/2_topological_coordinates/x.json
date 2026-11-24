@@ -89,7 +89,7 @@
       "agc_assembly/apollo-11/WAITLIST.agc": 10735.32
     },
     "apex": {
-      "apex/SOURCES.md": -9057.02
+      "apex/SOURCES.md": -9057.1
     },
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -8380.91,
@@ -239,26 +239,26 @@
       "assembly/hellosilicon/matrixmultneon.s": -4464.8
     },
     "assembly/hellosilicon_aarch64": {
-      "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": -5280.55,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamp1.s": -5866.97,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamp2.s": -5956.47,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamps.s": -5276.23,
-      "assembly/hellosilicon_aarch64/Chapter_02_codesnippets.s": -5429.1,
-      "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s": -6391.75,
-      "assembly/hellosilicon_aarch64/Chapter_03_HelloWorld.s": -6607.68,
-      "assembly/hellosilicon_aarch64/Chapter_04_case.s": -6313.48,
-      "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s": -5875.85,
-      "assembly/hellosilicon_aarch64/Chapter_04_printdword.s": -5599.83,
-      "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s": -5870.39,
-      "assembly/hellosilicon_aarch64/Chapter_05_upper.s": -5955.07,
-      "assembly/hellosilicon_aarch64/Chapter_06_codesnippets.s": -6106.89,
-      "assembly/hellosilicon_aarch64/Chapter_06_main.s": -6292.9,
-      "assembly/hellosilicon_aarch64/Chapter_06_mainmacro.s": -5660.98,
-      "assembly/hellosilicon_aarch64/Chapter_06_upper.s": -6424.58,
-      "assembly/hellosilicon_aarch64/Chapter_06_uppermacro.s": -5613.39,
-      "assembly/hellosilicon_aarch64/Chapter_07_upper.s": -5338.59,
-      "assembly/hellosilicon_aarch64/Chapter_09_addexamp2.s": -5208.21,
-      "assembly/hellosilicon_aarch64/Chapter_09_debug.s": -6159.01
+      "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": -5280.65,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp1.s": -5867.07,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp2.s": -5956.57,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamps.s": -5276.33,
+      "assembly/hellosilicon_aarch64/Chapter_02_codesnippets.s": -5429.2,
+      "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s": -6391.85,
+      "assembly/hellosilicon_aarch64/Chapter_03_HelloWorld.s": -6607.78,
+      "assembly/hellosilicon_aarch64/Chapter_04_case.s": -6313.58,
+      "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s": -5875.95,
+      "assembly/hellosilicon_aarch64/Chapter_04_printdword.s": -5599.92,
+      "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s": -5870.48,
+      "assembly/hellosilicon_aarch64/Chapter_05_upper.s": -5955.16,
+      "assembly/hellosilicon_aarch64/Chapter_06_codesnippets.s": -6106.99,
+      "assembly/hellosilicon_aarch64/Chapter_06_main.s": -6292.99,
+      "assembly/hellosilicon_aarch64/Chapter_06_mainmacro.s": -5661.08,
+      "assembly/hellosilicon_aarch64/Chapter_06_upper.s": -6424.68,
+      "assembly/hellosilicon_aarch64/Chapter_06_uppermacro.s": -5613.49,
+      "assembly/hellosilicon_aarch64/Chapter_07_upper.s": -5338.69,
+      "assembly/hellosilicon_aarch64/Chapter_09_addexamp2.s": -5208.31,
+      "assembly/hellosilicon_aarch64/Chapter_09_debug.s": -6159.11
     },
     "assembly/linux_1_0_kernel": {
       "assembly/linux_1_0_kernel/COPYING": 5894.01,
@@ -464,7 +464,7 @@
       "c/sqlite/parse.y": 7587.49
     },
     "cobol": {
-      "cobol/SOURCES.md": -7654.16
+      "cobol/SOURCES.md": -7654.23
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 1226.31,
@@ -602,9 +602,9 @@
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": 6592.74
     },
     "cobol/cash-account-cobol": {
-      "cobol/cash-account-cobol/CASH00.cbl": -7124.42,
-      "cobol/cash-account-cobol/DCLCASH.cpy": -7082.02,
-      "cobol/cash-account-cobol/DCLFRANK.cpy": -7312.2
+      "cobol/cash-account-cobol/CASH00.cbl": -7124.49,
+      "cobol/cash-account-cobol/DCLCASH.cpy": -7082.08,
+      "cobol/cash-account-cobol/DCLFRANK.cpy": -7312.27
     },
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/LICENSE.md": -10051.92,
@@ -1075,14 +1075,14 @@
       "cobol/zECS/ZECSZKC.cpy": -5190.06
     },
     "cobol/zopeneditor-sample": {
-      "cobol/zopeneditor-sample/CUSTCOPY.cpy": -6901.7,
-      "cobol/zopeneditor-sample/DATETIME.cpy": -6509.77,
-      "cobol/zopeneditor-sample/REPTTOTL.cpy": -7399.01,
-      "cobol/zopeneditor-sample/SAM1.cbl": -6999.69,
-      "cobol/zopeneditor-sample/SAM2.cbl": -7212.51,
-      "cobol/zopeneditor-sample/SAM2PAR5.cpy": -7194.99,
-      "cobol/zopeneditor-sample/SAM2PARM.cpy": -7086.38,
-      "cobol/zopeneditor-sample/TRANREC.cpy": -6712.56
+      "cobol/zopeneditor-sample/CUSTCOPY.cpy": -6901.78,
+      "cobol/zopeneditor-sample/DATETIME.cpy": -6509.85,
+      "cobol/zopeneditor-sample/REPTTOTL.cpy": -7399.09,
+      "cobol/zopeneditor-sample/SAM1.cbl": -6999.76,
+      "cobol/zopeneditor-sample/SAM2.cbl": -7212.58,
+      "cobol/zopeneditor-sample/SAM2PAR5.cpy": -7195.07,
+      "cobol/zopeneditor-sample/SAM2PARM.cpy": -7086.46,
+      "cobol/zopeneditor-sample/TRANREC.cpy": -6712.64
     },
     "cpp": {
       "cpp/SOURCES.md": 10583.66
@@ -1520,7 +1520,7 @@
       "go/core/value.go": -2000.36
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": -6854.62
+      "go/go_runtime_rand/rand.go": -6854.69
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": -5050.43,
@@ -1699,36 +1699,36 @@
       "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": 6257.18
     },
     "groovy/jenkins_view_groovy": {
-      "groovy/jenkins_view_groovy/Jenkinsfile": -4373.73,
-      "groovy/jenkins_view_groovy/LICENSE.txt": -3546.07,
-      "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": -4151.83,
-      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -4131.55,
-      "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": -3694.48,
-      "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": -4767.05,
-      "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": -4037.26,
-      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": -4487.15,
-      "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": -4614.86,
-      "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": -4981.45,
-      "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": -3795.2,
-      "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": -5149.56,
-      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -3924.01,
-      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -4827.76,
-      "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -4813.15,
-      "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": -3475.22,
-      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -4288.57,
-      "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": -4906.44,
-      "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": -3751.92,
-      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -4636.2,
-      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": -5100.64,
-      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": -4688.86,
-      "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": -4133.74,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalNodePropertiesConfiguration_config.groovy": -3482.65,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalPluginConfiguration_config.groovy": -4430.54,
-      "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": -3741.38,
-      "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": -3907.87,
-      "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": -4355.52,
-      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -4850.68,
-      "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": -5186.48
+      "groovy/jenkins_view_groovy/Jenkinsfile": -4373.83,
+      "groovy/jenkins_view_groovy/LICENSE.txt": -3546.16,
+      "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": -4151.92,
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": -4131.64,
+      "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": -3694.58,
+      "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": -4767.15,
+      "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": -4037.36,
+      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": -4487.25,
+      "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": -4614.95,
+      "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": -4981.55,
+      "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": -3795.29,
+      "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": -5149.65,
+      "groovy/jenkins_view_groovy/hudson_tasks_Shell_config.groovy": -3924.1,
+      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": -4827.86,
+      "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": -4813.24,
+      "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": -3475.32,
+      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": -4288.66,
+      "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": -4906.53,
+      "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": -3752.02,
+      "groovy/jenkins_view_groovy/jenkins_model_ArtifactManagerConfiguration_config.groovy": -4636.3,
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": -5100.74,
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": -4688.96,
+      "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": -4133.83,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalNodePropertiesConfiguration_config.groovy": -3482.75,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalPluginConfiguration_config.groovy": -4430.63,
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": -3741.47,
+      "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": -3907.97,
+      "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": -4355.62,
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": -4850.77,
+      "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": -5186.57
     },
     "groovy/kotlin_build_gradle": {
       "groovy/kotlin_build_gradle/LICENSE.txt": 559.81,
@@ -1891,17 +1891,17 @@
       "haskell/SOURCES.md": 2107.27
     },
     "haskell/pandoc": {
-      "haskell/pandoc/AUTHORS.md": -7444.63,
-      "haskell/pandoc/App.hs": -7427.75,
-      "haskell/pandoc/CONTRIBUTING.md": -6568.79,
-      "haskell/pandoc/COPYING.md": -7781.65,
-      "haskell/pandoc/COPYRIGHT": -6925.76,
-      "haskell/pandoc/Class.hs": -7297.68,
-      "haskell/pandoc/Filter.hs": -6936.11,
-      "haskell/pandoc/Options.hs": -7147.74,
-      "haskell/pandoc/Pandoc.hs": -6727.54,
-      "haskell/pandoc/Parsing.hs": -7623.84,
-      "haskell/pandoc/Shared.hs": -7130.97
+      "haskell/pandoc/AUTHORS.md": -7444.73,
+      "haskell/pandoc/App.hs": -7427.85,
+      "haskell/pandoc/CONTRIBUTING.md": -6568.89,
+      "haskell/pandoc/COPYING.md": -7781.75,
+      "haskell/pandoc/COPYRIGHT": -6925.86,
+      "haskell/pandoc/Class.hs": -7297.78,
+      "haskell/pandoc/Filter.hs": -6936.21,
+      "haskell/pandoc/Options.hs": -7147.84,
+      "haskell/pandoc/Pandoc.hs": -6727.64,
+      "haskell/pandoc/Parsing.hs": -7623.94,
+      "haskell/pandoc/Shared.hs": -7131.07
     },
     "hcl": {
       "hcl/SOURCES.md": 13389.23
@@ -1966,8 +1966,8 @@
       "hlasm/zecs/ZECSNC.asm": -5525.21
     },
     "hlasm/zopeneditor_sample": {
-      "hlasm/zopeneditor_sample/ASAM1.asm": -8980.35,
-      "hlasm/zopeneditor_sample/REGISTRS.asm": -9261.14
+      "hlasm/zopeneditor_sample/ASAM1.asm": -8980.45,
+      "hlasm/zopeneditor_sample/REGISTRS.asm": -9261.23
     },
     "hlo": {
       "hlo/SOURCES.md": -3562.48
@@ -2136,7 +2136,7 @@
       "javascript/react/build.js": 4102.71
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": -8263.16
+      "javascript/react_error_codes/extract-errors.js": -8263.26
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 4642.55,
@@ -2363,37 +2363,37 @@
       "julia/SOURCES.md": 6386.26
     },
     "julia/dataframes_jl": {
-      "julia/dataframes_jl/DataFrames.jl": -1795.25,
-      "julia/dataframes_jl/LICENSE.md": -3626.9,
-      "julia/dataframes_jl/abstractdataframe_io.jl": -2819.28,
-      "julia/dataframes_jl/abstractdataframe_iteration.jl": -2050.41,
-      "julia/dataframes_jl/abstractdataframe_prettytables.jl": -2489.8,
+      "julia/dataframes_jl/DataFrames.jl": -1795.23,
+      "julia/dataframes_jl/LICENSE.md": -3626.98,
+      "julia/dataframes_jl/abstractdataframe_io.jl": -2072.55,
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": -3106.11,
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": -2489.82,
       "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": -2212.33,
-      "julia/dataframes_jl/abstractdataframe_reshape.jl": -2366.23,
-      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": -3065.61,
-      "julia/dataframes_jl/abstractdataframe_show.jl": -2216.29,
-      "julia/dataframes_jl/abstractdataframe_sort.jl": -2426.93,
-      "julia/dataframes_jl/abstractdataframe_subset.jl": -2026.31,
-      "julia/dataframes_jl/abstractdataframe_unique.jl": -3198.5,
-      "julia/dataframes_jl/dataframe_dataframe.jl": -2891.67,
-      "julia/dataframes_jl/dataframe_insertion.jl": -2645.08,
-      "julia/dataframes_jl/dataframerow_dataframerow.jl": -2667.85,
-      "julia/dataframes_jl/dataframerow_show.jl": -3055.89,
-      "julia/dataframes_jl/deprecated.jl": -1770.74,
-      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": -3431.07,
-      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": -3309.36,
-      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": -3474.47,
-      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": -3129.89,
-      "julia/dataframes_jl/groupeddataframe_show.jl": -2800.86,
-      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": -2647.4,
-      "julia/dataframes_jl/groupeddataframe_utils.jl": -2043.59,
-      "julia/dataframes_jl/join_core.jl": -2394.42,
-      "julia/dataframes_jl/join_inplace.jl": -1772.8,
-      "julia/dataframes_jl/other_broadcasting.jl": -1885.15,
-      "julia/dataframes_jl/other_index.jl": -2930.59,
-      "julia/dataframes_jl/other_metadata.jl": -3300.8,
-      "julia/dataframes_jl/other_names.jl": -3036.54,
-      "julia/dataframes_jl/other_precompile.jl": -3555.08
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": -2365.97,
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": -2736.05,
+      "julia/dataframes_jl/abstractdataframe_show.jl": -2824.7,
+      "julia/dataframes_jl/abstractdataframe_sort.jl": -2426.48,
+      "julia/dataframes_jl/abstractdataframe_subset.jl": -3437.21,
+      "julia/dataframes_jl/abstractdataframe_unique.jl": -3198.89,
+      "julia/dataframes_jl/dataframe_dataframe.jl": -2892.2,
+      "julia/dataframes_jl/dataframe_insertion.jl": -2645.11,
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": -2668.05,
+      "julia/dataframes_jl/dataframerow_show.jl": -3028.74,
+      "julia/dataframes_jl/deprecated.jl": -1770.72,
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": -1826.17,
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": -1946.76,
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": -2063.28,
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": -2325.0,
+      "julia/dataframes_jl/groupeddataframe_show.jl": -2074.28,
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": -2647.42,
+      "julia/dataframes_jl/groupeddataframe_utils.jl": -2928.74,
+      "julia/dataframes_jl/join_core.jl": -3200.84,
+      "julia/dataframes_jl/join_inplace.jl": -3375.29,
+      "julia/dataframes_jl/other_broadcasting.jl": -3247.63,
+      "julia/dataframes_jl/other_index.jl": -2182.61,
+      "julia/dataframes_jl/other_metadata.jl": -3301.27,
+      "julia/dataframes_jl/other_names.jl": -3065.2,
+      "julia/dataframes_jl/other_precompile.jl": -3555.16
     },
     "kotlin": {
       "kotlin/SOURCES.md": 10227.59
@@ -2665,7 +2665,7 @@
       "makefile/freebsd/Makefile": 221.19
     },
     "markdown": {
-      "markdown/SOURCES.md": -8190.71
+      "markdown/SOURCES.md": -8190.79
     },
     "markdown/airflow_job_lifecycle": {
       "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 670.09,
@@ -2733,7 +2733,7 @@
       "nim/nim_stdlib/copying.txt": -4729.44
     },
     "nix": {
-      "nix/SOURCES.md": -9516.02
+      "nix/SOURCES.md": -9516.12
     },
     "nix/bun": {
       "nix/bun/LICENSE.md": -5507.06,
@@ -2808,12 +2808,12 @@
       "perl/bugzilla/Requirements.pm": -3252.94
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": -8189.74,
-      "perl/exiftool/META.json": -7963.0,
-      "perl/exiftool/Makefile.PL": -8752.6,
-      "perl/exiftool/README": -7727.76,
-      "perl/exiftool/RandomAccess.pm": -8153.71,
-      "perl/exiftool/exiftool": -8510.46
+      "perl/exiftool/ExifTool.pm": -8189.84,
+      "perl/exiftool/META.json": -7963.09,
+      "perl/exiftool/Makefile.PL": -8752.69,
+      "perl/exiftool/README": -7727.86,
+      "perl/exiftool/RandomAccess.pm": -8153.8,
+      "perl/exiftool/exiftool": -8510.56
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 8238.15,
@@ -2901,7 +2901,7 @@
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 9855.53
     },
     "plaintext/cpython/Tools/unittestgui": {
-      "plaintext/cpython/Tools/unittestgui/README.txt": -7255.23
+      "plaintext/cpython/Tools/unittestgui/README.txt": -7255.29
     },
     "plaintext/opencv/data": {
       "plaintext/opencv/data/CMakeLists.txt": -8541.5
@@ -2913,18 +2913,18 @@
       "pli/SOURCES.md": 10908.33
     },
     "pli/dsf_cics_admin": {
-      "pli/dsf_cics_admin/LICENSE.md": -5657.9,
-      "pli/dsf_cics_admin/PROVENANCE.md": -5743.38,
-      "pli/dsf_cics_admin/R0010301.pli": -5903.28,
-      "pli/dsf_cics_admin/R0010420.pli": -6049.19,
-      "pli/dsf_cics_admin/R0010421.pli": -5302.53,
-      "pli/dsf_cics_admin/R0010422.pli": -6174.94,
-      "pli/dsf_cics_admin/R0010423.pli": -5882.79,
-      "pli/dsf_cics_admin/R0010424.pli": -6401.64,
-      "pli/dsf_cics_admin/R0010425.pli": -5607.76,
-      "pli/dsf_cics_admin/R0010426.pli": -6177.13,
-      "pli/dsf_cics_admin/R0010427.pli": -6457.34,
-      "pli/dsf_cics_admin/R001TK62.pli": -5477.73
+      "pli/dsf_cics_admin/LICENSE.md": -5657.98,
+      "pli/dsf_cics_admin/PROVENANCE.md": -5743.46,
+      "pli/dsf_cics_admin/R0010301.pli": -5903.36,
+      "pli/dsf_cics_admin/R0010420.pli": -6049.27,
+      "pli/dsf_cics_admin/R0010421.pli": -5302.61,
+      "pli/dsf_cics_admin/R0010422.pli": -6175.01,
+      "pli/dsf_cics_admin/R0010423.pli": -5882.87,
+      "pli/dsf_cics_admin/R0010424.pli": -6401.72,
+      "pli/dsf_cics_admin/R0010425.pli": -5607.84,
+      "pli/dsf_cics_admin/R0010426.pli": -6177.2,
+      "pli/dsf_cics_admin/R0010427.pli": -6457.42,
+      "pli/dsf_cics_admin/R001TK62.pli": -5477.81
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": -426.0,
@@ -3119,11 +3119,11 @@
       "python/airflow/scheduler_job_runner.py": 7665.71
     },
     "python/airflow_ai_providers": {
-      "python/airflow_ai_providers/NOTICE": -8010.95,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": -7566.51,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": -7831.35,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": -7606.07,
-      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": -7332.55
+      "python/airflow_ai_providers/NOTICE": -8011.04,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": -7566.6,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": -7831.45,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": -7606.16,
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": -7332.65
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 3710.52,
@@ -3440,9 +3440,9 @@
       "python/tensorflow_model_fixtures/python_compiler_mlir_multi_add.tflite": 11151.92
     },
     "python/thealgorithms_machine_learning": {
-      "python/thealgorithms_machine_learning/LICENSE.md": -8493.11,
-      "python/thealgorithms_machine_learning/logistic_regression.py": -8763.76,
-      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -8521.67
+      "python/thealgorithms_machine_learning/LICENSE.md": -8493.2,
+      "python/thealgorithms_machine_learning/logistic_regression.py": -8763.84,
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": -8521.75
     },
     "python/twisted": {
       "python/twisted/defer.py": 5566.83,
@@ -3502,8 +3502,8 @@
       "rexx/SOURCES.md": 13012.48
     },
     "rexx/hercules_390_hyperion": {
-      "rexx/hercules_390_hyperion/COPYRIGHT": -7955.85,
-      "rexx/hercules_390_hyperion/sample.rexx": -7705.79
+      "rexx/hercules_390_hyperion/COPYRIGHT": -7955.93,
+      "rexx/hercules_390_hyperion/sample.rexx": -7705.86
     },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/COPYRIGHT": -10275.96,
@@ -3714,25 +3714,25 @@
       "shell/curl/typos.sh": 5729.55
     },
     "shell/darwin-xnu": {
-      "shell/darwin-xnu/MPMMtest_run.sh": -4103.12,
-      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": -4782.47,
-      "shell/darwin-xnu/generate_linker_aliases.sh": -5496.8,
-      "shell/darwin-xnu/generate_linker_exports.sh": -4083.35,
-      "shell/darwin-xnu/generate_symbolset_plist.sh": -5309.99,
-      "shell/darwin-xnu/ios_trace_ipc.sh": -4471.69,
-      "shell/darwin-xnu/iosspeedtracer.sh": -3964.59,
-      "shell/darwin-xnu/list_supported.sh": -5252.21,
-      "shell/darwin-xnu/mach_install_mig.sh": -4232.22,
-      "shell/darwin-xnu/make_posix_availability.sh": -4397.88,
-      "shell/darwin-xnu/make_symbol_aliasing.sh": -4780.49,
-      "shell/darwin-xnu/makesyscalls.sh": -4713.07,
-      "shell/darwin-xnu/persona_test_run_src.sh": -4915.55,
-      "shell/darwin-xnu/remote_build.sh": -4668.33,
-      "shell/darwin-xnu/setup.sh": -4064.72,
-      "shell/darwin-xnu/test.sh": -4909.01,
-      "shell/darwin-xnu/validate_blacklist.sh": -5062.37,
-      "shell/darwin-xnu/vnode_if.sh": -5215.63,
-      "shell/darwin-xnu/xcrun_cache.sh": -4390.49
+      "shell/darwin-xnu/MPMMtest_run.sh": -4103.19,
+      "shell/darwin-xnu/generate_combined_symbolsets_plist.sh": -4782.55,
+      "shell/darwin-xnu/generate_linker_aliases.sh": -5496.88,
+      "shell/darwin-xnu/generate_linker_exports.sh": -4083.43,
+      "shell/darwin-xnu/generate_symbolset_plist.sh": -5310.06,
+      "shell/darwin-xnu/ios_trace_ipc.sh": -4471.76,
+      "shell/darwin-xnu/iosspeedtracer.sh": -3964.67,
+      "shell/darwin-xnu/list_supported.sh": -5252.29,
+      "shell/darwin-xnu/mach_install_mig.sh": -4232.29,
+      "shell/darwin-xnu/make_posix_availability.sh": -4397.96,
+      "shell/darwin-xnu/make_symbol_aliasing.sh": -4780.57,
+      "shell/darwin-xnu/makesyscalls.sh": -4713.14,
+      "shell/darwin-xnu/persona_test_run_src.sh": -4915.63,
+      "shell/darwin-xnu/remote_build.sh": -4668.41,
+      "shell/darwin-xnu/setup.sh": -4064.79,
+      "shell/darwin-xnu/test.sh": -4909.08,
+      "shell/darwin-xnu/validate_blacklist.sh": -5062.45,
+      "shell/darwin-xnu/vnode_if.sh": -5215.7,
+      "shell/darwin-xnu/xcrun_cache.sh": -4390.56
     },
     "shell/freebsd-src": {
       "shell/freebsd-src/COPYRIGHT": 2934.64,
@@ -4225,11 +4225,11 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 9785.23
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": -6452.99,
-      "typescript/fp-ts/HKT.ts": -5895.44,
-      "typescript/fp-ts/TaskEither.ts": -6175.15,
-      "typescript/fp-ts/package.json": -6686.38,
-      "typescript/fp-ts/pipeable.ts": -6183.11
+      "typescript/fp-ts/Either.ts": -6453.06,
+      "typescript/fp-ts/HKT.ts": -5895.51,
+      "typescript/fp-ts/TaskEither.ts": -6175.22,
+      "typescript/fp-ts/package.json": -6686.45,
+      "typescript/fp-ts/pipeable.ts": -6183.18
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": -2815.55,

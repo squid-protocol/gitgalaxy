@@ -796,7 +796,7 @@
       "julia/dataframes_jl/abstractdataframe_show.jl": 6,
       "julia/dataframes_jl/abstractdataframe_sort.jl": 24,
       "julia/dataframes_jl/abstractdataframe_subset.jl": 19,
-      "julia/dataframes_jl/dataframe_dataframe.jl": 92,
+      "julia/dataframes_jl/dataframe_dataframe.jl": 90,
       "julia/dataframes_jl/dataframe_insertion.jl": 226,
       "julia/dataframes_jl/dataframerow_dataframerow.jl": 6,
       "julia/dataframes_jl/groupeddataframe_complextransforms.jl": 22,
@@ -806,7 +806,7 @@
       "julia/dataframes_jl/groupeddataframe_utils.jl": 7,
       "julia/dataframes_jl/join_core.jl": 60,
       "julia/dataframes_jl/other_broadcasting.jl": 37,
-      "julia/dataframes_jl/other_index.jl": 84
+      "julia/dataframes_jl/other_index.jl": 78
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": 35,

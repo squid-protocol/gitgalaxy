@@ -3615,7 +3615,7 @@
       "rust/tokio/tests.rs": 28,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
       "rust/tokio/tokio_named_pipe.rs": 3,
-      "rust/tokio/tokio_udp.rs": 7
+      "rust/tokio/tokio_udp.rs": 14
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0

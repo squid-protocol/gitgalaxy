@@ -160,6 +160,9 @@ _C_SIMPLE_CASES = [
     ("serialization_parsing", "cJSON_Parse(str);", "x = 1;"),
     ("regex_execution", "regcomp(&re, pattern, 0);", "x = 1;"),
     ("time_date_logic", "time_t t = time(NULL);", "x = 1;"),
+    ("time_date_logic", "now = time(NULL);", "now = obj.time(x);"),
+    ("time_date_logic", "d = difftime(a, b);", "n = ptr->time(x);"),
+    ("time_date_logic", "c = clock();", "r = runtime(x) + uptime(y);"),
     ("ipc_rpc_bridges", "pipe(fds);", "x = 1;"),
 ]
 

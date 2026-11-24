@@ -2089,7 +2089,7 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.631
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 5.985,
+      "java/springboot/AutoConfigurationImportSelector.java": 6.002,
       "java/springboot/Binder.java": 7.604,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,

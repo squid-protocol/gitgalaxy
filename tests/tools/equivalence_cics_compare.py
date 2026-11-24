@@ -6,6 +6,7 @@ imports its host), and equivalence_cics resolves these names on first use, so `e
 
 from __future__ import annotations
 
+import base64
 import re
 from decimal import Decimal
 from typing import Any
@@ -35,6 +36,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
     children = iter(res.get("children", []))  # #4950: RUN TRANSID children
     fileevents = iter(res.get("fileevents", []))  # #7434: READ / REWRITE / UNLOCK
+    links = iter(res.get("links", []))  # #7954: each LINK's COMMAREA bytes, in the order the stub logged them
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -123,7 +125,13 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "XCTL", "program": res["xctl"]["program"], "commarea": res["xctl"]["commarea"]})
         elif verb == "LINK":  # a LINK the case runs (its "programs"): compared by its target (what the target did is
             # compared through its own events, the files, tables and the COMMAREA it leaves)
-            out.append({"event": "LINK", "program": re.search(r"\btarget=(\S*)", args).group(1)})
+            ev = {"event": "LINK", "program": re.search(r"\btarget=(\S*)", args).group(1)}
+            length = re.search(r"\blen=(\d+)", args)  # #7954: the LENGTH and the bytes of the area as issued
+            link = next(links, None)
+            if length and link is not None and link["data"]:
+                ev["length"] = int(length.group(1))
+                ev["area"] = base64.b64encode(link["data"]).decode("ascii")
+            out.append(ev)
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
@@ -171,9 +179,13 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """A LINK event as both sides compare it: its target (the Java side's also carries its COMMAREA and RESP)."""
+    """A LINK event as both sides compare it: its target and, when the event carries the area's bytes (#7954: a det
+    port's, and the COBOL stub's), its LENGTH and those bytes. The Java side's DTO snapshot and RESP are not compared."""
     if e.get("event") == "LINK":
-        return {"event": "LINK", "program": e.get("program") or e.get("target")}
+        out = {"event": "LINK", "program": e.get("program") or e.get("target")}
+        if e.get("area") is not None:
+            out.update({"length": e.get("length"), "area": e["area"]})
+        return out
     return e
 
 
@@ -265,6 +277,13 @@ def compare_events(
             and int(c["length"]) != int(j["length"])
         ):  # #7955: the byte length of the item written, which the blank-trimmed data compare cannot see
             bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
+        if c["event"] == "LINK" and c.get("area") is not None and j.get("area") is not None:
+            # #7954: the COMMAREA a LINK passes, byte for byte (the ABNDPROC marshalling is only visible here), and its
+            # LENGTH; compared only when both sides gave the bytes, so a port that passes a DTO is unchanged
+            if c.get("length") is not None and j.get("length") is not None and int(c["length"]) != int(j["length"]):
+                bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
+            if c["area"] != j["area"]:
+                bad.append({"field": "area", "cobol": c["area"], "java": j["area"]})
         if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
             bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

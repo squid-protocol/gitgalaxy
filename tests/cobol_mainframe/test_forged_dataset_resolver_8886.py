@@ -94,7 +94,7 @@ def run(tmp_path_factory) -> dict[str, str]:
     classes.mkdir()
     javac = subprocess.run(
         ["javac", "-encoding", "UTF-8", "-cp", cp, "-d", str(classes), *map(str, src.glob("*.java"))],
-        capture_output=True, text=True, check=False,
+        capture_output=True, encoding="utf-8", check=False,
     )  # fmt: skip
     assert javac.returncode == 0, javac.stderr
     datasets = work / "datasets"

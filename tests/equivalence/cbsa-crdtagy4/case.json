@@ -203,6 +203,37 @@
     }
    ],
    "why": "the DELAY fails (INVREQ RESP2 6) and ABNDPROC's WRITE to ABNDFILE then fails DISABLED: it takes its write-error path (DISPLAY and RETURN) and the abend PLOP follows"
+  },
+  {
+   "name": "put-container-invreq",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "PUT-CONTAINER",
+     "resp": "INVREQ"
+    }
+   ],
+   "why": "PUT CONTAINER of CIPD fails INVREQ: the program DISPLAYs both error lines (RESP and RESP2, then the container, channel and FLENGTH) and returns"
   }
  ]
 }

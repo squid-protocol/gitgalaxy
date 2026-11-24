@@ -584,3 +584,43 @@ def test_c_doc_excludes_ascii_star_banners():
     assert not doc.search("/*** dict_keys ***/")
     assert not doc.search('/********** From the file "build.h" ************************************/')
     assert not doc.search("////////////////////////////////////////////////////////////////////////////////")
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        "fgets(buf, n, fp);",
+        "fputs(s, fp);",
+        "c = fgetc(fp);",
+        "fputc(c, fp);",
+        "getline(&line, &cap, fp);",
+        "getdelim(&line, &cap, ',', fp);",
+        "p = mmap(0, n, PROT_READ, MAP_SHARED, fd, 0);",
+        "pread(fd, buf, n, off);",
+        "pwrite(fd, buf, n, off);",
+        "recvfrom(s, buf, n, 0, a, &l);",
+        "sendto(s, buf, n, 0, a, l);",
+        "recvmsg(s, &m, 0);",
+        "sendmsg(s, &m, 0);",
+    ],
+)
+def test_c_io_counts_libc_transfer_calls_8868(call):
+    assert C_RULES["io"].search(call), call
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "x.fgets(a);",
+        "p->mmap(a);",
+        "myfgets(buf);",
+        "fgetsx(buf);",
+        "int mmap_size = 4;",
+        "// fgets is not called here",
+        "#include <sys/mman.h>",
+        "close(fd);",
+        "fclose(fp);",
+    ],
+)
+def test_c_io_ignores_look_alikes_and_cleanup_8868(text):
+    assert not C_RULES["io"].search(text), text

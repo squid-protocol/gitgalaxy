@@ -538,6 +538,8 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(std::fstream|std::ifstream|std::ofstream|std::filesystem|fopen|fread|fwrite|socket|recv|send|asio::|curl_easy_perform|std::cin)\b"
+            # #8868 libc/POSIX transfer calls, call form only; member calls and longer names stay out.
+            r"|(?<![.>\w])(?:fgets|fputs|fgetc|fputc|mmap|pread|pwrite|recvfrom|sendto|recvmsg|sendmsg)[ \t]{0,4}\("
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the world. Explicit visibility and module exports.

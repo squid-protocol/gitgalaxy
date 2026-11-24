@@ -620,7 +620,7 @@
 <use href="#c" x="1032" y="320" class="u"/>
 <rect x="1044" y="320" width="11" height="11" fill="#8a6d3b"><title>zig / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="1056" y="320" class="u"/>
-<text class="fam" x="24" y="341">safety_bypasses (draft)</text>
+<text class="fam" x="24" y="341">safety_bypasses</text>
 <rect x="192" y="332" width="11" height="11" fill="#8a6d3b"><title>python / safety_bypasses: decoy test with &#x27;Any&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="332" width="11" height="11" fill="#8a6d3b"><title>csharp / safety_bypasses: decoy test with &#x27;dynamic&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="332" class="u"/>
@@ -1008,7 +1008,7 @@
 <use href="#c" x="1032" y="392" class="u"/>
 <use href="#c" x="1044" y="392" class="u"/>
 <use href="#c" x="1056" y="392" class="u"/>
-<text class="fam" x="24" y="413">doc (draft)</text>
+<text class="fam" x="24" y="413">doc</text>
 <rect x="192" y="404" width="11" height="11" fill="#2f6aa8"><title>python / doc: recall 0.82, precision 1.00 (296 oracle, 243 family functions; language-crucible v1.7.0)</title></rect>
 <rect x="204" y="404" width="11" height="11" fill="#4f9be8"><title>csharp / doc: recall 1.00, precision 0.97 (3363 oracle, 3447 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="404" width="11" height="11" fill="url(#hatch)"/>
@@ -1740,7 +1740,7 @@
 <use href="#c" x="1044" y="560" class="u"/>
 <use href="#c" x="1056" y="560" class="u"/>
 <text class="phase" x="16" y="581">SUBSYSTEMS</text>
-<text class="fam" x="24" y="593">planned_debt (draft)</text>
+<text class="fam" x="24" y="593">planned_debt</text>
 <use href="#c" x="192" y="584" class="u"/>
 <use href="#c" x="204" y="584" class="u"/>
 <use href="#c" x="216" y="584" class="u"/>
@@ -1806,7 +1806,7 @@
 <use href="#c" x="1032" y="584" class="u"/>
 <use href="#c" x="1044" y="584" class="u"/>
 <use href="#c" x="1056" y="584" class="u"/>
-<text class="fam" x="24" y="605">fragile_debt (draft)</text>
+<text class="fam" x="24" y="605">fragile_debt</text>
 <use href="#c" x="192" y="596" class="u"/>
 <use href="#c" x="204" y="596" class="u"/>
 <use href="#c" x="216" y="596" class="u"/>
@@ -2224,7 +2224,7 @@
 <use href="#c" x="972" y="704" class="u"/>
 <use href="#c" x="1044" y="704" class="u"/>
 <text class="phase" x="16" y="725">RESOURCES</text>
-<text class="fam" x="24" y="737">telemetry (draft)</text>
+<text class="fam" x="24" y="737">telemetry</text>
 <rect x="192" y="728" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>python / telemetry: recall 0.04, precision 1.00 (47 oracle, 2 family functions; language-crucible v1.7.0)</title></rect>
 <use href="#c" x="204" y="728" class="u"/>
 <use href="#c" x="216" y="728" class="u"/>

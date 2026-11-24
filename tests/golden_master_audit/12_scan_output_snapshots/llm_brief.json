@@ -221,7 +221,7 @@
     "| io | 16654 | 1100 | 6 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1598 | 311 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
-    "| time | 2230 | 306 | 0 | `elixir/elixir_stdlib/calendar_date.ex` |",
+    "| time | 2235 | 307 | 0 | `elixir/elixir_stdlib/calendar_date.ex` |",
     "| serialization | 1096 | 191 | 0 | `lua/cosmopolitan/calls.lua` |",
     "| regex | 4109 | 343 | 0 | `perl/exiftool/ExifTool.pm` |",
     "| events | 3975 | 563 | 1 | `m4/curl/configure.ac` |",

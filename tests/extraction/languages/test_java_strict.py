@@ -170,6 +170,8 @@ _JAVA_SIMPLE_CASES = [
     ("test_skip", "@Disabled", "@Deprecated"),
     ("thread_sleeps", "Thread.sleep(1000);", "Thread.currentThread();"),
     ("time_date_logic", "LocalDate.now();", "OffsetDateTime odt = OffsetDateTime.now();"),
+    ("time_date_logic", "long t0 = System.nanoTime();", "long nanoTimeout = 5;"),
+    ("time_date_logic", "TimeUnit.SECONDS.sleep(1);", "long unit = timeUnitCount;"),
     ("ui_framework", "JFrame frame = new JFrame();", "JTable table = new JTable();"),
     ("dead_code", "// public void foo() {}", "// just a note"),
 ]

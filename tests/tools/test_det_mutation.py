@@ -876,3 +876,32 @@ def test_no_committed_ledger_looks_like_an_all_killed_run():
         c = e["counts"]
         judged = c["killed"] + c["survived"]
         assert judged < dm.ALL_KILLED_MIN or c["survived"] > 0, case
+
+
+def test_refresh_skip_db2_leaves_a_db2_ledger_alone(monkeypatch, tmp_path, capsys):  # #9209
+    written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
+    monkeypatch.setattr(dm, "is_db2", lambda case: True)
+    monkeypatch.setattr(dm, "translate", lambda cases, work: pytest.fail("a Db2 case must not be translated"))
+    assert dm.refresh([CASE], tmp_path, skip_db2=True) == 0
+    assert written == {} and calls == []
+    assert "left for a run with Db2" in capsys.readouterr().out
+
+
+def test_refresh_skip_db2_runs_a_non_db2_case_as_before(monkeypatch, tmp_path):  # #9209
+    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "case": "a2"}, ("survived", "survived"))
+    monkeypatch.setattr(dm, "is_db2", lambda case: False)
+    assert dm.refresh([CASE], tmp_path, skip_db2=True) == 0
+    assert calls and CASE in written
+
+
+def test_is_db2_reads_the_case_section():
+    cases = {c.parent.name: c for c in dm.CASES.glob("cbsa-*/case.json")}
+    assert dm.is_db2("cbsa-acctctrl") and dm.is_db2("cbsa-custctrl") and dm.is_db2("cbsa-updacc")
+    assert "cbsa-abndproc" in cases and not dm.is_db2("cbsa-abndproc")
+
+
+def test_the_nightly_det_mutation_step_skips_db2_cases():  # #9209: that job has no Db2 container
+    text = (dm.REPO / ".github" / "workflows" / "evidence-refresh.yml").read_text(encoding="utf-8")
+    step = text[text.index("python -u tests/tools/det_mutation.py refresh") :].split("\n", 1)[0]
+    assert "--skip-db2" in step
+    assert dm.main(["refresh", "--work", "x", "--skip-db2", "nosuchcase"]) == 0  # the flag parses; nothing stale

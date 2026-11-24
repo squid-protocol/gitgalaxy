@@ -162,6 +162,9 @@ class BatchForge:
         # #8886: a control-statement library's members, {member: text}, for a SYSIN that is a dataset member (`LIB(MEMBER)`).
         # The caller reads them from the estate's own library (CardDemo's app/ctl); none is invented here.
         self.members: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("control_members") or {}).items()}
+        # #8886 slice 10: {JOB: IDCAMS deck} the job's catalog holds when its first IDCAMS step starts (an entry an
+        # earlier job catalogued, e.g. the KSDS TRANBKP STEP10 DEFINEs); the deck is run before that step, no RC kept
+        self.catalog_seeds: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("catalog_seeds") or {}).items()}
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -685,7 +688,10 @@ class BatchForge:
         if st.program in IDCAMS and st.copy_dds:
             return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
         if st.program in IDCAMS and st.idcams_deck:  # #8886: the model's run, the job's catalog kept between steps
-            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)})"
+            seed = self.catalog_seeds.get(j.job.upper())
+            first = next((s for s in j.steps if s.idcams_deck), None) is st
+            tail = f", {_jstr(seed, text=True)}" if seed and first else ""
+            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)}{tail})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1456,8 +1462,21 @@ public class JclSteps {
      */
     public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
             String deck) {
+        return idcams(name, jcl, jobCond, cond, ifCond, dds, deck, "");
+    }
+
+    /** `idcams`, the job's catalog first holding what `seed` (an IDCAMS deck, no return code kept) defines. */
+    public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String deck, String seed) {
         return guardedJob(jcl, jobCond, cond, ifCond, jobId -> {
             Map<String, Idcams.Entry> catalog = catalogs.computeIfAbsent(jobId, k -> new LinkedHashMap<>());
+            if (!seed.isEmpty()) {
+                try {
+                    catalog = Idcams.run(seed, catalog, new LinkedHashMap<>()).catalog;
+                } catch (Idcams.Refused e) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + e.getMessage(), e);
+                }
+            }
             Map<String, Object> ddMap = new LinkedHashMap<>();
             Map<String, Path> files = new LinkedHashMap<>();
             try {

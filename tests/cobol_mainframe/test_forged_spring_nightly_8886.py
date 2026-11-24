@@ -13,6 +13,8 @@ BKUP(0) + SYSTRAN(0) seeds is also checked record by record). TRANBKP, COMBTRAN 
 generates no job by design, so (#8886 slice 6) the harness plans them as application jobs on request (spec key
 `forge_utility_jobs`; the forge is untouched) and their steps RUN: their steps end in the forge's own named refusal
 or a missing input, but for COMBTRAN STEP05R (a step `skip-unimplemented` returned 0 for is reported "not run", never equal).
+#8886 slice 10: TRANIDX's catalog starts with the KSDS TRANBKP STEP10 DEFINEs (spec `catalog_seeds`): STEP20 and STEP25 run
+to RC=0, STEP30 (BLDINDEX over the still-empty KSDS) is refused by name; the TRANIDX row stays "differs".
 CREASTMT is generated and (#8886 slice 5) runs to RC=0 on all five steps in both modes: DELDEF01
 through the IDCAMS model's Java twin, STEP010's SORT on the 100 TRANSACT records the job case reads (the dataset's
 RECORDSIZE(350 350) in TRANFILE.jcl is the DCB the forge cannot see in CREASTMT.JCL), STEP020's REPRO, STEP040 on its
@@ -72,8 +74,25 @@ def test_a_program_step_runs_under_spring_with_the_chains_return_code(res, case)
 
 
 BLOCKED = {  # case -> a fragment of the forge's own refusal (strict), the step it fails on
-    "carddemo-tranidx": ("STEP20", "RELATE(AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS) is not in the catalog"),
+    # #8886 slice 10: the KSDS is catalogued as TRANBKP STEP10 DEFINEs it (empty), so STEP20 / STEP25 run to RC=0 and
+    # the job stops at BLDINDEX, which the model refuses by name for an empty base cluster (the records are not loaded)
+    "carddemo-tranidx": ("STEP30", "BLDINDEX of an empty base cluster (its condition code is not modelled)"),
 }
+
+
+def test_tranidx_defines_its_alternate_index_and_path_over_the_catalogued_ksds(res):
+    """#8886 slice 10: TRANIDX's job catalog starts with TRANBKP STEP10's DEFINE CLUSTER (spec `catalog_seeds`), so
+    STEP20 (DEFINE ALTERNATEINDEX RELATE(KSDS)) and STEP25 (DEFINE PATH) end RC=0 under Spring, as the chain's did."""
+    for mode in ("strict", "skip"):
+        steps = res["raw"][mode]["TRANIDX"]["steps"]
+        assert steps["STEP20"] == ("RC=0", None) and steps["STEP25"] == ("RC=0", None)
+
+
+def test_the_catalog_seed_deck_is_the_named_steps_instream_sysin():
+    jcl = "//J JOB\n//A EXEC PGM=X\n//SYSIN DD *\n WRONG\n/*\n//B EXEC PGM=IDCAMS\n//SYSIN DD *\n DEFINE X\n  Y\n/*\n"
+    assert efs.jcl_instream_deck(jcl, "B") == " DEFINE X\n  Y"
+    with pytest.raises(ValueError):
+        efs.jcl_instream_deck(jcl, "C")
 
 
 @pytest.mark.parametrize("case", sorted(BLOCKED))
@@ -89,7 +108,7 @@ def test_a_forged_utility_job_stops_at_the_forges_named_refusal(res, case):
     skip = row["modes"]["skip"]
     assert skip["status"] == "differs"
     # a step the forge declines is `steps.utility` (skip returns 0: "not run"); an IDCAMS deck the model runs and
-    # refuses (TRANIDX's AIX against a catalog that does not hold the cluster) fails the same in both modes
+    # refuses (TRANIDX's BLDINDEX over the empty KSDS) fails the same in both modes
     head = f"{step}: failed:" if case == "carddemo-tranidx" else f"{step}: not run, skip-unimplemented returned RC=0"
     assert any(i.startswith(head) for i in skip["issues"])
 

@@ -68,6 +68,9 @@ Say what moved, and why, in the PR.
 
 ## Blind review and census
 
+The language-independent protocol (roles, the nine steps, the reviewer prompt, the ruling table, what you may claim,
+the traps) is `.claude/skills/llm-language-review/SKILL.md`. This section is the mainframe command reference.
+
 ```sh
 python tests/tools/cross_verify.py census --corpus <c> --out <dir> --stage <dir>/src   # every program, ~150 units a batch
 python tests/tools/cross_verify.py grade  --corpus <c> --dir <dir>/<c>/batch_NN

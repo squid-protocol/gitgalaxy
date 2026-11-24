@@ -905,3 +905,17 @@ def test_the_nightly_det_mutation_step_skips_db2_cases():  # #9209: that job has
     step = text[text.index("python -u tests/tools/det_mutation.py refresh") :].split("\n", 1)[0]
     assert "--skip-db2" in step
     assert dm.main(["refresh", "--work", "x", "--skip-db2", "nosuchcase"]) == 0  # the flag parses; nothing stale
+
+
+def test_no_workflow_runs_a_det_mutation_batch_without_skipping_db2():  # #9209 class: every runner here has no Db2
+    import re
+
+    seen = 0
+    for wf in sorted((dm.REPO / ".github" / "workflows").glob("*.yml")):
+        text = wf.read_text(encoding="utf-8").replace("\\\n", " ")
+        for line in text.splitlines():
+            if line.lstrip().startswith("#") or not re.search(r"det_mutation\.py\s+(refresh|run)\b", line):
+                continue
+            seen += 1
+            assert "--skip-db2" in line, f"{wf.name}: a det mutation batch on a runner with no Db2: {line.strip()}"
+    assert seen, "the nightly det-mutation refresh step moved: update this pin"

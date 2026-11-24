@@ -694,7 +694,7 @@ _ROWS = [
         doc="docs/domain_sensor_contracts.md",
         issue=2897,
     ),
-    # --- APPSEC SENSORS (zero-trust pipelines) ---
+    # --- APPSEC SENSORS (pipeline security) ---
     _c(
         "rce_funnel",
         "appsec",

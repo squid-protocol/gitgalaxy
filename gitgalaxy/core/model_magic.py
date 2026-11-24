@@ -16,7 +16,7 @@
 # a file is a model only when its header matches a model format its extension can
 # carry.
 #
-# DEFENSIVE DESIGN (zero-trust aperture): a sniff is one bounded binary read of
+# DEFENSIVE DESIGN (the aperture treats every file as hostile input): a sniff is one bounded binary read of
 # the file's head -- HEADER_BYTES, or H5_SCAN_BYTES for HDF5's attribute search --
 # never the whole file, whatever its size. No byte is decoded as text, no length
 # field read from the file drives a further read, and the protobuf walk is bounded

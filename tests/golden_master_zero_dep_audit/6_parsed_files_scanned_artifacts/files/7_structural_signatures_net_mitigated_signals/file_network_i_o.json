@@ -460,7 +460,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 6,
+      "c/sqlite/lemon.c": 11,
       "c/sqlite/parse.y": 0
     },
     "cobol": {
@@ -1059,8 +1059,8 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 0,
-      "cobol/gnucobol_internals/fileio.c": 66,
+      "cobol/gnucobol_internals/codegen.c": 7,
+      "cobol/gnucobol_internals/fileio.c": 67,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 2,
       "cobol/gnucobol_internals/scanner.l": 1,
@@ -3645,7 +3645,7 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 56,
-      "scheme/racket/eval.c": 1,
+      "scheme/racket/eval.c": 2,
       "scheme/racket/fun.c": 0,
       "scheme/racket/io.ss": 44,
       "scheme/racket/schemify.rkt": 0,

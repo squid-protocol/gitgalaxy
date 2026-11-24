@@ -545,7 +545,8 @@ class _Step:
         if need > aix.max:
             raise Refused(
                 f"the IDCAMS BLDINDEX record for the busiest key needs {need} bytes, over RECORDSIZE maximum {aix.max} "
-                "(IBM's outcome is not stated)"
+                "(IDC1646I: IBM keeps the pointers that fit and states no condition code or which pointers; "
+                "the outcome is not modelled)"
             )
         aix.built = True
         self.end(0, f"BLDINDEX {aix.name}: {len(base.records)} records, {len(groups)} keys")

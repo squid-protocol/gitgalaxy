@@ -2,7 +2,7 @@
 
 This directory contains the core graphics architecture, custom shaders, and rendering physics for the GitGalaxy WebGPU visualizer.
 
-Standard DOM-based charting libraries (and even naive WebGL implementations) instantly crash or throttle to 2 FPS when fed the telemetry of a 150,000-file enterprise architecture. This suite exists to mathematically prove that we can render planetary-scale codebases directly in the browser at a locked 60 FPS. It enforces strict VRAM memory limits, utilizes bit-packed vertex attributes to bypass mobile GPU buffer caps, and executes complex 3D Phyllotaxis algorithms—all while maintaining a strict Zero-Trust, client-side execution model where your code never touches a server.
+Standard DOM-based charting libraries (and even naive WebGL implementations) instantly crash or throttle to 2 FPS when fed the telemetry of a 150,000-file enterprise architecture. This suite exists to mathematically prove that we can render planetary-scale codebases directly in the browser at a locked 60 FPS. It enforces strict VRAM memory limits, utilizes bit-packed vertex attributes to bypass mobile GPU buffer caps, and executes complex 3D Phyllotaxis algorithms—all while running entirely client-side, so your code never touches a server.
 
 ---
 
@@ -13,7 +13,7 @@ The engine is divided into the Core Rendering Pipeline (`site/js/core/`, with `s
 #### 1. `js/core/` (The Rendering Pipeline & Physics)
 This directory houses the engine's primary loop, data extraction, and hardware-accelerated WebGPU shading logic.
 
-* **`main.js` (The Warp Core, `site/js/main.js`)** — The master orchestrator. Handles asynchronous WebGPU initialization, local RAM-injection for drag-and-drop JSON payloads (Zero-Trust), and dynamic UI synchronization.
+* **`main.js` (The Warp Core, `site/js/main.js`)** — The master orchestrator. Handles asynchronous WebGPU initialization, local RAM-injection for drag-and-drop JSON payloads (never sent to a server), and dynamic UI synchronization.
 * **`galaxy-engine.js` (The 3D Engine)** — The Three.js/WebGPU spatial environment. Manages `InstancedMesh` generation, raycasted interaction, dynamic resolution scaling, and the adaptive Dependency Web orchestrator. Critically, it respects the **8-Buffer Mobile GPU Limit**, packing metadata mathematically to prevent silent WebGL compiler crashes on low-end hardware.
 * **`data-parser.js` (The Refractor)** — The mathematical bridge between JSON and 3D space. It calculates **3D Fibonacci Distribution (Phyllotaxis)** to orbit satellite functions organically around parent stars, preventing geometric overlapping, and calculates composite complexity to dynamically cull visual noise (The Fractal Depth Step Function).
 * **`phase-6-shaders.js` (The Shader Matrix)** — Written in TSL (Three.js Shading Language), this file moves the heavy lifting from the CPU to the GPU. It decodes the compressed vertex attributes and executes the **Universal Turbo Spectrum**—a dynamic color-grading algorithm that maps 18 dimensions of risk telemetry into visual heatmaps in real-time.
@@ -34,7 +34,7 @@ This directory houses the tools that bypass browser limitations and ensure the e
 
 ### 🚀 Execution & Integration
 
-Because this architecture adheres to a strict Zero-Trust model, the visualizer requires no backend or API to function.
+Because this architecture runs entirely client-side, the visualizer requires no backend or API to function.
 
 **To test the WebGPU Visualizer locally:**
 ```bash

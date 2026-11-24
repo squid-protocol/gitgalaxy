@@ -129,7 +129,7 @@ class SarifRecorder:
                         "level": "warning",
                         "message": {"text": warning},
                         "locations": [self._build_location(rel_path, start_line)],
-                        "properties": {"category": "Autonomous Zero-Trust"},
+                        "properties": {"category": "Autonomous Agent Guardrails"},
                     }
                 )
 

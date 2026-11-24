@@ -574,7 +574,12 @@ DEFINITION: dict[str, Any] = {
         # function call -- `;`, a newline, another `.method()`, or end
         # of string -- is never a word character). Go's single most
         # common time-related call never matched in any real usage.
-        "time_date_logic": re.compile(r"\b(?:time\.Parse|time\.Duration|time\.Sleep|time\.Since)\b|time\.Now\(\)"),
+        # #8868: the contract names a now/time/date constructor, duration arithmetic, a
+        # formatting or timezone call: add time.Date / Unix / Until / ParseDuration / LoadLocation.
+        "time_date_logic": re.compile(
+            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Sleep|time\.Since|time\.Until"
+            r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)"
+        ),
         "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),
         # system_config_mutation (#3084): contract-level absence. no dedicated
         # config-mutation primitive -- config writes are ordinary file I/O or

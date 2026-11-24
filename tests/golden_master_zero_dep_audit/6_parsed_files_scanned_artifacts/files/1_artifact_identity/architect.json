@@ -1437,7 +1437,7 @@
       "erlang/cowboy_http_server/cowboy_constraints.erl": "Unknown Architect",
       "erlang/cowboy_http_server/cowboy_decompress_h.erl": "Unknown Architect",
       "erlang/cowboy_http_server/cowboy_handler.erl": "Unknown Architect",
-      "erlang/cowboy_http_server/cowboy_http3.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "ity = case {Scheme, Port} of",
       "erlang/cowboy_http_server/cowboy_loop.erl": "Unknown Architect",
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Unknown Architect",
       "erlang/cowboy_http_server/cowboy_middleware.erl": "Unknown Architect",

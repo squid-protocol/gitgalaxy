@@ -1452,7 +1452,7 @@
       "erlang/ranch_socket_pool/ranch_app.erl": 0,
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": 8,
       "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": 1,
-      "erlang/ranch_socket_pool/ranch_crc32c.erl": 3,
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": 4,
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_protocol.erl": 0,

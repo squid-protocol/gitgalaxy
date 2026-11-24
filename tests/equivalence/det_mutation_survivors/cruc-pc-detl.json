@@ -96,30 +96,6 @@
    ]
   },
   {
-   "id": "351bca91e6",
-   "op": "CON",
-   "line": 62,
-   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
-   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DVISITSL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
-   "id": "3c84fab151",
-   "op": "CON",
-   "line": 62,
-   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
-   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 13, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DVISITSL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "f29b12b429",
    "op": "CON",
    "line": 62,
@@ -157,30 +133,6 @@
    ]
   },
   {
-   "id": "a816067c76",
-   "op": "CON",
-   "line": 64,
-   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
-   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DLASTL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
-   "id": "f743e4a6cb",
-   "op": "CON",
-   "line": 64,
-   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
-   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 20, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DLASTL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "629230f32c",
    "op": "CON",
    "line": 65,
@@ -206,30 +158,6 @@
    ]
   },
   {
-   "id": "6bb00a1f62",
-   "op": "CON",
-   "line": 66,
-   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
-   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 27, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DTRANL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
-   "id": "f21397216e",
-   "op": "CON",
-   "line": 66,
-   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
-   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DTRANL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
    "id": "e8c9e65494",
    "op": "CON",
    "line": 67,
@@ -252,30 +180,6 @@
    "reason": "f43_DMSGL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
    "tried": [
     "map-length-scale"
-   ]
-  },
-  {
-   "id": "8896bd908e",
-   "op": "CON",
-   "line": 68,
-   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
-   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 5, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DMSGL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
-   ]
-  },
-  {
-   "id": "fd71cb6092",
-   "op": "CON",
-   "line": 68,
-   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
-   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 34, 4, 0, true, false);",
-   "verdict": "equivalent",
-   "reason": "branch_solver: no reachable statement uses DMSGL (PCDTI) (solver-unread)",
-   "tried": [
-    "solver-unread"
    ]
   },
   {

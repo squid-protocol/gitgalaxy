@@ -69,7 +69,7 @@
       "embedded_python/meow_turtle/sensors.py": "3 instances"
     },
     "erlang/ranch_socket_pool": {
-      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "3 instances",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "5 instances",
       "erlang/ranch_socket_pool/ranch_server.erl": "3 instances"
     },
     "fsharp/giraffe_web": {

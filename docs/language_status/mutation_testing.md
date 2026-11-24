@@ -391,6 +391,24 @@ What it says:
   the 2026-11-19 load of 7-12: the stretch grows with load, and the baseline proof stretches 2.5-3x (12 to 30-37 s), as much
   as the whole run. The n=1 caveat on this table is lifted for the
   `--sample 60` row only; the full-enumeration rows stay n=1 (556 s, 684 mutants, was the second `--sample 0` run).
+- **The full enumerations, repeated (n=2 more each, 2026-11-24, #8599).** `det_mutation.py run <case> --sample 0 --seed 0
+  --jobs 2`, fast+one-jvm, `GITGALAXY_LICENSE_KEY=COMMUNITY_FREE_TIER`, origin/main, run back to back through
+  `heavy-run.sh`, on a box with other agents running (1-minute load 10.4 at the first start, 3-5 for the rest). Wall
+  seconds of the whole command (the logs carry no per-phase stamps, so the baseline proof is the one phase quoted):
+
+  | run | load at start | mutants (timeouts) | baseline proof s | total s |
+  |---|---|---|---|---|
+  | cbsa-updcust | 10.4, 4.9 | 684 (1), 684 (1) | 22, 13 | 291, 253 |
+  | carddemo-readcust | 5.1, 4.6 | 249 (8), 249 (8) | 25, 24 | 315, 303 |
+
+  Both cases give the same mutant counts and the same timeouts on both runs (UPDCUST enumerates 684, not the 690 of
+  2026-11-19, and the earlier 556 s run enumerated 684 too). UPDCUST took 253-291 s, against 235 s for the first
+  `--sample 0` run and 556 s for the second: the full-enumeration total is not a stable number on a shared box (a
+  2.2x spread across three runs of one case), and the 291 s run began at load 10.4 with a 22 s baseline (13 s once
+  the box was quieter). readcust is steadier, 303-315 s against 364 s for its first run (that one paid a 15.8 s cold
+  translation). The baseline proof is 4-9% of a full enumeration (13-22 s of 253-291 on UPDCUST, 24-25 s of 303-315 on
+  readcust), which agrees with the 2026-11-19 reading that a full run is dominated by the per-mutant part. Not
+  measured: a loaded box (busy loops beside the run) at full enumeration, and per-phase stamps for these runs.
 - **Re-translating an unchanged case was only half skipped, now it is skipped (#8599).** The estate scan and the
   refactor were already cached (`equivalence_cache`), but the program's own translation (2.7-2.8 s warm on UPDCUST,
   15.8 s cold on readcust) ran again for every case of a `refresh` batch, including a case-only change (its

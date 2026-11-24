@@ -621,7 +621,8 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: panic!/abort/process::exit/fatalError)
         # BUG FIX: same `panic!` trailing-`\b`-after-`!` defect as
         # high_risk_execution's copy above.
-        "panics_and_aborts": re.compile(r"panic!|\b(?:abort|process::exit|fatalError)\b"),
+        # #8868: the contract names an unreachable marker.
+        "panics_and_aborts": re.compile(r"(?:panic|unreachable|unimplemented)!|\b(?:abort|process::exit|fatalError)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(std::thread::sleep|tokio::time::sleep|Duration::from)\b"),
         # 43. bitwise_ops (Bitwise Operations)
@@ -662,7 +663,8 @@ DEFINITION: dict[str, Any] = {
         ),
         "regex_execution": re.compile(r"\b(Regex::new)\b"),
         "time_date_logic": re.compile(
-            r"\b(std::time::Duration|std::time::Instant|std::time::SystemTime|chrono::Utc::now|chrono::Local::now)\b"
+            r"\b(std::time::Duration|std::time::Instant|std::time::SystemTime|chrono::Utc::now|chrono::Local::now"
+            r"|(?:Duration|Instant|SystemTime)::[a-z_]+)\b"
         ),
         "ipc_rpc_bridges": re.compile(
             r"\b(std::process::Command|tokio::process|tonic::transport::Server|mpsc::channel)\b"

@@ -3558,10 +3558,10 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 0,
-      "rust/bevy/bevy_ecs_query.rs": 0,
+      "rust/bevy/bevy_ecs_macros.rs": 2,
+      "rust/bevy/bevy_ecs_query.rs": 2,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 14,
+      "rust/bevy/bevy_ecs_world.rs": 16,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
@@ -3587,15 +3587,15 @@
       "rust/serde/serde_core_de_impls.rs": 0,
       "rust/serde/serde_core_de_mod.rs": 1,
       "rust/serde/serde_core_macros.rs": 0,
-      "rust/serde/serde_derive_de.rs": 0,
+      "rust/serde/serde_derive_de.rs": 2,
       "rust/serde/serde_internals_ast.rs": 0,
       "rust/serde/serde_internals_attr.rs": 0,
-      "rust/serde/test_annotations.rs": 1
+      "rust/serde/test_annotations.rs": 2
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,
       "rust/syn/bigint.rs": 0,
-      "rust/syn/buffer.rs": 0,
+      "rust/syn/buffer.rs": 2,
       "rust/syn/classify.rs": 0,
       "rust/syn/custom_keyword.rs": 0,
       "rust/syn/custom_punctuation.rs": 0,
@@ -3605,15 +3605,15 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
-      "rust/tokio/blocking.rs": 2,
+      "rust/tokio/blocking.rs": 3,
       "rust/tokio/builder.rs": 2,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
       "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 0,
-      "rust/tokio/maybe_done.rs": 1,
+      "rust/tokio/maybe_done.rs": 2,
       "rust/tokio/tests.rs": 0,
-      "rust/tokio/tokio_mpsc_bounded.rs": 0,
+      "rust/tokio/tokio_mpsc_bounded.rs": 2,
       "rust/tokio/tokio_named_pipe.rs": 0,
       "rust/tokio/tokio_udp.rs": 0
     },
@@ -3622,10 +3622,10 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 1,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 5,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 0,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 1
+      "rust/wasmtime/wasmtime_instance.rs": 12,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 6,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 2,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 4
     },
     "scala": {
       "scala/SOURCES.md": 0

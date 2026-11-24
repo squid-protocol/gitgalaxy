@@ -177,3 +177,39 @@ def test_a_dcb_fact_with_no_generation_holds_for_every_generation_of_the_dataset
     assert ok.refused is None and "80-byte" in ok.lowered_note
     other_gen = _step(_forge([gdg, out], other=[{**fact, "generation": "+1"}]))
     assert other_gen.refused and "record length" in other_gen.refused
+
+
+# #8886 slice 15: DFSORT ICE043A (SC23-6879, reason 9), register F4: OUTREC shorter than SORTOUT's fixed LRECL ends the step.
+SHORT = " SORT FIELDS=(1,4,CH,A)\n OUTREC FIELDS=(1:1,4,5:1,4)\n"  # builds 8 bytes
+
+
+def _out(**dcb) -> list[dict]:
+    return [{"dd": "SORTIN", "dsn": "APP.IN", **FB80}, {"dd": "SORTOUT", "dsn": "APP.OUT", **dcb}]
+
+
+def test_an_outrec_shorter_than_a_fixed_sortout_lrecl_ends_the_step_with_rc_16():
+    f = _forge(_out(lrecl=20, recfm="FB"), SHORT)
+    st = _step(f)
+    assert "ICE043A reason 9" in st.ice043a and "builds 8 bytes" in st.ice043a and "LRECL=20" in st.ice043a
+    assert not st.sort_service and "no pad is guessed" in st.ice043a
+    line = _line(f)
+    assert "steps.ended(" in line and ", 16, " in line and "steps.utility" not in line
+    assert "0 utility steps to port" in f.audit_line()  # IBM's stop is not a step left to port
+
+
+@pytest.mark.parametrize(
+    "sortout",
+    [
+        {"lrecl": 8, "recfm": "FB"},  # exactly the OUTREC length: no stop
+        {"lrecl": 4, "recfm": "FB"},  # OUTREC longer than the LRECL is not this stop
+        {"lrecl": 20},  # no RECFM stated: nothing claimed
+        {"lrecl": 20, "recfm": "VB"},  # variable records are not the fixed-length rule
+        {},  # no LRECL stated
+    ],
+)
+def test_no_stop_is_claimed_unless_sortout_states_a_longer_fixed_lrecl(sortout):
+    assert _step(_forge(_out(**sortout), SHORT)).ice043a == ""
+
+
+def test_a_sort_without_outrec_is_never_ended_by_it():
+    assert _step(_forge(_out(lrecl=20, recfm="FB"))).ice043a == ""

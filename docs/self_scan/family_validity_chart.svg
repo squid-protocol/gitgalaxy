@@ -359,7 +359,7 @@
 <text class="side" x="669" y="388">P</text>
 <text class="dim" x="728.0" y="393">–</text>
 <text class="dim" x="770.0" y="393">·</text>
-<text class="fam" x="16" y="413">doc (draft)</text>
+<text class="fam" x="16" y="413">doc</text>
 <rect x="204" y="400" width="40" height="18" fill="#2f6aa8"/>
 <text class="num" x="224.0" y="413">82</text>
 <text class="side" x="207" y="408">R</text>
@@ -675,7 +675,7 @@
 <text class="thin" x="770.0" y="593">0</text>
 <rect x="792" y="580" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
 <text class="thin" x="812.0" y="593">0</text>
-<text class="fam" x="16" y="613">telemetry (draft)</text>
+<text class="fam" x="16" y="613">telemetry</text>
 <rect x="204" y="600" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
 <text class="num" x="224.0" y="613">4</text>
 <text class="side" x="207" y="608">R</text>

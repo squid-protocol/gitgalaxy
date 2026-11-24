@@ -52,3 +52,37 @@ def test_the_issue_named_signals_read_as_what_they_count(tmp_path):
     sigs = _signatures(tmp_path, [1] * len(SCHEMA))
     assert signal_display_name("structural_boundaries") in sigs
     assert "Sequential Logic Declarations" not in sigs
+
+
+def test_weighted_view_mitigation_keys_use_display_names(tmp_path):
+    from gitgalaxy.metrics.signal_processor import WEIGHTED_SIGNALS
+
+    keys = sorted(WEIGHTED_SIGNALS)
+    out = tmp_path / "audit.json"
+    AuditRecorder().generate_report(
+        [
+            {
+                "path": "src/a.py",
+                "name": "a.py",
+                "lang_id": "python",
+                "directory_group": "src",
+                "total_loc": 10,
+                "telemetry": {"weighted_signals": dict.fromkeys(keys, 1.5)},
+                "hit_vector": [],
+                "functions": [],
+            }
+        ],
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(out),
+    )
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    prof = payload["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["src/a.py"]
+    labels = {k for sect in prof.values() if isinstance(sect, dict) for k in sect if k.endswith("(Weighted View)")}
+    for key in keys:
+        shown = signal_display_name(key)
+        if shown != key:
+            assert f"{shown} (Weighted View)" in labels
+    assert "High-Risk Execution Commands (Weighted View)" not in labels

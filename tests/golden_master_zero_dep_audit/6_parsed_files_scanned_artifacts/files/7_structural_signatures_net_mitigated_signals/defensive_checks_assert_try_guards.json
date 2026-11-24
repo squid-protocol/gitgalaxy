@@ -1428,21 +1428,21 @@
       "erlang/SOURCES.md": 0
     },
     "erlang/cowboy_http_server": {
-      "erlang/cowboy_http_server/cowboy.erl": 19,
+      "erlang/cowboy_http_server/cowboy.erl": 18,
       "erlang/cowboy_http_server/cowboy_app.erl": 1,
       "erlang/cowboy_http_server/cowboy_children.erl": 4,
       "erlang/cowboy_http_server/cowboy_clear.erl": 7,
       "erlang/cowboy_http_server/cowboy_clock.erl": 7,
       "erlang/cowboy_http_server/cowboy_compress_h.erl": 11,
       "erlang/cowboy_http_server/cowboy_constraints.erl": 56,
-      "erlang/cowboy_http_server/cowboy_decompress_h.erl": 7,
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": 6,
       "erlang/cowboy_http_server/cowboy_handler.erl": 5,
-      "erlang/cowboy_http_server/cowboy_http3.erl": 73,
+      "erlang/cowboy_http_server/cowboy_http3.erl": 61,
       "erlang/cowboy_http_server/cowboy_loop.erl": 16,
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": 0,
       "erlang/cowboy_http_server/cowboy_middleware.erl": 1,
-      "erlang/cowboy_http_server/cowboy_quicer.erl": 32,
-      "erlang/cowboy_http_server/cowboy_req.erl": 70,
+      "erlang/cowboy_http_server/cowboy_quicer.erl": 33,
+      "erlang/cowboy_http_server/cowboy_req.erl": 73,
       "erlang/cowboy_http_server/cowboy_router.erl": 67
     },
     "erlang/ranch_socket_pool": {
@@ -1450,13 +1450,13 @@
       "erlang/ranch_socket_pool/ranch_acceptor.erl": 9,
       "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": 9,
       "erlang/ranch_socket_pool/ranch_app.erl": 4,
-      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 17,
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 18,
       "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": 5,
       "erlang/ranch_socket_pool/ranch_crc32c.erl": 0,
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 3,
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": 5,
       "erlang/ranch_socket_pool/ranch_protocol.erl": 2,
-      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 158,
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 157,
       "erlang/ranch_socket_pool/ranch_server.erl": 7
     },
     "fortran": {

@@ -3,7 +3,7 @@
 # GitGalaxy Tool: Import Policy Gate
 #
 # PURPOSE:
-# Zero-Trust Dependency Verification and Behavioral Policy Enforcement.
+# Dependency allow/deny-list verification and behavioral policy enforcement.
 #
 # ARCHITECTURAL DECISION:
 # Operating as a RAM-Exclusive Logic Gate, this import policy gate consumes the Phase 1
@@ -174,7 +174,7 @@ def run_import_gate_audit(
             current_dir = current_dir.parent
 
         # =====================================================================
-        # 1. ZERO-TRUST IMPORT VERIFICATION
+        # 1. IMPORT ALLOW/DENY-LIST VERIFICATION
         # =====================================================================
         for imp in file_node.get("raw_imports", []):
             # JSON serializes Python tuples as lists, so we must check for both

@@ -34,7 +34,7 @@ It computes the execution order (a topological sort) by mapping `Producer -> Con
 Legacy monoliths are tightly coupled. Extracting a single business function (e.g., "Calculate Payroll") usually requires untangling thousands of lines of unrelated state mutations. 
 GitGalaxy employs a **Recursive Alias Engine** that traces variable taints across `MOVE`, `ADD`, and `COMPUTE` statements. It slices the lines of business logic that touch a target field, skipping paragraphs the *Graveyard Reaper* marks unreachable.
 
-### C. Zero-Trust Java Forging
+### C. Deterministic Java Forging
 GitGalaxy does not just map the old architecture; it scaffolds the new one. 
 By extracting legacy `PIC` clauses, EBCDIC byte boundaries, and `COMP-3` packed decimal constraints, the engine's Forges automatically translate mainframe structures into modern equivalents. It generates Spring Boot `@RestController` APIs, JPA `@Entity` schemas, and Java data-decoding utilities from the verified layouts, with no model involved. That scaffold compiles; whether a ported program then behaves like the COBOL is a separate question, answered per program by the equivalence harness.
 

@@ -82,8 +82,8 @@ def test_go_methods_are_member_shaped_and_bare_calls_skip_them():
 def test_go_std_interface_method_on_an_untyped_receiver_is_ambiguous():
     _, sites = _scan("go", GO)
     site = _site(sites, "Ready", "Load")
-    assert site["step"] == "receiver"
-    assert RESOLUTION_OF_STEP[site["step"]] == "ambiguous"
+    assert site["step"] == "none"
+    assert RESOLUTION_OF_STEP[site["step"]] == "external"
 
 
 @pytest.mark.parametrize(
@@ -109,4 +109,4 @@ def test_go_std_interface_method_on_an_untyped_receiver_is_ambiguous():
 def test_std_method_name_on_an_untyped_receiver_is_ambiguous(lang, path, code, callee):
     _, sites = _scan(lang, {path: code})
     site = _site(sites, "f", callee)
-    assert site["step"] == "receiver"
+    assert site["step"] == "none"

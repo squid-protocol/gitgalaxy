@@ -30,7 +30,7 @@ The current industry trend is to dump raw code into an LLM context window and as
 1. **The Context Window Shredder:** A 5-million-line codebase cannot fit into any LLM context window. You must chunk it. But if you chunk a repository, the LLM loses global visibility. It cannot see that a Python function in chunk A is dynamically called by a Bash script in chunk Z.
 2. **Architectural Hallucination:** LLMs are probabilistic text generators, not deterministic graph engines. If an LLM does not explicitly see a dependency, it will guess (hallucinate) one based on its training data. You cannot trust an enterprise migration to a probabilistic guess.
 3. **Repeatability & Auditing:** If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require deterministic, repeatable results.
-4. **Data Privacy (Zero-Trust):** Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. 
+4. **Data Privacy (Local-Only):** Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. 
 
 ---
 
@@ -45,7 +45,7 @@ GitGalaxy treats code not as a compiler tree, nor as semantic language, but as *
 | **Repeatability** | Deterministic | Probabilistic (Changes per run) | **Deterministic (same input, same output)** |
 | **Broken Code** | Crashes / Fails to parse | Tries to fix it (Hallucinates) | **Parses safely (AST-Free)** |
 | **Language Support** | Rigid (Needs specific parsers) | Flexible | **Broad (72 recognized languages; text-level)** |
-| **Privacy** | Local | Cloud/API (Data Leaves Machine) | **100% Local (Zero-Trust/Airgapped)** |
+| **Privacy** | Local | Cloud/API (Data Leaves Machine) | **100% Local (Air-Gap Ready)** |
 
 ### The Physics of Code
 Instead of trying to understand *what* a variable is named, the blAST engine looks at the *shape* of the text. 

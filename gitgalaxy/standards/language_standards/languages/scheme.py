@@ -232,7 +232,7 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([^ \t\n()]{1,100})([^)]*)\)",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries defining scope and sequential execution.
         "structural_boundaries": re.compile(r"(?<![^ \t\n\r(\[])(let|let\*|letrec|letrec\*|begin|do)(?![^ \t)\]\n\r])"),
         # 4. func_start (Executable Logic Anchors)

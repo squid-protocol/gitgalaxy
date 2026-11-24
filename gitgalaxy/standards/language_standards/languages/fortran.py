@@ -164,7 +164,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:SUBROUTINE|FUNCTION|ENTRY)\s+([A-Za-z_]\w*)\s*(\([^)]*\)|)|\b(?:INTENT\s*\(\s*(?:IN|OUT|INOUT)\s*\)|VALUE\b|OPTIONAL\b)",
             re.I,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries defining straight-line execution and data types.
         # CRITICAL GUARDRAIL: Access modifiers (PUBLIC, PRIVATE, PROTECTED) do not belong here. Explicitly omitted to prevent the Structural Complexity Inflation Bug
         "structural_boundaries": re.compile(

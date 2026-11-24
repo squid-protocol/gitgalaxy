@@ -47,8 +47,9 @@ def command(
         if verb == "RETURN" and opts.get("TRANSID") and opts.get("RESP"):  # #6271 (X71): a planned fault fails it
             return ([ec._name(target, "GG-NAME1"), "MOVE 2 TO GG-ITEM"] + ec._call("GGCRETN", args)
                     + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + ec._resp(opts, True, labels))  # fmt: skip
+        # #9247: GG-ITEM is cleared: GGCRETN reads item 2 as "the program codes RESP", so a stale 2 fires a RETURN plan
         if verb == "RETURN":
-            return [ec._name(target, "GG-NAME1")] + ec._call("GGCRETN", args) + ["GOBACK"]
+            return ([ec._name(target, "GG-NAME1"), "MOVE 0 TO GG-ITEM"] + ec._call("GGCRETN", args) + ["GOBACK"])  # fmt: skip
         # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling
         return ([ec._name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
                 + ec._call("GGCXCTL", args)

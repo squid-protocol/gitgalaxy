@@ -4909,6 +4909,8 @@ def call_using_rows(path: Path) -> list[dict[str, Any]]:
     for m in re.finditer(r"\bENTRY\s+(?:'([^']*)'|\"([^\"]*)\")", src.raw_text):
         if src.text[m.start() : m.start() + 5] != "ENTRY":
             continue
+        if re.search(r"(?<![A-Z0-9-])TO\s*$", src.text[max(0, m.start() - 20) : m.start()], re.I):
+            continue  # `SET ROUTINE TO ENTRY 'X'` is a pointer value, not an ENTRY statement
         rows.append(
             {
                 "kind": "ENTRY",

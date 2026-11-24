@@ -7,6 +7,8 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import family_missing_keywords as fmk
@@ -147,3 +149,11 @@ def test_language_without_an_oracle_is_skipped_and_alone_exits_two(tmp_path):
     f = tmp_path / "r.json"
     f.write_text(json.dumps(_res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))))
     assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
+
+
+def test_split_keeps_windows_drive_letters():
+    assert fmk._split(r"python:C:\tmp\scan.db:C:\tmp\src", 3) == ["python", r"C:\tmp\scan.db", r"C:\tmp\src"]
+    assert fmk._split("go:/a/scan.db:/a/src", 3) == ["go", "/a/scan.db", "/a/src"]
+    assert fmk._split(r"go:C:\r.json", 2) == ["go", r"C:\r.json"]
+    with pytest.raises(ValueError):
+        fmk._split("go:onlytwo", 3)

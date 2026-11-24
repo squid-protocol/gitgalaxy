@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -147,7 +148,10 @@ def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
 
 
 def _split(spec: str, parts: int) -> list[str]:
-    bits = spec.split(":", parts - 1)
+    bits = spec.split(":", 1)
+    if parts == 3 and len(bits) == 2:  # LANG:DB:SRC: a Windows drive letter ("C:\\x") is not a separator
+        m = re.fullmatch(r"((?:[A-Za-z]:)?[^:]+):(.+)", bits[1])
+        bits = [bits[0], *m.groups()] if m else bits
     if len(bits) != parts or not all(bits):
         raise ValueError(f"bad spec {spec!r}")
     return bits

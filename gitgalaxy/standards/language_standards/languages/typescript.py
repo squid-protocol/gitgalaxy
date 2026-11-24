@@ -953,7 +953,16 @@ DEFINITION: dict[str, Any] = {
             r"|\breq\.(?:isAuthenticated|log(?:in|out))\("
         ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|JSON\.stringify)\b"),
-        "regex_execution": re.compile(r"\bnew\s+RegExp\b|\.(match|replace|search|split)\s*\("),
+        # regex_execution (#8868): a regex constructor, the string/regex method calls (`.exec(` outside
+        # child_process, `.test(`, matchAll, replaceAll), or a regex literal in operand position (after an
+        # opener, `=`, `:`, `!`, `&`, `|`, `?` or `return`), never a division or a `//` comment.
+        "regex_execution": re.compile(
+            r"\bnew\s+RegExp\b"
+            r"|(?<!child_process)\.(?:match|matchAll|replace|replaceAll|search|split|exec|test)\s*\("
+            r"|(?:[(,=:!&|?\[{]|\breturn)[ \t]*/(?![/*])"
+            r"(?:[^/\n\\\[]|\\.|\[(?:[^\]\n\\]|\\.)*\])+/[dgimsuvy]*(?=[ \t]*(?:[.),;\]}]|$))",
+            re.MULTILINE,
+        ),
         "time_date_logic": re.compile(
             r"\b(Date\.now|new\s+Date|setTimeout|setInterval|clearTimeout|clearInterval|performance\.now)\b"
         ),

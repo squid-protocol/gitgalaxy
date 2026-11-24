@@ -541,3 +541,36 @@ def test_typescript_api_contract_2730():
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+_REGEX_POSITIVES_8868 = [
+    "const ok = /^a+$/.test(s);",
+    "if (re.test(s)) {}",
+    "const m = re.exec(s);",
+    "for (const x of s.matchAll(/a/g)) {}",
+    "s.replaceAll('a', 'b');",
+    "const re = /ab[/]c\\/d/gi;",
+    "return /x/.source;",
+    "const parts = [/a/, /b/];",
+    "f(/x+/g, y);",
+]
+_REGEX_NEGATIVES_8868 = [
+    "const q = a / b / c;",
+    "const q = (a + b) / c / d;",
+    "// see /not/a/regex here",
+    "const u = 'http://x/y/z';",
+    "return <div>x</div>;",
+    "child_process.exec('ls');",
+    "test('x', () => {});",
+]
+
+
+def test_regex_execution_covers_regex_methods_and_literals_8868():
+    """#8868: `.test(`, `.exec(`, matchAll/replaceAll and operand-position regex literals count; division,
+    comments, strings, JSX closers and child_process.exec do not."""
+    rule = TYPESCRIPT_RULES["regex_execution"]
+    for line in _REGEX_POSITIVES_8868:
+        assert rule.search(line), line
+    for line in _REGEX_NEGATIVES_8868:
+        assert not rule.search(line), line
+    assert not TYPESCRIPT_RULES["test"].search("re.test(s)")

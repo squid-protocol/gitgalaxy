@@ -312,3 +312,24 @@ def test_javascript_doc_bare_tag_outside_block_still_counts_regression():
 def test_javascript_doc_block_redos_immune_regression():
     """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
     assert_redos_immune(JS_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_regex_execution_covers_regex_methods_and_literals_8868():
+    """#8868: the JavaScript rule matches the TypeScript one (methods and operand-position literals)."""
+    rule = JS_RULES["regex_execution"]
+    for line in (
+        "const ok = /^a+$/.test(s);",
+        "const m = re.exec(s);",
+        "for (const x of s.matchAll(/a/g)) {}",
+        "const re = /ab[/]c\\/d/gi;",
+        "f(/x+/g, y);",
+    ):
+        assert rule.search(line), line
+    for line in (
+        "const q = a / b / c;",
+        "// see /not/a/regex here",
+        "const u = 'http://x/y/z';",
+        "child_process.exec('ls');",
+        "test('x', () => {});",
+    ):
+        assert not rule.search(line), line

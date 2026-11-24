@@ -54,7 +54,7 @@ OUT_DIR = REPO_ROOT / "docs" / "language_sheets"
 NOTES_DIR = OUT_DIR / "notes"
 ROSETTA_SNAPSHOT = OUT_DIR / "rosetta_snapshot.json"
 
-STATS = ("detection", "functions", "calls", "imports", "keywords", "rosetta")
+STATS = ("detection", "functions", "calls", "imports", "keywords", "rosetta", "answer_key")
 STAT_TITLE = {
     "detection": "Detection",
     "functions": "Functions",
@@ -62,6 +62,7 @@ STAT_TITLE = {
     "imports": "Imports",
     "keywords": "Keywords",
     "rosetta": "Rosetta",
+    "answer_key": "Answer key",
 }
 
 # The fixed method vocabulary. `none` is split by reason in the notes ("none exists" / "not run").
@@ -76,6 +77,7 @@ METHODS = frozenset(
         "decoy-test",
         "hand-audit",
         "corpus-label",
+        "answer-key",
         "keyword-rosetta",
         "none",
     }
@@ -324,6 +326,144 @@ def refresh_rosetta(bias_data: Path, out: Path = ROSETTA_SNAPSHOT) -> None:
     )
 
 
+GROUND_TRUTH = TESTS / "cobol_mainframe" / "ground_truth_ledger.json"
+# (stat, ledger field, what the field is, unit). One answer-key field stands in for each of three stats, for the
+# languages whose corpora are keyed (COBOL and CICS). A real tree-sitter or analyser measurement is never overridden.
+GROUND_TRUTH_FIELDS = (
+    ("functions", "units", "paragraphs and sections", "units"),
+    ("calls", "intra-program edges", "PERFORM and GO TO edges inside a program", "edges"),
+    ("imports", "copybook paths", "COPY members resolved to a file", "copybook paths"),
+)
+TIER_ORDER = ("draft", "sample_verified", "llm_verified", "cross_verified", "human_signed")
+
+
+def ground_truth_stats(ledger: Path = GROUND_TRUTH) -> dict[str, dict[str, Stat]]:
+    """{stat: {"cobol": Stat}} from the mainframe ground-truth ledger: the engine against hand-built answer keys that a
+    separately written reader drafted and blind LLM reviewers re-read. Summed over the keyed corpora."""
+    data = _read(ledger)
+    if not data:
+        return {}
+    corpora = data.get("corpora", {})
+    programs = sum(
+        (rec["scoreboard"].get("program_id") or {}).get("engine", {}).get("truth", 0)
+        for rec in corpora.values()
+        if (rec.get("scoreboard", {}).get("program_id") or {}).get("engine")
+    )
+    out: dict[str, dict[str, Stat]] = {}
+    for stat, fld, what, unit in GROUND_TRUTH_FIELDS:
+        got = tp = truth = n_corpora = 0
+        tiers: set[str] = set()
+        for rec in corpora.values():
+            row = rec.get("scoreboard", {}).get(fld)
+            if not row or not row.get("engine"):
+                continue
+            e = row["engine"]
+            got, tp, truth, n_corpora = got + e["got"], tp + e["tp"], truth + e["truth"], n_corpora + 1
+            tiers.add(row["truth"])
+        if not truth:
+            continue
+        weakest = min(tiers, key=TIER_ORDER.index)
+        metrics = [(k, v) for k, v in (("precision", _ratio(tp, got)), ("recall", _ratio(tp, truth))) if v is not None]
+        out[stat] = {
+            "cobol": Stat(
+                metrics=metrics,
+                n=truth,
+                unit=unit,
+                method="answer-key",
+                reference=f"answer key over {n_corpora} corpora, {programs} programs ({what}); weakest tier {weakest}",
+                source="tests/cobol_mainframe/ground_truth_ledger.json",
+            )
+        }
+    return out
+
+
+# Which language each ledger field is evidence for. A field not listed here belongs to cobol: COBOL itself and the CICS,
+# IMS, MQ and Db2 calls inside it.
+ANSWER_KEY_FIELDS = {
+    "jcl": ("JCL job flow", "JCL resolved DSNs", "JCL runner programs", "DD names", "job submissions"),
+    "bms": ("BMS screen fields", "symbolic maps"),
+    "csd": ("CSD resources",),
+    "pli": ("PL/I call sites", "PL/I data moves", "PL/I layouts", "PL/I record fields"),
+    "db2_sql": ("DB2 table access", "DB2 table columns"),
+}
+# The engine's "dead" flag means unreferenced by name, the key's means unreachable: a different question, so these two
+# fields are listed on the sheet but left out of the aggregate (ledger cause engine_dead_is_unreferenced_by_name).
+BY_DESIGN_FIELDS = frozenset({"dead", "dead (non-trivial)"})
+TIER_FILL = {
+    "human_signed": "#a9d1ff",
+    "cross_verified": "#4f9be8",
+    "llm_verified": "#2f6aa8",
+    "sample_verified": "#1f3b5c",
+    "draft": "#8b949e",
+}
+TIER_SHORT = {
+    "human_signed": "signed",
+    "cross_verified": "cross",
+    "llm_verified": "LLM",
+    "sample_verified": "sample",
+    "draft": "draft",
+}
+
+
+def answer_key_stats(ledger: Path = GROUND_TRUTH) -> dict[str, Stat]:
+    """{language: Stat} from the ground-truth ledger: the engine against hand-built answer keys (a separately written
+    reader plus blind LLM review), summed over the keyed corpora. Each field carries the tier of the weakest review
+    behind it, so the bar shows how much of the evidence is cross-verified and how much is still a draft."""
+    data = _read(ledger)
+    if not data:
+        return {}
+    owner = {fld: lang for lang, flds in ANSWER_KEY_FIELDS.items() for fld in flds}
+    acc: dict[str, dict[str, dict]] = {}
+    corpora_by_lang: dict[str, set[str]] = {}
+    for corpus, rec in data.get("corpora", {}).items():
+        for fld, row in rec.get("scoreboard", {}).items():
+            e = row.get("engine")
+            if not e or not e.get("truth"):
+                continue
+            lang = owner.get(fld, "cobol")
+            a = acc.setdefault(lang, {}).setdefault(fld, {"truth": 0, "tp": 0, "got": 0, "tiers": {}})
+            a["truth"] += e["truth"]
+            a["tp"] += e["tp"]
+            a["got"] += e["got"]
+            a["tiers"][row["truth"]] = a["tiers"].get(row["truth"], 0) + e["truth"]
+            corpora_by_lang.setdefault(lang, set()).add(corpus)
+    out: dict[str, Stat] = {}
+    for lang, fields in acc.items():
+        counted = {f: a for f, a in fields.items() if f not in BY_DESIGN_FIELDS}
+        truth = sum(a["truth"] for a in counted.values())
+        if not truth:
+            continue
+        tp = sum(a["tp"] for a in counted.values())
+        got = sum(a["got"] for a in counted.values())
+        tiers: dict[str, int] = {}
+        for a in counted.values():
+            for t, n in a["tiers"].items():
+                tiers[t] = tiers.get(t, 0) + n
+        weakest = min((t for t, n in tiers.items() if n), key=TIER_ORDER.index)
+        metrics = [(k, v) for k, v in (("precision", _ratio(tp, got)), ("recall", _ratio(tp, truth))) if v is not None]
+        rows = [
+            {
+                "field": f,
+                "truth": a["truth"],
+                "tp": a["tp"],
+                "got": a["got"],
+                "tiers": a["tiers"],
+                "by_design": f in BY_DESIGN_FIELDS,
+            }
+            for f, a in sorted(fields.items(), key=lambda kv: -kv[1]["truth"])
+        ]
+        out[lang] = Stat(
+            metrics=metrics,
+            n=truth,
+            unit="facts",
+            method="answer-key",
+            reference=f"answer key over {len(corpora_by_lang[lang])} corpora, {len(counted)} fields; weakest tier {weakest}",
+            source="tests/cobol_mainframe/ground_truth_ledger.json",
+            extra={"tiers": tiers, "fields": rows, "corpora": len(corpora_by_lang[lang]), "weakest": weakest},
+        )
+    return out
+
+
 LOADERS = {
     "detection": detection_stats,
     "functions": functions_stats,
@@ -331,6 +471,7 @@ LOADERS = {
     "imports": imports_stats,
     "keywords": keywords_stats,
     "rosetta": rosetta_stats,
+    "answer_key": answer_key_stats,
 }
 
 
@@ -338,7 +479,11 @@ def load_all() -> tuple[list[str], dict[str, dict[str, Stat]]]:
     import graph_coverage_chart as gcc
 
     langs = gcc.all_languages()
-    return langs, {name: fn() for name, fn in LOADERS.items()}
+    stats = {name: fn() for name, fn in LOADERS.items()}
+    for stat, by_lang in ground_truth_stats().items():
+        for lang, st in by_lang.items():
+            stats[stat].setdefault(lang, st)  # never replace an independent tree-sitter / analyser measurement
+    return langs, stats
 
 
 # ----------------------------------------------------------------------------- notes
@@ -385,6 +530,16 @@ def cell_text(name: str, s: Stat | None) -> str:
     if name == "rosetta":
         e = s.extra
         return f"{e['comparable'] - e['open']} of {e['comparable']} passed, {e['open']} failed"
+    if name == "answer_key":
+        e = s.extra
+        total = sum(e["tiers"].values())
+        cross = (
+            round(100 * (e["tiers"].get("cross_verified", 0) + e["tiers"].get("human_signed", 0)) / total)
+            if total
+            else 0
+        )
+        agree = " / ".join(f"{v:g}% {k}" for k, v in s.metrics)
+        return f"{agree}; {cross}% of {total:,} facts cross-verified, weakest tier {e['weakest']}"
     return " / ".join(f"{v:g}% {k}" for k, v in s.metrics)
 
 
@@ -415,6 +570,27 @@ def render_sheet(lang: str, stats: dict[str, dict[str, Stat]], note: dict) -> st
         lines.append(
             f"| {STAT_TITLE[name]} | {cell_text(name, s)} | {fmt_n(s)} | {s.method} | {s.reference} | `{s.source}` |"
         )
+    ak = stats["answer_key"].get(lang)
+    if ak is not None:
+        lines += [
+            "",
+            "## Answer key fields",
+            "",
+            "The engine against hand-built answer keys: a separately written reader drafted each key, and blind LLM reviewers",
+            "re-read the source. The reviewers are LLMs, not people, and no field has a human sign-off. The tier is the",
+            "weakest review behind a field in each corpus; the mix column counts facts per tier.",
+            "",
+            "| field | facts | engine matched | engine reported | tier mix |",
+            "|---|---|---|---|---|",
+        ]
+        for r in ak.extra["fields"]:
+            mix = ", ".join(
+                f"{n:,} {t}"
+                for t, n in sorted(r["tiers"].items(), key=lambda kv: TIER_ORDER.index(kv[0]), reverse=True)
+                if n
+            )
+            name = f"{r['field']} (differs by design, not in the aggregate)" if r["by_design"] else r["field"]
+            lines.append(f"| {name} | {r['truth']:,} | {r['tp']:,} | {r['got']:,} | {mix} |")
     notes = note.get("stat_notes", {})
     if notes:
         lines += ["", "## Notes", ""]
@@ -423,11 +599,11 @@ def render_sheet(lang: str, stats: dict[str, dict[str, Stat]], note: dict) -> st
     return "\n".join(lines)
 
 
-COVERAGE_MIN = 4  # measured on at least this many of the six stats: "well measured"
+COVERAGE_MIN = 4  # measured on at least this many of the stats: "well measured"
 
 
 def coverage(lang: str, stats: dict[str, dict[str, Stat]]) -> int:
-    """How many of the six stats have a measurement. A decoy-only keyword stat is not a measurement against a parser."""
+    """How many of the stats have a measurement. A decoy-only keyword stat is not a measurement against a parser."""
     n = 0
     for name in STATS:
         s = stats[name].get(lang)
@@ -444,6 +620,21 @@ def split_by_coverage(langs: list[str], stats: dict[str, dict[str, Stat]]) -> tu
     return well, sparse
 
 
+LEGACY = "legacy/mainframe"
+
+
+def split_groups(
+    langs: list[str], stats: dict[str, dict[str, Stat]], notes: dict[str, dict]
+) -> tuple[list[str], list[str], list[str]]:
+    """(well measured, legacy/mainframe, sparsely measured), each A to Z. Legacy is a hand-set context from the notes and
+    is kept together whatever the coverage count, because their evidence is mostly hand-built answer keys."""
+    legacy = sorted(lang for lang in langs if notes.get(lang, {}).get("context") == LEGACY)
+    rest = [lang for lang in langs if lang not in set(legacy)]
+    well = sorted(lang for lang in rest if coverage(lang, stats) >= COVERAGE_MIN)
+    sparse = sorted(lang for lang in rest if coverage(lang, stats) < COVERAGE_MIN)
+    return well, legacy, sparse
+
+
 def _table(rows: list[str], stats: dict[str, dict[str, Stat]], notes: dict[str, dict]) -> list[str]:
     lines = [
         "| language | measured | context | " + " | ".join(STAT_TITLE[n] for n in STATS) + " |",
@@ -458,17 +649,22 @@ def _table(rows: list[str], stats: dict[str, dict[str, Stat]], notes: dict[str, 
     return [*lines, ""]
 
 
+_NUMBER_WORD = {6: "Six", 7: "Seven", 8: "Eight"}
+
+
 def render_index(langs: list[str], stats: dict[str, dict[str, Stat]], notes: dict[str, dict]) -> str:
-    well, sparse = split_by_coverage(langs, stats)
+    well, legacy, sparse = split_groups(langs, stats, notes)
+    count = _NUMBER_WORD.get(len(STATS), str(len(STATS)))
     lines = [
         "# Language evidence sheets",
         "",
-        "Six independent measurements per language, each with its own method and sample size. There is no overall score:",
+        f"{count} independent measurements per language, each with its own method and sample size. There is no overall score:",
         "a language's number says how it did against the best reference that exists for it, and the sheet says what that",
-        "reference is. Languages are grouped by how many of the six stats are measured, which says how much evidence",
-        "exists and not how good the engine is. Generated by `tests/tools/language_sheets.py` from the committed baselines.",
+        "reference is. Modern languages are grouped by how many of the stats are measured, which says how much evidence",
+        "exists and not how good the engine is; legacy and mainframe languages are kept together because most of their",
+        "evidence is a hand-built answer key. Generated by `tests/tools/language_sheets.py` from the committed baselines.",
         "",
-        f"## Measured on {COVERAGE_MIN} or more of the six stats ({len(well)} languages)",
+        f"## Measured on {COVERAGE_MIN} or more of the {len(STATS)} stats ({len(well)} languages)",
         "",
         "![Well-measured languages](matrix.svg)",
         "",
@@ -478,9 +674,23 @@ def render_index(langs: list[str], stats: dict[str, dict[str, Stat]], notes: dic
         *_table(well, stats, notes),
         "</details>",
         "",
+        f"## Legacy and mainframe ({len(legacy)} languages)",
+        "",
+        "Few of these have a parser or compiler to compare against, so most of their evidence is the answer-key column:",
+        "a key a separately written reader drafted and blind LLM reviewers re-read. The bar shows how much of that is",
+        "cross-verified and how much is still a draft. The reviewers are LLMs, not people, and no field has a human sign-off.",
+        "",
+        "![Legacy and mainframe languages](matrix_legacy.svg)",
+        "",
+        "<details>",
+        "<summary>The same table as text, with links to each sheet</summary>",
+        "",
+        *_table(legacy, stats, notes),
+        "</details>",
+        "",
         f"## Sparsely measured ({len(sparse)} languages)",
         "",
-        f"Fewer than {COVERAGE_MIN} of the six stats are measured. For many of these the sheet says why: no parser or",
+        f"Fewer than {COVERAGE_MIN} of the {len(STATS)} stats are measured. For many of these the sheet says why: no parser or",
         "reference tool exists, or the public corpus is small.",
         "",
         "<details>",
@@ -502,7 +712,17 @@ def render_index(langs: list[str], stats: dict[str, dict[str, Stat]], notes: dic
 
 # ----------------------------------------------------------------------------- matrix svg
 
-COLS = {"lang": 8, "detection": 130, "functions": 290, "calls": 450, "imports": 610, "keywords": 770, "rosetta": 960}
+COLS = {
+    "lang": 8,
+    "detection": 130,
+    "functions": 290,
+    "calls": 450,
+    "imports": 610,
+    "keywords": 770,
+    "rosetta": 960,
+    "answer_key": 1120,
+}
+WIDTH = 1290
 COL_W = 150
 ROW_PLAIN, ROW_KW = 38, 52  # a row grows only when it carries a keyword bar
 TOP = 58
@@ -536,15 +756,15 @@ def _bar(x: int, y: int, parts: list[tuple[int, str]], total: int) -> list[str]:
 
 def _row_height(lang: str, stats: dict[str, dict[str, Stat]]) -> int:
     k = stats["keywords"].get(lang)
-    return ROW_KW if k and k.extra["scored"] else ROW_PLAIN
+    return ROW_KW if (k and k.extra["scored"]) or stats["answer_key"].get(lang) else ROW_PLAIN
 
 
 def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str:
     heights = [_row_height(lang, stats) for lang in rows]
     height = TOP + sum(heights) + 8
     out = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1130 {height}" width="1130" height="{height}" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">',
-        f'<rect width="1130" height="{height}" fill="#0f1117"/>',
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WIDTH} {height}" width="{WIDTH}" height="{height}" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">',
+        f'<rect width="{WIDTH}" height="{height}" fill="#0f1117"/>',
     ]
     out.extend(
         f'<text x="{COLS[name]}" y="20" font-size="11" fill="{GREY}" font-weight="600">{STAT_TITLE[name].upper()}</text>'
@@ -561,9 +781,16 @@ def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str
     out.append(
         f'<text x="{lx + 10}" y="40" font-size="10.5" fill="{GREY}">p = precision, r = recall. Keywords: families by score, high to low.</text>'
     )
+    tx = 975
+    out.append(f'<text x="{tx}" y="40" font-size="10.5" fill="{GREY}">Answer key bar:</text>')
+    tx += 92
+    for tier in ("cross_verified", "llm_verified", "sample_verified", "draft"):
+        out.append(f'<rect x="{tx}" y="31" width="10" height="10" rx="2" fill="{TIER_FILL[tier]}"/>')
+        out.append(f'<text x="{tx + 14}" y="40" font-size="10.5" fill="#c9d1d9">{TIER_SHORT[tier]}</text>')
+        tx += 58
     y = TOP
     for lang, rh in zip(rows, heights, strict=True):
-        out.append(f'<line x1="8" y1="{y - 4}" x2="1122" y2="{y - 4}" stroke="{TRACK}"/>')
+        out.append(f'<line x1="8" y1="{y - 4}" x2="{WIDTH - 8}" y2="{y - 4}" stroke="{TRACK}"/>')
         out.append(
             f'<text x="{COLS["lang"]}" y="{y + 14}" font-size="13" fill="#f0efec" font-weight="600">{escape(lang)}</text>'
         )
@@ -612,6 +839,27 @@ def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str
             out += _bar(x, y + 3, [(passed, "#4f9be8"), (e["open"], FAIL)], e["comparable"])
             text = f"{passed} passed, {e['open']} failed" if e["open"] else f"{passed} of {e['comparable']} passed"
             out.append(f'<text x="{x}" y="{y + 24}" font-size="10" fill="#c9d1d9">{text}</text>')
+        s = stats["answer_key"].get(lang)
+        x = COLS["answer_key"]
+        if s is None:
+            out.append(f'<text x="{x}" y="{y + 14}" font-size="11" fill="{GREY}">not measured</text>')
+        else:
+            e = s.extra
+            out += _chips(x, y, s)
+            tiers = e["tiers"]
+            total = sum(tiers.values())
+            out += _bar(
+                x,
+                y + 23,
+                [
+                    (tiers.get(t, 0), TIER_FILL[t])
+                    for t in ("cross_verified", "llm_verified", "sample_verified", "draft")
+                ],
+                total,
+            )
+            out.append(
+                f'<text x="{x}" y="{y + 44}" font-size="10" fill="{GREY}">{s.n:,} facts, {len(e["fields"])} fields</text>'
+            )
         y += rh
     out.append("</svg>")
     return "\n".join(out) + "\n"
@@ -625,10 +873,11 @@ def build() -> tuple[dict[str, str], list[str]]:
     langs, stats = load_all()
     notes = load_notes()
     problems = validate(stats, notes)
-    well, sparse = split_by_coverage(langs, stats)
+    well, legacy, sparse = split_groups(langs, stats, notes)
     files = {
         "README.md": render_index(langs, stats, notes),
         "matrix.svg": render_matrix_svg(well, stats),
+        "matrix_legacy.svg": render_matrix_svg(legacy, stats),
         "matrix_sparse.svg": render_matrix_svg(sparse, stats),
     }
     for lang in langs:

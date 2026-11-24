@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 530" width="1290" height="530" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">
+<rect width="1290" height="530" fill="#0f1117"/>
+<text x="130" y="20" font-size="11" fill="#8b949e" font-weight="600">DETECTION</text>
+<text x="290" y="20" font-size="11" fill="#8b949e" font-weight="600">FUNCTIONS</text>
+<text x="450" y="20" font-size="11" fill="#8b949e" font-weight="600">CALL LINKS</text>
+<text x="610" y="20" font-size="11" fill="#8b949e" font-weight="600">IMPORTS</text>
+<text x="770" y="20" font-size="11" fill="#8b949e" font-weight="600">KEYWORDS</text>
+<text x="960" y="20" font-size="11" fill="#8b949e" font-weight="600">ROSETTA</text>
+<text x="1120" y="20" font-size="11" fill="#8b949e" font-weight="600">ANSWER KEY</text>
+<text x="8" y="20" font-size="11" fill="#8b949e" font-weight="600">LANGUAGE</text>
+<rect x="8" y="30" width="12" height="12" rx="3" fill="#3b1d1d" stroke="#e5534b"/>
+<text x="25" y="40" font-size="10.5" fill="#c9d1d9">under 50%</text>
+<rect x="108" y="30" width="12" height="12" rx="3" fill="#1f3b5c" stroke="#8b949e"/>
+<text x="125" y="40" font-size="10.5" fill="#c9d1d9">50-79%</text>
+<rect x="208" y="30" width="12" height="12" rx="3" fill="#2f6aa8" stroke="#8b949e"/>
+<text x="225" y="40" font-size="10.5" fill="#c9d1d9">80-89%</text>
+<rect x="308" y="30" width="12" height="12" rx="3" fill="#4f9be8" stroke="#8b949e"/>
+<text x="325" y="40" font-size="10.5" fill="#c9d1d9">90-97%</text>
+<rect x="408" y="30" width="12" height="12" rx="3" fill="#a9d1ff" stroke="#8b949e"/>
+<text x="425" y="40" font-size="10.5" fill="#c9d1d9">98-100%</text>
+<text x="518" y="40" font-size="10.5" fill="#8b949e">p = precision, r = recall. Keywords: families by score, high to low.</text>
+<text x="975" y="40" font-size="10.5" fill="#8b949e">Answer key bar:</text>
+<rect x="1067" y="31" width="10" height="10" rx="2" fill="#4f9be8"/>
+<text x="1081" y="40" font-size="10.5" fill="#c9d1d9">cross</text>
+<rect x="1125" y="31" width="10" height="10" rx="2" fill="#2f6aa8"/>
+<text x="1139" y="40" font-size="10.5" fill="#c9d1d9">LLM</text>
+<rect x="1183" y="31" width="10" height="10" rx="2" fill="#1f3b5c"/>
+<text x="1197" y="40" font-size="10.5" fill="#c9d1d9">sample</text>
+<rect x="1241" y="31" width="10" height="10" rx="2" fill="#8b949e"/>
+<text x="1255" y="40" font-size="10.5" fill="#c9d1d9">draft</text>
+<line x1="8" y1="54" x2="1282" y2="54" stroke="#30363d"/>
+<text x="8" y="72" font-size="13" fill="#f0efec" font-weight="600">bms</text>
+<text x="8" y="86" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="71" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="71" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="89" font-size="10" fill="#8b949e">10 files</text>
+<text x="290" y="72" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="72" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="72" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="72" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="61" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="82" font-size="10" fill="#c9d1d9">38 of 38 passed</text>
+<rect x="1120" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="71" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="71" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="81" width="84.4" height="9" fill="#4f9be8"/>
+<rect x="1204.4" y="81" width="23.8" height="9" fill="#1f3b5c"/>
+<rect x="1228.2" y="81" width="41.8" height="9" fill="#8b949e"/>
+<text x="1120" y="102" font-size="10" fill="#8b949e">9,945 facts, 2 fields</text>
+<line x1="8" y1="106" x2="1282" y2="106" stroke="#30363d"/>
+<text x="8" y="124" font-size="13" fill="#f0efec" font-weight="600">clist</text>
+<text x="8" y="138" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="130" y="124" font-size="11" fill="#8b949e">not measured</text>
+<text x="290" y="124" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="124" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="124" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="124" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="113" width="124.5" height="9" fill="#4f9be8"/>
+<rect x="1084.5" y="113" width="25.5" height="9" fill="#e5534b"/>
+<text x="960" y="134" font-size="10" fill="#c9d1d9">39 passed, 8 failed</text>
+<text x="1120" y="124" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="144" x2="1282" y2="144" stroke="#30363d"/>
+<text x="8" y="162" font-size="13" fill="#f0efec" font-weight="600">cobol</text>
+<text x="8" y="176" font-size="10" fill="#8b949e">6 of 7 stats</text>
+<rect x="130" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="161" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="161" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="179" font-size="10" fill="#8b949e">570 files</text>
+<rect x="290" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="161" font-size="11" fill="#06121f">100% p</text>
+<rect x="340" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="161" font-size="11" fill="#06121f">100% r</text>
+<text x="290" y="179" font-size="10" fill="#8b949e">2,527 units</text>
+<rect x="450" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="161" font-size="11" fill="#06121f">100% p</text>
+<rect x="500" y="148" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="506" y="161" font-size="11" fill="#06121f">92.6% r</text>
+<text x="450" y="179" font-size="10" fill="#8b949e">2,608 edges</text>
+<rect x="610" y="148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="161" font-size="11" fill="#06121f">98.1% p</text>
+<rect x="667" y="148" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="161" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="179" font-size="10" fill="#8b949e">503 copybook paths</text>
+<text x="770" y="162" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="151" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="172" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<rect x="1120" y="148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="161" font-size="11" fill="#06121f">99.9% p</text>
+<rect x="1177" y="148" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1183" y="161" font-size="11" fill="#06121f">99.5% r</text>
+<rect x="1120.0" y="171" width="25.8" height="9" fill="#4f9be8"/>
+<rect x="1145.8" y="171" width="15.2" height="9" fill="#2f6aa8"/>
+<rect x="1161.0" y="171" width="96.7" height="9" fill="#1f3b5c"/>
+<rect x="1257.7" y="171" width="12.3" height="9" fill="#8b949e"/>
+<text x="1120" y="192" font-size="10" fill="#8b949e">40,694 facts, 34 fields</text>
+<line x1="8" y1="196" x2="1282" y2="196" stroke="#30363d"/>
+<text x="8" y="214" font-size="13" fill="#f0efec" font-weight="600">csd</text>
+<text x="8" y="228" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="130" y="214" font-size="11" fill="#8b949e">not measured</text>
+<text x="290" y="214" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="214" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="214" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="214" font-size="11" fill="#8b949e">not measured</text>
+<text x="960" y="214" font-size="11" fill="#8b949e">not measured</text>
+<rect x="1120" y="200" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="213" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="200" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="213" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="223" width="136.8" height="9" fill="#4f9be8"/>
+<rect x="1256.8" y="223" width="13.2" height="9" fill="#8b949e"/>
+<text x="1120" y="244" font-size="10" fill="#8b949e">501 facts, 1 fields</text>
+<line x1="8" y1="248" x2="1282" y2="248" stroke="#30363d"/>
+<text x="8" y="266" font-size="13" fill="#f0efec" font-weight="600">db2_sql</text>
+<text x="8" y="280" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="252" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="265" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="252" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="265" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="283" font-size="10" fill="#8b949e">10 files</text>
+<text x="290" y="266" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="266" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="266" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="266" font-size="11" fill="#8b949e">decoy test only (2)</text>
+<rect x="960.0" y="255" width="147.4" height="9" fill="#4f9be8"/>
+<rect x="1107.4" y="255" width="2.6" height="9" fill="#e5534b"/>
+<text x="960" y="276" font-size="10" fill="#c9d1d9">56 passed, 1 failed</text>
+<rect x="1120" y="252" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="265" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="252" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="265" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="275" width="133.5" height="9" fill="#4f9be8"/>
+<rect x="1253.5" y="275" width="16.5" height="9" fill="#8b949e"/>
+<text x="1120" y="296" font-size="10" fill="#8b949e">127 facts, 2 fields</text>
+<line x1="8" y1="300" x2="1282" y2="300" stroke="#30363d"/>
+<text x="8" y="318" font-size="13" fill="#f0efec" font-weight="600">easytrieve</text>
+<text x="8" y="332" font-size="10" fill="#8b949e">0 of 7 stats</text>
+<text x="130" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="290" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="960" y="318" font-size="11" fill="#8b949e">not measured</text>
+<text x="1120" y="318" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="338" x2="1282" y2="338" stroke="#30363d"/>
+<text x="8" y="356" font-size="13" fill="#f0efec" font-weight="600">hlasm</text>
+<text x="8" y="370" font-size="10" fill="#8b949e">2 of 7 stats</text>
+<rect x="130" y="342" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="355" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="342" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="355" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="373" font-size="10" fill="#8b949e">18 files</text>
+<text x="290" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="356" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="345" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="366" font-size="10" fill="#c9d1d9">57 of 57 passed</text>
+<text x="1120" y="356" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="376" x2="1282" y2="376" stroke="#30363d"/>
+<text x="8" y="394" font-size="13" fill="#f0efec" font-weight="600">jcl</text>
+<text x="8" y="408" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="380" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="393" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="380" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="393" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="411" font-size="10" fill="#8b949e">186 files</text>
+<text x="290" y="394" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="394" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="394" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="394" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="383" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="404" font-size="10" fill="#c9d1d9">52 of 52 passed</text>
+<rect x="1120" y="380" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="393" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="380" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="393" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="403" width="102.1" height="9" fill="#4f9be8"/>
+<rect x="1222.1" y="403" width="34.8" height="9" fill="#1f3b5c"/>
+<rect x="1256.9" y="403" width="13.1" height="9" fill="#8b949e"/>
+<text x="1120" y="424" font-size="10" fill="#8b949e">2,792 facts, 5 fields</text>
+<line x1="8" y1="428" x2="1282" y2="428" stroke="#30363d"/>
+<text x="8" y="446" font-size="13" fill="#f0efec" font-weight="600">pli</text>
+<text x="8" y="460" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="432" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="445" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="432" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="445" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="463" font-size="10" fill="#8b949e">3 files</text>
+<text x="290" y="446" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="446" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="446" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="446" font-size="11" fill="#8b949e">decoy test only (11)</text>
+<rect x="960.0" y="435" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="456" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<rect x="1120" y="432" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="445" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="432" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="445" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="455" width="0.2" height="9" fill="#4f9be8"/>
+<rect x="1120.2" y="455" width="148.7" height="9" fill="#1f3b5c"/>
+<rect x="1269.0" y="455" width="1.0" height="9" fill="#8b949e"/>
+<text x="1120" y="476" font-size="10" fill="#8b949e">16,513 facts, 4 fields</text>
+<line x1="8" y1="480" x2="1282" y2="480" stroke="#30363d"/>
+<text x="8" y="498" font-size="13" fill="#f0efec" font-weight="600">rexx</text>
+<text x="8" y="512" font-size="10" fill="#8b949e">2 of 7 stats</text>
+<rect x="130" y="484" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="497" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="484" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="497" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="515" font-size="10" fill="#8b949e">25 files</text>
+<text x="290" y="498" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="498" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="498" font-size="11" fill="#8b949e">not measured</text>
+<text x="770" y="498" font-size="11" fill="#8b949e">not measured</text>
+<rect x="960.0" y="487" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="508" font-size="10" fill="#c9d1d9">54 of 54 passed</text>
+<text x="1120" y="498" font-size="11" fill="#8b949e">not measured</text>
+</svg>

@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 100% precision / 100% recall | 139 imports | tree-sitter | import statements in koalaman/shellcheck | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | decoy test only (32) |  | decoy-test |  | `tests/family_validity_baseline.json` |
 | Rosetta | 58 of 58 passed, 0 failed | 58 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

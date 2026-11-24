@@ -1,6 +1,6 @@
 # rexx
 
-Context: unclassified
+Context: legacy/mainframe
 
 ## Measured
 
@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | not measured | | | | |
 | Keywords | not measured | | | | |
 | Rosetta | 54 of 54 passed, 0 failed | 54 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 100% precision / 100% recall | 1,085 imports | tree-sitter | import statements in google/gson | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 12 of 55 families: 5 >90, 1 90-75, 2 75-50, 4 <50 | 1,352 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

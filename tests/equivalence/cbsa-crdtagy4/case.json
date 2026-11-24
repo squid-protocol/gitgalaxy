@@ -234,6 +234,17 @@
     }
    ],
    "why": "PUT CONTAINER of CIPD fails INVREQ: the program DISPLAYs both error lines (RESP and RESP2, then the container, channel and FLENGTH) and returns"
+  },
+  {
+   "name": "delay-expired",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "EXPIRED"
+    }
+   ],
+   "why": "the DELAY returns EXPIRED instead of INVREQ: the program tests only WS-CICS-RESP NOT = NORMAL, so it takes the same abend path (ABNDPROC LINK, ABEND PLOP), with the EXPIRED RESP and a zero RESP2 in the abend record"
   }
  ]
 }

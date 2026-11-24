@@ -18,11 +18,11 @@ Context: legacy/mainframe
 |---|---|---|---|---|---|
 | Detection | 100% recall / 100% precision | 570 files | corpus-label | labelled language-crucible files | `tests/detection_accuracy_baseline.json` |
 | Functions | 100% precision / 100% recall | 2,527 units | answer-key | answer key over 9 corpora, 168 programs (paragraphs and sections); weakest tier cross_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
-| Call links | 100% precision / 92.6% recall | 2,608 edges | answer-key | answer key over 9 corpora, 168 programs (PERFORM and GO TO edges inside a program); weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
+| Call links | 100% precision / 92.9% recall | 2,717 edges | answer-key | answer key over 9 corpora, 168 programs (PERFORM and GO TO edges inside a program); weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 | Imports | 98.1% precision / 100% recall | 503 copybook paths | answer-key | answer key over 9 corpora, 168 programs (COPY members resolved to a file); weakest tier cross_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
 | Keywords | not measured | | | | |
 | Rosetta | 58 of 58 passed, 0 failed | 58 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
-| Answer key | 99.9% precision / 99.5% recall; 17% of 40,694 facts cross-verified, weakest tier draft; blind review of 2,787 sampled items found 103 key errors (at most 4.3% at 95%) | 40,694 facts | answer-key | answer key over 9 corpora, 32 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
+| Answer key | 99.9% precision / 99.5% recall; 17% of 41,060 facts cross-verified, weakest tier draft; blind review of 4,200 sampled items found 105 key errors (at most 2.9% at 95%) | 41,060 facts | answer-key | answer key over 9 corpora, 32 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 
 ## Answer key fields
 
@@ -32,13 +32,13 @@ weakest review behind a field in each corpus; the mix column counts facts per ti
 
 | field | facts | engine matched | engine reported | tier mix |
 |---|---|---|---|---|
-| data moves | 13,905 | 13,905 | 13,905 | 12,583 sample_verified, 1,322 draft |
-| record fields | 6,270 | 6,270 | 6,270 | 5,475 sample_verified, 795 draft |
+| data moves | 13,905 | 13,905 | 13,905 | 13,905 sample_verified |
+| record fields | 6,270 | 6,270 | 6,270 | 6,270 sample_verified |
 | CICS resources | 3,699 | 3,699 | 3,699 | 337 cross_verified, 3,251 sample_verified, 111 draft |
+| unit extents | 2,923 | 2,898 | 2,923 | 186 cross_verified, 2,024 llm_verified, 713 draft |
 | copybook layouts | 2,759 | 2,759 | 2,759 | 628 cross_verified, 2,131 sample_verified |
-| unit extents | 2,666 | 2,658 | 2,666 | 186 cross_verified, 2,190 llm_verified, 290 draft |
+| intra-program edges | 2,717 | 2,525 | 2,525 | 178 cross_verified, 1,811 llm_verified, 728 draft |
 | units of work and handlers | 2,643 | 2,643 | 2,643 | 731 cross_verified, 1,761 sample_verified, 151 draft |
-| intra-program edges | 2,608 | 2,416 | 2,416 | 178 cross_verified, 1,934 llm_verified, 496 draft |
 | units | 2,527 | 2,527 | 2,527 | 2,527 cross_verified |
 | CICS RIDFLD | 781 | 781 | 781 | 92 cross_verified, 689 sample_verified |
 | copybook paths | 503 | 503 | 513 | 503 cross_verified |
@@ -47,7 +47,7 @@ weakest review behind a field in each corpus; the mix column counts facts per ti
 | file I/O moves | 247 | 247 | 247 | 247 cross_verified |
 | CICS task control | 223 | 223 | 223 | 39 cross_verified, 167 sample_verified, 17 draft |
 | call targets | 202 | 202 | 202 | 202 cross_verified |
-| MOVE truncation | 187 | 187 | 192 | 165 sample_verified, 22 draft |
+| MOVE truncation | 187 | 187 | 192 | 187 sample_verified |
 | dead (differs by design, not in the aggregate) | 177 | 125 | 332 | 177 cross_verified |
 | program_id | 168 | 168 | 168 | 168 cross_verified |
 | CALL USING | 156 | 156 | 156 | 103 cross_verified, 53 draft |
@@ -76,9 +76,9 @@ the unsampled facts correct.
 
 | section | items asked | key errors | upper bound on key error (95%) |
 |---|---|---|---|
-| data_moves | 1,675 | 17 | 1.50% |
-| records | 1,112 | 86 | 9.16% |
-| **all** | **2,787** | **103** | **4.33%** |
+| data_moves | 2,392 | 17 | 1.05% |
+| records | 1,808 | 88 | 5.77% |
+| **all** | **4,200** | **105** | **2.93%** |
 
 ## Notes
 

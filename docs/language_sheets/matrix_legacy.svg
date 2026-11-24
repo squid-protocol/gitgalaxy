@@ -69,8 +69,8 @@
 <rect x="340" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="173" font-size="11" fill="#06121f">100% r</text>
 <text x="290" y="191" font-size="10" fill="#8b949e">2,527 units</text>
 <rect x="450" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="173" font-size="11" fill="#06121f">100% p</text>
-<rect x="500" y="160" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="506" y="173" font-size="11" fill="#06121f">92.6% r</text>
-<text x="450" y="191" font-size="10" fill="#8b949e">2,608 edges</text>
+<rect x="500" y="160" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="506" y="173" font-size="11" fill="#06121f">92.9% r</text>
+<text x="450" y="191" font-size="10" fill="#8b949e">2,717 edges</text>
 <rect x="610" y="160" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="173" font-size="11" fill="#06121f">98.1% p</text>
 <rect x="667" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="173" font-size="11" fill="#06121f">100% r</text>
 <text x="610" y="191" font-size="10" fill="#8b949e">503 copybook paths</text>
@@ -79,12 +79,12 @@
 <text x="960" y="184" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
 <rect x="1120" y="160" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="173" font-size="11" fill="#06121f">99.9% p</text>
 <rect x="1177" y="160" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1183" y="173" font-size="11" fill="#06121f">99.5% r</text>
-<rect x="1120.0" y="183" width="25.8" height="9" fill="#4f9be8"/>
-<rect x="1145.8" y="183" width="15.2" height="9" fill="#2f6aa8"/>
-<rect x="1161.0" y="183" width="96.7" height="9" fill="#1f3b5c"/>
-<rect x="1257.7" y="183" width="12.3" height="9" fill="#8b949e"/>
-<text x="1120" y="204" font-size="10" fill="#8b949e">40,694 facts, 34 fields</text>
-<text x="1120" y="216" font-size="10" fill="#8b949e">sample: key error &lt;= 4.3% (95%)</text>
+<rect x="1120.0" y="183" width="25.6" height="9" fill="#4f9be8"/>
+<rect x="1145.6" y="183" width="14.0" height="9" fill="#2f6aa8"/>
+<rect x="1159.6" y="183" width="103.6" height="9" fill="#1f3b5c"/>
+<rect x="1263.2" y="183" width="6.8" height="9" fill="#8b949e"/>
+<text x="1120" y="204" font-size="10" fill="#8b949e">41,060 facts, 34 fields</text>
+<text x="1120" y="216" font-size="10" fill="#8b949e">sample: key error &lt;= 2.9% (95%)</text>
 <line x1="8" y1="220" x2="1282" y2="220" stroke="#30363d"/>
 <text x="8" y="238" font-size="13" fill="#f0efec" font-weight="600">csd</text>
 <text x="8" y="252" font-size="10" fill="#8b949e">1 of 7 stats</text>
@@ -174,10 +174,10 @@
 <rect x="1120" y="468" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="481" font-size="11" fill="#06121f">100% p</text>
 <rect x="1170" y="468" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="481" font-size="11" fill="#06121f">100% r</text>
 <rect x="1120.0" y="491" width="0.2" height="9" fill="#4f9be8"/>
-<rect x="1120.2" y="491" width="148.7" height="9" fill="#1f3b5c"/>
-<rect x="1269.0" y="491" width="1.0" height="9" fill="#8b949e"/>
-<text x="1120" y="512" font-size="10" fill="#8b949e">16,513 facts, 4 fields</text>
-<text x="1120" y="524" font-size="10" fill="#8b949e">sample: key error &lt;= 0.6% (95%)</text>
+<rect x="1120.2" y="491" width="149.1" height="9" fill="#1f3b5c"/>
+<rect x="1269.3" y="491" width="0.7" height="9" fill="#8b949e"/>
+<text x="1120" y="512" font-size="10" fill="#8b949e">24,080 facts, 4 fields</text>
+<text x="1120" y="524" font-size="10" fill="#8b949e">sample: key error &lt;= 0.5% (95%)</text>
 <line x1="8" y1="528" x2="1282" y2="528" stroke="#30363d"/>
 <text x="8" y="546" font-size="13" fill="#f0efec" font-weight="600">rexx</text>
 <text x="8" y="560" font-size="10" fill="#8b949e">2 of 7 stats</text>

@@ -775,7 +775,10 @@ class AuditRecorder:
             # #2813: section 7 below carries raw counts; the proximity-weighted figure
             # each of those counts used to carry is shown here, beside its tally.
             for key, val in (telemetry.get("weighted_signals") or {}).items():
-                formatted_mitigations[f"{self.format_label(key)} (Weighted View)"] = val
+                # gitgalaxy#8009: a signal is named by its display name (as the brief's weighted view is).
+                shown = config.signal_display_name(key)
+                label = shown if shown != key else self.format_label(key)
+                formatted_mitigations[f"{label} (Weighted View)"] = val
 
             # Assemble the individual artifact profile
             file_profile = {

@@ -325,6 +325,6 @@
   "path": [
     "6. Parsed Files (Scanned Artifacts)",
     "6. Contextual Mitigations & Amplifications",
-    "Asynchronous/Concurrent Execution (Weighted View)"
+    "Async & Concurrency (Weighted View)"
   ]
 }

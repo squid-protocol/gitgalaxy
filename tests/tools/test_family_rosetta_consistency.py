@@ -120,7 +120,9 @@ def test_a_malformed_manifest_is_reported_not_fatal(tmp_path):
 
 def test_the_ledger_splits_joined_signals_and_tolerates_a_missing_file(tmp_path):
     assert frc.load_ledger(tmp_path) == set()
-    (tmp_path / "deviation_ledger.json").write_text(json.dumps({"entries": [{"signal": "globals|io", "languages_seen": ["go"]}, {"signal": "x"}]}))
+    (tmp_path / "deviation_ledger.json").write_text(
+        json.dumps({"entries": [{"signal": "globals|io", "languages_seen": ["go"]}, {"signal": "x"}]})
+    )
     assert frc.load_ledger(tmp_path) == {("globals", "go"), ("io", "go")}
 
 
@@ -169,3 +171,41 @@ def test_the_real_corpus_lists_every_contracted_planted_family_when_checked_out(
     contracted = {f.key for f in families}
     assert set(result["families"]) == contracted & planted
     assert set(result["not_testable"]) == contracted - planted
+
+
+def test_drift_names_only_a_family_both_sources_read_differently():
+    manifests = {"a": {"io": 3, "args": 2}, "b": {"io": 3}}
+    live = {"a": {"io": 3, "args": 9, "branch": 4}, "b": {"io": 0}}
+    assert frc.drift(manifests, live) == {"a": {"args": (2, 9)}, "b": {"io": (3, 0)}}
+
+
+def test_drift_report_says_when_nothing_drifted():
+    assert "same live" in frc.render_drift({})
+    assert "`a`: args=2/9" in frc.render_drift({"a": {"args": (2, 9)}})
+
+
+def _python_corpus(tmp_path: Path) -> Path:
+    d = tmp_path / "data" / "python"
+    d.mkdir(parents=True)
+    (d / "main.py").write_text("import os\n\n\ndef f(a, b):\n    if a:\n        return b\n    return a\n")
+    (d / "expected_signals.json").write_text(json.dumps({"files": {"main.py": {"import": 1}}}))
+    return tmp_path
+
+
+def test_live_counts_reach_every_defined_family_of_a_folder(tmp_path):
+    from family_validity_chart import engine_grid
+
+    _fams, _langs, defined = engine_grid()
+    live = frc.live_manifests(_python_corpus(tmp_path), ["python", "markdown"], defined)
+    assert set(live) == {"python"}  # a folder that is not a registry language is skipped
+    assert set(live["python"]) == defined["python"]
+    assert live["python"]["import"] >= 1
+    assert live["python"]["branch"] >= 1
+
+
+def test_live_cli_reads_the_sources_and_reports_drift(tmp_path, capsys):
+    corpus = _python_corpus(tmp_path)
+    assert frc.main(["--corpus", str(corpus), "--live"]) == 0
+    out = capsys.readouterr().out
+    assert "| import |" in out
+    assert "Live vs manifest" in out

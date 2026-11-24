@@ -34,8 +34,8 @@ Why does an enterprise need an AST-free structural parser running at hyper-veloc
 ### A. M&A Technical Due Diligence
 When a corporation acquires a software company, they are acquiring its technical debt. Traditional due diligence relies on developer interviews and subjective, high-level architecture reviews. GitGalaxy allows acquiring firms to drop the target repository into the engine and generate a SHBOM in seconds. It provides an immediate, mathematically undeniable map of the system's fragility, key-person dependencies (Silo Risk), and architectural drift, directly informing the valuation of the asset.
 
-### B. Zero-Trust Security Compliance
-Security and compliance audits (like SOC2) increasingly demand proof of secure software development lifecycles. The SHBOM provides a permanent, immutable ledger of the system's structural integrity. Because GitGalaxy parses code without executing it, security teams can audit massive, highly classified, or broken legacy codebases in fully air-gapped, zero-trust environments.
+### B. Air-Gapped Security Compliance
+Security and compliance audits (like SOC2) increasingly demand proof of secure software development lifecycles. The SHBOM provides a permanent, immutable ledger of the system's structural integrity. Because GitGalaxy parses code without executing it, security teams can audit massive, highly classified, or broken legacy codebases in fully air-gapped environments.
 
 ### C. Autonomous AI Readiness Assessment
 As enterprises rush to deploy Autonomous AI Agents (like Devin or GitHub Copilot Workspace) to refactor code, they face a massive risk: LLMs hallucinate when context windows are overwhelmed, and they break systems when state mutation is highly coupled.

@@ -22,7 +22,7 @@ The orchestrator (`Orchestrator.execute_pipeline()` in `galaxyscope.py`) execute
 2. Dependency resolution: the import graph (using an $O(1)$ pre-computed suffix hash map).
 3. Structural impact analysis: risk exposures from token counts and Git history.
 4. Network topology: import edges, cross-file call and mainframe invocation resolution, then PageRank and Betweenness.
-5. Zero-trust guardrails (AI & AppSec): opt-in, runs only with `--ai-guardrails`.
+5. AI and AppSec guardrails: opt-in, runs only with `--ai-guardrails`.
 6. Spectral audit: statistical quality audit (50/0 rule, Z-score).
 7. Spatial layout (ray-casting Fibonacci packing).
 8. Metrics synthesis & forensics.
@@ -31,7 +31,7 @@ The orchestrator (`Orchestrator.execute_pipeline()` in `galaxyscope.py`) execute
 11. Global telemetry & metadata locking.
 12. Archival & export routing (SQLite, JSON, Markdown, WebGL, SARIF, SBOM).
 
-Dynamic overrides like dialect pre-flight patching and runtime security switches (Zero-Trust Mode) modify policies dynamically.
+Dynamic overrides like dialect pre-flight patching and runtime security switches (such as `--ai-guardrails`) modify policies dynamically.
 
 ## Pipeline Integration
 Inputs: Codebase artifacts, dynamic configuration overrides, runtime flags.

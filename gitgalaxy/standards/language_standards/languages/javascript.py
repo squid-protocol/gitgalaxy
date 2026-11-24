@@ -152,7 +152,7 @@ DEFINITION: dict[str, Any] = {
             r")",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural declaration boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(let|var|import|export|return|break|continue|class|extends|super|await|delete|yield)\b|=>"

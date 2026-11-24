@@ -333,7 +333,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (pub) and Immutability (const/static).
         "structural_boundaries": re.compile(
             r"(?<!r#)(?<!')\b(let|struct|enum|union|trait|impl|use|mod|type|yield|await|where|mut|ref|move|return)\b"

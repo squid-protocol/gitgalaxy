@@ -111,7 +111,7 @@
 <text class="dim" x="728.0" y="233">·</text>
 <text class="dim" x="770.0" y="233">·</text>
 <text class="dim" x="812.0" y="233">·</text>
-<text class="fam" x="16" y="253">debug_prints (draft)</text>
+<text class="fam" x="16" y="253">debug_prints</text>
 <rect x="204" y="240" width="40" height="18" fill="#a9d1ff"/>
 <text class="numd" x="224.0" y="253">100</text>
 <text class="sided" x="207" y="248">P</text>
@@ -514,7 +514,7 @@
 <text class="dim" x="728.0" y="493">·</text>
 <text class="dim" x="770.0" y="493">·</text>
 <text class="dim" x="812.0" y="493">·</text>
-<text class="fam" x="16" y="513">concurrency (draft)</text>
+<text class="fam" x="16" y="513">concurrency</text>
 <rect x="204" y="500" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
 <text class="num" x="224.0" y="513">48†</text>
 <text class="side" x="207" y="508">P</text>
@@ -711,7 +711,7 @@
 <text class="dim" x="728.0" y="633">·</text>
 <text class="dim" x="770.0" y="633">·</text>
 <text class="dim" x="812.0" y="633">·</text>
-<text class="fam" x="16" y="653">sync_locks (draft)</text>
+<text class="fam" x="16" y="653">sync_locks</text>
 <rect x="204" y="640" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
 <text class="thin" x="224.0" y="653">0</text>
 <text class="dim" x="266.0" y="653">·</text>

@@ -21,8 +21,14 @@ _COMMON_FAMILIES = (
     (
         "struct_branch",
         "branch",
-        "decision points: if/else arms, loops, case/default arms, conditional expressions, && and || (not catch handlers, goto, return or break: contract corollaries 1 and 3)",
+        "decision points: if/else arms, loops, case/default arms, conditional expressions (not && and ||: those are short_circuit's, corollary 0; not catch handlers, goto, return or break: contract corollaries 1 and 3)",
         "branch",
+    ),
+    (
+        "struct_short_circuit",
+        "short_circuit",
+        "boolean operators whose right operand is evaluated only when the left does not decide: && || and or",
+        "short_circuit",
     ),
     ("args", "args", "declared parameters", "args"),
     (
@@ -633,7 +639,7 @@ class TreeSitterOracle:
             elif t in ("binary_expression", "boolean_operator"):
                 op = _text(node.child_by_field_name("operator"))
                 if op in ("&&", "||", "and", "or"):
-                    add("branch", op)
+                    add("short_circuit", op)
                 if op in ("<<", ">>", "^", "&^", "&", "|"):
                     add("bitwise", op)
             elif t == "unary_expression" and _text(node.child_by_field_name("operator")) == "~":

@@ -3428,20 +3428,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 13.52,
+        "cognitive_load": 15.76,
         "concurrency": 2.15,
         "dead_code": 0.2,
-        "documentation": 59.08,
-        "safety_score": 57.52,
+        "documentation": 59.99,
+        "safety_score": 57.5,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.39,
-        "state_flux": 28.61,
-        "tech_debt": 8.22,
+        "state_flux": 28.52,
+        "tech_debt": 11.01,
         "verification": 59.9
       },
       "file_count": 31,
-      "total_mass": 7068.06
+      "total_mass": 7555.86
     },
     "kotlin": {
       "avg_exposures": {

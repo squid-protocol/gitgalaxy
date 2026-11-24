@@ -796,7 +796,7 @@
       "julia/dataframes_jl/abstractdataframe_show.jl": "2 instances",
       "julia/dataframes_jl/abstractdataframe_sort.jl": "5 instances",
       "julia/dataframes_jl/abstractdataframe_subset.jl": "6 instances",
-      "julia/dataframes_jl/dataframe_dataframe.jl": "22 instances",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "21 instances",
       "julia/dataframes_jl/dataframe_insertion.jl": "60 instances",
       "julia/dataframes_jl/dataframerow_dataframerow.jl": "1 instances",
       "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "7 instances",
@@ -806,7 +806,7 @@
       "julia/dataframes_jl/groupeddataframe_utils.jl": "2 instances",
       "julia/dataframes_jl/join_core.jl": "20 instances",
       "julia/dataframes_jl/other_broadcasting.jl": "12 instances",
-      "julia/dataframes_jl/other_index.jl": "26 instances"
+      "julia/dataframes_jl/other_index.jl": "23 instances"
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": "9 instances",

@@ -6682,30 +6682,30 @@
     "julia/dataframes_jl": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "13.52%",
+        "Cognitive Load Exposure": "15.76%",
         "Commented Logic Exposure": "0.2%",
         "Concurrency Exposure": "2.15%",
-        "Documentation Exposure": "59.08%",
-        "Error & Exception Exposure": "57.52%",
+        "Documentation Exposure": "59.99%",
+        "Error & Exception Exposure": "57.5%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.39%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "28.61%",
-        "Tech Debt Exposure": "8.22%",
+        "State Flux Exposure": "28.52%",
+        "Tech Debt Exposure": "11.01%",
         "Testing Exposure": "59.9%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 7068.06,
+      "Directory Group Magnitude": 7555.86,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.2%",
-        "file_cluster_12": "12.9%",
+        "file_cluster_12": "22.6%",
         "file_cluster_13": "3.2%",
-        "file_cluster_15": "19.4%",
+        "file_cluster_15": "22.6%",
         "file_cluster_2": "6.5%",
-        "file_cluster_4": "19.4%",
-        "file_cluster_6": "19.4%",
-        "file_cluster_8": "6.5%",
-        "file_cluster_9": "9.7%"
+        "file_cluster_4": "25.8%",
+        "file_cluster_6": "6.5%",
+        "file_cluster_8": "3.2%",
+        "file_cluster_9": "6.5%"
       },
       "File Count": 31,
       "Files": [

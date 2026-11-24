@@ -743,6 +743,18 @@ NODE_MAPS = {
         "func_node_types": {"function_definition"},
         "class_node_types": {"class_definition"},
     },
+    "ada": {
+        "ts_lang": "ada",
+        # GitGalaxy's Ada func_start deliberately matches only a subprogram that has a BODY (Rule 7, strict
+        # execution anchoring: a spec-only declaration, `is abstract`, `is null` and `is new` are not functions).
+        # The reference follows that same definition: a subprogram_body, plus an expression function
+        # (`function F (X : T) return T is (X + 1);`), which carries the literal `is` and has a body expression.
+        # A subprogram_declaration (a spec in a .ads file) is left out on purpose: counting it would book every
+        # spec as a "missing" function against a rule that excludes it by design.
+        # The name sits on the nested procedure_specification / function_specification (see _ADA_SUBPROGRAM_NODES).
+        "func_node_types": {"subprogram_body", "expression_function_declaration"},
+        "class_node_types": set(),
+    },
     "tcl": {
         "ts_lang": "tcl",
         "func_node_types": {"procedure"},
@@ -846,8 +858,6 @@ NODE_MAPS = {
 #     key, a `jobs:` key), not general YAML syntax -- tree-sitter's generic YAML grammar has no
 #     concept of "job" vs. any other mapping key, so there's no structural ground truth to diff
 #     against regardless of node-type mapping.
-#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.2.0 pin) -- nothing to
-#     measure against yet; revisit if/when the corpus adds Ada samples.
 #   - groovy: tri-comparison manual verification (2026-08-31) confirmed tree-sitter-language-pack's
 #     "groovy" grammar has no class_declaration/method_declaration node type at all -- `class Foo {`
 #     parses into a generic command/unit/block soup (3.2% ERROR rate across a 30-file/13K-node
@@ -1089,6 +1099,9 @@ def _haskell_signature_type_is_io_action(type_node: Any | None) -> bool:
     return node is not None and node.type == "name" and node.text == b"IO"
 
 
+_ADA_SUBPROGRAM_NODES = frozenset(NODE_MAPS["ada"]["func_node_types"])
+
+
 def _julia_definition_call(node: Any) -> Any | None:
     """The call_expression (or bare identifier, for a `function f end` stub) that names a Julia function definition."""
     if node.type == "function_definition":
@@ -1295,6 +1308,15 @@ def _get_node_name(node: Any) -> str | None:
             if child.type == "operator":
                 seen_keyword = True
         return None
+
+    if node.type in _ADA_SUBPROGRAM_NODES:
+        # Ada: the grammar nests the name inside the node's procedure_/function_specification child.
+        spec = next(
+            (c for c in node.named_children if c.type in ("procedure_specification", "function_specification")),
+            None,
+        )
+        ada_name = spec.child_by_field_name("name") if spec is not None else None
+        return ada_name.text.decode("utf8") if ada_name is not None else None
 
     name_node = node.child_by_field_name("name")
     if name_node:
@@ -1719,7 +1741,27 @@ def _count_perl_real_args(node: Any) -> int:
     return total
 
 
+def _count_ada_params(node: Any) -> int:
+    """Ada parameters: each parameter_specification names one or more parameters (`L, R : Boolean` is two). The names are
+    its unnamed `identifier` children; the type's identifier carries the `subtype_mark` field and is not counted."""
+    spec = next(
+        (c for c in node.named_children if c.type in ("procedure_specification", "function_specification")), None
+    )
+    formal = next((c for c in spec.named_children if c.type == "formal_part"), None) if spec is not None else None
+    if formal is None:
+        return 0
+    total = 0
+    for ps in formal.named_children:
+        if ps.type == "parameter_specification":
+            total += sum(
+                1 for i, c in enumerate(ps.children) if c.type == "identifier" and ps.field_name_for_child(i) is None
+            )
+    return total
+
+
 def _get_param_count(node: Any, lang: str = "") -> int:
+    if lang == "ada" and node.type in _ADA_SUBPROGRAM_NODES:
+        return _count_ada_params(node)
     if lang == "shell" and node.type == "function_definition":
         return _count_shell_real_positional_max(node)
     if lang == "perl" and node.type in _PERL_SUB_NODE_TYPES:

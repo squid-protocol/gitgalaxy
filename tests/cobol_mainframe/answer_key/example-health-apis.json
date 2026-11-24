@@ -393,7 +393,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
       "program_id": "HCAPDB02",
@@ -772,7 +774,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
       "program_id": "HCATDB01",
@@ -1151,7 +1155,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
       "program_id": "HCAVDB01",
@@ -1566,7 +1572,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": {
       "program_id": "HCAZERRS",
@@ -2086,7 +2094,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
       "program_id": "HCAZMENU",
@@ -2254,7 +2264,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
       "program_id": "HCIMDB01",
@@ -2819,7 +2831,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
       "program_id": "HCIPDB01",
@@ -3187,7 +3201,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
       "program_id": "HCITDB01",
@@ -3555,7 +3571,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
       "program_id": "HCIVDB01",
@@ -3959,7 +3977,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
       "program_id": "HCM1BI01",
@@ -4348,7 +4368,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
       "program_id": "HCM1PL01",
@@ -4917,7 +4939,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
       "program_id": "HCMABA01",
@@ -5315,7 +5339,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
       "program_id": "HCMADB01",
@@ -5742,7 +5768,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
       "program_id": "HCMADB02",
@@ -6650,7 +6678,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
       "program_id": "HCMAPL01",
@@ -6957,7 +6987,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
       "program_id": "HCMRESTW",
@@ -7739,7 +7771,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
       "program_id": "HCP1BA01",
@@ -8130,7 +8164,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
       "program_id": "HCP1BI01",
@@ -8501,7 +8537,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
       "program_id": "LGUCUS01",
@@ -9471,7 +9509,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
       "program_id": "HCP1PL01",
@@ -9826,7 +9866,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
       "program_id": "HCPRESTW",
@@ -10518,7 +10560,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
       "program_id": "HCT1BA01",
@@ -10864,7 +10908,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
       "program_id": "HCT1BI01",
@@ -11235,7 +11281,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
       "program_id": "HCT1PL01",
@@ -11618,7 +11666,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
       "program_id": "HCTRESTW",
@@ -12310,7 +12360,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
       "program_id": "HCV1BA01",
@@ -12656,7 +12708,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
       "program_id": "HCV1BI01",
@@ -13027,7 +13081,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
       "program_id": "HCV1PL01",
@@ -13426,7 +13482,9 @@
         }
       },
       "extents_validated": true,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "pli_programs": {},
@@ -21467,10 +21525,16 @@
         "L199 MOVE DB2-PATIENT-ID -> CA-PATIENT-ID"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
@@ -21490,10 +21554,16 @@
         "L170 MOVE '90' -> CA-RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
@@ -21516,10 +21586,16 @@
       "truncations": [
         "L150 ' INSERT THRESHOLD' -> EM-SQLREQ"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
@@ -21549,10 +21625,16 @@
         "L161 ' INSERT BLOODPRESSURE' -> EM-SQLREQ",
         "L187 ' INSERT HEARTRATE' -> EM-SQLREQ"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": {
@@ -21569,10 +21651,16 @@
         "L97 MOVE 'HCAZERRS' -> STSQ-NAME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
@@ -21585,10 +21673,16 @@
         "L44 INITIALIZE - -> COMM-AREA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
@@ -21625,10 +21719,16 @@
         "L259 MOVE WS-COUNTER -> CA-NUM-MEDICATIONS"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
@@ -21650,10 +21750,16 @@
         "L98 INITIALIZE - -> WS-HEADER"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
@@ -21676,10 +21782,16 @@
         "L99 MOVE EIBTRNID -> WS-TRANSID"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
@@ -21710,10 +21822,16 @@
         "L209 MOVE '90' -> CA-RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
@@ -21736,10 +21854,16 @@
         "L98 ADD WS-CA-HEADERTRAILER-LEN -> WS-REQUIRED-CA-LEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
@@ -21795,10 +21919,16 @@
         "L126 CA-DRUG-NAME OF CA-MEDICATIONS -> HCM1DNA2O",
         "L139 CA-DRUG-NAME OF CA-MEDICATIONS -> HCM1DNA3O"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
@@ -21814,10 +21944,16 @@
         "L98 MOVE EIBCALEN -> WS-CALEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
@@ -21842,10 +21978,16 @@
       "truncations": [
         "L163 ' INSERT MEDICATION' -> EM-SQLREQ"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
@@ -21903,10 +22045,16 @@
       "truncations": [
         "L265 ' INSERT PRESCRIPTION' -> EM-SQLREQ"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
@@ -21948,10 +22096,16 @@
         "L96 MOVE HCMAEDTAI -> CA-END-DATE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
@@ -22022,10 +22176,16 @@
         "L387 UNSTRING WS-RESID -> WS-FIELD3"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
@@ -22041,10 +22201,16 @@
         "L98 ADD WS-CA-HEADER-LEN -> WS-REQUIRED-CA-LEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
@@ -22061,10 +22227,16 @@
         "L97 MOVE '98' -> CA-RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
@@ -22088,10 +22260,16 @@
         "L184 WS-DATE -> EM-DATE",
         "L185 WS-TIME -> EM-TIME"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
@@ -22160,10 +22338,16 @@
       "truncations": [
         "L112 CA-EMAIL-ADDRESS -> HCP1HMOO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
@@ -22232,10 +22416,16 @@
         "L204 STREET-ADDRESS -> CA-ADDRESS",
         "L251 FIRST-NAME -> CA-FIRST-NAME"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
@@ -22251,10 +22441,16 @@
         "L98 MOVE EIBCALEN -> WS-CALEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
@@ -22271,10 +22467,16 @@
         "L96 MOVE '98' -> CA-RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
@@ -22317,10 +22519,16 @@
         "L90 MOVE HCT1PNOI -> CA-PATIENT-ID"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
@@ -22366,10 +22574,16 @@
         "L344 UNSTRING WS-RESID -> WS-FIELD3"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
@@ -22385,10 +22599,16 @@
         "L97 MOVE EIBCALEN -> WS-CALEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
@@ -22405,10 +22625,16 @@
         "L99 ADD WS-CA-HEADERTRAILER-LEN -> WS-REQUIRED-CA-LEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
@@ -22458,10 +22684,16 @@
         "L122 HCV1HRATEI -> CA-HEART-RATE",
         "L123 HCV1BLPRI -> CA-BLOOD-PRESSURE"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSPD.cpy": {
@@ -22472,10 +22704,16 @@
         "L45 MOVE DFHCOMMAREA(:) -> CA-DATA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     }
   },
@@ -23256,6 +23494,1001 @@
         "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
         "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
       ]
+    }
+  ],
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 400,
+        "window": 12,
+        "windows": [
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+            "from": 92,
+            "to": 103
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+            "from": 115,
+            "to": 126
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+            "from": 148,
+            "to": 159
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+            "from": 195,
+            "to": 204
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+            "from": 130,
+            "to": 141
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+            "from": 146,
+            "to": 157
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+            "from": 165,
+            "to": 172
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+            "from": 125,
+            "to": 136
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+            "from": 138,
+            "to": 149
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+            "from": 183,
+            "to": 194
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+            "from": 201,
+            "to": 209
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+            "from": 58,
+            "to": 69
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+            "from": 76,
+            "to": 87
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+            "from": 101,
+            "to": 112
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+            "from": 126,
+            "to": 137
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+            "from": 32,
+            "to": 43
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+            "from": 124,
+            "to": 135
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+            "from": 157,
+            "to": 165
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+            "from": 127,
+            "to": 138
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+            "from": 179,
+            "to": 190
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+            "from": 238,
+            "to": 249
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+            "from": 252,
+            "to": 263
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+            "from": 87,
+            "to": 98
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+            "from": 132,
+            "to": 143
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+            "from": 158,
+            "to": 169
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+            "from": 183,
+            "to": 194
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+            "from": 149,
+            "to": 160
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+            "from": 126,
+            "to": 137
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+            "from": 172,
+            "to": 183
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+            "from": 207,
+            "to": 216
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+            "from": 78,
+            "to": 89
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+            "from": 90,
+            "to": 101
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 62,
+            "to": 73
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 94,
+            "to": 105
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 109,
+            "to": 120
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 122,
+            "to": 133
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 135,
+            "to": 146
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 199,
+            "to": 210
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 217,
+            "to": 228
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+            "from": 232,
+            "to": 243
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+            "from": 103,
+            "to": 114
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 131,
+            "to": 142
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 166,
+            "to": 177
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 182,
+            "to": 193
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 195,
+            "to": 206
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 212,
+            "to": 223
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 244,
+            "to": 255
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+            "from": 287,
+            "to": 292
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "from": 46,
+            "to": 57
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "from": 69,
+            "to": 80
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "from": 94,
+            "to": 105
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "from": 211,
+            "to": 215
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 111,
+            "to": 122
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 136,
+            "to": 147
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 149,
+            "to": 160
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 235,
+            "to": 246
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 285,
+            "to": 296
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 302,
+            "to": 313
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 349,
+            "to": 360
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "from": 383,
+            "to": 394
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+            "from": 94,
+            "to": 105
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+            "from": 130,
+            "to": 141
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+            "from": 90,
+            "to": 101
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+            "from": 117,
+            "to": 128
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+            "from": 155,
+            "to": 166
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+            "from": 181,
+            "to": 192
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 42,
+            "to": 53
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 56,
+            "to": 67
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 108,
+            "to": 119
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 120,
+            "to": 131
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 132,
+            "to": 143
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 181,
+            "to": 192
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 230,
+            "to": 241
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+            "from": 253,
+            "to": 262
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 172,
+            "to": 183
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 200,
+            "to": 211
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 214,
+            "to": 225
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 229,
+            "to": 240
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 247,
+            "to": 258
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 300,
+            "to": 311
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 316,
+            "to": 327
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 360,
+            "to": 371
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+            "from": 374,
+            "to": 385
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+            "from": 74,
+            "to": 85
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+            "from": 173,
+            "to": 184
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+            "from": 231,
+            "to": 242
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 81,
+            "to": 92
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 125,
+            "to": 136
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 234,
+            "to": 245
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 264,
+            "to": 275
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 278,
+            "to": 289
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 306,
+            "to": 317
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+            "from": 323,
+            "to": 334
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+            "from": 78,
+            "to": 89
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+            "from": 120,
+            "to": 131
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+            "from": 52,
+            "to": 63
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+            "from": 119,
+            "to": 130
+          },
+          {
+            "file": "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+            "from": 240,
+            "to": 251
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl@92-103",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl@115-126",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl@148-159",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl@195-204",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl@130-141",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl@146-157",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl@165-172",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl@125-136",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl@138-149",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl@183-194",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl@201-209",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl@58-69",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl@76-87",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl@101-112",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl@126-137",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl@32-43",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl@124-135",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl@157-165",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl@127-138",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl@179-190",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl@238-249",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl@252-263",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl@87-98",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl@132-143",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl@158-169",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl@183-194"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl@149-160",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl@126-137",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl@159-170",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl@172-183",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl@207-216",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl@78-89",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl@90-101",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@62-73",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@94-105",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@109-120",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@122-133",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@135-146",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@199-210",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@217-228",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl@232-243",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl@103-114",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl@159-170",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@131-142"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@166-177",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@182-193",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@195-206",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@212-223",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@244-255",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl@287-292",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@46-57",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@69-80",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@94-105",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@159-170",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@211-215",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@111-122",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@136-147",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@149-160",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@235-246"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 4,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@285-296",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@302-313",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@349-360",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl@383-394",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl@94-105",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl@130-141",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl@90-101",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl@117-128",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl@155-166",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl@181-192",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@42-53",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@56-67",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@108-119",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@120-131"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 5,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@132-143",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@181-192",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@230-241",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl@253-262",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@172-183",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@200-211",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@214-225",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@229-240"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 6,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@247-258",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@300-311",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@316-327",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@360-371",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl@374-385",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl@74-85",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl@159-170",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl@173-184",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl@231-242",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@81-92",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@125-136",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@234-245",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@264-275",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@278-289",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@306-317",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl@323-334",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl@78-89",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl@120-131",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl@52-63",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl@119-130"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 7,
+          "windows": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl@240-251"
+          ]
+        }
+      ],
+      "asked": 300,
+      "key_errors": 0,
+      "upper_bound_95": 0.00994
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "files": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "files": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+          ]
+        }
+      ],
+      "asked": 150,
+      "key_errors": 0,
+      "upper_bound_95": 0.01977
+    }
+  },
+  "section_census": [
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 42,
+          "asked": 42
+        },
+        "trunc": {
+          "agree": 2,
+          "asked": 2
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 47,
+          "asked": 47
+        },
+        "trunc": {
+          "agree": 4,
+          "asked": 4
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 51,
+          "asked": 53
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "moves:HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@159-170::L162 MOVE CA-FIRST-NAME -> HCMAFNAI": {
+          "verdict": "key_correct",
+          "why": "A plain MOVE statement that starts in the window (checked in the source); the reviewer left it out."
+        },
+        "moves:HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl@159-170::L163 MOVE CA-LAST-NAME -> HCMALNAI": {
+          "verdict": "key_correct",
+          "why": "A plain MOVE statement that starts in the window (checked in the source); the reviewer left it out."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 4,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 42,
+          "asked": 42
+        },
+        "trunc": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 5,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 49,
+          "asked": 49
+        },
+        "trunc": {
+          "agree": 4,
+          "asked": 4
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 6,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 47,
+          "asked": 47
+        },
+        "trunc": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 7,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 4,
+          "asked": 4
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 66,
+          "asked": 66
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 65,
+          "asked": 65
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 19,
+          "asked": 19
+        }
+      },
+      "rulings": {}
     }
   ]
 }

@@ -1690,7 +1690,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/CRDTCHK.cbl": {
       "program_id": "CRDTCHK",
@@ -1929,7 +1931,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/CSSTATS2.cbl": {
       "program_id": "CSSTATS2",
@@ -2294,7 +2298,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/CSSTATUS.cbl": {
       "program_id": "CSSTATUS",
@@ -2586,7 +2592,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/GETADDR.cbl": {
       "program_id": "GETADDR",
@@ -2861,7 +2869,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/GETNAME.cbl": {
       "program_id": "GETNAME",
@@ -3100,7 +3110,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/GETPOL.cbl": {
       "program_id": "GETPOL",
@@ -3140,7 +3152,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/GETSPND.cbl": {
       "program_id": "GETSPND",
@@ -3180,7 +3194,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/SEQPNT.cbl": {
       "program_id": "SEQPNT",
@@ -4441,7 +4457,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/UPDCSDB.cbl": {
       "program_id": "UPDCSDB",
@@ -4662,7 +4680,9 @@
       },
       "extents_validated": true,
       "commareas_validated": false,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "pli_programs": {},
@@ -5277,10 +5297,16 @@
         "L393 MOVE INPUTACCNUM -> ACCOUNT-NUM"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/CRDTCHK.cbl": {
@@ -5289,10 +5315,16 @@
         "L74 MOVE '537' -> CREDIT-CHECK-RESULT"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/CSSTATS2.cbl": {
@@ -5301,10 +5333,16 @@
         "L92 MOVE 'REGULAR ' -> CUSTOMER-IMPORTANCE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/CSSTATUS.cbl": {
@@ -5313,10 +5351,16 @@
         "L87 MOVE 'REGULAR ' -> CUSTOMER-IMPORTANCE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GETADDR.cbl": {
@@ -5327,10 +5371,16 @@
         "L79 MOVE 'S14 4WG' -> CUSTOMER-POSTCODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/GETNAME.cbl": {
@@ -5339,10 +5389,16 @@
         "L78 MOVE 'JOE BLOGS' -> CUSTOMER-NAME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "src/SEQPNT.cbl": {
@@ -5364,10 +5420,16 @@
         "L322 MOVE INPUTACCNUM -> ACCOUNT-NUM"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     }
   },
@@ -6139,6 +6201,489 @@
         "src/SEQPNT.cbl",
         "src/UPDCSDB.cbl"
       ]
+    }
+  ],
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 400,
+        "window": 12,
+        "windows": [
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 189,
+            "to": 200
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 203,
+            "to": 214
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 215,
+            "to": 226
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 227,
+            "to": 238
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 239,
+            "to": 250
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 254,
+            "to": 265
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 267,
+            "to": 278
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 285,
+            "to": 296
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 300,
+            "to": 311
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 320,
+            "to": 331
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 342,
+            "to": 353
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 355,
+            "to": 366
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 374,
+            "to": 385
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 389,
+            "to": 400
+          },
+          {
+            "file": "src/ASYNCPNT.cbl",
+            "from": 403,
+            "to": 414
+          },
+          {
+            "file": "src/CRDTCHK.cbl",
+            "from": 53,
+            "to": 64
+          },
+          {
+            "file": "src/CRDTCHK.cbl",
+            "from": 65,
+            "to": 76
+          },
+          {
+            "file": "src/CRDTCHK.cbl",
+            "from": 86,
+            "to": 94
+          },
+          {
+            "file": "src/CSSTATS2.cbl",
+            "from": 64,
+            "to": 75
+          },
+          {
+            "file": "src/CSSTATS2.cbl",
+            "from": 81,
+            "to": 92
+          },
+          {
+            "file": "src/CSSTATS2.cbl",
+            "from": 95,
+            "to": 106
+          },
+          {
+            "file": "src/CSSTATUS.cbl",
+            "from": 57,
+            "to": 68
+          },
+          {
+            "file": "src/CSSTATUS.cbl",
+            "from": 80,
+            "to": 91
+          },
+          {
+            "file": "src/CSSTATUS.cbl",
+            "from": 98,
+            "to": 104
+          },
+          {
+            "file": "src/GETADDR.cbl",
+            "from": 67,
+            "to": 78
+          },
+          {
+            "file": "src/GETADDR.cbl",
+            "from": 81,
+            "to": 92
+          },
+          {
+            "file": "src/GETADDR.cbl",
+            "from": 101,
+            "to": 106
+          },
+          {
+            "file": "src/GETNAME.cbl",
+            "from": 59,
+            "to": 70
+          },
+          {
+            "file": "src/GETNAME.cbl",
+            "from": 79,
+            "to": 90
+          },
+          {
+            "file": "src/GETNAME.cbl",
+            "from": 91,
+            "to": 95
+          },
+          {
+            "file": "src/GETPOL.cbl",
+            "from": 43,
+            "to": 54
+          },
+          {
+            "file": "src/GETPOL.cbl",
+            "from": 55,
+            "to": 60
+          },
+          {
+            "file": "src/GETSPND.cbl",
+            "from": 37,
+            "to": 48
+          },
+          {
+            "file": "src/GETSPND.cbl",
+            "from": 49,
+            "to": 56
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 161,
+            "to": 172
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 174,
+            "to": 185
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 196,
+            "to": 207
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 210,
+            "to": 221
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 230,
+            "to": 241
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 252,
+            "to": 263
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 266,
+            "to": 277
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 281,
+            "to": 292
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 296,
+            "to": 307
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 311,
+            "to": 322
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 324,
+            "to": 335
+          },
+          {
+            "file": "src/SEQPNT.cbl",
+            "from": 339,
+            "to": 345
+          },
+          {
+            "file": "src/UPDCSDB.cbl",
+            "from": 51,
+            "to": 62
+          },
+          {
+            "file": "src/UPDCSDB.cbl",
+            "from": 65,
+            "to": 70
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "windows": [
+            "src/ASYNCPNT.cbl@189-200",
+            "src/ASYNCPNT.cbl@203-214",
+            "src/ASYNCPNT.cbl@215-226",
+            "src/ASYNCPNT.cbl@227-238",
+            "src/ASYNCPNT.cbl@239-250",
+            "src/ASYNCPNT.cbl@254-265",
+            "src/ASYNCPNT.cbl@267-278",
+            "src/ASYNCPNT.cbl@285-296",
+            "src/ASYNCPNT.cbl@300-311",
+            "src/ASYNCPNT.cbl@320-331",
+            "src/ASYNCPNT.cbl@342-353",
+            "src/ASYNCPNT.cbl@355-366",
+            "src/ASYNCPNT.cbl@374-385",
+            "src/ASYNCPNT.cbl@389-400",
+            "src/ASYNCPNT.cbl@403-414",
+            "src/CRDTCHK.cbl@53-64",
+            "src/CRDTCHK.cbl@65-76",
+            "src/CRDTCHK.cbl@86-94",
+            "src/CSSTATS2.cbl@64-75",
+            "src/CSSTATS2.cbl@81-92",
+            "src/CSSTATS2.cbl@95-106",
+            "src/CSSTATUS.cbl@57-68",
+            "src/CSSTATUS.cbl@80-91",
+            "src/CSSTATUS.cbl@98-104",
+            "src/GETADDR.cbl@67-78",
+            "src/GETADDR.cbl@81-92",
+            "src/GETADDR.cbl@101-106",
+            "src/GETNAME.cbl@59-70",
+            "src/GETNAME.cbl@79-90",
+            "src/GETNAME.cbl@91-95",
+            "src/GETPOL.cbl@43-54",
+            "src/GETPOL.cbl@55-60",
+            "src/GETSPND.cbl@37-48",
+            "src/GETSPND.cbl@49-56",
+            "src/SEQPNT.cbl@161-172",
+            "src/SEQPNT.cbl@174-185",
+            "src/SEQPNT.cbl@196-207",
+            "src/SEQPNT.cbl@210-221",
+            "src/SEQPNT.cbl@230-241",
+            "src/SEQPNT.cbl@252-263",
+            "src/SEQPNT.cbl@266-277"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "windows": [
+            "src/SEQPNT.cbl@281-292",
+            "src/SEQPNT.cbl@296-307",
+            "src/SEQPNT.cbl@311-322",
+            "src/SEQPNT.cbl@324-335",
+            "src/SEQPNT.cbl@339-345",
+            "src/UPDCSDB.cbl@51-62",
+            "src/UPDCSDB.cbl@65-70"
+          ]
+        }
+      ],
+      "asked": 35,
+      "key_errors": 0,
+      "upper_bound_95": 0.08203
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "src/ASYNCPNT.cbl",
+          "src/CRDTCHK.cbl",
+          "src/CSSTATS2.cbl",
+          "src/CSSTATUS.cbl",
+          "src/GETADDR.cbl",
+          "src/GETNAME.cbl",
+          "src/GETPOL.cbl",
+          "src/SEQPNT.cbl",
+          "src/UPDCSDB.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "src/ASYNCPNT.cbl",
+            "src/GETPOL.cbl"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "files": [
+            "src/CSSTATS2.cbl",
+            "src/CSSTATUS.cbl",
+            "src/SEQPNT.cbl"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "files": [
+            "src/CRDTCHK.cbl",
+            "src/GETADDR.cbl",
+            "src/GETNAME.cbl",
+            "src/UPDCSDB.cbl"
+          ]
+        }
+      ],
+      "asked": 158,
+      "key_errors": 0,
+      "upper_bound_95": 0.01878
+    }
+  },
+  "section_census": [
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 29,
+          "asked": 29
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 6,
+          "asked": 6
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "src/ASYNCPNT.cbl",
+        "src/GETPOL.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 65,
+          "asked": 65
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "src/CSSTATS2.cbl",
+        "src/CSSTATUS.cbl",
+        "src/SEQPNT.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 63,
+          "asked": 63
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [
+        "src/CRDTCHK.cbl",
+        "src/GETADDR.cbl",
+        "src/GETNAME.cbl",
+        "src/UPDCSDB.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 30,
+          "asked": 30
+        }
+      },
+      "rulings": {}
     }
   ]
 }

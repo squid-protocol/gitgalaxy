@@ -395,7 +395,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
       "program_id": "HCAPDB02",
@@ -776,7 +782,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
       "program_id": "HCATDB01",
@@ -1157,7 +1169,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
       "program_id": "HCAVDB01",
@@ -1574,7 +1592,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": {
       "program_id": "HCAZERRS",
@@ -2096,7 +2120,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
       "program_id": "HCAZMENU",
@@ -2266,7 +2296,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
       "program_id": "HCIMDB01",
@@ -2833,7 +2869,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
       "program_id": "HCIPDB01",
@@ -3203,7 +3245,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
       "program_id": "HCITDB01",
@@ -3573,7 +3621,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
       "program_id": "HCIVDB01",
@@ -3979,7 +4033,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
       "program_id": "HCM1BI01",
@@ -4370,7 +4430,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
       "program_id": "HCM1PL01",
@@ -4941,7 +5007,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
       "program_id": "HCMABA01",
@@ -5341,7 +5413,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
       "program_id": "HCMADB01",
@@ -5770,7 +5848,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
       "program_id": "HCMADB02",
@@ -6680,7 +6764,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
       "program_id": "HCMAPL01",
@@ -6989,7 +7079,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
       "program_id": "HCMRESTW",
@@ -7773,7 +7869,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
       "program_id": "HCP1BA01",
@@ -8166,7 +8268,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
       "program_id": "HCP1BI01",
@@ -8539,7 +8647,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
       "program_id": "LGUCUS01",
@@ -9511,7 +9625,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
       "program_id": "HCP1PL01",
@@ -9868,7 +9988,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
       "program_id": "HCPRESTW",
@@ -10562,7 +10688,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
       "program_id": "HCT1BA01",
@@ -10910,7 +11042,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
       "program_id": "HCT1BI01",
@@ -11283,7 +11421,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
       "program_id": "HCT1PL01",
@@ -11668,7 +11812,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
       "program_id": "HCTRESTW",
@@ -12362,7 +12512,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
       "program_id": "HCV1BA01",
@@ -12710,7 +12866,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
       "program_id": "HCV1BI01",
@@ -13083,7 +13245,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
       "program_id": "HCV1PL01",
@@ -13484,7 +13652,13 @@
       "extents_validated": true,
       "commareas_validated": false,
       "records_validated": true,
-      "records_validated_tier": "sample_verified"
+      "records_validated_tier": "sample_verified",
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "at": "2026-11-24",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     }
   },
   "pli_programs": {},
@@ -16643,10 +16817,16 @@
           "parent_ordinal": 191
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     }
   },
@@ -16742,10 +16922,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl": {
@@ -16767,10 +16953,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl": {
@@ -16792,10 +16984,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl": {
@@ -16945,10 +17143,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl": {
@@ -16970,10 +17174,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl": {
@@ -16987,10 +17197,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2DEL.jcl": {
@@ -17004,10 +17220,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl": {
@@ -17021,10 +17243,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     }
   },
@@ -17704,10 +17932,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl": {
@@ -17745,10 +17979,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -17782,10 +18022,16 @@
           "line": 120
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
@@ -17843,10 +18089,16 @@
           "line": 157
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
@@ -17917,10 +18169,16 @@
           "line": 242
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
@@ -17991,10 +18249,16 @@
           "line": 205
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
@@ -18117,10 +18381,16 @@
           "line": 406
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
@@ -18204,10 +18474,16 @@
           "line": 252
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
@@ -18330,10 +18606,16 @@
           "line": 383
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
@@ -18417,10 +18699,16 @@
           "line": 239
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
@@ -18543,10 +18831,16 @@
           "line": 363
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
@@ -18617,10 +18911,16 @@
           "line": 294
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -18629,30 +18929,48 @@
       "accesses": [
         "insert PATIENT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
       "accesses": [
         "insert USER"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
       "accesses": [
         "insert THRESHOLD"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
@@ -18660,40 +18978,64 @@
         "insert BLOODPRESSURE",
         "insert HEARTRATE"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
       "accesses": [
         "read MEDICATION"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
       "accesses": [
         "read PATIENT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
       "accesses": [
         "read THRESHOLD"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
@@ -18701,30 +19043,48 @@
         "read BLOODPRESSURE",
         "read HEARTRATE"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
       "accesses": [
         "insert MEDICATION"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
       "accesses": [
         "insert PRESCRIPTION"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -18746,10 +19106,16 @@
           "line": 123
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
@@ -18766,10 +19132,16 @@
           "line": 123
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
@@ -18786,10 +19158,16 @@
           "line": 117
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
@@ -18806,10 +19184,16 @@
           "line": 122
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl": {
@@ -18892,10 +19276,16 @@
           "line": 120
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl": {
@@ -18945,10 +19335,16 @@
           "line": 58
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
@@ -18965,10 +19361,16 @@
           "line": 115
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
@@ -18985,10 +19387,16 @@
           "line": 112
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
@@ -19005,10 +19413,16 @@
           "line": 111
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
@@ -19025,10 +19439,16 @@
           "line": 115
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
@@ -19045,10 +19465,16 @@
           "line": 86
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl": {
@@ -19120,10 +19546,16 @@
           "line": 92
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
@@ -19140,10 +19572,16 @@
           "line": 93
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
@@ -19160,10 +19598,16 @@
           "line": 123
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
@@ -19180,10 +19624,16 @@
           "line": 145
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl": {
@@ -19244,10 +19694,16 @@
           "line": 104
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl": {
@@ -19451,10 +19907,16 @@
           "line": 406
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
@@ -19471,10 +19933,16 @@
           "line": 89
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
@@ -19491,10 +19959,16 @@
           "line": 83
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
@@ -19511,10 +19985,16 @@
           "line": 134
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl": {
@@ -19586,10 +20066,16 @@
           "line": 151
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl": {
@@ -19793,10 +20279,16 @@
           "line": 383
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
@@ -19813,10 +20305,16 @@
           "line": 93
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
@@ -19833,10 +20331,16 @@
           "line": 82
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl": {
@@ -19908,10 +20412,16 @@
           "line": 132
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl": {
@@ -20115,10 +20625,16 @@
           "line": 363
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
@@ -20135,10 +20651,16 @@
           "line": 92
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
@@ -20155,10 +20677,16 @@
           "line": 87
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl": {
@@ -20230,10 +20758,16 @@
           "line": 131
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -20454,10 +20988,16 @@
           "line": 78
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl": {
@@ -20500,10 +21040,16 @@
           "line": 23
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl": {
@@ -20546,10 +21092,16 @@
           "line": 23
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl": {
@@ -21122,10 +21674,16 @@
           "line": 128
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl": {
@@ -21168,10 +21726,16 @@
           "line": 23
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl": {
@@ -21314,10 +21878,16 @@
           "line": 416
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2DEL.jcl": {
@@ -21350,10 +21920,16 @@
           "line": 22
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl": {
@@ -21496,10 +22072,16 @@
           "line": 416
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -23089,10 +23671,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl": {
@@ -23101,10 +23689,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl": {
@@ -23113,10 +23707,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl": {
@@ -23125,10 +23725,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl": {
@@ -23137,10 +23743,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl": {
@@ -23149,10 +23761,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl": {
@@ -23161,10 +23779,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl": {
@@ -23173,10 +23797,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl": {
@@ -23186,10 +23816,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl": {
@@ -23200,10 +23836,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl": {
@@ -23212,10 +23854,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl": {
@@ -23224,10 +23872,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl": {
@@ -23238,10 +23892,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl": {
@@ -23251,20 +23911,32 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl": {
       "targets": [
         "L163 LINK LGUCDB01 -> LGUCDB01"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl": {
@@ -23274,10 +23946,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl": {
@@ -23287,10 +23965,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl": {
@@ -23300,10 +23984,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl": {
@@ -23313,10 +24003,16 @@
         "L40 LINK HCAZERRS -> HCAZERRS",
         "L46 LINK HCAZERRS -> HCAZERRS"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -24229,6 +24925,62 @@
       "asked": 150,
       "key_errors": 0,
       "upper_bound_95": 0.01977
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": [
+          "HCAZ_Source/IBMUSER.ZMOBILE.BMS/HCMAPS.bms"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.BMS/HCMAPS.bms"
+          ]
+        }
+      ],
+      "asked": 210,
+      "key_errors": 0,
+      "upper_bound_95": 0.01416
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@ASMMAP.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl",
+          "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@ASMMAP.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl",
+            "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl"
+          ]
+        }
+      ],
+      "asked": 37,
+      "key_errors": 0,
+      "upper_bound_95": 0.07777
     }
   },
   "section_census": [
@@ -24486,6 +25238,661 @@
         "records": {
           "agree": 19,
           "asked": 19
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.BMS/HCMAPS.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 210,
+          "asked": 210
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMARE2.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMAREA.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSPD.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSWS.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCPRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCTRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 0,
+          "asked": 0
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl"
+      ],
+      "wide": true,
+      "suite": "channels",
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 65,
+          "asked": 65
+        },
+        "jobs": {
+          "agree": 0,
+          "asked": 0
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ],
+      "wide": false,
+      "suite": "channels",
+      "tasks": {
+        "sql": {
+          "agree": 12,
+          "asked": 12
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 41,
+          "asked": 41
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMARE2.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCCMAREA.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSPD.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSWS.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMAPS.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCMRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCPRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCTRST01.cpy",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/SQLCA.cpy"
+      ],
+      "wide": false,
+      "suite": "channels",
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 7,
+          "asked": 7
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@ASMMAP.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 37,
+          "asked": 37
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 55,
+          "asked": 55
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 10,
+          "asked": 10
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 60,
+          "asked": 60
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COPYLIB/HCERRSPD.cpy"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 44,
+          "asked": 44
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@COBOL.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 58,
+          "asked": 76
+        }
+      },
+      "rulings": {
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L109 STEP 2 CRTABS1 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L109 STEP 2 CRTABS1 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L160 STEP 3 CRTABS2 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L160 STEP 3 CRTABS2 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L199 STEP 4 CRTABS3 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L199 STEP 4 CRTABS3 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L236 STEP 5 CRTABS4 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L236 STEP 5 CRTABS4 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L265 STEP 6 CRTABS5 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L265 STEP 6 CRTABS5 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L292 STEP 7 CRTABS6 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L292 STEP 7 CRTABS6 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L319 STEP 8 CRTABS7 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L319 STEP 8 CRTABS7 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L346 STEP 9 CRTABS8 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L346 STEP 9 CRTABS8 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L386 STEP 10 CRGRACC PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2CRE.jcl::L386 STEP 10 CRGRACC PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAPDB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCATDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZERRS.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCAZMENU.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIMDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIPDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCITDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCIVDB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCM1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMABA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMADB02.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMAPL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@ASMMAP.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEF121.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@CDEFDB2.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2BIND.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/@DB2DEL.jcl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 40,
+          "asked": 58
+        }
+      },
+      "rulings": {
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L109 STEP 2 CRTABS1 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L109 STEP 2 CRTABS1 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L160 STEP 3 CRTABS2 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L160 STEP 3 CRTABS2 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L199 STEP 4 CRTABS3 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L199 STEP 4 CRTABS3 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L236 STEP 5 CRTABS4 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L236 STEP 5 CRTABS4 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L265 STEP 6 CRTABS5 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L265 STEP 6 CRTABS5 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L292 STEP 7 CRTABS6 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L292 STEP 7 CRTABS6 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L319 STEP 8 CRTABS7 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L319 STEP 8 CRTABS7 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L346 STEP 9 CRTABS8 PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L346 STEP 9 CRTABS8 PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L386 STEP 10 CRGRACC PGM=IKJEFT01 PROC=- COND=(4,LT) IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        },
+        "flow:HCAZ_Source/IBMUSER.ZMOBILE.JCL/DB2CRE.jcl::L386 STEP 10 CRGRACC PGM=IKJEFT01 PROC=- COND=- IF=- IN=-": {
+          "verdict": "key_correct",
+          "why": "JCL ends the operand field at the first blank: in `EXEC PGM=IKJEFT01,DYNAMNBR=20 ,COND=(4,LT)` the `,COND=(4,LT)` after the blank is a comment, so the step has no COND. The key follows that rule; the reviewer read the comment as a parameter."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCMRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1BU01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCP1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCPRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCT1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCTRESTW.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BA01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1BI01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.COBOL/HCV1PL01.cbl",
+        "HCAZ_Source/IBMUSER.ZMOBILE.JCL/LINKPARM.jcl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 0,
+          "asked": 0
         }
       },
       "rulings": {}

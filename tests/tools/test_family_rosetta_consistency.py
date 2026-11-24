@@ -209,3 +209,28 @@ def test_live_cli_reads_the_sources_and_reports_drift(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "| import |" in out
     assert "Live vs manifest" in out
+
+
+def test_merge_live_keeps_the_manifest_count_for_a_planted_family_and_marks_the_rest_as_readings():
+    manifests = {"a": {"io": 3}, "b": {"io": 3}}
+    live = {"a": {"io": 1, "regex_execution": 0}, "b": {"io": 3, "regex_execution": 2}}
+    merged, readings = frc.merge_live(manifests, live)
+    assert merged == {"a": {"io": 3, "regex_execution": 0}, "b": {"io": 3, "regex_execution": 2}}
+    assert readings == {("regex_execution", "a"), ("regex_execution", "b")}
+
+
+def test_a_silent_reading_is_tagged_and_does_not_trip_the_floor():
+    fam = "regex_execution"
+    manifests = _manifests(fam, [2, 2, 2, 0])
+    result = frc.analyze(manifests, [fam], _defined([fam]), None, 0.5, {(fam, "d")})
+    assert result["families"][fam]["reading_cells"] == ["d"]
+    assert frc.silent_cells(result) == [(fam, "d")]
+    assert frc.silent_cells(result, include_readings=False) == []
+    assert "d (reading)" in frc.render_markdown(result)
+
+
+def test_a_planted_cell_has_no_reading_cells_key():
+    fam = "io"
+    result = frc.analyze(_manifests(fam, [1, 1, 1, 0]), [fam], _defined([fam]))
+    assert "reading_cells" not in result["families"][fam]
+    assert frc.silent_cells(result, include_readings=False) == [(fam, "d")]

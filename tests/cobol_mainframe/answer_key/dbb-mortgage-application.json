@@ -26537,10 +26537,16 @@
           "line": 51
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -27343,10 +27349,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     },
     "zBuilder/MortgageApplication/bms/epsmort.bms": {
@@ -27607,10 +27619,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     }
   },
@@ -27770,10 +27788,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     },
     "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl": {
@@ -27883,10 +27907,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     },
     "Migration/jclToZBuilder/samples/BLDMORT.jcl": {
@@ -27956,10 +27986,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": false
+        }
       }
     }
   },
@@ -28033,10 +28069,16 @@
           "line": 188
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": {
@@ -28094,10 +28136,16 @@
           "line": 236
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
@@ -28168,10 +28216,16 @@
           "line": 201
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -28180,10 +28234,16 @@
       "accesses": [
         "read SYSIBM.SYSDUMMY1"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -28216,10 +28276,16 @@
           "line": 179
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
@@ -28247,10 +28313,16 @@
           "line": 155
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -28501,10 +28573,16 @@
           "line": 155
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl": {
@@ -28657,10 +28735,16 @@
           "line": 68
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "Migration/jclToZBuilder/samples/BLDMORT.jcl": {
@@ -28774,10 +28858,16 @@
           "line": 80
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -28809,10 +28899,16 @@
           "line": 73
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": {
@@ -29062,30 +29158,18 @@
           "name": null,
           "args": "CURRENT-CONDITION,TOKEN,RESULT,NEW-CONDITION",
           "line": 4027
-        },
-        {
-          "kind": "ENTRY",
-          "name": "EPSCSMRF",
-          "args": null,
-          "line": 304
-        },
-        {
-          "kind": "ENTRY",
-          "name": "EPSCSMRA",
-          "args": null,
-          "line": 2991
-        },
-        {
-          "kind": "ENTRY",
-          "name": "EPSCSMRE",
-          "args": null,
-          "line": 3525
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
@@ -29103,10 +29187,16 @@
           "line": 36
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
@@ -29118,10 +29208,16 @@
           "line": 86
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
@@ -29133,10 +29229,16 @@
           "line": 81
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
@@ -29148,10 +29250,16 @@
           "line": 78
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -30257,20 +30365,32 @@
       "targets": [
         "L221 LINK W-CALL-PROGRAM -> EPSCSMRT"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
       "targets": [
         "L218 LINK W-CALL-PROGRAM -> EPSCSMRT"
       ],
-      "dynamic_validated": false,
+      "dynamic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24"
+        }
       }
     }
   },
@@ -31364,6 +31484,63 @@
       "asked": 388,
       "key_errors": 2,
       "upper_bound_95": 0.01546
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": [
+          "zBuilder/MortgageApplication/bms/epsmlis.bms",
+          "zBuilder/MortgageApplication/bms/epsmort.bms"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "zBuilder/MortgageApplication/bms/epsmlis.bms"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "files": [
+            "zBuilder/MortgageApplication/bms/epsmort.bms"
+          ]
+        }
+      ],
+      "asked": 70,
+      "key_errors": 0,
+      "upper_bound_95": 0.04189
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "IDE/GitISPFClient/sbgzsamp/bgzgit.jcl",
+          "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl",
+          "Migration/jclToZBuilder/samples/BLDMORT.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "IDE/GitISPFClient/sbgzsamp/bgzgit.jcl",
+            "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl",
+            "Migration/jclToZBuilder/samples/BLDMORT.jcl"
+          ]
+        }
+      ],
+      "asked": 40,
+      "key_errors": 0,
+      "upper_bound_95": 0.07216
     }
   },
   "section_census": [
@@ -31582,6 +31759,290 @@
         "records": {
           "agree": 9,
           "asked": 9
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/bms/epsmlis.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 53,
+          "asked": 53
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "zBuilder/MortgageApplication/bms/epsmort.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 17,
+          "asked": 17
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+        "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtcom.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtinp.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtout.cpy",
+        "zBuilder/MortgageApplication/copybook/epsnbrpm.cpy",
+        "zBuilder/MortgageApplication/copybook/epspdata.cpy"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 50,
+          "asked": 50
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "using:zBuilder/MortgageApplication/cobol/epscsmrd.cbl::L2991 ENTRY EPSCSMRA USING -": {
+          "verdict": "key_fixed",
+          "why": "epscsmrd.cbl lines 304, 2991, 3525 read `SET ROUTINE TO ENTRY 'X'`: a pointer value, not an ENTRY statement. The key reader (and the engine's call_using) took it for one; both fixed, key redrafted."
+        },
+        "using:zBuilder/MortgageApplication/cobol/epscsmrd.cbl::L304 ENTRY EPSCSMRF USING -": {
+          "verdict": "key_fixed",
+          "why": "epscsmrd.cbl lines 304, 2991, 3525 read `SET ROUTINE TO ENTRY 'X'`: a pointer value, not an ENTRY statement. The key reader (and the engine's call_using) took it for one; both fixed, key redrafted."
+        },
+        "using:zBuilder/MortgageApplication/cobol/epscsmrd.cbl::L3525 ENTRY EPSCSMRE USING -": {
+          "verdict": "key_fixed",
+          "why": "epscsmrd.cbl lines 304, 2991, 3525 read `SET ROUTINE TO ENTRY 'X'`: a pointer value, not an ENTRY statement. The key reader (and the engine's call_using) took it for one; both fixed, key redrafted."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+        "zBuilder/MortgageApplication/copybook/epsmortf.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtcom.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtinp.cpy",
+        "zBuilder/MortgageApplication/copybook/epsmtout.cpy",
+        "zBuilder/MortgageApplication/copybook/epsnbrpm.cpy",
+        "zBuilder/MortgageApplication/copybook/epspdata.cpy"
+      ],
+      "wide": true,
+      "suite": "channels",
+      "tasks": {
+        "sql": {
+          "agree": 1,
+          "asked": 1
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 4,
+          "asked": 4
+        },
+        "jobs": {
+          "agree": 0,
+          "asked": 0
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+      ],
+      "wide": false,
+      "suite": "db2cols",
+      "tasks": {
+        "db2cols": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "IDE/GitISPFClient/sbgzsamp/bgzgit.jcl",
+        "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl",
+        "Migration/jclToZBuilder/samples/BLDMORT.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 40,
+          "asked": 40
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 2,
+          "asked": 2
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "IDE/GitISPFClient/sbgzsamp/bgzgit.jcl",
+        "IDE/GitISPFClient/sbgzsamp/bgzoput.jcl",
+        "Migration/jclToZBuilder/samples/BLDMORT.jcl",
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+        "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 46,
+          "asked": 54
+        }
+      },
+      "rulings": {
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L24 DD COMP.SYSIN DSN=BUILDER.MORT.COBOL DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L24 DD COMP.SYSIN DSN=BUILDER.MORT.COBOL(EPSMPMT) DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L25 DD COMP.SYSLIN DSN=BUILDER.MORT.OBJ DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L25 DD COMP.SYSLIN DSN=BUILDER.MORT.OBJ(EPSMPMT) DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L73 DD LINK.SYSLIN DSN=BUILDER.MORT.OBJ DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L73 DD LINK.SYSLIN DSN=BUILDER.MORT.OBJ(EPSMPMT) DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L74 DD LINK.SYSLMOD DSN=BUILDER.MORT.LOAD DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        },
+        "flow:Migration/jclToZBuilder/samples/BLDMORT.jcl::L74 DD LINK.SYSLMOD DSN=BUILDER.MORT.LOAD(EPSMPMT) DISP=SHR GEN=- IN=-": {
+          "verdict": "key_correct",
+          "why": "The DD's DSN is BUILDER.MORT.COBOL(EPSMPMT) as written; the brief strips only a trailing GDG generation (+1)/(0)/(-1), and a PDS member is not one. The reviewer dropped the member."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+        "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 14,
+          "asked": 14
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
         }
       },
       "rulings": {}

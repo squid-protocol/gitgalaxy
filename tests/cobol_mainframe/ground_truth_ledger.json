@@ -36,11 +36,6 @@
       "kind": "deliberate",
       "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies them. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
     },
-    "key_pli_source_damaged_no_balanced_extent": {
-      "issue": 9215,
-      "kind": "defect",
-      "summary": "DSF R001O301.pli is damaged (lines cut out: WHEN with no SELECT, an END naming no label), so its procedure extents have no balanced reading; key scope needs a ruling."
-    },
     "system_copybook_resolved_to_shipped_copy": {
       "issue": 8120,
       "kind": "deliberate",
@@ -3094,6 +3089,8 @@
         "engine | unit extents | src/GML/R0010425.pli | R001B1 L22-268 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-92 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-93 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104E3.pli | R001041 L47-125 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104E3.pli | R001041 L47-127 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-138 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-139 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R0010701.pli | R00107 L74-217 | fn": "engine_unit_end_counts_noncode_lines",
@@ -3118,10 +3115,6 @@
         "engine | unit extents | src/GML/R001N501.pli | R001N5 L74-351 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-69 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-77 | fp": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-408 | fn": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/GML/R001O301.pli | R001I30 L44-417 | fp": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-677 | fn": "key_pli_source_damaged_no_balanced_extent",
-        "engine | unit extents | src/GML/R001O301.pli | SJEKK_OM_INGEN_INNTEKTER L556-693 | fp": "key_pli_source_damaged_no_balanced_extent",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-175 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-179 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010424.pli | R001B1 L21-253 | fn": "engine_unit_end_counts_noncode_lines",
@@ -3284,9 +3277,9 @@
         },
         "PL/I data moves": {
           "engine": {
-            "got": 9657,
-            "tp": 9657,
-            "truth": 9657
+            "got": 9127,
+            "tp": 9127,
+            "truth": 9127
           },
           "forge": null,
           "truth": "draft"
@@ -3459,9 +3452,9 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 238,
-            "tp": 238,
-            "truth": 245
+            "got": 225,
+            "tp": 225,
+            "truth": 232
           },
           "forge": null,
           "truth": "draft"
@@ -3522,10 +3515,10 @@
         },
         "unit extents": {
           "engine": {
-            "got": 435,
+            "got": 423,
             "outside": 0,
-            "tp": 409,
-            "truth": 435
+            "tp": 398,
+            "truth": 423
           },
           "forge": null,
           "truth": "draft"

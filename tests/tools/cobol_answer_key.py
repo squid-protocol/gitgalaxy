@@ -1646,6 +1646,48 @@ def _pli_clause_starts(stmt: list) -> list[int]:
     return out
 
 
+def pli_block_damage(text: str) -> list[str]:
+    """Why a PL/I source cannot be read for procedure extents, or [] when its blocks balance. A source with an `END`
+    that closes nothing, blocks still open at the end of the file, or a `WHEN` outside any `SELECT` has had lines cut
+    out (DSF R001O301: sequence numbers jump, no SELECT in the file); it has no balanced reading, so the key does not
+    sample it (#9215). This reads the same block structure as `pli_units`."""
+    reasons: list[str] = []
+    stack: list[list[str]] = []  # per open block: its labels, and "SELECT" for a select group
+    for stmt in _pli_statements(_pli_token_stream(_pli_source_lines(text))):
+        if not stmt:
+            continue
+        labels, rest = _pli_unlabelled(stmt)
+        words = [t[1] if t[0] != "string" else None for t in rest]
+        if words and words[0] in ("PROC", "PROCEDURE") and labels:
+            stack.append(labels)
+            continue
+        if words and words[0] == "END":
+            name = words[1] if len(words) > 1 and rest[1][0] == "word" else None
+            if not stack:
+                reasons.append(f"END at line {stmt[-1][2]} closes nothing")
+                continue
+            while stack:
+                block = stack.pop()
+                if name is None or name in block:
+                    break
+            else:
+                reasons.append(f"END {name} at line {stmt[-1][2]} names no open block")
+            continue
+        for i in _pli_clause_starts(rest):
+            if words[i] in ("DO", "BEGIN"):
+                stack.append(labels)
+                break
+            if words[i] == "SELECT":
+                stack.append([*labels, "SELECT"])
+                break
+            if words[i] in ("WHEN", "OTHERWISE") and not any("SELECT" in b for b in stack):
+                reasons.append(f"{words[i]} at line {stmt[0][2]} is outside any SELECT")
+                break
+    if stack:
+        reasons.append(f"{len(stack)} block(s) still open at the end of the file")
+    return reasons
+
+
 def pli_units(text: str, included: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
     """#4318: every PROC / PROCEDURE of one PL/I source as a key unit, in source order:
     `{name, kind: "procedure", line, end, block_end, nested_in, edges}`.
@@ -2002,28 +2044,42 @@ PLI_MOVES_SEED = 3491
 PLI_MOVES_EXTENSION_SEED = 3492
 
 
-def pli_moves_files(files: list[str]) -> list[str]:
+def pli_moves_files(files: list[str], unbalanced: frozenset[str] = frozenset()) -> list[str]:
     """The PL/I files whose moves (and, with them, procedure extents) are keyed: every file of a corpus of at most
     PLI_MOVES_SAMPLE, else the first draw (PLI_MOVES_BASE files, seed PLI_MOVES_SEED) plus a second seeded draw from
-    the rest. Extending keeps the reviewed files, so widening the key never discards a signed-off one."""
+    the rest. Extending keeps the reviewed files, so widening the key never discards a signed-off one.
+
+    `unbalanced` (pli_block_damage) are files with no balanced block reading (cut-down sources, %INCLUDE fragments):
+    never drawn in the second draw; each one that draw picked is replaced by a further seeded draw (#9215), so the
+    other drawn files stay put. A base file is kept even if unbalanced -- it was already reviewed."""
     files = sorted(files)
     if len(files) <= PLI_MOVES_SAMPLE:
         return files
     base = random.Random(PLI_MOVES_SEED).sample(files, PLI_MOVES_BASE)
     rest = sorted(set(files) - set(base))
-    extra = random.Random(PLI_MOVES_EXTENSION_SEED).sample(rest, PLI_MOVES_SAMPLE - PLI_MOVES_BASE)
-    return sorted({*base, *extra})
+    want = PLI_MOVES_SAMPLE - PLI_MOVES_BASE
+    drawn = random.Random(PLI_MOVES_EXTENSION_SEED).sample(rest, want)
+    kept = [f for f in drawn if f not in unbalanced]
+    if len(kept) < want:
+        pool = sorted(set(rest) - set(drawn) - unbalanced)
+        kept += random.Random(PLI_MOVES_EXTENSION_SEED + 1).sample(pool, want - len(kept))
+    return sorted({*base, *kept})
 
 
 def draft_pli_moves(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     """Drafted PL/I data moves (#3491 part 3) and the key's scope: every PL/I file, or the seeded sample of
-    pli_moves_files when there are more than PLI_MOVES_SAMPLE (DSF)."""
+    pli_moves_files when there are more than PLI_MOVES_SAMPLE (DSF), leaving out the files whose blocks do not balance."""
     all_files = sorted(_pli_files(repo))
-    files = pli_moves_files(all_files)
+    unbalanced = frozenset(rel for rel in all_files if pli_block_damage(read_key_text(repo / rel)))
+    files = pli_moves_files(all_files, unbalanced)
     scope: dict[str, Any] = {"files": len(all_files), "keyed": len(files), "seed": None}
     if len(all_files) > PLI_MOVES_SAMPLE:
         scope.update(
-            seed=PLI_MOVES_SEED, base=PLI_MOVES_BASE, extension_seed=PLI_MOVES_EXTENSION_SEED, sample=PLI_MOVES_SAMPLE
+            seed=PLI_MOVES_SEED,
+            base=PLI_MOVES_BASE,
+            extension_seed=PLI_MOVES_EXTENSION_SEED,
+            sample=PLI_MOVES_SAMPLE,
+            excluded_unbalanced=sorted(unbalanced),
         )
     out = {
         rel: {
@@ -6681,6 +6737,8 @@ def add_extents(repo: Path, key: dict[str, Any]) -> list[str]:
     existing = key.get("pli_units", {})
     scope = pli_unit_scope(repo, key)
     included = frozenset(pli_included_procedures(_pli_files(repo))) if scope else frozenset()
+    for rel in [r for r in existing if r not in scope and not existing[r].get("extents_validated")]:
+        del existing[rel]  # its file left the keyed scope
     for rel in scope:
         if not existing.get(rel, {}).get("extents_validated"):
             existing[rel] = {"units": pli_units(read_key_text(repo / rel), included), "extents_validated": False}
@@ -7968,6 +8026,8 @@ def main() -> int:
         for rel, entry in drafted.items():
             if not existing_pm.get(rel, {}).get("pli_moves_validated"):
                 existing_pm[rel] = entry
+        for rel in [r for r in existing_pm if r not in drafted and not existing_pm[r].get("pli_moves_validated")]:
+            del existing_pm[rel]  # a draft that left the scope (an unbalanced source, #9215) is not kept
         key["pli_moves"], key["pli_moves_scope"] = existing_pm, scope
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing_pm)} PL/I data-move files ({scope['keyed']} of {scope['files']}) -> {args.key}")

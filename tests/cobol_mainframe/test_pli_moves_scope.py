@@ -52,6 +52,7 @@ def test_draft_pli_moves_records_the_scope_and_drafts_every_chosen_file(tmp_path
         "base": 25,
         "extension_seed": ak.PLI_MOVES_EXTENSION_SEED,
         "sample": 150,
+        "excluded_unbalanced": [],
     }
     assert all(not e["pli_moves_validated"] and e["verification"]["status"] == "draft" for e in drafted.values())
 
@@ -72,3 +73,39 @@ def test_the_committed_dsf_key_agrees_with_its_own_scope():
     assert scope["files"] == 1473
     # the units the key reads are the moves files plus the named witnesses
     assert set(key["pli_moves"]) <= set(key["pli_units"])
+
+
+BALANCED = "P: PROC;\n  IF A THEN DO;\n    X = 1;\n  END;\n  SELECT (K);\n    WHEN (1) X = 2;\n    OTHERWISE X = 3;\n  END;\nEND P;\n"
+
+
+def test_a_balanced_source_has_no_block_damage():
+    assert ak.pli_block_damage(BALANCED) == []
+
+
+def test_unbalanced_shapes_are_reported():
+    """#9215: DSF R001O301 (WHEN with no SELECT, END that closes nothing) and %INCLUDE fragments have no balanced reading."""
+    assert any("outside any SELECT" in r for r in ak.pli_block_damage("P: PROC;\n WHEN (1) X = 2;\nEND P;\n"))
+    assert any("closes nothing" in r for r in ak.pli_block_damage("X = 1;\nEND;\n"))
+    assert any("names no open block" in r for r in ak.pli_block_damage("P: PROC;\n X = 1;\nEND Q;\nEND;\n"))
+    assert any("still open" in r for r in ak.pli_block_damage("P: PROC;\n X = 1;\n"))
+
+
+def test_unbalanced_files_are_replaced_in_the_second_draw_and_the_rest_stay_put():
+    files = _names(1473)
+    plain = ak.pli_moves_files(files)
+    first_draw = set(random.Random(ak.PLI_MOVES_SEED).sample(sorted(files), ak.PLI_MOVES_BASE))
+    second = sorted(set(plain) - first_draw)
+    bad = frozenset(second[:3])
+    swapped = ak.pli_moves_files(files, bad)
+    assert len(swapped) == ak.PLI_MOVES_SAMPLE
+    assert not (bad & set(swapped))
+    assert set(plain) - bad <= set(swapped)  # every other drawn file stays
+    assert first_draw <= set(swapped)
+
+
+def test_the_committed_dsf_key_samples_no_unbalanced_file():
+    key = json.loads(DSF_KEY.read_text(encoding="utf-8"))
+    excluded = set(key["pli_moves_scope"]["excluded_unbalanced"])
+    assert "src/GML/R001O301.pli" in excluded
+    assert not excluded & set(key["pli_moves"])
+    assert not excluded & set(key["pli_units"])

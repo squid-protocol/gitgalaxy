@@ -48,6 +48,7 @@ deck holds all of a job's IDCAMS commands (TRANIDX STEP20-30).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -257,6 +258,11 @@ def records_as_lines(data: bytes, reclen: int, enc: str) -> bytes:
     return b"".join(data[i : i + reclen] + nl for i in range(0, len(data), reclen))
 
 
+def _digest(data: bytes) -> dict[str, Any]:
+    """Size and SHA-256 of a dataset's bytes: the shape `equivalence_forged_spring` reads a Spring run's files in."""
+    return {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
 def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol_only: bool = False) -> int:
     """Prove the job. `api` is the `equivalence` module (its run_cobol, compare_run, load_case, ... -- passed in so
     the script run as __main__ and this module share one set of globals)."""
@@ -323,9 +329,13 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             sw = work / f"step{i + 1}-{name}"
             cobol = api.run_cobol(case, corpus, sw / "cobol")
             outputs[name] = cobol
+            gdg_created: dict[
+                str, dict[str, Any]
+            ] = {}  # base -> size and digest of the generation this step catalogued
             if "ABEND" not in cobol:  # a step that abends catalogues nothing
                 for dd, base in step.get("gdg_out", {}).items():
                     fed[f"{dd} (out)"] = catalog.create(base, cobol[dd])
+                    gdg_created.setdefault(base, _digest(cobol[dd]))
             if cobol_only:
                 report["steps"].append({"case": name, "ok": True, "cobol_only": True, "fed": fed})
                 continue
@@ -335,6 +345,7 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             report["steps"].append({"case": name, "program": case["program"], "fed": fed, "ok": run["ok"],
                                     "return_code": run["return_code"], "abend": run["abend"],
                                     "outputs": run["outputs"],
+                                    **({"gdg_created": gdg_created} if gdg_created else {}),
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
@@ -448,6 +459,7 @@ def _idcams_step(step: dict[str, Any], outputs: dict[str, dict[str, bytes]], rep
         return False
     for dd, base in step.get("gdg_out", {}).items():  # #8885: the step ended clean, base(+1) is catalogued
         fed[f"{dd} (out)"] = gens.create(base, outputs[name][dd])
+        entry.setdefault("gdg_created", {})[base] = _digest(outputs[name][dd])
     entry["ok"] = True
     return True
 

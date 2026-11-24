@@ -129,7 +129,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|\blambda\b[ \t]*([^:]*):",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: _private (encapsulation) and Final (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(def|class|return|import|from|as|with|pass|continue|break|yield|await|assert|del|global|nonlocal|type)\b"

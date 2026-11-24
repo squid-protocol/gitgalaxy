@@ -12786,7 +12786,7 @@
 1. <strong>The Context Window Shredder:</strong> A 5-million-line codebase cannot fit into any LLM context window. You must chunk it. But if you chunk a repository, the LLM loses global visibility. It cannot see that a Python function in chunk A is dynamically called by a Bash script in chunk Z.
 2. <strong>Architectural Hallucination:</strong> LLMs are probabilistic text generators, not deterministic graph engines. If an LLM does not explicitly see a dependency, it will guess (hallucinate) one based on its training data. You cannot trust an enterprise migration to a probabilistic guess.
 3. <strong>Repeatability &amp; Auditing:</strong> If you ask an LLM to map your architecture on Monday, and ask it again on Tuesday, you will get a different map. Security and compliance audits (like SOC2 or SBOM generation) require deterministic, repeatable results.
-4. <strong>Data Privacy (Zero-Trust):</strong> Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. </p>
+4. <strong>Data Privacy (Local-Only):</strong> Enterprise CTOs will not (and legally cannot) upload proprietary, trade-secret source code containing PII and hardcoded secrets to a public OpenAI or Anthropic API. </p>
 <hr />
 <h2 id="the-gitgalaxy-solution-heuristic-physics">🚀 The GitGalaxy Solution (Heuristic Physics)</h2>
 <p>GitGalaxy treats code not as a compiler tree, nor as semantic language, but as <strong>raw physical matter</strong>. It uses high-speed, language-agnostic regular expressions (Heuristics) to hunt for the universal structural DNA of logic across any file format.</p>
@@ -12829,7 +12829,7 @@
 <td style="text-align: left;"><strong>Privacy</strong></td>
 <td style="text-align: left;">Local</td>
 <td style="text-align: left;">Cloud/API (Data Leaves Machine)</td>
-<td style="text-align: left;"><strong>100% Local (Zero-Trust/Airgapped)</strong></td>
+<td style="text-align: left;"><strong>100% Local (Air-Gap Ready)</strong></td>
 </tr>
 </tbody>
 </table>

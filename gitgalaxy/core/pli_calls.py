@@ -68,7 +68,7 @@ _SEQUENCE_FIELD = re.compile(r"(?m)(?<=[ \t]{2})([A-Z@#$]{0,6}[0-9]{2,8})[ \t]*(
 # (DSF `...;00000390`, `...(1,YRKE_IND - 1)00001640`, `...) THEN0000161`). Code never
 # runs from `;` `,` `)` a quote or an operator straight into a 5-8 digit number at the
 # end of a line, and a keyword never carries a digit tail.
-_GLUE_PUNCT = r"[;,)'!&*|=+\-<>^]"  # code that can never run into a number
+_GLUE_PUNCT = r"(?:[;,)'!&*|=+\-<>^]|(?<=[A-Z_@#$])\.)"  # code that can never run into a number; a `.` only after a name letter (`A.` + `FNR`, not `3.` + digits)
 _GLUE_KEYWORD = r"(?<![\w@#$])(?:THEN|ELSE|END|DO)"  # a keyword never carries a digit tail
 # A qualified name's trailing `.` (`TILKN.00002950` then `FNR` on the next line, #9214). A `.` before a digit
 # tail can also end a decimal literal (`12.00002950`), so a name character must come before it: the identifier

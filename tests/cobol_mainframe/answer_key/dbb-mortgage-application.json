@@ -684,7 +684,9 @@
       "commareas_validated": false,
       "main_line": null,
       "extents_validated": true,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": {
       "program_id": "EPSCSMRD",
@@ -18106,7 +18108,7 @@
           "section": "LOCAL-STORAGE",
           "fd": null,
           "pic": "N",
-          "usage": null,
+          "usage": "NATIONAL",
           "occurs_min": null,
           "occurs_max": null,
           "occurs_depending_on": null,
@@ -23847,7 +23849,8 @@
       "verification": {
         "status": "validated",
         "notes": [
-          "Draft, forge and engine agree on units (269 / 269), dead code (6 / 6, the EPSCSMRI section headers), PROGRAM-IDs, copybooks, calls and files; every dead verdict checked against the source (each section name appears only on its own header line)."
+          "Draft, forge and engine agree on units (269 / 269), dead code (6 / 6, the EPSCSMRI section headers), PROGRAM-IDs, copybooks, calls and files; every dead verdict checked against the source (each section name appears only on its own header line).",
+          "USAGE NATIONAL read (#9216 blind review of epscsmrd.cbl L1266)"
         ],
         "tier": "cross_verified",
         "by": "claude-sonnet-5.5 (churn #4244)",
@@ -23860,7 +23863,9 @@
         }
       },
       "extents_validated": false,
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
       "program_id": "EPSCSMRT",
@@ -24089,7 +24094,9 @@
       "commareas_validated": false,
       "main_line": null,
       "extents_validated": true,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
       "program_id": "EPSMLIST",
@@ -25016,7 +25023,9 @@
       "commareas_validated": false,
       "main_line": null,
       "extents_validated": true,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
       "program_id": "EPSMPMT",
@@ -25765,7 +25774,9 @@
       "commareas_validated": false,
       "main_line": null,
       "extents_validated": true,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
       "program_id": "EPSNBRVL",
@@ -26506,7 +26517,9 @@
       "commareas_validated": false,
       "main_line": null,
       "extents_validated": true,
-      "extents_validated_tier": "llm_verified"
+      "extents_validated_tier": "llm_verified",
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "pli_programs": {},
@@ -29178,10 +29191,16 @@
       "truncations": [
         "L231 EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA -> MSGERRO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": {
@@ -29641,10 +29660,16 @@
         "L526 MOVE X'00' -> LS2XML-PROPERTIES"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epscsmrt.cbl": {
@@ -29661,10 +29686,16 @@
         "L56 MOVE 8 -> EPSPCOM-PROGRAM-RETCODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmlist.cbl": {
@@ -29700,10 +29731,16 @@
         "L94 MOVE DFHCOMMAREA -> SAVE-COMM-AREA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsmpmt.cbl": {
@@ -29729,10 +29766,16 @@
         "L97 MOVE SPACES -> EPSPDATA-RETURN-ERROR"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     },
     "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl": {
@@ -29783,10 +29826,16 @@
         "L158 STATIC-ERROR-TABLE -> EPSPARM-RETURN-ERROR",
         "L176 STATIC-ERROR-TABLE -> EPSPARM-RETURN-ERROR"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "sampled": true
+        }
       }
     }
   },
@@ -30321,5 +30370,1221 @@
         "Q096 zBuilder/MortgageApplication/cobol/epscmort.cbl A805-DUMMY-SQL-CALL"
       ]
     }
-  }
+  },
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 400,
+        "window": 12,
+        "windows": [
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 91,
+            "to": 102
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 171,
+            "to": 182
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 194,
+            "to": 205
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 213,
+            "to": 224
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+            "from": 227,
+            "to": 238
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 144,
+            "to": 155
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 177,
+            "to": 188
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 194,
+            "to": 205
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 222,
+            "to": 233
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 236,
+            "to": 247
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 290,
+            "to": 301
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 331,
+            "to": 342
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 350,
+            "to": 361
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 369,
+            "to": 380
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 382,
+            "to": 393
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 419,
+            "to": 430
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 451,
+            "to": 462
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 481,
+            "to": 492
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 498,
+            "to": 509
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 543,
+            "to": 554
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 558,
+            "to": 569
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 627,
+            "to": 638
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 639,
+            "to": 650
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 695,
+            "to": 706
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 716,
+            "to": 727
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 733,
+            "to": 744
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 757,
+            "to": 768
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 774,
+            "to": 785
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 868,
+            "to": 879
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 888,
+            "to": 899
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 923,
+            "to": 934
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 941,
+            "to": 952
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 983,
+            "to": 994
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1005,
+            "to": 1016
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1095,
+            "to": 1106
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1131,
+            "to": 1142
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1149,
+            "to": 1160
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1180,
+            "to": 1191
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1210,
+            "to": 1221
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1227,
+            "to": 1238
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1261,
+            "to": 1272
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1283,
+            "to": 1294
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1295,
+            "to": 1306
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1356,
+            "to": 1367
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1371,
+            "to": 1382
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1390,
+            "to": 1401
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1407,
+            "to": 1418
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1421,
+            "to": 1432
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1475,
+            "to": 1486
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1490,
+            "to": 1501
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1502,
+            "to": 1513
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1541,
+            "to": 1552
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1599,
+            "to": 1610
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1642,
+            "to": 1653
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1675,
+            "to": 1686
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1716,
+            "to": 1727
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1749,
+            "to": 1760
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1770,
+            "to": 1781
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1825,
+            "to": 1836
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1838,
+            "to": 1849
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1859,
+            "to": 1870
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1915,
+            "to": 1926
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1968,
+            "to": 1979
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 1998,
+            "to": 2009
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2017,
+            "to": 2028
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2054,
+            "to": 2065
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2106,
+            "to": 2117
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2119,
+            "to": 2130
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2138,
+            "to": 2149
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2163,
+            "to": 2174
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2224,
+            "to": 2235
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2250,
+            "to": 2261
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2288,
+            "to": 2299
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2305,
+            "to": 2316
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2336,
+            "to": 2347
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2350,
+            "to": 2361
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2363,
+            "to": 2374
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2380,
+            "to": 2391
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2398,
+            "to": 2409
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2416,
+            "to": 2427
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2439,
+            "to": 2450
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2451,
+            "to": 2462
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2472,
+            "to": 2483
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2508,
+            "to": 2519
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2532,
+            "to": 2543
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2546,
+            "to": 2557
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2579,
+            "to": 2590
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2602,
+            "to": 2613
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2623,
+            "to": 2634
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2657,
+            "to": 2668
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2681,
+            "to": 2692
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2733,
+            "to": 2744
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2745,
+            "to": 2756
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2758,
+            "to": 2769
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2776,
+            "to": 2787
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2791,
+            "to": 2802
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2811,
+            "to": 2822
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2867,
+            "to": 2878
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2897,
+            "to": 2908
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2916,
+            "to": 2927
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 2936,
+            "to": 2947
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3012,
+            "to": 3023
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3026,
+            "to": 3037
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3069,
+            "to": 3080
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3084,
+            "to": 3095
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3120,
+            "to": 3131
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3147,
+            "to": 3158
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3164,
+            "to": 3175
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3232,
+            "to": 3243
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3297,
+            "to": 3308
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3318,
+            "to": 3329
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3352,
+            "to": 3363
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3383,
+            "to": 3394
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3416,
+            "to": 3427
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3481,
+            "to": 3492
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3508,
+            "to": 3519
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3526,
+            "to": 3537
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3554,
+            "to": 3565
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3570,
+            "to": 3581
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3591,
+            "to": 3602
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3628,
+            "to": 3639
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3640,
+            "to": 3651
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3662,
+            "to": 3673
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3682,
+            "to": 3693
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3700,
+            "to": 3711
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3729,
+            "to": 3740
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3782,
+            "to": 3793
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3796,
+            "to": 3807
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3819,
+            "to": 3830
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3831,
+            "to": 3842
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3868,
+            "to": 3879
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3896,
+            "to": 3907
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3927,
+            "to": 3938
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3940,
+            "to": 3951
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 3997,
+            "to": 4008
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+            "from": 4023,
+            "to": 4034
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+            "from": 47,
+            "to": 58
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+            "from": 95,
+            "to": 106
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+            "from": 117,
+            "to": 128
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+            "from": 157,
+            "to": 168
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+            "from": 176,
+            "to": 187
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+            "from": 202,
+            "to": 213
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+            "from": 82,
+            "to": 93
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+            "from": 128,
+            "to": 139
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+            "from": 140,
+            "to": 151
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+            "from": 79,
+            "to": 90
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+            "from": 95,
+            "to": 106
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+            "from": 116,
+            "to": 127
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+            "from": 154,
+            "to": 165
+          },
+          {
+            "file": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+            "from": 172,
+            "to": 183
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@91-102",
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@159-170",
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@171-182",
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@194-205",
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@213-224",
+            "zBuilder/MortgageApplication/cobol/epscmort.cbl@227-238",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@144-155",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@177-188",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@194-205",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@222-233",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@236-247",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@290-301",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@331-342",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@350-361",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@369-380",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@382-393",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@419-430",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@451-462",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@481-492",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@498-509",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@543-554",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@558-569",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@627-638",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@639-650",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@695-706",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@716-727",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@733-744",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@757-768",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@774-785",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@868-879",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@888-899",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@923-934",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@941-952",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@983-994",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1005-1016",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1095-1106",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1131-1142",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1149-1160",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1180-1191",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1210-1221",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1227-1238",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1261-1272",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1283-1294",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1295-1306",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1356-1367",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1371-1382"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1390-1401",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1407-1418",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1421-1432",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1475-1486",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1490-1501",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1502-1513",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1541-1552",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1599-1610",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1642-1653",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1675-1686",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1716-1727",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1749-1760",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1770-1781",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1825-1836",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1838-1849",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1859-1870"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 3,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1915-1926",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1968-1979",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1998-2009",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2017-2028",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2054-2065",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2106-2117",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2119-2130",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2138-2149",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2163-2174",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2224-2235",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2250-2261",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2288-2299",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2305-2316",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2336-2347",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2350-2361",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2363-2374",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2380-2391",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2398-2409",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2416-2427",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2439-2450",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2451-2462",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2472-2483",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2508-2519",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2532-2543",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2546-2557",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2579-2590",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2602-2613",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2623-2634",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2657-2668",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2681-2692"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 4,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2733-2744",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2745-2756",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2758-2769",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2776-2787",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2791-2802",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2811-2822",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2867-2878",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2897-2908",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2916-2927",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@2936-2947",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3012-3023",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3026-3037",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3069-3080",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3084-3095",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3120-3131",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3147-3158",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3164-3175",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3232-3243",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3297-3308",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3318-3329",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3352-3363",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3383-3394",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3416-3427"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 5,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3481-3492",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3508-3519",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3526-3537",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3554-3565",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3570-3581",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3591-3602",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3628-3639",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3640-3651",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3662-3673",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3682-3693",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3700-3711",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3729-3740",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3782-3793",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3796-3807",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3819-3830",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3831-3842",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3868-3879",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3896-3907",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3927-3938",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3940-3951",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@3997-4008",
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl@4023-4034",
+            "zBuilder/MortgageApplication/cobol/epscsmrt.cbl@47-58",
+            "zBuilder/MortgageApplication/cobol/epsmlist.cbl@95-106",
+            "zBuilder/MortgageApplication/cobol/epsmlist.cbl@117-128",
+            "zBuilder/MortgageApplication/cobol/epsmlist.cbl@157-168"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 6,
+          "windows": [
+            "zBuilder/MortgageApplication/cobol/epsmlist.cbl@176-187",
+            "zBuilder/MortgageApplication/cobol/epsmlist.cbl@202-213",
+            "zBuilder/MortgageApplication/cobol/epsmpmt.cbl@82-93",
+            "zBuilder/MortgageApplication/cobol/epsmpmt.cbl@128-139",
+            "zBuilder/MortgageApplication/cobol/epsmpmt.cbl@140-151",
+            "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl@79-90",
+            "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl@95-106",
+            "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl@116-127",
+            "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl@154-165",
+            "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl@172-183"
+          ]
+        }
+      ],
+      "asked": 251,
+      "key_errors": 0,
+      "upper_bound_95": 0.01186
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "zBuilder/MortgageApplication/cobol/epscsmrd.cbl",
+          "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 1,
+          "files": [
+            "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+          ]
+        },
+        {
+          "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+          "at": "2026-11-24",
+          "batch": 2,
+          "files": [
+            "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+          ]
+        }
+      ],
+      "asked": 388,
+      "key_errors": 2,
+      "upper_bound_95": 0.01546
+    }
+  },
+  "section_census": [
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 20,
+          "asked": 21
+        },
+        "trunc": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {
+        "moves:zBuilder/MortgageApplication/cobol/epscsmrd.cbl@236-247::L242 MOVE LS2XML-XML-BUFFER-LENGTH -> WORK-AREA-LEN": {
+          "verdict": "key_correct",
+          "why": "A plain MOVE statement that starts in the window (checked in the source); the reviewer left it out."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 52,
+          "asked": 54
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "moves:zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1825-1836::L1833 MOVE X000000B0 -> X000000AB": {
+          "verdict": "key_correct",
+          "why": "A plain MOVE statement that starts in the window (checked in the source); the reviewer left it out."
+        },
+        "moves:zBuilder/MortgageApplication/cobol/epscsmrd.cbl@1838-1849::L1849 MOVE X000000B2 -> X000000AB": {
+          "verdict": "key_correct",
+          "why": "A plain MOVE statement that starts in the window (checked in the source); the reviewer left it out."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 3,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 40,
+          "asked": 40
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 4,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 43,
+          "asked": 43
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 5,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 44,
+          "asked": 44
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 6,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 45,
+          "asked": 45
+        },
+        "trunc": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 1,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 379,
+          "asked": 379
+        }
+      },
+      "rulings": {
+        "records:zBuilder/MortgageApplication/cobol/epscsmrd.cbl::L1266 01 XML-NAT-CHAR PIC=N U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "Source line 1266 reads `01 XML-NAT-CHAR PIC N USAGE NATIONAL`; the key reader did not take NATIONAL as a usage. Reader fixed (usage regex) and the record redrafted."
+        },
+        "records:zBuilder/MortgageApplication/cobol/epscsmrd.cbl::L1266 01 XML-NAT-CHAR PIC=N U=NATIONAL O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "Source line 1266 reads `01 XML-NAT-CHAR PIC N USAGE NATIONAL`; the key reader did not take NATIONAL as a usage. Reader fixed (usage regex) and the record redrafted."
+        }
+      }
+    },
+    {
+      "by": "Claude Sonnet 5.5 blind readers (independent subagents), owner-approved 2026-11-24",
+      "at": "2026-11-24",
+      "batch": 2,
+      "files": [
+        "zBuilder/MortgageApplication/cobol/epsmpmt.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 9,
+          "asked": 9
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

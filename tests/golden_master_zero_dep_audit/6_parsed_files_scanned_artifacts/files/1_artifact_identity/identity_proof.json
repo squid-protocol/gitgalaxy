@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Single Indicator (Ext: .cpp)"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "Prose Extension (.md)"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/client_response.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/common.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/content.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/cookie.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/cookies.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/formdata.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/headers.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/log.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/params.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/request.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/server.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/server_context.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/server_handler.cr": "Single Indicator (Ext: .cr)",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "Single Indicator (Ext: .cr)"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_cli.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_config.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_dsl.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_event_stream.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_ext_context.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_ext_response.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_file_upload.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "Single Indicator (Ext: .cr)",
+      "crystal/kemal_framework/kemal_handler.cr": "Single Indicator (Ext: .cr)"
+    },
     "csd": {
       "csd/SOURCES.md": "Prose Extension (.md)"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "Single Indicator (Ext: .dockerfile)",
       "dockerfile/moby/test_targets/windows.Dockerfile": "Single Indicator (Ext: .dockerfile)"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "Prose Extension (.md)"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/agent.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/agent_server.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/application.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/atom.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/base.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/behaviour.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/bitwise.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_date.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_duration.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_time.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "Single Indicator (Ext: .ex)",
+      "elixir/elixir_stdlib/code_fragment.ex": "Single Indicator (Ext: .ex)"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "Single Indicator (Ext: .exs)",
+      "elixir/elixir_tests/agent_test.exs": "Single Indicator (Ext: .exs)",
+      "elixir/elixir_tests/application_test.exs": "Single Indicator (Ext: .exs)",
+      "elixir/elixir_tests/atom_test.exs": "Single Indicator (Ext: .exs)"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "Prose Extension (.md)",
+      "elixir/phoenix_framework/channel.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/channel_server.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/code_reloader_server.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/config.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/controller_pipeline.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/debug.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/digester.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/digester_compressor.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/digester_gzip.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/endpoint.ex": "Single Indicator (Ext: .ex)",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "Single Indicator (Ext: .ex)"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "Prose Extension (.md)"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "embedded_python/meow_turtle/tsl2591.py": "Single Indicator (Internal Signature)",
       "embedded_python/meow_turtle/vibration_driver.py": "Single Indicator (Internal Signature)"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "Prose Extension (.md)"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_app.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_children.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_req.erl": "Single Indicator (Ext: .erl)",
+      "erlang/cowboy_http_server/cowboy_router.erl": "Single Indicator (Ext: .erl)"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_app.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "Single Indicator (Ext: .erl)",
+      "erlang/ranch_socket_pool/ranch_server.erl": "Single Indicator (Ext: .erl)"
     },
     "fortran": {
       "fortran/SOURCES.md": "Prose Extension (.md)"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "Absolute Consensus (Ext + Shebang)",
       "fortran/wrf/sourcetree.py": "Ecosystem Consensus Lock (100% Local Dominance)",
       "fortran/wrf/wrf_timeseries.F": "Absolute Consensus (Ext + Internal Signature)"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "Prose Extension (.md)"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Core.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Csrf.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/EndpointRouting.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/FormatExpressions.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Helpers.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Json.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Middleware.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/ModelParser.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/ModelValidation.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Negotiation.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Preconditional.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/RequestLimitation.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/ResponseCaching.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Routing.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/ShortGuid.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Streaming.fs": "Single Indicator (Internal Signature)",
+      "fsharp/giraffe_web/Xml.fs": "Single Indicator (Internal Signature)"
     },
     "go": {
       "go/SOURCES.md": "Prose Extension (.md)"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "Single Indicator (Ext: .hs)",
       "haskell/pandoc/Parsing.hs": "Single Indicator (Ext: .hs)",
       "haskell/pandoc/Shared.hs": "Single Indicator (Ext: .hs)"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "Prose Extension (.md)"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "Single Indicator (Ext: .tf)",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "Single Indicator (Ext: .tf)"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "Prose Extension (.md)",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "Single Indicator (Ext: .json)",
       "json/kafka/message/VoteRequest.json": "Single Indicator (Ext: .json)"
     },
+    "julia": {
+      "julia/SOURCES.md": "Prose Extension (.md)"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/LICENSE.md": "Prose Extension (.md)",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/dataframe_insertion.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/dataframerow_show.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/deprecated.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/join_core.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/join_inplace.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/other_broadcasting.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/other_index.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/other_metadata.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/other_names.jl": "Single Indicator (Ext: .jl)",
+      "julia/dataframes_jl/other_precompile.jl": "Single Indicator (Ext: .jl)"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "Prose Extension (.md)"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "Single Indicator (Ext: .mlir)"
     },
+    "nim": {
+      "nim/SOURCES.md": "Prose Extension (.md)"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/async.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asyncfile.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asyncfutures.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asynchttpserver.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asyncmacro.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asyncnet.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/asyncstreams.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/base64.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/bitops.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/browsers.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/cgi.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_chains.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_critbits.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_deques.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_hashcommon.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_heapqueue.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_intsets.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_lists.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_rtarrays.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_sequtils.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_setimpl.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_sets.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_sharedlist.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_sharedtables.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/collections_tableimpl.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/colors.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/complex.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/concurrency_atomics.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "Single Indicator (Ext: .nim)",
+      "nim/nim_stdlib/copying.txt": "Prose Extension (.txt)"
+    },
     "nix": {
       "nix/SOURCES.md": "Prose Extension (.md)"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "Sibling Anchor (.m)",
       "objective-c/worldwideweb/HyperText.m": "Sibling Anchor (.h)",
       "objective-c/worldwideweb/TcpAccess.m": "Single Indicator (Internal Signature)"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "Prose Extension (.md)"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "Prose Extension (.md)",
+      "ocaml/janestreet_base/applicative.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/applicative.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/applicative_intf.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/array.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/array.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/array0.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/array0.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/array_intf.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/array_permute.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/array_permute.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/avltree.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/avltree.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/backtrace.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/backtrace.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/base.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/binary_search.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/binary_search.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/binary_searchable.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/binary_searchable.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/blit.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/blit.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/blit_intf.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/bool.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/bool.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/bool0.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/bool0.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/buffer.ml": "Single Indicator (Ext: .ml)",
+      "ocaml/janestreet_base/buffer.mli": "Single Indicator (Ext: .mli)",
+      "ocaml/janestreet_base/buffer_intf.ml": "Single Indicator (Ext: .ml)"
     },
     "perl": {
       "perl/SOURCES.md": "Prose Extension (.md)"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "Single Indicator (Ext: .pli)",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "Single Indicator (Ext: .pli)",
       "pli/zopeneditor_sample/PSAM2.pli": "Single Indicator (Ext: .pli)"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "Prose Extension (.md)"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "Single Indicator (Internal Signature)"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/halfvec.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/sparsevec.sql": "Single Indicator (Internal Signature)",
+      "postgresql/pgvector_tests/vector_type.sql": "Single Indicator (Internal Signature)"
     },
     "powershell": {
       "powershell/SOURCES.md": "Prose Extension (.md)"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "Ecosystem Consensus Lock (75% Local Dominance)",
       "python/wtfpython/notebook_generator.py": "Ecosystem Consensus Lock (75% Local Dominance)",
       "python/wtfpython/noxfile.py": "Ecosystem Consensus Lock (75% Local Dominance)"
+    },
+    "r": {
+      "r/SOURCES.md": "Prose Extension (.md)"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "Prose Extension (.md)",
+      "r/dplyr_package/across.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/all-equal.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/arrange.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/bind-cols.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/bind-rows.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/by.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/case-match.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/case-when.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/coalesce.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-arrange.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-distinct.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-filter.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-funs.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-group-by.R": "Single Indicator (Ext: .r)",
+      "r/dplyr_package/colwise-mutate.R": "Single Indicator (Ext: .r)"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "Prose Extension (.md)",
+      "r/rlang_package/aaa-topics.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/aaa.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/arg.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/attr.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/bytes.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/c-lib.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/call.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-abort.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-entrace.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-handlers.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-last.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-message.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd-signal.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/cnd.R": "Single Indicator (Ext: .r)",
+      "r/rlang_package/deparse.R": "Single Indicator (Ext: .r)"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "Prose Extension (.md)",

@@ -186,6 +186,106 @@
     }
    ],
    "why": "the DELAY fails in task 4242: a second abend record, a different key, written beside the seeded one"
+  },
+  {
+   "name": "delay-invreq-abndfile-disabled",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    },
+    {
+     "cmd": "WRITE",
+     "file": "ABNDFILE",
+     "resp": "DISABLED"
+    }
+   ],
+   "why": "the DELAY fails (INVREQ RESP2 6) and ABNDPROC's WRITE to ABNDFILE then fails DISABLED: it takes its write-error path (DISPLAY and RETURN) and the abend PLOP follows"
+  },
+  {
+   "name": "put-container-invreq",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "PUT-CONTAINER",
+     "resp": "INVREQ"
+    }
+   ],
+   "why": "PUT CONTAINER of CIPA fails INVREQ: the program DISPLAYs both error lines (RESP and RESP2, then the container, channel and FLENGTH) and returns"
+  },
+  {
+   "name": "delay-expired",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "EXPIRED"
+    }
+   ],
+   "why": "the DELAY returns EXPIRED instead of INVREQ: the program tests only WS-CICS-RESP NOT = NORMAL, so it takes the same abend path (ABNDPROC LINK, ABEND PLOP), with the EXPIRED RESP and a zero RESP2 in the abend record"
+  },
+  {
+   "name": "container-empty",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": ""
+     }
+    }
+   },
+   "why": "CIPA is empty: GET CONTAINER NORMAL with FLENGTH 0, WS-CONT-IN keeps its initial bytes (no VALUE clause: oracle_assumptions.md L3) throughout, the new score is set and PUT CONTAINER writes all 261 bytes back, so the first initial byte shows in CIPA"
+  },
+  {
+   "name": "credit-score-task-1234567",
+   "commarea": null,
+   "taskn": 1234567,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000043Mr Gareth L Owen                                            2 Quay Street, Lymington, SO41 9AB                                                                                                                              2902197299929022028Y0"
+     }
+    }
+   },
+   "why": "a 7-digit task number with a good container: the whole EIBTASKN field seeds FUNCTION RANDOM, so the score drawn after it depends on every digit"
+  },
+  {
+   "name": "credit-score-task-9999999",
+   "commarea": null,
+   "taskn": 9999999,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000043Mr Gareth L Owen                                            2 Quay Street, Lymington, SO41 9AB                                                                                                                              2902197299929022028Y0"
+     }
+    }
+   },
+   "why": "a 7-digit task number with a good container: the whole EIBTASKN field seeds FUNCTION RANDOM, so the score drawn after it depends on every digit"
   }
  ]
 }

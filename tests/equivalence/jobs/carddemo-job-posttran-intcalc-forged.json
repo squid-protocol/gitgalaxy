@@ -1,0 +1,39 @@
+{
+  "kind": "job",
+  "job": "POSTTRAN-INTCALC-FORGED",
+  "steps": [
+    {
+      "case": "carddemo-posttran",
+      "forged_job": {
+        "job": "POSTTRAN",
+        "step": "STEP15",
+        "config": "PosttranJobConfig",
+        "dds": "DDS_STEP15"
+      }
+    },
+    {
+      "case": "carddemo-intcalc",
+      "feeds": {
+        "ACCTFILE": {
+          "step": "carddemo-posttran",
+          "dd": "ACCTFILE"
+        },
+        "TCATBALF": {
+          "step": "carddemo-posttran",
+          "dd": "TCATBALF"
+        }
+      },
+      "inputs": {
+        "XREFFILE": "@corpus/app/data/ASCII/cardxref.txt",
+        "DISCGRP": "@corpus/app/data/ASCII/discgrp.txt"
+      },
+      "forged_job": {
+        "job": "INTCALC",
+        "step": "STEP15",
+        "config": "IntcalcJobConfig",
+        "dds": "DDS_STEP15"
+      }
+    }
+  ],
+  "notes": "#8886: carddemo-job-posttran-intcalc with each program step's Java entered through the forge's generated Spring Batch job (JclJobLauncher launches POSTTRAN, then INTCALC, by JCL name; the job's own DD / DSN wiring and PARM, the proven det port as the step's service), compared with the same COBOL run: RETURN-CODE and every output. CardDemo's nightly batch, its first two jobs: POSTTRAN STEP15 (CBTRN02C) then INTCALC STEP15 (CBACT04C, PARM 2022071800 as its JCL passes it; both steps keep their own pinned clock). INTCALC's ACCTFILE and TCATBALF are what POSTTRAN left: the COBOL side's unload of each (primary-key order), loaded keyed as INTCALC's SELECT declares into both sides (an indexed feed, #8879). XREFFILE and DISCGRP are CardDemo's shipped files for the step (the same data POSTTRAN's XREFFILE and ACCTFILE/TCATBALF come from, not the step case's own strengthened copies), so the two steps agree on one data set. Each step is proven as its own batch case; the chain is their composition. Assumption: the JCL wiring is this file, not a read job (register F4); the oracle is GnuCOBOL with BDB indexed files, not z/OS VSAM."
+}

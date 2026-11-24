@@ -243,6 +243,33 @@ def test_objectivec_thread_sleeps_ignores_other_nsthread_8907():
     assert not OBJC_RULES["thread_sleeps"].search("[NSThread currentThread];")
 
 
+_REPRO_8907 = """\
+void blockCaret(void) { void (^blk)(void) = ^{ int x = 1; }; blk(); }
+int addrOf(int a) { int *p = &a; return *p; }
+void sleeper(void) { [NSThread sleepForTimeInterval:1.0]; }
+"""
+
+
+def _function_bodies_8907():
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    funcs = StructuralExtractor("objective-c", LANGUAGE_DEFINITIONS).splice(_REPRO_8907, "")["functions"]
+    return {f["name"]: _REPRO_8907[f["start_idx"] : f["end_idx"]] for f in funcs}
+
+
+def test_objectivec_issue_8907_repros_per_function():
+    """The issue's three repros, sliced as functions: block caret and address-of are not
+    bitwise, the Foundation sleep is a thread sleep (#8907). The oracle's judgement call:
+    dispatch_after / performSelector:afterDelay: stay in thread_sleeps (timeout-driven deferral)."""
+    bodies = _function_bodies_8907()
+    assert set(bodies) == {"blockCaret", "addrOf", "sleeper"}
+    bitwise = OBJC_RULES["bitwise_ops"]
+    sleeps = OBJC_RULES["thread_sleeps"]
+    assert not bitwise.findall(bodies["blockCaret"])
+    assert not bitwise.findall(bodies["addrOf"])
+    assert len(sleeps.findall(bodies["sleeper"])) == 1
+
+
 def test_objectivec_at_prefixed_directives_regression():
     """
     Regression test for a systemic bug found across 9 objective-c

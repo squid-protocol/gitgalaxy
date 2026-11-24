@@ -53,7 +53,7 @@ During import resolution, the dependency scanner flagged a structural naming col
 (`fstream` vs `sstream`) as a typosquatting lookalike — a concrete example of the local
 typosquatting check running without a cloud CVE API.
 
-> **Enterprise Calibration (Zero-Trust Enforcement):** Because `fstream` and `sstream` are both standard C++ libraries, flagging this collision demonstrates the engine's default Zero-Trust strictness. To prevent the pipeline from failing on trusted internal or standard libraries, DevSecOps teams simply add them to the `APPROVED_IMPORTS` allowlist in the [GitGalaxy Config](https://squid-protocol.github.io/gitgalaxy/06-01-gitgalaxy-config/).
+> **Enterprise Calibration (Import Policy Enforcement):** Because `fstream` and `sstream` are both standard C++ libraries, flagging this collision demonstrates the engine's default import-policy strictness (anything not on the approved list is flagged). To prevent the pipeline from failing on trusted internal or standard libraries, DevSecOps teams simply add them to the `APPROVED_IMPORTS` allowlist in the [GitGalaxy Config](https://squid-protocol.github.io/gitgalaxy/06-01-gitgalaxy-config/).
 
 ![NVDA Processing Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/nvda_processing.gif)
 

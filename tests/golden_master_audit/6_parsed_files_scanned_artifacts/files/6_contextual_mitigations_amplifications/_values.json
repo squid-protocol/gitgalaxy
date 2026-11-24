@@ -744,6 +744,19 @@
       "cpp/powertoys/FancyZones.h": "None Detected",
       "cpp/powertoys/powertoy_module.h": "None Detected"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "None Detected"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "None Detected",
+      "crystal/crystal_stdlib_http/log.cr": "None Detected",
+      "crystal/crystal_stdlib_http/params.cr": "None Detected",
+      "crystal/crystal_stdlib_http/server_context.cr": "None Detected",
+      "crystal/crystal_stdlib_http/server_handler.cr": "None Detected"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "None Detected"
+    },
     "csd": {
       "csd/SOURCES.md": "None Detected"
     },
@@ -875,11 +888,80 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "None Detected",
       "dockerfile/moby/test_targets/windows.Dockerfile": "None Detected"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "None Detected"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "None Detected",
+      "elixir/elixir_stdlib/agent_server.ex": "None Detected",
+      "elixir/elixir_stdlib/application.ex": "None Detected",
+      "elixir/elixir_stdlib/atom.ex": "None Detected",
+      "elixir/elixir_stdlib/base.ex": "None Detected",
+      "elixir/elixir_stdlib/behaviour.ex": "None Detected",
+      "elixir/elixir_stdlib/bitwise.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_date.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_duration.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_time.ex": "None Detected",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "None Detected",
+      "elixir/elixir_stdlib/code_fragment.ex": "None Detected"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "None Detected",
+      "elixir/elixir_tests/application_test.exs": "None Detected",
+      "elixir/elixir_tests/atom_test.exs": "None Detected"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "None Detected",
+      "elixir/phoenix_framework/channel_server.ex": "None Detected",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "None Detected",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "None Detected",
+      "elixir/phoenix_framework/code_reloader_server.ex": "None Detected",
+      "elixir/phoenix_framework/controller_pipeline.ex": "None Detected",
+      "elixir/phoenix_framework/debug.ex": "None Detected",
+      "elixir/phoenix_framework/digester.ex": "None Detected",
+      "elixir/phoenix_framework/digester_compressor.ex": "None Detected",
+      "elixir/phoenix_framework/digester_gzip.ex": "None Detected",
+      "elixir/phoenix_framework/endpoint.ex": "None Detected",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "None Detected"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "None Detected"
     },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/pio_programs.py": "None Detected"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "None Detected"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_app.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_children.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_req.erl": "None Detected",
+      "erlang/cowboy_http_server/cowboy_router.erl": "None Detected"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_app.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "None Detected",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "None Detected"
     },
     "fortran": {
       "fortran/SOURCES.md": "None Detected"
@@ -890,6 +972,27 @@
       "fortran/wrf/regtest_hwrf.csh": "None Detected",
       "fortran/wrf/regtest_nmmnest.csh": "None Detected",
       "fortran/wrf/run_convert_e2c.ksh": "None Detected"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "None Detected"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "None Detected",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "None Detected",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "None Detected",
+      "fsharp/giraffe_web/EndpointRouting.fs": "None Detected",
+      "fsharp/giraffe_web/Helpers.fs": "None Detected",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "None Detected",
+      "fsharp/giraffe_web/Json.fs": "None Detected",
+      "fsharp/giraffe_web/Middleware.fs": "None Detected",
+      "fsharp/giraffe_web/ModelParser.fs": "None Detected",
+      "fsharp/giraffe_web/ModelValidation.fs": "None Detected",
+      "fsharp/giraffe_web/Preconditional.fs": "None Detected",
+      "fsharp/giraffe_web/RequestLimitation.fs": "None Detected",
+      "fsharp/giraffe_web/Routing.fs": "None Detected",
+      "fsharp/giraffe_web/ShortGuid.fs": "None Detected",
+      "fsharp/giraffe_web/Streaming.fs": "None Detected",
+      "fsharp/giraffe_web/Xml.fs": "None Detected"
     },
     "go": {
       "go/SOURCES.md": "None Detected"
@@ -1210,6 +1313,41 @@
       "haskell/pandoc/Pandoc.hs": "None Detected",
       "haskell/pandoc/Parsing.hs": "None Detected",
       "haskell/pandoc/Shared.hs": "None Detected"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "None Detected"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "None Detected",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "None Detected"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "None Detected",
@@ -1573,6 +1711,23 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "None Detected",
       "json/kafka/message/VoteRequest.json": "None Detected"
     },
+    "julia": {
+      "julia/SOURCES.md": "None Detected"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "None Detected",
+      "julia/dataframes_jl/LICENSE.md": "None Detected",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "None Detected",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "None Detected",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "None Detected",
+      "julia/dataframes_jl/dataframerow_show.jl": "None Detected",
+      "julia/dataframes_jl/deprecated.jl": "None Detected",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "None Detected",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "None Detected",
+      "julia/dataframes_jl/join_inplace.jl": "None Detected",
+      "julia/dataframes_jl/other_names.jl": "None Detected",
+      "julia/dataframes_jl/other_precompile.jl": "None Detected"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "None Detected"
     },
@@ -1755,6 +1910,22 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "None Detected"
     },
+    "nim": {
+      "nim/SOURCES.md": "None Detected"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/async.nim": "None Detected",
+      "nim/nim_stdlib/asyncstreams.nim": "None Detected",
+      "nim/nim_stdlib/cgi.nim": "None Detected",
+      "nim/nim_stdlib/collections_chains.nim": "None Detected",
+      "nim/nim_stdlib/collections_hashcommon.nim": "None Detected",
+      "nim/nim_stdlib/collections_intsets.nim": "None Detected",
+      "nim/nim_stdlib/collections_rtarrays.nim": "None Detected",
+      "nim/nim_stdlib/colors.nim": "None Detected",
+      "nim/nim_stdlib/complex.nim": "None Detected",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "None Detected",
+      "nim/nim_stdlib/copying.txt": "None Detected"
+    },
     "nix": {
       "nix/SOURCES.md": "None Detected"
     },
@@ -1773,6 +1944,34 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/HyperText.h": "None Detected"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "None Detected"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "None Detected",
+      "ocaml/janestreet_base/applicative.mli": "None Detected",
+      "ocaml/janestreet_base/array.mli": "None Detected",
+      "ocaml/janestreet_base/array0.mli": "None Detected",
+      "ocaml/janestreet_base/array_permute.ml": "None Detected",
+      "ocaml/janestreet_base/array_permute.mli": "None Detected",
+      "ocaml/janestreet_base/avltree.mli": "None Detected",
+      "ocaml/janestreet_base/backtrace.ml": "None Detected",
+      "ocaml/janestreet_base/backtrace.mli": "None Detected",
+      "ocaml/janestreet_base/base.ml": "None Detected",
+      "ocaml/janestreet_base/binary_search.ml": "None Detected",
+      "ocaml/janestreet_base/binary_search.mli": "None Detected",
+      "ocaml/janestreet_base/binary_searchable.ml": "None Detected",
+      "ocaml/janestreet_base/binary_searchable.mli": "None Detected",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "None Detected",
+      "ocaml/janestreet_base/blit.ml": "None Detected",
+      "ocaml/janestreet_base/blit.mli": "None Detected",
+      "ocaml/janestreet_base/bool.ml": "None Detected",
+      "ocaml/janestreet_base/bool.mli": "None Detected",
+      "ocaml/janestreet_base/bool0.ml": "None Detected",
+      "ocaml/janestreet_base/bool0.mli": "None Detected",
+      "ocaml/janestreet_base/buffer.ml": "None Detected",
+      "ocaml/janestreet_base/buffer.mli": "None Detected"
     },
     "perl": {
       "perl/SOURCES.md": "None Detected"
@@ -1839,6 +2038,28 @@
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "None Detected"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "None Detected"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "None Detected",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "None Detected"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "None Detected",
+      "postgresql/pgvector_tests/halfvec.sql": "None Detected",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "None Detected",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "None Detected",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "None Detected",
+      "postgresql/pgvector_tests/sparsevec.sql": "None Detected",
+      "postgresql/pgvector_tests/vector_type.sql": "None Detected"
     },
     "powershell": {
       "powershell/SOURCES.md": "None Detected"
@@ -2148,6 +2369,28 @@
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": "None Detected",
       "python/wtfpython/README.md": "None Detected"
+    },
+    "r": {
+      "r/SOURCES.md": "None Detected"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "None Detected",
+      "r/dplyr_package/all-equal.R": "None Detected",
+      "r/dplyr_package/by.R": "None Detected",
+      "r/dplyr_package/case-match.R": "None Detected",
+      "r/dplyr_package/coalesce.R": "None Detected",
+      "r/dplyr_package/colwise-arrange.R": "None Detected",
+      "r/dplyr_package/colwise-distinct.R": "None Detected",
+      "r/dplyr_package/colwise-filter.R": "None Detected",
+      "r/dplyr_package/colwise-group-by.R": "None Detected"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "None Detected",
+      "r/rlang_package/aaa-topics.R": "None Detected",
+      "r/rlang_package/aaa.R": "None Detected",
+      "r/rlang_package/arg.R": "None Detected",
+      "r/rlang_package/attr.R": "None Detected",
+      "r/rlang_package/c-lib.R": "None Detected"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "None Detected",

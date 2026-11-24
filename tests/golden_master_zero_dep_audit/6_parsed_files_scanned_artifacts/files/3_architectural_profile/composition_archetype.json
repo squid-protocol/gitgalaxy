@@ -534,7 +534,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": "Large Core Modules",
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": "Large Core Modules",
       "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": "Declarative / Non-Code",
-      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": "Large Core Modules (3)",
+      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": "Large Core Modules",
       "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": "Interface Declarations Files",
       "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": "Declarative / Non-Code",
@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Parameter Forwarders Files",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Large Core Modules (3)"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "Encapsulated Accessors Files",
+      "crystal/crystal_stdlib_http/client_response.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/common.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/content.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/cookie.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/cookies.cr": "Callbacks & Closures Files",
+      "crystal/crystal_stdlib_http/formdata.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "Declarative / Non-Code",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "Large Core Modules (2)",
+      "crystal/crystal_stdlib_http/headers.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/log.cr": "Encapsulated Accessors Files",
+      "crystal/crystal_stdlib_http/params.cr": "Data / Markup / Trivial",
+      "crystal/crystal_stdlib_http/request.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/server.cr": "Large Core Modules (3)",
+      "crystal/crystal_stdlib_http/server_context.cr": "Parameter Forwarders Files",
+      "crystal/crystal_stdlib_http/server_handler.cr": "Compute Cores Files",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "Parameter Forwarders Files"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "Data / Markup / Trivial",
+      "crystal/kemal_framework/kemal_cli.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_config.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_dsl.cr": "Parameter Forwarders Files",
+      "crystal/kemal_framework/kemal_event_stream.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "Large Core Modules (2)",
+      "crystal/kemal_framework/kemal_ext_context.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_ext_response.cr": "Large Core Modules",
+      "crystal/kemal_framework/kemal_file_upload.cr": "Large Core Modules (2)",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "Large Core Modules (3)",
+      "crystal/kemal_framework/kemal_handler.cr": "Parameter Forwarders Files"
+    },
     "csd": {
       "csd/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "Large Core Modules (3)",
       "dockerfile/moby/test_targets/windows.Dockerfile": "Large Core Modules"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "Large Core Modules (2)",
+      "elixir/elixir_stdlib/agent.ex": "Parameter Forwarders Files",
+      "elixir/elixir_stdlib/agent_server.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/application.ex": "Large Core Modules (2)",
+      "elixir/elixir_stdlib/atom.ex": "Parameter Forwarders Files",
+      "elixir/elixir_stdlib/base.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/behaviour.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/bitwise.ex": "Parameter Forwarders Files",
+      "elixir/elixir_stdlib/calendar.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/calendar_date.ex": "Parameter Forwarders Files",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/calendar_duration.ex": "Encapsulated Accessors Files",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "Large Core Modules (2)",
+      "elixir/elixir_stdlib/calendar_time.ex": "Large Core Modules (3)",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "Large Core Modules (2)",
+      "elixir/elixir_stdlib/code_fragment.ex": "Encapsulated Accessors Files"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "Declarative / Non-Code",
+      "elixir/elixir_tests/agent_test.exs": "Encapsulated Accessors Files",
+      "elixir/elixir_tests/application_test.exs": "Encapsulated Accessors Files",
+      "elixir/elixir_tests/atom_test.exs": "Declarative / Non-Code"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "Data / Markup / Trivial",
+      "elixir/phoenix_framework/channel.ex": "Parameter Forwarders Files",
+      "elixir/phoenix_framework/channel_server.ex": "Large Core Modules (3)",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "Parameter Forwarders Files",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "Encapsulated Accessors Files",
+      "elixir/phoenix_framework/code_reloader_server.ex": "Encapsulated Accessors Files",
+      "elixir/phoenix_framework/config.ex": "Parameter Forwarders Files",
+      "elixir/phoenix_framework/controller_pipeline.ex": "Encapsulated Accessors Files",
+      "elixir/phoenix_framework/debug.ex": "Large Core Modules (2)",
+      "elixir/phoenix_framework/digester.ex": "Encapsulated Accessors Files",
+      "elixir/phoenix_framework/digester_compressor.ex": "Declarative / Non-Code",
+      "elixir/phoenix_framework/digester_gzip.ex": "Large Core Modules (2)",
+      "elixir/phoenix_framework/endpoint.ex": "Large Core Modules (3)",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "Encapsulated Accessors Files"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "Many-Argument Workhorses Files",
       "embedded_python/meow_turtle/tsl2591.py": "Encapsulated Accessors Files",
       "embedded_python/meow_turtle/vibration_driver.py": "Large Core Modules (2)"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "Parameter Forwarders Files",
+      "erlang/cowboy_http_server/cowboy_app.erl": "Declarative / Non-Code",
+      "erlang/cowboy_http_server/cowboy_children.erl": "Compute Cores Files",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "Large Core Modules (2)",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "Parameter Forwarders Files",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "Large Core Modules (2)",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "Large Core Modules (2)",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "Large Core Modules (2)",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "Declarative / Non-Code",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "Parameter Forwarders Files",
+      "erlang/cowboy_http_server/cowboy_req.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_router.erl": "Large Core Modules (2)"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_app.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "Large Core Modules (3)",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "Type Conversions Files",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "Large Core Modules (2)",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "Declarative / Non-Code",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "Large Core Modules (3)",
+      "erlang/ranch_socket_pool/ranch_server.erl": "Large Core Modules (3)"
     },
     "fortran": {
       "fortran/SOURCES.md": "Data / Markup / Trivial"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "Declarative / Non-Code",
       "fortran/wrf/sourcetree.py": "Parameter Forwarders Files",
       "fortran/wrf/wrf_timeseries.F": "Many-Argument Workhorses Files"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "Callbacks & Closures Files",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "Declarative / Non-Code",
+      "fsharp/giraffe_web/Core.fs": "Callbacks & Closures Files",
+      "fsharp/giraffe_web/Csrf.fs": "Large Core Modules (2)",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "State Mutators Files",
+      "fsharp/giraffe_web/EndpointRouting.fs": "Large Core Modules (3)",
+      "fsharp/giraffe_web/FormatExpressions.fs": "Compute Cores Files",
+      "fsharp/giraffe_web/Helpers.fs": "Parameter Forwarders Files",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "State Mutators Files",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "Parameter Forwarders Files",
+      "fsharp/giraffe_web/Json.fs": "Generic / Templated Code Files",
+      "fsharp/giraffe_web/Middleware.fs": "State Mutators Files",
+      "fsharp/giraffe_web/ModelParser.fs": "Interface Declarations Files",
+      "fsharp/giraffe_web/ModelValidation.fs": "Generic / Templated Code Files",
+      "fsharp/giraffe_web/Negotiation.fs": "Callbacks & Closures Files",
+      "fsharp/giraffe_web/Preconditional.fs": "Large Core Modules (3)",
+      "fsharp/giraffe_web/RequestLimitation.fs": "Large Core Modules (2)",
+      "fsharp/giraffe_web/ResponseCaching.fs": "Parameter Forwarders Files",
+      "fsharp/giraffe_web/Routing.fs": "Callbacks & Closures Files",
+      "fsharp/giraffe_web/ShortGuid.fs": "Callbacks & Closures Files",
+      "fsharp/giraffe_web/Streaming.fs": "Compute Cores Files",
+      "fsharp/giraffe_web/Xml.fs": "Parameter Forwarders Files"
     },
     "go": {
       "go/SOURCES.md": "Data / Markup / Trivial"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "Declarative / Non-Code",
       "haskell/pandoc/Parsing.hs": "Declarative / Non-Code",
       "haskell/pandoc/Shared.hs": "State Mutators Files"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "Interface Declarations Files",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "Data / Markup / Trivial",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "Large Core Modules",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "Interface Declarations Files"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "Data / Markup / Trivial",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "Data / Markup / Trivial",
       "json/kafka/message/VoteRequest.json": "Data / Markup / Trivial"
     },
+    "julia": {
+      "julia/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "Declarative / Non-Code",
+      "julia/dataframes_jl/LICENSE.md": "Data / Markup / Trivial",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "Parameter Forwarders Files",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/dataframe_insertion.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "Parameter Forwarders Files",
+      "julia/dataframes_jl/dataframerow_show.jl": "Parameter Forwarders Files",
+      "julia/dataframes_jl/deprecated.jl": "Data / Markup / Trivial",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "Parameter Forwarders Files",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/join_core.jl": "Many-Argument Workhorses Files",
+      "julia/dataframes_jl/join_inplace.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/other_broadcasting.jl": "Large Core Modules (2)",
+      "julia/dataframes_jl/other_index.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/other_metadata.jl": "Large Core Modules (3)",
+      "julia/dataframes_jl/other_names.jl": "Compute Cores Files",
+      "julia/dataframes_jl/other_precompile.jl": "Declarative / Non-Code"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "Declarative / Non-Code"
     },
+    "nim": {
+      "nim/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/async.nim": "Data / Markup / Trivial",
+      "nim/nim_stdlib/asyncfile.nim": "Compute Cores Files",
+      "nim/nim_stdlib/asyncfutures.nim": "Large Core Modules (3)",
+      "nim/nim_stdlib/asynchttpserver.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/asyncmacro.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/asyncnet.nim": "Large Core Modules (3)",
+      "nim/nim_stdlib/asyncstreams.nim": "Generic / Templated Code Files",
+      "nim/nim_stdlib/base64.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/bitops.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/browsers.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/cgi.nim": "Interface Declarations Files",
+      "nim/nim_stdlib/collections_chains.nim": "Compute Cores Files",
+      "nim/nim_stdlib/collections_critbits.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_deques.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_hashcommon.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/collections_heapqueue.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_intsets.nim": "Data / Markup / Trivial",
+      "nim/nim_stdlib/collections_lists.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_rtarrays.nim": "Type Conversions Files",
+      "nim/nim_stdlib/collections_sequtils.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_setimpl.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/collections_sets.nim": "Large Core Modules (2)",
+      "nim/nim_stdlib/collections_sharedlist.nim": "Generic / Templated Code Files",
+      "nim/nim_stdlib/collections_sharedtables.nim": "Generic / Templated Code Files",
+      "nim/nim_stdlib/collections_tableimpl.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/colors.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/complex.nim": "Generic / Templated Code Files",
+      "nim/nim_stdlib/concurrency_atomics.nim": "Type Conversions Files",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "Encapsulated Accessors Files",
+      "nim/nim_stdlib/copying.txt": "Data / Markup / Trivial"
+    },
     "nix": {
       "nix/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "Type Conversions Files",
       "objective-c/worldwideweb/HyperText.m": "Large Core Modules (3)",
       "objective-c/worldwideweb/TcpAccess.m": "Large Core Modules (3)"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/applicative.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/applicative.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/applicative_intf.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/array.ml": "Large Core Modules (3)",
+      "ocaml/janestreet_base/array.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/array0.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/array0.mli": "Declarative / Non-Code",
+      "ocaml/janestreet_base/array_intf.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/array_permute.ml": "Large Core Modules (2)",
+      "ocaml/janestreet_base/array_permute.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/avltree.ml": "Compute Cores Files",
+      "ocaml/janestreet_base/avltree.mli": "Declarative / Non-Code",
+      "ocaml/janestreet_base/backtrace.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/backtrace.mli": "Declarative / Non-Code",
+      "ocaml/janestreet_base/base.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/binary_search.ml": "Many-Argument Workhorses Files",
+      "ocaml/janestreet_base/binary_search.mli": "Declarative / Non-Code",
+      "ocaml/janestreet_base/binary_searchable.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/binary_searchable.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/blit.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/blit.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/blit_intf.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/bool.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/bool.mli": "Declarative / Non-Code",
+      "ocaml/janestreet_base/bool0.ml": "Declarative / Non-Code",
+      "ocaml/janestreet_base/bool0.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/buffer.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/buffer.mli": "Data / Markup / Trivial",
+      "ocaml/janestreet_base/buffer_intf.ml": "Declarative / Non-Code"
     },
     "perl": {
       "perl/SOURCES.md": "Data / Markup / Trivial"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "Large Core Modules",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "Large Core Modules",
       "pli/zopeneditor_sample/PSAM2.pli": "Many-Argument Workhorses Files"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "Data / Markup / Trivial",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "Data / Markup / Trivial"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/halfvec.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/sparsevec.sql": "Declarative / Non-Code",
+      "postgresql/pgvector_tests/vector_type.sql": "Declarative / Non-Code"
     },
     "powershell": {
       "powershell/SOURCES.md": "Data / Markup / Trivial"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "Data / Markup / Trivial",
       "python/wtfpython/notebook_generator.py": "Large Core Modules (3)",
       "python/wtfpython/noxfile.py": "Generic / Templated Code Files"
+    },
+    "r": {
+      "r/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "Data / Markup / Trivial",
+      "r/dplyr_package/across.R": "Large Core Modules (3)",
+      "r/dplyr_package/all-equal.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/arrange.R": "Large Core Modules (3)",
+      "r/dplyr_package/bind-cols.R": "Compute Cores Files",
+      "r/dplyr_package/bind-rows.R": "Compute Cores Files",
+      "r/dplyr_package/by.R": "Parameter Forwarders Files",
+      "r/dplyr_package/case-match.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/case-when.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/coalesce.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/colwise-arrange.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/colwise-distinct.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/colwise-filter.R": "Large Core Modules (3)",
+      "r/dplyr_package/colwise-funs.R": "Large Core Modules (3)",
+      "r/dplyr_package/colwise-group-by.R": "Many-Argument Workhorses Files",
+      "r/dplyr_package/colwise-mutate.R": "Many-Argument Workhorses Files"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "Data / Markup / Trivial",
+      "r/rlang_package/aaa-topics.R": "Large Core Modules (2)",
+      "r/rlang_package/aaa.R": "Parameter Forwarders Files",
+      "r/rlang_package/arg.R": "Large Core Modules (3)",
+      "r/rlang_package/attr.R": "Parameter Forwarders Files",
+      "r/rlang_package/bytes.R": "Large Core Modules (3)",
+      "r/rlang_package/c-lib.R": "Parameter Forwarders Files",
+      "r/rlang_package/call.R": "Large Core Modules (3)",
+      "r/rlang_package/cnd-abort.R": "Large Core Modules (3)",
+      "r/rlang_package/cnd-entrace.R": "Large Core Modules (3)",
+      "r/rlang_package/cnd-handlers.R": "Large Core Modules (3)",
+      "r/rlang_package/cnd-last.R": "Parameter Forwarders Files",
+      "r/rlang_package/cnd-message.R": "Parameter Forwarders Files",
+      "r/rlang_package/cnd-signal.R": "Large Core Modules (3)",
+      "r/rlang_package/cnd.R": "Large Core Modules (3)",
+      "r/rlang_package/deparse.R": "Large Core Modules (3)"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "Data / Markup / Trivial",

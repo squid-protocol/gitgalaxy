@@ -1182,6 +1182,72 @@
         "import:cpp/powertoys/powertoy_module.h"
       ]
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": [
+        "fcall:crystal/crystal_stdlib_http/client_response.cr",
+        "import:crystal/crystal_stdlib_http/common.cr",
+        "import:nim/nim_stdlib/base64.nim"
+      ],
+      "crystal/crystal_stdlib_http/client_response.cr": [
+        "fcall:crystal/crystal_stdlib_http/cookies.cr",
+        "fcall:crystal/crystal_stdlib_http/request.cr"
+      ],
+      "crystal/crystal_stdlib_http/common.cr": [
+        "fcall:crystal/crystal_stdlib_http/client_response.cr",
+        "import:crystal/crystal_stdlib_http/content.cr",
+        "import:crystal/crystal_stdlib_http/cookie.cr",
+        "import:crystal/crystal_stdlib_http/cookies.cr",
+        "import:crystal/crystal_stdlib_http/formdata.cr",
+        "import:crystal/crystal_stdlib_http/headers.cr",
+        "import:crystal/crystal_stdlib_http/request.cr"
+      ],
+      "crystal/crystal_stdlib_http/content.cr": [
+        "import:crystal/crystal_stdlib_http/common.cr"
+      ],
+      "crystal/crystal_stdlib_http/cookie.cr": [
+        "import:crystal/crystal_stdlib_http/common.cr"
+      ],
+      "crystal/crystal_stdlib_http/cookies.cr": [
+        "import:crystal/crystal_stdlib_http/cookie.cr"
+      ],
+      "crystal/crystal_stdlib_http/headers.cr": [
+        "import:crystal/crystal_stdlib_http/common.cr"
+      ],
+      "crystal/crystal_stdlib_http/request.cr": [
+        "fcall:crystal/crystal_stdlib_http/cookies.cr",
+        "import:crystal/crystal_stdlib_http/common.cr",
+        "import:crystal/crystal_stdlib_http/params.cr"
+      ],
+      "crystal/crystal_stdlib_http/server.cr": [
+        "import:crystal/crystal_stdlib_http/common.cr",
+        "import:crystal/crystal_stdlib_http/log.cr"
+      ],
+      "crystal/crystal_stdlib_http/server_context.cr": [
+        "import:crystal/crystal_stdlib_http/request.cr"
+      ],
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": [
+        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+      ]
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": [
+        "fcall:crystal/kemal_framework/kemal_dsl.cr",
+        "import:python/twisted/http.py"
+      ],
+      "crystal/kemal_framework/kemal_dsl.cr": [
+        "fcall:crystal/crystal_stdlib_http/client_response.cr",
+        "fcall:crystal/kemal_framework/kemal_event_stream.cr"
+      ],
+      "crystal/kemal_framework/kemal_exception_handler.cr": [
+        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+      ],
+      "crystal/kemal_framework/kemal_filter_handler.cr": [
+        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+      ],
+      "crystal/kemal_framework/kemal_handler.cr": [
+        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+      ]
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": [
         "import:cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl",
@@ -1430,11 +1496,20 @@
     "dockerfile/moby/test_targets": {
       "dockerfile/moby/test_targets/daemon.Dockerfile": [
         "import:lua/cosmopolitan/all.lua",
-        "import:ruby/rails/base.rb",
         "import:tcl/macports_registry/registry.tcl"
+      ]
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/base.ex": [
+        "import:elixir/elixir_stdlib/bitwise.ex"
+      ]
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/agent_test.exs": [
+        "import:elixir/elixir_stdlib/agent.ex"
       ],
-      "dockerfile/moby/test_targets/generate-files.Dockerfile": [
-        "import:ruby/rails/base.rb"
+      "elixir/elixir_tests/application_test.exs": [
+        "import:elixir/elixir_stdlib/application.ex"
       ]
     },
     "embedded_python/meow_turtle": {
@@ -1451,6 +1526,17 @@
       ],
       "embedded_python/meow_turtle/boot.py": [
         "import:embedded_python/meow_turtle/app.py"
+      ]
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy_clear.erl": [
+        "import:erlang/ranch_socket_pool/ranch_protocol.erl"
+      ],
+      "erlang/cowboy_http_server/cowboy_handler.erl": [
+        "import:erlang/cowboy_http_server/cowboy_middleware.erl"
+      ],
+      "erlang/cowboy_http_server/cowboy_router.erl": [
+        "import:erlang/cowboy_http_server/cowboy_middleware.erl"
       ]
     },
     "fortran/wrf": {
@@ -1495,6 +1581,47 @@
         "import:fortran/wrf/module_domain.F"
       ]
     },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Core.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Csrf.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/EndpointRouting.fs": [
+        "fcall:fsharp/giraffe_web/FormatExpressions.fs",
+        "import:fsharp/giraffe_web/Routing.fs",
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/HttpContextExtensions.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Middleware.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Negotiation.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Preconditional.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/RequestLimitation.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/ResponseCaching.fs": [
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Routing.fs": [
+        "import:fsharp/giraffe_web/FormatExpressions.fs",
+        "import:php/magento2/Http.php"
+      ],
+      "fsharp/giraffe_web/Streaming.fs": [
+        "import:php/magento2/Http.php"
+      ]
+    },
     "go/core": {
       "go/core/main.go": [
         "fcall:go/core/value.go"
@@ -1530,11 +1657,6 @@
       ],
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": [
         "import:perl/mojo/Template.pm"
-      ]
-    },
-    "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": [
-        "fcall:groovy/gradle/DefaultProject.java"
       ]
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1623,12 +1745,8 @@
       ]
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": [
-        "fcall:groovy/spock/SpecRewriter.java"
-      ],
       "groovy/spock/SpecRewriter.java": [
-        "fcall:groovy/spock/DeepBlockRewriter.java",
-        "fcall:groovy/spock/SpecParser.java"
+        "fcall:groovy/spock/DeepBlockRewriter.java"
       ],
       "groovy/spock/SpockTransform.java": [
         "fcall:groovy/spock/SpecParser.java",
@@ -1770,22 +1888,16 @@
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": [
         "fcall:java/springboot/Binder.java",
-        "fcall:java/springboot/OnClassCondition.java",
         "fcall:java/springboot/SpringApplication.java"
       ],
       "java/springboot/Binder.java": [
         "fcall:java/springboot/SpringApplication.java"
       ],
-      "java/springboot/OnClassCondition.java": [
-        "fcall:java/springboot/SpringApplication.java"
-      ],
       "java/springboot/SpringApplication.java": [
-        "fcall:java/springboot/AutoConfigurationImportSelector.java",
         "fcall:java/springboot/Binder.java"
       ],
       "java/springboot/WebMvcAutoConfiguration.java": [
         "fcall:java/springboot/AutoConfigurationImportSelector.java",
-        "fcall:java/springboot/Binder.java",
         "fcall:java/springboot/SpringApplication.java"
       ]
     },
@@ -2227,6 +2339,7 @@
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": [
+        "import:elixir/phoenix_framework/debug.ex",
         "import:lua/cosmopolitan/api.lua",
         "import:lua/cosmopolitan/attrib.lua",
         "import:lua/cosmopolitan/bitwise.lua",
@@ -2250,6 +2363,7 @@
         "import:lua/cosmopolitan/tracegc.lua"
       ],
       "lua/cosmopolitan/api.lua": [
+        "import:elixir/phoenix_framework/debug.ex",
         "import:scheme/racket/io.ss"
       ],
       "lua/cosmopolitan/attrib.lua": [
@@ -2260,7 +2374,8 @@
         "import:scheme/racket/io.ss"
       ],
       "lua/cosmopolitan/big.lua": [
-        "fcall:lua/cosmopolitan/nextvar.lua"
+        "fcall:lua/cosmopolitan/nextvar.lua",
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/bitwise.lua": [
         "import:lua/cosmopolitan/bwcoercion.lua"
@@ -2270,32 +2385,61 @@
       ],
       "lua/cosmopolitan/calls.lua": [
         "fcall:lua/cosmopolitan/closure.lua",
-        "fcall:lua/pandoc/sample.lua"
+        "fcall:lua/pandoc/sample.lua",
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/closure.lua": [
-        "fcall:lua/cosmopolitan/calls.lua"
+        "fcall:lua/cosmopolitan/calls.lua",
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/constructs.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/coroutine.lua": [
         "fcall:lua/cosmopolitan/closure.lua",
-        "fcall:lua/cosmopolitan/nextvar.lua"
+        "fcall:lua/cosmopolitan/nextvar.lua",
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/cstack.lua": [
         "import:lua/cosmopolitan/tracegc.lua"
       ],
+      "lua/cosmopolitan/db.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/errors.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
       "lua/cosmopolitan/events.lua": [
-        "fcall:lua/cosmopolitan/closure.lua"
+        "fcall:lua/cosmopolitan/closure.lua",
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/files.lua": [
-        "fcall:lua/cosmopolitan/api.lua"
+        "fcall:lua/cosmopolitan/api.lua",
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/gc.lua": [
-        "fcall:lua/cosmopolitan/nextvar.lua"
+        "fcall:lua/cosmopolitan/nextvar.lua",
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/gengc.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/goto.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/literals.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/locals.lua": [
+        "import:elixir/phoenix_framework/debug.ex",
         "import:lua/cosmopolitan/tracegc.lua"
       ],
       "lua/cosmopolitan/main.lua": [
-        "fcall:lua/cosmopolitan/api.lua"
+        "fcall:lua/cosmopolitan/api.lua",
+        "import:elixir/phoenix_framework/debug.ex"
+      ],
+      "lua/cosmopolitan/nextvar.lua": [
+        "import:elixir/phoenix_framework/debug.ex"
       ],
       "lua/cosmopolitan/strings.lua": [
         "fcall:lua/cosmopolitan/nextvar.lua"
@@ -2413,6 +2557,24 @@
         "fcall:matlab/eeglab/supergui.m"
       ]
     },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/async.nim": [
+        "import:nim/nim_stdlib/asyncfutures.nim",
+        "import:nim/nim_stdlib/asyncmacro.nim"
+      ],
+      "nim/nim_stdlib/asynchttpserver.nim": [
+        "import:nim/nim_stdlib/asyncnet.nim"
+      ],
+      "nim/nim_stdlib/asyncmacro.nim": [
+        "import:nim/nim_stdlib/asyncfutures.nim"
+      ],
+      "nim/nim_stdlib/asyncstreams.nim": [
+        "import:nim/nim_stdlib/asyncfutures.nim"
+      ],
+      "nim/nim_stdlib/colors.nim": [
+        "import:nim/nim_stdlib/algorithm.nim"
+      ]
+    },
     "nix/ghostty": {
       "nix/ghostty/build.zig": [
         "import:shell/serenity/builtin.sh"
@@ -2440,6 +2602,55 @@
         "fcall:objective-c/worldwideweb/HyperText.m"
       ]
     },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/applicative.ml": [
+        "import:ocaml/janestreet_base/applicative_intf.ml"
+      ],
+      "ocaml/janestreet_base/applicative.mli": [
+        "import:ocaml/janestreet_base/applicative.ml"
+      ],
+      "ocaml/janestreet_base/array.ml": [
+        "import:ocaml/janestreet_base/array_intf.ml",
+        "import:ocaml/janestreet_base/binary_searchable.ml"
+      ],
+      "ocaml/janestreet_base/array.mli": [
+        "import:ocaml/janestreet_base/array.ml"
+      ],
+      "ocaml/janestreet_base/array0.ml": [
+        "import:ocaml/janestreet_base/array.ml"
+      ],
+      "ocaml/janestreet_base/array_intf.ml": [
+        "import:ocaml/janestreet_base/binary_searchable.ml",
+        "import:ocaml/janestreet_base/blit.ml"
+      ],
+      "ocaml/janestreet_base/array_permute.ml": [
+        "import:ocaml/janestreet_base/array0.ml"
+      ],
+      "ocaml/janestreet_base/binary_searchable.ml": [
+        "import:ocaml/janestreet_base/binary_searchable_intf.ml"
+      ],
+      "ocaml/janestreet_base/binary_searchable.mli": [
+        "import:ocaml/janestreet_base/binary_searchable.ml"
+      ],
+      "ocaml/janestreet_base/blit.ml": [
+        "import:ocaml/janestreet_base/blit_intf.ml"
+      ],
+      "ocaml/janestreet_base/blit.mli": [
+        "import:ocaml/janestreet_base/blit.ml"
+      ],
+      "ocaml/janestreet_base/bool.ml": [
+        "import:ocaml/janestreet_base/bool0.ml"
+      ],
+      "ocaml/janestreet_base/buffer.ml": [
+        "import:ocaml/janestreet_base/buffer_intf.ml"
+      ],
+      "ocaml/janestreet_base/buffer.mli": [
+        "import:ocaml/janestreet_base/buffer.ml"
+      ],
+      "ocaml/janestreet_base/buffer_intf.ml": [
+        "import:ocaml/janestreet_base/blit.ml"
+      ]
+    },
     "perl/ack3_tests": {
       "perl/ack3_tests/file-permission.t": [
         "import:hlasm/che4z_hlasm/output.hlasm",
@@ -2452,16 +2663,13 @@
         "import:lua/redis/strict.lua"
       ],
       "perl/bugzilla/Bug.pm": [
-        "import:lua/redis/strict.lua",
-        "import:ruby/rails/base.rb"
+        "import:lua/redis/strict.lua"
       ],
       "perl/bugzilla/CGI.pm": [
-        "import:lua/redis/strict.lua",
-        "import:ruby/rails/base.rb"
+        "import:lua/redis/strict.lua"
       ],
       "perl/bugzilla/Requirements.pm": [
-        "import:lua/redis/strict.lua",
-        "import:ruby/rails/base.rb"
+        "import:lua/redis/strict.lua"
       ]
     },
     "perl/exiftool": {
@@ -2556,6 +2764,7 @@
         "import:php/laravel_core/Collection.php"
       ],
       "php/laravel_core/Router.php": [
+        "import:fsharp/giraffe_web/Routing.fs",
         "import:kotlin/okhttp/Dispatcher.kt",
         "import:php/laravel_core/Collection.php",
         "import:php/laravel_core/Container.php",
@@ -2674,6 +2883,7 @@
       ],
       "powershell/core/packaging.psm1": [
         "fcall:powershell/core/RegisterManifest.ps1",
+        "import:fsharp/giraffe_web/Xml.fs",
         "import:powershell/core/build.psm1"
       ],
       "powershell/core/packaging.tests.ps1": [
@@ -4005,6 +4215,9 @@
       "ruby/rails/base.rb": [
         "import:rust/holylang/error.rs"
       ],
+      "ruby/rails/generator.rb": [
+        "import:fsharp/giraffe_web/Helpers.fs"
+      ],
       "ruby/rails/metal.rb": [
         "fcall:ruby/rails/base.rb"
       ]
@@ -4341,6 +4554,7 @@
         "import:typescript/playwright/protocol.ts"
       ],
       "typescript/playwright/dispatcher.ts": [
+        "import:elixir/phoenix_framework/debug.ex",
         "import:lua/cosmopolitan/errors.lua"
       ],
       "typescript/playwright/frames.ts": [

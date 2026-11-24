@@ -239,6 +239,16 @@ def test_haskell_io_is_an_operation_not_the_io_type_8904():
     assert not rule.search("modifyIORef ref f")  # IORef is a mutable cell, not I/O across the program boundary
 
 
+@pytest.mark.parametrize(
+    "call", ["hGetLine h", "hGetChar h", "putStrLn msg", "putStr msg", "hPutStrLn h msg", "getContents", "interact f"]
+)
+def test_haskell_io_names_the_console_and_handle_calls_8904(call):
+    """#8904 Expected: the io rule is anchored on I/O calls such as `hGetLine` and `putStrLn`; each is an operation."""
+    rule = HS_RULES["io"]
+    assert rule.search(call)
+    assert not rule.search("hs_io :: Int -> IO Int")  # the type alone still does not count
+
+
 def _hs_scan(code: str) -> tuple[str, dict[str, dict]]:
     """Run `code` through the real Prism then the extractor: (code stream, {function: hit_vector})."""
     from gitgalaxy.core.detector import StructuralExtractor

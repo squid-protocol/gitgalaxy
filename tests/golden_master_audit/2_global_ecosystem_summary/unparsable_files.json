@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 373,
+    "ambig_file_count": 384,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -44,6 +44,9 @@
       ".doc": {
         "Blocked (Explicitly Denied Extension: '.DOC')": 1
       },
+      ".ex": {
+        "Blocked (Saturation: Line 98 exceeds 500 chars)": 1
+      },
       ".gradle": {
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
       },
@@ -54,7 +57,7 @@
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
       },
       ".json": {
-        "Blocked (Massive Static Asset Blob: 3156 LOC)": 1
+        "Blocked (Massive Static Asset Blob: 3332 LOC)": 1
       },
       ".lds": {
         "Blocked (Unsupported Extension: '.lds')": 1
@@ -143,7 +146,7 @@
       "no_extension": {
         "Blocked (Machine-Generated Source Code Signature: 36288 LOC)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 163,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 173,
         "Unsupported Format (.undeterminable)": 3
       }
     },

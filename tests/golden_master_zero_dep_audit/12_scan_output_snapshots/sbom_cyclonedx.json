@@ -254,7 +254,7 @@
       ],
       "tools": [
         {
-          "name": "Universal Zero-Trust SBOM",
+          "name": "Universal SBOM",
           "vendor": "GitGalaxy",
           "version": "vlatest"
         }

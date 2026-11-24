@@ -199,7 +199,7 @@ DEFINITION: dict[str, Any] = {
             + r"$]{0,100}|)[ \t\n]*->",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         "structural_boundaries": re.compile(
             r"\b(def|class|interface|trait|enum|record|import|package|extends|implements|return|yield|sealed|permits|non-sealed)\b"
         ),

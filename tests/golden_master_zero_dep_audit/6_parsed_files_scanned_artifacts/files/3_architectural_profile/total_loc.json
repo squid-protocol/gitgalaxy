@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 58,
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 186
     },
+    "crystal": {
+      "crystal/SOURCES.md": 11
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": 970,
+      "crystal/crystal_stdlib_http/client_response.cr": 156,
+      "crystal/crystal_stdlib_http/common.cr": 584,
+      "crystal/crystal_stdlib_http/content.cr": 380,
+      "crystal/crystal_stdlib_http/cookie.cr": 355,
+      "crystal/crystal_stdlib_http/cookies.cr": 240,
+      "crystal/crystal_stdlib_http/formdata.cr": 233,
+      "crystal/crystal_stdlib_http/formdata_builder.cr": 130,
+      "crystal/crystal_stdlib_http/formdata_parser.cr": 46,
+      "crystal/crystal_stdlib_http/formdata_part.cr": 26,
+      "crystal/crystal_stdlib_http/headers.cr": 475,
+      "crystal/crystal_stdlib_http/log.cr": 20,
+      "crystal/crystal_stdlib_http/params.cr": 6,
+      "crystal/crystal_stdlib_http/request.cr": 477,
+      "crystal/crystal_stdlib_http/server.cr": 547,
+      "crystal/crystal_stdlib_http/server_context.cr": 45,
+      "crystal/crystal_stdlib_http/server_handler.cr": 40,
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": 66
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": 144,
+      "crystal/kemal_framework/kemal_base_log_handler.cr": 10,
+      "crystal/kemal_framework/kemal_cli.cr": 76,
+      "crystal/kemal_framework/kemal_config.cr": 285,
+      "crystal/kemal_framework/kemal_dsl.cr": 263,
+      "crystal/kemal_framework/kemal_event_stream.cr": 93,
+      "crystal/kemal_framework/kemal_exception_handler.cr": 151,
+      "crystal/kemal_framework/kemal_ext_context.cr": 212,
+      "crystal/kemal_framework/kemal_ext_response.cr": 42,
+      "crystal/kemal_framework/kemal_file_upload.cr": 67,
+      "crystal/kemal_framework/kemal_filter_handler.cr": 301,
+      "crystal/kemal_framework/kemal_handler.cr": 193
+    },
     "csd": {
       "csd/SOURCES.md": 12
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": 21,
       "dockerfile/moby/test_targets/windows.Dockerfile": 314
     },
+    "elixir": {
+      "elixir/SOURCES.md": 12
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": 1251,
+      "elixir/elixir_stdlib/agent.ex": 519,
+      "elixir/elixir_stdlib/agent_server.ex": 56,
+      "elixir/elixir_stdlib/application.ex": 1159,
+      "elixir/elixir_stdlib/atom.ex": 87,
+      "elixir/elixir_stdlib/base.ex": 1609,
+      "elixir/elixir_stdlib/behaviour.ex": 129,
+      "elixir/elixir_stdlib/bitwise.ex": 275,
+      "elixir/elixir_stdlib/calendar.ex": 1088,
+      "elixir/elixir_stdlib/calendar_date.ex": 1195,
+      "elixir/elixir_stdlib/calendar_date_range.ex": 216,
+      "elixir/elixir_stdlib/calendar_duration.ex": 604,
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": 1510,
+      "elixir/elixir_stdlib/calendar_time.ex": 1035,
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": 103,
+      "elixir/elixir_stdlib/code_fragment.ex": 1387
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": 436,
+      "elixir/elixir_tests/agent_test.exs": 101,
+      "elixir/elixir_tests/application_test.exs": 206,
+      "elixir/elixir_tests/atom_test.exs": 20
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": 23,
+      "elixir/phoenix_framework/channel.ex": 756,
+      "elixir/phoenix_framework/channel_server.ex": 609,
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": 73,
+      "elixir/phoenix_framework/code_reloader_proxy.ex": 77,
+      "elixir/phoenix_framework/code_reloader_server.ex": 537,
+      "elixir/phoenix_framework/config.ex": 167,
+      "elixir/phoenix_framework/controller_pipeline.ex": 221,
+      "elixir/phoenix_framework/debug.ex": 171,
+      "elixir/phoenix_framework/digester.ex": 417,
+      "elixir/phoenix_framework/digester_compressor.ex": 45,
+      "elixir/phoenix_framework/digester_gzip.ex": 19,
+      "elixir/phoenix_framework/endpoint.ex": 1145,
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": 156
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": 16
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": 111,
       "embedded_python/meow_turtle/tsl2591.py": 126,
       "embedded_python/meow_turtle/vibration_driver.py": 118
+    },
+    "erlang": {
+      "erlang/SOURCES.md": 11
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": 242,
+      "erlang/cowboy_http_server/cowboy_app.erl": 28,
+      "erlang/cowboy_http_server/cowboy_children.erl": 193,
+      "erlang/cowboy_http_server/cowboy_clear.erl": 61,
+      "erlang/cowboy_http_server/cowboy_clock.erl": 212,
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": 268,
+      "erlang/cowboy_http_server/cowboy_constraints.erl": 260,
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": 241,
+      "erlang/cowboy_http_server/cowboy_handler.erl": 58,
+      "erlang/cowboy_http_server/cowboy_http3.erl": 1308,
+      "erlang/cowboy_http_server/cowboy_loop.erl": 118,
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": 341,
+      "erlang/cowboy_http_server/cowboy_middleware.erl": 25,
+      "erlang/cowboy_http_server/cowboy_quicer.erl": 248,
+      "erlang/cowboy_http_server/cowboy_req.erl": 1131,
+      "erlang/cowboy_http_server/cowboy_router.erl": 604
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": 994,
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": 77,
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": 149,
+      "erlang/ranch_socket_pool/ranch_app.erl": 49,
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 505,
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": 57,
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": 116,
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 37,
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": 60,
+      "erlang/ranch_socket_pool/ranch_protocol.erl": 24,
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 1588,
+      "erlang/ranch_socket_pool/ranch_server.erl": 374
     },
     "fortran": {
       "fortran/SOURCES.md": 10
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": 68,
       "fortran/wrf/sourcetree.py": 426,
       "fortran/wrf/wrf_timeseries.F": 1200
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": 10
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": 142,
+      "fsharp/giraffe_web/ComputationExpressions.fs": 28,
+      "fsharp/giraffe_web/Core.fs": 611,
+      "fsharp/giraffe_web/Csrf.fs": 156,
+      "fsharp/giraffe_web/DateTimeExtensions.fs": 44,
+      "fsharp/giraffe_web/EndpointRouting.fs": 434,
+      "fsharp/giraffe_web/FormatExpressions.fs": 297,
+      "fsharp/giraffe_web/Helpers.fs": 72,
+      "fsharp/giraffe_web/HttpContextExtensions.fs": 541,
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 104,
+      "fsharp/giraffe_web/Json.fs": 69,
+      "fsharp/giraffe_web/Middleware.fs": 135,
+      "fsharp/giraffe_web/ModelParser.fs": 359,
+      "fsharp/giraffe_web/ModelValidation.fs": 30,
+      "fsharp/giraffe_web/Negotiation.fs": 179,
+      "fsharp/giraffe_web/Preconditional.fs": 218,
+      "fsharp/giraffe_web/RequestLimitation.fs": 133,
+      "fsharp/giraffe_web/ResponseCaching.fs": 100,
+      "fsharp/giraffe_web/Routing.fs": 399,
+      "fsharp/giraffe_web/ShortGuid.fs": 108,
+      "fsharp/giraffe_web/Streaming.fs": 323,
+      "fsharp/giraffe_web/Xml.fs": 58
     },
     "go": {
       "go/SOURCES.md": 13
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": 80,
       "haskell/pandoc/Parsing.hs": 356,
       "haskell/pandoc/Shared.hs": 853
+    },
+    "hcl": {
+      "hcl/SOURCES.md": 10
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": 57,
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": 541,
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": 376,
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": 531,
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": 358,
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": 47,
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": 161,
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": 515,
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": 110,
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": 515,
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": 54,
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": 515,
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": 105,
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": 111,
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": 1,
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": 11,
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": 33,
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": 515
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 23,
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": 30,
       "json/kafka/message/VoteRequest.json": 59
     },
+    "julia": {
+      "julia/SOURCES.md": 10
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": 188,
+      "julia/dataframes_jl/LICENSE.md": 25,
+      "julia/dataframes_jl/abstractdataframe_io.jl": 609,
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": 893,
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": 78,
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": 60,
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": 917,
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": 454,
+      "julia/dataframes_jl/abstractdataframe_show.jl": 503,
+      "julia/dataframes_jl/abstractdataframe_sort.jl": 824,
+      "julia/dataframes_jl/abstractdataframe_subset.jl": 528,
+      "julia/dataframes_jl/abstractdataframe_unique.jl": 382,
+      "julia/dataframes_jl/dataframe_dataframe.jl": 1560,
+      "julia/dataframes_jl/dataframe_insertion.jl": 1136,
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": 499,
+      "julia/dataframes_jl/dataframerow_show.jl": 55,
+      "julia/dataframes_jl/deprecated.jl": 3,
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": 149,
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": 423,
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": 293,
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": 1257,
+      "julia/dataframes_jl/groupeddataframe_show.jl": 204,
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": 983,
+      "julia/dataframes_jl/groupeddataframe_utils.jl": 508,
+      "julia/dataframes_jl/join_core.jl": 853,
+      "julia/dataframes_jl/join_inplace.jl": 195,
+      "julia/dataframes_jl/other_broadcasting.jl": 389,
+      "julia/dataframes_jl/other_index.jl": 610,
+      "julia/dataframes_jl/other_metadata.jl": 827,
+      "julia/dataframes_jl/other_names.jl": 19,
+      "julia/dataframes_jl/other_precompile.jl": 74
+    },
     "kotlin": {
       "kotlin/SOURCES.md": 10
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": 230
     },
+    "nim": {
+      "nim/SOURCES.md": 10
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": 923,
+      "nim/nim_stdlib/async.nim": 10,
+      "nim/nim_stdlib/asyncfile.nim": 541,
+      "nim/nim_stdlib/asyncfutures.nim": 517,
+      "nim/nim_stdlib/asynchttpserver.nim": 602,
+      "nim/nim_stdlib/asyncmacro.nim": 397,
+      "nim/nim_stdlib/asyncnet.nim": 1069,
+      "nim/nim_stdlib/asyncstreams.nim": 148,
+      "nim/nim_stdlib/base64.nim": 281,
+      "nim/nim_stdlib/bitops.nim": 884,
+      "nim/nim_stdlib/browsers.nim": 113,
+      "nim/nim_stdlib/cgi.nim": 322,
+      "nim/nim_stdlib/collections_chains.nim": 45,
+      "nim/nim_stdlib/collections_critbits.nim": 543,
+      "nim/nim_stdlib/collections_deques.nim": 572,
+      "nim/nim_stdlib/collections_hashcommon.nim": 77,
+      "nim/nim_stdlib/collections_heapqueue.nim": 272,
+      "nim/nim_stdlib/collections_intsets.nim": 24,
+      "nim/nim_stdlib/collections_lists.nim": 1024,
+      "nim/nim_stdlib/collections_rtarrays.nim": 38,
+      "nim/nim_stdlib/collections_sequtils.nim": 1233,
+      "nim/nim_stdlib/collections_setimpl.nim": 157,
+      "nim/nim_stdlib/collections_sets.nim": 931,
+      "nim/nim_stdlib/collections_sharedlist.nim": 106,
+      "nim/nim_stdlib/collections_sharedtables.nim": 256,
+      "nim/nim_stdlib/collections_tableimpl.nim": 246,
+      "nim/nim_stdlib/colors.nim": 508,
+      "nim/nim_stdlib/complex.nim": 453,
+      "nim/nim_stdlib/concurrency_atomics.nim": 453,
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": 114,
+      "nim/nim_stdlib/copying.txt": 25
+    },
     "nix": {
       "nix/SOURCES.md": 11
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": 95,
       "objective-c/worldwideweb/HyperText.m": 1614,
       "objective-c/worldwideweb/TcpAccess.m": 109
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": 10
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": 22,
+      "ocaml/janestreet_base/applicative.ml": 232,
+      "ocaml/janestreet_base/applicative.mli": 2,
+      "ocaml/janestreet_base/applicative_intf.ml": 375,
+      "ocaml/janestreet_base/array.ml": 1102,
+      "ocaml/janestreet_base/array.mli": 2,
+      "ocaml/janestreet_base/array0.ml": 235,
+      "ocaml/janestreet_base/array0.mli": 63,
+      "ocaml/janestreet_base/array_intf.ml": 389,
+      "ocaml/janestreet_base/array_permute.ml": 26,
+      "ocaml/janestreet_base/array_permute.mli": 2,
+      "ocaml/janestreet_base/avltree.ml": 522,
+      "ocaml/janestreet_base/avltree.mli": 188,
+      "ocaml/janestreet_base/backtrace.ml": 72,
+      "ocaml/janestreet_base/backtrace.mli": 99,
+      "ocaml/janestreet_base/base.ml": 360,
+      "ocaml/janestreet_base/binary_search.ml": 116,
+      "ocaml/janestreet_base/binary_search.mli": 90,
+      "ocaml/janestreet_base/binary_searchable.ml": 39,
+      "ocaml/janestreet_base/binary_searchable.mli": 2,
+      "ocaml/janestreet_base/binary_searchable_intf.ml": 96,
+      "ocaml/janestreet_base/blit.ml": 195,
+      "ocaml/janestreet_base/blit.mli": 2,
+      "ocaml/janestreet_base/blit_intf.ml": 236,
+      "ocaml/janestreet_base/bool.ml": 80,
+      "ocaml/janestreet_base/bool.mli": 33,
+      "ocaml/janestreet_base/bool0.ml": 25,
+      "ocaml/janestreet_base/bool0.mli": 6,
+      "ocaml/janestreet_base/buffer.ml": 59,
+      "ocaml/janestreet_base/buffer.mli": 8,
+      "ocaml/janestreet_base/buffer_intf.ml": 99
     },
     "perl": {
       "perl/SOURCES.md": 14
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": 315,
       "pli/zopeneditor_sample/PSAM1LIB.pli": 305,
       "pli/zopeneditor_sample/PSAM2.pli": 86
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": 11
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": 40,
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": 3,
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": 3,
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": 3,
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": 3,
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": 9,
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": 9,
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": 3
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": 134,
+      "postgresql/pgvector_tests/halfvec.sql": 170,
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": 75,
+      "postgresql/pgvector_tests/hnsw_vector.sql": 143,
+      "postgresql/pgvector_tests/ivfflat_vector.sql": 153,
+      "postgresql/pgvector_tests/sparsevec.sql": 143,
+      "postgresql/pgvector_tests/vector_type.sql": 188
     },
     "powershell": {
       "powershell/SOURCES.md": 20
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": 8,
       "python/wtfpython/notebook_generator.py": 398,
       "python/wtfpython/noxfile.py": 14
+    },
+    "r": {
+      "r/SOURCES.md": 11
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": 22,
+      "r/dplyr_package/across.R": 1049,
+      "r/dplyr_package/all-equal.R": 138,
+      "r/dplyr_package/arrange.R": 295,
+      "r/dplyr_package/bind-cols.R": 52,
+      "r/dplyr_package/bind-rows.R": 95,
+      "r/dplyr_package/by.R": 176,
+      "r/dplyr_package/case-match.R": 240,
+      "r/dplyr_package/case-when.R": 640,
+      "r/dplyr_package/coalesce.R": 194,
+      "r/dplyr_package/colwise-arrange.R": 107,
+      "r/dplyr_package/colwise-distinct.R": 106,
+      "r/dplyr_package/colwise-filter.R": 157,
+      "r/dplyr_package/colwise-funs.R": 156,
+      "r/dplyr_package/colwise-group-by.R": 143,
+      "r/dplyr_package/colwise-mutate.R": 528
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": 22,
+      "r/rlang_package/aaa-topics.R": 94,
+      "r/rlang_package/aaa.R": 161,
+      "r/rlang_package/arg.R": 482,
+      "r/rlang_package/attr.R": 303,
+      "r/rlang_package/bytes.R": 279,
+      "r/rlang_package/c-lib.R": 414,
+      "r/rlang_package/call.R": 1077,
+      "r/rlang_package/cnd-abort.R": 1562,
+      "r/rlang_package/cnd-entrace.R": 406,
+      "r/rlang_package/cnd-handlers.R": 402,
+      "r/rlang_package/cnd-last.R": 299,
+      "r/rlang_package/cnd-message.R": 431,
+      "r/rlang_package/cnd-signal.R": 444,
+      "r/rlang_package/cnd.R": 645,
+      "r/rlang_package/deparse.R": 1093
     },
     "rexx": {
       "rexx/PROVENANCE.md": 16,

@@ -7,8 +7,8 @@ ABEND / ABENDCC and procedure steps. `tests/equivalence/jcl/fixture/scenarios.js
 
 Each job is forged from the `job_steps` fact shape (a procedure call carries `expands_to`, as `galaxy_ir.job_steps`
 writes it), read back, and decided by the forge's own `JclConditions` Java in the order `JclSteps.guarded` uses (the
-driver and helpers are slice 1's). The forge documents that EVEN / ONLY and ABEND tests are not evaluated, so some
-answers differ. `KNOWN_DIFFERENCES` names every one with its reason; the test fails on a new difference AND on a listed
+driver and helpers are slice 1's). An abend ends a Spring Batch job, so the steps IBM runs after one never start: those
+answers differ (#8886 closed the other ten: COND=ONLY, `.RUN`, `.ABENDCC = code`). `KNOWN_DIFFERENCES` names every one with its reason; the test fails on a new difference AND on a listed
 one that no longer reproduces, so the list is the measurement, not an excuse.
 """
 
@@ -39,17 +39,8 @@ assert DRIVER != slice1.DRIVER
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None or shutil.which("java") is None, reason="no JDK")
 
 
-ONLY = "COND=ONLY is not read (the forge's COND regex takes (code,op) tests only): the step runs after a clean step"
 FLUSH = "an abend ends a Spring Batch job (the tasklet throws), so a step IBM runs after an abend (EVEN / ONLY / IF ABEND) never starts"
-RUN = "`stepname.RUN` is not a relation the forge's IF parser reads: (and any `= value` after it) reads as true, so `.RUN = FALSE` and NOT `.RUN` come out inverted"
-ABENDCC = (
-    "`stepname.ABENDCC = code` ends the parse after the left token (the operator and code are not consumed): the whole "
-    "expression reads as one false relation, so NOT (...) holds whatever RC is"
-)
 KNOWN_DIFFERENCES = {
-    **dict.fromkeys(
-        [("cond-all-zero", "S6"), ("cond-s1-rc6", "S6"), ("cond-s1-rc8", "S6"), ("even-only-rc0", "T3")], ONLY
-    ),
     **dict.fromkeys(
         [
             ("cond-s1-abend", "S5"),
@@ -73,8 +64,6 @@ KNOWN_DIFFERENCES = {
         ],
         FLUSH,
     ),  # fmt: skip
-    **dict.fromkeys([("if-i1-rc4", "I6"), ("if-i1-rc12", "I6"), ("not-rc8", "T4"), ("not-rc11", "T4")], RUN),
-    **dict.fromkeys([("abn-clean", "A7"), ("abn-a2-rc12", "A6")], ABENDCC),
 }
 
 
@@ -183,4 +172,4 @@ def test_the_forged_job_differs_from_the_ibm_written_answers_exactly_where_the_l
     assert {v for v in got.values()} <= {("run-without-answer", "bypass"), ("bypass", "run")}
     assert set(got) == set(KNOWN_DIFFERENCES), sorted(set(got) ^ set(KNOWN_DIFFERENCES))
     scenarios = {i for i, _ in got}
-    assert (len(_scenarios()), len(scenarios), len(got)) == (42, 21, 28)
+    assert (len(_scenarios()), len(scenarios), len(got)) == (42, 11, 18)

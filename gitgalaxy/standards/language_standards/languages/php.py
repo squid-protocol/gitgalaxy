@@ -129,7 +129,7 @@ DEFINITION: dict[str, Any] = {
             r"(?<!\$)(?<!->)(?<!::)\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*)?[ \t\n]*(\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\))",
             re.M | re.I,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const/readonly (freeze_hits).
         "structural_boundaries": re.compile(
             r"(?<!\$)(?<!->)(?<!::)\b(namespace|use|class|interface|trait|enum|function|return|yield|declare|require|require_once|include|include_once|as|implements|extends|clone|new|goto)\b"

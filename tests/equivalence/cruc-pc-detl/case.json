@@ -98,6 +98,79 @@
       ],
       "why": "SEND TEXT answers INVREQ on the no-context arm",
       "terminal": "PC12"
+    },
+    {
+      "name": "sendmap-invmpsz",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 3,
+        "MN-LAST": "PF3",
+        "MN-FLAG": ""
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "INVMPSZ",
+          "map": "PCDT"
+        }
+      ],
+      "why": "SEND MAP answers INVMPSZ, whose RESP2 IBM states none: the abend path with EIBRESP2 0",
+      "terminal": "PC12"
+    },
+    {
+      "name": "sendmap-tsioerr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "MN-VISITS": 3,
+        "MN-LAST": "PF3",
+        "MN-FLAG": ""
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "nth": 1,
+          "resp": "TSIOERR",
+          "map": "PCDT"
+        }
+      ],
+      "why": "SEND MAP answers TSIOERR with RESP2 0",
+      "terminal": "PC12"
+    },
+    {
+      "name": "sendtext-tsioerr",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "TSIOERR"
+        }
+      ],
+      "why": "SEND TEXT answers TSIOERR with RESP2 0 on the no-context arm",
+      "terminal": "PC12"
+    },
+    {
+      "name": "sendtext-lengerr",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "nth": 1,
+          "resp": "LENGERR"
+        }
+      ],
+      "why": "SEND TEXT answers LENGERR with RESP2 0",
+      "terminal": "PC12"
+    },
+    {
+      "name": "calen-10-exact",
+      "aid": "DFHENTER",
+      "commarea_hex": "30303033504633205858",
+      "why": "EIBCALEN 10 as raw bytes: exactly the area",
+      "terminal": "PC12"
     }
   ],
   "termid": "T001",

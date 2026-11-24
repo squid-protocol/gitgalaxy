@@ -1133,7 +1133,7 @@
 <rect x="1032" y="416" width="11" height="11" fill="#8a6d3b"><title>yaml / test: decoy test with &#x27;pytest&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="1044" y="416" class="u"/>
 <text class="phase" x="16" y="437">ARCHITECTURE</text>
-<text class="fam" x="24" y="449">concurrency (draft)</text>
+<text class="fam" x="24" y="449">concurrency</text>
 <rect x="192" y="440" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>python / concurrency: recall 0.71, precision 0.48 (371 oracle, 555 family functions; GitGalaxy engine code (not pinned))</title></rect>
 <rect x="192" y="440" width="11" height="11" fill="url(#hatch)"/>
 <rect x="204" y="440" width="11" height="11" fill="#8a6d3b"><title>csharp / concurrency: decoy test with &#x27;async&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2284,7 +2284,7 @@
 <rect x="1020" y="728" width="11" height="11" fill="#8a6d3b"><title>yacc / telemetry: decoy test with &#x27;syslog&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="1032" y="728" class="u"/>
 <use href="#c" x="1044" y="728" class="u"/>
-<text class="fam" x="24" y="749">debug_prints (draft)</text>
+<text class="fam" x="24" y="749">debug_prints</text>
 <rect x="192" y="740" width="11" height="11" fill="#a9d1ff"><title>python / debug_prints: recall 1.00, precision 1.00 (28 oracle, 28 family functions; language-crucible v1.7.0)</title></rect>
 <rect x="204" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>csharp / debug_prints: recall 1.00, precision 1.00 (3 oracle, 3 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="740" width="11" height="11" fill="url(#hatch)"/>
@@ -2611,7 +2611,7 @@
 <use href="#c" x="1020" y="788" class="u"/>
 <use href="#c" x="1044" y="788" class="u"/>
 <use href="#c" x="1056" y="788" class="u"/>
-<text class="fam" x="24" y="809">sync_locks (draft)</text>
+<text class="fam" x="24" y="809">sync_locks</text>
 <rect x="192" y="800" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>python / sync_locks: recall -, precision 0.00 (0 oracle, 4 family functions; language-crucible v1.7.0)</title></rect>
 <rect x="204" y="800" width="11" height="11" fill="#8a6d3b"><title>csharp / sync_locks: decoy test with &#x27;mutex&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="800" width="11" height="11" fill="#8a6d3b"><title>go / sync_locks: decoy test with &#x27;Mutex&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

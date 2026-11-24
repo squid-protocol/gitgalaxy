@@ -135,3 +135,14 @@ def test_ci_mode_fails_on_a_stale_render(tmp_path, monkeypatch, capsys):
 
     stale.write_text(audit.render(), encoding="utf-8")
     assert audit.main(["--ci"]) == 0
+
+
+# ==============================================================================
+# TEST 8: THE THREE RESOURCE/CONCURRENCY ROWS WERE DECLARED WITH THEIR EVIDENCE (#8862)
+# ==============================================================================
+@pytest.mark.parametrize("name", ["debug_prints", "sync_locks", "concurrency"])
+def test_resource_family_rows_are_declared_with_their_doc(name):
+    c = sc.CONTRACTS[name]
+    assert (c.status, c.kind, c.issue, c.planted) == ("declared", "site", 8862, False)
+    assert c.doc == "docs/resource_family_contracts.md"
+    assert (REPO_ROOT / c.doc).read_text(encoding="utf-8").count(c.contract) == 1

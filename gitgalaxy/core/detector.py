@@ -300,6 +300,7 @@ class FunctionNode(TypedDict, total=False):
     # and the unit's own declared parameter types (None when unread); `calls_out_arg_types` languages only
     calls_out_arg_types: dict[str, list[list[str]]]
     param_types: list[str] | None
+    param_names: list[str] | None
     # The decorators applied to this unit, as callee names with their receiver
     # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
@@ -1893,6 +1894,49 @@ _C_DEFINE_ALIAS = re.compile(
 )  # fmt: skip
 
 
+_C_DEFINE_OBJ_BODY = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([A-Z][A-Z0-9_]{1,63})[ \t]+((?:[^\n\\]|\\[^\n]|\\\r?\n){1,4000})",
+    re.M,
+)
+_C_UNDEF_OBJ = re.compile(r"^[ \t]*#[ \t]*undef[ \t]+([A-Z][A-Z0-9_]{1,63})\b", re.M)
+_C_OBJ_STMT_USE = re.compile(r"^[ \t]*([A-Z][A-Z0-9_]{1,63})[ \t]*;", re.M)
+
+
+def c_obj_macro_body_calls(code: str) -> dict[str, tuple[frozenset[str], int, int]]:
+    """Object-like ALL-CAPS statement `#define NAME body` macros in one file whose body calls functions
+    (e.g. libuv `POST;` / `PATH;`).
+
+    Returns `{name: (callees, def_offset, undef_offset)}`. Only statement-shaped bodies (containing `;`)
+    are indexed; variants under `#if`/`#else` that disagree with an empty-call branch are dropped.
+    """
+    out: dict[str, frozenset[str] | None] = {}
+    def_pos: dict[str, int] = {}
+    for m in _C_DEFINE_OBJ_BODY.finditer(code):
+        name = m.group(1)
+        if name in _C_STATEMENT_WORDS:
+            continue
+        body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(2)))
+        if ";" not in body or not re.match(r"do[ \t]*\{", body.lstrip()):
+            continue
+        body = re.sub(r"[ \t]*##[ \t]*", "##", body)
+        calls = frozenset(
+            c
+            for c in _C_MACRO_BODY_CALL.findall(body)
+            if c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
+        )
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
+        def_pos.setdefault(name, m.start())
+    undef_pos: dict[str, int] = {}
+    if any(out.values()):
+        for m in _C_UNDEF_OBJ.finditer(code):
+            uname = m.group(1)
+            if uname in def_pos and m.start() > def_pos[uname]:
+                undef_pos.setdefault(uname, m.start())
+    n = len(code)
+    return {k: (v, def_pos[k], undef_pos.get(k, n)) for k, v in out.items() if v}
+
+
 def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
     """#7828: each object-like `#define NAME TARGET` in `code` (the whole body one identifier, parentheses and a
     trailing comment allowed) -> every TARGET its variants name (curl's `#define failf Curl_failf`). Whether TARGET
@@ -2461,7 +2505,15 @@ def _java_declared_types(text: str) -> dict[str, str | None]:
     found: dict[str, str | None] = {}
 
     def note(name: str, cls: str | None) -> None:
-        leaf = cls.rsplit(".", 1)[-1] if cls else None
+        if cls and "." in cls:
+            parts = cls.split(".")
+            leaf: str | None = (
+                f"{parts[-2]}.{parts[-1]}"
+                if len(parts) >= 2 and parts[-2][:1].isupper() and parts[-1][:1].isupper()
+                else parts[-1]
+            )
+        else:
+            leaf = cls or None
         if name in found and found[name] != leaf:
             found[name] = None
         else:
@@ -3933,6 +3985,8 @@ class StructuralExtractor:
         self._overload_self_arg_types: dict[tuple[str, int], list[list[str]]] = {}
         # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
         self._java_field_values: dict[str, str | None] | None = None
+        self._kt_file_index: overload_types.KotlinFileIndex | None = None
+        self._c_obj_macro_calls: dict[str, tuple[frozenset[str], int, int]] = {}
         # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
         self._name_renames: dict[str, str] = {}
 
@@ -7849,12 +7903,18 @@ class StructuralExtractor:
             if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id not in overload_types.LANGS
             else None
         )
+        self._c_obj_macro_calls = (
+            c_obj_macro_body_calls(code) if lang_id in _UNSET_TOGGLE_LANGS and "#" in code and "define" in code else {}
+        )
+        self._kt_file_index = None
         if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id in overload_types.LANGS:
             # #8161 (PR 5): C# / Kotlin field and property types (core/overload_types.py)
             masked_file = java_mask_literals(code)
             self._java_field_values = overload_types.field_value_types(
                 _java_field_text(masked_file), masked_file, lang_id
             )
+            if lang_id == "kotlin":
+                self._kt_file_index = overload_types.index_kotlin_file(masked_file)
         if lang_id in TYPED_LANGS and self.languages.get(lang_id, {}).get("calls_out_receiver_types"):
             # #8161 (X3): the file's struct/class fields, for `self.x` / `this.x` receivers
             self._file_declared_types = file_field_types(lang_id, self._apply_literal_shield(code, lang_id))
@@ -12691,6 +12751,24 @@ class StructuralExtractor:
                     raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
         # #6770: a macro invoked here calls what its body calls, as the compiler's expansion makes it this unit's call.
+        if self._c_obj_macro_calls and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
+            obj_callees = [
+                c
+                for om in dict.fromkeys(_C_OBJ_STMT_USE.findall(safe_block))
+                if (entry := self._c_obj_macro_calls.get(om)) is not None and entry[1] <= start_idx < entry[2]
+                for c in sorted(entry[0])
+                if c != name
+            ]
+            if obj_callees:
+                for c in obj_callees:
+                    raw_calls.append(c)
+                    if qualifiers_seen:
+                        qualifiers_seen.setdefault(c, [""])
+                if _C_REPO_MACRO_CALLS:
+                    for c in _macro_expansion_callees(obj_callees, _C_REPO_MACRO_CALLS):
+                        raw_calls.append(c)
+                        if qualifiers_seen:
+                            qualifiers_seen.setdefault(c, [""])
         if _C_REPO_MACRO_CALLS and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
             # #6266: a function named like a macro (`M_Malloc` over `#define M_Malloc(s) M_Malloc_Dbg(...)`) names
             # its own header, which the macro never expands at; only a recursive use of the name does.
@@ -12770,6 +12848,7 @@ class StructuralExtractor:
             transfers = list(dict.fromkeys(t for t in transfer_pattern.findall(shielded) if t != name))
 
         receiver_types: dict[str, str] = {}
+        kt_scope_text: str | None = None
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
             if receivers and self.primary_lang_id == "java":
@@ -12781,8 +12860,14 @@ class StructuralExtractor:
                 )
             elif receivers and self.primary_lang_id in overload_types.LANGS:
                 # #8161 (PR 5): C# / Kotlin parameters, locals, constructions and fields (core/overload_types.py)
+                if self.primary_lang_id == "kotlin" and self._kt_file_index is not None:
+                    kt_scope_text = overload_types.kotlin_enclosing_field_text(self._kt_file_index, start_idx)
                 receiver_types = overload_types.receiver_types(
-                    java_mask_literals(block), receivers, self._java_field_values, self.primary_lang_id
+                    java_mask_literals(block),
+                    receivers,
+                    self._java_field_values,
+                    self.primary_lang_id,
+                    kt_field_text=kt_scope_text,
                 )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
@@ -12802,11 +12887,12 @@ class StructuralExtractor:
 
         arg_types: dict[str, list[list[str]]] = {}
         params: list[str] | None = None
+        param_names_list: list[str] | None = None
         arity_range: tuple[int, int | None, int] | None = None
         if track_arities and self.languages.get(self.primary_lang_id, {}).get("calls_out_arg_types"):
             # the unit's own name too: a bare call to it is a sibling overload (`_overload_self_calls`)
             own_name = [name] if bare_self_hits and name not in calls_out else []
-            arg_types, params, arity_range = self._java_call_arg_types(
+            arg_types, params, arity_range, param_names_list = self._java_call_arg_types(
                 block, name, [*calls_out, *own_name], arities_seen
             )
 
@@ -12864,6 +12950,8 @@ class StructuralExtractor:
         }
         if ctor_forms:
             sat["ctor_forms"] = ctor_forms
+        if param_names_list:
+            sat["param_names"] = param_names_list
         if expr_chains_seen:
             chains = {c: expr_chains_seen[c] for c in calls_out if c in expr_chains_seen}
             if chains:
@@ -12872,11 +12960,24 @@ class StructuralExtractor:
             ret_type = extract_return_type(self.primary_lang_id, receiver_text)
             if ret_type:
                 sat["return_type"] = ret_type
-            if self.primary_lang_id in TYPED_LANGS:
-                receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
-                call_assigns = extract_call_assigns(self.primary_lang_id, typing_text or receiver_text, receivers)
-                if call_assigns:
-                    sat["calls_out_call_assigns"] = call_assigns
+            receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
+            call_assigns = extract_call_assigns(self.primary_lang_id, typing_text or receiver_text, receivers)
+            if kt_scope_text:
+                remaining = {
+                    q[5:] if q.startswith("this.") else q
+                    for q in receivers
+                    if q not in call_assigns and q not in receiver_types
+                }
+                if remaining:
+                    field_assigns = extract_call_assigns("kotlin", kt_scope_text, remaining)
+                    for q in receivers:
+                        if q in call_assigns or q in receiver_types:
+                            continue
+                        key = q[5:] if q.startswith("this.") else q
+                        if key in field_assigns:
+                            call_assigns[q] = field_assigns[key]
+            if call_assigns:
+                sat["calls_out_call_assigns"] = call_assigns
         if arity_range is not None and arity_range != (args_count, args_count, args_count):
             # [fewest, most, parameter count]: the count is the header's own, where the `args` metric misreads
             # a default with parentheses (`const Allocator& alloc = Allocator()`)
@@ -12912,7 +13013,7 @@ class StructuralExtractor:
 
     def _java_call_arg_types(
         self, block: str, name: str, callees: list[str], arities_seen: dict[str, list[int]]
-    ) -> tuple[dict[str, list[list[str]]], list[str] | None, tuple[int, int | None, int] | None]:
+    ) -> tuple[dict[str, list[list[str]]], list[str] | None, tuple[int, int | None, int] | None, list[str] | None]:
         """#8161 (J1): (callee -> each distinct call site's argument types, the unit's parameter types, and -- C#
         and Kotlin, PR 5 -- the counts it accepts: (fewest, most or None for `params` / `vararg`, its count)).
 
@@ -12937,13 +13038,16 @@ class StructuralExtractor:
 
         header = next(iter(sites(leaf)), None)
         arity_range: tuple[int, int | None, int] | None = None
+        p_names: list[str] | None = None
         if typed:
             read = overload_types.param_types(masked, header, lang)
             params, arity_range = (read[0], read[1]) if read is not None else (None, None)
+            if lang in ("kotlin", "csharp"):
+                p_names = overload_types.param_names(masked, header, lang)
         else:
             params = java_param_types(masked, header)
         if not any(arities_seen.get(c) for c in callees):
-            return {}, params, arity_range
+            return {}, params, arity_range, p_names
         local = overload_types.declared_value_types(masked, lang) if typed else java_value_types(masked)
         fields = self._java_field_values or {}
         preceders = self._OVERLOAD_CALL_PRECEDERS.get(lang, self._JAVA_CALL_PRECEDERS)
@@ -12983,7 +13087,7 @@ class StructuralExtractor:
                     break
             if readable and seen:
                 out[callee] = seen
-        return out, params, arity_range
+        return out, params, arity_range, p_names
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
         """Start offsets of every function name this file DECLARES exported.

@@ -38,6 +38,12 @@
         "Wrapped Sites": 2
       }
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": {
+        "Literal Sites": 16,
+        "Wrapped Sites": 2
+      }
+    },
     "fortran/wrf": {
       "fortran/wrf/module_configure.F": {
         "Literal Sites": 0,

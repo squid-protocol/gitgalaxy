@@ -173,6 +173,26 @@ def dcb_facts(jcl_members: dict[str, str], datasets: dict[str, dict]) -> list[di
     ]  # fmt: skip
 
 
+def jcl_instream_deck(jcl: str, step: str) -> str:
+    """The in-stream SYSIN text (`SYSIN DD *` up to `/*`) of the named step of a JCL member (#8886 slice 10)."""
+    lines, in_step, deck = jcl.splitlines(), False, None
+    for ln in lines:
+        if deck is not None:
+            if ln.startswith("/*") or ln.startswith("//"):
+                return "\n".join(deck)
+            deck.append(ln.rstrip())
+        elif ln.startswith("//"):
+            if re.match(rf"//{re.escape(step)}\s+EXEC\b", ln):
+                in_step = True
+            elif in_step and re.match(r"//\w+\s+EXEC\b", ln):
+                break
+            elif in_step and re.match(r"//SYSIN\s+DD\s+\*", ln):
+                deck = []
+    if deck is None:
+        raise ValueError(f"no in-stream SYSIN for step {step}")
+    return "\n".join(deck)
+
+
 def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
     """Write each seeded input dataset as the file the DatasetResolver finds under `root` (DSN = file name): the seed's
     lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has."""
@@ -190,6 +210,19 @@ def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
                 (root / dsn).write_bytes(data)
 
 
+def _listing(ds: Path) -> dict[str, dict]:
+    """The files under a datasets directory (size and digest); a GDG base is a directory, each generation `DSN(Gnnnn)`."""
+    files = {p.name: {"size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
+             for p in sorted(ds.iterdir()) if p.is_file()}  # fmt: skip
+    for gdg in sorted(p for p in ds.iterdir() if p.is_dir()):
+        for g in sorted(gdg.iterdir()):
+            files[f"{gdg.name}({g.name})"] = {
+                "size": g.stat().st_size,
+                "sha256": hashlib.sha256(g.read_bytes()).hexdigest(),
+            }
+    return files
+
+
 def forge_estate(
     ir,
     corpus: Path,
@@ -198,6 +231,8 @@ def forge_estate(
     package: str = "com.gitgalaxy",
     datasets=None,
     utility_jobs=(),
+    control_members=None,
+    catalog_seeds=None,
 ):
     """The real forge over the estate: skeletons for the corpus's own COBOL programs, the scan's job rows.
 
@@ -230,7 +265,8 @@ def forge_estate(
                 job.kind, job.reason = "application", f"utility-only, forged on request ({job.reason})"
             return job
 
-    return BatchForge(skeletons, {"sections": sections}, package, load_target(None))
+    estate = {"sections": sections, "control_members": control_members or {}, "catalog_seeds": catalog_seeds or {}}
+    return BatchForge(skeletons, estate, package, load_target(None))
 
 
 def _kind(job) -> str:
@@ -298,33 +334,44 @@ def run_forged(
     configs = [f"{PKG}.{n}" for n in src if n.endswith("JobConfig")]
     out: dict[str, dict] = {}
     for mode, skip in (("strict", "false"), ("skip", "true")):
-        ds = datasets / mode
-        ds.mkdir(parents=True)
-        seed_datasets(seeds or {}, ds)
-        cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
-               "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, *configs]  # fmt: skip
-        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=300)
-        if r.returncode:
-            raise RuntimeError(r.stderr[-4000:])
         jobs: dict[str, dict] = {}
-        cur = None
-        for ln in r.stdout.splitlines():
-            f = ln.split("\t")
-            if f[0] == "JOB":
-                cur = jobs[f[1]] = {"status": f[2], "exit": f[3], "steps": {}}
-            elif f[0] == "STEP" and cur is not None:
-                cur["steps"][f[1]] = (f[2], None if f[3] == "-" else f[3])
+        by_job: dict[str, dict] = {}
+        seeded_by_job: dict[str, dict] = {}
+        for (
+            config
+        ) in configs:  # one JVM and a freshly seeded directory per job: each job is its own case (#8886 slice 8)
+            ds = datasets / mode / config.rsplit(".", 1)[-1]
+            ds.mkdir(parents=True)
+            seed_datasets(seeds or {}, ds)
+            seeded = _listing(ds)
+            cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
+                   "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, config]  # fmt: skip
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=300)
+            if r.returncode:
+                raise RuntimeError(r.stderr[-4000:])
+            cur = None
+            ran: list[str] = []
+            for ln in r.stdout.splitlines():
+                f = ln.split("\t")
+                if f[0] == "JOB":
+                    cur = jobs[f[1]] = {"status": f[2], "exit": f[3], "steps": {}}
+                    ran.append(f[1])
+                elif f[0] == "STEP" and cur is not None:
+                    cur["steps"][f[1]] = (f[2], None if f[3] == "-" else f[3])
+            after = _listing(ds)
+            for name in ran:
+                by_job[name], seeded_by_job[name] = after, seeded
         out[mode] = jobs
-        # what the jobs left in the datasets directory (size and digest: the run's own files, compared by the caller)
-        files = {p.name: {"size": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
-                 for p in sorted(ds.iterdir()) if p.is_file()}  # fmt: skip
-        for gdg in sorted(p for p in ds.iterdir() if p.is_dir()):  # a GDG base: each generation as `DSN(Gnnnn)`
-            for g in sorted(gdg.iterdir()):
-                files[f"{gdg.name}({g.name})"] = {
-                    "size": g.stat().st_size,
-                    "sha256": hashlib.sha256(g.read_bytes()).hexdigest(),
-                }
-        out.setdefault("datasets", {})[mode] = files
+        # what the jobs left in their datasets directories (size and digest): `datasets_by_job` per job; `datasets` the
+        # union, a job's output (a file it created or changed against its own seeds) overriding a seeded copy
+        union: dict[str, dict] = {}
+        for listing in by_job.values():
+            for k, v in listing.items():
+                union.setdefault(k, v)
+        for name, listing in by_job.items():
+            union.update({k: v for k, v in listing.items() if seeded_by_job[name].get(k) != v})
+        out.setdefault("datasets", {})[mode] = union
+        out.setdefault("datasets_by_job", {})[mode] = by_job
     return out
 
 
@@ -394,6 +441,13 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
             spec["jobs"],
             datasets=spec.get("datasets"),
             utility_jobs=spec.get("forge_utility_jobs", ()),
+            # #8886 slice 9: the estate's own control-statement library (a SYSIN `LIB(MEMBER)`), read from the corpus
+            control_members={m: (corpus / p).read_text("utf-8") for m, p in spec.get("control_members", {}).items()},
+            # #8886 slice 10: a job's catalog starts with what another job's IDCAMS step DEFINEd (TRANIDX's KSDS)
+            catalog_seeds={
+                job: jcl_instream_deck((corpus / spec["jcl_dir"] / c["jcl"]).read_text("utf-8"), c["step"])
+                for job, c in spec.get("catalog_seeds", {}).items()
+            },
         )
         rcs = chain_rcs(report)
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])

@@ -159,6 +159,12 @@ class BatchForge:
             self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
                 d.get("body") or ""
             )
+        # #8886: a control-statement library's members, {member: text}, for a SYSIN that is a dataset member (`LIB(MEMBER)`).
+        # The caller reads them from the estate's own library (CardDemo's app/ctl); none is invented here.
+        self.members: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("control_members") or {}).items()}
+        # #8886 slice 10: {JOB: IDCAMS deck} the job's catalog holds when its first IDCAMS step starts (an entry an
+        # earlier job catalogued, e.g. the KSDS TRANBKP STEP10 DEFINEs); the deck is run before that step, no RC kept
+        self.catalog_seeds: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("catalog_seeds") or {}).items()}
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -245,9 +251,12 @@ class BatchForge:
         """#4268: an IDCAMS step is a record copy only while its SYSIN is one `REPRO INFILE(dd) OUTFILE(dd)`
         (`idcams.parse`, proven against GnuCOBOL); every other command or parameter, a SYSIN dataset, or a REPRO whose
         DDs are not datasets of the step is refused by name. The two DDs are kept on the step."""
-        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
-            return "its SYSIN is a dataset of control statements (not read)"
         decks = self._deck(file, ordinal, st, "SYSIN")
+        member = self._sysin_member(st)
+        if member is not None:
+            decks = [member]
+        elif any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
         if len(decks) != 1:
             return "has no single in-stream SYSIN of IDCAMS commands"
         try:
@@ -294,6 +303,23 @@ class BatchForge:
         if reg.program != st.program:
             return f"runs {reg.program} in its PARM, not {st.program}"
         st.parm = None
+        return None
+
+    def _sysin_member(self, st: Step) -> str | None:
+        """#8886: the text of a SYSIN that is a member of a control-statement library the caller supplied
+        (`estate["control_members"]`), matched on `LIB(MEMBER)` when the estate keyed it so, else on the member name; None when it is not one, or no text
+        was supplied for that member (the step then stays refused by name). /* ... */ comment lines are IDCAMS comments."""
+        for d in st.dds:
+            dsn = (d.get("dsn") or "") if d.get("dd") == "SYSIN" else ""
+            m = re.fullmatch(r"([^()]*)\(([A-Za-z0-9@#$]{1,8})\)", dsn)
+            if not m:
+                continue
+            # A key spelled `LIBRARY(MEMBER)` (the library text exactly as the step names it, e.g. `&CNTLLIB`) matches only
+            # that library; a bare member key matches any library (the caller states there is one). #8886
+            text = self.members.get(f"{m.group(1)}({m.group(2)})".upper(), self.members.get(m.group(2).upper()))
+            if text is not None:
+                text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+                return "\n".join(ln for ln in text.splitlines() if ln.strip())
         return None
 
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
@@ -668,7 +694,10 @@ class BatchForge:
         if st.program in IDCAMS and st.copy_dds:
             return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
         if st.program in IDCAMS and st.idcams_deck:  # #8886: the model's run, the job's catalog kept between steps
-            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)})"
+            seed = self.catalog_seeds.get(j.job.upper())
+            first = next((s for s in j.steps if s.idcams_deck), None) is st
+            tail = f", {_jstr(seed, text=True)}" if seed and first else ""
+            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)}{tail})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1127,22 +1156,38 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
  * Datasets as files (#3622): DSN A.B.C is `<gitgalaxy.datasets.directory>/A.B.C`; a GDG base is a directory
- * of generations G0001V00, G0002V00, ... -- (+1) the next, (0) the current, (-n) n before it.
+ * of generations G0001V00, G0002V00, ... -- (+1) the next, (0) the current, (-n) n before it. As on z/OS, a relative
+ * number is resolved ONCE per job (#8886): the newest generation is read the first time the job names the base, so
+ * (+1) is the same generation for the step that writes it and the steps after it, and (0) stays the generation the
+ * job started with. `enter(jobId)` (each step does it) starts a new job's snapshot; a caller that never enters one
+ * (a service run alone) counts the generations live.
  */
 @Component
 public class DatasetResolver {
 
     private final Path root;
+    private final ThreadLocal<Long> job = new ThreadLocal<>();
+    private final ThreadLocal<Map<Path, Integer>> newest = ThreadLocal.withInitial(HashMap::new);
 
     public DatasetResolver(@Value("${gitgalaxy.datasets.directory:datasets}") String root) {
         this.root = Path.of(root);
+    }
+
+    /** A step of job execution `jobId` is starting: a different job than the last drops the generation snapshot. */
+    public void enter(long jobId) {
+        if (!Long.valueOf(jobId).equals(job.get())) {
+            job.set(jobId);
+            newest.get().clear();
+        }
     }
 
     public Path path(Dd dd) {
@@ -1153,7 +1198,7 @@ public class DatasetResolver {
         if (dd.generation() == null) {
             return base;
         }
-        int current = latest(base);
+        int current = job.get() == null ? latest(base) : newest.get().computeIfAbsent(base, this::latest);
         int g = current + Integer.parseInt(dd.generation().replace("+", ""));
         return base.resolve(String.format(Locale.ROOT, "G%04dV00", Math.max(g, 1)));
     }
@@ -1183,14 +1228,19 @@ import java.util.regex.Pattern;
 /**
  * JCL step conditions (#3622), against the return codes of the steps before.
  *   COND=(code,op[,step]),... bypasses the step when ANY test holds: `code op RC` for the named step,
- *   else for every step before (COND=(4,LT): bypass if 4 < some RC). EVEN / ONLY concern abends, which
- *   stop a Spring Batch job: they are not evaluated here.
+ *   else for every step before (COND=(4,LT): bypass if 4 < some RC). An abend stops a Spring Batch job, so
+ *   no step ever follows one: EVEN changes nothing, and ONLY (a step that runs only after an abend) always
+ *   bypasses.
  *   IF (expression) THEN: RC, step.RC, relational operators, AND / & / OR / | / NOT; RC alone is the
- *   highest return code so far.
+ *   highest return code so far. step.RUN is true when the step ran (it recorded a return code); ABEND and
+ *   step.ABEND are false, as is step.ABENDCC = code, because no abended step continues the job. Each of
+ *   them reads and drops its own `= value`.
  */
 public final class JclConditions {
 
     private static final Pattern TEST = Pattern.compile("(\\\\d+)\\\\s*,\\\\s*(GT|GE|EQ|LT|LE|NE)\\\\s*(?:,\\\\s*([A-Z0-9#@$.]+))?");
+
+    private static final Pattern ONLY = Pattern.compile("(?<![A-Z0-9#@$])ONLY(?![A-Z0-9#@$])");
 
     private JclConditions() {
     }
@@ -1199,7 +1249,11 @@ public final class JclConditions {
         if (cond == null || rcs.isEmpty()) {
             return false;
         }
-        Matcher m = TEST.matcher(cond.toUpperCase(Locale.ROOT));
+        String upper = cond.toUpperCase(Locale.ROOT);
+        if (ONLY.matcher(upper).find()) {
+            return true;
+        }
+        Matcher m = TEST.matcher(upper);
         while (m.find()) {
             int code = Integer.parseInt(m.group(1));
             String op = m.group(2);
@@ -1300,13 +1354,31 @@ public final class JclConditions {
         boolean relation() {
             String left = t.get(i++);
             if (!left.endsWith("RC")) {
-                return !left.contains("ABEND");  // ABEND / step.ABEND: no abended step continues a Spring Batch job
+                boolean v = left.endsWith("RUN") ? rcs.containsKey(left.substring(0, Math.max(0, left.length() - 4)))
+                        : !left.contains("ABEND");  // no abended step continues a Spring Batch job
+                return operand(v, left.endsWith("ABENDCC"));
             }
             String op = t.get(i++);
             int right = Integer.parseInt(t.get(i++));
             int rc = left.equals("RC") ? rcs.values().stream().mapToInt(Integer::intValue).max().orElse(0)
                     : rcs.getOrDefault(left.substring(0, left.length() - 3), 0);
             return compare(rc, op, right);
+        }
+
+        /** `value`, after reading the `= TRUE|FALSE` (or `= code` for ABENDCC) that follows a flag; none leaves it as is. */
+        private boolean operand(boolean value, boolean code) {
+            String op = peek();
+            if (!(op.equals("=") || op.equals("\\u00ac=") || op.equals("^="))) {
+                return value;
+            }
+            i++;
+            String operand = peek();
+            i++;
+            if (code) {
+                return false;
+            }
+            boolean same = operand.equals("TRUE") == value;
+            return op.equals("=") ? same : !same;
         }
     }
 }
@@ -1423,8 +1495,57 @@ public class JclSteps {
      */
     public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
             String deck) {
+        return idcams(name, jcl, jobCond, cond, ifCond, dds, deck, "");
+    }
+
+    /**
+     * A catalogued KSDS whose dataset file the resolver finds (a cluster another job loaded) holds that file's records:
+     * fixed-length ones (RECORDSIZE avg = max), cut at that length and kept in key order. A cluster with no such file
+     * stays empty; a file that is not a whole number of records is refused by name, never truncated.
+     */
+    private void loadSeededClusters(String jcl, Map<String, Idcams.Entry> catalog) {
+        for (Idcams.Entry e : catalog.values()) {
+            if (!(e instanceof Idcams.Cluster c) || !c.records.isEmpty() || c.avg != c.max || c.avg <= 0) {
+                continue;
+            }
+            Path p = datasets.path(new Dd(c.name, c.name, null, null, null));
+            if (p == null || !Files.isRegularFile(p)) {
+                continue;
+            }
+            try {
+                byte[] all = Files.readAllBytes(p);
+                if (all.length % c.avg != 0) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + c.name + " dataset holds "
+                        + all.length + " bytes, not a whole number of RECORDSIZE " + c.avg + " records");
+                }
+                List<byte[]> recs = new ArrayList<>();
+                for (int i = 0; i < all.length; i += c.avg) {
+                    recs.add(java.util.Arrays.copyOfRange(all, i, i + c.avg));
+                }
+                if (c.indexed) {
+                    recs.sort((a, b) -> java.util.Arrays.compareUnsigned(a, c.keyOff, c.keyOff + c.keyLen,
+                        b, c.keyOff, c.keyOff + c.keyLen));
+                }
+                c.records = recs;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+    }
+
+    /** `idcams`, the job's catalog first holding what `seed` (an IDCAMS deck, no return code kept) defines. */
+    public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String deck, String seed) {
         return guardedJob(jcl, jobCond, cond, ifCond, jobId -> {
             Map<String, Idcams.Entry> catalog = catalogs.computeIfAbsent(jobId, k -> new LinkedHashMap<>());
+            if (!seed.isEmpty()) {
+                try {
+                    catalog = Idcams.run(seed, catalog, new LinkedHashMap<>()).catalog;
+                } catch (Idcams.Refused e) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + e.getMessage(), e);
+                }
+                loadSeededClusters(jcl, catalog);
+            }
             Map<String, Object> ddMap = new LinkedHashMap<>();
             Map<String, Path> files = new LinkedHashMap<>();
             try {
@@ -1521,6 +1642,7 @@ public class JclSteps {
                 contribution.setExitStatus(new ExitStatus("BYPASSED"));
                 return RepeatStatus.FINISHED;
             }
+            datasets.enter(chunk.getStepContext().getStepExecution().getJobExecutionId());
             int rc = run.getAsInt();
             rcs.put(jcl, rc);
             ctx.put("jcl.rc", rcs);

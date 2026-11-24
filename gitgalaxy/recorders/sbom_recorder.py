@@ -1,7 +1,7 @@
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io
-# GitGalaxy Spoke: Universal Zero-Trust SBOM Generator
+# GitGalaxy Spoke: Universal SBOM Generator
 # Purpose: Generates a CycloneDX SBOM with physical verification of dependencies
 #          across multiple language ecosystems (NPM, Composer, PyPI, Cargo).
 # ==============================================================================
@@ -37,7 +37,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 class SbomRecorder:
     """
     Transforms the verified repository state into a CycloneDX SBOM manifest.
-    Integrates the zero-trust physical audit to guarantee component integrity.
+    Integrates the on-disk physical audit (declared vs. installed packages) to check component integrity.
     """
 
     def __init__(
@@ -72,7 +72,7 @@ class SbomRecorder:
             self.logger.error(f"SBOM_FAILURE: Target directory {target_path} does not exist.")
             return
 
-        self.logger.info(f"SBOM: Engaging Universal Zero-Trust Generation on {target_path.name}...")
+        self.logger.info(f"SBOM: Generating universal SBOM for {target_path.name}...")
 
         security = SecurityLens()
         detector = LanguageDetector(LANGUAGE_DEFINITIONS, LEXICAL_FAMILY_HEURISTICS)
@@ -108,7 +108,7 @@ class SbomRecorder:
         if not manifests_found:
             self.logger.warning("SBOM: No supported manifests found. Outputting empty BOM.")
 
-        # 2. The Zero-Trust Physical Audit
+        # 2. The physical audit (declared vs. installed packages)
         for manifest, base_dir in manifests_found:
             ecosystem, packages = slicer.slice_manifest(manifest)
             if not packages:
@@ -175,7 +175,7 @@ class SbomRecorder:
                 "tools": [
                     {
                         "vendor": "GitGalaxy",
-                        "name": "Universal Zero-Trust SBOM",
+                        "name": "Universal SBOM",
                         "version": f"v{self.version}",
                     }
                 ],

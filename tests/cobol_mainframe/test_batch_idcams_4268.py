@@ -12,7 +12,7 @@ FILE = "jcl/IDC.jcl"
 DDS = [{"dd": "IN1", "dsn": "APP.IN"}, {"dd": "OUT1", "dsn": "APP.OUT"}]
 
 
-def _forge(decks: list[str], dds: list[dict] = DDS) -> BatchForge:
+def _forge(decks: list[str], dds: list[dict] = DDS, members: dict | None = None) -> BatchForge:
     steps = [
         {"step": "RUN", "ordinal": 1, "line": 2, "program": "POSTIT"},
         {"step": "IDC", "ordinal": 2, "line": 4, "program": "IDCAMS"},
@@ -25,7 +25,9 @@ def _forge(decks: list[str], dds: list[dict] = DDS) -> BatchForge:
         },
     }
     skeletons = {"POSTIT": {"program": {"program_ids": ["POSTIT"], "file": "cbl/POSTIT.cbl"}}}
-    return BatchForge(skeletons, {"sections": sections}, "com.gitgalaxy", load_target(None))
+    return BatchForge(
+        skeletons, {"sections": sections, "control_members": members or {}}, "com.gitgalaxy", load_target(None)
+    )
 
 
 def _tasklet(forge: BatchForge) -> str:
@@ -94,6 +96,34 @@ def test_an_estate_with_no_lowered_idcams_step_carries_no_model():
 def test_a_sysin_dataset_is_refused_not_copied():
     line = _tasklet(_forge([], [*DDS, {"dd": "SYSIN", "dsn": "APP.CTL(IDC)"}]))
     assert 'steps.utility("IDC"' in line and "its SYSIN is a dataset of control statements" in line
+
+
+SYSIN_DS = [*DDS, {"dd": "SYSIN", "dsn": "&CNTLLIB(REPROCT)"}]
+
+
+def test_a_sysin_member_the_estate_supplied_is_read_as_the_deck():
+    """#8886 slice 9: `&CNTLLIB(REPROCT)` with the member's text (IDCAMS comments dropped) is one REPRO: a copy."""
+    ctl = "/* Copyright */\n    REPRO INFILE(IN1) OUTFILE(OUT1)\n"
+    line = _tasklet(_forge([], SYSIN_DS, {"reproct": ctl}))
+    assert '.tasklet(steps.copy("IDC"' in line and 'DDS_IDC, "IN1", "OUT1"), tx)' in line
+
+
+def test_a_sysin_member_the_estate_did_not_supply_stays_refused():
+    other = _forge([], SYSIN_DS, {"OTHER": " REPRO INFILE(IN1) OUTFILE(OUT1)\n"})
+    assert "its SYSIN is a dataset of control statements" in _tasklet(other)
+
+
+def test_a_library_qualified_member_matches_only_that_library():
+    """#8886: a member keyed `LIBRARY(MEMBER)` is read for that library's step, not for the same name in another."""
+    ctl = " REPRO INFILE(IN1) OUTFILE(OUT1)\n"
+    assert '.tasklet(steps.copy("IDC"' in _tasklet(_forge([], SYSIN_DS, {"&CNTLLIB(reproct)": ctl}))
+    other = [*DDS, {"dd": "SYSIN", "dsn": "&OTHERLIB(REPROCT)"}]
+    assert "its SYSIN is a dataset of control statements" in _tasklet(_forge([], other, {"&CNTLLIB(REPROCT)": ctl}))
+    assert '.tasklet(steps.copy("IDC"' in _tasklet(_forge([], other, {"REPROCT": ctl}))  # a bare key: any library
+
+
+def test_a_supplied_member_that_the_model_refuses_is_refused_by_name():
+    assert "refuses" in _tasklet(_forge([], SYSIN_DS, {"REPROCT": " LISTCAT ALL\n"}))
 
 
 def test_no_in_stream_sysin_is_refused():

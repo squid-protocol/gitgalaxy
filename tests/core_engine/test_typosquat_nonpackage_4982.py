@@ -10,6 +10,7 @@ from gitgalaxy.standards.stdlib_modules import (
     _ALL,
     _CPYTHON,
     _GO_STDLIB,
+    _NIM_STDLIB,
     _NODE_CORE,
     NO_REGISTRY_LANGS,
     is_stdlib_module,
@@ -272,3 +273,30 @@ def test_go_stdlib_paths_and_third_party():
     assert not is_stdlib_module("net/http", ".py")
     assert not is_stdlib_module("fs", ".go")
     assert not is_stdlib_module("fmt", ".js")
+
+
+# ---- Nim stdlib (language-crucible v1.8.0: asyncfutures.nim imports `cstrutils`, one edit from `strutils`) ----------
+
+
+@pytest.mark.parametrize("module", sorted(m for m in _NIM_STDLIB if len(m) >= 5)[:40])
+def test_nim_stdlib_module_is_never_the_suspect(module):
+    scope, _ = _scan(_pair(module, _one_edit(module), ".nim"))
+    assert scope.typosquat_hits == 0
+
+
+def test_nim_cstrutils_is_not_a_typosquat_of_strutils():
+    scope, _ = _scan(_pair("cstrutils", "strutils", ".nim"))
+    assert scope.typosquat_hits == 0
+
+
+def test_nim_near_miss_of_a_stdlib_module_still_fires():
+    scope, _ = _scan(_pair("strutilz", "strutils", ".nim"))
+    assert scope.typosquat_hits == 1  # a stdlib name cannot be a squat, a near-miss of one can
+
+
+def test_nim_stdlib_forms_and_other_languages():
+    assert is_stdlib_module("cstrutils", ".nim")
+    assert is_stdlib_module("std/cstrutils", ".nimble")
+    assert is_stdlib_module("system/stacktraces", ".nim")
+    assert not is_stdlib_module("mylib/os", ".nim")
+    assert not is_stdlib_module("cstrutils", ".py")

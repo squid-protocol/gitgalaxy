@@ -312,7 +312,15 @@ _ROWS = [
         planted=True,
     ),
     # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
-    _c("concurrency", "architecture", "site", "Asynchronous logic and parallel execution"),
+    _c(
+        "concurrency",
+        "architecture",
+        "site",
+        "A site that starts, schedules, awaits or hands off work to run concurrently with its caller -- an async or await keyword, a task, thread, goroutine or promise constructor, an executor or timer submission -- in its own keyword or call form",
+        status="declared",
+        doc="docs/resource_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "ui_framework",
         "architecture",
@@ -481,7 +489,15 @@ _ROWS = [
     ),
     # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
     _c("telemetry", "resources", "site", "Structured logging and observability frameworks", planted=True),
-    _c("debug_prints", "resources", "site", "Ad-hoc, temporary debug statements"),
+    _c(
+        "debug_prints",
+        "resources",
+        "site",
+        "A site that writes text to the console or a diagnostic stream for a developer to read while the program runs -- a print, echo, dump or trace call -- in its own call or statement form; output addressed to a file or writer, and structured logging (telemetry), are not sites",
+        status="declared",
+        doc="docs/resource_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "explicit_casts",
         "resources",
@@ -518,7 +534,15 @@ _ROWS = [
         doc="docs/domain_sensor_contracts.md",
         issue=2897,
     ),
-    _c("sync_locks", "resources", "site", "Explicitly coordinating threaded logic to prevent race conditions"),
+    _c(
+        "sync_locks",
+        "resources",
+        "site",
+        "A site that acquires, releases or wraps a mutual-exclusion or atomic-ordering primitive so that threaded code does not race -- a lock or unlock call, a mutex, semaphore or synchronized region, an atomic operation -- in its own invocation form",
+        status="declared",
+        doc="docs/resource_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "immutability_locks",
         "resources",
@@ -694,7 +718,7 @@ _ROWS = [
         doc="docs/domain_sensor_contracts.md",
         issue=2897,
     ),
-    # --- APPSEC SENSORS (zero-trust pipelines) ---
+    # --- APPSEC SENSORS (pipeline security) ---
     _c(
         "rce_funnel",
         "appsec",

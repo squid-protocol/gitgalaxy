@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "file_cluster_15",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "file_cluster_4"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "file_cluster_16",
+      "crystal/crystal_stdlib_http/client_response.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/common.cr": "file_cluster_4",
+      "crystal/crystal_stdlib_http/content.cr": "file_cluster_16",
+      "crystal/crystal_stdlib_http/cookie.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/cookies.cr": "file_cluster_10",
+      "crystal/crystal_stdlib_http/formdata.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "file_cluster_16",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "file_cluster_10",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "file_cluster_17",
+      "crystal/crystal_stdlib_http/headers.cr": "file_cluster_12",
+      "crystal/crystal_stdlib_http/log.cr": "file_cluster_10",
+      "crystal/crystal_stdlib_http/params.cr": "file_cluster_2",
+      "crystal/crystal_stdlib_http/request.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/server.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/server_context.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/server_handler.cr": "file_cluster_15",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "file_cluster_15"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "file_cluster_16",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "file_cluster_2",
+      "crystal/kemal_framework/kemal_cli.cr": "file_cluster_10",
+      "crystal/kemal_framework/kemal_config.cr": "file_cluster_11",
+      "crystal/kemal_framework/kemal_dsl.cr": "file_cluster_10",
+      "crystal/kemal_framework/kemal_event_stream.cr": "file_cluster_10",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "file_cluster_16",
+      "crystal/kemal_framework/kemal_ext_context.cr": "file_cluster_11",
+      "crystal/kemal_framework/kemal_ext_response.cr": "file_cluster_11",
+      "crystal/kemal_framework/kemal_file_upload.cr": "file_cluster_10",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "file_cluster_0",
+      "crystal/kemal_framework/kemal_handler.cr": "file_cluster_0"
+    },
     "csd": {
       "csd/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "file_cluster_11",
       "dockerfile/moby/test_targets/windows.Dockerfile": "file_cluster_2"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/agent.ex": "file_cluster_10",
+      "elixir/elixir_stdlib/agent_server.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/application.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/atom.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/base.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/behaviour.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/bitwise.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/calendar.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/calendar_date.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/calendar_duration.ex": "file_cluster_16",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/calendar_time.ex": "file_cluster_15",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "file_cluster_13",
+      "elixir/elixir_stdlib/code_fragment.ex": "file_cluster_16"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "file_cluster_10",
+      "elixir/elixir_tests/agent_test.exs": "file_cluster_10",
+      "elixir/elixir_tests/application_test.exs": "file_cluster_12",
+      "elixir/elixir_tests/atom_test.exs": "file_cluster_2"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "Static: Literature & Documentation",
+      "elixir/phoenix_framework/channel.ex": "file_cluster_15",
+      "elixir/phoenix_framework/channel_server.ex": "file_cluster_16",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "file_cluster_15",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "file_cluster_15",
+      "elixir/phoenix_framework/code_reloader_server.ex": "file_cluster_16",
+      "elixir/phoenix_framework/config.ex": "file_cluster_15",
+      "elixir/phoenix_framework/controller_pipeline.ex": "file_cluster_16",
+      "elixir/phoenix_framework/debug.ex": "file_cluster_16",
+      "elixir/phoenix_framework/digester.ex": "file_cluster_16",
+      "elixir/phoenix_framework/digester_compressor.ex": "file_cluster_13",
+      "elixir/phoenix_framework/digester_gzip.ex": "file_cluster_11",
+      "elixir/phoenix_framework/endpoint.ex": "file_cluster_16",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "file_cluster_16"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "file_cluster_12",
       "embedded_python/meow_turtle/tsl2591.py": "file_cluster_12",
       "embedded_python/meow_turtle/vibration_driver.py": "file_cluster_12"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "file_cluster_4",
+      "erlang/cowboy_http_server/cowboy_app.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_children.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "file_cluster_4",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "file_cluster_12",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "file_cluster_4",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "file_cluster_9",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "file_cluster_4",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "file_cluster_8",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_req.erl": "file_cluster_0",
+      "erlang/cowboy_http_server/cowboy_router.erl": "file_cluster_15"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_app.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "file_cluster_4",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "file_cluster_11",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "file_cluster_0",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "file_cluster_2",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "file_cluster_15",
+      "erlang/ranch_socket_pool/ranch_server.erl": "file_cluster_0"
     },
     "fortran": {
       "fortran/SOURCES.md": "Static: Literature & Documentation"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "file_cluster_14",
       "fortran/wrf/sourcetree.py": "file_cluster_4",
       "fortran/wrf/wrf_timeseries.F": "file_cluster_3"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "file_cluster_10",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "file_cluster_2",
+      "fsharp/giraffe_web/Core.fs": "file_cluster_0",
+      "fsharp/giraffe_web/Csrf.fs": "file_cluster_10",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "file_cluster_13",
+      "fsharp/giraffe_web/EndpointRouting.fs": "file_cluster_0",
+      "fsharp/giraffe_web/FormatExpressions.fs": "file_cluster_15",
+      "fsharp/giraffe_web/Helpers.fs": "file_cluster_15",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "file_cluster_0",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "file_cluster_15",
+      "fsharp/giraffe_web/Json.fs": "file_cluster_0",
+      "fsharp/giraffe_web/Middleware.fs": "file_cluster_10",
+      "fsharp/giraffe_web/ModelParser.fs": "file_cluster_6",
+      "fsharp/giraffe_web/ModelValidation.fs": "file_cluster_0",
+      "fsharp/giraffe_web/Negotiation.fs": "file_cluster_12",
+      "fsharp/giraffe_web/Preconditional.fs": "file_cluster_16",
+      "fsharp/giraffe_web/RequestLimitation.fs": "file_cluster_9",
+      "fsharp/giraffe_web/ResponseCaching.fs": "file_cluster_10",
+      "fsharp/giraffe_web/Routing.fs": "file_cluster_0",
+      "fsharp/giraffe_web/ShortGuid.fs": "file_cluster_10",
+      "fsharp/giraffe_web/Streaming.fs": "file_cluster_9",
+      "fsharp/giraffe_web/Xml.fs": "file_cluster_0"
     },
     "go": {
       "go/SOURCES.md": "Static: Literature & Documentation"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "file_cluster_17",
       "haskell/pandoc/Parsing.hs": "file_cluster_2",
       "haskell/pandoc/Shared.hs": "file_cluster_15"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "Unclassified",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "file_cluster_2",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "file_cluster_11",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "file_cluster_11"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "Static: Literature & Documentation",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "file_cluster_2",
       "json/kafka/message/VoteRequest.json": "file_cluster_2"
     },
+    "julia": {
+      "julia/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "file_cluster_2",
+      "julia/dataframes_jl/LICENSE.md": "Static: Literature & Documentation",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "file_cluster_4",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "file_cluster_6",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "file_cluster_9",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "file_cluster_9",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "file_cluster_6",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "file_cluster_4",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "file_cluster_8",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "file_cluster_4",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "file_cluster_12",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "file_cluster_6",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "file_cluster_15",
+      "julia/dataframes_jl/dataframe_insertion.jl": "file_cluster_6",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "file_cluster_12",
+      "julia/dataframes_jl/dataframerow_show.jl": "file_cluster_15",
+      "julia/dataframes_jl/deprecated.jl": "file_cluster_13",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "file_cluster_15",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "file_cluster_9",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "file_cluster_6",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "file_cluster_15",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "file_cluster_8",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "file_cluster_4",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "file_cluster_6",
+      "julia/dataframes_jl/join_core.jl": "file_cluster_4",
+      "julia/dataframes_jl/join_inplace.jl": "file_cluster_12",
+      "julia/dataframes_jl/other_broadcasting.jl": "file_cluster_4",
+      "julia/dataframes_jl/other_index.jl": "file_cluster_12",
+      "julia/dataframes_jl/other_metadata.jl": "file_cluster_15",
+      "julia/dataframes_jl/other_names.jl": "file_cluster_15",
+      "julia/dataframes_jl/other_precompile.jl": "file_cluster_2"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "file_cluster_2"
     },
+    "nim": {
+      "nim/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "file_cluster_0",
+      "nim/nim_stdlib/async.nim": "file_cluster_2",
+      "nim/nim_stdlib/asyncfile.nim": "file_cluster_6",
+      "nim/nim_stdlib/asyncfutures.nim": "file_cluster_0",
+      "nim/nim_stdlib/asynchttpserver.nim": "file_cluster_16",
+      "nim/nim_stdlib/asyncmacro.nim": "file_cluster_4",
+      "nim/nim_stdlib/asyncnet.nim": "file_cluster_12",
+      "nim/nim_stdlib/asyncstreams.nim": "file_cluster_0",
+      "nim/nim_stdlib/base64.nim": "file_cluster_4",
+      "nim/nim_stdlib/bitops.nim": "file_cluster_0",
+      "nim/nim_stdlib/browsers.nim": "file_cluster_16",
+      "nim/nim_stdlib/cgi.nim": "file_cluster_11",
+      "nim/nim_stdlib/collections_chains.nim": "file_cluster_9",
+      "nim/nim_stdlib/collections_critbits.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_deques.nim": "file_cluster_5",
+      "nim/nim_stdlib/collections_hashcommon.nim": "file_cluster_16",
+      "nim/nim_stdlib/collections_heapqueue.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_intsets.nim": "file_cluster_13",
+      "nim/nim_stdlib/collections_lists.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_rtarrays.nim": "file_cluster_5",
+      "nim/nim_stdlib/collections_sequtils.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_setimpl.nim": "file_cluster_16",
+      "nim/nim_stdlib/collections_sets.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_sharedlist.nim": "file_cluster_5",
+      "nim/nim_stdlib/collections_sharedtables.nim": "file_cluster_0",
+      "nim/nim_stdlib/collections_tableimpl.nim": "file_cluster_16",
+      "nim/nim_stdlib/colors.nim": "file_cluster_16",
+      "nim/nim_stdlib/complex.nim": "file_cluster_0",
+      "nim/nim_stdlib/concurrency_atomics.nim": "file_cluster_5",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "file_cluster_12",
+      "nim/nim_stdlib/copying.txt": "Static: Literature & Documentation"
+    },
     "nix": {
       "nix/SOURCES.md": "Static: Literature & Documentation"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "file_cluster_17",
       "objective-c/worldwideweb/HyperText.m": "file_cluster_15",
       "objective-c/worldwideweb/TcpAccess.m": "file_cluster_11"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "Static: Literature & Documentation",
+      "ocaml/janestreet_base/applicative.ml": "file_cluster_0",
+      "ocaml/janestreet_base/applicative.mli": "file_cluster_2",
+      "ocaml/janestreet_base/applicative_intf.ml": "file_cluster_0",
+      "ocaml/janestreet_base/array.ml": "file_cluster_15",
+      "ocaml/janestreet_base/array.mli": "file_cluster_2",
+      "ocaml/janestreet_base/array0.ml": "file_cluster_0",
+      "ocaml/janestreet_base/array0.mli": "file_cluster_0",
+      "ocaml/janestreet_base/array_intf.ml": "file_cluster_0",
+      "ocaml/janestreet_base/array_permute.ml": "file_cluster_9",
+      "ocaml/janestreet_base/array_permute.mli": "file_cluster_0",
+      "ocaml/janestreet_base/avltree.ml": "file_cluster_12",
+      "ocaml/janestreet_base/avltree.mli": "file_cluster_0",
+      "ocaml/janestreet_base/backtrace.ml": "file_cluster_11",
+      "ocaml/janestreet_base/backtrace.mli": "file_cluster_10",
+      "ocaml/janestreet_base/base.ml": "file_cluster_0",
+      "ocaml/janestreet_base/binary_search.ml": "file_cluster_9",
+      "ocaml/janestreet_base/binary_search.mli": "file_cluster_0",
+      "ocaml/janestreet_base/binary_searchable.ml": "file_cluster_0",
+      "ocaml/janestreet_base/binary_searchable.mli": "file_cluster_2",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "file_cluster_0",
+      "ocaml/janestreet_base/blit.ml": "file_cluster_0",
+      "ocaml/janestreet_base/blit.mli": "file_cluster_2",
+      "ocaml/janestreet_base/blit_intf.ml": "file_cluster_0",
+      "ocaml/janestreet_base/bool.ml": "file_cluster_15",
+      "ocaml/janestreet_base/bool.mli": "file_cluster_13",
+      "ocaml/janestreet_base/bool0.ml": "file_cluster_0",
+      "ocaml/janestreet_base/bool0.mli": "file_cluster_0",
+      "ocaml/janestreet_base/buffer.ml": "file_cluster_7",
+      "ocaml/janestreet_base/buffer.mli": "file_cluster_2",
+      "ocaml/janestreet_base/buffer_intf.ml": "file_cluster_2"
     },
     "perl": {
       "perl/SOURCES.md": "Static: Literature & Documentation"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "file_cluster_11",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "file_cluster_11",
       "pli/zopeneditor_sample/PSAM2.pli": "file_cluster_2"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "file_cluster_13",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "file_cluster_2",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "file_cluster_2",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "file_cluster_2",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "file_cluster_2",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "file_cluster_13",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "file_cluster_13",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "file_cluster_2"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "file_cluster_2",
+      "postgresql/pgvector_tests/halfvec.sql": "file_cluster_2",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "file_cluster_7",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "file_cluster_7",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "file_cluster_7",
+      "postgresql/pgvector_tests/sparsevec.sql": "file_cluster_2",
+      "postgresql/pgvector_tests/vector_type.sql": "file_cluster_2"
     },
     "powershell": {
       "powershell/SOURCES.md": "Static: Literature & Documentation"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "file_cluster_15",
       "python/wtfpython/notebook_generator.py": "file_cluster_4",
       "python/wtfpython/noxfile.py": "file_cluster_0"
+    },
+    "r": {
+      "r/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "Static: Literature & Documentation",
+      "r/dplyr_package/across.R": "file_cluster_4",
+      "r/dplyr_package/all-equal.R": "file_cluster_9",
+      "r/dplyr_package/arrange.R": "file_cluster_15",
+      "r/dplyr_package/bind-cols.R": "file_cluster_15",
+      "r/dplyr_package/bind-rows.R": "file_cluster_15",
+      "r/dplyr_package/by.R": "file_cluster_15",
+      "r/dplyr_package/case-match.R": "file_cluster_2",
+      "r/dplyr_package/case-when.R": "file_cluster_4",
+      "r/dplyr_package/coalesce.R": "file_cluster_15",
+      "r/dplyr_package/colwise-arrange.R": "file_cluster_2",
+      "r/dplyr_package/colwise-distinct.R": "file_cluster_2",
+      "r/dplyr_package/colwise-filter.R": "file_cluster_15",
+      "r/dplyr_package/colwise-funs.R": "file_cluster_4",
+      "r/dplyr_package/colwise-group-by.R": "file_cluster_15",
+      "r/dplyr_package/colwise-mutate.R": "file_cluster_15"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "Static: Literature & Documentation",
+      "r/rlang_package/aaa-topics.R": "file_cluster_15",
+      "r/rlang_package/aaa.R": "file_cluster_15",
+      "r/rlang_package/arg.R": "file_cluster_15",
+      "r/rlang_package/attr.R": "file_cluster_15",
+      "r/rlang_package/bytes.R": "file_cluster_15",
+      "r/rlang_package/c-lib.R": "file_cluster_15",
+      "r/rlang_package/call.R": "file_cluster_15",
+      "r/rlang_package/cnd-abort.R": "file_cluster_4",
+      "r/rlang_package/cnd-entrace.R": "file_cluster_6",
+      "r/rlang_package/cnd-handlers.R": "file_cluster_15",
+      "r/rlang_package/cnd-last.R": "file_cluster_12",
+      "r/rlang_package/cnd-message.R": "file_cluster_4",
+      "r/rlang_package/cnd-signal.R": "file_cluster_15",
+      "r/rlang_package/cnd.R": "file_cluster_15",
+      "r/rlang_package/deparse.R": "file_cluster_15"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "Static: Literature & Documentation",

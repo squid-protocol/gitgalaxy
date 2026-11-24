@@ -154,7 +154,16 @@ def stand_in_text(member: str) -> str | None:
 
 # #5649: the system members the translator also ships (det/copy), laid out by the engine from the same bytes. They are
 # not register stand-ins (stand_in_registers: W1 / L4), so the readiness inventory and the register pins skip them.
-SYSTEM_MEMBERS = ("DFHAID", "DFHBMSCA", "DFHEIBLK", "SQLCA", "SQLDA")
+SYSTEM_MEMBERS = (
+    "DFHAID",
+    "DFHBMSCA",
+    "DFHEIBLK",
+    "SQLCA",
+    "SQLDA",
+    "DLIUIB",
+    "AIB",
+    "BAQRINFO",
+)  # DLIUIB, AIB: IMS; BAQRINFO: z/OS Connect (#8412)
 
 
 def system_member_text(member: str) -> str | None:

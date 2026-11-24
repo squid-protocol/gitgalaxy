@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "CPUFeatures.cpp",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "SipHash.cpp"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "SOURCES.md"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "client.cr",
+      "crystal/crystal_stdlib_http/client_response.cr": "client_response.cr",
+      "crystal/crystal_stdlib_http/common.cr": "common.cr",
+      "crystal/crystal_stdlib_http/content.cr": "content.cr",
+      "crystal/crystal_stdlib_http/cookie.cr": "cookie.cr",
+      "crystal/crystal_stdlib_http/cookies.cr": "cookies.cr",
+      "crystal/crystal_stdlib_http/formdata.cr": "formdata.cr",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "formdata_builder.cr",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "formdata_parser.cr",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "formdata_part.cr",
+      "crystal/crystal_stdlib_http/headers.cr": "headers.cr",
+      "crystal/crystal_stdlib_http/log.cr": "log.cr",
+      "crystal/crystal_stdlib_http/params.cr": "params.cr",
+      "crystal/crystal_stdlib_http/request.cr": "request.cr",
+      "crystal/crystal_stdlib_http/server.cr": "server.cr",
+      "crystal/crystal_stdlib_http/server_context.cr": "server_context.cr",
+      "crystal/crystal_stdlib_http/server_handler.cr": "server_handler.cr",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "server_handlers_compress_handler.cr"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "kemal.cr",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "kemal_base_log_handler.cr",
+      "crystal/kemal_framework/kemal_cli.cr": "kemal_cli.cr",
+      "crystal/kemal_framework/kemal_config.cr": "kemal_config.cr",
+      "crystal/kemal_framework/kemal_dsl.cr": "kemal_dsl.cr",
+      "crystal/kemal_framework/kemal_event_stream.cr": "kemal_event_stream.cr",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "kemal_exception_handler.cr",
+      "crystal/kemal_framework/kemal_ext_context.cr": "kemal_ext_context.cr",
+      "crystal/kemal_framework/kemal_ext_response.cr": "kemal_ext_response.cr",
+      "crystal/kemal_framework/kemal_file_upload.cr": "kemal_file_upload.cr",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "kemal_filter_handler.cr",
+      "crystal/kemal_framework/kemal_handler.cr": "kemal_handler.cr"
+    },
     "csd": {
       "csd/SOURCES.md": "SOURCES.md"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "syscall.Dockerfile",
       "dockerfile/moby/test_targets/windows.Dockerfile": "windows.Dockerfile"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "SOURCES.md"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "access.ex",
+      "elixir/elixir_stdlib/agent.ex": "agent.ex",
+      "elixir/elixir_stdlib/agent_server.ex": "agent_server.ex",
+      "elixir/elixir_stdlib/application.ex": "application.ex",
+      "elixir/elixir_stdlib/atom.ex": "atom.ex",
+      "elixir/elixir_stdlib/base.ex": "base.ex",
+      "elixir/elixir_stdlib/behaviour.ex": "behaviour.ex",
+      "elixir/elixir_stdlib/bitwise.ex": "bitwise.ex",
+      "elixir/elixir_stdlib/calendar.ex": "calendar.ex",
+      "elixir/elixir_stdlib/calendar_date.ex": "calendar_date.ex",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "calendar_date_range.ex",
+      "elixir/elixir_stdlib/calendar_duration.ex": "calendar_duration.ex",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "calendar_naive_datetime.ex",
+      "elixir/elixir_stdlib/calendar_time.ex": "calendar_time.ex",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "calendar_time_zone_database.ex",
+      "elixir/elixir_stdlib/code_fragment.ex": "code_fragment.ex"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "access_test.exs",
+      "elixir/elixir_tests/agent_test.exs": "agent_test.exs",
+      "elixir/elixir_tests/application_test.exs": "application_test.exs",
+      "elixir/elixir_tests/atom_test.exs": "atom_test.exs"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "LICENSE.md",
+      "elixir/phoenix_framework/channel.ex": "channel.ex",
+      "elixir/phoenix_framework/channel_server.ex": "channel_server.ex",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "code_reloader_mix_listener.ex",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "code_reloader_proxy.ex",
+      "elixir/phoenix_framework/code_reloader_server.ex": "code_reloader_server.ex",
+      "elixir/phoenix_framework/config.ex": "config.ex",
+      "elixir/phoenix_framework/controller_pipeline.ex": "controller_pipeline.ex",
+      "elixir/phoenix_framework/debug.ex": "debug.ex",
+      "elixir/phoenix_framework/digester.ex": "digester.ex",
+      "elixir/phoenix_framework/digester_compressor.ex": "digester_compressor.ex",
+      "elixir/phoenix_framework/digester_gzip.ex": "digester_gzip.ex",
+      "elixir/phoenix_framework/endpoint.ex": "endpoint.ex",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "endpoint_cowboy2_adapter.ex"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "SOURCES.md"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "tester.py",
       "embedded_python/meow_turtle/tsl2591.py": "tsl2591.py",
       "embedded_python/meow_turtle/vibration_driver.py": "vibration_driver.py"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "SOURCES.md"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "cowboy.erl",
+      "erlang/cowboy_http_server/cowboy_app.erl": "cowboy_app.erl",
+      "erlang/cowboy_http_server/cowboy_children.erl": "cowboy_children.erl",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "cowboy_clear.erl",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "cowboy_clock.erl",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "cowboy_compress_h.erl",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "cowboy_constraints.erl",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "cowboy_decompress_h.erl",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "cowboy_handler.erl",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "cowboy_http3.erl",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "cowboy_loop.erl",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "cowboy_metrics_h.erl",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "cowboy_middleware.erl",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "cowboy_quicer.erl",
+      "erlang/cowboy_http_server/cowboy_req.erl": "cowboy_req.erl",
+      "erlang/cowboy_http_server/cowboy_router.erl": "cowboy_router.erl"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "ranch.erl",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "ranch_acceptor.erl",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "ranch_acceptors_sup.erl",
+      "erlang/ranch_socket_pool/ranch_app.erl": "ranch_app.erl",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "ranch_conns_sup.erl",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "ranch_conns_sup_sup.erl",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "ranch_crc32c.erl",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "ranch_embedded_sup.erl",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "ranch_listener_sup.erl",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "ranch_protocol.erl",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "ranch_proxy_header.erl",
+      "erlang/ranch_socket_pool/ranch_server.erl": "ranch_server.erl"
     },
     "fortran": {
       "fortran/SOURCES.md": "SOURCES.md"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "run_convert_e2c.ksh",
       "fortran/wrf/sourcetree.py": "sourcetree.py",
       "fortran/wrf/wrf_timeseries.F": "wrf_timeseries.F"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "SOURCES.md"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "Auth.fs",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "ComputationExpressions.fs",
+      "fsharp/giraffe_web/Core.fs": "Core.fs",
+      "fsharp/giraffe_web/Csrf.fs": "Csrf.fs",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "DateTimeExtensions.fs",
+      "fsharp/giraffe_web/EndpointRouting.fs": "EndpointRouting.fs",
+      "fsharp/giraffe_web/FormatExpressions.fs": "FormatExpressions.fs",
+      "fsharp/giraffe_web/Helpers.fs": "Helpers.fs",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "HttpContextExtensions.fs",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "HttpStatusCodeHandlers.fs",
+      "fsharp/giraffe_web/Json.fs": "Json.fs",
+      "fsharp/giraffe_web/Middleware.fs": "Middleware.fs",
+      "fsharp/giraffe_web/ModelParser.fs": "ModelParser.fs",
+      "fsharp/giraffe_web/ModelValidation.fs": "ModelValidation.fs",
+      "fsharp/giraffe_web/Negotiation.fs": "Negotiation.fs",
+      "fsharp/giraffe_web/Preconditional.fs": "Preconditional.fs",
+      "fsharp/giraffe_web/RequestLimitation.fs": "RequestLimitation.fs",
+      "fsharp/giraffe_web/ResponseCaching.fs": "ResponseCaching.fs",
+      "fsharp/giraffe_web/Routing.fs": "Routing.fs",
+      "fsharp/giraffe_web/ShortGuid.fs": "ShortGuid.fs",
+      "fsharp/giraffe_web/Streaming.fs": "Streaming.fs",
+      "fsharp/giraffe_web/Xml.fs": "Xml.fs"
     },
     "go": {
       "go/SOURCES.md": "SOURCES.md"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "Pandoc.hs",
       "haskell/pandoc/Parsing.hs": "Parsing.hs",
       "haskell/pandoc/Shared.hs": "Shared.hs"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "SOURCES.md"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "examples_block-public-access_main.tf",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "examples_block-public-access_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "examples_block-public-access_variables.tf",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "examples_block-public-access_versions.tf",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "examples_complete_main.tf",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "examples_complete_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "examples_complete_variables.tf",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "examples_complete_versions.tf",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "examples_flow-log_main.tf",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "examples_flow-log_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "examples_flow-log_variables.tf",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "examples_flow-log_versions.tf",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "examples_ipam_main.tf",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "examples_ipam_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "examples_ipam_variables.tf",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "examples_ipam_versions.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "examples_ipv6-dualstack_main.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "examples_ipv6-dualstack_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "examples_ipv6-dualstack_variables.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "examples_ipv6-dualstack_versions.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "examples_ipv6-only_main.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "examples_ipv6-only_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "examples_ipv6-only_variables.tf",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "examples_ipv6-only_versions.tf",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "examples_issues_main.tf",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "examples_issues_outputs.tf",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "examples_issues_variables.tf",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "examples_issues_versions.tf",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "examples_manage-default-vpc_main.tf",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "examples_manage-default-vpc_outputs.tf"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "PROVENANCE.md",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "SaslAuthenticateRequest.json",
       "json/kafka/message/VoteRequest.json": "VoteRequest.json"
     },
+    "julia": {
+      "julia/SOURCES.md": "SOURCES.md"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "DataFrames.jl",
+      "julia/dataframes_jl/LICENSE.md": "LICENSE.md",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "abstractdataframe_io.jl",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "abstractdataframe_iteration.jl",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "abstractdataframe_prettytables.jl",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "abstractdataframe_prettytables_v2.jl",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "abstractdataframe_reshape.jl",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "abstractdataframe_selectionfast.jl",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "abstractdataframe_show.jl",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "abstractdataframe_sort.jl",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "abstractdataframe_subset.jl",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "abstractdataframe_unique.jl",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "dataframe_dataframe.jl",
+      "julia/dataframes_jl/dataframe_insertion.jl": "dataframe_insertion.jl",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "dataframerow_dataframerow.jl",
+      "julia/dataframes_jl/dataframerow_show.jl": "dataframerow_show.jl",
+      "julia/dataframes_jl/deprecated.jl": "deprecated.jl",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "groupeddataframe_callprocessing.jl",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "groupeddataframe_complextransforms.jl",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "groupeddataframe_fastaggregates.jl",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "groupeddataframe_groupeddataframe.jl",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "groupeddataframe_show.jl",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "groupeddataframe_splitapplycombine.jl",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "groupeddataframe_utils.jl",
+      "julia/dataframes_jl/join_core.jl": "join_core.jl",
+      "julia/dataframes_jl/join_inplace.jl": "join_inplace.jl",
+      "julia/dataframes_jl/other_broadcasting.jl": "other_broadcasting.jl",
+      "julia/dataframes_jl/other_index.jl": "other_index.jl",
+      "julia/dataframes_jl/other_metadata.jl": "other_metadata.jl",
+      "julia/dataframes_jl/other_names.jl": "other_names.jl",
+      "julia/dataframes_jl/other_precompile.jl": "other_precompile.jl"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "SOURCES.md"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "tpu_conversions.mlir"
     },
+    "nim": {
+      "nim/SOURCES.md": "SOURCES.md"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "algorithm.nim",
+      "nim/nim_stdlib/async.nim": "async.nim",
+      "nim/nim_stdlib/asyncfile.nim": "asyncfile.nim",
+      "nim/nim_stdlib/asyncfutures.nim": "asyncfutures.nim",
+      "nim/nim_stdlib/asynchttpserver.nim": "asynchttpserver.nim",
+      "nim/nim_stdlib/asyncmacro.nim": "asyncmacro.nim",
+      "nim/nim_stdlib/asyncnet.nim": "asyncnet.nim",
+      "nim/nim_stdlib/asyncstreams.nim": "asyncstreams.nim",
+      "nim/nim_stdlib/base64.nim": "base64.nim",
+      "nim/nim_stdlib/bitops.nim": "bitops.nim",
+      "nim/nim_stdlib/browsers.nim": "browsers.nim",
+      "nim/nim_stdlib/cgi.nim": "cgi.nim",
+      "nim/nim_stdlib/collections_chains.nim": "collections_chains.nim",
+      "nim/nim_stdlib/collections_critbits.nim": "collections_critbits.nim",
+      "nim/nim_stdlib/collections_deques.nim": "collections_deques.nim",
+      "nim/nim_stdlib/collections_hashcommon.nim": "collections_hashcommon.nim",
+      "nim/nim_stdlib/collections_heapqueue.nim": "collections_heapqueue.nim",
+      "nim/nim_stdlib/collections_intsets.nim": "collections_intsets.nim",
+      "nim/nim_stdlib/collections_lists.nim": "collections_lists.nim",
+      "nim/nim_stdlib/collections_rtarrays.nim": "collections_rtarrays.nim",
+      "nim/nim_stdlib/collections_sequtils.nim": "collections_sequtils.nim",
+      "nim/nim_stdlib/collections_setimpl.nim": "collections_setimpl.nim",
+      "nim/nim_stdlib/collections_sets.nim": "collections_sets.nim",
+      "nim/nim_stdlib/collections_sharedlist.nim": "collections_sharedlist.nim",
+      "nim/nim_stdlib/collections_sharedtables.nim": "collections_sharedtables.nim",
+      "nim/nim_stdlib/collections_tableimpl.nim": "collections_tableimpl.nim",
+      "nim/nim_stdlib/colors.nim": "colors.nim",
+      "nim/nim_stdlib/complex.nim": "complex.nim",
+      "nim/nim_stdlib/concurrency_atomics.nim": "concurrency_atomics.nim",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "concurrency_cpuinfo.nim",
+      "nim/nim_stdlib/copying.txt": "copying.txt"
+    },
     "nix": {
       "nix/SOURCES.md": "SOURCES.md"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "HyperText.h",
       "objective-c/worldwideweb/HyperText.m": "HyperText.m",
       "objective-c/worldwideweb/TcpAccess.m": "TcpAccess.m"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "SOURCES.md"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "LICENSE.md",
+      "ocaml/janestreet_base/applicative.ml": "applicative.ml",
+      "ocaml/janestreet_base/applicative.mli": "applicative.mli",
+      "ocaml/janestreet_base/applicative_intf.ml": "applicative_intf.ml",
+      "ocaml/janestreet_base/array.ml": "array.ml",
+      "ocaml/janestreet_base/array.mli": "array.mli",
+      "ocaml/janestreet_base/array0.ml": "array0.ml",
+      "ocaml/janestreet_base/array0.mli": "array0.mli",
+      "ocaml/janestreet_base/array_intf.ml": "array_intf.ml",
+      "ocaml/janestreet_base/array_permute.ml": "array_permute.ml",
+      "ocaml/janestreet_base/array_permute.mli": "array_permute.mli",
+      "ocaml/janestreet_base/avltree.ml": "avltree.ml",
+      "ocaml/janestreet_base/avltree.mli": "avltree.mli",
+      "ocaml/janestreet_base/backtrace.ml": "backtrace.ml",
+      "ocaml/janestreet_base/backtrace.mli": "backtrace.mli",
+      "ocaml/janestreet_base/base.ml": "base.ml",
+      "ocaml/janestreet_base/binary_search.ml": "binary_search.ml",
+      "ocaml/janestreet_base/binary_search.mli": "binary_search.mli",
+      "ocaml/janestreet_base/binary_searchable.ml": "binary_searchable.ml",
+      "ocaml/janestreet_base/binary_searchable.mli": "binary_searchable.mli",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "binary_searchable_intf.ml",
+      "ocaml/janestreet_base/blit.ml": "blit.ml",
+      "ocaml/janestreet_base/blit.mli": "blit.mli",
+      "ocaml/janestreet_base/blit_intf.ml": "blit_intf.ml",
+      "ocaml/janestreet_base/bool.ml": "bool.ml",
+      "ocaml/janestreet_base/bool.mli": "bool.mli",
+      "ocaml/janestreet_base/bool0.ml": "bool0.ml",
+      "ocaml/janestreet_base/bool0.mli": "bool0.mli",
+      "ocaml/janestreet_base/buffer.ml": "buffer.ml",
+      "ocaml/janestreet_base/buffer.mli": "buffer.mli",
+      "ocaml/janestreet_base/buffer_intf.ml": "buffer_intf.ml"
     },
     "perl": {
       "perl/SOURCES.md": "SOURCES.md"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "PSAM1.pli",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "PSAM1LIB.pli",
       "pli/zopeneditor_sample/PSAM2.pli": "PSAM2.pli"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "SOURCES.md"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "vector--0.1.0--0.1.1.sql",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "vector--0.1.1--0.1.3.sql",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "vector--0.1.3--0.1.4.sql",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "vector--0.1.4--0.1.5.sql",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "vector--0.1.5--0.1.6.sql",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "vector--0.1.6--0.1.7.sql",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "vector--0.1.7--0.1.8.sql",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "vector--0.1.8--0.2.0.sql"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "cast.sql",
+      "postgresql/pgvector_tests/halfvec.sql": "halfvec.sql",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "hnsw_sparsevec.sql",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "hnsw_vector.sql",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "ivfflat_vector.sql",
+      "postgresql/pgvector_tests/sparsevec.sql": "sparsevec.sql",
+      "postgresql/pgvector_tests/vector_type.sql": "vector_type.sql"
     },
     "powershell": {
       "powershell/SOURCES.md": "SOURCES.md"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "mixed_tabs_and_spaces.py",
       "python/wtfpython/notebook_generator.py": "notebook_generator.py",
       "python/wtfpython/noxfile.py": "noxfile.py"
+    },
+    "r": {
+      "r/SOURCES.md": "SOURCES.md"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "LICENSE.md",
+      "r/dplyr_package/across.R": "across.R",
+      "r/dplyr_package/all-equal.R": "all-equal.R",
+      "r/dplyr_package/arrange.R": "arrange.R",
+      "r/dplyr_package/bind-cols.R": "bind-cols.R",
+      "r/dplyr_package/bind-rows.R": "bind-rows.R",
+      "r/dplyr_package/by.R": "by.R",
+      "r/dplyr_package/case-match.R": "case-match.R",
+      "r/dplyr_package/case-when.R": "case-when.R",
+      "r/dplyr_package/coalesce.R": "coalesce.R",
+      "r/dplyr_package/colwise-arrange.R": "colwise-arrange.R",
+      "r/dplyr_package/colwise-distinct.R": "colwise-distinct.R",
+      "r/dplyr_package/colwise-filter.R": "colwise-filter.R",
+      "r/dplyr_package/colwise-funs.R": "colwise-funs.R",
+      "r/dplyr_package/colwise-group-by.R": "colwise-group-by.R",
+      "r/dplyr_package/colwise-mutate.R": "colwise-mutate.R"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "LICENSE.md",
+      "r/rlang_package/aaa-topics.R": "aaa-topics.R",
+      "r/rlang_package/aaa.R": "aaa.R",
+      "r/rlang_package/arg.R": "arg.R",
+      "r/rlang_package/attr.R": "attr.R",
+      "r/rlang_package/bytes.R": "bytes.R",
+      "r/rlang_package/c-lib.R": "c-lib.R",
+      "r/rlang_package/call.R": "call.R",
+      "r/rlang_package/cnd-abort.R": "cnd-abort.R",
+      "r/rlang_package/cnd-entrace.R": "cnd-entrace.R",
+      "r/rlang_package/cnd-handlers.R": "cnd-handlers.R",
+      "r/rlang_package/cnd-last.R": "cnd-last.R",
+      "r/rlang_package/cnd-message.R": "cnd-message.R",
+      "r/rlang_package/cnd-signal.R": "cnd-signal.R",
+      "r/rlang_package/cnd.R": "cnd.R",
+      "r/rlang_package/deparse.R": "deparse.R"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "PROVENANCE.md",

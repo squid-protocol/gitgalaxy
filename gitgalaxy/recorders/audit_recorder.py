@@ -506,12 +506,13 @@ class AuditRecorder:
         # gitgalaxy#2991: canonical new-name -> legacy risk_* mapping, bound
         # here for parity with the other 4 definition sites. Deliberately NOT
         # used to change any EXPOSURE_LABELS/FRIENDLY_MAP-derived string below
-        # -- this recorder's JSON ("Average Risk Exposures", "Vulnerability &
-        # Risk Exposures", ...) is exactly what tests/golden_master_audit.json
-        # and tests/golden_master_zero_dep_audit.json bless byte-for-byte
-        # (see tests/test_golden_crucible.py); changing these label strings
-        # would fail the golden-crucible regression test without a deliberate,
-        # separate golden-master regen this PR does not perform.
+        # -- this recorder's risk-exposure labels ("Average Risk Exposures",
+        # "Vulnerability & Risk Exposures", ...) are blessed byte-for-byte by the
+        # tests/golden_master_audit/ and tests/golden_master_zero_dep_audit/
+        # fixtures (directories of per-section JSON parts); a change to them
+        # needs a deliberate golden re-bless. Signal-count labels are different:
+        # since gitgalaxy#8009 they are display names via
+        # config.signal_display_name() (see the call sites below).
         self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
 
         # PERFORMANCE OPTIMIZATION: Pre-cache all labels to avoid regex overhead on the hot path

@@ -3613,7 +3613,7 @@
       "rust/tokio/lib.rs": 0.382,
       "rust/tokio/maybe_done.rs": -0.521,
       "rust/tokio/tests.rs": -0.595,
-      "rust/tokio/tokio_mpsc_bounded.rs": 1.805,
+      "rust/tokio/tokio_mpsc_bounded.rs": 1.901,
       "rust/tokio/tokio_named_pipe.rs": 1.573,
       "rust/tokio/tokio_udp.rs": 1.738
     },
@@ -3623,7 +3623,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": -0.607,
       "rust/wasmtime/wasmtime_instance.rs": 1.049,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 1.843,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 0.957,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0.296,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 0.599
     },

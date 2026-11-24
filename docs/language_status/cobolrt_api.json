@@ -1,11 +1,11 @@
 {
   "schema": "cobolrt-api/1",
   "about": ["The cobolrt public API (#4718). Written by tests/tools/cobolrt_api.py generate: edit only a `visibility`, to public or internal; docs/cobolrt_api_contract.md says what they promise.", "`evidence` records who called the item when it was last refreshed, and is never checked: det-port, model-port (committed ports), frozen-overlay (a frozen runtime copy's call to a live class), generated (translator output), emitter (a translator string), emitter-dynamic (a name a computed emission may take), runtime, harness; empty: no caller was found."],
-  "summary": {"types": 143, "types_public": 112, "members": 1315, "members_public": 861, "members_internal": 454},
+  "summary": {"types": 143, "types_public": 112, "members": 1319, "members_public": 861, "members_internal": 458},
   "types": [
-    {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness"], "members": [
+    {"id": "batch.CobolAbend", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": ["RuntimeException"], "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "signature", "harness", "runtime"], "members": [
       {"id": "batch.CobolAbend.<init>(String,String)", "kind": "constructor", "visibility": "internal", "evidence": []},
-      {"id": "batch.CobolAbend.code()", "kind": "method", "returns": "String", "visibility": "internal", "evidence": ["harness"]},
+      {"id": "batch.CobolAbend.code()", "kind": "method", "returns": "String", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "batch.CobolAbend.user(int,String)", "kind": "method", "static": true, "returns": "batch.CobolAbend", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness"]}
     ]},
     {"id": "batch.CobolFiles", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter", "emitter-dynamic", "model-port", "signature", "harness", "runtime"], "members": [
@@ -48,7 +48,7 @@
       {"id": "batch.DatasetResolver.path(Dd)", "kind": "method", "returns": "Path", "visibility": "public", "evidence": ["det-port", "emitter", "model-port", "harness", "runtime"]}
     ]},
     {"id": "batch.Dd", "kind": "record", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": [], "visibility": "public", "evidence": ["det-port", "emitter-dynamic", "model-port", "signature", "harness", "runtime"], "members": [
-      {"id": "batch.Dd.<init>(String,String,String,String,String)", "kind": "constructor", "visibility": "public", "evidence": []},
+      {"id": "batch.Dd.<init>(String,String,String,String,String)", "kind": "constructor", "visibility": "public", "evidence": ["runtime"]},
       {"id": "batch.Dd.dsn()", "kind": "method", "returns": "String", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "batch.Dd.generation()", "kind": "method", "returns": "String", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "batch.Dd.name()", "kind": "method", "returns": "String", "visibility": "public", "evidence": ["emitter-dynamic", "model-port", "harness", "runtime"]},
@@ -57,17 +57,21 @@
     ]},
     {"id": "batch.JclConditions", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs", "forge-batch-files"], "supers": [], "visibility": "public", "evidence": ["emitter", "harness", "runtime"], "members": [
       {"id": "batch.JclConditions.bypass(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
-      {"id": "batch.JclConditions.holds(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]}
+      {"id": "batch.JclConditions.holds(String,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "public", "evidence": ["emitter", "harness", "runtime"]},
+      {"id": "batch.JclConditions.holds(String,Map,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "internal", "evidence": ["emitter", "harness", "runtime"]},
+      {"id": "batch.JclConditions.startsAfterAbend(String,String,String,Map,Map)", "kind": "method", "static": true, "returns": "boolean", "visibility": "internal", "evidence": ["emitter", "harness", "runtime"]}
     ]},
     {"id": "batch.JclJobLauncher", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs"], "supers": [], "visibility": "public", "evidence": ["harness"], "members": [
       {"id": "batch.JclJobLauncher.<init>(JobLauncher,List)", "kind": "constructor", "visibility": "internal", "evidence": []},
-      {"id": "batch.JclJobLauncher.launch(String)", "kind": "method", "returns": "JobExecution", "visibility": "public", "evidence": []},
+      {"id": "batch.JclJobLauncher.launch(String)", "kind": "method", "returns": "JobExecution", "visibility": "public", "evidence": ["harness"]},
       {"id": "batch.JclJobLauncher.names()", "kind": "method", "returns": "List<String>", "visibility": "public", "evidence": ["harness"]}
     ]},
     {"id": "batch.JclSteps", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/cobol_to_java_batch_forge.py", "variants": ["forge-batch-jobs"], "supers": [], "visibility": "public", "evidence": ["harness", "runtime"], "members": [
       {"id": "batch.JclSteps.<init>(DatasetResolver,boolean)", "kind": "constructor", "visibility": "internal", "evidence": []},
+      {"id": "batch.JclSteps.abends()", "kind": "method", "returns": "JobExecutionListener", "visibility": "internal", "evidence": ["harness"]},
       {"id": "batch.JclSteps.copy(String,String,String,String,String,List)", "kind": "method", "returns": "Tasklet", "visibility": "internal", "evidence": ["harness"]},
       {"id": "batch.JclSteps.copy(String,String,String,String,String,List,String,String)", "kind": "method", "returns": "Tasklet", "visibility": "public", "evidence": ["harness", "runtime"]},
+      {"id": "batch.JclSteps.ended(String,String,String,String,String,int,String)", "kind": "method", "returns": "Tasklet", "visibility": "internal", "evidence": ["harness"]},
       {"id": "batch.JclSteps.idcams(String,String,String,String,String,List,String)", "kind": "method", "returns": "Tasklet", "visibility": "internal", "evidence": ["harness"]},
       {"id": "batch.JclSteps.idcams(String,String,String,String,String,List,String,String)", "kind": "method", "returns": "Tasklet", "visibility": "internal", "evidence": ["harness", "runtime"]},
       {"id": "batch.JclSteps.iefbr14(String,String,String,String,String,List)", "kind": "method", "returns": "Tasklet", "visibility": "public", "evidence": ["harness"]},
@@ -1393,7 +1397,7 @@
       {"id": "cobolrt.job.Idcams.Aix.unique", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []},
       {"id": "cobolrt.job.Idcams.Aix.upgrade", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []}
     ]},
-    {"id": "cobolrt.job.Idcams.Cluster", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["cobolrt.job.Idcams.Entry"], "visibility": "internal", "evidence": [], "members": [
+    {"id": "cobolrt.job.Idcams.Cluster", "kind": "class", "source": "gitgalaxy/tools/cobol_to_java/det/cobolrt/job/Idcams.java", "variants": ["det-batch", "det-standalone", "sort-job"], "supers": ["cobolrt.job.Idcams.Entry"], "visibility": "internal", "evidence": ["runtime"], "members": [
       {"id": "cobolrt.job.Idcams.Cluster.<init>(String,boolean,int,int,int,int)", "kind": "constructor", "visibility": "internal", "evidence": []},
       {"id": "cobolrt.job.Idcams.Cluster.avg", "kind": "field", "returns": "int", "visibility": "internal", "evidence": []},
       {"id": "cobolrt.job.Idcams.Cluster.indexed", "kind": "field", "returns": "boolean", "visibility": "internal", "evidence": []},

@@ -84,3 +84,26 @@ def test_a_db2_timestamp_and_a_buffer_past_the_cobol_area_are_no_difference():
     assert ec.compare_events([_link(area=cobol)], [_link(area=java, length=len(cobol))])["diffs"] == []
     other = b"ID02" + b"2026-11-24-09.05.08.123984" + b"TAIL"
     assert _fields(ec.compare_events([_link(area=cobol)], [_link(area=other)])) == ["area"]
+
+
+def test_bytes_the_cobol_program_never_wrote_are_not_compared():
+    """The stub's untouched storage is NUL where a port's DTO default is a space (CBSA BNK1CAC's trailing group)."""
+    cobol = b"ABCD" + b"\x00" * 4
+    assert ec.compare_events([_link(area=cobol)], [_link(area=b"ABCD" + b" " * 4)])["diffs"] == []
+    assert _fields(ec.compare_events([_link(area=cobol)], [_link(area=b"ABXD    ")])) == ["area"]
+
+
+def test_a_signed_zoned_last_digit_spelt_as_an_overpunch_is_the_same_byte():
+    assert ec.compare_events([_link(area=b"00000")], [_link(area=b"0000{")])["diffs"] == []
+    assert ec.compare_events([_link(area=b"00005")], [_link(area=b"0000E")])["diffs"] == []
+    assert _fields(ec.compare_events([_link(area=b"00005")], [_link(area=b"0000F")])) == ["area"]
+
+
+def test_a_port_passing_its_whole_buffer_states_no_length_but_a_near_miss_does():
+    assert ec.compare_events([_link(area=b"A" * 20)], [_link(area=b"A" * 20 + b" " * 7250)])["diffs"] == []
+    assert _fields(ec.compare_events([_link(area=b"A" * 20)], [_link(area=b"A" * 20 + b" ")])) == ["length"]
+
+
+def test_a_short_port_area_differs_only_where_cobol_wrote_the_missing_bytes():
+    assert ec.compare_events([_link(area=b"AB\x00\x00")], [_link(area=b"AB", length=4)])["diffs"] == []
+    assert _fields(ec.compare_events([_link(area=b"ABCD")], [_link(area=b"AB", length=4)])) == ["area"]

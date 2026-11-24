@@ -187,6 +187,16 @@ def _area_without_clock(area: str) -> bytes:
     return _DB2_TIMESTAMP.sub(b"#" * 26, base64.b64decode(area))
 
 
+def _same_byte(cobol: int, java: int) -> bool:
+    """One area byte: equal, or the same signed-zoned last digit spelt two ways (GnuCOBOL stores +5 as `5`, a port's
+    marshalling as the overpunch `E`, +0 as `{`; a negative as `p`-`y` against `}` / `J`-`R`)."""
+    if cobol == java:
+        return True
+    positive = {ord("0") + d: (ord("{") if d == 0 else ord("A") + d - 1) for d in range(10)}
+    negative = {ord("p") + d: (ord("}") if d == 0 else ord("J") + d - 1) for d in range(10)}
+    return positive.get(cobol) == java or negative.get(cobol) == java
+
+
 def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     """A LINK event as both sides compare it: its target and, when the event carries the area's bytes (#7954: a det
     port's, and the COBOL stub's), its LENGTH and those bytes. The Java side's DTO snapshot and RESP are not compared."""
@@ -289,10 +299,21 @@ def compare_events(
         if c["event"] == "LINK" and c.get("area") is not None and j.get("area") is not None:
             # #7954: the COMMAREA a LINK passes, byte for byte (the ABNDPROC marshalling is only visible here), and its
             # LENGTH; compared only when both sides gave the bytes, so a port that passes a DTO is unchanged
-            if c.get("length") is not None and j.get("length") is not None and int(c["length"]) != int(j["length"]):
+            if (
+                c.get("length") is not None
+                and j.get("length") is not None
+                and int(c["length"]) != int(j["length"])
+                and int(j["length"]) < 2 * int(c["length"])  # a port that hands over its whole DTO / buffer (7270 bytes
+            ):  # for a 20-byte LENGTH) is not stating a LENGTH: only a near miss (681 vs 682) is a wrong one
                 bad.append({"field": "length", "cobol": c["length"], "java": j["length"]})
             cobol_area = _area_without_clock(c["area"])  # the port's buffer may run past what the LINK passed
-            if _area_without_clock(j["area"])[: len(cobol_area)] != cobol_area:
+            java_area = _area_without_clock(j["area"])[: len(cobol_area)].ljust(
+                len(cobol_area), b"\x00"
+            )  # a short area:
+            # the bytes it lacks count only where COBOL wrote one
+            # a byte the COBOL program never wrote is NUL in the stub's storage (IBM leaves it undefined) while a port's
+            # DTO holds its default there (spaces): only the bytes COBOL wrote are compared
+            if any(c_ and not _same_byte(c_, j_) for c_, j_ in zip(cobol_area, java_area)):
                 bad.append({"field": "area", "cobol": c["area"], "java": j["area"]})
         if "mapset" in c and c["mapset"] != j.get("mapset"):  # #5862: the MAPSET of a SEND / RECEIVE MAP
             bad.append({"field": "mapset", "cobol": c["mapset"], "java": j.get("mapset")})

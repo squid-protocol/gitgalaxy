@@ -172,7 +172,7 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?:(?:public|private|protected|abstract|declare)[ \t]+){0,3}(constructor)[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50};",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (public/private) and Immutability (const).
         "structural_boundaries": re.compile(
             r"\b(var|return|break|continue|class|interface|type|enum|import|export|await|satisfies|using|namespace|module|implements|extends|declare|unknown|never|void)\b|=>"

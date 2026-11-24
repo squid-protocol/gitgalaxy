@@ -315,7 +315,7 @@ DEFINITION: dict[str, Any] = {
         # the highest $N seen instead of trusting the first hit.
         "args": re.compile(r'(\$(?:[1-9]|\{#?[1-9][0-9]*(?:[:#%^,/~-](?:[^{}]|\{[^{}]*\})*)?\}|@|\*|#)|"\$@"|"\$\*")'),
         "_args_findall_max_groups": {1},
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries and straight-line execution verbs.
         # BOUNDARY FIX: `.` (the dot-source operator) is a non-word char, so it
         # can never satisfy a shared leading `\b` -- the same trap documented on

@@ -764,15 +764,15 @@
 <text class="bar-value-label" x="726.0" y="1407">62‡</text>
 <text class="lang-label" x="20" y="1463.5">julia</text>
 <rect class="bar-track" x="154" y="1443" width="88" height="34" rx="2"/>
-<rect x="154" y="1443" width="38.3" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1451">427*</text>
+<rect x="154" y="1443" width="78.2" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1451">872*</text>
 <rect x="154" y="1455" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1463">981*</text>
 <rect class="bar-track" x="286" y="1443" width="88" height="34" rx="2"/>
-<rect x="286" y="1443" width="87.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1451">422/427*</text>
-<rect x="286" y="1455" width="37.9" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1463">422/981*</text>
+<rect x="286" y="1443" width="87.5" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1451">867/872*</text>
+<rect x="286" y="1455" width="77.8" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1463">867/981*</text>
 <rect class="bar-track" x="418" y="1443" width="88" height="34" rx="2"/>
 <rect x="418" y="1443" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1451">24*</text>
@@ -783,9 +783,9 @@
 <text class="bar-value-label" x="594.0" y="1451">0/24*</text>
 <rect class="bar-track" x="682" y="1443" width="88" height="34" rx="2"/>
 <rect x="682" y="1443" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1451">422*</text>
+<text class="bar-value-label" x="726.0" y="1451">867*</text>
 <rect x="682" y="1455" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1463">422*</text>
+<text class="bar-value-label" x="726.0" y="1463">867*</text>
 <rect class="stripe" x="16" y="1482" width="780" height="44"/>
 <text class="lang-label" x="20" y="1507.5">kotlin</text>
 <rect class="bar-track" x="154" y="1487" width="88" height="34" rx="2"/>

@@ -2435,10 +2435,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
   "sweeps": {}
@@ -2598,273 +2598,6 @@
   "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
  },
  "programs": [
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 100.0,
-    "branches": {
-     "covered": 10,
-     "total": 10
-    },
-    "branches_net": {
-     "covered": 10,
-     "total": 10
-    },
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 13,
-     "live": 13
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "zecs-zecsnc",
-      "case_scenarios": 15,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "coverage": {
-        "branches": {
-         "covered": 10,
-         "total": 10
-        },
-        "paragraphs": {
-         "covered": 13,
-         "live": 13
-        },
-        "uncovered_branches": []
-       },
-       "db2": false,
-       "facade": null,
-       "fault_runs": null,
-       "java_failed": false,
-       "option_differences": [],
-       "oracle_image": null,
-       "oracle_matches_pin": null,
-       "records_compared": 0,
-       "records_equal": 0,
-       "runs": 15,
-       "scenarios": 0,
-       "scenarios_equal": 0,
-       "stale_inputs": [],
-       "status_at_build": "not measured",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "zecs-zecsnc",
-     "case_scenarios": 15,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": {
-      "coverage": {
-       "branches": {
-        "covered": 10,
-        "total": 10
-       },
-       "paragraphs": {
-        "covered": 13,
-        "live": 13
-       },
-       "uncovered_branches": []
-      },
-      "db2": false,
-      "facade": null,
-      "fault_runs": null,
-      "java_failed": false,
-      "option_differences": [],
-      "oracle_image": null,
-      "oracle_matches_pin": null,
-      "records_compared": 0,
-      "records_equal": 0,
-      "runs": 15,
-      "scenarios": 0,
-      "scenarios_equal": 0,
-      "stale_inputs": [],
-      "status_at_build": "not measured",
-      "verdict": "all equal"
-     },
-     "role": "program"
-    }
-   },
-   "level": "L5",
-   "level_current": true,
-   "mutation": {
-    "accounted": 252,
-    "chosen": 513,
-    "current": true,
-    "det_port": "raw 49% (240/492 caught; 513 of 513 mutants, seed 0); every survivor accounted for (252) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 240,
-    "l5": true,
-    "mutants": 513,
-    "score": 0.4878,
-    "stale_inputs": [],
-    "survived": 252,
-    "unaccounted": 0
-   },
-   "next": [],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "4.2"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.CICS_TS",
-      "provenance": "found",
-      "source": "System Requirements and Considerations.md:13",
-      "value": "4.2"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "Source/ZECSNC.asm",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 0,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 54,
-    "translated": 54,
-    "whole": true
-   }
-  },
   {
    "assumptions": {
     "facts_stated": [
@@ -7683,20 +7416,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 416,
-    "chosen": 935,
+    "accounted": 423,
+    "chosen": 941,
     "current": true,
-    "det_port": "raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted",
-    "killed": 454,
+    "det_port": "raw 50% (455/904 caught; 941 of 941 mutants, seed 0); 26 of 449 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 455,
     "l5": false,
-    "mutants": 935,
-    "score": 0.5056,
+    "mutants": 941,
+    "score": 0.5033,
     "stale_inputs": [],
-    "survived": 444,
-    "unaccounted": 28
+    "survived": 449,
+    "unaccounted": 26
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 51% (454/898 caught; 935 of 935 mutants, seed 0); 28 of 444 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 50% (455/904 caught; 941 of 941 mutants, seed 0); 26 of 449 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -8074,6 +7812,271 @@
     "source_defects": [],
     "statements": 73,
     "translated": 73,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 100.0,
+    "branches": {
+     "covered": 10,
+     "total": 10
+    },
+    "branches_net": {
+     "covered": 10,
+     "total": 10
+    },
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 13,
+     "live": 13
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "zecs-zecsnc",
+      "case_scenarios": 15,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 10,
+         "total": 10
+        },
+        "paragraphs": {
+         "covered": 13,
+         "live": 13
+        },
+        "uncovered_branches": []
+       },
+       "db2": false,
+       "facade": null,
+       "fault_runs": null,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": null,
+       "oracle_matches_pin": null,
+       "records_compared": 0,
+       "records_equal": 0,
+       "runs": 15,
+       "scenarios": 0,
+       "scenarios_equal": 0,
+       "stale_inputs": [],
+       "status_at_build": "not measured",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "zecs-zecsnc",
+     "case_scenarios": 15,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 10,
+        "total": 10
+       },
+       "paragraphs": {
+        "covered": 13,
+        "live": 13
+       },
+       "uncovered_branches": []
+      },
+      "db2": false,
+      "facade": null,
+      "fault_runs": null,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": null,
+      "oracle_matches_pin": null,
+      "records_compared": 0,
+      "records_equal": 0,
+      "runs": 15,
+      "scenarios": 0,
+      "scenarios_equal": 0,
+      "stale_inputs": [],
+      "status_at_build": "not measured",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "accounted": 240,
+    "chosen": 501,
+    "current": true,
+    "det_port": "raw 50% (240/482 caught; 501 of 501 mutants, seed 0); 2 of 242 survivors unaccounted",
+    "killed": 240,
+    "l5": false,
+    "mutants": 501,
+    "score": 0.4979,
+    "stale_inputs": [],
+    "survived": 242,
+    "unaccounted": 2
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 50% (240/482 caught; 501 of 501 mutants, seed 0); 2 of 242 survivors unaccounted)"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "4.2"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.CICS_TS",
+      "provenance": "found",
+      "source": "System Requirements and Considerations.md:13",
+      "value": "4.2"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
+   "program": "Source/ZECSNC.asm",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": 0,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 54,
+    "translated": 54,
     "whole": true
    }
   },
@@ -8545,8 +8548,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "python tests/tools/cics_census.py survey --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt",
    "python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt",
@@ -8568,13 +8571,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
-  "translator_commit": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+  "translator_commit": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -8585,8 +8588,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 6,
-   "L5": 1
+   "L4": 7,
+   "L5": 0
   },
   "histogram_stale": {
    "L0": 0,
@@ -8617,6 +8620,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+  "fingerprint": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
  }
 }

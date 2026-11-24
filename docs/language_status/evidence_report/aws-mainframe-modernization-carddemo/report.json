@@ -3097,10 +3097,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
   "sweeps": {}
@@ -3300,6 +3300,825 @@
   "what": "GnuCOBOL plus the gitgalaxy CICS stub and models (CICS, Db2 precompiler, Language Environment, DISPLAY), not IBM z/OS"
  },
  "programs": [
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
+      "id": "X14",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
+      "id": "X22",
+      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
+      "id": "X42",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
+      "id": "X67",
+      "status": "REFUSED"
+     }
+    ],
+    "reach": {
+     "case": "carddemo-cardview",
+     "commands_run": [
+      "ABEND",
+      "READ",
+      "RECEIVE MAP",
+      "RETURN",
+      "SEND MAP",
+      "SEND TEXT",
+      "XCTL"
+     ],
+     "registers": [
+      "X14",
+      "X20",
+      "X22",
+      "X27",
+      "X31",
+      "X42"
+     ]
+    },
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 92.0,
+    "branches": {
+     "covered": 69,
+     "total": 75
+    },
+    "branches_net": {
+     "covered": 69,
+     "total": 69
+    },
+    "current": true,
+    "infeasible_netted": [
+     "1300-SETUP-SCREEN-ATTRS:553:true",
+     "2210-EDIT-ACCOUNT:656:false",
+     "2210-EDIT-ACCOUNT:668:false",
+     "9100-GETCARD-BYACCTCARD:759:false",
+     "9100-GETCARD-BYACCTCARD:764:false",
+     "ABEND-ROUTINE:859:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "1300-SETUP-SCREEN-ATTRS:553:true",
+      "kind": "IF",
+      "line": 553,
+      "outcome": "true",
+      "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true.",
+      "unit": "1300-SETUP-SCREEN-ATTRS"
+     },
+     {
+      "family": "G",
+      "key": "2210-EDIT-ACCOUNT:656:false",
+      "kind": "IF",
+      "line": 656,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here.",
+      "unit": "2210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "2210-EDIT-ACCOUNT:668:false",
+      "kind": "IF",
+      "line": 668,
+      "outcome": "false",
+      "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264.",
+      "unit": "2210-EDIT-ACCOUNT"
+     },
+     {
+      "family": "G",
+      "key": "9100-GETCARD-BYACCTCARD:759:false",
+      "kind": "IF",
+      "line": 759,
+      "outcome": "false",
+      "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true.",
+      "unit": "9100-GETCARD-BYACCTCARD"
+     },
+     {
+      "family": "G",
+      "key": "9100-GETCARD-BYACCTCARD:764:false",
+      "kind": "IF",
+      "line": 764,
+      "outcome": "false",
+      "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true.",
+      "unit": "9100-GETCARD-BYACCTCARD"
+     },
+     {
+      "family": "C",
+      "key": "ABEND-ROUTINE:859:true",
+      "kind": "IF",
+      "line": 859,
+      "outcome": "true",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES.",
+      "unit": "ABEND-ROUTINE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 30,
+     "live": 30
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cardview",
+      "case_scenarios": 25,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": {
+       "commands_run": [
+        "ABEND",
+        "READ",
+        "RECEIVE-MAP",
+        "RETURN",
+        "SEND-MAP",
+        "SEND-TEXT",
+        "XCTL"
+       ],
+       "coverage": {
+        "branches": {
+         "covered": 69,
+         "total": 75
+        },
+        "paragraphs": {
+         "covered": 30,
+         "live": 30
+        },
+        "uncovered_branches": [
+         "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
+         "line 656 IF false (2210-EDIT-ACCOUNT)",
+         "line 668 IF false (2210-EDIT-ACCOUNT)",
+         "line 759 IF false (9100-GETCARD-BYACCTCARD)",
+         "line 764 IF false (9100-GETCARD-BYACCTCARD)",
+         "line 859 IF true (ABEND-ROUTINE)"
+        ]
+       },
+       "db2": false,
+       "facade": {
+        "passed": 25,
+        "runs": 25
+       },
+       "fault_runs": 3,
+       "java_failed": false,
+       "option_differences": [],
+       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+       "oracle_matches_pin": true,
+       "records_compared": 65,
+       "records_equal": 65,
+       "runs": 25,
+       "scenarios": 25,
+       "scenarios_equal": 25,
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     },
+     {
+      "case": "carddemo-cardview-generated",
+      "case_scenarios": 5,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cardview",
+     "case_scenarios": 25,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": {
+      "commands_run": [
+       "ABEND",
+       "READ",
+       "RECEIVE-MAP",
+       "RETURN",
+       "SEND-MAP",
+       "SEND-TEXT",
+       "XCTL"
+      ],
+      "coverage": {
+       "branches": {
+        "covered": 69,
+        "total": 75
+       },
+       "paragraphs": {
+        "covered": 30,
+        "live": 30
+       },
+       "uncovered_branches": [
+        "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
+        "line 656 IF false (2210-EDIT-ACCOUNT)",
+        "line 668 IF false (2210-EDIT-ACCOUNT)",
+        "line 759 IF false (9100-GETCARD-BYACCTCARD)",
+        "line 764 IF false (9100-GETCARD-BYACCTCARD)",
+        "line 859 IF true (ABEND-ROUTINE)"
+       ]
+      },
+      "db2": false,
+      "facade": {
+       "passed": 25,
+       "runs": 25
+      },
+      "fault_runs": 3,
+      "java_failed": false,
+      "option_differences": [],
+      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
+      "oracle_matches_pin": true,
+      "records_compared": 65,
+      "records_equal": 65,
+      "runs": 25,
+      "scenarios": 25,
+      "scenarios_equal": 25,
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L5",
+   "level_current": true,
+   "mutation": {
+    "accounted": 8,
+    "chosen": 151,
+    "current": true,
+    "det_port": "raw 95% (139/147 caught; 151 of 2226 mutants, seed 0); every survivor accounted for (8) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 139,
+    "l5": true,
+    "mutants": 2226,
+    "score": 0.9456,
+    "stale_inputs": [],
+    "survived": 8,
+    "unaccounted": 0
+   },
+   "next": [],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:149",
+      "value": "YES"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:148",
+      "value": "CS"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.PARM",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:47",
+      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "samples/proc/BUILDONL.prc:40",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X67"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "READ",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X14",
+      "X22"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27",
+      "X42"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X42"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/cbl/COCRDSLC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X14",
+     "X22",
+     "X27",
+     "X31",
+     "X42"
+    ],
+    "branch_outcomes_unrun": 6,
+    "commands": 8,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "READ"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 263,
+    "translated": 263,
+    "whole": true
+   }
+  },
   {
    "assumptions": {
     "facts_stated": [],
@@ -3556,10 +4375,11 @@
     "accounted": 52,
     "chosen": 157,
     "current": true,
-    "det_port": "raw 66% (103/155 caught; 157 of 2851 mutants, seed 0); every survivor accounted for (52) (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "det_port": "raw 66% (103/155 caught; 157 of 2851 mutants, seed 0); every survivor accounted for (52) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
     "drifted": [
      "generator",
-     "harness"
+     "harness",
+     "oracle"
     ],
     "killed": 103,
     "l5": true,
@@ -4936,16 +5756,21 @@
    "level": "L5",
    "level_current": true,
    "mutation": {
-    "accounted": 41,
-    "chosen": 148,
+    "accounted": 43,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 72% (107/148 caught; 148 of 2816 mutants, seed 0); every survivor accounted for (41)",
+    "det_port": "raw 71% (107/150 caught; 150 of 2852 mutants, seed 0); every survivor accounted for (43) (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 107,
     "l5": true,
-    "mutants": 2816,
-    "score": 0.723,
+    "mutants": 2852,
+    "score": 0.7133,
     "stale_inputs": [],
-    "survived": 41,
+    "survived": 43,
     "unaccounted": 0
    },
    "next": [],
@@ -7078,7 +7903,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:bfbfde09078241258e2225e018b3c532d6d816efd4d3b89ce9adcdc94f865020",
+       "oracle_image": "sha256:184a61ee435a6176b8e8d89a57ded9cf878923cecedbd34af5b7f1c60394962a",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -7129,7 +7954,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:bfbfde09078241258e2225e018b3c532d6d816efd4d3b89ce9adcdc94f865020",
+      "oracle_image": "sha256:184a61ee435a6176b8e8d89a57ded9cf878923cecedbd34af5b7f1c60394962a",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -7671,7 +8496,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:bfbfde09078241258e2225e018b3c532d6d816efd4d3b89ce9adcdc94f865020",
+       "oracle_image": "sha256:184a61ee435a6176b8e8d89a57ded9cf878923cecedbd34af5b7f1c60394962a",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -8608,23 +9433,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 1,
-    "chosen": 369,
+    "chosen": 371,
     "current": true,
-    "det_port": "raw 59% (210/353 caught; 369 of 369 mutants, seed 0); 142 of 143 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 59% (210/355 caught; 371 of 371 mutants, seed 0); 144 of 145 survivors unaccounted",
     "killed": 210,
     "l5": false,
-    "mutants": 369,
-    "score": 0.5949,
+    "mutants": 371,
+    "score": 0.5915,
     "stale_inputs": [],
-    "survived": 143,
-    "unaccounted": 142
+    "survived": 145,
+    "unaccounted": 144
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (210/353 caught; 369 of 369 mutants, seed 0); 142 of 143 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (210/355 caught; 371 of 371 mutants, seed 0); 144 of 145 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -11717,21 +12538,17 @@
     "accounted": 11,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted",
     "killed": 109,
     "l5": false,
-    "mutants": 728,
+    "mutants": 730,
     "score": 0.7622,
     "stale_inputs": [],
     "survived": 34,
     "unaccounted": 23
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13406,23 +14223,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 1,
-    "chosen": 3751,
+    "chosen": 3755,
     "current": true,
-    "det_port": "raw 42% (1466/3506 caught; 3751 of 3751 mutants, seed 0); 2039 of 2040 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 42% (1466/3510 caught; 3755 of 3755 mutants, seed 0); 2043 of 2044 survivors unaccounted",
     "killed": 1466,
     "l5": false,
-    "mutants": 3751,
-    "score": 0.4181,
+    "mutants": 3755,
+    "score": 0.4177,
     "stale_inputs": [],
-    "survived": 2040,
-    "unaccounted": 2039
+    "survived": 2044,
+    "unaccounted": 2043
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (1466/3506 caught; 3751 of 3751 mutants, seed 0); 2039 of 2040 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 42% (1466/3510 caught; 3755 of 3755 mutants, seed 0); 2043 of 2044 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -13663,19 +14476,23 @@
    "level_current": true,
    "mutation": {
     "accounted": 1,
-    "chosen": 396,
+    "chosen": 394,
     "current": true,
-    "det_port": "raw 61% (227/373 caught; 396 of 396 mutants, seed 0); 145 of 146 survivors unaccounted",
+    "det_port": "raw 61% (227/371 caught; 394 of 394 mutants, seed 0); 143 of 144 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 227,
     "l5": false,
-    "mutants": 396,
-    "score": 0.6086,
+    "mutants": 394,
+    "score": 0.6119,
     "stale_inputs": [],
-    "survived": 146,
-    "unaccounted": 145
+    "survived": 144,
+    "unaccounted": 143
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (227/373 caught; 396 of 396 mutants, seed 0); 145 of 146 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 61% (227/371 caught; 394 of 394 mutants, seed 0); 143 of 144 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -13988,21 +14805,17 @@
     "accounted": 12,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted",
     "killed": 103,
     "l5": false,
-    "mutants": 727,
+    "mutants": 729,
     "score": 0.7103,
     "stale_inputs": [],
     "survived": 42,
     "unaccounted": 30
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -16873,10 +17686,11 @@
     "accounted": 67,
     "chosen": 155,
     "current": true,
-    "det_port": "raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "det_port": "raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
     "drifted": [
      "generator",
-     "harness"
+     "harness",
+     "oracle"
     ],
     "killed": 80,
     "l5": false,
@@ -16887,7 +17701,7 @@
     "unaccounted": 3
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 53% (80/150 caught; 155 of 1399 mutants, seed 0); 3 of 70 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -19056,822 +19870,6 @@
     "source_defects": [],
     "statements": 500,
     "translated": 500,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
-      "id": "X14",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "READ GTEQ / GENERIC on a KSDS: the first record whose key (or its first KEYLENGTH bytes) equals RIDFLD's or, with GTEQ, is greater, in the browse's key order (D1); NOTFND RESP2 80; READ UPDATE holds the record found; RIDFLD not updated; #4771: on a file named at run time the full key is that file's (looked up then), and DELETE GENERIC deletes every record with the generic key (NOTFND RESP2 80 when none); DELETE INVREQ RESP2 21 (ESDS), 22 (generic on a non-KSDS), 25 / 42 (GENERIC KEYLENGTH not shorter than the key / below zero) and 26 (KEYLENGTH without GENERIC) on both runtimes (#5092, as READ's: X52); refused: a GENERIC KEYLENGTH of zero, a non-constant KEYLENGTH and a RIDFLD shorter than the key searched",
-      "id": "X22",
-      "status": "ASSUMED (REFUSED where IBM is silent or the layout decides)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "MOVE CONTAINER (rename across channels, TOCHANNEL made when absent, an existing AS overwritten) and STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER (the names of a channel's containers, in creation order, one token per browse) with IBM's RESP / RESP2: INVREQ 4, CHANNELERR 2, CONTAINERERR 10, END 2, TOKENERR 3; refused: a move onto itself or onto the other data type, a browse of a channel that changed, a browse with no channel, and the conditions no modelled state reaches (CHANNELERR 1 / 3, CONTAINERERR 18, INVREQ 30 / 31, ILLOGIC 1)",
-      "id": "X42",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
-      "id": "X67",
-      "status": "REFUSED"
-     }
-    ],
-    "reach": {
-     "case": "carddemo-cardview",
-     "commands_run": [
-      "ABEND",
-      "READ",
-      "RECEIVE MAP",
-      "RETURN",
-      "SEND MAP",
-      "SEND TEXT",
-      "XCTL"
-     ],
-     "registers": [
-      "X14",
-      "X20",
-      "X22",
-      "X27",
-      "X31",
-      "X42"
-     ]
-    },
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 92.0,
-    "branches": {
-     "covered": 69,
-     "total": 75
-    },
-    "branches_net": {
-     "covered": 69,
-     "total": 69
-    },
-    "current": true,
-    "infeasible_netted": [
-     "1300-SETUP-SCREEN-ATTRS:553:true",
-     "2210-EDIT-ACCOUNT:656:false",
-     "2210-EDIT-ACCOUNT:668:false",
-     "9100-GETCARD-BYACCTCARD:759:false",
-     "9100-GETCARD-BYACCTCARD:764:false",
-     "ABEND-ROUTINE:859:true"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "G",
-      "key": "1300-SETUP-SCREEN-ATTRS:553:true",
-      "kind": "IF",
-      "line": 553,
-      "outcome": "true",
-      "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true.",
-      "unit": "1300-SETUP-SCREEN-ATTRS"
-     },
-     {
-      "family": "G",
-      "key": "2210-EDIT-ACCOUNT:656:false",
-      "kind": "IF",
-      "line": 656,
-      "outcome": "false",
-      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here.",
-      "unit": "2210-EDIT-ACCOUNT"
-     },
-     {
-      "family": "G",
-      "key": "2210-EDIT-ACCOUNT:668:false",
-      "kind": "IF",
-      "line": 668,
-      "outcome": "false",
-      "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264.",
-      "unit": "2210-EDIT-ACCOUNT"
-     },
-     {
-      "family": "G",
-      "key": "9100-GETCARD-BYACCTCARD:759:false",
-      "kind": "IF",
-      "line": 759,
-      "outcome": "false",
-      "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true.",
-      "unit": "9100-GETCARD-BYACCTCARD"
-     },
-     {
-      "family": "G",
-      "key": "9100-GETCARD-BYACCTCARD:764:false",
-      "kind": "IF",
-      "line": 764,
-      "outcome": "false",
-      "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true.",
-      "unit": "9100-GETCARD-BYACCTCARD"
-     },
-     {
-      "family": "C",
-      "key": "ABEND-ROUTINE:859:true",
-      "kind": "IF",
-      "line": 859,
-      "outcome": "true",
-      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES.",
-      "unit": "ABEND-ROUTINE"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 30,
-     "live": 30
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cardview",
-      "case_scenarios": 25,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": {
-       "commands_run": [
-        "ABEND",
-        "READ",
-        "RECEIVE-MAP",
-        "RETURN",
-        "SEND-MAP",
-        "SEND-TEXT",
-        "XCTL"
-       ],
-       "coverage": {
-        "branches": {
-         "covered": 69,
-         "total": 75
-        },
-        "paragraphs": {
-         "covered": 30,
-         "live": 30
-        },
-        "uncovered_branches": [
-         "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
-         "line 656 IF false (2210-EDIT-ACCOUNT)",
-         "line 668 IF false (2210-EDIT-ACCOUNT)",
-         "line 759 IF false (9100-GETCARD-BYACCTCARD)",
-         "line 764 IF false (9100-GETCARD-BYACCTCARD)",
-         "line 859 IF true (ABEND-ROUTINE)"
-        ]
-       },
-       "db2": false,
-       "facade": {
-        "passed": 25,
-        "runs": 25
-       },
-       "fault_runs": 3,
-       "java_failed": false,
-       "option_differences": [],
-       "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-       "oracle_matches_pin": true,
-       "records_compared": 65,
-       "records_equal": 65,
-       "runs": 25,
-       "scenarios": 25,
-       "scenarios_equal": 25,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     },
-     {
-      "case": "carddemo-cardview-generated",
-      "case_scenarios": 5,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cardview",
-     "case_scenarios": 25,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": {
-      "commands_run": [
-       "ABEND",
-       "READ",
-       "RECEIVE-MAP",
-       "RETURN",
-       "SEND-MAP",
-       "SEND-TEXT",
-       "XCTL"
-      ],
-      "coverage": {
-       "branches": {
-        "covered": 69,
-        "total": 75
-       },
-       "paragraphs": {
-        "covered": 30,
-        "live": 30
-       },
-       "uncovered_branches": [
-        "line 553 IF true (1300-SETUP-SCREEN-ATTRS)",
-        "line 656 IF false (2210-EDIT-ACCOUNT)",
-        "line 668 IF false (2210-EDIT-ACCOUNT)",
-        "line 759 IF false (9100-GETCARD-BYACCTCARD)",
-        "line 764 IF false (9100-GETCARD-BYACCTCARD)",
-        "line 859 IF true (ABEND-ROUTINE)"
-       ]
-      },
-      "db2": false,
-      "facade": {
-       "passed": 25,
-       "runs": 25
-      },
-      "fault_runs": 3,
-      "java_failed": false,
-      "option_differences": [],
-      "oracle_image": "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-      "oracle_matches_pin": true,
-      "records_compared": 65,
-      "records_equal": 65,
-      "runs": 25,
-      "scenarios": 25,
-      "scenarios_equal": 25,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
-      "verdict": "all equal"
-     },
-     "role": "program"
-    }
-   },
-   "level": "L4",
-   "level_current": true,
-   "mutation": {
-    "accounted": 8,
-    "chosen": 148,
-    "current": true,
-    "det_port": "raw 93% (134/144 caught; 148 of 2190 mutants, seed 0); 2 of 10 survivors unaccounted",
-    "killed": 134,
-    "l5": false,
-    "mutants": 2190,
-    "score": 0.9306,
-    "stale_inputs": [],
-    "survived": 10,
-    "unaccounted": 2
-   },
-   "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 93% (134/144 caught; 148 of 2190 mutants, seed 0); 2 of 10 survivors unaccounted)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:149",
-      "value": "YES"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:148",
-      "value": "CS"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.PARM",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:47",
-      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "samples/proc/BUILDONL.prc:40",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X67"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "READ",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X14",
-      "X22"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27",
-      "X42"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X42"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/cbl/COCRDSLC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X14",
-     "X22",
-     "X27",
-     "X31",
-     "X42"
-    ],
-    "branch_outcomes_unrun": 6,
-    "commands": 8,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "READ"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 263,
-    "translated": 263,
     "whole": true
    }
   },
@@ -22262,23 +22260,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 115,
-    "chosen": 1164,
+    "chosen": 1128,
     "current": true,
-    "det_port": "raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 426,
+    "det_port": "raw 37% (413/1110 caught; 1128 of 1128 mutants, seed 0); 582 of 697 survivors unaccounted",
+    "killed": 413,
     "l5": false,
-    "mutants": 1164,
+    "mutants": 1128,
     "score": 0.3721,
     "stale_inputs": [],
-    "survived": 719,
-    "unaccounted": 604
+    "survived": 697,
+    "unaccounted": 582
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (426/1145 caught; 1164 of 1164 mutants, seed 0); 604 of 719 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 37% (413/1110 caught; 1128 of 1128 mutants, seed 0); 582 of 697 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -23636,24 +23630,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 616,
-    "chosen": 1232,
+    "accounted": 585,
+    "chosen": 1196,
     "current": true,
-    "det_port": "raw 48% (586/1210 caught; 1232 of 1232 mutants, seed 0); 8 of 624 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
-    "killed": 586,
+    "det_port": "raw 49% (573/1175 caught; 1196 of 1196 mutants, seed 0); 17 of 602 survivors unaccounted",
+    "killed": 573,
     "l5": false,
-    "mutants": 1232,
-    "score": 0.4843,
+    "mutants": 1196,
+    "score": 0.4877,
     "stale_inputs": [],
-    "survived": 624,
-    "unaccounted": 8
+    "survived": 602,
+    "unaccounted": 17
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 48% (586/1210 caught; 1232 of 1232 mutants, seed 0); 8 of 624 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 49% (573/1175 caught; 1196 of 1196 mutants, seed 0); 17 of 602 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -24907,20 +24897,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 582,
-    "chosen": 1284,
+    "accounted": 618,
+    "chosen": 1320,
     "current": true,
-    "det_port": "raw 52% (661/1261 caught; 1284 of 1284 mutants, seed 0); 18 of 600 survivors unaccounted",
-    "killed": 661,
+    "det_port": "raw 52% (670/1296 caught; 1320 of 1320 mutants, seed 0); 8 of 626 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 670,
     "l5": false,
-    "mutants": 1284,
-    "score": 0.5242,
+    "mutants": 1320,
+    "score": 0.517,
     "stale_inputs": [],
-    "survived": 600,
-    "unaccounted": 18
+    "survived": 626,
+    "unaccounted": 8
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (661/1261 caught; 1284 of 1284 mutants, seed 0); 18 of 600 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (670/1296 caught; 1320 of 1320 mutants, seed 0); 8 of 626 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -26173,8 +26168,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "python tests/tools/cics_census.py survey --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readacct carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -26192,7 +26187,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:bfbfde09078241258e2225e018b3c532d6d816efd4d3b89ce9adcdc94f865020",
+   "sha256:184a61ee435a6176b8e8d89a57ded9cf878923cecedbd34af5b7f1c60394962a",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -26200,13 +26195,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
-  "translator_commit": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+  "translator_commit": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -26217,8 +26212,8 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 39,
-   "L5": 3
+   "L4": 38,
+   "L5": 4
   },
   "histogram_stale": {
    "L0": 0,
@@ -26249,6 +26244,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+  "fingerprint": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
  }
 }

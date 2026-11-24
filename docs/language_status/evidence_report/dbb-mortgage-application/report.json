@@ -2422,10 +2422,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
   "sweeps": {}
@@ -4878,8 +4878,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "python tests/tools/cics_census.py survey --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4900,13 +4900,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+   "sha": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
    "translator": {
-    "files": 186,
-    "sha256": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+    "files": 188,
+    "sha256": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
    }
   },
-  "translator_commit": "16979a35db87a1f3b32142b90d2d7681f6171de9",
+  "translator_commit": "93da993a1cd2f4bb06082950e9f0c8d60938b804",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -4949,6 +4949,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "27b8a6ee3b5414504501a53346d06d8f333234ca8520825039a2ac30ebc72cd6"
+  "fingerprint": "7b5e31ac02294eb2a214fae4dcdc97227ae0d79d7ebb7e9fcc3427426acf46f3"
  }
 }

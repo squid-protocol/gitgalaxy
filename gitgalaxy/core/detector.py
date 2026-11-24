@@ -1895,23 +1895,29 @@ _C_DEFINE_ALIAS = re.compile(
 
 
 _C_DEFINE_OBJ_BODY = re.compile(
-    r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + "][" + ID_CONTINUE + r"]*)[ \t]+((?:[^\n\\]|\\[^\n]|\\\r?\n){1,4000})",
+    r"^[ \t]*#[ \t]*define[ \t]+([A-Z][A-Z0-9_]{1,63})[ \t]+((?:[^\n\\]|\\[^\n]|\\\r?\n){1,4000})",
     re.M,
 )
+_C_UNDEF_OBJ = re.compile(r"^[ \t]*#[ \t]*undef[ \t]+([A-Z][A-Z0-9_]{1,63})\b", re.M)
+_C_OBJ_STMT_USE = re.compile(r"^[ \t]*([A-Z][A-Z0-9_]{1,63})[ \t]*;", re.M)
 
 
-def c_obj_macro_body_calls(code: str) -> dict[str, frozenset[str]]:
-    """Object-like `#define NAME body` macros in one file whose body calls functions (e.g. libuv `POST` / `PATH`).
+def c_obj_macro_body_calls(code: str) -> dict[str, tuple[frozenset[str], int, int]]:
+    """Object-like ALL-CAPS statement `#define NAME body` macros in one file whose body calls functions
+    (e.g. libuv `POST;` / `PATH;`).
 
-    Only uppercase-containing macro names (len >= 2) are indexed; variants under `#if`/`#else` that disagree
-    with an empty-call branch are dropped (matching `c_macro_body_calls`).
+    Returns `{name: (callees, def_offset, undef_offset)}`. Only statement-shaped bodies (containing `;`)
+    are indexed; variants under `#if`/`#else` that disagree with an empty-call branch are dropped.
     """
     out: dict[str, frozenset[str] | None] = {}
+    def_pos: dict[str, int] = {}
     for m in _C_DEFINE_OBJ_BODY.finditer(code):
         name = m.group(1)
-        if len(name) < 2 or name in _C_STATEMENT_WORDS or not any(ch.isupper() for ch in name):
+        if name in _C_STATEMENT_WORDS:
             continue
         body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(2)))
+        if ";" not in body:
+            continue
         body = re.sub(r"[ \t]*##[ \t]*", "##", body)
         calls = frozenset(
             c
@@ -1920,7 +1926,15 @@ def c_obj_macro_body_calls(code: str) -> dict[str, frozenset[str]]:
         )
         prior = out.get(name, calls)
         out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
-    return {k: v for k, v in out.items() if v}
+        def_pos.setdefault(name, m.start())
+    undef_pos: dict[str, int] = {}
+    if any(out.values()):
+        for m in _C_UNDEF_OBJ.finditer(code):
+            uname = m.group(1)
+            if uname in def_pos and m.start() > def_pos[uname]:
+                undef_pos.setdefault(uname, m.start())
+    n = len(code)
+    return {k: (v, def_pos[k], undef_pos.get(k, n)) for k, v in out.items() if v}
 
 
 def c_macro_alias_targets(code: str) -> dict[str, set[str]]:
@@ -3972,8 +3986,7 @@ class StructuralExtractor:
         # #8161 (J1): the file's field types, primitives and arrays included (java_arg_types)
         self._java_field_values: dict[str, str | None] | None = None
         self._kt_file_index: overload_types.KotlinFileIndex | None = None
-        self._c_obj_macro_calls: dict[str, frozenset[str]] = {}
-        self._c_obj_macro_re: re.Pattern[str] | None = None
+        self._c_obj_macro_calls: dict[str, tuple[frozenset[str], int, int]] = {}
         # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
         self._name_renames: dict[str, str] = {}
 
@@ -7890,14 +7903,9 @@ class StructuralExtractor:
             if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id not in overload_types.LANGS
             else None
         )
-        self._c_obj_macro_calls = {}
-        self._c_obj_macro_re = None
-        if lang_id in _UNSET_TOGGLE_LANGS and "#" in code and "define" in code:
-            self._c_obj_macro_calls = c_obj_macro_body_calls(code)
-            if self._c_obj_macro_calls:
-                self._c_obj_macro_re = re.compile(
-                    r"\b(?:" + "|".join(re.escape(k) for k in sorted(self._c_obj_macro_calls)) + r")\b"
-                )
+        self._c_obj_macro_calls = (
+            c_obj_macro_body_calls(code) if lang_id in _UNSET_TOGGLE_LANGS and "#" in code and "define" in code else {}
+        )
         self._kt_file_index = None
         if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id in overload_types.LANGS:
             # #8161 (PR 5): C# / Kotlin field and property types (core/overload_types.py)
@@ -12743,11 +12751,12 @@ class StructuralExtractor:
                     raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
         # #6770: a macro invoked here calls what its body calls, as the compiler's expansion makes it this unit's call.
-        if self._c_obj_macro_re is not None and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
+        if self._c_obj_macro_calls and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
             obj_callees = [
                 c
-                for om in dict.fromkeys(self._c_obj_macro_re.findall(safe_block))
-                for c in sorted(self._c_obj_macro_calls.get(om, ()))
+                for om in dict.fromkeys(_C_OBJ_STMT_USE.findall(safe_block))
+                if (entry := self._c_obj_macro_calls.get(om)) is not None and entry[1] <= start_idx < entry[2]
+                for c in sorted(entry[0])
                 if c != name
             ]
             if obj_callees:

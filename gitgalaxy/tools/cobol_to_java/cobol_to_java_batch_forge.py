@@ -1465,6 +1465,41 @@ public class JclSteps {
         return idcams(name, jcl, jobCond, cond, ifCond, dds, deck, "");
     }
 
+    /**
+     * A catalogued KSDS whose dataset file the resolver finds (a cluster another job loaded) holds that file's records:
+     * fixed-length ones (RECORDSIZE avg = max), cut at that length and kept in key order. A cluster with no such file
+     * stays empty; a file that is not a whole number of records is refused by name, never truncated.
+     */
+    private void loadSeededClusters(String jcl, Map<String, Idcams.Entry> catalog) {
+        for (Idcams.Entry e : catalog.values()) {
+            if (!(e instanceof Idcams.Cluster c) || !c.records.isEmpty() || c.avg != c.max || c.avg <= 0) {
+                continue;
+            }
+            Path p = datasets.path(new Dd(c.name, c.name, null, null, null));
+            if (p == null || !Files.isRegularFile(p)) {
+                continue;
+            }
+            try {
+                byte[] all = Files.readAllBytes(p);
+                if (all.length % c.avg != 0) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + c.name + " dataset holds "
+                        + all.length + " bytes, not a whole number of RECORDSIZE " + c.avg + " records");
+                }
+                List<byte[]> recs = new ArrayList<>();
+                for (int i = 0; i < all.length; i += c.avg) {
+                    recs.add(java.util.Arrays.copyOfRange(all, i, i + c.avg));
+                }
+                if (c.indexed) {
+                    recs.sort((a, b) -> java.util.Arrays.compareUnsigned(a, c.keyOff, c.keyOff + c.keyLen,
+                        b, c.keyOff, c.keyOff + c.keyLen));
+                }
+                c.records = recs;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+    }
+
     /** `idcams`, the job's catalog first holding what `seed` (an IDCAMS deck, no return code kept) defines. */
     public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
             String deck, String seed) {
@@ -1476,6 +1511,7 @@ public class JclSteps {
                 } catch (Idcams.Refused e) {
                     throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + e.getMessage(), e);
                 }
+                loadSeededClusters(jcl, catalog);
             }
             Map<String, Object> ddMap = new LinkedHashMap<>();
             Map<String, Path> files = new LinkedHashMap<>();

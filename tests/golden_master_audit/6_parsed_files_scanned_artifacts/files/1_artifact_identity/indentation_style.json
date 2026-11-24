@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Spaces",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Spaces"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "Neutral / No Indentation"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "Spaces",
+      "crystal/crystal_stdlib_http/client_response.cr": "Spaces",
+      "crystal/crystal_stdlib_http/common.cr": "Spaces",
+      "crystal/crystal_stdlib_http/content.cr": "Spaces",
+      "crystal/crystal_stdlib_http/cookie.cr": "Spaces",
+      "crystal/crystal_stdlib_http/cookies.cr": "Spaces",
+      "crystal/crystal_stdlib_http/formdata.cr": "Spaces",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "Spaces",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "Spaces",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "Spaces",
+      "crystal/crystal_stdlib_http/headers.cr": "Spaces",
+      "crystal/crystal_stdlib_http/log.cr": "Spaces",
+      "crystal/crystal_stdlib_http/params.cr": "Spaces",
+      "crystal/crystal_stdlib_http/request.cr": "Spaces",
+      "crystal/crystal_stdlib_http/server.cr": "Spaces",
+      "crystal/crystal_stdlib_http/server_context.cr": "Spaces",
+      "crystal/crystal_stdlib_http/server_handler.cr": "Spaces",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "Spaces"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "Spaces",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "Spaces",
+      "crystal/kemal_framework/kemal_cli.cr": "Spaces",
+      "crystal/kemal_framework/kemal_config.cr": "Spaces",
+      "crystal/kemal_framework/kemal_dsl.cr": "Spaces",
+      "crystal/kemal_framework/kemal_event_stream.cr": "Spaces",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "Spaces",
+      "crystal/kemal_framework/kemal_ext_context.cr": "Spaces",
+      "crystal/kemal_framework/kemal_ext_response.cr": "Spaces",
+      "crystal/kemal_framework/kemal_file_upload.cr": "Spaces",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "Spaces",
+      "crystal/kemal_framework/kemal_handler.cr": "Spaces"
+    },
     "csd": {
       "csd/SOURCES.md": "Neutral / No Indentation"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "Tabs",
       "dockerfile/moby/test_targets/windows.Dockerfile": "Spaces"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "Neutral / No Indentation"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "Spaces",
+      "elixir/elixir_stdlib/agent.ex": "Spaces",
+      "elixir/elixir_stdlib/agent_server.ex": "Spaces",
+      "elixir/elixir_stdlib/application.ex": "Spaces",
+      "elixir/elixir_stdlib/atom.ex": "Spaces",
+      "elixir/elixir_stdlib/base.ex": "Spaces",
+      "elixir/elixir_stdlib/behaviour.ex": "Spaces",
+      "elixir/elixir_stdlib/bitwise.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_date.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_duration.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_time.ex": "Spaces",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "Spaces",
+      "elixir/elixir_stdlib/code_fragment.ex": "Spaces"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "Spaces",
+      "elixir/elixir_tests/agent_test.exs": "Spaces",
+      "elixir/elixir_tests/application_test.exs": "Spaces",
+      "elixir/elixir_tests/atom_test.exs": "Spaces"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "Neutral / No Indentation",
+      "elixir/phoenix_framework/channel.ex": "Spaces",
+      "elixir/phoenix_framework/channel_server.ex": "Spaces",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "Spaces",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "Spaces",
+      "elixir/phoenix_framework/code_reloader_server.ex": "Spaces",
+      "elixir/phoenix_framework/config.ex": "Spaces",
+      "elixir/phoenix_framework/controller_pipeline.ex": "Spaces",
+      "elixir/phoenix_framework/debug.ex": "Spaces",
+      "elixir/phoenix_framework/digester.ex": "Spaces",
+      "elixir/phoenix_framework/digester_compressor.ex": "Spaces",
+      "elixir/phoenix_framework/digester_gzip.ex": "Spaces",
+      "elixir/phoenix_framework/endpoint.ex": "Spaces",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "Spaces"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "Neutral / No Indentation"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "Spaces",
       "embedded_python/meow_turtle/tsl2591.py": "Spaces",
       "embedded_python/meow_turtle/vibration_driver.py": "Spaces"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "Neutral / No Indentation"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_app.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_children.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_req.erl": "Tabs",
+      "erlang/cowboy_http_server/cowboy_router.erl": "Tabs"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_app.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "Mixed (10.0% Spaces / 90.0% Tabs)",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "Tabs",
+      "erlang/ranch_socket_pool/ranch_server.erl": "Tabs"
     },
     "fortran": {
       "fortran/SOURCES.md": "Neutral / No Indentation"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "Spaces",
       "fortran/wrf/sourcetree.py": "Spaces",
       "fortran/wrf/wrf_timeseries.F": "Spaces"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "Neutral / No Indentation"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "Spaces",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "Spaces",
+      "fsharp/giraffe_web/Core.fs": "Spaces",
+      "fsharp/giraffe_web/Csrf.fs": "Spaces",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "Spaces",
+      "fsharp/giraffe_web/EndpointRouting.fs": "Spaces",
+      "fsharp/giraffe_web/FormatExpressions.fs": "Spaces",
+      "fsharp/giraffe_web/Helpers.fs": "Spaces",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "Spaces",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "Spaces",
+      "fsharp/giraffe_web/Json.fs": "Spaces",
+      "fsharp/giraffe_web/Middleware.fs": "Spaces",
+      "fsharp/giraffe_web/ModelParser.fs": "Spaces",
+      "fsharp/giraffe_web/ModelValidation.fs": "Spaces",
+      "fsharp/giraffe_web/Negotiation.fs": "Spaces",
+      "fsharp/giraffe_web/Preconditional.fs": "Spaces",
+      "fsharp/giraffe_web/RequestLimitation.fs": "Spaces",
+      "fsharp/giraffe_web/ResponseCaching.fs": "Spaces",
+      "fsharp/giraffe_web/Routing.fs": "Spaces",
+      "fsharp/giraffe_web/ShortGuid.fs": "Spaces",
+      "fsharp/giraffe_web/Streaming.fs": "Spaces",
+      "fsharp/giraffe_web/Xml.fs": "Spaces"
     },
     "go": {
       "go/SOURCES.md": "Neutral / No Indentation"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "Spaces",
       "haskell/pandoc/Parsing.hs": "Spaces",
       "haskell/pandoc/Shared.hs": "Spaces"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "Neutral / No Indentation"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "Neutral / No Indentation",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "Spaces",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "Spaces"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "Neutral / No Indentation",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "Spaces",
       "json/kafka/message/VoteRequest.json": "Spaces"
     },
+    "julia": {
+      "julia/SOURCES.md": "Neutral / No Indentation"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "Spaces",
+      "julia/dataframes_jl/LICENSE.md": "Neutral / No Indentation",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "Mixed (99.5% Spaces / 0.5% Tabs)",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "Spaces",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "Spaces",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "Spaces",
+      "julia/dataframes_jl/dataframe_insertion.jl": "Spaces",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "Spaces",
+      "julia/dataframes_jl/dataframerow_show.jl": "Spaces",
+      "julia/dataframes_jl/deprecated.jl": "Neutral / No Indentation",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "Spaces",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "Spaces",
+      "julia/dataframes_jl/join_core.jl": "Spaces",
+      "julia/dataframes_jl/join_inplace.jl": "Spaces",
+      "julia/dataframes_jl/other_broadcasting.jl": "Spaces",
+      "julia/dataframes_jl/other_index.jl": "Spaces",
+      "julia/dataframes_jl/other_metadata.jl": "Spaces",
+      "julia/dataframes_jl/other_names.jl": "Spaces",
+      "julia/dataframes_jl/other_precompile.jl": "Spaces"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "Neutral / No Indentation"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "Spaces"
     },
+    "nim": {
+      "nim/SOURCES.md": "Neutral / No Indentation"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "Spaces",
+      "nim/nim_stdlib/async.nim": "Spaces",
+      "nim/nim_stdlib/asyncfile.nim": "Spaces",
+      "nim/nim_stdlib/asyncfutures.nim": "Spaces",
+      "nim/nim_stdlib/asynchttpserver.nim": "Spaces",
+      "nim/nim_stdlib/asyncmacro.nim": "Spaces",
+      "nim/nim_stdlib/asyncnet.nim": "Spaces",
+      "nim/nim_stdlib/asyncstreams.nim": "Spaces",
+      "nim/nim_stdlib/base64.nim": "Spaces",
+      "nim/nim_stdlib/bitops.nim": "Spaces",
+      "nim/nim_stdlib/browsers.nim": "Spaces",
+      "nim/nim_stdlib/cgi.nim": "Spaces",
+      "nim/nim_stdlib/collections_chains.nim": "Spaces",
+      "nim/nim_stdlib/collections_critbits.nim": "Spaces",
+      "nim/nim_stdlib/collections_deques.nim": "Spaces",
+      "nim/nim_stdlib/collections_hashcommon.nim": "Spaces",
+      "nim/nim_stdlib/collections_heapqueue.nim": "Spaces",
+      "nim/nim_stdlib/collections_intsets.nim": "Spaces",
+      "nim/nim_stdlib/collections_lists.nim": "Spaces",
+      "nim/nim_stdlib/collections_rtarrays.nim": "Spaces",
+      "nim/nim_stdlib/collections_sequtils.nim": "Spaces",
+      "nim/nim_stdlib/collections_setimpl.nim": "Spaces",
+      "nim/nim_stdlib/collections_sets.nim": "Spaces",
+      "nim/nim_stdlib/collections_sharedlist.nim": "Spaces",
+      "nim/nim_stdlib/collections_sharedtables.nim": "Spaces",
+      "nim/nim_stdlib/collections_tableimpl.nim": "Spaces",
+      "nim/nim_stdlib/colors.nim": "Spaces",
+      "nim/nim_stdlib/complex.nim": "Spaces",
+      "nim/nim_stdlib/concurrency_atomics.nim": "Spaces",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "Spaces",
+      "nim/nim_stdlib/copying.txt": "Neutral / No Indentation"
+    },
     "nix": {
       "nix/SOURCES.md": "Neutral / No Indentation"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "Tabs",
       "objective-c/worldwideweb/HyperText.m": "Mixed (75.2% Spaces / 24.8% Tabs)",
       "objective-c/worldwideweb/TcpAccess.m": "Mixed (83.9% Spaces / 16.1% Tabs)"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "Neutral / No Indentation"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "Neutral / No Indentation",
+      "ocaml/janestreet_base/applicative.ml": "Spaces",
+      "ocaml/janestreet_base/applicative.mli": "Neutral / No Indentation",
+      "ocaml/janestreet_base/applicative_intf.ml": "Spaces",
+      "ocaml/janestreet_base/array.ml": "Spaces",
+      "ocaml/janestreet_base/array.mli": "Neutral / No Indentation",
+      "ocaml/janestreet_base/array0.ml": "Spaces",
+      "ocaml/janestreet_base/array0.mli": "Spaces",
+      "ocaml/janestreet_base/array_intf.ml": "Spaces",
+      "ocaml/janestreet_base/array_permute.ml": "Spaces",
+      "ocaml/janestreet_base/array_permute.mli": "Neutral / No Indentation",
+      "ocaml/janestreet_base/avltree.ml": "Spaces",
+      "ocaml/janestreet_base/avltree.mli": "Spaces",
+      "ocaml/janestreet_base/backtrace.ml": "Spaces",
+      "ocaml/janestreet_base/backtrace.mli": "Spaces",
+      "ocaml/janestreet_base/base.ml": "Spaces",
+      "ocaml/janestreet_base/binary_search.ml": "Spaces",
+      "ocaml/janestreet_base/binary_search.mli": "Spaces",
+      "ocaml/janestreet_base/binary_searchable.ml": "Spaces",
+      "ocaml/janestreet_base/binary_searchable.mli": "Neutral / No Indentation",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "Spaces",
+      "ocaml/janestreet_base/blit.ml": "Spaces",
+      "ocaml/janestreet_base/blit.mli": "Neutral / No Indentation",
+      "ocaml/janestreet_base/blit_intf.ml": "Spaces",
+      "ocaml/janestreet_base/bool.ml": "Spaces",
+      "ocaml/janestreet_base/bool.mli": "Spaces",
+      "ocaml/janestreet_base/bool0.ml": "Spaces",
+      "ocaml/janestreet_base/bool0.mli": "Spaces",
+      "ocaml/janestreet_base/buffer.ml": "Spaces",
+      "ocaml/janestreet_base/buffer.mli": "Spaces",
+      "ocaml/janestreet_base/buffer_intf.ml": "Spaces"
     },
     "perl": {
       "perl/SOURCES.md": "Neutral / No Indentation"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "Spaces",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "Spaces",
       "pli/zopeneditor_sample/PSAM2.pli": "Spaces"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "Neutral / No Indentation"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "Tabs",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "Tabs",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "Tabs",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "Neutral / No Indentation"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/halfvec.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/sparsevec.sql": "Neutral / No Indentation",
+      "postgresql/pgvector_tests/vector_type.sql": "Neutral / No Indentation"
     },
     "powershell": {
       "powershell/SOURCES.md": "Neutral / No Indentation"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "Mixed (75.0% Spaces / 25.0% Tabs)",
       "python/wtfpython/notebook_generator.py": "Spaces",
       "python/wtfpython/noxfile.py": "Spaces"
+    },
+    "r": {
+      "r/SOURCES.md": "Neutral / No Indentation"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "Neutral / No Indentation",
+      "r/dplyr_package/across.R": "Spaces",
+      "r/dplyr_package/all-equal.R": "Spaces",
+      "r/dplyr_package/arrange.R": "Spaces",
+      "r/dplyr_package/bind-cols.R": "Spaces",
+      "r/dplyr_package/bind-rows.R": "Spaces",
+      "r/dplyr_package/by.R": "Spaces",
+      "r/dplyr_package/case-match.R": "Spaces",
+      "r/dplyr_package/case-when.R": "Spaces",
+      "r/dplyr_package/coalesce.R": "Spaces",
+      "r/dplyr_package/colwise-arrange.R": "Spaces",
+      "r/dplyr_package/colwise-distinct.R": "Spaces",
+      "r/dplyr_package/colwise-filter.R": "Spaces",
+      "r/dplyr_package/colwise-funs.R": "Spaces",
+      "r/dplyr_package/colwise-group-by.R": "Spaces",
+      "r/dplyr_package/colwise-mutate.R": "Spaces"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "Neutral / No Indentation",
+      "r/rlang_package/aaa-topics.R": "Spaces",
+      "r/rlang_package/aaa.R": "Spaces",
+      "r/rlang_package/arg.R": "Spaces",
+      "r/rlang_package/attr.R": "Spaces",
+      "r/rlang_package/bytes.R": "Spaces",
+      "r/rlang_package/c-lib.R": "Spaces",
+      "r/rlang_package/call.R": "Spaces",
+      "r/rlang_package/cnd-abort.R": "Spaces",
+      "r/rlang_package/cnd-entrace.R": "Spaces",
+      "r/rlang_package/cnd-handlers.R": "Spaces",
+      "r/rlang_package/cnd-last.R": "Spaces",
+      "r/rlang_package/cnd-message.R": "Spaces",
+      "r/rlang_package/cnd-signal.R": "Spaces",
+      "r/rlang_package/cnd.R": "Spaces",
+      "r/rlang_package/deparse.R": "Spaces"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "Neutral / No Indentation",

@@ -1141,6 +1141,43 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "Unknown Architect",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "Unknown Architect"
     },
+    "crystal": {
+      "crystal/SOURCES.md": "Unknown Architect"
+    },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/client_response.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/common.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/content.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/cookie.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/cookies.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/formdata.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/formdata_parser.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/headers.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/log.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/params.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/request.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/server.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/server_context.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/server_handler.cr": "Unknown Architect",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "Unknown Architect"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_base_log_handler.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_cli.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_config.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_dsl.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_event_stream.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_ext_context.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_ext_response.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_file_upload.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "Unknown Architect",
+      "crystal/kemal_framework/kemal_handler.cr": "Unknown Architect"
+    },
     "csd": {
       "csd/SOURCES.md": "Unknown Architect"
     },
@@ -1325,6 +1362,49 @@
       "dockerfile/moby/test_targets/syscall.Dockerfile": "Unknown Architect",
       "dockerfile/moby/test_targets/windows.Dockerfile": "@jhowardmsft"
     },
+    "elixir": {
+      "elixir/SOURCES.md": "Unknown Architect"
+    },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/access.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/agent.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/agent_server.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/application.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/atom.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/base.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/behaviour.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/bitwise.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_date.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_date_range.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_duration.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_naive_datetime.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_time.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/calendar_time_zone_database.ex": "Unknown Architect",
+      "elixir/elixir_stdlib/code_fragment.ex": "Unknown Architect"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/access_test.exs": "Unknown Architect",
+      "elixir/elixir_tests/agent_test.exs": "Unknown Architect",
+      "elixir/elixir_tests/application_test.exs": "Unknown Architect",
+      "elixir/elixir_tests/atom_test.exs": "Unknown Architect"
+    },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/LICENSE.md": "Unknown Architect",
+      "elixir/phoenix_framework/channel.ex": "Unknown Architect",
+      "elixir/phoenix_framework/channel_server.ex": "Unknown Architect",
+      "elixir/phoenix_framework/code_reloader_mix_listener.ex": "Unknown Architect",
+      "elixir/phoenix_framework/code_reloader_proxy.ex": "Unknown Architect",
+      "elixir/phoenix_framework/code_reloader_server.ex": "Unknown Architect",
+      "elixir/phoenix_framework/config.ex": "Unknown Architect",
+      "elixir/phoenix_framework/controller_pipeline.ex": "Unknown Architect",
+      "elixir/phoenix_framework/debug.ex": "Unknown Architect",
+      "elixir/phoenix_framework/digester.ex": "Unknown Architect",
+      "elixir/phoenix_framework/digester_compressor.ex": "Unknown Architect",
+      "elixir/phoenix_framework/digester_gzip.ex": "Unknown Architect",
+      "elixir/phoenix_framework/endpoint.ex": "Unknown Architect",
+      "elixir/phoenix_framework/endpoint_cowboy2_adapter.ex": "Unknown Architect"
+    },
     "embedded_python": {
       "embedded_python/SOURCES.md": "Unknown Architect"
     },
@@ -1343,6 +1423,41 @@
       "embedded_python/meow_turtle/tester.py": "Unknown Architect",
       "embedded_python/meow_turtle/tsl2591.py": "Unknown Architect",
       "embedded_python/meow_turtle/vibration_driver.py": "Unknown Architect"
+    },
+    "erlang": {
+      "erlang/SOURCES.md": "Unknown Architect"
+    },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_app.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_children.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_clear.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_clock.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_compress_h.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_constraints.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_handler.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_http3.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_loop.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_middleware.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_req.erl": "Unknown Architect",
+      "erlang/cowboy_http_server/cowboy_router.erl": "Unknown Architect"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_acceptor.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_app.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_crc32c.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_listener_sup.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": "Unknown Architect",
+      "erlang/ranch_socket_pool/ranch_server.erl": "Unknown Architect"
     },
     "fortran": {
       "fortran/SOURCES.md": "Unknown Architect"
@@ -1363,6 +1478,33 @@
       "fortran/wrf/run_convert_e2c.ksh": "Sujata Pattanayak,   CAS, IIT Delhi, India",
       "fortran/wrf/sourcetree.py": "Unknown Architect",
       "fortran/wrf/wrf_timeseries.F": "Unknown Architect"
+    },
+    "fsharp": {
+      "fsharp/SOURCES.md": "Unknown Architect"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Auth.fs": "Unknown Architect",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Core.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Csrf.fs": "Unknown Architect",
+      "fsharp/giraffe_web/DateTimeExtensions.fs": "Unknown Architect",
+      "fsharp/giraffe_web/EndpointRouting.fs": "Unknown Architect",
+      "fsharp/giraffe_web/FormatExpressions.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Helpers.fs": "Unknown Architect",
+      "fsharp/giraffe_web/HttpContextExtensions.fs": "Unknown Architect",
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Json.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Middleware.fs": "Unknown Architect",
+      "fsharp/giraffe_web/ModelParser.fs": "Unknown Architect",
+      "fsharp/giraffe_web/ModelValidation.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Negotiation.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Preconditional.fs": "Unknown Architect",
+      "fsharp/giraffe_web/RequestLimitation.fs": "Unknown Architect",
+      "fsharp/giraffe_web/ResponseCaching.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Routing.fs": "Unknown Architect",
+      "fsharp/giraffe_web/ShortGuid.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Streaming.fs": "Unknown Architect",
+      "fsharp/giraffe_web/Xml.fs": "Unknown Architect"
     },
     "go": {
       "go/SOURCES.md": "Unknown Architect"
@@ -1760,6 +1902,41 @@
       "haskell/pandoc/Pandoc.hs": "John MacFarlane",
       "haskell/pandoc/Parsing.hs": "John MacFarlane",
       "haskell/pandoc/Shared.hs": "John MacFarlane"
+    },
+    "hcl": {
+      "hcl/SOURCES.md": "Unknown Architect"
+    },
+    "hcl/terraform_aws_vpc": {
+      "hcl/terraform_aws_vpc/examples_block-public-access_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_block-public-access_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_block-public-access_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_block-public-access_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_complete_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_complete_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_complete_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_complete_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_flow-log_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_flow-log_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_flow-log_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_flow-log_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipam_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipam_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipam_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipam_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-dualstack_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_ipv6-only_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_issues_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_issues_outputs.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_issues_variables.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_issues_versions.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_main.tf": "Unknown Architect",
+      "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": "Unknown Architect"
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": "Unknown Architect",
@@ -2182,6 +2359,42 @@
       "json/kafka/message/SaslAuthenticateRequest.json": "Unknown Architect",
       "json/kafka/message/VoteRequest.json": "Unknown Architect"
     },
+    "julia": {
+      "julia/SOURCES.md": "Unknown Architect"
+    },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/DataFrames.jl": "Unknown Architect",
+      "julia/dataframes_jl/LICENSE.md": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_io.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_prettytables.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "Unknown Architect",
+      "julia/dataframes_jl/abstractdataframe_unique.jl": "Unknown Architect",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "Unknown Architect",
+      "julia/dataframes_jl/dataframe_insertion.jl": "Unknown Architect",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "Unknown Architect",
+      "julia/dataframes_jl/dataframerow_show.jl": "Unknown Architect",
+      "julia/dataframes_jl/deprecated.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_show.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "Unknown Architect",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "Unknown Architect",
+      "julia/dataframes_jl/join_core.jl": "Unknown Architect",
+      "julia/dataframes_jl/join_inplace.jl": "Unknown Architect",
+      "julia/dataframes_jl/other_broadcasting.jl": "Unknown Architect",
+      "julia/dataframes_jl/other_index.jl": "Unknown Architect",
+      "julia/dataframes_jl/other_metadata.jl": "Unknown Architect",
+      "julia/dataframes_jl/other_names.jl": "Unknown Architect",
+      "julia/dataframes_jl/other_precompile.jl": "Unknown Architect"
+    },
     "kotlin": {
       "kotlin/SOURCES.md": "Unknown Architect"
     },
@@ -2483,6 +2696,42 @@
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "Unknown Architect"
     },
+    "nim": {
+      "nim/SOURCES.md": "Unknown Architect"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "Unknown Architect",
+      "nim/nim_stdlib/async.nim": "Unknown Architect",
+      "nim/nim_stdlib/asyncfile.nim": "Unknown Architect",
+      "nim/nim_stdlib/asyncfutures.nim": "Unknown Architect",
+      "nim/nim_stdlib/asynchttpserver.nim": "Unknown Architect",
+      "nim/nim_stdlib/asyncmacro.nim": "Unknown Architect",
+      "nim/nim_stdlib/asyncnet.nim": "Unknown Architect",
+      "nim/nim_stdlib/asyncstreams.nim": "Unknown Architect",
+      "nim/nim_stdlib/base64.nim": "Unknown Architect",
+      "nim/nim_stdlib/bitops.nim": "Unknown Architect",
+      "nim/nim_stdlib/browsers.nim": "Unknown Architect",
+      "nim/nim_stdlib/cgi.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_chains.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_critbits.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_deques.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_hashcommon.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_heapqueue.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_intsets.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_lists.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_rtarrays.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_sequtils.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_setimpl.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_sets.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_sharedlist.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_sharedtables.nim": "Unknown Architect",
+      "nim/nim_stdlib/collections_tableimpl.nim": "Unknown Architect",
+      "nim/nim_stdlib/colors.nim": "Unknown Architect",
+      "nim/nim_stdlib/complex.nim": "Unknown Architect",
+      "nim/nim_stdlib/concurrency_atomics.nim": "Unknown Architect",
+      "nim/nim_stdlib/concurrency_cpuinfo.nim": "Unknown Architect",
+      "nim/nim_stdlib/copying.txt": "Unknown Architect"
+    },
     "nix": {
       "nix/SOURCES.md": "Unknown Architect"
     },
@@ -2507,6 +2756,42 @@
       "objective-c/worldwideweb/HyperText.h": "Unknown Architect",
       "objective-c/worldwideweb/HyperText.m": "Unknown Architect",
       "objective-c/worldwideweb/TcpAccess.m": "Unknown Architect"
+    },
+    "ocaml": {
+      "ocaml/SOURCES.md": "Unknown Architect"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/LICENSE.md": "Unknown Architect",
+      "ocaml/janestreet_base/applicative.ml": "Unknown Architect",
+      "ocaml/janestreet_base/applicative.mli": "Unknown Architect",
+      "ocaml/janestreet_base/applicative_intf.ml": "Unknown Architect",
+      "ocaml/janestreet_base/array.ml": "Unknown Architect",
+      "ocaml/janestreet_base/array.mli": "Unknown Architect",
+      "ocaml/janestreet_base/array0.ml": "Unknown Architect",
+      "ocaml/janestreet_base/array0.mli": "Unknown Architect",
+      "ocaml/janestreet_base/array_intf.ml": "Unknown Architect",
+      "ocaml/janestreet_base/array_permute.ml": "Unknown Architect",
+      "ocaml/janestreet_base/array_permute.mli": "Unknown Architect",
+      "ocaml/janestreet_base/avltree.ml": "Unknown Architect",
+      "ocaml/janestreet_base/avltree.mli": "Unknown Architect",
+      "ocaml/janestreet_base/backtrace.ml": "Unknown Architect",
+      "ocaml/janestreet_base/backtrace.mli": "Unknown Architect",
+      "ocaml/janestreet_base/base.ml": "Unknown Architect",
+      "ocaml/janestreet_base/binary_search.ml": "Unknown Architect",
+      "ocaml/janestreet_base/binary_search.mli": "Unknown Architect",
+      "ocaml/janestreet_base/binary_searchable.ml": "Unknown Architect",
+      "ocaml/janestreet_base/binary_searchable.mli": "Unknown Architect",
+      "ocaml/janestreet_base/binary_searchable_intf.ml": "Unknown Architect",
+      "ocaml/janestreet_base/blit.ml": "Unknown Architect",
+      "ocaml/janestreet_base/blit.mli": "Unknown Architect",
+      "ocaml/janestreet_base/blit_intf.ml": "Unknown Architect",
+      "ocaml/janestreet_base/bool.ml": "Unknown Architect",
+      "ocaml/janestreet_base/bool.mli": "Unknown Architect",
+      "ocaml/janestreet_base/bool0.ml": "Unknown Architect",
+      "ocaml/janestreet_base/bool0.mli": "Unknown Architect",
+      "ocaml/janestreet_base/buffer.ml": "Unknown Architect",
+      "ocaml/janestreet_base/buffer.mli": "Unknown Architect",
+      "ocaml/janestreet_base/buffer_intf.ml": "Unknown Architect"
     },
     "perl": {
       "perl/SOURCES.md": "Unknown Architect"
@@ -2646,6 +2931,28 @@
       "pli/zopeneditor_sample/PSAM1.pli": "DOUG STOUT",
       "pli/zopeneditor_sample/PSAM1LIB.pli": "DOUG STOUT",
       "pli/zopeneditor_sample/PSAM2.pli": "DOUG STOUT"
+    },
+    "postgresql": {
+      "postgresql/SOURCES.md": "Unknown Architect"
+    },
+    "postgresql/pgvector_extension": {
+      "postgresql/pgvector_extension/vector--0.1.0--0.1.1.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.1--0.1.3.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.3--0.1.4.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.4--0.1.5.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.5--0.1.6.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.6--0.1.7.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.7--0.1.8.sql": "Unknown Architect",
+      "postgresql/pgvector_extension/vector--0.1.8--0.2.0.sql": "Unknown Architect"
+    },
+    "postgresql/pgvector_tests": {
+      "postgresql/pgvector_tests/cast.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/halfvec.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/hnsw_sparsevec.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/hnsw_vector.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/ivfflat_vector.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/sparsevec.sql": "Unknown Architect",
+      "postgresql/pgvector_tests/vector_type.sql": "Unknown Architect"
     },
     "powershell": {
       "powershell/SOURCES.md": "Unknown Architect"
@@ -3150,6 +3457,45 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "Unknown Architect",
       "python/wtfpython/notebook_generator.py": "Unknown Architect",
       "python/wtfpython/noxfile.py": "Unknown Architect"
+    },
+    "r": {
+      "r/SOURCES.md": "Unknown Architect"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/LICENSE.md": "Unknown Architect",
+      "r/dplyr_package/across.R": "Unknown Architect",
+      "r/dplyr_package/all-equal.R": "Unknown Architect",
+      "r/dplyr_package/arrange.R": "Unknown Architect",
+      "r/dplyr_package/bind-cols.R": "Unknown Architect",
+      "r/dplyr_package/bind-rows.R": "Unknown Architect",
+      "r/dplyr_package/by.R": "Unknown Architect",
+      "r/dplyr_package/case-match.R": "Unknown Architect",
+      "r/dplyr_package/case-when.R": "Unknown Architect",
+      "r/dplyr_package/coalesce.R": "Unknown Architect",
+      "r/dplyr_package/colwise-arrange.R": "Unknown Architect",
+      "r/dplyr_package/colwise-distinct.R": "Unknown Architect",
+      "r/dplyr_package/colwise-filter.R": "Unknown Architect",
+      "r/dplyr_package/colwise-funs.R": "Unknown Architect",
+      "r/dplyr_package/colwise-group-by.R": "Unknown Architect",
+      "r/dplyr_package/colwise-mutate.R": "Unknown Architect"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/LICENSE.md": "Unknown Architect",
+      "r/rlang_package/aaa-topics.R": "Unknown Architect",
+      "r/rlang_package/aaa.R": "Unknown Architect",
+      "r/rlang_package/arg.R": "Unknown Architect",
+      "r/rlang_package/attr.R": "Unknown Architect",
+      "r/rlang_package/bytes.R": "Unknown Architect",
+      "r/rlang_package/c-lib.R": "Unknown Architect",
+      "r/rlang_package/call.R": "Unknown Architect",
+      "r/rlang_package/cnd-abort.R": "Unknown Architect",
+      "r/rlang_package/cnd-entrace.R": "Unknown Architect",
+      "r/rlang_package/cnd-handlers.R": "Unknown Architect",
+      "r/rlang_package/cnd-last.R": "Unknown Architect",
+      "r/rlang_package/cnd-message.R": "Unknown Architect",
+      "r/rlang_package/cnd-signal.R": "Unknown Architect",
+      "r/rlang_package/cnd.R": "Unknown Architect",
+      "r/rlang_package/deparse.R": "Unknown Architect"
     },
     "rexx": {
       "rexx/PROVENANCE.md": "Unknown Architect",

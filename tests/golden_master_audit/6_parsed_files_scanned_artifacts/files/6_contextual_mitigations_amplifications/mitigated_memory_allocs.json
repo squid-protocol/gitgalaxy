@@ -67,6 +67,11 @@
       "lua/cosmopolitan/sort.lua": "1 instances",
       "lua/cosmopolitan/tracegc.lua": "3 instances"
     },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/asyncfile.nim": "4 instances",
+      "nim/nim_stdlib/asynchttpserver.nim": "1 instances",
+      "nim/nim_stdlib/collections_sharedtables.nim": "1 instances"
+    },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "2 instances",
       "objective-c/worldwideweb/HText.c": "3 instances",
@@ -110,6 +115,9 @@
     "php/wordpress": {
       "php/wordpress/class-wp-query.php": "3 instances",
       "php/wordpress/wp-settings.php": "11 instances"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/across.R": "1 instances"
     },
     "scheme/racket": {
       "scheme/racket/eval.c": "3 instances",

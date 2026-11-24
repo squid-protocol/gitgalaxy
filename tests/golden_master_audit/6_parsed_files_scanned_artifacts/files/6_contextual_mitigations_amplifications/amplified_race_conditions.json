@@ -40,6 +40,9 @@
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": "1 instances"
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/server.cr": "2 instances"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "12 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "2 instances",
@@ -53,11 +56,25 @@
       "dockerfile/moby/builder/dockerfile/builder.go": "1 instances",
       "dockerfile/moby/builder/dockerfile/containerbackend.go": "8 instances"
     },
+    "elixir/elixir_stdlib": {
+      "elixir/elixir_stdlib/agent.ex": "17 instances"
+    },
+    "elixir/elixir_tests": {
+      "elixir/elixir_tests/agent_test.exs": "10 instances"
+    },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": "3 instances",
       "embedded_python/meow_turtle/app.py": "2 instances",
       "embedded_python/meow_turtle/logging.py": "3 instances",
       "embedded_python/meow_turtle/sensors.py": "3 instances"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "3 instances",
+      "erlang/ranch_socket_pool/ranch_server.erl": "3 instances"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/Core.fs": "1 instances",
+      "fsharp/giraffe_web/Csrf.fs": "2 instances"
     },
     "go/core": {
       "go/core/mgc.go": "5 instances",
@@ -142,6 +159,14 @@
     },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": "1 instances"
+    },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/asyncfile.nim": "1 instances",
+      "nim/nim_stdlib/asyncfutures.nim": "5 instances",
+      "nim/nim_stdlib/asynchttpserver.nim": "11 instances",
+      "nim/nim_stdlib/asyncmacro.nim": "4 instances",
+      "nim/nim_stdlib/asyncnet.nim": "5 instances",
+      "nim/nim_stdlib/concurrency_atomics.nim": "2 instances"
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": "1 instances"

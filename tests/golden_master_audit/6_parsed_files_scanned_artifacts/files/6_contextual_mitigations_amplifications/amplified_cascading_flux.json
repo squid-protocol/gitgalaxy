@@ -465,6 +465,34 @@
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "3 instances",
       "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "27 instances"
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": "29 instances",
+      "crystal/crystal_stdlib_http/client_response.cr": "22 instances",
+      "crystal/crystal_stdlib_http/common.cr": "61 instances",
+      "crystal/crystal_stdlib_http/content.cr": "50 instances",
+      "crystal/crystal_stdlib_http/cookie.cr": "25 instances",
+      "crystal/crystal_stdlib_http/cookies.cr": "7 instances",
+      "crystal/crystal_stdlib_http/formdata.cr": "15 instances",
+      "crystal/crystal_stdlib_http/formdata_builder.cr": "22 instances",
+      "crystal/crystal_stdlib_http/formdata_part.cr": "1 instances",
+      "crystal/crystal_stdlib_http/headers.cr": "35 instances",
+      "crystal/crystal_stdlib_http/request.cr": "51 instances",
+      "crystal/crystal_stdlib_http/server.cr": "10 instances",
+      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": "5 instances"
+    },
+    "crystal/kemal_framework": {
+      "crystal/kemal_framework/kemal.cr": "8 instances",
+      "crystal/kemal_framework/kemal_cli.cr": "8 instances",
+      "crystal/kemal_framework/kemal_config.cr": "17 instances",
+      "crystal/kemal_framework/kemal_dsl.cr": "1 instances",
+      "crystal/kemal_framework/kemal_event_stream.cr": "3 instances",
+      "crystal/kemal_framework/kemal_exception_handler.cr": "10 instances",
+      "crystal/kemal_framework/kemal_ext_context.cr": "9 instances",
+      "crystal/kemal_framework/kemal_ext_response.cr": "1 instances",
+      "crystal/kemal_framework/kemal_file_upload.cr": "1 instances",
+      "crystal/kemal_framework/kemal_filter_handler.cr": "19 instances",
+      "crystal/kemal_framework/kemal_handler.cr": "5 instances"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "143 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "23 instances",
@@ -526,6 +554,10 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "6 instances",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": "7 instances"
     },
+    "elixir/phoenix_framework": {
+      "elixir/phoenix_framework/channel.ex": "2 instances",
+      "elixir/phoenix_framework/config.ex": "1 instances"
+    },
     "embedded_python/meow_turtle": {
       "embedded_python/meow_turtle/actuators.py": "91 instances",
       "embedded_python/meow_turtle/app.py": "233 instances",
@@ -541,6 +573,15 @@
       "embedded_python/meow_turtle/tsl2591.py": "8 instances",
       "embedded_python/meow_turtle/vibration_driver.py": "14 instances"
     },
+    "erlang/cowboy_http_server": {
+      "erlang/cowboy_http_server/cowboy_quicer.erl": "2 instances"
+    },
+    "erlang/ranch_socket_pool": {
+      "erlang/ranch_socket_pool/ranch.erl": "1 instances",
+      "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": "1 instances",
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": "6 instances",
+      "erlang/ranch_socket_pool/ranch_server.erl": "11 instances"
+    },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": "13 instances",
       "fortran/wrf/configure_reader.py": "88 instances",
@@ -552,6 +593,11 @@
       "fortran/wrf/module_sf_noahdrv.F": "725 instances",
       "fortran/wrf/sourcetree.py": "51 instances",
       "fortran/wrf/wrf_timeseries.F": "200 instances"
+    },
+    "fsharp/giraffe_web": {
+      "fsharp/giraffe_web/FormatExpressions.fs": "3 instances",
+      "fsharp/giraffe_web/Negotiation.fs": "3 instances",
+      "fsharp/giraffe_web/ResponseCaching.fs": "4 instances"
     },
     "go/core": {
       "go/core/main.go": "30 instances",
@@ -742,6 +788,25 @@
       "javascript/threejs/WebGLProgram.js": "33 instances",
       "javascript/threejs/WebGLRenderer.js": "225 instances"
     },
+    "julia/dataframes_jl": {
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": "6 instances",
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": "6 instances",
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": "13 instances",
+      "julia/dataframes_jl/abstractdataframe_show.jl": "2 instances",
+      "julia/dataframes_jl/abstractdataframe_sort.jl": "5 instances",
+      "julia/dataframes_jl/abstractdataframe_subset.jl": "6 instances",
+      "julia/dataframes_jl/dataframe_dataframe.jl": "22 instances",
+      "julia/dataframes_jl/dataframe_insertion.jl": "60 instances",
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": "1 instances",
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": "7 instances",
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": "3 instances",
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": "2 instances",
+      "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": "16 instances",
+      "julia/dataframes_jl/groupeddataframe_utils.jl": "2 instances",
+      "julia/dataframes_jl/join_core.jl": "20 instances",
+      "julia/dataframes_jl/other_broadcasting.jl": "12 instances",
+      "julia/dataframes_jl/other_index.jl": "26 instances"
+    },
     "kotlin/okhttp": {
       "kotlin/okhttp/Dispatcher.kt": "9 instances",
       "kotlin/okhttp/OkHttp.android.kt": "1 instances",
@@ -876,6 +941,27 @@
       "matlab/eeglab/runica.m": "318 instances",
       "matlab/eeglab/supergui.m": "90 instances"
     },
+    "nim/nim_stdlib": {
+      "nim/nim_stdlib/algorithm.nim": "36 instances",
+      "nim/nim_stdlib/asyncfile.nim": "14 instances",
+      "nim/nim_stdlib/asyncfutures.nim": "15 instances",
+      "nim/nim_stdlib/asynchttpserver.nim": "17 instances",
+      "nim/nim_stdlib/asyncmacro.nim": "7 instances",
+      "nim/nim_stdlib/asyncnet.nim": "15 instances",
+      "nim/nim_stdlib/base64.nim": "7 instances",
+      "nim/nim_stdlib/bitops.nim": "2 instances",
+      "nim/nim_stdlib/collections_critbits.nim": "13 instances",
+      "nim/nim_stdlib/collections_deques.nim": "8 instances",
+      "nim/nim_stdlib/collections_heapqueue.nim": "6 instances",
+      "nim/nim_stdlib/collections_lists.nim": "17 instances",
+      "nim/nim_stdlib/collections_sequtils.nim": "30 instances",
+      "nim/nim_stdlib/collections_setimpl.nim": "6 instances",
+      "nim/nim_stdlib/collections_sets.nim": "16 instances",
+      "nim/nim_stdlib/collections_sharedlist.nim": "3 instances",
+      "nim/nim_stdlib/collections_sharedtables.nim": "1 instances",
+      "nim/nim_stdlib/collections_tableimpl.nim": "6 instances",
+      "nim/nim_stdlib/concurrency_atomics.nim": "1 instances"
+    },
     "nix/ghostty": {
       "nix/ghostty/build.zig": "1 instances"
     },
@@ -885,6 +971,16 @@
       "objective-c/worldwideweb/HyperManager.m": "29 instances",
       "objective-c/worldwideweb/HyperText.m": "267 instances",
       "objective-c/worldwideweb/TcpAccess.m": "4 instances"
+    },
+    "ocaml/janestreet_base": {
+      "ocaml/janestreet_base/applicative.ml": "1 instances",
+      "ocaml/janestreet_base/applicative_intf.ml": "5 instances",
+      "ocaml/janestreet_base/array.ml": "18 instances",
+      "ocaml/janestreet_base/array0.ml": "2 instances",
+      "ocaml/janestreet_base/array_intf.ml": "2 instances",
+      "ocaml/janestreet_base/avltree.ml": "22 instances",
+      "ocaml/janestreet_base/blit_intf.ml": "5 instances",
+      "ocaml/janestreet_base/buffer_intf.ml": "6 instances"
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/file-permission.t": "2 instances"
@@ -1192,6 +1288,27 @@
       "python/wtfpython/mixed_tabs_and_spaces.py": "1 instances",
       "python/wtfpython/notebook_generator.py": "75 instances",
       "python/wtfpython/noxfile.py": "1 instances"
+    },
+    "r/dplyr_package": {
+      "r/dplyr_package/across.R": "5 instances",
+      "r/dplyr_package/arrange.R": "1 instances",
+      "r/dplyr_package/bind-cols.R": "1 instances",
+      "r/dplyr_package/bind-rows.R": "2 instances",
+      "r/dplyr_package/case-when.R": "5 instances",
+      "r/dplyr_package/colwise-funs.R": "1 instances",
+      "r/dplyr_package/colwise-mutate.R": "4 instances"
+    },
+    "r/rlang_package": {
+      "r/rlang_package/bytes.R": "1 instances",
+      "r/rlang_package/call.R": "3 instances",
+      "r/rlang_package/cnd-abort.R": "21 instances",
+      "r/rlang_package/cnd-entrace.R": "1 instances",
+      "r/rlang_package/cnd-handlers.R": "1 instances",
+      "r/rlang_package/cnd-last.R": "7 instances",
+      "r/rlang_package/cnd-message.R": "2 instances",
+      "r/rlang_package/cnd-signal.R": "4 instances",
+      "r/rlang_package/cnd.R": "6 instances",
+      "r/rlang_package/deparse.R": "20 instances"
     },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/sample.rexx": "2 instances"

@@ -110,6 +110,18 @@
         }
       ]
     },
+    "crystal/crystal_stdlib_http": {
+      "crystal/crystal_stdlib_http/client.cr": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "raise_invalid_host",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
     "fortran/wrf": {
       "fortran/wrf/module_initialize_real.F": [
         {

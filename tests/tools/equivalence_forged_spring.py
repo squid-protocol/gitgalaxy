@@ -211,6 +211,7 @@ def forge_estate(
     package: str = "com.gitgalaxy",
     datasets=None,
     utility_jobs=(),
+    control_members=None,
 ):
     """The real forge over the estate: skeletons for the corpus's own COBOL programs, the scan's job rows.
 
@@ -243,7 +244,8 @@ def forge_estate(
                 job.kind, job.reason = "application", f"utility-only, forged on request ({job.reason})"
             return job
 
-    return BatchForge(skeletons, {"sections": sections}, package, load_target(None))
+    estate = {"sections": sections, "control_members": control_members or {}}
+    return BatchForge(skeletons, estate, package, load_target(None))
 
 
 def _kind(job) -> str:
@@ -418,6 +420,8 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
             spec["jobs"],
             datasets=spec.get("datasets"),
             utility_jobs=spec.get("forge_utility_jobs", ()),
+            # #8886 slice 9: the estate's own control-statement library (a SYSIN `LIB(MEMBER)`), read from the corpus
+            control_members={m: (corpus / p).read_text("utf-8") for m, p in spec.get("control_members", {}).items()},
         )
         rcs = chain_rcs(report)
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])

@@ -159,6 +159,9 @@ class BatchForge:
             self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
                 d.get("body") or ""
             )
+        # #8886: a control-statement library's members, {member: text}, for a SYSIN that is a dataset member (`LIB(MEMBER)`).
+        # The caller reads them from the estate's own library (CardDemo's app/ctl); none is invented here.
+        self.members: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("control_members") or {}).items()}
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -245,9 +248,12 @@ class BatchForge:
         """#4268: an IDCAMS step is a record copy only while its SYSIN is one `REPRO INFILE(dd) OUTFILE(dd)`
         (`idcams.parse`, proven against GnuCOBOL); every other command or parameter, a SYSIN dataset, or a REPRO whose
         DDs are not datasets of the step is refused by name. The two DDs are kept on the step."""
-        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
-            return "its SYSIN is a dataset of control statements (not read)"
         decks = self._deck(file, ordinal, st, "SYSIN")
+        member = self._sysin_member(st)
+        if member is not None:
+            decks = [member]
+        elif any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
         if len(decks) != 1:
             return "has no single in-stream SYSIN of IDCAMS commands"
         try:
@@ -294,6 +300,17 @@ class BatchForge:
         if reg.program != st.program:
             return f"runs {reg.program} in its PARM, not {st.program}"
         st.parm = None
+        return None
+
+    def _sysin_member(self, st: Step) -> str | None:
+        """#8886: the text of a SYSIN that is a member of a control-statement library the caller supplied
+        (`estate["control_members"]`), matched on the member name of `LIB(MEMBER)`; None when it is not one, or no text
+        was supplied for that member (the step then stays refused by name). /* ... */ comment lines are IDCAMS comments."""
+        for d in st.dds:
+            m = re.fullmatch(r"[^()]*\(([A-Za-z0-9@#$]{1,8})\)", d.get("dsn") or "") if d.get("dd") == "SYSIN" else None
+            if m and m.group(1).upper() in self.members:
+                text = re.sub(r"/\*.*?\*/", "", self.members[m.group(1).upper()], flags=re.S)
+                return "\n".join(ln for ln in text.splitlines() if ln.strip())
         return None
 
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:

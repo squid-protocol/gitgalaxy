@@ -244,7 +244,7 @@
 "class A {\n  int F(int a) { return a > 1 && a < 5 ? a ?? 2 : 0; }\n}",
 "F",
 "branch",
-3
+2
 ],
 [
 "kotlin",
@@ -958,7 +958,7 @@
 "object O {\n  def f(a: Int, b: Int): Int = {\n    if (a > 1 && b < 2) 1 else 2\n    1\n  }\n}",
 "f",
 "branch",
-2
+1
 ],
 [
 "scala",
@@ -973,6 +973,41 @@
 "f",
 "branch",
 0
+],
+[
+"csharp",
+"class A {\n  int F(int a) { return a > 1 && a < 5 ? a ?? 2 : 0; }\n}",
+"F",
+"short_circuit",
+1
+],
+[
+"scala",
+"object O {\n  def f(a: Int, b: Int): Int = {\n    if (a > 1 && b < 2) 1 else 2\n    1\n  }\n}",
+"f",
+"short_circuit",
+1
+],
+[
+"kotlin",
+"class A {\n  fun f(a: Boolean, b: Boolean): Boolean = a && b || a\n}",
+"f",
+"short_circuit",
+2
+],
+[
+"swift",
+"func f(a: Bool, b: Bool) -> Bool { return a && b }",
+"f",
+"short_circuit",
+1
+],
+[
+"csharp",
+"class A {\n  bool F(bool a, bool b) { return a || b; }\n}",
+"F",
+"short_circuit",
+1
 ]
 ],
 "b": [
@@ -1002,7 +1037,7 @@
 "def f(a, b)\n  if a && b\n    1\n  elsif a\n    2\n  else\n    3\n  end\nend",
 "f",
 "branch",
-4
+3
 ],
 [
 "ruby",
@@ -1163,7 +1198,7 @@
 "<?php\nfunction f($a, $b) {\n  if ($a && $b) { return 1; } elseif ($a) { return 2; } else { return 3; }\n}",
 "f",
 "branch",
-4
+3
 ],
 [
 "php",
@@ -1338,7 +1373,7 @@
 "local function f(a, b)\n  if a and b then return 1 elseif a then return 2 else return 3 end\nend",
 "f",
 "branch",
-4
+3
 ],
 [
 "lua",
@@ -1492,7 +1527,7 @@
 "f() {\n  if [ -n \"$a\" ] && [ \"$b\" ]; then :; elif x; then :; else :; fi\n}",
 "f",
 "branch",
-4
+3
 ],
 [
 "shell",
@@ -1591,6 +1626,55 @@
 "f",
 "io",
 0
+],
+[
+"ruby",
+"def f(a, b)\n  if a && b\n    1\n  elsif a\n    2\n  else\n    3\n  end\nend",
+"f",
+"short_circuit",
+1
+],
+[
+"php",
+"<?php\nfunction f($a, $b) {\n  if ($a && $b) { return 1; } elseif ($a) { return 2; } else { return 3; }\n}",
+"f",
+"short_circuit",
+1
+],
+[
+"lua",
+"local function f(a, b)\n  if a and b then return 1 elseif a then return 2 else return 3 end\nend",
+"f",
+"short_circuit",
+1
+],
+[
+"shell",
+"f() {\n  if [ -n \"$a\" ] && [ \"$b\" ]; then :; elif x; then :; else :; fi\n}",
+"f",
+"short_circuit",
+1
+],
+[
+"ruby",
+"def f(a)\n  a ||= 1\n  a\nend",
+"f",
+"short_circuit",
+1
+],
+[
+"shell",
+"f() {\n  true && echo a || echo b\n}",
+"f",
+"short_circuit",
+2
+],
+[
+"php",
+"<?php\nfunction f($a, $b) { return $a and $b; }",
+"f",
+"short_circuit",
+1
 ]
 ],
 "c": [
@@ -1655,7 +1739,7 @@
 "void f(int a, int b) { if (a && b || a) {} }",
 "f",
 "branch",
-3
+1
 ],
 [
 "cpp",
@@ -1845,6 +1929,13 @@
 "f",
 "doc",
 0
+],
+[
+"cpp",
+"void f(int a, int b) { if (a && b || a) {} }",
+"f",
+"short_circuit",
+2
 ]
 ]
 }

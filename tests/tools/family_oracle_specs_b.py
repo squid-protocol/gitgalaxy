@@ -780,7 +780,7 @@ class BOracle(TreeSitterOracle):
                 op = _op(node)
             if t in ("binary", "binary_expression"):
                 if op in ("&&", "||", "and", "or"):
-                    add("branch", op)
+                    add("short_circuit", op)
                 elif lang == "php" and op == "??":
                     add("branch", op)  # value-selection operator: counts per branch_rule_contract.md ("stay dual")
                 if (
@@ -815,7 +815,9 @@ class BOracle(TreeSitterOracle):
             elif t in ("operator_assignment", "augmented_assignment_expression"):
                 if op in ("<<=", ">>=", "^=", "&=", "|="):
                     add("bitwise", op)
-                elif (op in ("||=", "&&=") and lang == "ruby") or (op == "??=" and lang == "php"):
+                elif op in ("||=", "&&=") and lang == "ruby":
+                    add("short_circuit", op)
+                elif op == "??=" and lang == "php":
                     add("branch", op)
             elif t in ("unary", "unary_expression", "unary_op_expression") and op == "~":
                 add("bitwise", "~")
@@ -824,7 +826,7 @@ class BOracle(TreeSitterOracle):
                 if t == "list":
                     for c in node.children:
                         if not c.is_named and c.type in ("&&", "||"):
-                            add("branch", c.type)
+                            add("short_circuit", c.type)
                 elif t == "file_redirect" and self._sh_file_dest(node) is not None:
                     add("io", "redirect")
                 elif (

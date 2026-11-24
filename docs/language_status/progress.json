@@ -1,5 +1,5 @@
 {
- "commit": "85f49de5a",
+ "commit": "79e600c95",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T20:46:15Z",
+  "as_of": "2026-11-24T21:01:02Z",
   "core": {
    "closed": 262,
    "open": 14,
@@ -1414,7 +1414,7 @@
    },
    "cobol": {
     "closed": 147,
-    "total": 158
+    "total": 159
    }
   },
   "window_days": 7

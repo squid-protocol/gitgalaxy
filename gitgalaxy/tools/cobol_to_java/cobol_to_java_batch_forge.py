@@ -1222,14 +1222,19 @@ import java.util.regex.Pattern;
 /**
  * JCL step conditions (#3622), against the return codes of the steps before.
  *   COND=(code,op[,step]),... bypasses the step when ANY test holds: `code op RC` for the named step,
- *   else for every step before (COND=(4,LT): bypass if 4 < some RC). EVEN / ONLY concern abends, which
- *   stop a Spring Batch job: they are not evaluated here.
+ *   else for every step before (COND=(4,LT): bypass if 4 < some RC). An abend stops a Spring Batch job, so
+ *   no step ever follows one: EVEN changes nothing, and ONLY (a step that runs only after an abend) always
+ *   bypasses.
  *   IF (expression) THEN: RC, step.RC, relational operators, AND / & / OR / | / NOT; RC alone is the
- *   highest return code so far.
+ *   highest return code so far. step.RUN is true when the step ran (it recorded a return code); ABEND and
+ *   step.ABEND are false, as is step.ABENDCC = code, because no abended step continues the job. Each of
+ *   them reads and drops its own `= value`.
  */
 public final class JclConditions {
 
     private static final Pattern TEST = Pattern.compile("(\\\\d+)\\\\s*,\\\\s*(GT|GE|EQ|LT|LE|NE)\\\\s*(?:,\\\\s*([A-Z0-9#@$.]+))?");
+
+    private static final Pattern ONLY = Pattern.compile("(?<![A-Z0-9#@$])ONLY(?![A-Z0-9#@$])");
 
     private JclConditions() {
     }
@@ -1238,7 +1243,11 @@ public final class JclConditions {
         if (cond == null || rcs.isEmpty()) {
             return false;
         }
-        Matcher m = TEST.matcher(cond.toUpperCase(Locale.ROOT));
+        String upper = cond.toUpperCase(Locale.ROOT);
+        if (ONLY.matcher(upper).find()) {
+            return true;
+        }
+        Matcher m = TEST.matcher(upper);
         while (m.find()) {
             int code = Integer.parseInt(m.group(1));
             String op = m.group(2);
@@ -1339,13 +1348,31 @@ public final class JclConditions {
         boolean relation() {
             String left = t.get(i++);
             if (!left.endsWith("RC")) {
-                return !left.contains("ABEND");  // ABEND / step.ABEND: no abended step continues a Spring Batch job
+                boolean v = left.endsWith("RUN") ? rcs.containsKey(left.substring(0, Math.max(0, left.length() - 4)))
+                        : !left.contains("ABEND");  // no abended step continues a Spring Batch job
+                return operand(v, left.endsWith("ABENDCC"));
             }
             String op = t.get(i++);
             int right = Integer.parseInt(t.get(i++));
             int rc = left.equals("RC") ? rcs.values().stream().mapToInt(Integer::intValue).max().orElse(0)
                     : rcs.getOrDefault(left.substring(0, left.length() - 3), 0);
             return compare(rc, op, right);
+        }
+
+        /** `value`, after reading the `= TRUE|FALSE` (or `= code` for ABENDCC) that follows a flag; none leaves it as is. */
+        private boolean operand(boolean value, boolean code) {
+            String op = peek();
+            if (!(op.equals("=") || op.equals("\\u00ac=") || op.equals("^="))) {
+                return value;
+            }
+            i++;
+            String operand = peek();
+            i++;
+            if (code) {
+                return false;
+            }
+            boolean same = operand.equals("TRUE") == value;
+            return op.equals("=") ? same : !same;
         }
     }
 }

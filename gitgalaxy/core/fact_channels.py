@@ -613,6 +613,7 @@ _JOB_FLOW_DDL = """
                 line_number INTEGER,
                 disp_normal TEXT,
                 sysout TEXT,
+                if_chain TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """
@@ -828,6 +829,7 @@ def _job_flow_select(cursor, has_table, has_column):
             col("sysout", "sysout"),
             col("restart", "restart", "restart_checkid", "rd", "parm_overrides", "cond_overrides"),
             col("output_params", "output_params", "output_refs"),
+            col("if_chain", "if_chain"),
         )
     )
     return (
@@ -2221,6 +2223,7 @@ CHANNELS = (
             ("sysout TEXT",),
             ("restart TEXT", "restart_checkid TEXT", "rd TEXT", "parm_overrides TEXT", "cond_overrides TEXT"),
             ("output_params TEXT", "output_refs TEXT"),
+            ("if_chain TEXT",),  # #8886
         ),
         indexes=(
             "CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);",
@@ -2259,6 +2262,7 @@ CHANNELS = (
             "cond_overrides",
             "output_params",
             "output_refs",
+            "if_chain",
         ),
         to_row=lambda j: (
             j.get("kind"),
@@ -2291,6 +2295,7 @@ CHANNELS = (
             json.dumps(j["cond_overrides"]) if j.get("cond_overrides") else None,
             json.dumps(j["output_params"]) if j.get("output_params") else None,
             json.dumps(j["output_refs"]) if j.get("output_refs") else None,
+            json.dumps(j["if_chain"]) if j.get("if_chain") else None,  # #8886
         ),
         restore_select=_job_flow_select,
         to_payload=lambda r: {
@@ -2316,7 +2321,7 @@ CHANNELS = (
             },
             **{
                 k: json.loads(r[k])
-                for k in ("parm_overrides", "cond_overrides", "output_params", "output_refs")
+                for k in ("parm_overrides", "cond_overrides", "output_params", "output_refs", "if_chain")
                 if r[k]
             },
             **{k: r[k] for k in ("restart", "restart_checkid", "rd") if r[k]},

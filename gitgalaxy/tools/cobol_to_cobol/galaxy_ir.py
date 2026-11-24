@@ -792,6 +792,8 @@ class EngineJobFlow:
     instream: str | None = None  # #4268: an INSTREAM row's SYSIN / SYMNAMES / SORTCNTL / DFSPARM body, as written
     lrecl: int | None = None  # #4268: the record length a DD row states (DCB / LRECL=), None when not stated
     recfm: str | None = None  # #4268: the record format a DD row states (FB / VB / ...), None when not stated
+    # #8886: a STEP row's enclosing IF constructs, outermost first: [line of the IF, its condition, in its ELSE clause]
+    if_chain: list | None = None
 
 
 @dataclass
@@ -4522,6 +4524,7 @@ class GalaxyIR:
                     "line": r.line,
                     "parm": r.parm,  # #3624
                     "runner_programs": self.runner_runs(r, f.file_path),  # #3710
+                    **({"if_chain": r.if_chain} if r.if_chain else {}),  # #8886: presence-keyed
                 }
                 if r.proc:
                     where, inner = self._proc_steps(f, r.proc)
@@ -4534,6 +4537,7 @@ class GalaxyIR:
                             "if_cond": s_.if_cond,
                             "parm": s_.parm,
                             "runner_programs": self.runner_runs(s_, where or f.file_path),
+                            **({"if_chain": s_.if_chain} if s_.if_chain else {}),
                         }
                         for s_ in inner
                     ]
@@ -6994,9 +6998,10 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
             parm_col = "parm" if _has_column(cur, "job_flow_data", "parm") else "NULL"  # #3624
             instream_col = "instream" if _has_column(cur, "job_flow_data", "instream") else "NULL"  # #4268
             dcb_cols = "lrecl, recfm" if _has_column(cur, "job_flow_data", "lrecl") else "NULL, NULL"  # #4268
+            chain_col = "if_chain" if _has_column(cur, "job_flow_data", "if_chain") else "NULL"  # #8886
             for row in cur.execute(
                 "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col}, {dcb_cols} FROM job_flow_data "
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col}, {instream_col}, {dcb_cols}, {chain_col} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -7025,6 +7030,7 @@ def load_galaxy_ir(db_path: Path, repo_name: str | None = None) -> GalaxyIR:
                             instream=row[20],
                             lrecl=int(row[21]) if row[21] else None,
                             recfm=row[22],
+                            if_chain=json.loads(row[23]) if row[23] else None,
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

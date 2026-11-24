@@ -70,7 +70,13 @@ _SEQUENCE_FIELD = re.compile(r"(?m)(?<=[ \t]{2})([A-Z@#$]{0,6}[0-9]{2,8})[ \t]*(
 # end of a line, and a keyword never carries a digit tail.
 _GLUE_PUNCT = r"(?:[;,)'!&*|=+\-<>^]|(?<=[A-Z_@#$])\.)"  # code that can never run into a number; a `.` only after a name letter (`A.` + `FNR`, not `3.` + digits)
 _GLUE_KEYWORD = r"(?<![\w@#$])(?:THEN|ELSE|END|DO)"  # a keyword never carries a digit tail
-_GLUED_SEQUENCE = re.compile(r"(?m)(" + _GLUE_PUNCT + "|" + _GLUE_KEYWORD + r")([0-9]{5,8})[ \t]*(?=\r?$)", re.I)
+# A qualified name's trailing `.` (`TILKN.00002950` then `FNR` on the next line, #9214). A `.` before a digit
+# tail can also end a decimal literal (`12.00002950`), so a name character must come before it: the identifier
+# starts with a letter or national character and is not itself the tail of a number or word.
+_GLUE_QUALIFIER = r"(?<![\w@#$])[A-Z_@#$][\w@#$]*\."
+_GLUED_SEQUENCE = re.compile(
+    r"(?m)(" + _GLUE_PUNCT + "|" + _GLUE_KEYWORD + "|" + _GLUE_QUALIFIER + r")([0-9]{5,8})[ \t]*(?=\r?$)", re.I
+)
 
 
 def blank_sequence_fields(code_stream: str) -> str:

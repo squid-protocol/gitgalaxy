@@ -69,7 +69,7 @@
       "embedded_python/meow_turtle/sensors.py": 19
     },
     "erlang/ranch_socket_pool": {
-      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 39,
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 49,
       "erlang/ranch_socket_pool/ranch_server.erl": 30
     },
     "fsharp/giraffe_web": {
@@ -325,6 +325,6 @@
   "path": [
     "6. Parsed Files (Scanned Artifacts)",
     "6. Contextual Mitigations & Amplifications",
-    "Asynchronous/Concurrent Execution (Weighted View)"
+    "Async & Concurrency (Weighted View)"
   ]
 }

@@ -1428,18 +1428,18 @@
       "erlang/SOURCES.md": 0
     },
     "erlang/cowboy_http_server": {
-      "erlang/cowboy_http_server/cowboy.erl": 3,
+      "erlang/cowboy_http_server/cowboy.erl": 1,
       "erlang/cowboy_http_server/cowboy_app.erl": 0,
       "erlang/cowboy_http_server/cowboy_children.erl": 5,
       "erlang/cowboy_http_server/cowboy_clear.erl": 0,
       "erlang/cowboy_http_server/cowboy_clock.erl": 3,
       "erlang/cowboy_http_server/cowboy_compress_h.erl": 7,
       "erlang/cowboy_http_server/cowboy_constraints.erl": 0,
-      "erlang/cowboy_http_server/cowboy_decompress_h.erl": 5,
+      "erlang/cowboy_http_server/cowboy_decompress_h.erl": 4,
       "erlang/cowboy_http_server/cowboy_handler.erl": 9,
-      "erlang/cowboy_http_server/cowboy_http3.erl": 37,
+      "erlang/cowboy_http_server/cowboy_http3.erl": 22,
       "erlang/cowboy_http_server/cowboy_loop.erl": 9,
-      "erlang/cowboy_http_server/cowboy_metrics_h.erl": 6,
+      "erlang/cowboy_http_server/cowboy_metrics_h.erl": 4,
       "erlang/cowboy_http_server/cowboy_middleware.erl": 0,
       "erlang/cowboy_http_server/cowboy_quicer.erl": 0,
       "erlang/cowboy_http_server/cowboy_req.erl": 1,
@@ -1450,14 +1450,14 @@
       "erlang/ranch_socket_pool/ranch_acceptor.erl": 2,
       "erlang/ranch_socket_pool/ranch_acceptors_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_app.erl": 0,
-      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 12,
+      "erlang/ranch_socket_pool/ranch_conns_sup.erl": 11,
       "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_crc32c.erl": 0,
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": 0,
       "erlang/ranch_socket_pool/ranch_protocol.erl": 0,
-      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 1,
-      "erlang/ranch_socket_pool/ranch_server.erl": 17
+      "erlang/ranch_socket_pool/ranch_proxy_header.erl": 0,
+      "erlang/ranch_socket_pool/ranch_server.erl": 16
     },
     "fortran": {
       "fortran/SOURCES.md": 0

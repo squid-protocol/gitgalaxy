@@ -85143,6 +85143,7 @@
       "erlang/cowboy_http_server/cowboy.erl": {
         "ensure_alpn@161": [],
         "ensure_connection_type@167": [],
+        "ensure_dynamic_buffer@174": [],
         "get_env@194": [],
         "get_env@201": [],
         "log@218": [],
@@ -85180,6 +85181,11 @@
         "start_link@29": []
       },
       "erlang/cowboy_http_server/cowboy_clock.erl": {
+        "code_change@100": [],
+        "handle_call@76": [],
+        "handle_cast@80": [],
+        "handle_info@84": [],
+        "init@66": [],
         "month@155": [],
         "pad_int@140": [],
         "pad_int_test_@192": [],
@@ -85195,14 +85201,21 @@
         "buffering_to_zflush@176": [],
         "check_req@76": [],
         "check_resp_headers@97": [],
+        "data@45": [],
         "early_error@68": [],
         "fold@105": [],
         "fold@110": [],
         "fold_vary_only@167": [],
+        "gzip_data@237": [],
         "gzip_headers@200": [],
         "gzip_response@179": [],
+        "info@51": [],
+        "init@34": [],
+        "read_file@257": [],
+        "terminate@56": [],
         "vary@217": [],
-        "vary_headers@213": []
+        "vary_headers@213": [],
+        "vary_response@210": []
       },
       "erlang/cowboy_http_server/cowboy_constraints.erl": {
         "apply_constraint@57": [],
@@ -85229,10 +85242,15 @@
         "buffer_to_iovec@171": [],
         "build_accept_encoding@230": [],
         "check_and_update_req@151": [],
+        "data@62": [],
         "do_build_accept_encoding@235": [],
         "early_error@138": [],
         "fold@177": [],
-        "fold@180": []
+        "fold@180": [],
+        "info@102": [],
+        "init@44": [],
+        "qvalue_to_iodata@223": [],
+        "terminate@128": []
       },
       "erlang/cowboy_http_server/cowboy_handler.erl": {
         "execute@36": [],
@@ -85246,6 +85264,7 @@
         "early_error@576": [],
         "ensure_port@541": [],
         "frame@439": [],
+        "goaway@1171": [],
         "handle_quic_msg@184": [],
         "headers_frame@477": [],
         "headers_frame@564": [],
@@ -85256,6 +85275,7 @@
         "info@639": [],
         "init@123": [],
         "is_fin@403": [],
+        "is_lingering_stream@1304": [],
         "loop@160": [],
         "maybe_send_is_fin@864": [],
         "maybe_socket_error@1175": [],
@@ -85274,15 +85294,19 @@
         "stop_stream@1104": [],
         "stream_abort_receive@1163": [],
         "stream_closed1@1288": [],
+        "stream_closed@1247": [],
         "stream_get@1220": [],
+        "stream_linger@1299": [],
         "stream_new@1233": [],
         "stream_new_local@1223": [],
         "stream_new_remote@1226": [],
         "stream_peer_send_shutdown@1065": [],
         "stream_store@1296": [],
+        "terminate@1188": [],
         "terminate_all_streams@1214": [],
         "terminate_reason@1209": [],
         "terminate_stream@1139": [],
+        "terminate_stream_handler@1146": [],
         "webtransport_commands@954": [],
         "webtransport_event@946": [],
         "webtransport_terminate_session@1037": [],
@@ -85300,10 +85324,15 @@
         "upgrade@52": []
       },
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": {
+        "data@160": [],
         "do_data@184": [],
         "do_info@201": [],
         "early_error@317": [],
-        "resp_body_length@337": []
+        "fold@205": [],
+        "info@190": [],
+        "init@140": [],
+        "resp_body_length@337": [],
+        "terminate@283": []
       },
       "erlang/cowboy_http_server/cowboy_quicer.erl": {
         "handle@195": [],
@@ -85337,6 +85366,7 @@
         "do_reply_ensure_no_body@917": [],
         "done_replying@936": [],
         "filter@1088": [],
+        "filter@1097": [],
         "filter_constraints@1124": [],
         "filter_cookies@487": [],
         "has_body@554": [],
@@ -85351,6 +85381,7 @@
         "inform@863": [],
         "init_multipart@733": [],
         "kvlist_to_map@1055": [],
+        "kvlist_to_map@1063": [],
         "match_cookies@538": [],
         "match_cookies@542": [],
         "match_qs@254": [],
@@ -85398,6 +85429,7 @@
         "set_resp_cookie@773": [],
         "set_resp_header@782": [],
         "set_resp_headers@792": [],
+        "set_resp_headers_list@802": [],
         "sock@192": [],
         "stream_body@968": [],
         "stream_body@991": [],
@@ -85477,6 +85509,8 @@
         "handshake_continue@405": [],
         "handshake_result@420": [],
         "handshake_transport@415": [],
+        "info@640": [],
+        "info@650": [],
         "ip4_int@525": [],
         "ip6_int@528": [],
         "ipv4_cidr@510": [],
@@ -85484,10 +85518,12 @@
         "ipv6_cidr@516": [],
         "ipv6_trusted@507": [],
         "listener_info@654": [],
+        "log@955": [],
         "maybe_get_transport_and_opts@287": [],
         "maybe_resumed@319": [],
         "maybe_started@249": [],
         "merge_options@931": [],
+        "metrics@838": [],
         "normalize_opts@143": [],
         "peer_trusted@493": [],
         "procs1@687": [],
@@ -85510,6 +85546,8 @@
         "stop_listener@262": [],
         "suspend_listener@298": [],
         "trace_acceptors1@722": [],
+        "trace_acceptors@705": [],
+        "trace_acceptors@710": [],
         "trace_acceptors_collect@775": [],
         "trace_acceptors_drain@817": [],
         "trace_acceptors_finish@806": [],
@@ -85562,35 +85600,39 @@
         "init@120": [],
         "kill_children@444": [],
         "loop@139": [],
+        "merge_alarms@359": [],
         "merge_alarms@365": [],
         "report_error@494": [],
         "schedule_activate_alarm@317": [],
         "set_alarm_option@353": [],
+        "set_transport_options@338": [],
         "shutdown_children@454": [],
         "start_link@57": [],
         "start_protocol@84": [],
         "system_code_change@489": [],
         "system_continue@481": [],
         "system_terminate@485": [],
+        "terminate@413": [],
         "trigger_alarm@304": [],
         "trigger_alarms@295": [],
         "wait_children@462": []
       },
       "erlang/ranch_socket_pool/ranch_conns_sup_sup.erl": {
-        "init_[Unterminated]@31": [],
+        "init@31": [],
         "start_link@23": []
       },
       "erlang/ranch_socket_pool/ranch_crc32c.erl": {
         "crc32c@89": [],
         "crc32c@93": [],
-        "crc32c_test_@103": []
+        "crc32c_test_@103": [],
+        "do_crc32c@96": []
       },
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": {
-        "init_[Unterminated]@29": [],
+        "init@29": [],
         "start_link@24": []
       },
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": {
-        "init_[Unterminated]@44": [],
+        "init@44": [],
         "start_link@23": [],
         "start_link@32": []
       },
@@ -85638,6 +85680,7 @@
         "presented_tlv@1023": [],
         "protocol@901": [],
         "raw_tlv_size@1045": [],
+        "raw_tlvs@1036": [],
         "ssl_client_cert_header@1294": [],
         "ssl_client_cert_requires_cert_flag_test@1264": [],
         "ssl_cn_header@1254": [],
@@ -85663,6 +85706,7 @@
         "cleanup_connections_sups@99": [],
         "cleanup_down_listener@332": [],
         "cleanup_listener_opts@77": [],
+        "code_change@301": [],
         "conns_sup_ms@324": [],
         "count_connections@207": [],
         "get_addr@144": [],
@@ -85677,6 +85721,10 @@
         "get_proxy_opts@172": [],
         "get_stats_counters@160": [],
         "get_transport_options@168": [],
+        "handle_call@226": [],
+        "handle_cast@273": [],
+        "handle_info@277": [],
+        "init@218": [],
         "listener_start_args_exists@203": [],
         "proxy_opts@354": [],
         "set_addr@139": [],
@@ -85684,13 +85732,14 @@
         "set_listener_embedded@73": [],
         "set_listener_sup@126": [],
         "set_max_connections@148": [],
-        "set_monitored_process_[Unterminated]@357": [],
+        "set_monitored_process@357": [],
         "set_new_listener_opts@69": [],
         "set_protocol_options@188": [],
         "set_stats_counters@156": [],
         "set_transport_options@164": [],
         "start_link@65": [],
-        "sync_max_conns@342": []
+        "sync_max_conns@342": [],
+        "terminate@297": []
       }
     },
     "fortran/wrf": {
@@ -87296,6 +87345,20 @@
         ],
         "signOut@32": []
       },
+      "fsharp/giraffe_web/ComputationExpressions.fs": {
+        "Bind@13": [
+          "Bind"
+        ],
+        "Bind@24": [
+          "Bind"
+        ],
+        "Return@14": [],
+        "Return@25": [],
+        "ReturnFrom@15": [],
+        "Zero@16": [
+          "Zero"
+        ]
+      },
       "fsharp/giraffe_web/Core.fs": {
         "bindForm@372": [],
         "bindJson@341": [],
@@ -87334,6 +87397,9 @@
         ],
         "setStatusCode@211": [],
         "text@516": [],
+        "warbler@53": [
+          "f"
+        ],
         "xml@554": []
       },
       "fsharp/giraffe_web/Csrf.fs": {
@@ -87346,6 +87412,18 @@
       "fsharp/giraffe_web/DateTimeExtensions.fs": {
         "CutOffMs@42": [
           "DateTimeOffset"
+        ],
+        "ToHtmlString@15": [
+          "ToString"
+        ],
+        "ToHtmlString@31": [
+          "ToString"
+        ],
+        "ToIsoString@23": [
+          "ToString"
+        ],
+        "ToIsoString@39": [
+          "ToString"
         ]
       },
       "fsharp/giraffe_web/EndpointRouting.fs": {
@@ -87470,6 +87548,12 @@
         "tuplePrint@193": []
       },
       "fsharp/giraffe_web/Helpers.fs": {
+        "is1xxStatusCode@43": [],
+        "is2xxStatusCode@50": [],
+        "is3xxStatusCode@57": [],
+        "is4xxStatusCode@64": [],
+        "is5xxStatusCode@71": [],
+        "isNotNull@17": [],
         "readFileAsStringAsync@32": [
           "StreamReader",
           "ReadToEndAsync"
@@ -87477,6 +87561,9 @@
         "strOption@24": []
       },
       "fsharp/giraffe_web/HttpContextExtensions.fs": {
+        "GetRequestUrl@32": [
+          "GetEncodedUrl"
+        ],
         "WriteBytesAsync@387": [
           "SetHttpHeader",
           "WriteAsync"
@@ -87499,7 +87586,27 @@
         ]
       },
       "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": {
-        "unauthorized@46": []
+        "accepted@21": [],
+        "badGateway@94": [],
+        "badRequest@30": [],
+        "conflict@65": [],
+        "created@18": [],
+        "forbidden@53": [],
+        "gatewayTimeout@100": [],
+        "gone@68": [],
+        "internalError@88": [],
+        "invalidHttpVersion@103": [],
+        "methodNotAllowed@59": [],
+        "notAcceptable@62": [],
+        "notFound@56": [],
+        "notImplemented@91": [],
+        "ok@15": [],
+        "preconditionRequired@77": [],
+        "serviceUnavailable@97": [],
+        "tooManyRequests@80": [],
+        "unauthorized@46": [],
+        "unprocessableEntity@74": [],
+        "unsupportedMediaType@71": []
       },
       "fsharp/giraffe_web/Json.fs": {
         "SerializeToStreamAsync@43": [
@@ -87543,6 +87650,9 @@
         "UseGiraffeErrorHandler@109": []
       },
       "fsharp/giraffe_web/ModelParser.fs": {
+        "GetGenericType@33": [
+          "GetGenericArguments"
+        ],
         "IsFSharpList@19": [
           "IsGeneric",
           "GetGenericTypeDefinition"
@@ -87550,6 +87660,9 @@
         "IsFSharpOption@26": [
           "IsGeneric",
           "GetGenericTypeDefinition"
+        ],
+        "IsGeneric@17": [
+          "GetTypeInfo"
         ],
         "MakeNoneCase@35": [
           "MakeUnion"
@@ -87737,6 +87850,7 @@
         ]
       },
       "fsharp/giraffe_web/Streaming.fs": {
+        "RangeUnit@138": [],
         "parseRange@39": [
           "IsNullOrEmpty",
           "IndexOf",
@@ -118327,8 +118441,8 @@
     },
     "nim/nim_stdlib": {
       "nim/nim_stdlib/algorithm.nim": {
-        "Unknown_Block@322": [],
-        "Unknown_Block@55": [],
+        "`*`@55": [],
+        "`<-`@322": [],
         "binarySearch@160": [],
         "binarySearch@211": [],
         "fill@77": [],
@@ -118337,6 +118451,7 @@
         "isSorted@508": [],
         "isSorted@535": [],
         "lowerBound@222": [],
+        "lowerBound@258": [],
         "merge@555": [],
         "merge@632": [],
         "mergeAlt@330": [],
@@ -118360,7 +118475,8 @@
         "sorted@432": [],
         "sorted@454": [],
         "sortedByIt@472": [],
-        "upperBound@272": []
+        "upperBound@272": [],
+        "upperBound@308": []
       },
       "nim/nim_stdlib/asyncfile.nim": {
         "cb@183": [],
@@ -118387,18 +118503,19 @@
         "writeFromStream@518": []
       },
       "nim/nim_stdlib/asyncfutures.nim": {
-        "$@314": [],
+        "`$`@314": [],
+        "`and`@431": [],
+        "`callback=`@269": [],
+        "`callback=`@278": [],
+        "`or`@447": [],
         "add@179": [],
         "addCallback@249": [],
         "addCallback@259": [],
         "all@459": [],
-        "and@431": [],
         "asyncCheck@416": [],
         "asyncCheckCallback@425": [],
         "call@165": [],
         "callSoon@100": [],
-        "callback@269": [],
-        "callback@278": [],
         "cb@451": [],
         "checkFinished@144": [],
         "clean@139": [],
@@ -118412,6 +118529,8 @@
         "failed@412": [],
         "finished@403": [],
         "format@296": [],
+        "fut@215": [],
+        "fut@226": [],
         "getCallSoonProc@92": [],
         "getFilenameProcname@285": [],
         "getFutureInfo@74": [],
@@ -118425,7 +118544,6 @@
         "mget@396": [],
         "newFuture@121": [],
         "newFutureVar@129": [],
-        "or@447": [],
         "read@377": [],
         "read@384": [],
         "readError@387": [],
@@ -118478,7 +118596,8 @@
         "splitParamType@340": [],
         "splitProc@359": [],
         "stripReturnType@351": [],
-        "verifyReturnType@156": []
+        "verifyReturnType@156": [],
+        "yieldFuture@168": []
       },
       "nim/nim_stdlib/asyncnet.nim": {
         "accept@554": [],
@@ -118533,12 +118652,13 @@
         "wrapSocket@815": []
       },
       "nim/nim_stdlib/asyncstreams.nim": {
-        "callback@60": [],
+        "`callback=`@60": [],
         "complete@45": [],
         "fail@52": [],
         "failed@81": [],
         "finished@75": [],
         "len@145": [],
+        "named@70": [],
         "newCb@111": [],
         "newFutureStream@29": [],
         "read@100": [],
@@ -118554,6 +118674,7 @@
         "encodeImpl@132": [],
         "encodeInternal@78": [],
         "encodeMime@162": [],
+        "encodeSize@76": [],
         "initDecodeTable@200": [],
         "inputByte@93": [],
         "inputChar@231": [],
@@ -118571,10 +118692,19 @@
         "bitScanReverse@454": [],
         "bitScanReverse@478": [],
         "bitand@41": [],
+        "bitnot@32": [],
         "bitor@48": [],
         "bitslice@84": [],
         "bitsliced@72": [],
         "bitxor@55": [],
+        "builtin_clz@445": [],
+        "builtin_clzll@446": [],
+        "builtin_ctz@449": [],
+        "builtin_ctzll@450": [],
+        "builtin_ffs@441": [],
+        "builtin_ffsll@442": [],
+        "builtin_parity@437": [],
+        "builtin_parityll@438": [],
         "builtin_rotl16@665": [],
         "builtin_rotl16@691": [],
         "builtin_rotl16@717": [],
@@ -118629,6 +118759,9 @@
         "flipMasked@241": [],
         "flipMasked@251": [],
         "icc_scan_impl@483": [],
+        "internalBitand@35": [],
+        "internalBitor@37": [],
+        "internalBitxor@39": [],
         "mask@129": [],
         "mask@141": [],
         "masked@107": [],
@@ -118636,6 +118769,7 @@
         "parityBits@500": [],
         "parityImpl@421": [],
         "popcount@496": [],
+        "repeat@856": [],
         "repeatBits@841": [],
         "reverseBits@848": [],
         "rotateLeftBits@785": [],
@@ -118717,10 +118851,10 @@
         "unlink@36": []
       },
       "nim/nim_stdlib/collections_critbits.nim": {
-        "$@477": [],
-        "[]@291": [],
-        "[]@307": [],
-        "[]@317": [],
+        "`$`@477": [],
+        "`[]=`@291": [],
+        "`[]`@307": [],
+        "`[]`@317": [],
         "allprefixedAux@397": [],
         "commonPrefixLen@513": [],
         "contains@80": [],
@@ -118754,22 +118888,23 @@
         "valuesWithPrefix@423": []
       },
       "nim/nim_stdlib/collections_deques.nim": {
-        "$@532": [],
-        "Unknown_Block@546": [],
-        "[]@168": [],
-        "[]@178": [],
-        "[]@188": [],
-        "[]@198": [],
-        "[]@210": [],
-        "[]@222": [],
+        "`$`@532": [],
+        "`==`@546": [],
+        "`=destroy`@146": [],
+        "`[]=`@188": [],
+        "`[]=`@222": [],
+        "`[]`@168": [],
+        "`[]`@178": [],
+        "`[]`@198": [],
+        "`[]`@210": [],
         "addFirst@335": [],
         "addLast@350": [],
         "bulkCopy@297": [],
         "bulkMoveOrCopy@309": [],
         "clear@484": [],
         "contains@280": [],
-        "destroy@146": [],
         "elem@118": [],
+        "emptyCheck@107": [],
         "emptyCheck@94": [],
         "expandIfNeeded@317": [],
         "hash@566": [],
@@ -118797,6 +118932,7 @@
         "toDeque@365": [],
         "toDequeSink@379": [],
         "uncheckedElem@115": [],
+        "xBoundsCheck@108": [],
         "xBoundsCheck@99": []
       },
       "nim/nim_stdlib/collections_hashcommon.nim": {
@@ -118813,12 +118949,14 @@
         "slotsNeeded@37": []
       },
       "nim/nim_stdlib/collections_heapqueue.nim": {
-        "$@259": [],
-        "[]@75": [],
+        "`$`@259": [],
+        "`<`@39": [],
+        "`[]`@75": [],
         "clear@250": [],
         "contains@191": [],
         "del@196": [],
         "find@179": [],
+        "heapCmp@86": [],
         "initHeapQueue@57": [],
         "items@79": [],
         "len@67": [],
@@ -118831,8 +118969,12 @@
         "siftup@88": [],
         "toHeapQueue@149": []
       },
+      "nim/nim_stdlib/collections_intsets.nim": {
+        "initIntSet@22": [],
+        "toIntSet@20": []
+      },
       "nim/nim_stdlib/collections_lists.nim": {
-        "$@300": [],
+        "`$`@300": [],
         "add@395": [],
         "add@416": [],
         "add@525": [],
@@ -118885,7 +119027,8 @@
       },
       "nim/nim_stdlib/collections_rtarrays.nim": {
         "getRawData@32": [],
-        "initRtArray@27": []
+        "initRtArray@27": [],
+        "usesSeqPart@25": []
       },
       "nim/nim_stdlib/collections_sequtils.nim": {
         "addUnique@156": [],
@@ -118945,6 +119088,7 @@
       },
       "nim/nim_stdlib/collections_setimpl.nim": {
         "containsOrInclImpl@57": [],
+        "dataLen@14": [],
         "doWhile@72": [],
         "dollarImpl@100": [],
         "enlarge@122": [],
@@ -118953,23 +119097,24 @@
         "exclImpl@77": [],
         "inclImpl@45": [],
         "initImpl@18": [],
+        "maxHash@13": [],
         "rawGet@111": [],
         "rawInsert@114": [],
         "rawInsert@32": [],
         "rawInsertImpl@26": []
       },
       "nim/nim_stdlib/collections_sets.nim": {
-        "$@588": [],
-        "$@878": [],
-        "Unknown_Block@492": [],
-        "Unknown_Block@496": [],
-        "Unknown_Block@500": [],
-        "Unknown_Block@504": [],
-        "Unknown_Block@522": [],
-        "Unknown_Block@537": [],
-        "Unknown_Block@558": [],
-        "Unknown_Block@848": [],
-        "[]@137": [],
+        "`$`@588": [],
+        "`$`@878": [],
+        "`*`@496": [],
+        "`+`@492": [],
+        "`-+-`@504": [],
+        "`-`@500": [],
+        "`<=`@537": [],
+        "`<`@522": [],
+        "`==`@558": [],
+        "`==`@848": [],
+        "`[]`@137": [],
         "card@187": [],
         "card@841": [],
         "clear@370": [],
@@ -119023,7 +119168,7 @@
         "withLock@34": []
       },
       "nim/nim_stdlib/collections_sharedtables.nim": {
-        "[]@221": [],
+        "`[]=`@221": [],
         "add@226": [],
         "deinitSharedTable@253": [],
         "del@232": [],
@@ -119031,9 +119176,13 @@
         "hasKeyOrPut@164": [],
         "init@242": [],
         "len@237": [],
+        "maxHash@30": [],
         "mget@139": [],
         "mgetOrPut@156": [],
         "st_maybeRehashPutImpl@34": [],
+        "tabCellEmpty@170": [],
+        "tabCellHash@171": [],
+        "tabMakeEmpty@169": [],
         "withKey@173": [],
         "withLock@58": [],
         "withValue@63": [],
@@ -119064,10 +119213,11 @@
         "resetImpl@99": []
       },
       "nim/nim_stdlib/colors.nim": {
-        "$@448": [],
-        "Unknown_Block@135": [],
-        "Unknown_Block@51": [],
-        "Unknown_Block@65": [],
+        "`$`@448": [],
+        "`+`@51": [],
+        "`-`@65": [],
+        "`==`@18": [],
+        "`><`@135": [],
         "colorNameCmp@455": [],
         "colorOp@38": [],
         "extract@30": [],
@@ -119083,25 +119233,25 @@
         "satPlus@43": []
       },
       "nim/nim_stdlib/complex.nim": {
-        "$@410": [],
-        "/@141": [],
-        "/@145": [],
-        "/@149": [],
-        "/@169": [],
-        "Unknown_Block@100": [],
-        "Unknown_Block@104": [],
-        "Unknown_Block@108": [],
-        "Unknown_Block@112": [],
-        "Unknown_Block@116": [],
-        "Unknown_Block@120": [],
-        "Unknown_Block@124": [],
-        "Unknown_Block@128": [],
-        "Unknown_Block@132": [],
-        "Unknown_Block@136": [],
-        "Unknown_Block@153": [],
-        "Unknown_Block@158": [],
-        "Unknown_Block@163": [],
-        "Unknown_Block@96": [],
+        "`$`@410": [],
+        "`*=`@163": [],
+        "`*`@128": [],
+        "`*`@132": [],
+        "`*`@136": [],
+        "`+=`@153": [],
+        "`+`@100": [],
+        "`+`@104": [],
+        "`+`@108": [],
+        "`-=`@158": [],
+        "`-`@112": [],
+        "`-`@116": [],
+        "`-`@120": [],
+        "`-`@124": [],
+        "`/=`@169": [],
+        "`/`@141": [],
+        "`/`@145": [],
+        "`/`@149": [],
+        "`==`@96": [],
         "abs2@73": [],
         "abs@68": [],
         "almostEqual@391": [],
@@ -119131,6 +119281,10 @@
         "formatValue@439": [],
         "formatValueAsComplexNumber@425": [],
         "formatValueAsTuple@417": [],
+        "im@59": [],
+        "im@61": [],
+        "im@63": [],
+        "im@65": [],
         "inv@92": [],
         "ln@205": [],
         "log10@211": [],
@@ -119150,45 +119304,97 @@
         "tanh@333": []
       },
       "nim/nim_stdlib/concurrency_atomics.nim": {
-        "Unknown_Block@446": [],
-        "Unknown_Block@450": [],
+        "`+=`@446": [],
+        "`-=`@450": [],
         "atomicDec@442": [],
         "atomicInc@438": [],
+        "atomic_compare_exchange_strong_explicit@340": [],
+        "atomic_compare_exchange_weak_explicit@341": [],
+        "atomic_exchange_explicit@339": [],
+        "atomic_fetch_add_explicit@344": [],
+        "atomic_fetch_and_explicit@346": [],
+        "atomic_fetch_or_explicit@347": [],
+        "atomic_fetch_sub_explicit@345": [],
+        "atomic_fetch_xor_explicit@348": [],
+        "atomic_load_explicit@337": [],
+        "atomic_store_explicit@338": [],
+        "clear@157": [],
         "clear@247": [],
+        "clear@354": [],
+        "compareExchange@114": [],
+        "compareExchange@119": [],
         "compareExchange@257": [],
         "compareExchange@367": [],
         "compareExchange@394": [],
         "compareExchange@420": [],
         "compareExchange@432": [],
         "compareExchangeFailureOrder@385": [],
+        "compareExchangeWeak@123": [],
+        "compareExchangeWeak@126": [],
         "compareExchangeWeak@264": [],
         "compareExchangeWeak@370": [],
         "compareExchangeWeak@397": [],
         "compareExchangeWeak@429": [],
         "compareExchangeWeak@435": [],
+        "exchange@110": [],
         "exchange@255": [],
         "exchange@365": [],
         "exchange@415": [],
+        "fence@160": [],
+        "fence@240": [],
+        "fence@356": [],
+        "fetchAdd@132": [],
         "fetchAdd@267": [],
         "fetchAdd@374": [],
+        "fetchAnd@140": [],
         "fetchAnd@279": [],
         "fetchAnd@378": [],
+        "fetchOr@144": [],
         "fetchOr@281": [],
         "fetchOr@380": [],
+        "fetchSub@136": [],
         "fetchSub@273": [],
         "fetchSub@376": [],
+        "fetchXor@148": [],
         "fetchXor@283": [],
         "fetchXor@382": [],
+        "interlockedAnd@225": [],
+        "interlockedAnd@226": [],
+        "interlockedAnd@227": [],
+        "interlockedAnd@228": [],
+        "interlockedCompareExchange@220": [],
+        "interlockedCompareExchange@221": [],
+        "interlockedCompareExchange@222": [],
+        "interlockedCompareExchange@223": [],
+        "interlockedExchange@215": [],
+        "interlockedExchange@216": [],
+        "interlockedExchange@217": [],
+        "interlockedExchange@218": [],
+        "interlockedOr@230": [],
+        "interlockedOr@231": [],
+        "interlockedOr@232": [],
+        "interlockedOr@233": [],
+        "interlockedXor@235": [],
+        "interlockedXor@236": [],
+        "interlockedXor@237": [],
+        "interlockedXor@238": [],
+        "load@103": [],
         "load@250": [],
         "load@361": [],
         "load@407": [],
         "maybeWrapStd@289": [],
         "maybeWrapStd@293": [],
         "nonAtomicType@182": [],
+        "signalFence@163": [],
+        "signalFence@241": [],
+        "signalFence@357": [],
+        "store@106": [],
         "store@252": [],
         "store@363": [],
         "store@411": [],
+        "testAndSet@154": [],
         "testAndSet@245": [],
+        "testAndSet@353": [],
         "withLock@400": []
       },
       "nim/nim_stdlib/concurrency_cpuinfo.nim": {
@@ -119940,12 +120146,18 @@
         "blito@1054": [],
         "check_length2_exn@659": [],
         "chunks_of@1071": [],
+        "concat_map@656": [],
+        "concat_mapi@657": [],
+        "copy@503": [],
         "count@389": [],
         "counti@397": [],
         "exists2_exn@695": [],
         "exists@405": [],
         "existsi@414": [],
+        "filter@714": [],
+        "filter_map@655": [],
         "filter_mapi@641": [],
+        "filteri@715": [],
         "find@467": [],
         "find_exn@475": [],
         "find_map@573": [],
@@ -119963,25 +120175,33 @@
         "for_alli@379": [],
         "get_opt@302": [],
         "get_or_null@308": [],
+        "invariant@1096": [],
+        "is_empty@368": [],
         "is_sorted@356": [],
         "is_sorted_strictly@361": [],
         "iter_until@556": [],
         "iteri_until@543": [],
         "max_elt@450": [],
+        "mem@423": [],
         "min_elt@445": [],
+        "of_array@367": [],
         "of_list_map@667": [],
         "of_list_mapi@681": [],
         "of_list_rev@521": [],
         "of_list_rev_map@717": [],
         "of_list_rev_mapi@723": [],
+        "partition_map@744": [],
         "partition_mapi@729": [],
+        "partition_tf@773": [],
         "partitioni_tf@769": [],
         "raise_length_mismatch@332": [],
         "rev@515": [],
         "rev_inplace@505": [],
         "split_n@1058": [],
+        "sub@1095": [],
         "subo@1085": [],
-        "sum@539": []
+        "sum@539": [],
+        "to_array@366": []
       },
       "ocaml/janestreet_base/array0.ml": {
         "blit@100": [],
@@ -119994,6 +120214,7 @@
         "map@205": [],
         "mapi@220": [],
         "of_list@147": [],
+        "stable_sort@234": [],
         "swap@167": []
       },
       "ocaml/janestreet_base/array_permute.ml": {
@@ -120013,7 +120234,10 @@
       },
       "ocaml/janestreet_base/backtrace.ml": {
         "get@31": [],
-        "to_string@35": []
+        "initialize_module@71": [],
+        "sexp_of_t@40": [],
+        "to_string@35": [],
+        "to_string_list@39": []
       },
       "ocaml/janestreet_base/binary_search.ml": {
         "binary_search_segmented@105": [],
@@ -120026,12 +120250,23 @@
         "possibly_unsafe_bytes_to_string@6": []
       },
       "ocaml/janestreet_base/bool.ml": {
+        "between@39": [],
         "clamp@47": [],
-        "clamp_exn@42": []
+        "clamp_exn@42": [],
+        "clamp_unchecked@40": [],
+        "invariant@38": [],
+        "to_int@58": []
       },
       "ocaml/janestreet_base/buffer.ml": {
+        "add_bytes@9": [],
+        "add_string@8": [],
+        "add_subbytes@12": [],
+        "add_substring@11": [],
         "blit@33": [],
         "blito@37": [],
+        "sexp_of_t@13": [],
+        "sub@45": [],
+        "subo@46": [],
         "unsafe_blit@41": []
       }
     },

@@ -255,7 +255,10 @@ _ROWS = [
         "safety_bypasses",
         "safety",
         "site",
-        "Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state",
+        "A site that opts out of a safety check the language or its tooling would otherwise enforce -- a forced unwrap or unchecked cast, an escape-hatch type, a raw-memory reinterpretation, a swallowed error, or a lint or type-checker suppression -- in the construct's own syntax",
+        status="declared",
+        doc="docs/planted_family_contracts.md",
+        issue=8862,
         planted=True,
     ),
     _c(
@@ -307,7 +310,14 @@ _ROWS = [
         issue=8862,
     ),
     _c(
-        "doc", "safety", "annotation", "Structured documentation meant to be parsed by IDEs or generators", planted=True
+        "doc",
+        "safety",
+        "annotation",
+        "A comment block in the language's structured documentation form -- the form a documentation tool or IDE parses, such as a doc comment, a docstring or a tagged block -- read from the comment surface",
+        status="declared",
+        doc="docs/planted_family_contracts.md",
+        issue=8862,
+        planted=True,
     ),
     _c(
         "test",
@@ -423,8 +433,26 @@ _ROWS = [
         planted=True,
     ),
     # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
-    _c("planned_debt", "subsystems", "annotation", "Annotated future work", planted=True),
-    _c("fragile_debt", "subsystems", "annotation", "Explicit admissions of fragile or dangerous logic", planted=True),
+    _c(
+        "planned_debt",
+        "subsystems",
+        "annotation",
+        "A comment marker that records work the author intends to do later -- TODO, WIP, STUB or the language's equivalent -- read from the comment surface",
+        status="declared",
+        doc="docs/planted_family_contracts.md",
+        issue=8862,
+        planted=True,
+    ),
+    _c(
+        "fragile_debt",
+        "subsystems",
+        "annotation",
+        "A comment marker in which the author admits the code beneath it is fragile, dangerous or a shortcut -- HACK, FIXME, XXX or the language's equivalent -- read from the comment surface",
+        status="declared",
+        doc="docs/planted_family_contracts.md",
+        issue=8862,
+        planted=True,
+    ),
     _c(
         "hardcoded_secrets",
         "subsystems",
@@ -507,7 +535,16 @@ _ROWS = [
         issue=2897,
     ),
     # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
-    _c("telemetry", "resources", "site", "Structured logging and observability frameworks", planted=True),
+    _c(
+        "telemetry",
+        "resources",
+        "site",
+        "A call that records a log line, a metric or a trace through a logging or observability framework, as opposed to a bare print to standard output -- in the framework's own call form",
+        status="declared",
+        doc="docs/planted_family_contracts.md",
+        issue=8862,
+        planted=True,
+    ),
     _c(
         "debug_prints",
         "resources",

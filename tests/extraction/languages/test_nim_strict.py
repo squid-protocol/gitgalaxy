@@ -246,3 +246,20 @@ def test_every_rule_survives_pathological_input():
     pairs = [(rule, p) for rule in [r for r in RULES.values() if hasattr(r, "finditer")] for p in payloads]
     assert_redos_immune_all(pairs)
     assert re.compile(NIM["import_capture_blank"]).sub("", "#[" + "a" * 30000) is not None
+
+
+def test_one_line_proc_and_operator_names_9200():
+    # A one-line body is its own unit; a backticked operator proc keeps its backticks as its name.
+    src = (
+        "proc multi(x: int): int =\n"
+        "  result = x + 1\n"
+        "proc oneLiner(x: int): int = x * 2\n"
+        "proc `+`(a, b: Foo): Foo =\n"
+        "  a\n"
+        "proc `==`(a, b: Foo): bool = true\n"
+        "proc `[]`(a: Foo): int = 1\n"
+        'proc `$`(a: Foo): string = "x"\n'
+        "proc `*`(a, b: Foo): Foo = a\n"
+    )
+    names = sorted(f["name"] for f in _splice(src)["functions"])
+    assert names == sorted(["multi", "oneLiner", "`+`", "`==`", "`[]`", "`$`", "`*`"])

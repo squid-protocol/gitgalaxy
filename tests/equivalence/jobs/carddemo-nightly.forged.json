@@ -12,6 +12,8 @@
     "TRANIDX": "TRANIDX.jcl"
   },
   "forge_utility_jobs": ["TRANBKP", "COMBTRAN", "TRANIDX"],
+  "catalog_seeds": {"TRANIDX": {"jcl": "TRANBKP.jcl", "step": "STEP10"}},
+  "control_members": {"REPROCT": "app/ctl/REPROCT.ctl"},
   "datasets": {
     "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS": {
       "job": "CREASTMT", "lrecl": 350, "recfm": "FB",

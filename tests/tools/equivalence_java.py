@@ -136,6 +136,74 @@ def _entry_returns(case: dict[str, Any], svc: str) -> dict[str, str]:
     return {m.group(2): m.group(1) for m in re.finditer(r"public\s+(int|void)\s+([a-z]\w*)\s*\(\s*\)", text)}
 
 
+# #8886: a case's `forged_job` ({"job", "step", "config", "dds"}) runs the step as the forge's generated Spring Batch
+# job: the JCL job launched by name (JclJobLauncher), the step's DDs resolved to datasets by DSN as the generated job
+# names them. The step's RC is the one its tasklet records (`RC=n`); an abend the port raised is rethrown as itself.
+FORGED_FIELD = f"\n    @Autowired {PKG}.batch.JclJobLauncher jobLauncher;"
+
+
+def forged_job_parts(case: dict[str, Any]) -> tuple[str, str]:
+    """The test's entry call and the helper methods for a case run through its forged job."""
+    fj = case["forged_job"]
+    bad = [
+        k for k in ("job", "step", "config", "dds") if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", str(fj.get(k, "")))
+    ]
+    if bad:
+        raise SystemExit(f"{case['name']}: forged_job {bad} are not names")
+    if case.get("entries") or case.get("db2"):  # (the PARM is the JCL's own, the generated job passes it)
+        raise SystemExit(f"{case['name']}: a forged job runs the step through no entry method or Db2 unit of work")
+    call = f'            rc = forgedJob("{fj["job"]}", "{fj["step"]}", "{fj["config"]}", "{fj["dds"]}");\n'
+    members = f"""
+    @SuppressWarnings("unchecked")
+    int forgedJob(String job, String step, String config, String dds) throws IOException {{
+        List<Dd> steps;
+        try {{
+            java.lang.reflect.Field f = Class.forName("{PKG}.batch." + config).getDeclaredField(dds);
+            f.setAccessible(true);
+            steps = (List<Dd>) f.get(null);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException(e);
+        }}
+        for (Dd dd : steps) {{  // the harness stages a sequential input under its DD name: the job names it by DSN
+            Path named = datasets.resolve(dd.name());
+            if (dd.dsn() != null && dd.generation() == null && Files.isRegularFile(named)) {{
+                Files.copy(named, datasets.resolve(dd.dsn()), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }}
+        }}
+        org.springframework.batch.core.JobExecution ex = jobLauncher.launch(job);
+        org.springframework.batch.core.StepExecution se = ex.getStepExecutions().stream()
+                .filter(s -> s.getStepName().equals(step)).findFirst()
+                .orElseThrow(() -> new IllegalStateException("job " + job + " ran no step " + step));
+        for (Throwable t : se.getFailureExceptions()) {{
+            if (t instanceof CobolAbend abend) {{
+                throw abend;
+            }}
+        }}
+        for (Dd dd : steps) {{  // an output the job wrote under its DSN (a GDG: its newest generation) is the DD's file
+            if (dd.dsn() == null) {{
+                continue;
+            }}
+            Path p = datasets.resolve(dd.dsn());
+            if (Files.isDirectory(p)) {{
+                try (var gens = Files.list(p)) {{
+                    p = gens.filter(g -> g.getFileName().toString().matches("G\\\\d{{4}}V00")).max(java.util.Comparator.naturalOrder())
+                            .orElse(null);
+                }}
+            }}
+            if (p != null && Files.isRegularFile(p)) {{
+                Files.copy(p, datasets.resolve(dd.name()), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }}
+        }}
+        String code = se.getExitStatus().getExitCode();
+        if (!code.startsWith("RC=")) {{
+            throw new IllegalStateException("step " + step + " ended " + code + ": " + se.getFailureExceptions());
+        }}
+        return Integer.parseInt(code.substring(3));
+    }}
+"""
+    return call, members
+
+
 def equivalence_test(case: dict[str, Any]) -> str:
     """The generated JUnit test that loads, runs and dumps one case (see the module docstring)."""
     svc = _service_class(case["program"])
@@ -184,6 +252,11 @@ def equivalence_test(case: dict[str, Any]) -> str:
             "            }\n"
         )
     db2_members = ""
+    forged = forged_job_parts(case) if case.get("forged_job") else None
+    if (
+        forged
+    ):  # #8886: the step runs as the forged Spring Batch job (JclJobLauncher), not through a direct runBatch call
+        entry_call, db2_members = forged
     if case.get("db2"):  # #4269: the step is one Db2 unit of work (db2Step), the det runtime's COMMIT / ROLLBACK in it
         entry_call = ("            int[] step = new int[1];\n            db2Step(() -> {\n"
                       + re.sub(r"\brc = ", "step[0] = ", "".join("    " + ln for ln in entry_call.splitlines(True)))
@@ -208,7 +281,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.annotation.DirtiesContext;
 
 /** #3624: the equivalence run of {case["program"]} ({case["name"]}) -- generated by tests/tools/equivalence_java.py. */
-@SpringBootTest(properties = {{{SPRING_TEST_PROPERTIES}, "gitgalaxy.clock={_clock(case)}",
+@SpringBootTest(properties = {{{SPRING_TEST_PROPERTIES}{', "spring.batch.job.enabled=false"' if forged else ""}, "gitgalaxy.clock={_clock(case)}",
         "gitgalaxy.zone={case.get("zone", "UTC")}", "gitgalaxy.datasets.directory=${{equivalence.datasets}}"}})
 @DirtiesContext  // a session JVM (--one-jvm) runs this class again: each run on a context of its own, as a fresh JVM has
 class EquivalenceRunTest {{
@@ -224,7 +297,7 @@ class EquivalenceRunTest {{
     final Path datasets = Path.of(System.getProperty("equivalence.datasets"));
 
     @Autowired {PKG}.service.{svc} {var};
-{chr(10).join(fields)}
+{chr(10).join(fields)}{FORGED_FIELD if forged else ""}
 
     @Test
     void run() throws IOException {{

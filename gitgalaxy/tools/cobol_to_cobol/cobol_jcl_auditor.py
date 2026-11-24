@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ==============================================================================
-# GitGalaxy Tool: Zero-Trust JCL Auditor
+# GitGalaxy Tool: JCL Auditor
 #
 # PURPOSE:
 # Compares generated Cloud JCLs against original IBM legacy JCLs to calculate
@@ -12,7 +12,7 @@
 # never actually opened or utilized by the compiled COBOL program. This violates
 # the principle of least privilege. This auditor mathematically proves the
 # security posture of the modernized architecture by comparing the legacy
-# footprint against the newly generated, zero-trust equivalents.
+# footprint against the newly generated, least-privilege equivalents.
 # ==============================================================================
 import argparse
 import json
@@ -93,7 +93,7 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
             if pgm not in legacy_map or metrics.get("lines_of_code", 0) > legacy_map[pgm].get("lines_of_code", 0):
                 legacy_map[pgm] = {"file": lj, "metrics": metrics}
 
-    # 2. Compare against Generated (Zero-Trust) JCLs
+    # 2. Compare against Generated (least-privilege) JCLs
     generated_files = sorted(generated_dir.glob("*.jcl"), key=lambda p: p.name)
     report: dict[str, Any] = {
         "audited": 0,
@@ -146,9 +146,9 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
 
-    enforce_licensing_guard("Zero-Trust JCL Auditor")
+    enforce_licensing_guard("JCL Auditor")
 
-    parser = argparse.ArgumentParser(description="GitGalaxy Zero-Trust JCL Auditor")
+    parser = argparse.ArgumentParser(description="GitGalaxy JCL Auditor")
     parser.add_argument("generated", help="Directory containing the modernized GitGalaxy JCLs")
     parser.add_argument("legacy", help="Directory containing the original legacy IBM JCLs")
     parser.add_argument(
@@ -177,7 +177,7 @@ def main():
 
     # CLI Terminal Output
     print("\n==============================================================")
-    print(" 🛡️  GitGalaxy Tool: Zero-Trust JCL Auditor")
+    print(" 🛡️  GitGalaxy Tool: JCL Auditor")
     print("==============================================================")
     print(f" [*] Modernized Dir : {generated_path.name}")
     print(f" [*] Legacy Root    : {legacy_path.name}")
@@ -197,7 +197,7 @@ def main():
         print(" 📊 FINAL AUDIT METRICS:")
         print(f"  > Programs Audited       : {report['audited']}")
         print(f"  > Original Legacy LOC    : {report['original_loc']}")
-        print(f"  > GitGalaxy Zero-Trust LOC: {report['forged_loc']}")
+        print(f"  > GitGalaxy Generated LOC: {report['forged_loc']}")
         print(f"  > Bloat Reduction        : {report['bloat_reduction_pct']}%")
         print(f"  > Over-Permissioned I/O  : {report['excess_dds_blocked']} Dataset Boundaries Shed")
 

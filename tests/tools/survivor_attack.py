@@ -478,7 +478,14 @@ def _paragraph_kind(lines: list[str], a: int, b: int) -> str | None:
         return None
     if not all(_GUARD.match(x) for x in body[:-2] if re.match(r"^\s*(?:if \([^)]*\) )?return\b", x)):
         return None
-    return "throws" if body[-3] == "        " + _THROW else "falls"
+    if body[-3] == "        " + _THROW:
+        return "throws"
+    # an IF / ELSE whose two branches each end with the throw: the `return n;` after it is dead
+    if body[-3] == "        }" and body[-4] == "            " + _THROW:
+        els = next((k for k in range(len(body) - 4, -1, -1) if body[k] == "        } else {"), None)
+        if els is not None and body[els - 1] == "            " + _THROW:
+            return "throws"
+    return "falls"
 
 
 def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[str, Any] | None:
@@ -490,7 +497,9 @@ def _no_label_flow(text: str, spans: dict[str, list[tuple[int, int]]]) -> dict[s
     if "handleAbend" in text:
         return None
     for ln in lines:
-        rest = re.sub(r"\bhandlers\.(?:get|clear|remove)\(|Map<[^>]*>\s+handlers\s*=", "", ln)
+        rest = re.sub(
+            r"\bhandlers\.(?:get|clear|remove)\(|Map<[^>]*>\s+handlers\s*=|\bresolveCondition\(handlers,", "", ln
+        )
         if _word("handlers", rest):
             return None
         if re.search(r"\bint to = ", ln) and "condition(" not in ln:
@@ -581,7 +590,11 @@ def flow_plumbing(text: str, spans: dict[str, list[tuple[int, int]]], mutant: di
     elif owner == "perform":
         kind = "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does"
     elif owner == "paragraph" or "java.util.Map.entry(" in before:
-        if text.count("paragraph(") == 2 and text.count("PARAGRAPHS") == 2:
+        # the map is read by paragraph() and, via condition(), by resolveCondition: which looks a label up only when the
+        # task has a HANDLE ABEND label, and `_no_label_flow` (below) refuses a program that sets one
+        old_shape = text.count("paragraph(") == 2 and text.count("PARAGRAPHS") == 2
+        resolved = text.count("paragraph(") == 1 and text.count("PARAGRAPHS") == 3 and "resolveCondition(handlers, task, cond, PARAGRAPHS," in text  # fmt: skip
+        if old_shape or resolved:
             kind = "paragraph() is called only for a HANDLE ABEND label, and the program has none"
     elif _PERFORM_CALL.search(before) and owner and re.fullmatch(r"p\d+", owner):
         a, b = _PERFORM_CALL.search(before), _PERFORM_CALL.search(after)
@@ -808,9 +821,7 @@ def _all_reads_dominated(
     ranges = _storage_field_ranges(lines, storage)
     if ranges is None:
         return False
-    covering = {
-        name: (a, b) for name, (a, b) in ranges.items() if any(a <= o < b for o in changed)
-    }
+    covering = {name: (a, b) for name, (a, b) in ranges.items() if any(a <= o < b for o in changed)}
     if not covering:
         return True
     depth = _depth_starts(text)
@@ -831,10 +842,7 @@ def _all_reads_dominated(
             where = _span(spans, r)
             if not where or "->" in ln:
                 return False
-            if not any(
-                where[0] < s < r and ranges[g][0] <= fa and ranges[g][1] >= fb
-                for s, g in stores.items()
-            ):
+            if not any(where[0] < s < r and ranges[g][0] <= fa and ranges[g][1] >= fb for s, g in stores.items()):
                 return False
     return True
 
@@ -1418,8 +1426,13 @@ def _default_jobs() -> int:
 
 
 def attack(
-    case_name: str, ids: list[str], inputs: Path, work: Path, timeout: float,
-    jobs: int | None = None, base: str | None = None,
+    case_name: str,
+    ids: list[str],
+    inputs: Path,
+    work: Path,
+    timeout: float,
+    jobs: int | None = None,
+    base: str | None = None,
 ) -> dict[str, dict[str, Any]]:
     import equivalence as eq
     import mainframe_corpus as mc
@@ -1467,7 +1480,9 @@ def attack(
             record["result"] = judge(base, {"verdict": "error"})
             record["detail"] = (base.get("why") or str((base.get("report") or {}).get("feedback") or ""))[:400]
         else:
-            ok, why = mu.compiles(mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file)
+            ok, why = mu.compiles(
+                mu.write_mutant(port, m, mdir / "port"), classpath, mdir / "classes", only_file=m.file
+            )
             if not ok:
                 record.update(result="stillborn", detail=why[:400])
             else:
@@ -1506,7 +1521,9 @@ def _stage_java_inputs(trial: dict[str, Any], corpus: Path, inputs_dir: Path) ->
         if dd in generated:
             (inputs_dir / f"{dd}.in").write_bytes(generated[dd])
         elif "input" in spec:
-            (inputs_dir / f"{dd}.in").write_bytes(eq._fixed(eq._input_path(trial, corpus, spec["input"]), spec["reclen"], enc))
+            (inputs_dir / f"{dd}.in").write_bytes(
+                eq._fixed(eq._input_path(trial, corpus, spec["input"]), spec["reclen"], enc)
+            )
 
 
 def screen(
@@ -1565,8 +1582,16 @@ def screen(
     entries = tuple(ej.entry_names(trial))
     print(f"{case_name}: screening {len(mutants)} mutant(s) on {len(proposals)} input(s) (Java-only)", flush=True)
     base_runs = ej.run_java_environments(
-        trial, corpus, here / "baseline", inputs_dir, envs, port=True, port_dir=port,
-        faults=faults_arg, entries=entries, one_jvm=True,
+        trial,
+        corpus,
+        here / "baseline",
+        inputs_dir,
+        envs,
+        port=True,
+        port_dir=port,
+        faults=faults_arg,
+        entries=entries,
+        one_jvm=True,
     )
     classpath = mu.baseline_classpath(here / "baseline", here)
     names = [p["name"] for p in proposals]
@@ -1589,8 +1614,17 @@ def screen(
             return False
 
         ej.run_java_environments(
-            trial, corpus, mdir / "java", inputs_dir, envs, port=True, port_dir=mdir / "port",
-            faults=faults_arg, stop=diverges, entries=entries, one_jvm=True,
+            trial,
+            corpus,
+            mdir / "java",
+            inputs_dir,
+            envs,
+            port=True,
+            port_dir=mdir / "port",
+            faults=faults_arg,
+            stop=diverges,
+            entries=entries,
+            one_jvm=True,
         )
         if diverged_on:
             record.update(result="diverged", diverged_on=diverged_on)
@@ -1845,7 +1879,11 @@ def cmd_clusters(cases: list[str], limit: int) -> int:
         for s in entry.get("survived", []):
             if s["id"] in triaged:
                 continue
-            key = (str(s.get("op", "")), _norm_snippet(str(s.get("before", ""))), _norm_snippet(str(s.get("after", ""))))
+            key = (
+                str(s.get("op", "")),
+                _norm_snippet(str(s.get("before", ""))),
+                _norm_snippet(str(s.get("after", ""))),
+            )
             groups[key].append((case, s["id"]))
     ranked_groups = sorted(groups.items(), key=lambda kv: (-len(kv[1]), -len({c for c, _ in kv[1]}), kv[0]))
     for (op, bef, aft), items in ranked_groups[:limit]:
@@ -1881,14 +1919,26 @@ def cmd_fault_candidates(cases: list[str], limit: int) -> int:
             continue
         triaged = {s["id"] for s in survivors.get(case, [])}
         hits = [
-            s for s in entry.get("survived", [])
+            s
+            for s in entry.get("survived", [])
             if s["id"] not in triaged and _FAULT_HINT.search(str(s.get("before", "")))
         ]
         if hits:
-            rows.append((len(hits), uncov, case, int(br.get("covered", 0)), int(br.get("total", 0)), [h["id"] for h in hits[:5]]))
+            rows.append(
+                (
+                    len(hits),
+                    uncov,
+                    case,
+                    int(br.get("covered", 0)),
+                    int(br.get("total", 0)),
+                    [h["id"] for h in hits[:5]],
+                )
+            )
     rows.sort(reverse=True)
     for hit_n, uncov, case, cov_n, tot_n, sample_ids in rows[:limit]:
-        print(f"{hit_n:4d} fault-survivors  {uncov:3d} uncov branches ({cov_n}/{tot_n})  {case:30s}  [{', '.join(sample_ids)}]")
+        print(
+            f"{hit_n:4d} fault-survivors  {uncov:3d} uncov branches ({cov_n}/{tot_n})  {case:30s}  [{', '.join(sample_ids)}]"
+        )
     return 0
 
 
@@ -1976,10 +2026,14 @@ def apply_inputs(case_name: str, inputs: Path) -> int:
         key = "calls"
     elif kind == "cics":
         key = "scenarios"
-    elif all(isinstance(p, dict) and ("plan" in p or "sql_plan" in p or "sysin" in p or "parm" in p) for p in proposals):
+    elif all(
+        isinstance(p, dict) and ("plan" in p or "sql_plan" in p or "sysin" in p or "parm" in p) for p in proposals
+    ):
         key = "faults"
     else:
-        print(f"{case_name}: `--apply` supports `call`, `cics`, or batch fault proposals; add batch dataset inputs manually")
+        print(
+            f"{case_name}: `--apply` supports `call`, `cics`, or batch fault proposals; add batch dataset inputs manually"
+        )
         return 0
     existing = case.setdefault(key, [])
     seen = {e.get("name") for e in existing if isinstance(e, dict)}
@@ -2081,8 +2135,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_facts_all(args.cases, args.work.resolve(), args.auto_state, args.limit)
     if args.cmd == "screen":
         results = screen(
-            args.case, args.ids.split(","), args.inputs, args.work.resolve(), args.jobs, args.base,
-            args.promote, args.timeout,
+            args.case,
+            args.ids.split(","),
+            args.inputs,
+            args.work.resolve(),
+            args.jobs,
+            args.base,
+            args.promote,
+            args.timeout,
         )
         div = [i for i, r in results.items() if r["result"] == "diverged"]
         if div:

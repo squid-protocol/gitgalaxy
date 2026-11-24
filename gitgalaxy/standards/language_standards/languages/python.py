@@ -183,7 +183,7 @@ DEFINITION: dict[str, Any] = {
             r"\*{0,2}[ \t]*([" + ID_CONTINUE + r"]+)[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: _private (encapsulation) and Final (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(def|class|return|import|from|as|with|pass|continue|break|await|assert|del|global|nonlocal|type)\b"
@@ -590,7 +590,7 @@ DEFINITION: dict[str, Any] = {
         # exists but crucible incidence is 0; host config is otherwise file I/O
         # or subprocess (their owners').
         "system_config_mutation": None,
-        # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
+        # --- PHASE 4: APPSEC & AI SENSORS (security-sensitive call patterns and AI-agent signals) ---
         "memory_scraping": re.compile(r"['\"]/proc/['\"]\s*\+\s*(?:str\([^)]*\)|f?['\"]\{[^}]*\})|/proc/\w+/mem"),
         "exfiltration_camouflage": re.compile(
             r"\b(requests\.post|urllib\.request|httpx\.post)\s*\([^)]*(?:checkmarx|telemetry|metrics|audit|log)\b",

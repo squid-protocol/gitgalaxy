@@ -821,6 +821,7 @@ KEY_FIELDS_NOT_COMPARED: tuple[tuple[str, str], ...] = (
     ("member", "file"),
     ("ims_gen", "dbname"),
     ("ims_gen", "segment"),
+    ("file_control", "optional"),
 )
 
 

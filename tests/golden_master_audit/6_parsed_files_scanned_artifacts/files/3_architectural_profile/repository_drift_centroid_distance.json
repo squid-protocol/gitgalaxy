@@ -1587,7 +1587,7 @@
       "groovy/godot_android_gradle/java_settings.gradle": 2.944
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 6.133,
+      "groovy/gradle/DefaultPluginManager.java": 6.18,
       "groovy/gradle/DefaultProject.java": 7.013,
       "groovy/gradle/DefaultTask.java": 6.554
     },
@@ -1775,9 +1775,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 3.549
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 7.71,
+      "groovy/spock/DeepBlockRewriter.java": 7.734,
       "groovy/spock/SpecParser.java": 7.227,
-      "groovy/spock/SpecRewriter.java": 6.895,
+      "groovy/spock/SpecRewriter.java": 6.915,
       "groovy/spock/SpockTransform.java": 6.865
     },
     "groovy/spock_core_groovy": {
@@ -2089,14 +2089,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.631
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 5.953,
+      "java/springboot/AutoConfigurationImportSelector.java": 5.985,
       "java/springboot/Binder.java": 7.604,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 6.378,
+      "java/springboot/OnClassCondition.java": 6.447,
       "java/springboot/ServletWebServerApplicationContext.java": 7.262,
-      "java/springboot/SpringApplication.java": 5.925,
-      "java/springboot/WebMvcAutoConfiguration.java": 6.579
+      "java/springboot/SpringApplication.java": 5.939,
+      "java/springboot/WebMvcAutoConfiguration.java": 6.6
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0

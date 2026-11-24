@@ -1588,7 +1588,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 0.559,
-      "groovy/gradle/DefaultProject.java": 1.795,
+      "groovy/gradle/DefaultProject.java": 1.731,
       "groovy/gradle/DefaultTask.java": 0.097
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1775,9 +1775,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": -0.168
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": -0.374,
-      "groovy/spock/SpecParser.java": -0.497,
-      "groovy/spock/SpecRewriter.java": 0.615,
+      "groovy/spock/DeepBlockRewriter.java": -0.43,
+      "groovy/spock/SpecParser.java": -0.642,
+      "groovy/spock/SpecRewriter.java": 0.477,
       "groovy/spock/SpockTransform.java": 0.294
     },
     "groovy/spock_core_groovy": {
@@ -2089,11 +2089,11 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.936
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.8,
-      "java/springboot/Binder.java": 1.13,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.618,
+      "java/springboot/Binder.java": 1.15,
       "java/springboot/JarLauncher.java": 3.032,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.105,
+      "java/springboot/OnClassCondition.java": -0.11,
       "java/springboot/ServletWebServerApplicationContext.java": 0.941,
       "java/springboot/SpringApplication.java": 0.917,
       "java/springboot/WebMvcAutoConfiguration.java": 1.57
@@ -4125,7 +4125,7 @@
       "tcl/SOURCES.md": 0.0
     },
     "tcl/macports_port_api": {
-      "tcl/macports_port_api/fetch_common.tcl": 0.004,
+      "tcl/macports_port_api/fetch_common.tcl": 0.03,
       "tcl/macports_port_api/library.tcl": 2.976,
       "tcl/macports_port_api/portactivate.tcl": 0.954,
       "tcl/macports_port_api/portbuild.tcl": 1.355,

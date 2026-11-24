@@ -857,12 +857,15 @@ public final class Idcams {
             }
             if (aix.unique && busiest > 1) {
                 throw new Refused("the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys "
-                    + "(IBM's outcome is not stated)");
+                    + "(IDC1645I: IBM keeps the first pointer and states no condition code; "
+                    + "the outcome is not modelled)");
             }
             int need = AIX_HEADER + aix.keyLen + pointer * busiest;
             if (need > aix.max) {
                 throw new Refused("the IDCAMS BLDINDEX record for the busiest key needs " + need
-                    + " bytes, over RECORDSIZE maximum " + aix.max + " (IBM's outcome is not stated)");
+                    + " bytes, over RECORDSIZE maximum " + aix.max
+                    + " (IDC1646I: IBM keeps the pointers that fit and states no condition code or which pointers; "
+                    + "the outcome is not modelled)");
             }
             aix.built = true;
             end(0, "BLDINDEX " + aix.name + ": " + base.records.size() + " records, " + groups.size() + " keys");

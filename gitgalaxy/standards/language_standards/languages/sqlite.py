@@ -93,7 +93,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:^[ \t]*|\bWITH(?:[ \t\n]+RECURSIVE)?[ \t\n]+)[a-zA-Z_]\w*[ \t\n]*\([^)]{0,2000}\)[ \t\n]*AS[ \t\n]*\(",
             re.I | re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries defining query execution flow.
         "structural_boundaries": re.compile(
             r"\b(SELECT|FROM|JOIN|(?:INNER|LEFT|RIGHT|FULL|CROSS|NATURAL)(?:\s+OUTER)?\s+JOIN|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT|RETURNING|AS|INTO|WINDOW|STRICT|WITHOUT\s+ROWID|PARTITION\s+BY|PRECEDING|FOLLOWING|UNBOUNDED|CURRENT\s+ROW|THEN|END)\b",

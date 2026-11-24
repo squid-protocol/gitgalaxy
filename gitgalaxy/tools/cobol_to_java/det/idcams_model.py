@@ -539,13 +539,15 @@ class _Step:
             groups[k] = groups.get(k, 0) + 1
         if aix.unique and any(n > 1 for n in groups.values()):
             raise Refused(
-                "the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys (IBM's outcome is not stated)"
+                "the IDCAMS BLDINDEX of a UNIQUEKEY alternate index over duplicate keys (IDC1645I: IBM keeps the "
+                "first pointer and states no condition code; the outcome is not modelled)"
             )
         need = _AIX_HEADER + aix.key_len + pointer * max(groups.values())
         if need > aix.max:
             raise Refused(
                 f"the IDCAMS BLDINDEX record for the busiest key needs {need} bytes, over RECORDSIZE maximum {aix.max} "
-                "(IBM's outcome is not stated)"
+                "(IDC1646I: IBM keeps the pointers that fit and states no condition code or which pointers; "
+                "the outcome is not modelled)"
             )
         aix.built = True
         self.end(0, f"BLDINDEX {aix.name}: {len(base.records)} records, {len(groups)} keys")

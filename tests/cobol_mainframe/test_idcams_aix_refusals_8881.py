@@ -127,6 +127,16 @@ def test_the_java_step_refuses_it_with_the_same_words(deck, state, why):
     assert first.startswith("REFUSED") and why in first, first
 
 
+@pytest.mark.parametrize(("state", "deck", "msg"), [("unique", BLD, "IDC1645I"), ("small", BLD, "IDC1646I")])
+def test_the_bldindex_refusals_cite_their_idc_message(state, deck, msg):
+    """#8886: IBM's message for each case is named in the refusal (register F4), in the model and in the Java twin."""
+    setup, cat = _setup(state)
+    with pytest.raises(Refused, match=msg):
+        M.run(setup + deck, cat, _dds())
+    if eij.jdk_bin() is not None:
+        assert msg in eij.model_lines(setup + deck, cat, _dds())[0]
+
+
 SLOT = chr(0)
 _SCOPE = re.compile(r"ALTERNATEINDEX|\bPATH\b|BLDINDEX|alternate index|\bpath\b")
 

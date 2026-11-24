@@ -138,7 +138,7 @@ DEFINITION: dict[str, Any] = {
             + r" \t\n:<>,.?]{0,150}?)->",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries defining file architecture and control returns.
         "structural_boundaries": re.compile(
             r"\b(package|import|return|break|continue|class|interface|object|fun|typealias|try|catch|finally)\b"

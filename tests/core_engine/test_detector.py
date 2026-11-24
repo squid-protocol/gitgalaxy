@@ -5874,7 +5874,7 @@ def test_detector_java_records_receiver_types():
     assert run["calls_out_receiver_types"] == {
         "in": "JsonReader",
         "xs": "",
-        "e": "Entry",
+        "e": "Map.Entry",
         "w": "JsonWriter",
         "el": "JsonElement",
         "members": "LinkedTreeMap",

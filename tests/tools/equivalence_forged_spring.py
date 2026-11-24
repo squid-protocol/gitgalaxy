@@ -173,6 +173,26 @@ def dcb_facts(jcl_members: dict[str, str], datasets: dict[str, dict]) -> list[di
     ]  # fmt: skip
 
 
+def jcl_instream_deck(jcl: str, step: str) -> str:
+    """The in-stream SYSIN text (`SYSIN DD *` up to `/*`) of the named step of a JCL member (#8886 slice 10)."""
+    lines, in_step, deck = jcl.splitlines(), False, None
+    for ln in lines:
+        if deck is not None:
+            if ln.startswith("/*") or ln.startswith("//"):
+                return "\n".join(deck)
+            deck.append(ln.rstrip())
+        elif ln.startswith("//"):
+            if re.match(rf"//{re.escape(step)}\s+EXEC\b", ln):
+                in_step = True
+            elif in_step and re.match(r"//\w+\s+EXEC\b", ln):
+                break
+            elif in_step and re.match(r"//SYSIN\s+DD\s+\*", ln):
+                deck = []
+    if deck is None:
+        raise ValueError(f"no in-stream SYSIN for step {step}")
+    return "\n".join(deck)
+
+
 def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
     """Write each seeded input dataset as the file the DatasetResolver finds under `root` (DSN = file name): the seed's
     lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has."""
@@ -211,6 +231,8 @@ def forge_estate(
     package: str = "com.gitgalaxy",
     datasets=None,
     utility_jobs=(),
+    control_members=None,
+    catalog_seeds=None,
 ):
     """The real forge over the estate: skeletons for the corpus's own COBOL programs, the scan's job rows.
 
@@ -243,7 +265,8 @@ def forge_estate(
                 job.kind, job.reason = "application", f"utility-only, forged on request ({job.reason})"
             return job
 
-    return BatchForge(skeletons, {"sections": sections}, package, load_target(None))
+    estate = {"sections": sections, "control_members": control_members or {}, "catalog_seeds": catalog_seeds or {}}
+    return BatchForge(skeletons, estate, package, load_target(None))
 
 
 def _kind(job) -> str:
@@ -418,6 +441,13 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
             spec["jobs"],
             datasets=spec.get("datasets"),
             utility_jobs=spec.get("forge_utility_jobs", ()),
+            # #8886 slice 9: the estate's own control-statement library (a SYSIN `LIB(MEMBER)`), read from the corpus
+            control_members={m: (corpus / p).read_text("utf-8") for m, p in spec.get("control_members", {}).items()},
+            # #8886 slice 10: a job's catalog starts with what another job's IDCAMS step DEFINEd (TRANIDX's KSDS)
+            catalog_seeds={
+                job: jcl_instream_deck((corpus / spec["jcl_dir"] / c["jcl"]).read_text("utf-8"), c["step"])
+                for job, c in spec.get("catalog_seeds", {}).items()
+            },
         )
         rcs = chain_rcs(report)
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])

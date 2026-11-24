@@ -1,6 +1,6 @@
 # 🌌 GitGalaxy: WebGPU Visualizer ([GitGalaxy.io](https://gitgalaxy.io))
 
-**A High-Performance, Zero-Trust 3D Codebase Cartography Engine.**
+**A High-Performance, Local-Only 3D Codebase Cartography Engine.**
 
 Modern IDEs present code as a flat list of files, masking the true physical weight, fragility, and blast radius of enterprise architecture. GitGalaxy is a forensic visualizer that solves this by mapping repository telemetry into an interactive, real-time 3D universe. 
 
@@ -28,9 +28,9 @@ This isn't a standard charting library; it's a custom-built, hardware-accelerate
 * **The Structural RAG Graph:** Visualizes the exact deterministic [Knowledge Graph Context](https://squid-protocol.github.io/gitgalaxy/01-06-the-structural-rag-graph.md) that the core engine feeds to downstream AI agents, allowing humans to audit the precise boundaries of their DevSecOps pipelines.
 * **Interactive Dependency Webs:** Navigate the architecture with hyperspace jumps, isolate single components, and toggle global inbound/outbound dependency rings that arc across the galaxy.
 
-## 🛡️ Zero-Trust & Local Execution
+## 🛡️ Local Execution (No Backend)
 
-Your code is your business. This visualizer operates under a strict **Zero-Trust Client-Side Architecture**. 
+Your code is your business. This visualizer operates under a **client-side-only architecture with no backend**. 
 
 When you drop a `your_repo_galaxy_gpu.json` state dump into the interface, **absolutely zero data is transmitted to any server**. All parsing, rendering, data refraction, and spatial calculations happen entirely locally in your browser's memory.
 

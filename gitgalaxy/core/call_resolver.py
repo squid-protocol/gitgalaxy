@@ -873,12 +873,14 @@ class _Definition:
     __slots__ = (
         "arity",
         "dir",
+        "ext_receiver",
         "kind",
         "line",
         "max_arity",
         "min_arity",
         "name",
         "owner_key",
+        "param_names",
         "params",
         "parts",
         "path",
@@ -903,7 +905,9 @@ class _Definition:
         arity: int | None = None,
         pkg: str | None = None,
         params: list[str] | None = None,
+        param_names: list[str] | None = None,
         return_type: str | None = None,
+        ext_receiver: str | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -921,10 +925,13 @@ class _Definition:
         self.arity = arity
         # #8161 (J1): the declared parameter types (java_arg_types), None when unread
         self.params = params
+        self.param_names = param_names
         # #8161 (Y2): a Python `@property` / `@cached_property` getter: reading the attribute runs it
         self.prop = False
         # Declared return class name on the function header (for cross-function receiver typing)
         self.return_type = return_type
+        # Kotlin extension function receiver type (`fun ArrayType.descriptor(...)` -> `"ArrayType"`)
+        self.ext_receiver = ext_receiver
         # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
         self.min_arity: int | None = arity
         self.max_arity: int | None = arity
@@ -1102,7 +1109,13 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                 int(func.get("args", 0) or 0),
                 pkg=pkg,
                 params=func.get("param_types"),
+                param_names=func.get("param_names"),
                 return_type=func.get("return_type"),
+                ext_receiver=(
+                    (func.get("calls_out_receiver_types") or {}).get("this")
+                    if lang == "kotlin" and shape == EXTENSION_SHAPE
+                    else None
+                ),
             )
             definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
             rng = func.get("arity_range")
@@ -2282,6 +2295,7 @@ def _choose_overloads(
                     lang,
                     subtype,
                     [d.min_arity if d.min_arity is not None else len(d.params or ()) for d in match],
+                    [d.param_names for d in match],
                 )
                 for t in sites
             ]
@@ -2540,7 +2554,7 @@ def _resolve_call_return_type(
     if not expr:
         return None
     segments = [s for s in expr.split(".") if s]
-    if not segments or len(segments) > 4:
+    if not segments or len(segments) > 6:
         return None
 
     def _step(
@@ -2550,11 +2564,18 @@ def _resolve_call_return_type(
         st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, step_scope)
         if RESOLUTION_OF_STEP.get(st) not in CONFIDENT_RESOLUTIONS or d is None or not d.return_type:
             return None
-        if not _is_class(index, group, d.return_type, lang):
+        ret_raw = d.return_type
+        if "." in ret_raw:
+            outer, _, inner = ret_raw.rpartition(".")
+            outer_files = caller.class_files.get(_key(outer, lang), set())
+            if outer_files and _is_class(index, group, inner, lang):
+                return _lineage(inner, group, lang, parents), outer_files
+            ret_raw = inner
+        if not _is_class(index, group, ret_raw, lang):
             return None
-        ret_lin = _lineage(d.return_type, group, lang, parents)
-        ret_key = _key(d.return_type, lang)
-        # If multiple files define `d.return_type` (e.g. Kotlin's nested `Builder`), scope to `d.path`
+        ret_lin = _lineage(ret_raw, group, lang, parents)
+        ret_key = _key(ret_raw, lang)
+        # If multiple files define `ret_raw` (e.g. Kotlin's nested `Builder`), scope to `d.path`
         files = caller.class_files.get(ret_key, set())
         scope = {d.path} if len(files) > 1 and d.path in files else None
         return ret_lin, scope
@@ -2598,6 +2619,93 @@ def _resolve_call_return_type(
             return None
         cur_lineage, cur_scope = hit
     return (cur_lineage, cur_scope) if cur_lineage is not None else None
+
+
+def _resolve_call_return_name(
+    expr: str,
+    index: dict[tuple[str, str], _Bucket],
+    group: str,
+    lang: str,
+    caller: _File,
+    lineage: list[str],
+    cache: _Cache,
+    parents: dict[tuple[str, str], set[str]],
+    typed: dict[str, list[str]],
+    typed_scope: dict[str, set[str]],
+    static_memo: dict[tuple[int, str], _Bucket],
+) -> str | None:
+    """Resolve a call expression (`CodeBlock.of()`, `x.asTypeName()`) to its declared return class leaf name."""
+    if not expr:
+        return None
+    segments = [s for s in expr.split(".") if s]
+    if not segments or len(segments) > 6:
+        return None
+
+    def _step_raw(
+        qual: str, callee_name: str, step_typed: dict[str, list[str]], step_scope: dict[str, set[str]]
+    ) -> tuple[str, list[str], set[str] | None] | None:
+        bkt = _visible_statics(index.get((group, _key(callee_name, lang))), caller, static_memo)
+        st, d = _resolve_one(bkt, caller, lineage, qual, cache, step_typed, step_scope)
+        if RESOLUTION_OF_STEP.get(st) not in CONFIDENT_RESOLUTIONS or d is None or not d.return_type:
+            return None
+        # If multiple overloads exist at `d`, only trust `d.return_type` when all overloads agree on it.
+        ovs = _overloads(index, d, group, lang)
+        ret_raw = d.return_type
+        if len(ovs) > 1 and any((o.return_type or "").rsplit(".", 1)[-1] != ret_raw.rsplit(".", 1)[-1] for o in ovs):
+            return None
+        leaf = ret_raw.rsplit(".", 1)[-1]
+        if "." in ret_raw:
+            outer, _, inner = ret_raw.rpartition(".")
+            outer_files = caller.class_files.get(_key(outer, lang), set())
+            if outer_files and _is_class(index, group, inner, lang):
+                return inner, _lineage(inner, group, lang, parents), outer_files
+        if not _is_class(index, group, leaf, lang):
+            return leaf, [], None
+        ret_lin = _lineage(leaf, group, lang, parents)
+        files = caller.class_files.get(_key(leaf, lang), set())
+        scope = {d.path} if len(files) > 1 and d.path in files else None
+        return leaf, ret_lin, scope
+
+    if len(segments) == 1:
+        seg = segments[0]
+        hit = _step_raw("", seg[:-2] if seg.endswith("()") else seg, typed, typed_scope)
+        return hit[0] if hit else None
+
+    cur_name: str | None = None
+    cur_lineage: list[str] | None = None
+    cur_scope: set[str] | None = None
+    first = segments[0]
+    if first in _SELF_RECEIVERS and lineage:
+        cur_lineage = lineage
+    elif first in typed:
+        cur_lineage = typed[first]
+        cur_scope = typed_scope.get(first)
+    elif first.endswith("()"):
+        hit = _step_raw("", first[:-2], typed, typed_scope)
+        if hit is None or not hit[1]:
+            return None
+        cur_name, cur_lineage, cur_scope = hit
+
+    for idx, seg in enumerate(segments[1:], start=1):
+        is_last = idx == len(segments) - 1
+        if not seg.endswith("()") and not is_last:
+            if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
+                cur_lineage = typed[f"{first}.{seg}"]
+                cur_scope = typed_scope.get(f"{first}.{seg}")
+                continue
+            return None
+        callee_name = seg[:-2] if seg.endswith("()") else seg
+        if cur_lineage:
+            next_scope = {**typed_scope, "<chain>": cur_scope} if cur_scope is not None else typed_scope
+            hit = _step_raw("<chain>", callee_name, {**typed, "<chain>": cur_lineage}, next_scope)
+        elif idx == 1:
+            hit = _step_raw(first, callee_name, typed, typed_scope)
+        else:
+            return None
+        if hit is None:
+            return None
+        cur_name, cur_lineage, cur_scope = hit
+    return cur_name
 
 
 def resolve_calls(
@@ -2772,6 +2880,13 @@ def resolve_calls(
                     if files and _is_class(index, group, leaf, lang):
                         typed[q] = _lineage(leaf, group, lang, parents)
                         typed_scope[q] = files
+                elif lang in ("kotlin", "java", "csharp", "cpp") and c and "." in str(c):
+                    # Qualified nested class (`builder: TypeSpec.Builder`): scope `Inner` to `Outer`'s file(s).
+                    outer, _, inner = str(c).rpartition(".")
+                    outer_files = caller.class_files.get(_key(outer, lang))
+                    if outer_files and _is_class(index, group, inner, lang):
+                        typed[q] = _lineage(inner, group, lang, parents)
+                        typed_scope[q] = outer_files
                 elif c and q not in typed and not _is_class(index, group, str(c), lang):
                     # Cross-function return type: `x = get_store()` where `get_store` has `return_type = "Store"`
                     ret_hit = _resolve_call_return_type(
@@ -2875,25 +2990,30 @@ def resolve_calls(
                     alt_step, alt_dst, alt_used = _resolve_option(q)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, alt_used
-                if (
-                    lang in ("csharp", "kotlin")
-                    and kind == "call"
-                    and dst is not None
-                    and dst.shape != EXTENSION_SHAPE
-                    and used
-                    and (
-                        used in _CS_KEYWORD_TYPES
-                        or (
-                            used not in typed
-                            and receiver_types.get(used)
-                            and not _is_class(index, group, str(receiver_types[used]), lang)
+                if kind == "call" and dst is not None and dst.shape != EXTENSION_SHAPE and used and used not in typed:
+                    recv_t = str(receiver_types.get(used) or "")
+                    external_recv = False
+                    if lang in ("csharp", "kotlin"):
+                        # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,
+                        # `PropertyInfo p`) or a keyword type (`char.IsWhiteSpace`) is a library object: only an
+                        # extension method of the repo can answer it, never a repo method that shares the name.
+                        external_recv = used in _CS_KEYWORD_TYPES or (
+                            bool(recv_t) and not _is_class(index, group, recv_t, lang)
                         )
-                    )
-                ):
-                    # #8161 (PR 5): a receiver declared with a type the repo does not define (`BinaryReader _reader`,
-                    # `PropertyInfo p`) or a keyword type (`char.IsWhiteSpace`) is a library object: only an extension
-                    # method of the repo can answer it, never a repo method that shares the name
-                    step, dst = "none", None
+                    elif lang == "rust":
+                        external_recv = bool(recv_t) and len(recv_t) > 1 and not _is_class(index, group, recv_t, lang)
+                    elif lang == "java":
+                        external_recv = bool(recv_t) and not _is_class(index, group, recv_t, lang)
+                    elif lang == "cpp":
+                        external_recv = recv_t.startswith("std::")
+                    elif lang == "go":
+                        external_recv = (
+                            used not in caller.aliases
+                            and "." in recv_t
+                            and recv_t.partition(".")[0] not in caller.aliases
+                        )
+                    if external_recv:
+                        step, dst = "none", None
                 if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
                     continue  # a variable, a class, or a name the scope cannot see: no row
                 if kind in ("property", "reference") and dst is not None and dst.kind == "function":
@@ -3010,16 +3130,74 @@ def resolve_calls(
                         else None
                     )
                     overloads = _overloads(index, dst, group, lang, visible_paths=vis, src_path=src_path)
+                    if (
+                        len(overloads) > 1
+                        and lang == "kotlin"
+                        and kind == "call"
+                        and len(options) == 1
+                        and all(d.ext_receiver for d in overloads)
+                    ):
+                        recv_key = used or "this"
+                        recv_t = str(receiver_types.get(recv_key) or "").rsplit(".", 1)[-1]
+                        if recv_t:
+                            ext_match = [d for d in overloads if d.ext_receiver == recv_t]
+                            if ext_match:
+                                overloads = ext_match
+                                if len(overloads) == 1:
+                                    targets = [(step, overloads[0])]
                     if len(overloads) > 1:
                         arities = (
                             list(dict.fromkeys(int(n) for _, n in ctor_forms.get(callee) or []))
                             if kind == "ctor"
                             else [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
                         )
+                        raw_arg_types = (func.get("calls_out_arg_types") or {}).get(callee)
+                        if raw_arg_types and any(
+                            a.startswith("@") or "=@" in a for site_t in raw_arg_types for a in site_t
+                        ):
+                            resolved_arg_types: list[list[str]] = []
+                            for site_t in raw_arg_types:
+                                row_t: list[str] = []
+                                for a in site_t:
+                                    if a.startswith("@"):
+                                        rn = _resolve_call_return_name(
+                                            a[1:],
+                                            index,
+                                            group,
+                                            lang,
+                                            caller,
+                                            lineage,
+                                            cache,
+                                            parents,
+                                            typed,
+                                            typed_scope,
+                                            static_memo,
+                                        )
+                                        row_t.append(rn or "")
+                                    elif "=@" in a:
+                                        lbl, _, expr = a.partition("=@")
+                                        rn = _resolve_call_return_name(
+                                            expr,
+                                            index,
+                                            group,
+                                            lang,
+                                            caller,
+                                            lineage,
+                                            cache,
+                                            parents,
+                                            typed,
+                                            typed_scope,
+                                            static_memo,
+                                        )
+                                        row_t.append(f"{lbl}={rn or ''}")
+                                    else:
+                                        row_t.append(a)
+                                resolved_arg_types.append(row_t)
+                            raw_arg_types = resolved_arg_types
                         picked, ambiguous = _choose_overloads(
                             overloads,
                             arities,
-                            (func.get("calls_out_arg_types") or {}).get(callee),
+                            raw_arg_types,
                             _java_subtype(index, parents, group, lang),
                             lang,
                         )
@@ -3030,10 +3208,18 @@ def resolve_calls(
                         if ambiguous:
                             # #8161 (J2): the guess is an overload the call's argument count fits, when one does
                             fits = [d for d in [dst, *overloads] if d not in picked and any(map(d.fits, arities))]
-                            guess = fits[0] if fits else (dst if dst not in picked else overloads[0])
+                            non_self = [d for d in fits if not (d.path == src_path and d.line == caller_line)]
+                            pool = non_self or fits
+                            guess = pool[0] if pool else (dst if dst not in picked else overloads[0])
                             targets.append(("overload", guess))
                 for step, dst in targets:
-                    if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
+                    if (
+                        step != "overload"
+                        and dst is not None
+                        and dst.path == src_path
+                        and dst.line == caller_line
+                        and dst.name == caller_name
+                    ):
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
                         # that reaches only the unit itself is not a call (#3327, #5628); only where the
                         # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion);

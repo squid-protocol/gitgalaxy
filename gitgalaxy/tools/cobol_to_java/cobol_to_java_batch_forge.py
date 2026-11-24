@@ -159,6 +159,12 @@ class BatchForge:
             self.sysin.setdefault((d["file"], d["ordinal"], d.get("proc_step"), d.get("dd") or ""), []).append(
                 d.get("body") or ""
             )
+        # #8886: a control-statement library's members, {member: text}, for a SYSIN that is a dataset member (`LIB(MEMBER)`).
+        # The caller reads them from the estate's own library (CardDemo's app/ctl); none is invented here.
+        self.members: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("control_members") or {}).items()}
+        # #8886 slice 10: {JOB: IDCAMS deck} the job's catalog holds when its first IDCAMS step starts (an entry an
+        # earlier job catalogued, e.g. the KSDS TRANBKP STEP10 DEFINEs); the deck is run before that step, no RC kept
+        self.catalog_seeds: dict[str, str] = {str(k).upper(): v for k, v in (estate.get("catalog_seeds") or {}).items()}
         self.flows = (sections.get("job_dataset_flow") or {}).get("facts", [])
         self.jobs = [self._plan(j, dds) for j in (sections.get("job_steps") or {}).get("facts", [])]
         taken: set[str] = set()
@@ -245,9 +251,12 @@ class BatchForge:
         """#4268: an IDCAMS step is a record copy only while its SYSIN is one `REPRO INFILE(dd) OUTFILE(dd)`
         (`idcams.parse`, proven against GnuCOBOL); every other command or parameter, a SYSIN dataset, or a REPRO whose
         DDs are not datasets of the step is refused by name. The two DDs are kept on the step."""
-        if any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
-            return "its SYSIN is a dataset of control statements (not read)"
         decks = self._deck(file, ordinal, st, "SYSIN")
+        member = self._sysin_member(st)
+        if member is not None:
+            decks = [member]
+        elif any(d.get("dd") == "SYSIN" and d.get("dsn") for d in st.dds):
+            return "its SYSIN is a dataset of control statements (not read)"
         if len(decks) != 1:
             return "has no single in-stream SYSIN of IDCAMS commands"
         try:
@@ -294,6 +303,17 @@ class BatchForge:
         if reg.program != st.program:
             return f"runs {reg.program} in its PARM, not {st.program}"
         st.parm = None
+        return None
+
+    def _sysin_member(self, st: Step) -> str | None:
+        """#8886: the text of a SYSIN that is a member of a control-statement library the caller supplied
+        (`estate["control_members"]`), matched on the member name of `LIB(MEMBER)`; None when it is not one, or no text
+        was supplied for that member (the step then stays refused by name). /* ... */ comment lines are IDCAMS comments."""
+        for d in st.dds:
+            m = re.fullmatch(r"[^()]*\(([A-Za-z0-9@#$]{1,8})\)", d.get("dsn") or "") if d.get("dd") == "SYSIN" else None
+            if m and m.group(1).upper() in self.members:
+                text = re.sub(r"/\*.*?\*/", "", self.members[m.group(1).upper()], flags=re.S)
+                return "\n".join(ln for ln in text.splitlines() if ln.strip())
         return None
 
     def _deck(self, file: str, ordinal: int, st: Step, dd: str) -> list[str]:
@@ -668,7 +688,10 @@ class BatchForge:
         if st.program in IDCAMS and st.copy_dds:
             return f"steps.copy({head}, {consts}, {_jstr(st.copy_dds[0])}, {_jstr(st.copy_dds[1])})"
         if st.program in IDCAMS and st.idcams_deck:  # #8886: the model's run, the job's catalog kept between steps
-            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)})"
+            seed = self.catalog_seeds.get(j.job.upper())
+            first = next((s for s in j.steps if s.idcams_deck), None) is st
+            tail = f", {_jstr(seed, text=True)}" if seed and first else ""
+            return f"steps.idcams({head}, {consts}, {_jstr(st.idcams_deck, text=True)}{tail})"
         todo = self._step_todo(st) or ""
         return f"steps.utility({head}, {_jstr(st.program)}, {_jstr(todo.split(': ', 1)[-1])})"
 
@@ -1439,8 +1462,57 @@ public class JclSteps {
      */
     public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
             String deck) {
+        return idcams(name, jcl, jobCond, cond, ifCond, dds, deck, "");
+    }
+
+    /**
+     * A catalogued KSDS whose dataset file the resolver finds (a cluster another job loaded) holds that file's records:
+     * fixed-length ones (RECORDSIZE avg = max), cut at that length and kept in key order. A cluster with no such file
+     * stays empty; a file that is not a whole number of records is refused by name, never truncated.
+     */
+    private void loadSeededClusters(String jcl, Map<String, Idcams.Entry> catalog) {
+        for (Idcams.Entry e : catalog.values()) {
+            if (!(e instanceof Idcams.Cluster c) || !c.records.isEmpty() || c.avg != c.max || c.avg <= 0) {
+                continue;
+            }
+            Path p = datasets.path(new Dd(c.name, c.name, null, null, null));
+            if (p == null || !Files.isRegularFile(p)) {
+                continue;
+            }
+            try {
+                byte[] all = Files.readAllBytes(p);
+                if (all.length % c.avg != 0) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + c.name + " dataset holds "
+                        + all.length + " bytes, not a whole number of RECORDSIZE " + c.avg + " records");
+                }
+                List<byte[]> recs = new ArrayList<>();
+                for (int i = 0; i < all.length; i += c.avg) {
+                    recs.add(java.util.Arrays.copyOfRange(all, i, i + c.avg));
+                }
+                if (c.indexed) {
+                    recs.sort((a, b) -> java.util.Arrays.compareUnsigned(a, c.keyOff, c.keyOff + c.keyLen,
+                        b, c.keyOff, c.keyOff + c.keyLen));
+                }
+                c.records = recs;
+            } catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+    }
+
+    /** `idcams`, the job's catalog first holding what `seed` (an IDCAMS deck, no return code kept) defines. */
+    public Tasklet idcams(String name, String jcl, String jobCond, String cond, String ifCond, List<Dd> dds,
+            String deck, String seed) {
         return guardedJob(jcl, jobCond, cond, ifCond, jobId -> {
             Map<String, Idcams.Entry> catalog = catalogs.computeIfAbsent(jobId, k -> new LinkedHashMap<>());
+            if (!seed.isEmpty()) {
+                try {
+                    catalog = Idcams.run(seed, catalog, new LinkedHashMap<>()).catalog;
+                } catch (Idcams.Refused e) {
+                    throw new UnsupportedOperationException(jcl + " IDCAMS catalog seed: " + e.getMessage(), e);
+                }
+                loadSeededClusters(jcl, catalog);
+            }
             Map<String, Object> ddMap = new LinkedHashMap<>();
             Map<String, Path> files = new LinkedHashMap<>();
             try {

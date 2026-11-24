@@ -1659,11 +1659,6 @@
         "import:perl/mojo/Template.pm"
       ]
     },
-    "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": [
-        "fcall:groovy/gradle/DefaultProject.java"
-      ]
-    },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": [
         "fcall:groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy"
@@ -1750,12 +1745,8 @@
       ]
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": [
-        "fcall:groovy/spock/SpecRewriter.java"
-      ],
       "groovy/spock/SpecRewriter.java": [
-        "fcall:groovy/spock/DeepBlockRewriter.java",
-        "fcall:groovy/spock/SpecParser.java"
+        "fcall:groovy/spock/DeepBlockRewriter.java"
       ],
       "groovy/spock/SpockTransform.java": [
         "fcall:groovy/spock/SpecParser.java",
@@ -1897,22 +1888,16 @@
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": [
         "fcall:java/springboot/Binder.java",
-        "fcall:java/springboot/OnClassCondition.java",
         "fcall:java/springboot/SpringApplication.java"
       ],
       "java/springboot/Binder.java": [
         "fcall:java/springboot/SpringApplication.java"
       ],
-      "java/springboot/OnClassCondition.java": [
-        "fcall:java/springboot/SpringApplication.java"
-      ],
       "java/springboot/SpringApplication.java": [
-        "fcall:java/springboot/AutoConfigurationImportSelector.java",
         "fcall:java/springboot/Binder.java"
       ],
       "java/springboot/WebMvcAutoConfiguration.java": [
         "fcall:java/springboot/AutoConfigurationImportSelector.java",
-        "fcall:java/springboot/Binder.java",
         "fcall:java/springboot/SpringApplication.java"
       ]
     },

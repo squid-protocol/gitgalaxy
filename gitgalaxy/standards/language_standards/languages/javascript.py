@@ -533,7 +533,7 @@ DEFINITION: dict[str, Any] = {
         # layer; host configuration is reachable only through child_process
         # command text (high_risk_execution's exec boundary).
         "system_config_mutation": None,
-        # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
+        # --- PHASE 4: APPSEC & AI SENSORS (security-sensitive call patterns and AI-agent signals) ---
         "rce_funnel": re.compile(r"child_process\.(?:spawn|exec|execSync)\s*\(\s*['\"](?:python|bash|sh|bun|node)\b"),
         "exfiltration_camouflage": re.compile(
             r"\b(fetch|axios\.post|https\.request)\s*\([^)]*(?:checkmarx|telemetry|metrics|audit|log)\b",

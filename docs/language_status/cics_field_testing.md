@@ -20,44 +20,44 @@ counted in it (their fact counts are not recorded here).
 
 | field | tested on: public | private | fresh | facts (public) | engine defects | forge defects | clean fresh | clean fresh facts | bound | status | needs |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| units of work and handlers | 6 | 0 | 3 | 2,492 | 0 | 0 | 3 | 2,111 | 0.1% | field-tested | - |
+| units of work and handlers | 9 | 0 | 6 | 2,643 | 0 | 0 | 6 | 2,262 | 0.1% | field-tested | - |
+| BMS screen fields | 5 | 0 | 3 | 2,145 | 0 | 0 | 3 | 566 | 0.5% | field-tested | - |
 | record fields | 9 | 0 | 6 | 6,270 | 6 | 4 | 2 | 508 | 0.6% | field-tested | - |
-| BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
-| CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
+| CSD resources | 5 | 0 | 3 | 501 | 0 | 0 | 3 | 267 | 1.1% | open | 33 more clean fresh facts |
 | units | 9 | 0 | 6 | 2,527 | 7 | 4 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
 | unit extents | 7 | 0 | 2 | 2,210 | 0 | 0 | 2 | 200 | 1.5% | open | 100 more clean fresh facts |
 | intra-program edges | 7 | 0 | 2 | 1,989 | 1 | 0 | 2 | 184 | 1.6% | open | 116 more clean fresh facts |
-| JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
+| JCL resolved DSNs | 7 | 0 | 4 | 830 | 1 | 0 | 3 | 180 | 1.7% | open | 120 more clean fresh facts |
+| JCL job flow | 7 | 0 | 4 | 1,784 | 2 | 0 | 1 | 116 | 2.6% | open | 1 more clean fresh round(s), 184 more clean fresh facts |
+| CICS resources | 8 | 0 | 6 | 3,699 | 1 | 0 | 3 | 111 | 2.7% | open | 189 more clean fresh facts |
+| dynamic call targets | 8 | 0 | 5 | 306 | 0 | 0 | 5 | 90 | 3.3% | open | 210 more clean fresh facts |
 | copybook paths | 7 | 0 | 4 | 503 | 9 | 1 | 1 | 72 | 4.2% | open | 1 more clean fresh round(s), 228 more clean fresh facts |
 | dead | 6 | 0 | 4 | 177 | 0 | 7 | 4 | 68 | 4.4% | open | 232 more clean fresh facts |
 | call targets | 9 | 0 | 6 | 202 | 1 | 1 | 3 | 60 | 5.0% | open | 240 more clean fresh facts |
 | program_id | 9 | 0 | 6 | 168 | 3 | 0 | 2 | 39 | 7.7% | open | 261 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
+| DB2 table access | 5 | 0 | 3 | 71 | 0 | 0 | 3 | 34 | 8.8% | open | 266 more clean fresh facts |
 | dead (non-trivial) | 6 | 0 | 4 | 42 | 0 | 0 | 4 | 24 | 12.5% | open | 276 more clean fresh facts |
-| DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
+| entry transactions | 5 | 0 | 3 | 62 | 0 | 0 | 3 | 24 | 12.5% | open | 276 more clean fresh facts |
 | MOVE truncation | 8 | 0 | 5 | 187 | 1 | 0 | 1 | 18 | 16.7% | open | 1 more clean fresh round(s), 282 more clean fresh facts |
-| dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
-| entry transactions | 4 | 0 | 2 | 53 | 0 | 0 | 2 | 15 | 20.0% | open | 285 more clean fresh facts |
+| CICS task control | 6 | 0 | 4 | 223 | 1 | 0 | 1 | 17 | 17.6% | open | 1 more clean fresh round(s), 283 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
 | outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
 | dynamic CALLs | 3 | 0 | 2 | 5 | 0 | 0 | 2 | 2 | - | open | 298 more clean fresh facts |
+| DB2 table columns | 3 | 0 | 1 | 56 | 1 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | DL/I calls | 2 | 0 | 1 | 36 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS access check | 2 | 0 | 1 | 15 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | data moves | 9 | 0 | 6 | 13,905 | 5 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| CALL USING | 6 | 0 | 3 | 153 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| JCL job flow | 5 | 0 | 2 | 1,618 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | JCL runner programs | 4 | 0 | 0 | 86 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | file control | 4 | 0 | 1 | 89 | 1 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I data moves | 2 | 0 | 0 | 9,224 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I layouts | 2 | 0 | 0 | 6,729 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -81,9 +81,9 @@ counted in it (their fact counts are not recorded here).
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,149 | 4 | 7 | 1 | 0 |
-| 7 | dbb-mortgage-application | public | 971 | 2 | 5 | 2 | 0 |
-| 8 | cics-async-api-credit-card-application-example | public | 224 | 0 | 0 | 1 | 0 |
-| 9 | example-health-apis | public | 792 | 0 | 1 | 0 | 0 |
+| 7 | dbb-mortgage-application | public | 1,207 | 5 | 5 | 2 | 0 |
+| 8 | cics-async-api-credit-card-application-example | public | 326 | 0 | 0 | 1 | 0 |
+| 9 | example-health-apis | public | 1,467 | 0 | 1 | 0 | 0 |
 
 ## Defect log
 

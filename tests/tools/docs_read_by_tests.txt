@@ -341,6 +341,7 @@ docs/encapsulation_rule_contract.md	gitgalaxy,tests/test_signal_contract_sheet.p
 docs/ex.py	tests/tools/test_doom_speedrun.py
 docs/examples/demo.c/	tests/core_engine
 docs/examples/demo.py	tests/tools/test_doom_speedrun.py
+docs/family_oracle_readings.md	tests/tools/test_family_oracle.py
 docs/flaky.md	tests/tools/test_gate_controls_docs.py
 docs/func_start_rule_contract.md	gitgalaxy
 docs/gitgalaxy_architecture_brief.md	tests/tools/test_generated_branch.py
@@ -542,6 +543,7 @@ estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
 estate_journey.md	tests/tools/estate_journey.py,tests/tools/test_estate_journey.py
 evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
+family_oracle_readings.md	tests/tools/test_family_oracle.py
 family_validity_chart.svg	tests/tools/family_validity_chart.py
 family_validity_matrix.svg	tests/tools/family_validity_chart.py,tests/tools/test_family_validity_chart.py
 feed.md	tests/tools/blocker_estate_feed.py

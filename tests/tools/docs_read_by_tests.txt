@@ -471,6 +471,7 @@ docs/report/README.md	tests/tools/test_generated_branch.py
 docs/report/a/	tests/tools/test_generated_branch.py
 docs/report/a/report.md	tests/tools/test_generated_branch.py
 docs/research/doom-port-study.md	tests/tools/doom_speedrun
+docs/resource_family_contracts.md	gitgalaxy,tests/test_signal_contract_sheet.py
 docs/risk_documentation_contract.md	gitgalaxy
 docs/safety_rule_contract.md	gitgalaxy
 docs/same.md	tests/tools/test_generated_docs.py

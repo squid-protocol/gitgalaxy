@@ -417,13 +417,13 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 2.022,
-      "c/cpython/ceval.c": 0.303,
+      "c/cpython/ceval.c": 0.329,
       "c/cpython/compile.c": 0.058,
       "c/cpython/dictobject.c": 0.285,
       "c/cpython/frameobject.c": 0.209,
       "c/cpython/gc.c": -0.687,
       "c/cpython/object.c": 0.482,
-      "c/cpython/typeobject.c": 0.155
+      "c/cpython/typeobject.c": 0.181
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -892,16 +892,16 @@
       "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": -0.245,
-      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -0.109,
+      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": -0.075,
       "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": -0.367,
-      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -0.132,
+      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": -0.097,
       "cobol/cics-banking-sample-application-cbsa/RESPSTR.cpy": 1.872,
       "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/STCUSTNO.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": 1.687,
       "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": -0.455,
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": 1.529,
-      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -0.296,
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -0.259,
       "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 1.351,
       "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -0.109
@@ -1115,7 +1115,7 @@
       "cpp/godot/object.cpp": -0.309,
       "cpp/godot/object.h": 0.695,
       "cpp/godot/rendering_server_default.cpp": 0.288,
-      "cpp/godot/rendering_server_default.h": 0.125,
+      "cpp/godot/rendering_server_default.h": 0.157,
       "cpp/godot/variant.cpp": 0.536,
       "cpp/godot/variant.h": -0.268
     },
@@ -1329,17 +1329,17 @@
       "embedded_python/SOURCES.md": 0.0
     },
     "embedded_python/meow_turtle": {
-      "embedded_python/meow_turtle/actuators.py": 0.522,
+      "embedded_python/meow_turtle/actuators.py": 0.544,
       "embedded_python/meow_turtle/app.py": 0.07,
       "embedded_python/meow_turtle/bldc_driver.py": 0.384,
       "embedded_python/meow_turtle/boot.py": 0.151,
       "embedded_python/meow_turtle/diagnostics.py": -0.023,
       "embedded_python/meow_turtle/logging.py": -0.151,
-      "embedded_python/meow_turtle/meowprotocol.py": -0.228,
+      "embedded_python/meow_turtle/meowprotocol.py": -0.202,
       "embedded_python/meow_turtle/mpu6050.py": -0.047,
-      "embedded_python/meow_turtle/ota.py": -0.679,
+      "embedded_python/meow_turtle/ota.py": -0.644,
       "embedded_python/meow_turtle/pio_programs.py": 3.583,
-      "embedded_python/meow_turtle/sensors.py": 0.014,
+      "embedded_python/meow_turtle/sensors.py": 0.035,
       "embedded_python/meow_turtle/tester.py": 1.569,
       "embedded_python/meow_turtle/tsl2591.py": 0.806,
       "embedded_python/meow_turtle/vibration_driver.py": 0.198
@@ -1446,7 +1446,7 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 0.559,
-      "groovy/gradle/DefaultProject.java": 1.81,
+      "groovy/gradle/DefaultProject.java": 1.731,
       "groovy/gradle/DefaultTask.java": 0.122
     },
     "groovy/gradle_buildlogic_groovy": {
@@ -1633,9 +1633,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": -0.168
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": -0.374,
-      "groovy/spock/SpecParser.java": -0.497,
-      "groovy/spock/SpecRewriter.java": 0.615,
+      "groovy/spock/DeepBlockRewriter.java": -0.402,
+      "groovy/spock/SpecParser.java": -0.642,
+      "groovy/spock/SpecRewriter.java": 0.477,
       "groovy/spock/SpockTransform.java": 0.294
     },
     "groovy/spock_core_groovy": {
@@ -1912,11 +1912,11 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.936
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.825,
-      "java/springboot/Binder.java": 1.13,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.618,
+      "java/springboot/Binder.java": 1.15,
       "java/springboot/JarLauncher.java": 3.032,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.132,
+      "java/springboot/OnClassCondition.java": -0.11,
       "java/springboot/ServletWebServerApplicationContext.java": 0.941,
       "java/springboot/SpringApplication.java": 0.917,
       "java/springboot/WebMvcAutoConfiguration.java": 1.57

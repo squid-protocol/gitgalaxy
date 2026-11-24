@@ -13,7 +13,7 @@ To resolve this, the GitGalaxy ecosystem relies on a deterministic function-leve
 
 Instead of treating code as a probabilistic text-completion exercise, this engine utilizes the blAST (Bypassing LLMs and ASTs) paradigm. It scans the raw structural text using high-performance syntactic heuristics to mathematically map internal file pointers to physical external datasets. It identifies exactly where data is ingested, where it is mutated, and where it is expelled. 
 
-In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic graph provides absolute ground truth. The RAG engine retrieves the mathematically proven Directed Acyclic Graph (DAG) of the application's data lineage, allowing automated migration tools to generate modern execution orchestrators (like Apache Airflow or AWS Step Functions) with zero-trust structural integrity.
+In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic graph provides absolute ground truth. The RAG engine retrieves the mathematically proven Directed Acyclic Graph (DAG) of the application's data lineage, allowing automated migration tools to generate modern execution orchestrators (like Apache Airflow or AWS Step Functions) with deterministic structural integrity.
 
 ## 2. The Data Lineage DAG Architect
 
@@ -55,7 +55,7 @@ cobol-dag-architect src/legacy/batch_programs/
 **Sample Output:**
 ```text
 ==========================================================
- ⚡ ZERO-TRUST EXECUTION PIPELINE (TOPOLOGICAL SORT)
+ ⚡ DETERMINISTIC EXECUTION PIPELINE (TOPOLOGICAL SORT)
 ==========================================================
 
  STEP 01: Run [GL-EXTRACT]

@@ -47,18 +47,18 @@ It outputs a `master_refraction_audit.txt` report estimating the code bloat remo
   • Unreachable Logic Blocks: 590 phantom paragraphs
   ✂️ Estimated Bloat Removed: ~6717 Lines of Code
 
-[2] ZERO-TRUST JCL ARCHITECTURE
+[2] DETERMINISTIC JCL ARCHITECTURE
 ----------------------------------------------------------
   • Programs Audited           : 29
   • Original Legacy LOC        : 18,450 lines
-  • GitGalaxy Zero-Trust LOC   : 11,733 lines
+  • GitGalaxy Forged LOC       : 11,733 lines
   📉 Total Code Bloat Removed  : 36.4%
   🛡️ Over-Permissioned I/O     : 14 physical files secured
 
 [3] GENERATED CLOUD SCAFFOLDING
 ----------------------------------------------------------
   • PostgreSQL DDLs & JSON Schemas Forged : 29
-  • Zero-Trust Emulator JCLs Generated    : 29
+  • Emulator JCLs Generated               : 29
   • Isolated Microservice Slices Extracted: 1 (Target: WS-ACCOUNT-BALANCE)
 
 [4] ⚠️ MANUAL INTERVENTION AUDIT (HONESTY PROTOCOL)

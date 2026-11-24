@@ -66882,7 +66882,8 @@
           "ReadOnlyBindingDiagnostic"
         ],
         "GetCompilationNamespace@1525": [
-          "GetNestedNamespace"
+          "GetNestedNamespace",
+          "GetCompilationNamespace"
         ],
         "GetCompilationNamespace@1549": [
           "GetNestedNamespace",
@@ -72287,12 +72288,15 @@
           "WorkspaceEventHandlerAndOptions",
           "func",
           "Create",
-          "ConfigureAwait"
+          "ConfigureAwait",
+          "ScheduleTask"
         ],
         "SetCurrentSolution@169": [
           "SetCurrentSolutionEx"
         ],
-        "SetCurrentSolution@201": [],
+        "SetCurrentSolution@201": [
+          "SetCurrentSolution"
+        ],
         "SetCurrentSolution@230": [
           "SetCurrentSolutionAsync",
           "VerifyCompleted"
@@ -90896,7 +90900,8 @@
           "newNamedDomainObjectContainer"
         ],
         "copy@1184": [
-          "configureUsing"
+          "configureUsing",
+          "copy"
         ],
         "copy@1189": [
           "copy",
@@ -97521,7 +97526,8 @@
           "Binder"
         ],
         "bind@235": [
-          "of"
+          "of",
+          "bind"
         ],
         "bind@248": [
           "of",
@@ -97579,7 +97585,8 @@
           "bindDataObject"
         ],
         "bindOrCreate@303": [
-          "of"
+          "of",
+          "bindOrCreate"
         ],
         "bindOrCreate@318": [
           "of",

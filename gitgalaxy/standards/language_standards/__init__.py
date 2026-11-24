@@ -39,9 +39,9 @@ for the same metrics tracked over time across pushes to main.
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 100.0% | 100.0% | 100.0% | 100.0% |
-| Erlang | 90.3% | 99.2% | 0.0% | N/A |
+| Erlang | 100.0% | 100.0% | 0.0% | N/A |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
-| Fsharp | 45.8% | 95.2% | N/A | 0.0% |
+| Fsharp | 69.1% | 96.8% | N/A | 0.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
 | Html | 100.0% | 100.0% | N/A | N/A |
@@ -52,7 +52,7 @@ for the same metrics tracked over time across pushes to main.
 | Lua | 100.0% | 100.0% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
-| Nim | 82.3% | 85.5% | N/A | N/A |
+| Nim | 100.0% | 93.3% | N/A | N/A |
 | Objective-C | 100.0% | 99.4% | 100.0% | 100.0% |
 | Perl | 100.0% | 100.0% | 100.0% | 100.0% |
 | Php | 100.0% | 100.0% | 100.0% | 100.0% |

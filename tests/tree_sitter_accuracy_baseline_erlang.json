@@ -1,12 +1,12 @@
 {
-  "args_comparable": 494,
-  "args_exact_match": 412,
+  "args_comparable": 547,
+  "args_exact_match": 515,
   "corpus_path": "language-crucible/data/erlang",
   "extra_classes": 0,
-  "extra_functions": 4,
+  "extra_functions": 0,
   "files_scanned": 28,
   "found_classes": 0,
-  "found_functions": 494,
+  "found_functions": 547,
   "real_classes": 52,
   "real_functions": 547
 }

@@ -5,18 +5,18 @@
  "case": "cbsa-crdtagy1",
  "entry": {
   "program": "CRDTAGY1",
-  "commit": "c11273603d44bd319de08bbf88c2dd0a9c15fa38+uncommitted",
+  "commit": "641897b1e5626e3973f4904f3addf9d350c6d10e+uncommitted",
   "date": "2026-11-24",
   "mode": "fast+one-jvm",
   "seed": 0,
   "mutants": 1015,
   "out_of_scope": 36,
   "chosen": 1015,
-  "coverage": "proven on 13 scenarios, covering 7/7 paragraphs and 6/6 branches",
+  "coverage": "proven on 16 scenarios, covering 7/7 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 341,
+   "killed": 343,
    "timeout": 2,
-   "survived": 640,
+   "survived": 638,
    "stillborn": 32,
    "error": 0,
    "pending": 0
@@ -36,6 +36,7 @@
    "0918123b66",
    "095fecc474",
    "0a5e2878a3",
+   "0afa83ff54",
    "0b80d1290a",
    "0c4dcd0e4c",
    "0feeb3fa8d",
@@ -59,6 +60,7 @@
    "217ff97425",
    "221f878798",
    "2239569117",
+   "2268e29d21",
    "22ba2d2882",
    "2317ce5855",
    "23ec1293aa",
@@ -2698,14 +2700,6 @@
     "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.OPT, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
    },
    {
-    "id": "0afa83ff54",
-    "op": "LIT",
-    "file": "service/Crdtagy1Service.java",
-    "line": 49,
-    "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMCAg\"));",
-    "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMDAwMDAwMDAwMDAwMDAwMDAwMCAg\"));"
-   },
-   {
     "id": "7378e068f9",
     "op": "LIT",
     "file": "service/Crdtagy1Service.java",
@@ -2984,14 +2978,6 @@
     "line": 111,
     "before": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
     "after": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
-   },
-   {
-    "id": "2268e29d21",
-    "op": "CON",
-    "file": "service/Crdtagy1Service.java",
-    "line": 111,
-    "before": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
-    "after": "private final Field f66_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
    },
    {
     "id": "086ad9133e",
@@ -5525,12 +5511,12 @@
   "inputs": {
    "port": "6a3c027ac50b4132a0cf1a10b6a6fa5252a07fe068a0b8fdba1742b2e02b5c6a",
    "runtime": "a149b0e5a5e35e391bcb11779f099703999b90ef7e3d59a5a2e67795947c56d2",
-   "generator": "e4a06d335ce3f67151349040301ffd9f02a5e3657c0e1eca2066d30eaf8b9c89",
-   "case": "1388839c73e19f6ca55b7ff666e18db612df66a4bb09cac3639741635c506a14",
+   "generator": "1eed85fb907770df8c07268c986cf6ba79853c2729b0aea1b1c83dda3cc63011",
+   "case": "de59c65a17442aad36b44ba72f82ead39bba05ed80e33ee52f2614cba12c324a",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "97c961c8e87758483cdb39a4cfccfb1c5a1f906c135c8f04acf88a25bc208ebb",
+   "harness": "f59f11b78fb1c071ec1dc0b8782623b58e6a6b946c3ef3962a05f9655d9e59fb",
    "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
-   "survivors": "dd71d42d93885bec42aecfc1c54307be0b8f2263b09a2a003e5f683ad4549671"
+   "survivors": "fc2af0e973e22a4042d752b101440c5d7d88a9d7b6e3964fa4539fae354fbbd5"
   },
   "components": {
    "generator": {
@@ -5566,7 +5552,7 @@
     "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
-    "generator:cobolrt/job/Idcams.java": "ef3bc48be8e26a78644befb82ce1fe6dde5fba170e2bfa68f344f871ed5461e2",
+    "generator:cobolrt/job/Idcams.java": "9389c5e19810ec814b8ad20c90c30270fc151bc2411b2585bae80dc0129ae90d",
     "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
     "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
     "generator:cobolrt/le/Ceedays.java": "76ce46c61da5542390cb2997d72169d0f486722f0cc30dbc2b459e2663551574",
@@ -5616,7 +5602,7 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/idcams": "51a9bbef4ed24288fc9abd58bae6c8795ac02d2b21700e750334a286acf2f577",
-    "generator:det/idcams_model": "d96cb9808bb9798f302731c80272413b0656542c0535ccedcbd416251b7411f7",
+    "generator:det/idcams_model": "fed2ad60f17e77252e200668ec1b19676fbe0fcc023e9082ce35dfe11bd9d216",
     "generator:det/ims_region": "05becbc32fac8a8ea4a7f480e3c69cddeacb8a240ff37bcc17d2cb0fdd052c91",
     "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
     "generator:det/mq": "f657dc097af0127930c9dfc41b0687701f4300cdcb82b7e0a2f8884ab1c53083",
@@ -5631,7 +5617,7 @@
    },
    "harness": {
     "harness:cics": "74a7732b752bf4af89a3f9f03b256fe6d82db35842dd4d0db5f344ca94e223a8",
-    "harness:core": "a525628026a395a7ee91c55c3122528e6646e71b46a2ff9bc6dbbb45e923ed39"
+    "harness:core": "12f52225356930f9a054368fc63efe6cd51ed50a00054854724e0f50d741c465"
    },
    "oracle": {
     "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",

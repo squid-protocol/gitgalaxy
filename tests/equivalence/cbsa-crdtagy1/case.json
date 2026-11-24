@@ -245,6 +245,47 @@
     }
    ],
    "why": "the DELAY returns EXPIRED instead of INVREQ: the program tests only WS-CICS-RESP NOT = NORMAL, so it takes the same abend path (ABNDPROC LINK, ABEND PLOP), with the EXPIRED RESP and a zero RESP2 in the abend record"
+  },
+  {
+   "name": "container-empty",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": ""
+     }
+    }
+   },
+   "why": "CIPA is empty: GET CONTAINER NORMAL with FLENGTH 0, WS-CONT-IN keeps its initial bytes (no VALUE clause: oracle_assumptions.md L3) throughout, the new score is set and PUT CONTAINER writes all 261 bytes back, so the first initial byte shows in CIPA"
+  },
+  {
+   "name": "credit-score-task-1234567",
+   "commarea": null,
+   "taskn": 1234567,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000043Mr Gareth L Owen                                            2 Quay Street, Lymington, SO41 9AB                                                                                                                              2902197299929022028Y0"
+     }
+    }
+   },
+   "why": "a 7-digit task number with a good container: the whole EIBTASKN field seeds FUNCTION RANDOM, so the score drawn after it depends on every digit"
+  },
+  {
+   "name": "credit-score-task-9999999",
+   "commarea": null,
+   "taskn": 9999999,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000043Mr Gareth L Owen                                            2 Quay Street, Lymington, SO41 9AB                                                                                                                              2902197299929022028Y0"
+     }
+    }
+   },
+   "why": "a 7-digit task number with a good container: the whole EIBTASKN field seeds FUNCTION RANDOM, so the score drawn after it depends on every digit"
   }
  ]
 }

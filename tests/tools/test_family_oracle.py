@@ -365,3 +365,13 @@ def test_every_python_oracle_family_has_a_contract_and_a_readings_row():
         assert f.rule in CONTRACTS, f.rule
         assert f"| `{f.rule}` |" in doc, f.rule
         assert f.sentence.replace("|", "/") in doc, f.rule
+
+
+def test_every_tree_sitter_oracle_family_has_a_readings_row():
+    """The readings ledger also carries the tree-sitter sentences (the realignment of #9256 is no longer 'not yet')."""
+    import family_oracle_ts as ts
+
+    doc = (Path(__file__).resolve().parents[2] / "docs" / "family_oracle_readings.md").read_text(encoding="utf-8")
+    for _col, _oracle, sentence, rule in ts._COMMON_FAMILIES:
+        assert sentence.replace("|", "/") in doc, rule
+    assert "Not yet realigned" not in doc

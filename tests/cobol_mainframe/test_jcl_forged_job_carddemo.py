@@ -183,6 +183,8 @@ def test_the_forge_guard_is_the_one_the_driver_mirrors():
     conds = forge_mod._RUNTIME["JclConditions"]
     assert "JclConditions.bypassed(" in guarded
     assert "bypass(jobCond, rcs) || bypass(cond, rcs) || !holds(ifCond, rcs)" in conds
+    # `ifChains` is used with no IDCAMS step, so its import sits outside the IDCAMS block (zopeneditor-sample compile)
+    assert guarded.index("import java.util.concurrent.ConcurrentHashMap;") < guarded.index("//{IDCAMS_IMPORT}")
     assert "rcs.put(jcl, rc);" in guarded and 'new ExitStatus("BYPASSED")' in guarded
 
 

@@ -147,7 +147,16 @@ def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
 
 
 def _split(spec: str, parts: int) -> list[str]:
-    bits = spec.split(":", parts - 1)
+    raw = spec.split(":")
+    bits: list[str] = []
+    for tok in raw:
+        # a Windows drive letter ("C" then "\\x" or "/x") belongs to the path before it, not a field of its own
+        if len(bits) > 1 and len(bits[-1]) == 1 and bits[-1].isalpha() and tok[:1] in ("\\", "/"):
+            bits[-1] += ":" + tok
+        else:
+            bits.append(tok)
+    if len(bits) > parts:
+        bits = [*bits[: parts - 1], ":".join(bits[parts - 1 :])]
     if len(bits) != parts or not all(bits):
         raise ValueError(f"bad spec {spec!r}")
     return bits

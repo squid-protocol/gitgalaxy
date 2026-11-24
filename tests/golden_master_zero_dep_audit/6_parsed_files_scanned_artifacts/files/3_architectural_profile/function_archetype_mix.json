@@ -7369,14 +7369,17 @@
       "julia/dataframes_jl/LICENSE.md": {},
       "julia/dataframes_jl/abstractdataframe_io.jl": {
         "Compute Cores": 2,
+        "I/O & Config Routines": 6,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 5,
+        "State Mutators": 3
       },
       "julia/dataframes_jl/abstractdataframe_iteration.jl": {
         "Compute Cores": 1,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
+        "I/O & Config Routines": 56,
         "Parameter Forwarders": 5,
+        "State Mutators": 4,
         "Type Conversions": 1
       },
       "julia/dataframes_jl/abstractdataframe_prettytables.jl": {
@@ -7388,55 +7391,67 @@
       "julia/dataframes_jl/abstractdataframe_reshape.jl": {
         "Compute Cores": 1,
         "Defensive Guards": 3,
-        "Generic / Templated Code": 1,
+        "Generic / Templated Code": 3,
+        "I/O & Config Routines": 12,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 3,
+        "State Mutators": 1
       },
       "julia/dataframes_jl/abstractdataframe_selectionfast.jl": {
         "Compute Cores": 1,
         "Defensive Guards": 14,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 3,
+        "State Mutators": 2
       },
       "julia/dataframes_jl/abstractdataframe_show.jl": {
         "Callbacks & Closures": 2,
         "Compute Cores": 2,
         "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 3,
+        "State Mutators": 3,
         "Type Conversions": 1
       },
       "julia/dataframes_jl/abstractdataframe_sort.jl": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 5,
         "Compute Cores": 1,
         "Defensive Guards": 5,
-        "Generic / Templated Code": 3,
+        "Generic / Templated Code": 4,
+        "I/O & Config Routines": 8,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 3,
+        "State Mutators": 20
       },
       "julia/dataframes_jl/abstractdataframe_subset.jl": {
         "Compute Cores": 2,
         "Defensive Guards": 8,
-        "Parameter Forwarders": 1
+        "I/O & Config Routines": 4,
+        "Parameter Forwarders": 1,
+        "State Mutators": 8
       },
       "julia/dataframes_jl/abstractdataframe_unique.jl": {
         "Annotated & Test Methods": 1,
         "Callbacks & Closures": 1,
         "Compute Cores": 1,
+        "I/O & Config Routines": 4,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 1
       },
       "julia/dataframes_jl/dataframe_dataframe.jl": {
-        "Annotated & Test Methods": 1,
+        "Annotated & Test Methods": 3,
         "Callbacks & Closures": 1,
         "Compute Cores": 12,
         "Defensive Guards": 18,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
+        "I/O & Config Routines": 11,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 15,
+        "State Mutators": 18,
         "Type Conversions": 3
       },
       "julia/dataframes_jl/dataframe_insertion.jl": {
+        "Annotated & Test Methods": 3,
         "Callbacks & Closures": 4,
         "Defensive Guards": 5,
         "Many-Argument Workhorses": 4,
@@ -7445,8 +7460,11 @@
       "julia/dataframes_jl/dataframerow_dataframerow.jl": {
         "Callbacks & Closures": 2,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 6
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 49,
+        "Parameter Forwarders": 6,
+        "State Mutators": 7,
+        "Type Conversions": 2
       },
       "julia/dataframes_jl/dataframerow_show.jl": {
         "Parameter Forwarders": 5
@@ -7456,31 +7474,36 @@
         "Callbacks & Closures": 1,
         "Compute Cores": 1,
         "Defensive Guards": 3,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 5,
+        "State Mutators": 20
       },
       "julia/dataframes_jl/groupeddataframe_complextransforms.jl": {
         "Compute Cores": 1,
         "Defensive Guards": 3,
         "Generic / Templated Code": 1,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 2,
+        "State Mutators": 9
       },
       "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": {
         "Defensive Guards": 1,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
-        "Many-Argument Workhorses": 2
+        "Many-Argument Workhorses": 2,
+        "State Mutators": 4
       },
       "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 6,
         "Callbacks & Closures": 6,
         "Compute Cores": 9,
         "Defensive Guards": 5,
-        "Generic / Templated Code": 2,
-        "I/O & Config Routines": 1,
+        "Generic / Templated Code": 4,
+        "I/O & Config Routines": 56,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 15,
-        "Type Conversions": 1
+        "State Mutators": 8,
+        "Type Conversions": 5
       },
       "julia/dataframes_jl/groupeddataframe_show.jl": {
         "Compute Cores": 2,
@@ -7497,15 +7520,19 @@
       "julia/dataframes_jl/groupeddataframe_utils.jl": {
         "Compute Cores": 2,
         "Defensive Guards": 2,
-        "Generic / Templated Code": 1,
+        "Generic / Templated Code": 4,
+        "I/O & Config Routines": 5,
         "Many-Argument Workhorses": 4,
+        "State Mutators": 3,
         "Type Conversions": 3
       },
       "julia/dataframes_jl/join_core.jl": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 4,
         "Compute Cores": 5,
         "Defensive Guards": 5,
+        "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 12,
+        "State Mutators": 4,
         "Type Conversions": 2
       },
       "julia/dataframes_jl/join_inplace.jl": {
@@ -7516,28 +7543,35 @@
       "julia/dataframes_jl/other_broadcasting.jl": {
         "Compute Cores": 2,
         "Defensive Guards": 9,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 16,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 5,
         "Type Conversions": 1
       },
       "julia/dataframes_jl/other_index.jl": {
-        "Annotated & Test Methods": 3,
+        "Annotated & Test Methods": 22,
         "Callbacks & Closures": 1,
         "Compute Cores": 12,
         "Defensive Guards": 2,
+        "I/O & Config Routines": 17,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 10,
-        "Type Conversions": 1
+        "State Mutators": 16,
+        "Type Conversions": 6
       },
       "julia/dataframes_jl/other_metadata.jl": {
         "Compute Cores": 19,
         "Defensive Guards": 4,
+        "I/O & Config Routines": 8,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 13
+        "Parameter Forwarders": 13,
+        "State Mutators": 3
       },
       "julia/dataframes_jl/other_names.jl": {
-        "Compute Cores": 1
+        "Compute Cores": 1,
+        "State Mutators": 5
       },
       "julia/dataframes_jl/other_precompile.jl": {}
     },

@@ -433,7 +433,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # Tcl default-value argument lists (#1512): opt-in for depth-aware braced parameter parsing.
         "_args_tcl_pattern_list_groups": {1},
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: global/upvar (globals/heat).
         "structural_boundaries": re.compile(r"\b(?:proc|return|break|continue|namespace|variable|yield)\b"),
         # 4. func_start (Executable Logic Anchors)

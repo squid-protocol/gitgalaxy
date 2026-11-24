@@ -83,7 +83,7 @@ DEFINITION: dict[str, Any] = {
         # macro's own name) never raises the max, both handled by that helper.
         "args": re.compile(r"(\$[0-9]+|\$[@*#])"),
         "_args_findall_max_groups": {1},
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Execution flow diversion and dependency signaling.
         "structural_boundaries": re.compile(r"\b(?:divert|undivert|m4_divert|m4_undivert|m4_require|AC_REQUIRE)\b"),
         # 4. func_start (Executable Logic Anchors)

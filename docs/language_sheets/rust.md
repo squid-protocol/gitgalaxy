@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 99.5% precision / 99.3% recall | 814 imports | tree-sitter | import statements in BurntSushi/ripgrep, serde-rs/json | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 11 of 59 families: 4 >90, 2 75-50, 5 <50 | 2,278 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

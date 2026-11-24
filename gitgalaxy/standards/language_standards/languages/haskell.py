@@ -543,7 +543,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(?:die|exitWith|exitFailure|exitSuccess)\b|\berror\s+\""),
         # io: I/O & Network Boundaries. IO Monad and hardware interactions.
         "io": re.compile(
-            r"\b(readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
+            r"\b(readFile|writeFile|appendFile|hGetContents|hGetLine|hGetChar|hPutStr|hPutStrLn|putStrLn|putStr|getContents|interact|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"
         ),
         # api: Public Surface Area. Captured via module headers. Captures both explicit lists and implicit "all" exports.
         "api": re.compile(

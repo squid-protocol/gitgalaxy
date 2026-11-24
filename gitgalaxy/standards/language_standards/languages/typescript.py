@@ -962,7 +962,7 @@ DEFINITION: dict[str, Any] = {
         # layer; same reasoning as javascript -- host config only through
         # child_process command text.
         "system_config_mutation": None,
-        # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
+        # --- PHASE 4: APPSEC & AI SENSORS (security-sensitive call patterns and AI-agent signals) ---
         "rce_funnel": re.compile(r"child_process\.(?:spawn|exec|execSync)\s*\(\s*['\"](?:python|bash|sh|bun|node)\b"),
         # BUG FIX (Rule 11, nested-delimiter coverage): the flat `[^)]*`
         # broke on one level of nested parens before the camouflage

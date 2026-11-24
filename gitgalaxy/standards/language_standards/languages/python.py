@@ -590,7 +590,7 @@ DEFINITION: dict[str, Any] = {
         # exists but crucible incidence is 0; host config is otherwise file I/O
         # or subprocess (their owners').
         "system_config_mutation": None,
-        # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
+        # --- PHASE 4: APPSEC & AI SENSORS (security-sensitive call patterns and AI-agent signals) ---
         "memory_scraping": re.compile(r"['\"]/proc/['\"]\s*\+\s*(?:str\([^)]*\)|f?['\"]\{[^}]*\})|/proc/\w+/mem"),
         "exfiltration_camouflage": re.compile(
             r"\b(requests\.post|urllib\.request|httpx\.post)\s*\([^)]*(?:checkmarx|telemetry|metrics|audit|log)\b",

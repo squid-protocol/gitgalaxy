@@ -862,7 +862,9 @@ public final class Idcams {
             int need = AIX_HEADER + aix.keyLen + pointer * busiest;
             if (need > aix.max) {
                 throw new Refused("the IDCAMS BLDINDEX record for the busiest key needs " + need
-                    + " bytes, over RECORDSIZE maximum " + aix.max + " (IBM's outcome is not stated)");
+                    + " bytes, over RECORDSIZE maximum " + aix.max
+                    + " (IDC1646I: IBM keeps the pointers that fit and states no condition code or which pointers; "
+                    + "the outcome is not modelled)");
             }
             aix.built = true;
             end(0, "BLDINDEX " + aix.name + ": " + base.records.size() + " records, " + groups.size() + " keys");

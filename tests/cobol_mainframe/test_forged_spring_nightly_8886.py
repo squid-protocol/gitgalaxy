@@ -107,6 +107,10 @@ def test_a_forged_utility_job_stops_at_the_forges_named_refusal(res, case):
     strict = row["modes"]["strict"]
     assert strict["status"] == "differs" and strict["got"][step] == "FAILED"
     assert why in strict["issues"][0]
+    if (
+        case == "carddemo-tranidx"
+    ):  # #8886 slice 12: the refusal cites IDC1646I (register F4), the model's and Java's words agree
+        assert "IDC1646I" in strict["issues"][0]
     skip = row["modes"]["skip"]
     assert skip["status"] == "differs"
     # a step the forge declines is `steps.utility` (skip returns 0: "not run"); an IDCAMS deck the model runs and

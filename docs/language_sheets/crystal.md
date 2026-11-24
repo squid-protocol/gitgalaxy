@@ -7,7 +7,7 @@ Context: unclassified
 | stat | value | sample | method | against | source |
 |---|---|---|---|---|---|
 | Detection | not measured | | | | |
-| Functions | not measured | | | | |
+| Functions | 98.2% recall / 90.1% precision | 400 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_crystal.json` |
 | Call links | not measured | | | | |
 | Imports | not measured | | | | |
 | Keywords | not measured | | | | |

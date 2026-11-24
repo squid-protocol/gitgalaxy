@@ -119,9 +119,11 @@
 <text x="1120" y="300" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="320" x2="1282" y2="320" stroke="#30363d"/>
 <text x="8" y="338" font-size="13" fill="#f0efec" font-weight="600">crystal</text>
-<text x="8" y="352" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="352" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="338" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="338" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="324" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="337" font-size="11" fill="#06121f">98.2% r</text>
+<rect x="347" y="324" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="353" y="337" font-size="11" fill="#06121f">90.1% p</text>
+<text x="290" y="355" font-size="10" fill="#8b949e">400 functions</text>
 <text x="450" y="338" font-size="11" fill="#8b949e">not measured</text>
 <text x="610" y="338" font-size="11" fill="#8b949e">not measured</text>
 <text x="770" y="338" font-size="11" fill="#8b949e">not measured</text>
@@ -184,9 +186,11 @@
 <text x="1120" y="490" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="510" x2="1282" y2="510" stroke="#30363d"/>
 <text x="8" y="528" font-size="13" fill="#f0efec" font-weight="600">erlang</text>
-<text x="8" y="542" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="542" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="528" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="528" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="514" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="296" y="527" font-size="11" fill="#06121f">90.3% r</text>
+<rect x="347" y="514" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="353" y="527" font-size="11" fill="#06121f">99.2% p</text>
+<text x="290" y="545" font-size="10" fill="#8b949e">547 functions</text>
 <text x="450" y="528" font-size="11" fill="#8b949e">not measured</text>
 <rect x="610" y="514" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="527" font-size="11" fill="#06121f">100% p</text>
 <rect x="660" y="514" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="666" y="527" font-size="11" fill="#06121f">100% r</text>
@@ -196,9 +200,11 @@
 <text x="1120" y="528" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="548" x2="1282" y2="548" stroke="#30363d"/>
 <text x="8" y="566" font-size="13" fill="#f0efec" font-weight="600">fsharp</text>
-<text x="8" y="580" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="580" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="566" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="566" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="552" width="53" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="296" y="565" font-size="11" fill="#ff8f88">45.8% r</text>
+<rect x="347" y="552" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="353" y="565" font-size="11" fill="#06121f">95.2% p</text>
+<text x="290" y="583" font-size="10" fill="#8b949e">262 functions</text>
 <text x="450" y="566" font-size="11" fill="#8b949e">not measured</text>
 <text x="610" y="566" font-size="11" fill="#8b949e">not measured</text>
 <text x="770" y="566" font-size="11" fill="#8b949e">not measured</text>
@@ -256,9 +262,11 @@
 <text x="1120" y="718" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="738" x2="1282" y2="738" stroke="#30363d"/>
 <text x="8" y="756" font-size="13" fill="#f0efec" font-weight="600">julia</text>
-<text x="8" y="770" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="770" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="756" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="756" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="742" width="40" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="296" y="755" font-size="11" fill="#ff8f88">43% r</text>
+<rect x="334" y="742" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="340" y="755" font-size="11" fill="#06121f">98.8% p</text>
+<text x="290" y="773" font-size="10" fill="#8b949e">981 functions</text>
 <text x="450" y="756" font-size="11" fill="#8b949e">not measured</text>
 <rect x="610" y="742" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="616" y="755" font-size="11" fill="#06121f">97.2% p</text>
 <rect x="667" y="742" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="755" font-size="11" fill="#06121f">93.2% r</text>
@@ -321,9 +329,11 @@
 <text x="1120" y="908" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="928" x2="1282" y2="928" stroke="#30363d"/>
 <text x="8" y="946" font-size="13" fill="#f0efec" font-weight="600">nim</text>
-<text x="8" y="960" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="960" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="946" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="946" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="932" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="296" y="945" font-size="11" fill="#ffffff">82.3% r</text>
+<rect x="347" y="932" width="53" height="18" rx="4" fill="#2f6aa8" stroke="#8b949e" stroke-width="1"/><text x="353" y="945" font-size="11" fill="#ffffff">85.5% p</text>
+<text x="290" y="963" font-size="10" fill="#8b949e">809 functions</text>
 <text x="450" y="946" font-size="11" fill="#8b949e">not measured</text>
 <rect x="610" y="932" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="945" font-size="11" fill="#06121f">99.7% p</text>
 <rect x="667" y="932" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="673" y="945" font-size="11" fill="#06121f">96.7% r</text>
@@ -381,9 +391,11 @@
 <text x="1120" y="1098" font-size="11" fill="#8b949e">not measured</text>
 <line x1="8" y1="1118" x2="1282" y2="1118" stroke="#30363d"/>
 <text x="8" y="1136" font-size="13" fill="#f0efec" font-weight="600">r</text>
-<text x="8" y="1150" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="8" y="1150" font-size="10" fill="#8b949e">2 of 7 stats</text>
 <text x="130" y="1136" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="1136" font-size="11" fill="#8b949e">not measured</text>
+<rect x="290" y="1122" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="1135" font-size="11" fill="#06121f">98.2% r</text>
+<rect x="347" y="1122" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="353" y="1135" font-size="11" fill="#06121f">96.9% p</text>
+<text x="290" y="1153" font-size="10" fill="#8b949e">449 functions</text>
 <text x="450" y="1136" font-size="11" fill="#8b949e">not measured</text>
 <rect x="610" y="1122" width="34" height="18" rx="4" fill="#3b1d1d" stroke="#e5534b" stroke-width="1"/><text x="616" y="1135" font-size="11" fill="#ff8f88">0% r</text>
 <text x="610" y="1153" font-size="10" fill="#8b949e">24 imports</text>

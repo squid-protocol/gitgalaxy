@@ -1059,8 +1059,8 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 2,
-      "cobol/gnucobol_internals/fileio.c": 2,
+      "cobol/gnucobol_internals/codegen.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 3,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
       "cobol/gnucobol_internals/scanner.l": 0,
@@ -1525,7 +1525,7 @@
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 2,
       "go/kubernetes/generic.go": 0,
-      "go/kubernetes/kubelet.go": 0,
+      "go/kubernetes/kubelet.go": 1,
       "go/kubernetes/options.go": 0,
       "go/kubernetes/proxier.go": 14,
       "go/kubernetes/replica_set.go": 6,
@@ -2089,7 +2089,7 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 2
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0,
+      "java/springboot/AutoConfigurationImportSelector.java": 3,
       "java/springboot/Binder.java": 0,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
@@ -3574,7 +3574,7 @@
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
-      "rust/holylang/compile.rs": 0,
+      "rust/holylang/compile.rs": 1,
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
@@ -3584,7 +3584,7 @@
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_impls.rs": 4,
       "rust/serde/serde_core_de_mod.rs": 0,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
@@ -3606,10 +3606,10 @@
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 0,
-      "rust/tokio/builder.rs": 1,
+      "rust/tokio/builder.rs": 3,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 0,
+      "rust/tokio/interval.rs": 10,
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,

@@ -103,6 +103,11 @@ _GO_SIMPLE_CASES = [
     ("test_skip", 't.Skip("reason")', "t.Skipped = true"),
     ("thread_sleeps", "time.Sleep(time.Second)", "time.Slept = true"),
     ("time_date_logic", "time.Now()", "time.New()"),
+    ("time_date_logic", "time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)", "time.Dates = 1"),
+    ("time_date_logic", "time.Unix(0, 0)", "time.Unixish = 1"),
+    ("time_date_logic", "time.Until(t)", "time.Untilled = 1"),
+    ("time_date_logic", 'time.ParseDuration("1s")', "time.ParseDurations = 1"),
+    ("time_date_logic", 'time.LoadLocation("UTC")', "time.LoadLocations = 1"),
     ("ui_framework", 'http.HandleFunc("/", handler)', "http.Handled = true"),
     ("dead_code", "// func foo() {", "// just a note"),
 ]

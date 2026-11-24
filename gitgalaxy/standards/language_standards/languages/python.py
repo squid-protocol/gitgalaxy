@@ -264,7 +264,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Swallowed errors, wildcard imports, and Any bypasses.
         # #8010: `pass` counts only as a swallowed exception (`except ...: pass`, one site); a bare
         # `pass` (empty body) is a structural keyword, not a bypass.

@@ -63,6 +63,15 @@ def test_sequence_fields_are_recognised_by_shape_not_column():
     assert blank_sequence_fields(" IF A = 10") == " IF A = 10"  # one blank: a statement's own number
 
 
+def test_a_sequence_field_glued_to_a_qualified_names_dot_is_blanked_9214():
+    assert blank_sequence_fields("   X = W01_ST.00002950").rstrip() == "   X = W01_ST."
+    assert blank_sequence_fields("   X = A.B.00002950").rstrip() == "   X = A.B."
+    assert blank_sequence_fields("   X = #AB$.0000295").rstrip() == "   X = #AB$."
+    # a decimal literal ending in `.` is not a qualified name
+    for kept in ("   X = 12.00002950", "   X = 1E5.00002950", "   X = .00002950"):
+        assert blank_sequence_fields(kept) == kept
+
+
 def _file(path: str, functions: list[tuple[str, int]], sites: list[dict]) -> dict:
     return {
         "path": path,

@@ -1442,7 +1442,7 @@
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": 0,
       "erlang/cowboy_http_server/cowboy_middleware.erl": 0,
       "erlang/cowboy_http_server/cowboy_quicer.erl": 0,
-      "erlang/cowboy_http_server/cowboy_req.erl": 1,
+      "erlang/cowboy_http_server/cowboy_req.erl": 0,
       "erlang/cowboy_http_server/cowboy_router.erl": 0
     },
     "erlang/ranch_socket_pool": {

@@ -3877,27 +3877,25 @@
     "erlang/cowboy_http_server": {
       "Average Risk Exposures": {
         "API Exposure": "1.77%",
-        "Cognitive Load Exposure": "12.19%",
+        "Cognitive Load Exposure": "14.9%",
         "Commented Logic Exposure": "0.0%",
-        "Concurrency Exposure": "16.34%",
+        "Concurrency Exposure": "17.85%",
         "Documentation Exposure": "93.75%",
-        "Error & Exception Exposure": "12.03%",
+        "Error & Exception Exposure": "11.56%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "2.85%",
-        "Tech Debt Exposure": "13.42%",
-        "Testing Exposure": "46.1%",
+        "State Flux Exposure": "3.61%",
+        "Tech Debt Exposure": "16.24%",
+        "Testing Exposure": "50.94%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2758.9,
+      "Directory Group Magnitude": 3089.72,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_0": "50.0%",
+        "file_cluster_0": "62.5%",
         "file_cluster_12": "6.2%",
-        "file_cluster_15": "6.2%",
-        "file_cluster_4": "25.0%",
-        "file_cluster_8": "6.2%",
-        "file_cluster_9": "6.2%"
+        "file_cluster_15": "18.8%",
+        "file_cluster_4": "12.5%"
       },
       "File Count": 16,
       "Files": [
@@ -3922,26 +3920,24 @@
     "erlang/ranch_socket_pool": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "19.74%",
+        "Cognitive Load Exposure": "23.71%",
         "Commented Logic Exposure": "0.0%",
-        "Concurrency Exposure": "52.8%",
+        "Concurrency Exposure": "54.68%",
         "Documentation Exposure": "91.67%",
-        "Error & Exception Exposure": "15.64%",
+        "Error & Exception Exposure": "15.58%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "12.68%",
+        "State Flux Exposure": "13.64%",
         "Tech Debt Exposure": "0.67%",
-        "Testing Exposure": "41.2%",
+        "Testing Exposure": "34.76%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2091.58,
+      "Directory Group Magnitude": 2197.52,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_0": "66.7%",
-        "file_cluster_11": "8.3%",
-        "file_cluster_15": "8.3%",
-        "file_cluster_2": "8.3%",
-        "file_cluster_4": "8.3%"
+        "file_cluster_0": "75.0%",
+        "file_cluster_13": "8.3%",
+        "file_cluster_4": "16.7%"
       },
       "File Count": 12,
       "Files": [
@@ -4058,30 +4054,29 @@
     "fsharp/giraffe_web": {
       "Average Risk Exposures": {
         "API Exposure": "3.21%",
-        "Cognitive Load Exposure": "8.58%",
+        "Cognitive Load Exposure": "8.66%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "23.71%",
-        "Documentation Exposure": "23.74%",
+        "Documentation Exposure": "28.71%",
         "Error & Exception Exposure": "17.34%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "13.58%",
-        "Tech Debt Exposure": "45.58%",
-        "Testing Exposure": "23.54%",
+        "Tech Debt Exposure": "52.18%",
+        "Testing Exposure": "23.56%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 986.6,
+      "Directory Group Magnitude": 1016.04,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "31.8%",
         "file_cluster_10": "22.7%",
         "file_cluster_12": "4.5%",
-        "file_cluster_13": "4.5%",
+        "file_cluster_13": "9.1%",
         "file_cluster_15": "13.6%",
-        "file_cluster_16": "4.5%",
-        "file_cluster_2": "4.5%",
+        "file_cluster_16": "9.1%",
         "file_cluster_6": "4.5%",
-        "file_cluster_9": "9.1%"
+        "file_cluster_9": "4.5%"
       },
       "File Count": 22,
       "Files": [
@@ -7652,20 +7647,20 @@
     "nim/nim_stdlib": {
       "Average Risk Exposures": {
         "API Exposure": "0.14%",
-        "Cognitive Load Exposure": "19.8%",
+        "Cognitive Load Exposure": "20.27%",
         "Commented Logic Exposure": "2.96%",
         "Concurrency Exposure": "21.74%",
-        "Documentation Exposure": "70.54%",
+        "Documentation Exposure": "71.65%",
         "Error & Exception Exposure": "35.34%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.39%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "38.91%",
-        "Tech Debt Exposure": "63.43%",
+        "Tech Debt Exposure": "67.61%",
         "Testing Exposure": "37.41%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 5683.46,
+      "Directory Group Magnitude": 5815.94,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.2%",
         "file_cluster_0": "35.5%",
@@ -7882,8 +7877,8 @@
     },
     "ocaml/janestreet_base": {
       "Average Risk Exposures": {
-        "API Exposure": "2.74%",
-        "Cognitive Load Exposure": "6.63%",
+        "API Exposure": "3.05%",
+        "Cognitive Load Exposure": "7.55%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "23.59%",
@@ -7892,11 +7887,11 @@
         "Instability Exposure": "48.39%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "26.23%",
-        "Tech Debt Exposure": "8.86%",
-        "Testing Exposure": "12.26%",
+        "Tech Debt Exposure": "13.93%",
+        "Testing Exposure": "12.27%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1219.38,
+      "Directory Group Magnitude": 1287.78,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "3.2%",
         "file_cluster_0": "48.4%",

@@ -7,7 +7,7 @@ Context: unclassified
 | stat | value | sample | method | against | source |
 |---|---|---|---|---|---|
 | Detection | not measured | | | | |
-| Functions | not measured | | | | |
+| Functions | 45.8% recall / 95.2% precision | 262 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_fsharp.json` |
 | Call links | not measured | | | | |
 | Imports | not measured | | | | |
 | Keywords | not measured | | | | |

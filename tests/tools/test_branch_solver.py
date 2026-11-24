@@ -512,3 +512,49 @@ def test_caller_sets_flow_through_a_buffer_into_the_record_the_program_tests(tmp
     callers = bs.Walk(prog, bs.evaluate_arms(src), entry={(0, 1, "str", 0): {"A", "B"}})
     callers.explore()
     assert _verdict(callers, ln, "true") == "confirmed"  # every caller sends A or B there
+
+
+def _reached(w, src: Path, text: str) -> bool:
+    return any(line == _line(src, text) for line, _ in w.hits)
+
+
+@pytest.mark.parametrize("cmd", ["RETURN TRANSID('PC52') IMMEDIATE RESP(WS-R)", "XCTL PROGRAM('OTHER') NOHANDLE"])
+def test_a_return_or_xctl_that_asks_for_its_response_can_fall_through(tmp_path, cmd):
+    w, src = _program(
+        tmp_path,
+        "01 WS-R PIC S9(8) COMP VALUE 0.\n01 WS-LOG PIC X(4) VALUE 'ABCD'.",
+        f"""
+           EXEC CICS {cmd}
+           END-EXEC
+           IF LK-CODE = 'XX'
+               CONTINUE
+           END-IF
+           EXEC CICS WRITEQ TS QUEUE('QNAME') FROM(WS-LOG)
+                     LENGTH(4)
+           END-EXEC
+           GOBACK.""",
+    )
+    assert _reached(w, src, "IF LK-CODE")
+    unread = bs.unread_items(w.prog, {}, 5000)
+    assert "WS-LOG" not in {x["item"] for x in unread["unread"]}  # the FROM operand is read by the log write
+
+
+@pytest.mark.parametrize(
+    "cmd", ["RETURN TRANSID('PC52')", "ABEND ABCODE('ABCD') NOHANDLE", "RETURN TRANSID('PC52') IMMEDIATE"]
+)
+def test_a_bare_return_or_abend_ends_the_path(tmp_path, cmd):
+    w, src = _program(
+        tmp_path,
+        "01 WS-LOG PIC X(4) VALUE 'ABCD'.",
+        f"""
+           EXEC CICS {cmd}
+           END-EXEC
+           IF LK-CODE = 'XX'
+               CONTINUE
+           END-IF
+           EXEC CICS WRITEQ TS QUEUE('QNAME') FROM(WS-LOG)
+                     LENGTH(4)
+           END-EXEC
+           GOBACK.""",
+    )
+    assert not _reached(w, src, "IF LK-CODE")

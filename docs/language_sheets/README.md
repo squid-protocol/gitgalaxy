@@ -96,28 +96,28 @@ reference tool exists, or the public corpus is small.
 | [assembly](assembly.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (15) | 58 of 58 passed, 0 failed | not measured |
 | [batch](batch.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
 | [blp](blp.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
-| [crystal](crystal.md) | 1 of 7 | unclassified | not measured | not measured | not measured | not measured | not measured | 58 of 59 passed, 1 failed | not measured |
+| [crystal](crystal.md) | 2 of 7 | unclassified | not measured | 98.2% recall / 90.1% precision | not measured | not measured | not measured | 58 of 59 passed, 1 failed | not measured |
 | [css](css.md) | 3 of 7 | unclassified | 100% recall / 100% precision | 100% recall / 100% precision | not measured | not measured | decoy test only (2) | 51 of 51 passed, 0 failed | not measured |
 | [dockerfile](dockerfile.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (11) | 58 of 58 passed, 0 failed | not measured |
 | [elixir](elixir.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 92.9% precision / 97.3% recall | not measured | not measured | not measured |
 | [embedded_python](embedded_python.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (18) | 59 of 59 passed, 0 failed | not measured |
-| [erlang](erlang.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 100% precision / 100% recall | not measured | not measured | not measured |
-| [fsharp](fsharp.md) | 1 of 7 | unclassified | not measured | not measured | not measured | not measured | not measured | 53 of 58 passed, 5 failed | not measured |
+| [erlang](erlang.md) | 2 of 7 | unclassified | not measured | 90.3% recall / 99.2% precision | not measured | 100% precision / 100% recall | not measured | not measured | not measured |
+| [fsharp](fsharp.md) | 2 of 7 | unclassified | not measured | 45.8% recall / 95.2% precision | not measured | not measured | not measured | 53 of 58 passed, 5 failed | not measured |
 | [glsl](glsl.md) | 0 of 7 | unclassified | not measured | not measured | not measured | not measured | not measured | not measured | not measured |
 | [hcl](hcl.md) | 1 of 7 | DSL / config | not measured | not measured | not measured | 0% recall | not measured | not measured | not measured |
 | [hlo](hlo.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
 | [html](html.md) | 3 of 7 | unclassified | 100% recall / 100% precision | 100% recall / 100% precision | not measured | not measured | decoy test only (3) | 53 of 53 passed, 0 failed | not measured |
-| [julia](julia.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 97.2% precision / 93.2% recall | not measured | not measured | not measured |
+| [julia](julia.md) | 2 of 7 | unclassified | not measured | 43% recall / 98.8% precision | not measured | 97.2% precision / 93.2% recall | not measured | not measured | not measured |
 | [livecode](livecode.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (13) | 59 of 59 passed, 0 failed | not measured |
 | [m4](m4.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (17) | 52 of 52 passed, 0 failed | not measured |
 | [makefile](makefile.md) | 3 of 7 | unclassified | 100% recall / 100% precision | 100% recall / 100% precision | not measured | not measured | decoy test only (9) | 57 of 57 passed, 0 failed | not measured |
 | [mlir](mlir.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
-| [nim](nim.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 99.7% precision / 96.7% recall | not measured | not measured | not measured |
+| [nim](nim.md) | 2 of 7 | unclassified | not measured | 82.3% recall / 85.5% precision | not measured | 99.7% precision / 96.7% recall | not measured | not measured | not measured |
 | [nix](nix.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
 | [ocaml](ocaml.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 100% precision / 100% recall | not measured | not measured | not measured |
 | [postgresql](postgresql.md) | 1 of 7 | unclassified | not measured | not measured | not measured | not measured | not measured | 56 of 57 passed, 1 failed | not measured |
 | [proto](proto.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |
-| [r](r.md) | 1 of 7 | unclassified | not measured | not measured | not measured | 0% recall | not measured | not measured | not measured |
+| [r](r.md) | 2 of 7 | unclassified | not measured | 98.2% recall / 96.9% precision | not measured | 0% recall | not measured | not measured | not measured |
 | [scheme](scheme.md) | 3 of 7 | unclassified | 100% recall / 100% precision | not measured | 35.3% precision / 72.7% recall | not measured | decoy test only (10) | 59 of 59 passed, 0 failed | not measured |
 | [sqlite](sqlite.md) | 2 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | decoy test only (16) | 55 of 55 passed, 0 failed | not measured |
 | [td](td.md) | 1 of 7 | unclassified | 100% recall / 100% precision | not measured | not measured | not measured | not measured | not measured | not measured |

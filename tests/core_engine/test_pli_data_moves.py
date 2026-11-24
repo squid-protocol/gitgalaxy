@@ -71,6 +71,35 @@ def test_sequence_debris_does_not_hide_a_statement():
     ]
 
 
+def test_qualified_name_split_at_a_glued_sequence_number_is_one_source_9214():
+    src = "\n".join(["   SEARCH_FNR = W01_STATUS_TILKN.00002950", "      FNR_TILKN;", "   N = 12.00002950;"])
+    got = [(r[0], r[1], r[3]) for r in _rows(src)]
+    assert got[0] == (1, "W01_STATUS_TILKN.FNR_TILKN", "SEARCH_FNR")
+
+
 def test_the_pli_dialect_carries_data_moves():
     rows = extract_boundary("pli", " R: PROC; X = Y; END R;")["data_moves"]
     assert [(r["verb"], r["source"], r["target"]) for r in rows] == [("ASSIGN", "Y", "X")]
+
+
+def _sources(src: str) -> list[str]:
+    return [r["source"] for r in pli_data_moves(f"P: PROC;\n{src}\nEND P;")]
+
+
+def test_alternate_operator_spellings_match_canonical():
+    cases = [
+        ("X = X ! (A < B & C > 5);", "X = X | (A < B & C > 5);"),
+        ("X = A !! B !! C;", "X = A || B || C;"),
+        ("X = A ! B ! (C ! D);", "X = A | B | (C | D);"),
+        ("X ! = A;", "X | = A;"),
+        ("X !! = A;", "X || = A;"),
+        ("X = A ¬< B ! C;", "X = A ¬< B | C;"),
+        ("X = A ^> B ! C;", "X = A ^> B | C;"),
+    ]
+    for alt, canon in cases:
+        assert _sources(alt) == _sources(canon), alt
+    assert _sources("X = X ! (A < B & C > 5);") == ["X", "A", "B", "C"]
+
+
+def test_bang_inside_string_is_not_an_operator():
+    assert _sources("X = 'A!B' ! C;") == _sources("X = 'A!B' | C;")

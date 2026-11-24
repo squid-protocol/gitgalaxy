@@ -6,8 +6,8 @@ in-memory `JobRepository`. A program step calls a stub service returning the cha
 are not linked here: the job case `carddemo-job-posttran-intcalc-forged` runs POSTTRAN and INTCALC with them, #8886), so what is compared is the generated job's own behaviour: which jobs are generated, the
 step order and guard under Spring, the utility steps (IDCAMS / SORT) the runtime runs or refuses.
 
-Pinned result (evidence level: executed under Spring, program bodies stubbed, SORT run on seeded data): 5 of 9 case
-steps equal in return code (POSTTRAN, INTCALC, #8886 slice 9's TRANBKP (its three IDCAMS steps; STEP05R's SYSIN is the member
+Pinned result (evidence level: executed under Spring, program bodies stubbed, SORT run on seeded data): 8 of 9 case
+steps equal (CREASTMT's three by its ICE043A stop, slice 15) in return code (POSTTRAN, INTCALC, #8886 slice 9's TRANBKP (its three IDCAMS steps; STEP05R's SYSIN is the member
 REPROCT of the estate's control library, read from app/ctl), #8886 slice 7's COMBTRAN STEP05R and slice 8's COMBTRAN STEP10 (GDG (+1) resolved once per job), whose SORT over the concatenated
 BKUP(0) + SYSTRAN(0) seeds is also checked record by record). TRANBKP, COMBTRAN and TRANIDX are utility-only jobs: the forge lists them and
 generates no job by design, so (#8886 slice 6) the harness plans them as application jobs on request (spec key
@@ -17,11 +17,10 @@ or a missing input, but for COMBTRAN STEP05R (a step `skip-unimplemented` return
 to RC=0, STEP30 (BLDINDEX) is refused by name; the TRANIDX row stays "differs".
 #8886 slice 11: the catalogued KSDS holds the records of its dataset file (the 100 TRANSACT seeds), so STEP30 meets the chain's
 named refusal: the busiest key's AIX record over RECORDSIZE(350 350) (the chain's data needed 5055 bytes, the seeds 1631).
-CREASTMT is generated and (#8886 slice 5) runs to RC=0 on all five steps in both modes: DELDEF01
-through the IDCAMS model's Java twin, STEP010's SORT on the 100 TRANSACT records the job case reads (the dataset's
-RECORDSIZE(350 350) in TRANFILE.jcl is the DCB the forge cannot see in CREASTMT.JCL), STEP020's REPRO, STEP040 on its
-stub. The chain's STEP010 ended RC=16 (OUTREC 328 bytes under the DD's LRECL 350, register F4: no pad guessed) and
-COND=(0,NE) bypassed STEP020 / STEP040: the forged job runs past where the chain stopped, and the rows say so.
+CREASTMT is generated. DELDEF01 runs through the IDCAMS model's Java twin (RC=0). #8886 slice 15: STEP010's OUTREC builds
+328 bytes under SORTOUT's fixed LRECL=350, so the forge emits `steps.ended` RC=16 (DFSORT ICE043A reason 9, SC23-6879; register F4,
+no pad guessed) and COND=(0,NE) bypasses STEP020..STEP040, as the chain does: 8 of 9 case steps equal (TRANIDX STEP30 is the
+IDC1646I refusal).
 """
 
 from __future__ import annotations
@@ -162,38 +161,34 @@ def test_creastmts_idcams_deck_runs_under_spring_through_the_model(res):
         assert res["raw"][mode]["CREASTMT"]["steps"]["DELDEF01"] == ("RC=0", None)
 
 
-def test_the_seeded_creastmt_job_runs_to_the_end_in_both_modes(res):
-    """With the TRANSACT dataset seeded and its DCB stated, the SORT is lowered and runs: no refusal, no missing file."""
+def test_the_creastmt_job_stops_at_step010_as_the_chain_does_in_both_modes(res):
+    """#8886 slice 15: STEP010's OUTREC builds 328 bytes under SORTOUT's fixed LRECL=350, so DFSORT ends it (ICE043A reason 9,
+    SC23-6879; register F4): the forged step is `steps.ended` RC=16 and COND=(0,NE) bypasses STEP020..STEP040, as in the chain."""
     for mode in ("strict", "skip"):
         job = res["raw"][mode]["CREASTMT"]
         assert job["status"] == "COMPLETED"
-        assert {k: v[0] for k, v in job["steps"].items()} == dict.fromkeys(
-            ("DELDEF01", "STEP010", "STEP020", "STEP030", "STEP040"), "RC=0"
-        )
+        assert {k: v[0] for k, v in job["steps"].items()} == {
+            "DELDEF01": "RC=0", "STEP010": "RC=16", "STEP020": "BYPASSED", "STEP030": "BYPASSED", "STEP040": "BYPASSED",
+        }  # fmt: skip
 
 
-def test_the_forged_sort_rebuilds_the_seeded_records_as_the_control_statements_say(res):
-    """SORT FIELDS=(263,16,CH,A,1,16,CH,A), OUTREC FIELDS=(1:263,16,17:1,262,279:279,50), computed here from the seed
-    (not by the port): 100 records of 328 bytes, the card number first, in (card, TRAN-ID) order."""
-    seed = (REPO / SPEC["datasets"]["AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"]["seed"]).read_bytes().split(b"\n")
-    recs = sorted((r for r in seed if r), key=lambda r: (r[262:278], r[0:16]))
-    want = b"".join(r[262:278] + r[0:262] + r[278:328] for r in recs)
-    assert len(recs) == 100 and len(want) == 100 * 328
+def test_the_stopped_sort_writes_no_dataset(res):
+    """The step ends before it sorts: no sorted TRXFL generation exists in either mode (the chain's STEP010 wrote none either)."""
     for mode in ("strict", "skip"):
-        got = res["raw"]["datasets"][mode]["AWS.M2.CARDDEMO.TRXFL.SEQ"]
-        assert got == {"size": 32800, "sha256": hashlib.sha256(want).hexdigest()}
+        assert "AWS.M2.CARDDEMO.TRXFL.SEQ" not in res["raw"]["datasets"][mode]
 
 
-def test_the_forged_job_runs_past_the_step_the_chain_stopped_at(res):
-    """The chain's STEP010 ended RC=16 (register F4) and bypassed STEP020 / STEP040: the rows differ, by name."""
+def test_the_forged_job_stops_where_the_chain_stopped(res):
+    """The chain's STEP010 ended RC=16 (register F4) and bypassed STEP020 / STEP040: the forged job does the same, no issue."""
     for mode in ("strict", "skip"):
-        assert _row(res, "carddemo-sort-creastmt")["modes"][mode]["issues"] == ["STEP010: forged RC=0, chain RC=16"]
+        for case in ("carddemo-sort-creastmt", "creastmt-step020", "carddemo-cbstm03a"):
+            assert _row(res, case)["modes"][mode]["issues"] == []
 
 
-def test_five_of_nine_steps_are_equal_in_each_mode(res):
+def test_eight_of_nine_steps_are_equal_in_each_mode(res):
     out = efs.render(res, "carddemo-nightly")
-    assert "carddemo-nightly: executed Spring jobs equal to the chain over 5 of 9 steps (strict)" in out
-    assert "carddemo-nightly: executed Spring jobs equal to the chain over 5 of 9 steps (skip)" in out
+    assert "carddemo-nightly: executed Spring jobs equal to the chain over 8 of 9 steps (strict)" in out
+    assert "carddemo-nightly: executed Spring jobs equal to the chain over 8 of 9 steps (skip)" in out
     json.dumps(res)  # the result is plain data
 
 

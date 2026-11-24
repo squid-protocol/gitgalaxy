@@ -285,6 +285,6 @@
   "path": [
     "6. Parsed Files (Scanned Artifacts)",
     "6. Contextual Mitigations & Amplifications",
-    "High-Risk Execution Commands (Weighted View)"
+    "Process Exit, Eval & Shell Execution (Weighted View)"
   ]
 }

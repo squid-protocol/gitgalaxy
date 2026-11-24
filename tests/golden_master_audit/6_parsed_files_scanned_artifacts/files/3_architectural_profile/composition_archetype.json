@@ -1442,7 +1442,7 @@
       "erlang/cowboy_http_server/cowboy_metrics_h.erl": "Large Core Modules (3)",
       "erlang/cowboy_http_server/cowboy_middleware.erl": "Declarative / Non-Code",
       "erlang/cowboy_http_server/cowboy_quicer.erl": "Parameter Forwarders Files",
-      "erlang/cowboy_http_server/cowboy_req.erl": "Large Core Modules (3)",
+      "erlang/cowboy_http_server/cowboy_req.erl": "Large Core Modules (2)",
       "erlang/cowboy_http_server/cowboy_router.erl": "Large Core Modules (2)"
     },
     "erlang/ranch_socket_pool": {
@@ -1455,7 +1455,7 @@
       "erlang/ranch_socket_pool/ranch_crc32c.erl": "Type Conversions Files",
       "erlang/ranch_socket_pool/ranch_embedded_sup.erl": "Large Core Modules (2)",
       "erlang/ranch_socket_pool/ranch_listener_sup.erl": "Large Core Modules (2)",
-      "erlang/ranch_socket_pool/ranch_protocol.erl": "Declarative / Non-Code",
+      "erlang/ranch_socket_pool/ranch_protocol.erl": "Data / Markup / Trivial",
       "erlang/ranch_socket_pool/ranch_proxy_header.erl": "Large Core Modules (3)",
       "erlang/ranch_socket_pool/ranch_server.erl": "Large Core Modules (3)"
     },
@@ -1484,7 +1484,7 @@
     },
     "fsharp/giraffe_web": {
       "fsharp/giraffe_web/Auth.fs": "Callbacks & Closures Files",
-      "fsharp/giraffe_web/ComputationExpressions.fs": "Declarative / Non-Code",
+      "fsharp/giraffe_web/ComputationExpressions.fs": "State Mutators Files",
       "fsharp/giraffe_web/Core.fs": "Callbacks & Closures Files",
       "fsharp/giraffe_web/Csrf.fs": "Large Core Modules (2)",
       "fsharp/giraffe_web/DateTimeExtensions.fs": "State Mutators Files",
@@ -1495,7 +1495,7 @@
       "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": "Parameter Forwarders Files",
       "fsharp/giraffe_web/Json.fs": "Generic / Templated Code Files",
       "fsharp/giraffe_web/Middleware.fs": "State Mutators Files",
-      "fsharp/giraffe_web/ModelParser.fs": "Interface Declarations Files",
+      "fsharp/giraffe_web/ModelParser.fs": "Large Core Modules (3)",
       "fsharp/giraffe_web/ModelValidation.fs": "Generic / Templated Code Files",
       "fsharp/giraffe_web/Negotiation.fs": "Callbacks & Closures Files",
       "fsharp/giraffe_web/Preconditional.fs": "Large Core Modules (3)",
@@ -2719,16 +2719,16 @@
       "nim/nim_stdlib/collections_heapqueue.nim": "Large Core Modules (2)",
       "nim/nim_stdlib/collections_intsets.nim": "Data / Markup / Trivial",
       "nim/nim_stdlib/collections_lists.nim": "Large Core Modules (2)",
-      "nim/nim_stdlib/collections_rtarrays.nim": "Type Conversions Files",
+      "nim/nim_stdlib/collections_rtarrays.nim": "Large Core Modules (3)",
       "nim/nim_stdlib/collections_sequtils.nim": "Large Core Modules (2)",
       "nim/nim_stdlib/collections_setimpl.nim": "Encapsulated Accessors Files",
       "nim/nim_stdlib/collections_sets.nim": "Large Core Modules (2)",
       "nim/nim_stdlib/collections_sharedlist.nim": "Generic / Templated Code Files",
-      "nim/nim_stdlib/collections_sharedtables.nim": "Generic / Templated Code Files",
+      "nim/nim_stdlib/collections_sharedtables.nim": "Large Core Modules (3)",
       "nim/nim_stdlib/collections_tableimpl.nim": "Encapsulated Accessors Files",
       "nim/nim_stdlib/colors.nim": "Encapsulated Accessors Files",
       "nim/nim_stdlib/complex.nim": "Generic / Templated Code Files",
-      "nim/nim_stdlib/concurrency_atomics.nim": "Type Conversions Files",
+      "nim/nim_stdlib/concurrency_atomics.nim": "Encapsulated Accessors Files",
       "nim/nim_stdlib/concurrency_cpuinfo.nim": "Encapsulated Accessors Files",
       "nim/nim_stdlib/copying.txt": "Data / Markup / Trivial"
     },
@@ -2774,7 +2774,7 @@
       "ocaml/janestreet_base/array_permute.mli": "Data / Markup / Trivial",
       "ocaml/janestreet_base/avltree.ml": "Compute Cores Files",
       "ocaml/janestreet_base/avltree.mli": "Declarative / Non-Code",
-      "ocaml/janestreet_base/backtrace.ml": "Parameter Forwarders Files",
+      "ocaml/janestreet_base/backtrace.ml": "Large Core Modules (3)",
       "ocaml/janestreet_base/backtrace.mli": "Declarative / Non-Code",
       "ocaml/janestreet_base/base.ml": "Declarative / Non-Code",
       "ocaml/janestreet_base/binary_search.ml": "Many-Argument Workhorses Files",
@@ -3623,7 +3623,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "State Mutators Files",
       "rust/wasmtime/wasmtime_instance.rs": "Generic / Templated Code Files",
-      "rust/wasmtime/wasmtime_ir_instructions.rs": "Parameter Forwarders Files",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Large Core Modules (3)",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Large Core Modules (3)",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Generic / Templated Code Files"
     },

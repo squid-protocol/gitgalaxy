@@ -1588,8 +1588,8 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 6.18,
-      "groovy/gradle/DefaultProject.java": 7.013,
-      "groovy/gradle/DefaultTask.java": 6.554
+      "groovy/gradle/DefaultProject.java": 6.969,
+      "groovy/gradle/DefaultTask.java": 6.54
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 8.01,
@@ -1775,9 +1775,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 3.549
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 7.734,
-      "groovy/spock/SpecParser.java": 7.227,
-      "groovy/spock/SpecRewriter.java": 6.915,
+      "groovy/spock/DeepBlockRewriter.java": 7.738,
+      "groovy/spock/SpecParser.java": 7.117,
+      "groovy/spock/SpecRewriter.java": 6.834,
       "groovy/spock/SpockTransform.java": 6.865
     },
     "groovy/spock_core_groovy": {
@@ -2086,7 +2086,7 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0.0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.631
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.538
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 6.002,

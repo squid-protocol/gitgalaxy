@@ -113,6 +113,15 @@ def test_a_sysin_member_the_estate_did_not_supply_stays_refused():
     assert "its SYSIN is a dataset of control statements" in _tasklet(other)
 
 
+def test_a_library_qualified_member_matches_only_that_library():
+    """#8886: a member keyed `LIBRARY(MEMBER)` is read for that library's step, not for the same name in another."""
+    ctl = " REPRO INFILE(IN1) OUTFILE(OUT1)\n"
+    assert '.tasklet(steps.copy("IDC"' in _tasklet(_forge([], SYSIN_DS, {"&CNTLLIB(reproct)": ctl}))
+    other = [*DDS, {"dd": "SYSIN", "dsn": "&OTHERLIB(REPROCT)"}]
+    assert "its SYSIN is a dataset of control statements" in _tasklet(_forge([], other, {"&CNTLLIB(REPROCT)": ctl}))
+    assert '.tasklet(steps.copy("IDC"' in _tasklet(_forge([], other, {"REPROCT": ctl}))  # a bare key: any library
+
+
 def test_a_supplied_member_that_the_model_refuses_is_refused_by_name():
     assert "refuses" in _tasklet(_forge([], SYSIN_DS, {"REPROCT": " LISTCAT ALL\n"}))
 

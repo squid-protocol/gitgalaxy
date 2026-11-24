@@ -307,12 +307,18 @@ class BatchForge:
 
     def _sysin_member(self, st: Step) -> str | None:
         """#8886: the text of a SYSIN that is a member of a control-statement library the caller supplied
-        (`estate["control_members"]`), matched on the member name of `LIB(MEMBER)`; None when it is not one, or no text
+        (`estate["control_members"]`), matched on `LIB(MEMBER)` when the estate keyed it so, else on the member name; None when it is not one, or no text
         was supplied for that member (the step then stays refused by name). /* ... */ comment lines are IDCAMS comments."""
         for d in st.dds:
-            m = re.fullmatch(r"[^()]*\(([A-Za-z0-9@#$]{1,8})\)", d.get("dsn") or "") if d.get("dd") == "SYSIN" else None
-            if m and m.group(1).upper() in self.members:
-                text = re.sub(r"/\*.*?\*/", "", self.members[m.group(1).upper()], flags=re.S)
+            dsn = (d.get("dsn") or "") if d.get("dd") == "SYSIN" else ""
+            m = re.fullmatch(r"([^()]*)\(([A-Za-z0-9@#$]{1,8})\)", dsn)
+            if not m:
+                continue
+            # A key spelled `LIBRARY(MEMBER)` (the library text exactly as the step names it, e.g. `&CNTLLIB`) matches only
+            # that library; a bare member key matches any library (the caller states there is one). #8886
+            text = self.members.get(f"{m.group(1)}({m.group(2)})".upper(), self.members.get(m.group(2).upper()))
+            if text is not None:
+                text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
                 return "\n".join(ln for ln in text.splitlines() if ln.strip())
         return None
 

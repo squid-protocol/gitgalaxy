@@ -2044,17 +2044,17 @@
         "cognitive_load": 8.66,
         "concurrency": 23.71,
         "dead_code": 0.0,
-        "documentation": 28.71,
+        "documentation": 29.01,
         "safety_score": 17.34,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 13.58,
-        "tech_debt": 52.18,
-        "verification": 23.56
+        "tech_debt": 55.13,
+        "verification": 27.08
       },
       "file_count": 22,
-      "total_mass": 1016.04
+      "total_mass": 1046.54
     },
     "go": {
       "avg_exposures": {

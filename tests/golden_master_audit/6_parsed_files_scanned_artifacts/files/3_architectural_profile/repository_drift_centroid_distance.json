@@ -3615,7 +3615,7 @@
       "rust/tokio/tests.rs": 5.941,
       "rust/tokio/tokio_mpsc_bounded.rs": 6.625,
       "rust/tokio/tokio_named_pipe.rs": 6.432,
-      "rust/tokio/tokio_udp.rs": 5.796
+      "rust/tokio/tokio_udp.rs": 5.859
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 7.622

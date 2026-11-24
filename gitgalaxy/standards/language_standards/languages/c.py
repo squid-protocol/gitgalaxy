@@ -250,6 +250,10 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(?:fopen|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|stat|fseek|rename)\b\s*\("
+            # #8868 libc/POSIX transfer calls the contract names (close stays cleanup's, C2); member calls
+            # (`x.fgets(`, `p->mmap(`) and longer names (`myfgets(`) stay out.
+            r"|(?<![.>\w])(?:fgets|fputs|fgetc|fputc|getline|getdelim|mmap|pread|pwrite"
+            r"|recvfrom|sendto|recvmsg|sendmsg)[ \t]{0,4}\("
             # #8016 kernel / BSD vocabulary: MMIO, port I/O, user copies, bus_space.
             r"|\b(?:(?:read|write)[bwlq](?:_relaxed)?|io(?:read|write)(?:8|16|32|64)(?:be)?"
             r"|(?:in|out)[bwl]|copy_(?:to|from)_user|__copy_(?:to|from)_user"

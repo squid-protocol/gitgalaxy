@@ -1059,7 +1059,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 9.55,
+      "cobol/gnucobol_internals/codegen.c": 9.549,
       "cobol/gnucobol_internals/fileio.c": 7.732,
       "cobol/gnucobol_internals/numeric.c": 6.354,
       "cobol/gnucobol_internals/parser.y": 9.636,
@@ -3645,7 +3645,7 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 9.991,
-      "scheme/racket/eval.c": 8.812,
+      "scheme/racket/eval.c": 8.811,
       "scheme/racket/fun.c": 8.047,
       "scheme/racket/io.ss": 9.001,
       "scheme/racket/schemify.rkt": 6.856,

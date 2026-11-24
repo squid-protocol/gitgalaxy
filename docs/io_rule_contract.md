@@ -228,6 +228,16 @@ Go's rule named only `os.Open`, `os.Create` and `os.ReadFile`, and `os.Open` had
 `os.Lstat`, `ioutil.` and `filepath.Walk(Dir)`: each moves data to or from the file system, and `rename` is a transfer
 form (C2). Go's `Close` stays `cleanup`'s (C2), so the oracle's `close` reading is not an io gap.
 
+## C and C++ libc transfer calls (#8868, 2026-11-24)
+
+The oracle run on redis (C `io` recall 0.77) found `mmap`, `fgets` and `close` missed. `close` is not a gap: it is
+`cleanup`'s (C2), as for every language above. The C rule now also counts the call forms `fgets`, `fputs`, `fgetc`,
+`fputc`, `getline`, `getdelim`, `mmap`, `pread`, `pwrite`, `recvfrom`, `sendto`, `recvmsg` and `sendmsg`, each of which
+moves data to or from a file, device or socket. They fire only as a call: a member call (`x.fgets(`, `p->mmap(`) or a
+longer name (`myfgets(`) does not. `connect` and `accept` stay out (C1: ordinary identifiers). C++'s rule takes the same call forms except `getline`/`getdelim` (C++
+reads lines with `std::getline`, a stream call).  `mmap` is also `memory_alloc`'s, a deliberate dual as for `socket(` (a mapping is both an allocation and a read of
+the file behind it).
+
 ## Ledger dispositions this contract settles
 
 | entry | disposition |

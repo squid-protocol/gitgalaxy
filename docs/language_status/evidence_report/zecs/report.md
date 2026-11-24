@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `a07d969e3271ce588cdeabd4665be09177d5c2cf` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `b840bf01b21b0041a62223348aedd72d86e658db` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `f056fc53dc90`).
+The translation survey matches the translator in the tree (translator fingerprint `1706fbc99672`).
 
 ## How to read this report
 
@@ -517,7 +517,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `a07d969e3271ce588cdeabd4665be09177d5c2cf`
+- translator commit (the survey's): `b840bf01b21b0041a62223348aedd72d86e658db`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.19.0`, estate `v0.9.0`, language `v1.8.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -527,8 +527,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf
-python tests/tools/evidence_report.py zecs --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf
+python tests/tools/cics_census.py survey --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db
+python tests/tools/evidence_report.py zecs --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs002,zecs-zecs003,zecs-zecsnc,zecs-zecsplt
 python tests/tools/evidence.py prove zecs-ecs001 zecs-zecs000 zecs-zecs001 zecs-zecs002 zecs-zecs003 zecs-zecsnc zecs-zecsplt

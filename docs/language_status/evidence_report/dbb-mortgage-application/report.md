@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `a07d969e3271ce588cdeabd4665be09177d5c2cf` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `b840bf01b21b0041a62223348aedd72d86e658db` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `f056fc53dc90`).
+The translation survey matches the translator in the tree (translator fingerprint `1706fbc99672`).
 
 ## How to read this report
 
@@ -44,11 +44,11 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L1 | 0 | 0 |
 | L2 | 0 | 0 |
 | L3 | 0 | 0 |
-| L4 | 5 | 1 |
+| L4 | 5 | 0 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 1 of 6 programs; the rest are current
-- L2+: 5 (1 awaiting re-check); L3+: 5 (1 awaiting re-check); L4+: 5 (1 awaiting re-check)
+- stale (`*`, last measured): 0 of 6 programs; the rest are current
+- L2+: 5 (0 awaiting re-check); L3+: 5 (0 awaiting re-check); L4+: 5 (0 awaiting re-check)
 
 - programs: 6 (with an EXEC CICS command: 3; source not read: 0)
 - translated whole: 5; refused whole: 0; holes left: 7
@@ -84,7 +84,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| zBuilder/MortgageApplication/cobol/epscmort.cbl | L4* | 61/61 | 0 | mortgage-cmort | equal | 16 | none | 6/6 (100.0%) | 19/21 (90.5%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 5/5 |
+| zBuilder/MortgageApplication/cobol/epscmort.cbl | L4 | 61/61 | 0 | mortgage-cmort | equal | 16 | none | 6/6 (100.0%) | 19/21 (90.5%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 5/5 |
 | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | L4 | 13/13 | 0 | mortgage-csmrt | equal | 6 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | zBuilder/MortgageApplication/cobol/epsmlist.cbl | L4 | 51/51 | 0 | mortgage-mlist | equal | 10 | none | 6/6 (100.0%) | 15/15 (100.0%) | 15/15 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | L4 | 27/27 | 0 | mortgage-mpmt | equal | None | none | 4/4 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | 44% | raw 44% (133/302 caught; 309 of 309 mutants, seed 0); 165 of 169 survivors unaccounted | — |
@@ -93,9 +93,7 @@ From `tests/equivalence/estate_options/dbb-mortgage-application.json`: 9 values 
 
 ## Per program
 
-### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L4*
-
-- **Stale level:** L4 is the last measurement, stale since `028ba4fc102a` (harness); not yet re-checked
+### zBuilder/MortgageApplication/cobol/epscmort.cbl -- L4
 
 - **Executed equivalent** on the 16 scenarios of mortgage-cmort against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -258,7 +256,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `a07d969e3271ce588cdeabd4665be09177d5c2cf`
+- translator commit (the survey's): `b840bf01b21b0041a62223348aedd72d86e658db`
 - corpus pin: `dbb-mortgage-application` at `ce2c1be58eb049e000c6627bd8273263fef0c606`
 - crucible pins: cics `v0.19.0`, estate `v0.9.0`, language `v1.8.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -268,8 +266,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf
-python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf
+python tests/tools/cics_census.py survey --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db
+python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

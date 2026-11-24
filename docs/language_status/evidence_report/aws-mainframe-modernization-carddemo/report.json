@@ -282,30 +282,18 @@
     0,
     0
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-cobtupdt-generated": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
    "carddemo-codate01": [
     13,
     13,
@@ -324,78 +312,42 @@
     90,
     93
    ],
-   "carddemo-copaus1c": {
-    "coverage": [
-     15,
-     15,
-     50,
-     50
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-copaus2c-generated": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     59,
-     59,
-     218,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-cotrtlic-generated": {
-    "coverage": [
-     53,
-     59,
-     156,
-     230
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     63,
-     63,
-     140,
-     166
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "carddemo-copaus1c": [
+    15,
+    15,
+    50,
+    50
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    59,
+    59,
+    218,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    53,
+    59,
+    156,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    63,
+    63,
+    140,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -636,246 +588,126 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-acctctrl-count": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-acctctrl-generated": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bankdata": {
-    "coverage": [
-     24,
-     24,
-     47,
-     48
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     77,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cac-generated": {
-    "coverage": [
-     25,
-     25,
-     59,
-     97
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cca": {
-    "coverage": [
-     25,
-     25,
-     35,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cca-generated": {
-    "coverage": [
-     25,
-     25,
-     31,
-     41
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1ccs": {
-    "coverage": [
-     33,
-     33,
-     128,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1ccs-generated": {
-    "coverage": [
-     33,
-     33,
-     88,
-     143
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     61,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1cra-generated": {
-    "coverage": [
-     28,
-     28,
-     43,
-     67
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     51,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1dac-generated": {
-    "coverage": [
-     31,
-     31,
-     42,
-     60
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1dcs": {
-    "coverage": [
-     51,
-     51,
-     95,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1dcs-generated": {
-    "coverage": [
-     33,
-     51,
-     37,
-     102
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1tfn": {
-    "coverage": [
-     28,
-     28,
-     62,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1tfn-generated": {
-    "coverage": [
-     28,
-     28,
-     56,
-     72
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1uac": {
-    "coverage": [
-     31,
-     31,
-     82,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-bnk1uac-generated": {
-    "coverage": [
-     31,
-     31,
-     68,
-     88
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-count": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    47,
+    48
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    77,
+    97
+   ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    35,
+    41
+   ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    128,
+    143
+   ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    88,
+    143
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    61,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    51,
+    60
+   ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    42,
+    60
+   ],
+   "cbsa-bnk1dcs": [
+    51,
+    51,
+    95,
+    102
+   ],
+   "cbsa-bnk1dcs-generated": [
+    33,
+    51,
+    37,
+    102
+   ],
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    62,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    82,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     24,
     25,
@@ -912,138 +744,72 @@
     5,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     35,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-creacc-generated": {
-    "coverage": [
-     34,
-     34,
-     25,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-crecust": {
-    "coverage": [
-     37,
-     37,
-     57,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-crecust-generated": {
-    "coverage": [
-     13,
-     37,
-     21,
-     70
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     21,
-     22,
-     34,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-dbcrfun-generated": {
-    "coverage": [
-     16,
-     22,
-     23,
-     35
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-delacc-generated": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-delcus": {
-    "coverage": [
-     22,
-     22,
-     16,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-delcus-generated": {
-    "coverage": [
-     22,
-     22,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    35,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
+    38
+   ],
+   "cbsa-crecust": [
+    37,
+    37,
+    57,
+    70
+   ],
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    21,
+    70
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    21,
+    22,
+    34,
+    35
+   ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delcus": [
+    22,
+    22,
+    16,
+    16
+   ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -1056,138 +822,78 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     24,
-     25,
-     24,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-inqacc-generated": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     21,
-     22,
-     32,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-inqacccu-generated": {
-    "coverage": [
-     18,
-     22,
-     24,
-     33
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "cbsa-inqacc": [
+    24,
+    25,
+    24,
+    25
+   ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    21,
+    22,
+    32,
+    33
+   ],
+   "cbsa-inqacccu-generated": [
+    18,
+    22,
+    24,
+    33
+   ],
    "cbsa-inqcust": [
     24,
     25,
     44,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-updacc-beyond": {
-    "coverage": [
-     7,
-     7,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-updacc-faults": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-beyond": [
+    7,
+    7,
+    5,
+    6
+   ],
+   "cbsa-updacc-faults": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     78,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "cbsa-xfrfun-generated": {
-    "coverage": [
-     27,
-     28,
-     45,
-     81
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    78,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
+    81
+   ],
    "cruc-ca-address-commarea": [
     4,
     4,
@@ -1716,150 +1422,84 @@
     0,
     0
    ],
-   "est-bdld-bdlddb2": {
-    "coverage": [
-     3,
-     3,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "est-bdld-bdlddb2": [
+    3,
+    3,
+    2,
+    2
+   ],
    "est-bdld-bdldrpt": [
     1,
     1,
     1,
     2
    ],
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgacdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     15,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgacdb02-generated": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgacus01-generated": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgacdb01": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    15,
+    16
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgapdb01-generated": {
-    "coverage": [
-     7,
-     7,
-     29,
-     31
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgapol01-generated": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgapdb01": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapdb01-generated": [
+    7,
+    7,
+    29,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     3,
     3,
@@ -1872,108 +1512,60 @@
     12,
     12
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgdpdb01-generated": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgdpol01-generated": {
-    "coverage": [
-     3,
-     3,
-     9,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    9,
+    12
+   ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    9,
+    12
+   ],
    "genapp-lgdpvs01": [
     3,
     3,
     5,
     6
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgicdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgicus01-generated": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgicdb01": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
@@ -1986,54 +1578,30 @@
     18,
     18
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     74,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgipdb01-generated": {
-    "coverage": [
-     12,
-     12,
-     73,
-     74
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgipol01-generated": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    74,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    73,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -2058,168 +1626,90 @@
     4,
     6
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     10,
-     10,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     10,
-     10,
-     19,
-     19
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     9,
-     9,
-     22,
-     22
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgucdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgucus01-generated": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgtestc1": [
+    10,
+    10,
+    20,
+    20
+   ],
+   "genapp-lgtestp1": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp2": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp3": [
+    10,
+    10,
+    19,
+    19
+   ],
+   "genapp-lgtestp4": [
+    9,
+    9,
+    22,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     3,
     3,
     7,
     8
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgupdb01-generated": {
-    "coverage": [
-     9,
-     9,
-     38,
-     38
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "genapp-lgupol01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    38,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     3,
     3,
@@ -2232,54 +1722,30 @@
     2,
     2
    ],
-   "health-hcapdb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcapdb02": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcatdb01": {
-    "coverage": [
-     3,
-     3,
-     5,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcavdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "health-hcapdb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcapdb02": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcatdb01": [
+    3,
+    3,
+    5,
+    6
+   ],
+   "health-hcavdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
    "health-hcazerrs": [
     1,
     1,
@@ -2292,264 +1758,144 @@
     11,
     11
    ],
-   "health-hcimdb01": {
-    "coverage": [
-     6,
-     6,
-     12,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcipdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcitdb01": {
-    "coverage": [
-     4,
-     4,
-     8,
-     8
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcivdb01": {
-    "coverage": [
-     5,
-     5,
-     14,
-     14
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcm1bi01": {
-    "coverage": [
-     4,
-     4,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcm1pl01": {
-    "coverage": [
-     10,
-     11,
-     3,
-     12
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcmaba01": {
-    "coverage": [
-     5,
-     5,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcmadb01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcmadb02": {
-    "coverage": [
-     7,
-     7,
-     11,
-     11
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcmapl01": {
-    "coverage": [
-     10,
-     10,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "health-hcimdb01": [
+    6,
+    6,
+    12,
+    14
+   ],
+   "health-hcipdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcitdb01": [
+    4,
+    4,
+    8,
+    8
+   ],
+   "health-hcivdb01": [
+    5,
+    5,
+    14,
+    14
+   ],
+   "health-hcm1bi01": [
+    4,
+    4,
+    11,
+    11
+   ],
+   "health-hcm1pl01": [
+    10,
+    11,
+    3,
+    12
+   ],
+   "health-hcmaba01": [
+    5,
+    5,
+    6,
+    6
+   ],
+   "health-hcmadb01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcmadb02": [
+    7,
+    7,
+    11,
+    11
+   ],
+   "health-hcmapl01": [
+    10,
+    10,
+    9,
+    10
+   ],
    "health-hcmrestw": [
     8,
     12,
     10,
     26
    ],
-   "health-hcp1ba01": {
-    "coverage": [
-     4,
-     4,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcp1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcp1pl01": {
-    "coverage": [
-     11,
-     11,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "health-hcp1ba01": [
+    4,
+    4,
+    6,
+    6
+   ],
+   "health-hcp1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcp1pl01": [
+    11,
+    11,
+    18,
+    18
+   ],
    "health-hcprestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hct1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hct1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hct1pl01": {
-    "coverage": [
-     12,
-     12,
-     18,
-     18
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "health-hct1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hct1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hct1pl01": [
+    12,
+    12,
+    18,
+    18
+   ],
    "health-hctrestw": [
     8,
     12,
     10,
     24
    ],
-   "health-hcv1ba01": {
-    "coverage": [
-     3,
-     3,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcv1bi01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "health-hcv1pl01": {
-    "coverage": [
-     12,
-     12,
-     20,
-     20
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
-   "mortgage-cmort": {
-    "coverage": [
-     6,
-     6,
-     19,
-     21
-    ],
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541"
-   },
+   "health-hcv1ba01": [
+    3,
+    3,
+    6,
+    6
+   ],
+   "health-hcv1bi01": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "health-hcv1pl01": [
+    12,
+    12,
+    20,
+    20
+   ],
+   "mortgage-cmort": [
+    6,
+    6,
+    19,
+    21
+   ],
    "mortgage-csmrt": [
     1,
     1,
@@ -3751,10 +3097,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a07d969e3271ce588cdeabd4665be09177d5c2cf",
+   "sha": "b840bf01b21b0041a62223348aedd72d86e658db",
    "translator": {
     "files": 189,
-    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
+    "sha256": "1706fbc996723f7ee7a0c418e1eee6928818d7414f717a7a6fdac4e5fbd1a566"
    }
   },
   "sweeps": {}
@@ -6991,7 +6337,7 @@
      "covered": 50,
      "total": 50
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7001,10 +6347,8 @@
      "live": 15
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7047,7 +6391,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3ac0015c56ef14062b3ecb314f5ffc684a2c07e2258c9efdd06cc020e7c1e028",
+       "oracle_image": "sha256:7737fe5db9bf9fd251983c1ff1bf083d75439115f1fdefb7adfd030a334f8324",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -7098,7 +6442,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:3ac0015c56ef14062b3ecb314f5ffc684a2c07e2258c9efdd06cc020e7c1e028",
+      "oracle_image": "sha256:7737fe5db9bf9fd251983c1ff1bf083d75439115f1fdefb7adfd030a334f8324",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -7113,7 +6457,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7534,10 +6878,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -7588,7 +6930,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -7598,10 +6940,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -7644,7 +6984,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3ac0015c56ef14062b3ecb314f5ffc684a2c07e2258c9efdd06cc020e7c1e028",
+       "oracle_image": "sha256:7737fe5db9bf9fd251983c1ff1bf083d75439115f1fdefb7adfd030a334f8324",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -7693,7 +7033,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -7992,10 +7332,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -8791,7 +8129,7 @@
      "covered": 16,
      "total": 16
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-OPEN-FILES:84:false",
      "10031-INSERT-DB:151:none",
@@ -8843,10 +8181,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -8888,7 +8224,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9059,10 +8395,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9125,7 +8459,7 @@
      "covered": 218,
      "total": 218
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0000-MAIN:799:false",
      "0000-MAIN:843:false",
@@ -9257,10 +8591,8 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -9302,7 +8634,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -9771,10 +9103,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -9843,7 +9173,7 @@
      "covered": 140,
      "total": 140
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-CHECK-PFKEYS:605:false",
      "1200-EDIT-MAP-INPUTS:701:true",
@@ -10115,10 +9445,8 @@
      "live": 63
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness"
-    ],
-    "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -10149,7 +9477,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -10653,10 +9981,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness"
-   ],
-   "stale_since": "028ba4fc102a02b2e913e6d3b803245016664541",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -26809,8 +26135,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha a07d969e3271ce588cdeabd4665be09177d5c2cf",
+   "python tests/tools/cics_census.py survey --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha b840bf01b21b0041a62223348aedd72d86e658db",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readacct carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -26828,7 +26154,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:3ac0015c56ef14062b3ecb314f5ffc684a2c07e2258c9efdd06cc020e7c1e028",
+   "sha256:7737fe5db9bf9fd251983c1ff1bf083d75439115f1fdefb7adfd030a334f8324",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -26836,13 +26162,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a07d969e3271ce588cdeabd4665be09177d5c2cf",
+   "sha": "b840bf01b21b0041a62223348aedd72d86e658db",
    "translator": {
     "files": 189,
-    "sha256": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
+    "sha256": "1706fbc996723f7ee7a0c418e1eee6928818d7414f717a7a6fdac4e5fbd1a566"
    }
   },
-  "translator_commit": "a07d969e3271ce588cdeabd4665be09177d5c2cf",
+  "translator_commit": "b840bf01b21b0041a62223348aedd72d86e658db",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -26861,7 +26187,7 @@
    "L1": 0,
    "L2": 0,
    "L3": 0,
-   "L4": 5,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -26873,7 +26199,7 @@
    "L5": 0
   },
   "holes": 10,
-  "levels_stale": 5,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 44,
   "records_current": 29,
@@ -26885,6 +26211,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "f056fc53dc9049fdd4738f11b84c6ea621812131c31857b0430b2cb8f6f72916"
+  "fingerprint": "1706fbc996723f7ee7a0c418e1eee6928818d7414f717a7a6fdac4e5fbd1a566"
  }
 }

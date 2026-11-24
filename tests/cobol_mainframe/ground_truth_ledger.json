@@ -673,7 +673,7 @@
             "truth": 0
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -762,7 +762,7 @@
             "truth": 42
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -899,7 +899,7 @@
             "tp": 158,
             "truth": 158
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,
@@ -2777,7 +2777,7 @@
             "truth": 4
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -2862,7 +2862,7 @@
             "truth": 578
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -2999,7 +2999,7 @@
             "tp": 94,
             "truth": 287
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,
@@ -3089,12 +3089,46 @@
         "engine | unit extents | src/GML/R0010425.pli | R001B1 L22-268 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-92 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104BP.pli | R001041 L43-93 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104E3.pli | R001041 L47-125 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R00104E3.pli | R001041 L47-127 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-138 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/GML/R00104U3.pli | R001041 L44-139 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010701.pli | R00107 L74-217 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0010701.pli | R00107 L74-218 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0011430.pli | MELDING_OM_GIFTEM\u00c5L L34-287 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0011430.pli | MELDING_OM_GIFTEM\u00c5L L34-292 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0012201.pli | R001220 L44-122 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0012201.pli | R001220 L44-123 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0013101.pli | R001310 L28-808 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0013101.pli | R001310 L28-814 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0014601.pli | R001460 L23-128 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0014601.pli | R001460 L23-129 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0015502.pli | R001550 L17-191 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0015502.pli | R001550 L17-197 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019928.pli | R001992 L25-234 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019928.pli | R001992 L25-254 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019961.pli | OMREGNING_PGA_FNRENDRING L36-109 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R0019961.pli | OMREGNING_PGA_FNRENDRING L36-111 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001I801.pli | R001I80 L4-265 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001I801.pli | R001I80 L4-283 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001N501.pli | R001N5 L74-350 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001N501.pli | R001N5 L74-351 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-69 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/GML/R001NN11.pli | P105_BEHANDLE_A1 L43-77 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-175 | fn": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010422.pli | R001B1 L21-179 | fp": "engine_unit_end_counts_noncode_lines",
         "engine | unit extents | src/R0010424.pli | R001B1 L21-253 | fn": "engine_unit_end_counts_noncode_lines",
-        "engine | unit extents | src/R0010424.pli | R001B1 L21-255 | fp": "engine_unit_end_counts_noncode_lines"
+        "engine | unit extents | src/R0010424.pli | R001B1 L21-255 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104BP.pli | R001041 L40-89 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104BP.pli | R001041 L40-90 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104F7.pli | R001041 L40-94 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R00104F7.pli | R001041 L40-95 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0015602.pli | R001560 L23-219 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R0015602.pli | R001560 L23-225 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK06.pli | R001TK6 L32-420 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK06.pli | R001TK6 L32-424 | fp": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK61.pli | R001T61 L32-310 | fn": "engine_unit_end_counts_noncode_lines",
+        "engine | unit extents | src/R001TK61.pli | R001T61 L32-311 | fp": "engine_unit_end_counts_noncode_lines"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -3243,9 +3277,9 @@
         },
         "PL/I data moves": {
           "engine": {
-            "got": 1560,
-            "tp": 1560,
-            "truth": 1560
+            "got": 9127,
+            "tp": 9127,
+            "truth": 9127
           },
           "forge": null,
           "truth": "sample_verified"
@@ -3418,12 +3452,12 @@
         },
         "intra-program edges": {
           "engine": {
-            "got": 116,
-            "tp": 116,
-            "truth": 123
+            "got": 225,
+            "tp": 225,
+            "truth": 232
           },
           "forge": null,
-          "truth": "llm_verified"
+          "truth": "draft"
         },
         "job submissions": {
           "engine": null,
@@ -3481,13 +3515,13 @@
         },
         "unit extents": {
           "engine": {
-            "got": 166,
+            "got": 423,
             "outside": 0,
-            "tp": 158,
-            "truth": 166
+            "tp": 398,
+            "truth": 423
           },
           "forge": null,
-          "truth": "llm_verified"
+          "truth": "draft"
         },
         "units": {
           "engine": {
@@ -3706,7 +3740,7 @@
             "truth": 18
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -3791,7 +3825,7 @@
             "truth": 702
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -3928,7 +3962,7 @@
             "tp": 350,
             "truth": 350
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "refmod spans": {
           "engine": null,

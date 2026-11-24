@@ -300,7 +300,9 @@ def corpus_files(repo: Path) -> list[str]:
     return sorted(
         p.relative_to(repo).as_posix()
         for p in repo.rglob("*")
-        if p.is_file() and p.suffix.lower() in COBOL_EXTS and ".git" not in p.parts
+        if p.is_file()
+        and p.suffix.lower() in COBOL_EXTS
+        and not any(part.startswith(".") for part in p.relative_to(repo).parts)  # .git, .expanded (generated copies)
     )
 
 
@@ -2541,9 +2543,13 @@ def _pli_move_kind(fact: str) -> str:
     return "literal" if body[:1] in "'-+0123456789" else "item"
 
 
-def pli_moves_plan(key: dict[str, Any], repo: Path, seed: int) -> list[dict[str, Any]]:
+def pli_moves_plan(
+    key: dict[str, Any], repo: Path, seed: int, skip_files: frozenset[str] = frozenset()
+) -> list[dict[str, Any]]:
+    """The window sample. `skip_files` (an extension round, #9216) are files an earlier plan already drew windows
+    from: the new windows come only from the keyed files it never looked at."""
     rng = random.Random(seed)
-    pm = key.get("pli_moves", {})
+    pm = {rel: e for rel, e in key.get("pli_moves", {}).items() if rel not in skip_files}
     by_kind: dict[str, list[tuple[str, int]]] = {k: [] for k in PLI_MOVE_WINDOWS}
     for rel, entry in sorted(pm.items()):
         for fact in entry.get("moves", []):
@@ -3643,6 +3649,17 @@ def main() -> int:
                 sm["plan"] = {"seed": args.seed, "strata": PLI_MOVE_WINDOWS, "window": WINDOW,
                               "windows": pli_moves_plan(key, repo, args.seed)}  # fmt: skip
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            else:
+                # An extension round: the plan is fully signed but the key has since grown (a wider file sample).
+                # Draw a further window sample from the keyed files no earlier window looked at.
+                planned = sm["plan"]["windows"]
+                done_all = {w for b in sm["batches"] for w in b["windows"]}
+                seen = frozenset(w["file"] for w in planned)
+                if all(_wid(w) in done_all for w in planned) and set(key.get("pli_moves", {})) - seen:
+                    new_w = pli_moves_plan(key, repo, args.seed, seen)
+                    sm["plan"]["windows"] = sorted(planned + new_w, key=lambda w: (w["file"], w["from"]))
+                    sm.setdefault("extensions", []).append({"seed": args.seed, "windows": len(new_w)})
+                    (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             done_w = {w for b in sm.get("batches", []) for w in b["windows"]}
             todo = [w for w in sm["plan"]["windows"] if _wid(w) not in done_w]
             groups = batches_plimoves(key, todo, args.max_items)

@@ -680,3 +680,24 @@ def test_runners_suite_is_blind_round_trips_and_signs_in_full():
     cs.sign(key, truth, g, {}, "reviewer", "2026-09-26")
     assert key["runner_steps"]["J.jcl"]["verification"]["tier"] == "cross_verified"
     assert cs.coverage(key, cs.corpus_files_runners(key), "runners")["missing"] == []
+
+
+def test_corpus_files_skip_dot_directories(tmp_path):
+    """The census asks about the key's sources: a generated `.expanded/` copy (copybooks inlined) is not one of them,
+    and its windows made 128 false disagreements in the first example-health-apis data-move round."""
+    for rel in ("src/A.cbl", "src/.expanded/A.cbl", ".git/x.cbl"):
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("       PROGRAM-ID. A.\n", encoding="utf-8")
+    assert cs.corpus_files(tmp_path) == ["src/A.cbl"]
+
+
+def test_pli_moves_plan_extension_draws_only_from_files_no_window_looked_at():
+    files = {f"src/P{i}.pli": {"moves": [f"L{n} ASSIGN X{n} -> Y{n}" for n in (3, 5, 9, 14, 20)]} for i in range(12)}
+    key = {"corpus": "k", "pli_moves": files}
+    seen = frozenset(f"src/P{i}.pli" for i in range(6))
+    import unittest.mock as mock
+
+    with mock.patch.object(cs, "read_key_text", return_value="\n".join(["x"] * 40)):
+        windows = cs.pli_moves_plan(key, Path("/repo"), 7, seen)
+    assert windows and not ({w["file"] for w in windows} & seen)

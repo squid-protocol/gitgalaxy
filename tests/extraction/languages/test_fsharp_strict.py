@@ -91,8 +91,7 @@ def test_glsl_and_forth_fs_are_not_claimed(content):
 
 
 # --- extraction ---------------------------------------------------------------
-# Mode C needs a body line under a unit's header: a run of adjacent one-line `let f x = ...` bindings is not sliced
-# into functions (the same limit Haskell has), so these snippets keep each body on its own line.
+# #9200: a one-line `let f x = ...` binding is its own unit (Mode C no longer demands a body line under the header).
 
 
 def test_let_functions_are_found_and_values_are_not():
@@ -165,3 +164,9 @@ def test_every_rule_survives_pathological_input():
         for p in payloads
     ]
     assert_redos_immune_all(pairs)
+
+
+def test_one_line_let_function_is_a_unit_next_to_multi_line_ones_9200():
+    src = "let multi (x: int) =\n    x + 1\nlet oneLiner (x: int) = x * 2\nlet other (y: int) = y\n"
+    names = sorted(f["name"] for f in _splice(src)["functions"])
+    assert names == ["multi", "oneLiner", "other"]

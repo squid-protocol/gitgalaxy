@@ -3,7 +3,7 @@
 `tests/tools/equivalence_forged_spring.py` forges the estate with only its own programs as skeletons (the real forge),
 compiles the generated `<Job>JobConfig` classes with the forge's runtime against Spring Batch 5.1 and runs them on an
 in-memory `JobRepository`. A program step calls a stub service returning the chain's COBOL return code (the proven ports
-are not linked: a later slice), so what is compared is the generated job's own behaviour: which jobs are generated, the
+are not linked here: the job case `carddemo-job-posttran-intcalc-forged` runs POSTTRAN and INTCALC with them, #8886), so what is compared is the generated job's own behaviour: which jobs are generated, the
 step order and guard under Spring, the utility steps (IDCAMS / SORT) the runtime runs or refuses.
 
 Pinned result (evidence level: executed under Spring, program bodies stubbed, SORT run on seeded data): 5 of 9 case

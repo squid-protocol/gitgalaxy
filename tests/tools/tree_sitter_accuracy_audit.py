@@ -753,6 +753,79 @@ NODE_MAPS = {
         # language-crucible tcl sample actually uses tcl's OOP extensions.
         "class_node_types": set(),
     },
+    "crystal": {
+        "ts_lang": "crystal",
+        # GitGalaxy's func_start counts a `def` (any receiver) and a `macro`, and not a bodiless `abstract def`.
+        # The grammar models `def` as method_def with a `name` field and keeps `abstract def` as its own node type,
+        # so abstract defs stay out of the reference as the engine rule intends. It does NOT model `macro` (it parses
+        # as a plain `call`) and a column-0 `fun` falls into an ERROR region, so those engine functions have no
+        # tree-sitter counterpart and will read as extra: that is a limit of the grammar, not a defect to chase here.
+        "func_node_types": {"method_def"},
+        # class_start: class / struct / module / enum / annotation. `lib` is parsed as a `call` and not modelled.
+        # Note the engine's named class extraction is a per-language allowlist (detector.py, #1264) and Crystal is not
+        # on it, so its class names come from the generic fallback, which reads `class HTTP::Client` as `HTTP`. The
+        # class numbers below therefore score that fallback: a namespaced class reads as both a miss and an extra.
+        "class_node_types": {"class_def", "struct_def", "module_def", "enum_def", "annotation_def"},
+    },
+    "erlang": {
+        "ts_lang": "erlang",
+        # GitGalaxy cleaves Erlang at the clause-ending period (detector.py, "terminator cleaving"): a function is a
+        # whole form, so a multi-clause function (clauses joined by `;`) is ONE function named from its first clause,
+        # and `f/0` and `f/1` (each ended by `.`) are two. The grammar wraps every clause in its own fun_decl, so the
+        # reference counts a fun_decl only when the previous form did not end in `;` (see the walk's Erlang rule).
+        # An anonymous `fun(X) -> ... end` is a fun_clause inside an expression, never a fun_decl.
+        "func_node_types": {"fun_decl"},
+        # class_start: `-module(x).`, `-behaviour(x).` and `-record(x, ...)`.
+        "class_node_types": {"module_attribute", "behaviour_attribute", "record_decl"},
+    },
+    "nim": {
+        "ts_lang": "nim",
+        # GitGalaxy's func_start matches a named routine at any indent (proc / func / method / iterator / template /
+        # macro / converter) and, unlike its Ada rule, does not require a body, so a forward declaration counts. The
+        # grammar models all of those as one `routine` node (no `name` field: the name is its first `symbol` child)
+        # and an anonymous `proc (x: int)` as routineExpr, which the engine rule also leaves out (it names nothing).
+        "func_node_types": {"routine"},
+        # Classes (a `type` entry that declares an object / enum / tuple / concept) are not mapped yet: the name sits
+        # on the enclosing typeDef, not on the declaration node, and the engine's named class extraction is a
+        # per-language allowlist (detector.py, #1264) that Nim is not on.
+        "class_node_types": set(),
+    },
+    "julia": {
+        "ts_lang": "julia",
+        # GitGalaxy's func_start counts a `function name` block (bodiless `function f end` stubs included) and a
+        # short-form `name(args) = ...` at the start of a line; a macro is not a function for it. The grammar gives
+        # the first as function_definition and the second as an `assignment` whose left side is a call, so
+        # `assignment` is a candidate node and _get_node_name returns a name only for the call-shaped ones (a plain
+        # `y = f(3)` has none and is skipped). The name is the callee's last identifier (`Base.show` is `show`).
+        "func_node_types": {"function_definition", "assignment"},
+        # Classes (struct / module / abstract type / primitive type) are not mapped yet: the name sits in a type_head
+        # and the engine's named class extraction is a per-language allowlist (detector.py, #1264) Julia is not on.
+        "class_node_types": set(),
+    },
+    "r": {
+        "ts_lang": "r",
+        # R functions are values, so a function is "named" only by the assignment around it. GitGalaxy's func_start
+        # counts `name <- function(`, `name <<- function(`, `name = function(`, a backticked name and the R 4.1 lambda
+        # `name <- \\(x)`; an anonymous function passed as an argument has no name and is not counted. The grammar
+        # gives every one of those as a function_definition, so _get_node_name returns a name only when the function
+        # is the right side of an assignment (the left side names it) and None otherwise.
+        "func_node_types": {"function_definition"},
+        # Classes (setClass / setRefClass / R6Class calls) are calls, not node types: not mapped.
+        "class_node_types": set(),
+    },
+    "fsharp": {
+        "ts_lang": "fsharp",
+        # GitGalaxy's func_start counts a `let` / `let rec` / `let inline` / `and` binding, or a `member` / `override` /
+        # `default`, that takes at least one parameter; a bare `let x = 1`, `let f = fun x -> ...` and `member val` are
+        # values. The grammar separates them: a function_or_value_defn whose left side is a function_declaration_left
+        # is a function (a value_declaration_left is a value), and a method_or_prop_defn with an `args` field is a
+        # method (a property has none). Operator names and multi-line parameter lists are outside the engine rule.
+        "func_node_types": {"function_or_value_defn", "method_or_prop_defn"},
+        # Classes (type / module / namespace / exception) are not mapped yet: several declaration node types carry the
+        # name differently, and the engine's named class extraction is a per-language allowlist (detector.py, #1264)
+        # that F# is not on.
+        "class_node_types": set(),
+    },
 }
 
 # Languages GitGalaxy has a func_start/class_start rule for for AND tree-sitter-language-pack has
@@ -1016,7 +1089,123 @@ def _haskell_signature_type_is_io_action(type_node: Any | None) -> bool:
     return node is not None and node.type == "name" and node.text == b"IO"
 
 
+def _julia_definition_call(node: Any) -> Any | None:
+    """The call_expression (or bare identifier, for a `function f end` stub) that names a Julia function definition."""
+    if node.type == "function_definition":
+        sig = next((c for c in node.named_children if c.type == "signature"), None)
+        inner = sig.named_children[0] if sig is not None and sig.named_children else None
+    elif node.type == "assignment" and node.named_children:
+        inner = node.named_children[0]
+    else:
+        return None
+    while inner is not None and inner.type in ("typed_expression", "where_expression") and inner.named_children:
+        inner = inner.named_children[0]
+    if inner is None:
+        return None
+    if inner.type == "call_expression" or (node.type == "function_definition" and inner.type == "identifier"):
+        return inner
+    return None
+
+
+def _julia_callee_name(call: Any) -> str | None:
+    target = call if call.type == "identifier" else (call.named_children[0] if call.named_children else None)
+    while target is not None and target.type in ("curly_expression", "parametrized_type_expression"):
+        target = target.named_children[0] if target.named_children else None
+    if target is None:
+        return None
+    if target.type == "identifier":
+        return target.text.decode("utf8")
+    if target.type == "field_expression":  # Base.show -> show
+        last = [c for c in target.named_children if c.type == "identifier"]
+        return last[-1].text.decode("utf8") if last else None
+    return None
+
+
+_R_ASSIGN_OPERATORS = frozenset({"<-", "<<-", "=", ":="})
+
+
+def _r_assigned_name(node: Any) -> str | None:
+    """R: the name a function_definition is assigned to (`f <- function`, `obj$f <- function`, `` `a b` <- function ``)."""
+    parent = node.parent
+    if parent is None or parent.type != "binary_operator":
+        return None
+    rhs = parent.child_by_field_name("rhs")
+    op = parent.child_by_field_name("operator")
+    if rhs is None or rhs.start_byte != node.start_byte or op is None or op.type not in _R_ASSIGN_OPERATORS:
+        return None
+    lhs = parent.child_by_field_name("lhs")
+    if lhs is None:
+        return None
+    if lhs.type == "identifier":
+        return lhs.text.decode("utf8").strip("`")
+    if lhs.type == "string":
+        content = next((c for c in lhs.named_children if c.type == "string_content"), None)
+        return content.text.decode("utf8") if content is not None else None
+    if lhs.type in ("extract_operator", "namespace_operator"):  # obj$f / pkg::f -> f
+        ids = [c for c in lhs.named_children if c.type == "identifier"]
+        return ids[-1].text.decode("utf8") if ids else None
+    return None
+
+
+def _fsharp_member_name(node: Any) -> str | None:
+    """A member's method name (`this.Foo(x)` -> `Foo`); only a method (it has `args`) counts, never a property."""
+    if node.child_by_field_name("args") is None:
+        return None
+    nm = node.child_by_field_name("name")
+    if nm is None:
+        return None
+    method = nm.child_by_field_name("method")
+    return (method if method is not None else nm).text.decode("utf8")
+
+
 def _get_node_name(node: Any) -> str | None:
+    if node.type == "function_or_value_defn":
+        # F#: a function has a function_declaration_left (name then argument_patterns); a value has a
+        # value_declaration_left and is not a function.
+        left = node.named_children[0] if node.named_children else None
+        if left is not None and left.type == "function_declaration_left":
+            nm = next((c for c in left.named_children if c.type in ("identifier", "op_identifier")), None)
+            return nm.text.decode("utf8") if nm is not None else None
+        return None
+    if node.type == "method_or_prop_defn":
+        return _fsharp_member_name(node)
+    if node.type == "assignment":
+        # Julia short form: only a call-shaped left side defines a function.
+        call = _julia_definition_call(node)
+        return _julia_callee_name(call) if call is not None else None
+    if node.type == "function_definition" and any(c.type == "signature" for c in node.named_children):
+        # Julia only: its function_definition holds a `signature`. Other languages share the node type and fall through.
+        call = _julia_definition_call(node)
+        return _julia_callee_name(call) if call is not None else None
+    if node.type == "routine":
+        # Nim: the routine's name is its first `symbol` child (an operator keeps its backticks); there is no name field.
+        sym = next((c for c in node.named_children if c.type == "symbol"), None)
+        return sym.text.decode("utf8") if sym is not None else None
+    if node.type == "function_definition":
+        # R: the grammar tags the `function` / `\\` keyword token as the node's `name` field, so the generic lookup
+        # would return the word "function". An identifier there means a different language; for the keyword token the
+        # assignment around the function names it (None for an anonymous function).
+        kw = node.child_by_field_name("name")
+        if kw is not None and kw.type in ("function", "\\"):
+            return _r_assigned_name(node)
+    if node.type == "fun_decl":
+        # Erlang: the name lives on the form's first function_clause.
+        clause = next((c for c in node.named_children if c.type == "function_clause"), None)
+        nm = clause.child_by_field_name("name") if clause is not None else None
+        return nm.text.decode("utf8") if nm is not None else None
+    if node.type == "method_def":
+        # Crystal: for a setter `def name=(value)` the grammar reads `name` as the name and misparses `=(value)` as an
+        # assignment, so the name lost its `=`. The engine (correctly) records `name=`: rebuild it when the `=` sits
+        # directly against the name and is not part of an operator (`==`, `=~`, `=>`).
+        nm = node.child_by_field_name("name")
+        if nm is None:
+            return None
+        text = nm.text.decode("utf8")
+        offset = nm.end_byte - node.start_byte
+        following = node.text[offset : offset + 2]
+        if nm.type == "identifier" and following[:1] == b"=" and following[1:2] not in (b"=", b"~", b">"):
+            return text + "="
+        return text
     if node.type == "bind":
         # #1566: only a real function -- see func_node_types' haskell entry for the full
         # rationale. Checked first, ahead of the generic "name" field fast path below, since
@@ -1535,6 +1724,46 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         return _count_shell_real_positional_max(node)
     if lang == "perl" and node.type in _PERL_SUB_NODE_TYPES:
         return _count_perl_real_args(node)
+    if lang == "fsharp" and node.type == "function_or_value_defn":
+        left = node.named_children[0] if node.named_children else None
+        pats = (
+            next((c for c in left.named_children if c.type == "argument_patterns"), None) if left is not None else None
+        )
+        if pats is None:
+            return 0
+        kids = pats.named_children
+        return 0 if len(kids) == 1 and kids[0].text.strip() == b"()" else len(kids)
+    if lang == "fsharp" and node.type == "method_or_prop_defn":
+        args = node.child_by_field_name("args")
+        if args is None or args.type != "paren_pattern":
+            return 0  # `()` is a unit constant, not a parameter
+        inner = args.named_children
+        if not inner:
+            return 0
+        return len(inner[0].named_children) if inner[0].type == "repeat_pattern" else 1
+    if lang == "r" and node.type == "function_definition":
+        params = node.child_by_field_name("parameters")
+        return sum(1 for c in params.named_children if c.type == "parameter") if params is not None else 0
+    if lang == "julia" and node.type in ("function_definition", "assignment"):
+        call = _julia_definition_call(node)
+        args = next((c for c in call.named_children if c.type == "argument_list"), None) if call is not None else None
+        return len(args.named_children) if args is not None else 0
+    if lang == "nim" and node.type == "routine":
+        # each paramColonEquals declares one or more names (`y, z: string` is two): its direct `symbol` children
+        plist = next((c for c in node.named_children if c.type == "paramList"), None)
+        if plist is None:
+            return 0
+        return sum(1 for pc in plist.named_children for c in pc.named_children if c.type == "symbol")
+    if lang == "erlang" and node.type == "fun_decl":
+        # the first clause head's argument expressions are its `args` field (an expr_args node)
+        clause = next((c for c in node.named_children if c.type == "function_clause"), None)
+        args = clause.child_by_field_name("args") if clause is not None else None
+        return len(args.named_children) if args is not None else 0
+    if lang == "crystal" and node.type == "method_def":
+        # Crystal's parameter list is the `params` field (not `parameters`), holding param / splat_param /
+        # double_splat_param / block_param children.
+        params = node.child_by_field_name("params")
+        return sum(1 for c in params.named_children if c.type.endswith("param")) if params is not None else 0
     params_node = node.child_by_field_name("parameters")
     if params_node is None and node.type == "function_definition":
         params_node = _find_c_style_parameter_list(node.child_by_field_name("declarator"))
@@ -2419,7 +2648,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
 
                     if node.type in func_node_types:
                         raw_name = _get_node_name(node)
-                        if raw_name and not (lang == "haskell" and is_continuation_clause):
+                        if raw_name and not (lang in ("haskell", "erlang") and is_continuation_clause):
                             raw_ts_funcs.setdefault(raw_name, []).append(
                                 (node.start_point[0] + 1, _get_param_count(node, lang))
                             )
@@ -2466,7 +2695,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         )
                         if (
                             (lang == "perl" and node.child_by_field_name("body") is None)
-                            or (lang == "haskell" and is_continuation_clause)
+                            or (lang in ("haskell", "erlang") and is_continuation_clause)
                             # #2463: inside a tree-sitter-cpp ERROR span (a `_FORCE_INLINE_`-style
                             # macro before a member desyncs the parse) tree-sitter's names are
                             # noise -- bare `for` / `bool` / `void`, a field name read as a
@@ -2584,7 +2813,12 @@ def measure(lang: str, verbose: bool = False) -> dict:
                     # own sibling node in between, which would otherwise wrongly split one
                     # real clause-group into two.
                     last_clause_name: str | None = None
+                    erlang_form_open = False  # the previous fun_decl ended in `;`: the next one continues it
                     for child in node.children:
+                        if lang == "erlang" and child.type == "fun_decl":
+                            walk(child, is_continuation_clause=erlang_form_open)
+                            erlang_form_open = child.text.rstrip().endswith(b";")
+                            continue
                         if lang == "haskell" and child.type == "comment":
                             walk(child)
                             continue

@@ -175,7 +175,7 @@ class SbomRecorder:
                 "tools": [
                     {
                         "vendor": "GitGalaxy",
-                        "name": "Universal Zero-Trust SBOM",
+                        "name": "Universal SBOM",
                         "version": f"v{self.version}",
                     }
                 ],

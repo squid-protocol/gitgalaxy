@@ -1932,7 +1932,7 @@ class LLMRecorder:
             f"- **Blacklisted Dependencies:** `{fw.get('imports_blacklisted', 0)}` explicitly banned packages imported."
         )
         lines.append(
-            f"- **Unknown Dependencies:** `{fw.get('imports_unknown', 0)}` packages imported that bypass the Zero-Trust whitelist."
+            f"- **Unknown Dependencies:** `{fw.get('imports_unknown', 0)}` packages imported that bypass the dependency whitelist."
         )
         lines.append("")
 

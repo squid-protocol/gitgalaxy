@@ -1517,6 +1517,11 @@ class Walk:
             if "RESP" not in t and "NOHANDLE" not in t:
                 self._branch_to(self.handlers["cics"], after, gotos)
             if re.match(r"EXEC CICS (RETURN|XCTL|ABEND)\b", t):
+                # RETURN / XCTL that fail (IMMEDIATE below the highest logical level, an unknown program, a bad
+                # COMMAREA length) give control back to the next statement when the program asked for RESP / NOHANDLE
+                # (a bare one raises the condition: the handler branches above, or the task abends). ABEND never returns.
+                if re.match(r"EXEC CICS (RETURN|XCTL)\b", t) and re.search(r"\b(RESP|NOHANDLE)\b", t):
+                    return after, gotos
                 return None, gotos
         elif t.startswith("EXEC SQL"):
             after = self.sqlcode(after, s.line)

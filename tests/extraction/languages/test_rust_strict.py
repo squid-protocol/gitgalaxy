@@ -86,6 +86,12 @@ _RUST_SIMPLE_CASES = [
     ("serialization_parsing", "serde_json::from_str(s)", "let x = 1;"),
     ("regex_execution", "Regex::new(pattern)", "let x = 1;"),
     ("time_date_logic", "std::time::Instant::now()", "let x = 1;"),
+    ("time_date_logic", "Instant::now()", "let x = 1;"),
+    ("time_date_logic", "Duration::from_secs(1)", "let x = 1;"),
+    ("time_date_logic", "SystemTime::now()", "let x = 1;"),
+    ("time_date_logic", "Instant::now()", "MyInstant::now()"),
+    ("panics_and_aborts", "unreachable!()", "let unreachable_code = 1;"),
+    ("panics_and_aborts", "unimplemented!()", "let unimplemented_x = 1;"),
     ("ipc_rpc_bridges", 'std::process::Command::new("ls")', "let x = 1;"),
 ]
 

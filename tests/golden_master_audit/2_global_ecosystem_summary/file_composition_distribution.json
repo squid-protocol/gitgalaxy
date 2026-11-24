@@ -13,9 +13,9 @@
     "Interface Declarations Files": "11.9% (436)",
     "Large Core Modules": "10.3% (378)",
     "Large Core Modules (2)": "8.9% (327)",
-    "Large Core Modules (3)": "9.8% (360)",
+    "Large Core Modules (3)": "9.9% (361)",
     "Many-Argument Workhorses Files": "2.4% (86)",
-    "Parameter Forwarders Files": "5.0% (184)",
+    "Parameter Forwarders Files": "5.0% (183)",
     "State Mutators Files": "2.2% (81)",
     "Type Conversions Files": "0.5% (17)"
   }

@@ -242,7 +242,7 @@ Generate a valid Python dictionary matching this exact structure.
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
         # safety: A site that handles or forestalls a runtime failure at the value level -- a guarded region's opener or its typed handler, a runtime assertion or validation call, a fallback or handled-absence form, an installed failure handler or watchdog, or a hardening instruction -- in a form an ordinary identifier, type annotation or constructor cannot match. Includes: try/typed catch, assert/require/precondition, fromMaybe/unwrap_or fallbacks, trap/watchdogs, endbr64. EXCLUDES: type annotations and constructors (Maybe, Option, sealed), blanket handlers (bare except -- safety_bypasses'), release combinators (finally -- cleanup's), raising (throw/error), block closers (END-IF), frame mechanics, immutability (#2772's axis).
         "safety": re.compile(r""), 
-        # safety_bypasses: Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state. Includes: Force unwrapping (!), any, raw memory casting, linter bypasses (@ts-ignore).
+        # safety_bypasses: A site that opts out of a safety check the language or its tooling would otherwise enforce -- a forced unwrap or unchecked cast, an escape-hatch type, a raw-memory reinterpretation, a swallowed error, or a lint or type-checker suppression -- in the construct's own syntax. Includes: Force unwrapping (!), any, raw memory casting, linter bypasses (@ts-ignore).
         "safety_bypasses": re.compile(r""), 
         # high_risk_execution: A SITE THAT HANDS CONTROL OUT OF THE PROGRAM'S OWN SEMANTICS -- it ends or halts the process, runs text or another program as code, loads or rewrites executable code at run time, destroys a whole store the program does not own, or steps outside the runtime's protections -- in the primitive's own invocation or statement form. Five families, one owner each: termination and traps (exit, abort, STOP RUN, hlt, panic), running text or another program (eval, exec, system, popen, Invoke-Expression, PGM=IKJEFT01), loading or rewriting code (ALTER, srcdoc, innerHTML =, load_extension), whole-store destruction (rm -rf /, mkfs, DROP DATABASE, TRUNCATE, selfdestruct), protection escape (sudo, chmod 777, Unsafe, machine.reset). Where an ordinary identifier can carry the name, anchor the invocation form (call parens, statement position, opcode field); a bound alias, a type or property reference, or a landing point (setjmp) is not a site. EXCLUDES a jump inside the unit (goto -- nobody's signal), deletion below the store (one file/record/table -> cleanup, #2843), debug or dialog output (trace, alert, answer -> debug_prints), memory primitives, workspace resets (clear all -> cleanup), TODO/HACK (planned_debt), print (debug_prints). Full contract, corollaries and the 46-language audit: docs/high_risk_execution_rule_contract.md (#2878).
         "high_risk_execution": re.compile(r""), 
@@ -254,7 +254,7 @@ Generate a valid Python dictionary matching this exact structure.
         "state_mutation": re.compile(r""), 
         # dead_code (Commented Logic / Deprecated Trails): A comment that holds code the program no longer runs -- a keyword-led line or a statement in the language's own syntax inside a comment, as opposed to prose or documentation -- read from the comment surface. Includes: // if (x), /* var y */.
         "dead_code": re.compile(r""), 
-        # doc: Structured documentation meant to be parsed by IDEs or generators. Includes: JSDoc, Docstrings.
+        # doc: A comment block in the language's structured documentation form -- the form a documentation tool or IDE parses, such as a doc comment, a docstring or a tagged block -- read from the comment surface. Includes: JSDoc, Docstrings.
         "doc": re.compile(r""), 
         # test: A SITE THAT ENGAGES A TESTING FRAMEWORK: A TEST-CASE OR FIXTURE DECLARATION, A FRAMEWORK ASSERTION OR EXPECTATION, OR THE FRAMEWORK NAMED AS SUCH. The language's own runtime guard (C `assert(`, python's `assert` statement, Lua `assert(`) is safety's hit, never test's; a framework's assertion form (CU_ASSERT, ASSERT_*/EXPECT_*, assertEquals, luassert's `assert.<chain>`) is test's. One statement is one hit -- a module qualifier is not a separate hit from the call it qualifies (`Test::More::ok(` = 1). An everyday word (test, it, ok, group, mock...) fires only anchored to its framework form (call parens with a description string, declaration position, annotation `@Test`/`#[Test]`/`[Test]`, block label) with hyphen guards where `-` is a word boundary; an unambiguous framework name (pytest, unittest, PHPUnit, Test::More, busted) may fire bare and counts wherever it appears. A language with no per-case idiom a framework executes records the stated absence instead (`None` + ledger entry, yacc). Full contract, corollaries and the 46-language audit: docs/test_rule_contract.md (#2852).
         "test": re.compile(r""), 
@@ -286,9 +286,9 @@ Generate a valid Python dictionary matching this exact structure.
         "ownership": re.compile(r""), 
 
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
-        # planned_debt: Annotated future work. Includes: TODO, WIP, STUB.
+        # planned_debt: A comment marker that records work the author intends to do later -- TODO, WIP, STUB or the language's equivalent -- read from the comment surface. Includes: TODO, WIP, STUB.
         "planned_debt": re.compile(r""), 
-        # fragile_debt: Explicit admissions of fragile or dangerous logic. Includes: HACK, FIXME, XXX.
+        # fragile_debt: A comment marker in which the author admits the code beneath it is fragile, dangerous or a shortcut -- HACK, FIXME, XXX or the language's equivalent -- read from the comment surface. Includes: HACK, FIXME, XXX.
         "fragile_debt": re.compile(r""), 
         # hardcoded_secrets: A literal credential written into the file -- a password, token, key or secret assigned or configured as a string literal of credential length -- at the assignment. Includes: password: "...", api_key = "...", private_key :=. EXCLUDES the identifier on its own, a reference to a secret store, and a placeholder shorter than credential length. Baseline rule in three languages (ada, solidity, yaml); every other language is covered by the security lens's own detector (`sec_hardcoded_secrets`), which is not a registry rule. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "hardcoded_secrets": re.compile(r""), 
@@ -310,7 +310,7 @@ Generate a valid Python dictionary matching this exact structure.
         "inline_asm": re.compile(r""), 
 
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
-        # telemetry: Structured logging and observability frameworks.
+        # telemetry: A call that records a log line, a metric or a trace through a logging or observability framework, as opposed to a bare print to standard output -- in the framework's own call form.
         "telemetry": re.compile(r""), 
         # debug_prints (Debug Artifacts / Unstructured Outputs): A site that writes text to the console or a diagnostic stream for a developer to read while the program runs -- a print, echo, dump or trace call -- in its own call or statement form; output addressed to a file or writer, and structured logging (telemetry), are not sites. Includes: print(, console.log(.
         "debug_prints": re.compile(r""), 

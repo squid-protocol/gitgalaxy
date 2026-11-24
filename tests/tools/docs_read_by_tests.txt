@@ -465,6 +465,7 @@ docs/ok.md	tests/tools/test_gate_controls_docs.py
 docs/other.json	tests/tools/test_generated_branch.py
 docs/ownership_rule_contract.md	gitgalaxy
 docs/p.md	tests/tools/test_generated_docs.py
+docs/planted_family_contracts.md	gitgalaxy,tests/test_signal_contract_sheet.py
 docs/raises.md	tests/tools/test_gate_controls_docs.py
 docs/readme.md	tests/tools/test_evidence_report.py
 docs/report	tests/tools/test_generated_branch.py

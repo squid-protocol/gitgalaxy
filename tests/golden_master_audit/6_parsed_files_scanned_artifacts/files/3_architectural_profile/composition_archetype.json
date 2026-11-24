@@ -1320,7 +1320,7 @@
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/metrics.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "Callbacks & Closures Files",
-      "dockerfile/moby/builder/dockerfile/utils_test.go": "Type Conversions Files"
+      "dockerfile/moby/builder/dockerfile/utils_test.go": "Large Core Modules (2)"
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": "Large Core Modules (2)",

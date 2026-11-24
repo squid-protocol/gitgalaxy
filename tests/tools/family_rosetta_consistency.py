@@ -26,8 +26,9 @@ CELL VERDICTS
 USAGE
     python tests/tools/family_rosetta_consistency.py                  # markdown report to stdout
     python tests/tools/family_rosetta_consistency.py --json OUT.json  # also write the machine-readable result
-    python tests/tools/family_rosetta_consistency.py --check-floor    # exit 1 when any silent cell exists
-    python tests/tools/family_rosetta_consistency.py --live           # count every defined family's rule over the corpus sources
+    python tests/tools/family_rosetta_consistency.py --check-floor    # exit 1 when any silent cell exists (a --live cell resting on a raw reading alone is not counted)
+    python tests/tools/family_rosetta_consistency.py --live           # planted families keep the manifest count; the rest are counted live
+                                                                      # over the corpus sources, marked "(reading)" when silent
     KEYWORD_ROSETTA_PATH=<checkout> overrides the default sibling ../keyword-rosetta.
 
 EXIT   0 report written, 1 --check-floor and a silent cell, 2 the report did not run (no corpus, no manifests, bad arguments).
@@ -111,6 +112,7 @@ def analyze(
     defined: dict[str, set[str]],
     ledger: set[tuple[str, str]] | None = None,
     min_fire_share: float = MIN_FIRE_SHARE,
+    readings: set[tuple[str, str]] | None = None,
 ) -> dict:
     """The consistency table: a pure function of the manifests, the contracted families, the registry's defined rules and the ledger."""
     ledger = ledger or set()
@@ -150,6 +152,11 @@ def analyze(
             "consensus": consensus,
             "counts": dict(sorted(rows.items())),
             "verdicts": dict(sorted(cells.items())),
+            **(
+                {"reading_cells": rc}
+                if (rc := sorted(lang for lang in cells if (fam, lang) in (readings or set())))
+                else {}
+            ),
             "not_applicable": sorted(f for f in mapped if fam not in defined[f]),
         }
     return result
@@ -189,6 +196,28 @@ def live_manifests(corpus: Path, folders: list[str], defined: dict[str, set[str]
     return out
 
 
+def merge_live(
+    manifests: dict[str, dict[str, int]], live: dict[str, dict[str, int]]
+) -> tuple[dict[str, dict[str, int]], set[tuple[str, str]]]:
+    """(counts, readings): the blessed manifest count where a folder plants the family, else the live raw-rule count.
+
+    The live count lacks the detector's post-filters, so it can disagree with the engine (six languages did in #9228). A planted family
+    therefore keeps the engine's count; `readings` is the set of (family, language) cells that rest on the raw count alone.
+    """
+    merged: dict[str, dict[str, int]] = {}
+    readings: set[tuple[str, str]] = set()
+    for lang, counts in live.items():
+        planted = manifests.get(lang, {})
+        merged[lang] = {}
+        for fam, n in counts.items():
+            if fam in planted:
+                merged[lang][fam] = planted[fam]
+            else:
+                merged[lang][fam] = n
+                readings.add((fam, lang))
+    return merged, readings
+
+
 def drift(
     manifests: dict[str, dict[str, int]], live: dict[str, dict[str, int]]
 ) -> dict[str, dict[str, tuple[int, int]]]:
@@ -212,7 +241,7 @@ def render_drift(drifted: dict) -> str:
         return "\n## Live vs manifest\n\nEvery planted family reads the same live as in the manifests.\n"
     out = [
         "",
-        "## Live vs manifest (manifest/live): a stale manifest, or a detector post-filter the live count lacks",
+        "## Live vs manifest (manifest/live): the manifest count is used; the live count lacks a detector post-filter, or the manifest is stale",
         "",
     ]
     out += [
@@ -221,8 +250,14 @@ def render_drift(drifted: dict) -> str:
     return "\n".join(out) + "\n"
 
 
-def silent_cells(result: dict) -> list[tuple[str, str]]:
-    return [(fam, lang) for fam, d in result["families"].items() for lang, v in d["verdicts"].items() if v == "silent"]
+def silent_cells(result: dict, include_readings: bool = True) -> list[tuple[str, str]]:
+    """Silent (family, language) cells; `include_readings=False` drops those resting on a raw live count alone (not the engine's)."""
+    return [
+        (fam, lang)
+        for fam, d in result["families"].items()
+        for lang, v in d["verdicts"].items()
+        if v == "silent" and (include_readings or lang not in d.get("reading_cells", ()))
+    ]
 
 
 def render_markdown(result: dict, corpus_sha: str = "") -> str:
@@ -243,7 +278,10 @@ def render_markdown(result: dict, corpus_sha: str = "") -> str:
     for fam, d in sorted(result["families"].items()):
         langs = [lang for lang, v in d["verdicts"].items() if v == "silent"]
         if langs:
-            out.append(f"- `{fam}` (target {d['target']}, fires in {d['fires']} of {d['defined']}): {', '.join(langs)}")
+            tagged = [lang + (" (reading)" if lang in d.get("reading_cells", ()) else "") for lang in langs]
+            out.append(
+                f"- `{fam}` (target {d['target']}, fires in {d['fires']} of {d['defined']}): {', '.join(tagged)}"
+            )
     if not silent:
         out.append("None.")
     for verdict in ("over", "under"):
@@ -324,11 +362,12 @@ def main(argv: list[str] | None = None) -> int:
 
     families, _languages, defined = engine_grid()
     drifted: dict = {}
+    readings: set[tuple[str, str]] = set()
     if args.live:
         live = live_manifests(corpus, sorted(manifests), defined)
         drifted = drift(manifests, live)
-        manifests = live
-    result = analyze(manifests, [f.key for f in families], defined, load_ledger(corpus), args.min_fire_share)
+        manifests, readings = merge_live(manifests, live)
+    result = analyze(manifests, [f.key for f in families], defined, load_ledger(corpus), args.min_fire_share, readings)
     if not result["languages"]:
         print("no corpus folder maps to a registry language: nothing was checked", file=sys.stderr)
         return 2
@@ -337,7 +376,7 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.write(render_drift(drifted))
     if args.json:
         args.json.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    return 1 if args.check_floor and silent_cells(result) else 0
+    return 1 if args.check_floor and silent_cells(result, include_readings=False) else 0
 
 
 if __name__ == "__main__":

@@ -1297,9 +1297,9 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 2,
-      "dockerfile/moby/builder/dockerfile/copy.go": 6,
-      "dockerfile/moby/builder/dockerfile/copy_test.go": 1,
-      "dockerfile/moby/builder/dockerfile/copy_unix.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy.go": 14,
+      "dockerfile/moby/builder/dockerfile/copy_test.go": 2,
+      "dockerfile/moby/builder/dockerfile/copy_unix.go": 1,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0,
@@ -1314,31 +1314,31 @@
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 0,
       "dockerfile/moby/builder/dockerfile/internals.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 0,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 0,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 1,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 0
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 1,
-      "dockerfile/moby/builder/remotecontext/detect.go": 3,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
+      "dockerfile/moby/builder/remotecontext/archive.go": 3,
+      "dockerfile/moby/builder/remotecontext/detect.go": 4,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 2,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0,
-      "dockerfile/moby/builder/remotecontext/git.go": 0,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 1,
+      "dockerfile/moby/builder/remotecontext/git.go": 1,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 2,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
       "dockerfile/moby/builder/remotecontext/remote.go": 3,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 2,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": 0
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 4,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 1,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 5
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 3,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 13
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
@@ -1347,7 +1347,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 8,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 18,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 19,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
@@ -1511,7 +1511,7 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 1,
+      "go/core/main.go": 2,
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
@@ -1523,7 +1523,7 @@
       "go/go_runtime_rand/rand.go": 0
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 0,
+      "go/kubernetes/csi_plugin.go": 1,
       "go/kubernetes/generic.go": 0,
       "go/kubernetes/kubelet.go": 0,
       "go/kubernetes/options.go": 0,

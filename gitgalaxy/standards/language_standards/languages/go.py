@@ -154,8 +154,13 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:os\.Exit|syscall\.(?:Kill|RawSyscall|Exec)|log\.(?:Fatal|Panic)(?:f|ln)?|exec\.Command)\b|\bpanic\s*\("
         ),
         # 9. io (I/O & Network Boundaries)
+        # #8868: the filesystem calls the io contract names (os.OpenFile, WriteFile, ReadDir, the
+        # mkdir / remove / rename / stat family, ioutil, filepath.Walk) were missed: `os.Open` had no
+        # boundary-safe form for `os.OpenFile`.
         "io": re.compile(
-            r"\b(os\.(?:Open|Create|ReadFile)|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"
+            r"\b(os\.(?:Open(?:File)?|Create|ReadFile|WriteFile|ReadDir|Mkdir(?:All)?|Remove(?:All)?|Rename|Stat|Lstat)"
+            r"|ioutil\.|filepath\.Walk(?:Dir)?"
+            r"|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"
         ),
         # 10. api (Public Surface Area)
         # Implicit Public Reality: Capitalized top-level identifiers in Go are public.

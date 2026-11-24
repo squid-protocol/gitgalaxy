@@ -296,13 +296,17 @@ def reviewer_facts(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, s
     return out
 
 
+def _generated(p: Path, repo: Path) -> bool:
+    """A path inside a dot-directory: `.git`, or `.expanded/` (the copybook-expanded copies a scan writes). It is not
+    a source the answer key keys, so no census asks about it."""
+    return any(part.startswith(".") for part in p.relative_to(repo).parts)
+
+
 def corpus_files(repo: Path) -> list[str]:
     return sorted(
         p.relative_to(repo).as_posix()
         for p in repo.rglob("*")
-        if p.is_file()
-        and p.suffix.lower() in COBOL_EXTS
-        and not any(part.startswith(".") for part in p.relative_to(repo).parts)  # .git, .expanded (generated copies)
+        if p.is_file() and p.suffix.lower() in COBOL_EXTS and not _generated(p, repo)
     )
 
 
@@ -579,7 +583,7 @@ def corpus_files_files(repo: Path) -> list[str]:
     return sorted(
         p.relative_to(repo).as_posix()
         for p in repo.rglob("*")
-        if p.is_file() and p.suffix.lower() in PROGRAM_EXTS + JCL_EXTS and ".git" not in p.parts
+        if p.is_file() and p.suffix.lower() in PROGRAM_EXTS + JCL_EXTS and not _generated(p, repo)
     )
 
 
@@ -1315,7 +1319,7 @@ def corpus_files_web(key: dict[str, Any], repo: Path) -> list[str]:
         | {
             p.relative_to(repo).as_posix()
             for p in repo.rglob("*")
-            if p.is_file() and p.suffix.lower() in (".jcl", ".prc", ".proc") and ".git" not in p.parts
+            if p.is_file() and p.suffix.lower() in (".jcl", ".prc", ".proc") and not _generated(p, repo)
         }
     )
 
@@ -1380,7 +1384,7 @@ def corpus_files_jcics(key: dict[str, Any], repo: Path) -> list[str]:
         | {
             p.relative_to(repo).as_posix()
             for p in repo.rglob("*.java")
-            if ".git" not in p.parts and "com.ibm.cics.server" in read_key_text(p)
+            if not _generated(p, repo) and "com.ibm.cics.server" in read_key_text(p)
         }
     )
 
@@ -1466,7 +1470,7 @@ def corpus_files_resources(key: dict[str, Any], repo: Path) -> list[str]:
     """Every COBOL / HLASM source that issues EXEC CICS (and any keyed file)."""
     found = set(key.get("cics_resources", {}))
     for p in repo.rglob("*"):
-        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in COBOL_EXTS + HLASM_EXTS:
+        if p.is_file() and not _generated(p, repo) and p.suffix.lower() in COBOL_EXTS + HLASM_EXTS:
             if re.search(r"EXEC\s+CICS", read_key_text(p), re.I):
                 found.add(p.relative_to(repo).as_posix())
     return sorted(found)
@@ -1846,7 +1850,7 @@ def corpus_files_csd(key: dict[str, Any], repo: Path) -> list[str]:
 
     found = set(key.get("csd_decks", {}))
     for p in repo.rglob("*"):
-        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".csd", ".rdo", ".jcl", ".prc"):
+        if p.is_file() and not _generated(p, repo) and p.suffix.lower() in (".csd", ".rdo", ".jcl", ".prc"):
             if is_csd_deck(p, read_key_text(p)):
                 found.add(p.relative_to(repo).as_posix())
     return sorted(found)
@@ -2699,7 +2703,7 @@ def _layout_candidates(repo: Path, task: str) -> set[str]:
     a CICS source coding RIDFLD; a COBOL source with a `(...:...)` span."""
     out = set()
     for p in sorted(repo.rglob("*")):
-        if not p.is_file() or ".git" in p.parts:
+        if not p.is_file() or _generated(p, repo):
             continue
         rel, low = p.relative_to(repo).as_posix(), p.name.lower()
         text = read_key_text(p)
@@ -2991,7 +2995,7 @@ def _pli_layout_candidates(repo: Path) -> set[str]:
     """PL/I sources declaring a structure (a level-2 item in a DCL): the recall pool."""
     out = set()
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in PLI_EXTS and not _generated(p, repo):
             text = read_key_text(p)
             if re.search(r"\b(?:DCL|DECLARE)[ \t\r\n]+1[ \t\r\n]", text, re.I):
                 out.add(p.relative_to(repo).as_posix())
@@ -3175,7 +3179,7 @@ _RUNNER_STEP = re.compile(r"\bPGM=(?:IKJEFT0?1|IKJEFT1[AB]|DFSRRC00)\b", re.I)
 def runners_plan(key: dict[str, Any], repo: Path) -> dict[str, Any]:
     cands = set()
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".jcl", ".prc"):
+        if p.is_file() and not _generated(p, repo) and p.suffix.lower() in (".jcl", ".prc"):
             if _RUNNER_STEP.search(read_key_text(p)):
                 cands.add(p.relative_to(repo).as_posix())
     return {"mode": "full", "files": sorted(set(key.get("runner_steps", {})) | cands)}
@@ -3634,7 +3638,7 @@ def main() -> int:
         staged = args.stage.resolve() / corpus["name"]
         if staged.exists():
             shutil.rmtree(staged)
-        shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
+        shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git", ".expanded"))
         if suite == "plicalls":
             # #3491: fix the file sample (and the include-internal name set) in the key.
             pc = key.setdefault("sample_census", {}).setdefault("pli_calls", {})

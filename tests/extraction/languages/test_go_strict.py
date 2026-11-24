@@ -278,6 +278,36 @@ def test_go_api_and_encapsulation_column_zero_and_keyword_regression():
     assert_redos_immune(api, "\tA" + ", A" * 40000, timeout_sec=3.0)
 
 
+@pytest.mark.parametrize(
+    "call",
+    [
+        "os.OpenFile(name, os.O_RDWR, 0o644)",
+        "os.WriteFile(name, data, 0o644)",
+        "os.ReadDir(dir)",
+        "os.Mkdir(dir, 0o755)",
+        "os.MkdirAll(dir, 0o755)",
+        "os.Remove(name)",
+        "os.RemoveAll(dir)",
+        "os.Rename(a, b)",
+        "os.Stat(name)",
+        "os.Lstat(name)",
+        "ioutil.ReadAll(r)",
+        "filepath.Walk(root, fn)",
+        "filepath.WalkDir(root, fn)",
+        "os.Open(name)",
+    ],
+)
+def test_go_io_counts_filesystem_calls_8868(call):
+    assert GO_RULES["io"].search(call), call
+
+
+@pytest.mark.parametrize(
+    "text", ["os.Opened = true", "os.Removed = 1", "myos.ReadDir(x)", "os.StatusCode", "filepath.Walker"]
+)
+def test_go_io_ignores_look_alike_identifiers_8868(text):
+    assert not GO_RULES["io"].search(text), text
+
+
 def test_go_closures_redos_immunity_and_bare_return_type():
     """
     Regression test for a confirmed real O(n^2) ReDoS: three unbounded

@@ -51,6 +51,8 @@ _VERBS = frozenset(
 _MODES = {"REFERENCE": "", "CONTENT": "CONTENT:", "VALUE": "VALUE:"}
 _PROC_USING = re.compile(r"(?<![A-Z0-9-])PROCEDURE[ \t\n]{1,200}DIVISION(?![A-Z0-9-])", re.I)
 _ENTRY = re.compile(r"(?<![A-Z0-9-])ENTRY[ \t\n]{1,200}(?:'([^'\n]{1,30})'|\"([^\"\n]{1,30})\")", re.I)
+# `SET ROUTINE TO ENTRY 'X'` points at an entry (a procedure-pointer value); it is not an ENTRY statement.
+_TO_BEFORE = re.compile(r"(?<![A-Z0-9-])TO[ \t\n]*$", re.I)
 _WINDOW = 6000
 
 
@@ -147,6 +149,7 @@ def entry_points(code_stream: str) -> list[dict[str, Any]]:
             "line": bisect.bisect_left(newlines, m.start()) + 1,
         }
         for m in _ENTRY.finditer(text)
+        if not _TO_BEFORE.search(text[max(0, m.start() - 20) : m.start()])
     )
     rows.sort(key=lambda r: r["line"])
     return rows

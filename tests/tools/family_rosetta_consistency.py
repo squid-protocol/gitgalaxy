@@ -27,6 +27,7 @@ USAGE
     python tests/tools/family_rosetta_consistency.py                  # markdown report to stdout
     python tests/tools/family_rosetta_consistency.py --json OUT.json  # also write the machine-readable result
     python tests/tools/family_rosetta_consistency.py --check-floor    # exit 1 when any silent cell exists
+    python tests/tools/family_rosetta_consistency.py --live           # count every defined family's rule over the corpus sources
     KEYWORD_ROSETTA_PATH=<checkout> overrides the default sibling ../keyword-rosetta.
 
 EXIT   0 report written, 1 --check-floor and a silent cell, 2 the report did not run (no corpus, no manifests, bad arguments).
@@ -88,7 +89,12 @@ def load_ledger(corpus: Path) -> set[tuple[str, str]]:
         entries = json.loads((corpus / "deviation_ledger.json").read_text(encoding="utf-8")).get("entries") or []
     except (OSError, ValueError, AttributeError):
         return set()
-    return {(sig, lang) for e in entries for sig in str(e.get("signal", "")).split("|") for lang in e.get("languages_seen") or []}
+    return {
+        (sig, lang)
+        for e in entries
+        for sig in str(e.get("signal", "")).split("|")
+        for lang in e.get("languages_seen") or []
+    }
 
 
 def target_count(counts: list[int]) -> int:
@@ -149,6 +155,72 @@ def analyze(
     return result
 
 
+def live_manifests(corpus: Path, folders: list[str], defined: dict[str, set[str]]) -> dict[str, dict[str, int]]:
+    """{folder: {family: hits}} by running each defined rule over the Prism streams of the folder's source files.
+
+    Unlike the blessed manifests this reaches every family the registry defines, planted or not. It counts raw rule hits (the comment
+    surface too for the families `rule_probe` names), without the detector's post-filters, so it is a reading, not the engine's count.
+    """
+    import rule_probe as rp
+
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    rp.ROSETTA = corpus / "data"
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    out: dict[str, dict[str, int]] = {}
+    for lang in folders:
+        if lang not in defined:
+            continue
+        counts: dict[str, int] = dict.fromkeys(sorted(defined[lang]), 0)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        for _name, _root, path in rp.corpus_files(lang, "rosetta"):
+            try:
+                split = prism.split_streams(rp.read_source(path).text, lang)
+            except OSError:
+                continue
+            for fam in counts:
+                rule = rules.get(fam)
+                if rule is None or not hasattr(rule, "finditer"):
+                    continue
+                counts[fam] += sum(len(list(rule.finditer(split[sn]))) for sn in rp.streams_for(fam, "auto"))
+        out[lang] = counts
+    return out
+
+
+def drift(
+    manifests: dict[str, dict[str, int]], live: dict[str, dict[str, int]]
+) -> dict[str, dict[str, tuple[int, int]]]:
+    """{language: {family: (manifest, live)}} where a family both sources read disagrees: a stale manifest or a post-filter."""
+    return {
+        lang: d
+        for lang in sorted(live)
+        if (
+            d := {
+                f: (manifests[lang][f], n)
+                for f, n in live[lang].items()
+                if f in manifests.get(lang, {}) and manifests[lang][f] != n
+            }
+        )
+    }
+
+
+def render_drift(drifted: dict) -> str:
+    """The live-vs-manifest disagreements on planted families (manifest, live), one line per language."""
+    if not drifted:
+        return "\n## Live vs manifest\n\nEvery planted family reads the same live as in the manifests.\n"
+    out = [
+        "",
+        "## Live vs manifest (manifest/live): a stale manifest, or a detector post-filter the live count lacks",
+        "",
+    ]
+    out += [
+        f"- `{lang}`: " + ", ".join(f"{f}={m}/{n}" for f, (m, n) in sorted(d.items())) for lang, d in drifted.items()
+    ]
+    return "\n".join(out) + "\n"
+
+
 def silent_cells(result: dict) -> list[tuple[str, str]]:
     return [(fam, lang) for fam, d in result["families"].items() for lang, v in d["verdicts"].items() if v == "silent"]
 
@@ -156,7 +228,11 @@ def silent_cells(result: dict) -> list[tuple[str, str]]:
 def render_markdown(result: dict, corpus_sha: str = "") -> str:
     out = ["# keyword-rosetta cross-language consistency of the contracted families (#8863)", ""]
     out.append(f"Languages read: {result['languages']}" + (f"; corpus {corpus_sha}" if corpus_sha else "") + ".")
-    out += ["", "| family | defined | fire | target | silent | over | under | ledgered | verdict |", "|---|---|---|---|---|---|---|---|---|"]
+    out += [
+        "",
+        "| family | defined | fire | target | silent | over | under | ledgered | verdict |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
     for fam, d in sorted(result["families"].items()):
         tally = Counter(d["verdicts"].values())
         state = "consensus" if d["consensus"] else "no consensus"
@@ -172,23 +248,40 @@ def render_markdown(result: dict, corpus_sha: str = "") -> str:
         out.append("None.")
     for verdict in ("over", "under"):
         lines = [
-            f"- `{fam}` (target {d['target']}): " + ", ".join(f"{lang}={d['counts'][lang]}" for lang, v in d["verdicts"].items() if v == verdict)
+            f"- `{fam}` (target {d['target']}): "
+            + ", ".join(f"{lang}={d['counts'][lang]}" for lang, v in d["verdicts"].items() if v == verdict)
             for fam, d in sorted(result["families"].items())
             if verdict in d["verdicts"].values()
         ]
         out += ["", f"## {verdict.capitalize()} the target", ""] + (lines or ["None."])
     out += ["", "## Not judged", ""]
-    out.append("Contracted families the corpus does not plant (not testable here): " + (", ".join(f"`{f}`" for f in result["not_testable"]) or "none") + ".")
-    nc = [f"`{f}` ({d['fires']} of {d['defined']})" for f, d in sorted(result["families"].items()) if not d["consensus"]]
-    out.append("Planted families with no consensus (fire in under half of the languages that define them): " + (", ".join(nc) or "none") + ".")
+    out.append(
+        "Contracted families the corpus does not plant (not testable here): "
+        + (", ".join(f"`{f}`" for f in result["not_testable"]) or "none")
+        + "."
+    )
+    nc = [
+        f"`{f}` ({d['fires']} of {d['defined']})" for f, d in sorted(result["families"].items()) if not d["consensus"]
+    ]
+    out.append(
+        "Families with no consensus (fire in under half of the languages that define them): "
+        + (", ".join(nc) or "none")
+        + "."
+    )
     if result["unmapped_folders"]:
-        out.append("Corpus folders that are not a code language in the registry (skipped): " + ", ".join(result["unmapped_folders"]) + ".")
+        out.append(
+            "Corpus folders that are not a code language in the registry (skipped): "
+            + ", ".join(result["unmapped_folders"])
+            + "."
+        )
     return "\n".join(out) + "\n"
 
 
 def _corpus_sha(corpus: Path) -> str:
     try:
-        r = subprocess.run(["git", "-C", str(corpus), "rev-parse", "--short", "HEAD"], capture_output=True, text=True, timeout=20)
+        r = subprocess.run(
+            ["git", "-C", str(corpus), "rev-parse", "--short", "HEAD"], capture_output=True, text=True, timeout=20
+        )
     except (OSError, subprocess.SubprocessError):
         return ""
     return r.stdout.strip() if r.returncode == 0 else ""
@@ -196,9 +289,19 @@ def _corpus_sha(corpus: Path) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--corpus", type=Path, default=None, help="keyword-rosetta checkout (default: $KEYWORD_ROSETTA_PATH or the sibling)")
+    ap.add_argument(
+        "--corpus",
+        type=Path,
+        default=None,
+        help="keyword-rosetta checkout (default: $KEYWORD_ROSETTA_PATH or the sibling)",
+    )
     ap.add_argument("--min-fire-share", type=float, default=MIN_FIRE_SHARE)
     ap.add_argument("--json", type=Path, default=None, help="also write the machine-readable result here")
+    ap.add_argument(
+        "--live",
+        action="store_true",
+        help="count every defined family's rule over the corpus sources, not the manifests",
+    )
     ap.add_argument("--check-floor", action="store_true", help="exit 1 when any silent cell exists")
     args = ap.parse_args(argv)
     if not 0 < args.min_fire_share <= 1:
@@ -206,7 +309,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     corpus = args.corpus or default_corpus()
     if not (corpus / "data").is_dir():
-        print(f"keyword-rosetta corpus not found at {corpus} (set KEYWORD_ROSETTA_PATH): nothing was checked", file=sys.stderr)
+        print(
+            f"keyword-rosetta corpus not found at {corpus} (set KEYWORD_ROSETTA_PATH): nothing was checked",
+            file=sys.stderr,
+        )
         return 2
     manifests, bad = load_corpus(corpus)
     if bad:
@@ -217,11 +323,18 @@ def main(argv: list[str] | None = None) -> int:
     from family_validity_chart import engine_grid
 
     families, _languages, defined = engine_grid()
+    drifted: dict = {}
+    if args.live:
+        live = live_manifests(corpus, sorted(manifests), defined)
+        drifted = drift(manifests, live)
+        manifests = live
     result = analyze(manifests, [f.key for f in families], defined, load_ledger(corpus), args.min_fire_share)
     if not result["languages"]:
         print("no corpus folder maps to a registry language: nothing was checked", file=sys.stderr)
         return 2
     sys.stdout.write(render_markdown(result, _corpus_sha(corpus)))
+    if args.live:
+        sys.stdout.write(render_drift(drifted))
     if args.json:
         args.json.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 1 if args.check_floor and silent_cells(result) else 0

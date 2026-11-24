@@ -20,7 +20,7 @@ out noise before the heavy static analysis engines are loaded into memory.
 from typing import Any
 
 # ------------------------------------------------------------------
-# ZERO-TRUST IMPORT CONTROL (Import Policy Gate)
+# IMPORT ALLOW/DENY CONTROL (Import Policy Gate)
 # Defines allowed and banned external dependencies (NPM, PyPI, Composer)
 # ------------------------------------------------------------------
 # True  = Strict Mode (Only allow packages explicitly in APPROVED_IMPORTS)

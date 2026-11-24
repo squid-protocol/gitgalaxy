@@ -1,14 +1,10 @@
 {
  "_doc": "Baseline for tests/signal_contract_audit.py --ci. Each entry is kind:signal. Shrink it deliberately (a draft becoming stated) with --regenerate-baseline in the PR that lands the contract; never regenerate to hide a new finding.",
  "findings": [
-  "draft:dead_code",
   "draft:doc",
   "draft:fragile_debt",
-  "draft:llm_api",
   "draft:planned_debt",
-  "draft:reflection_metaprogramming",
   "draft:safety_bypasses",
-  "draft:spec_exposure",
   "draft:telemetry",
   "missing-contract:crypto_algorithms",
   "missing-contract:crypto_entropy",

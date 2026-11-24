@@ -942,7 +942,7 @@
 <use href="#c" x="1032" y="380" class="u"/>
 <use href="#c" x="1044" y="380" class="u"/>
 <use href="#c" x="1056" y="380" class="u"/>
-<text class="fam" x="24" y="401">dead_code (draft)</text>
+<text class="fam" x="24" y="401">dead_code</text>
 <use href="#c" x="192" y="392" class="u"/>
 <use href="#c" x="204" y="392" class="u"/>
 <use href="#c" x="216" y="392" class="u"/>
@@ -1549,7 +1549,7 @@
 <rect x="996" y="524" width="11" height="11" fill="#8a6d3b"><title>tcl / scientific: decoy test with &#x27;expr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="1044" y="524" width="11" height="11" fill="#8a6d3b"><title>zig / scientific: decoy test with &#x27;f16&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="1056" y="524" class="u"/>
-<text class="fam" x="24" y="545">reflection_metaprogramming (draft)</text>
+<text class="fam" x="24" y="545">reflection_metaprogramming</text>
 <rect x="192" y="536" width="11" height="11" fill="#8a6d3b"><title>python / reflection_metaprogramming: decoy test with &#x27;getattr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="536" width="11" height="11" fill="#8a6d3b"><title>csharp / reflection_metaprogramming: decoy test with &#x27;DllImport&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="536" width="11" height="11" fill="#8a6d3b"><title>go / reflection_metaprogramming: decoy test with &#x27;cgo&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1876,7 +1876,7 @@
 <use href="#c" x="588" y="608" class="u"/>
 <use href="#c" x="972" y="608" class="u"/>
 <use href="#c" x="1032" y="608" class="u"/>
-<text class="fam" x="24" y="629">spec_exposure (draft)</text>
+<text class="fam" x="24" y="629">spec_exposure</text>
 <use href="#c" x="192" y="620" class="u"/>
 <use href="#c" x="204" y="620" class="u"/>
 <use href="#c" x="216" y="620" class="u"/>
@@ -3202,7 +3202,7 @@
 <use href="#c" x="936" y="944" class="u"/>
 <use href="#c" x="1056" y="944" class="u"/>
 <text class="phase" x="16" y="965">AI-ML</text>
-<text class="fam" x="24" y="977">llm_api (draft)</text>
+<text class="fam" x="24" y="977">llm_api</text>
 <use href="#c" x="192" y="968" class="u"/>
 <use href="#c" x="288" y="968" class="u"/>
 <use href="#c" x="300" y="968" class="u"/>

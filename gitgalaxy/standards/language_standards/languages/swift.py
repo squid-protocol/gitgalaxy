@@ -151,7 +151,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*){0,50})?[ \t\n]*in\b",
             re.M,
         ),
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and let (freeze_hits).
         "structural_boundaries": re.compile(
             r"\b(func|init|subscript|var|struct|class|enum|protocol|extension|actor|macro|import|typealias|associatedtype|mutating|nonmutating|isolated|nonisolated|return|yield|await|inout|try|throws|defer|do)\b|(?<!\blet )(?<!\bvar )(?<!\bfunc )(?<!\bclass )(?<!\bstruct )\b(some|any|consume|borrow|discard)\b|~Copyable"

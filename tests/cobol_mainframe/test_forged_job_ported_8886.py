@@ -55,6 +55,15 @@ def test_a_forged_case_enters_through_the_job_launcher():
     assert "forgedJob(" in text and "spring.batch.job.enabled=false" in text and "JclJobLauncher jobLauncher" in text
 
 
+def test_a_step_the_job_never_ran_names_what_it_did_run():
+    """CREASTMT STEP040 through the forged job (#8886): DELDEF01 runs, STEP010 FAILS (the forge has no LRECL for the TRANSACT
+    KSDS: its RECORDSIZE is in TRANFILE.jcl, another job, and reading it as RECFM=F would be a guess) and COND=(0,NE)
+    bypasses the rest. The harness says so instead of only "ran no step"."""
+    _, members = ejava.forged_job_parts(_real())
+    assert '"job " + job + " ran no step " + step + "; it ran "' in members
+    assert "getExitStatus().getExitCode()" in members and "getFailureExceptions()" in members
+
+
 def test_a_plain_case_is_unchanged():
     plain = {k: v for k, v in _real().items() if k != "forged_job"}
     text = ejava.equivalence_test(plain)

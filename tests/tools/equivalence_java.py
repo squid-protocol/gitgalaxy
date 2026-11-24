@@ -173,7 +173,9 @@ def forged_job_parts(case: dict[str, Any]) -> tuple[str, str]:
         org.springframework.batch.core.JobExecution ex = jobLauncher.launch(job);
         org.springframework.batch.core.StepExecution se = ex.getStepExecutions().stream()
                 .filter(s -> s.getStepName().equals(step)).findFirst()
-                .orElseThrow(() -> new IllegalStateException("job " + job + " ran no step " + step));
+                .orElseThrow(() -> new IllegalStateException("job " + job + " ran no step " + step + "; it ran "
+                        + ex.getStepExecutions().stream().map(s -> s.getStepName() + " " + s.getExitStatus().getExitCode()
+                        + " " + s.getFailureExceptions()).toList()));
         for (Throwable t : se.getFailureExceptions()) {{
             if (t instanceof CobolAbend abend) {{
                 throw abend;

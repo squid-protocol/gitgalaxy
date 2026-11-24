@@ -1,5 +1,5 @@
 # ruff: noqa: S101
-"""#8863: the tree-sitter oracles written per language beyond the first six (C#, Kotlin, Swift, Scala; Ruby, PHP, Lua, shell).
+"""#8863: the tree-sitter oracles written per language beyond the first six (C#, Kotlin, Swift, Scala; Ruby, PHP, Lua, shell; C++).
 
 Each case is one construct in one language: [language, source, function, oracle key, expected count], in family_oracle_cases.json. They were written
 against each grammar and pin the readings the oracles make of the family contracts (an anonymous callable, a bitwise operator in operator position, a
@@ -28,8 +28,8 @@ except ImportError:
 needs_ts = pytest.mark.skipif(not HAVE_TS, reason="tree_sitter_language_pack (the translator extra) is not installed")
 
 FIXTURE = json.loads((TOOLS / "family_oracle_cases.json").read_text(encoding="utf-8"))
-CASES = [tuple(c) for group in ("a", "b") for c in FIXTURE[group]]
-LANGUAGES = ("csharp", "kotlin", "swift", "scala", "ruby", "php", "lua", "shell")
+CASES = [tuple(c) for group in ("a", "b", "c") for c in FIXTURE[group]]
+LANGUAGES = ("csharp", "kotlin", "swift", "scala", "ruby", "php", "lua", "shell", "cpp")
 
 
 def _count(lang: str, src: str, name: str, key: str) -> int | None:
@@ -39,7 +39,7 @@ def _count(lang: str, src: str, name: str, key: str) -> int | None:
     return None if node is None else oracle.count(node)[0].get(key, 0)
 
 
-def test_the_eight_languages_are_registered_and_shell_is_the_bash_grammar():
+def test_the_nine_languages_are_registered_and_shell_is_the_bash_grammar():
     assert set(LANGUAGES) <= set(ts.languages())
     assert ts.get_oracle("shell") is ts.get_oracle("bash")
     assert ts.get_oracle("cobol") is None

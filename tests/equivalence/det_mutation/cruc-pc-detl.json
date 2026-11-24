@@ -5,18 +5,18 @@
  "case": "cruc-pc-detl",
  "entry": {
   "program": "PCDETL",
-  "commit": "ee9f7240fbb402d9e3ce5a50cb95fd82907bd467+uncommitted",
-  "date": "2026-11-23",
+  "commit": "641897b1e5626e3973f4904f3addf9d350c6d10e+uncommitted",
+  "date": "2026-11-24",
   "mode": "fast+one-jvm",
   "seed": 0,
   "mutants": 287,
   "out_of_scope": 6,
   "chosen": 287,
-  "coverage": "proven on 7 scenarios, covering 1/1 paragraphs and 2/2 branches",
+  "coverage": "proven on 12 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
    "killed": 116,
-   "timeout": 2,
-   "survived": 163,
+   "timeout": 6,
+   "survived": 159,
    "stillborn": 6,
    "error": 0,
    "pending": 0
@@ -46,7 +46,6 @@
    "2e47ebee08",
    "2e4e2a13aa",
    "304f2d7949",
-   "351d03d576",
    "3bbf39b378",
    "3d48f21a0f",
    "40f9c6cbc9",
@@ -55,6 +54,7 @@
    "45e030e1dc",
    "4a71e0574e",
    "4c1d1103ac",
+   "4d02e5abbb",
    "4ea1e1bf54",
    "5289d5726f",
    "52f4069719",
@@ -70,6 +70,7 @@
    "5de1127d99",
    "656213899f",
    "66e656951f",
+   "6730bff972",
    "6b2876ecae",
    "6b84e28c44",
    "6d447ea2fe",
@@ -90,6 +91,7 @@
    "92e0b623c0",
    "934bc777cb",
    "9831ffbceb",
+   "9850bb7286",
    "98b8208ba2",
    "9933155c18",
    "9993bdcd24",
@@ -119,6 +121,7 @@
    "cf865ff17e",
    "d016fb3bf5",
    "d1a6ebec5c",
+   "d5d07e4947",
    "dafd5c95ce",
    "db4975d9f2",
    "db720e1ad9",
@@ -127,6 +130,7 @@
    "e27ea241bd",
    "e7278f6a6a",
    "e83d2080b7",
+   "e98c1fc130",
    "eb262ea7dc",
    "eebcbdd24e",
    "f30483beae",
@@ -429,14 +433,6 @@
     "line": 77,
     "before": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 4, false);",
     "after": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 5, false);"
-   },
-   {
-    "id": "e98c1fc130",
-    "op": "CON",
-    "file": "service/PcdetlService.java",
-    "line": 79,
-    "before": "private final Field f63_DFHCOMMAREA = Field.alphanumeric(s_DFHCOMMAREA, 0, 10, false);",
-    "after": "private final Field f63_DFHCOMMAREA = Field.alphanumeric(s_DFHCOMMAREA, 0, 11, false);"
    },
    {
     "id": "4941db4ff8",
@@ -1279,14 +1275,6 @@
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
    {
-    "id": "6730bff972",
-    "op": "CON",
-    "file": "service/PcdetlService.java",
-    "line": 344,
-    "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
-    "after": "if (planned2[1] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");"
-   },
-   {
     "id": "6153800430",
     "op": "CON",
     "file": "service/PcdetlService.java",
@@ -1317,6 +1305,14 @@
     "line": 346,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
     "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */"
+   },
+   {
+    "id": "351d03d576",
+    "op": "NEG",
+    "file": "service/PcdetlService.java",
+    "line": 349,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
    },
    {
     "id": "c893dbe65b",
@@ -1351,22 +1347,6 @@
     "after": "/* caBack.run(); */"
    },
    {
-    "id": "9850bb7286",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 353,
-    "before": "task.returnTransid(null, null);",
-    "after": "/* task.returnTransid(null, null); */"
-   },
-   {
-    "id": "4d02e5abbb",
-    "op": "CON",
-    "file": "service/PcdetlService.java",
-    "line": 381,
-    "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
-    "after": "if (planned6[1] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
-   },
-   {
     "id": "ba9cc21f34",
     "op": "DEL",
     "file": "service/PcdetlService.java",
@@ -1389,14 +1369,6 @@
     "line": 383,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
     "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */"
-   },
-   {
-    "id": "d5d07e4947",
-    "op": "CON",
-    "file": "service/PcdetlService.java",
-    "line": 384,
-    "before": "if (planned6[0] != 0) {",
-    "after": "if (planned6[1] != 0) {"
    },
    {
     "id": "bebcc6fa5d",
@@ -1458,16 +1430,16 @@
   "inputs": {
    "port": "f575485955d7a3bfecae717d86c50565f7f92c694751ef19bfa2443e94ee9031",
    "runtime": "03164a88d8a5e92bf7e5706f443973a448338e510c1a6bef6a62ff5659ec2af6",
-   "generator": "a13408791131e460b03c3af67073baac10bf55c6c093264c1993c5739ec5cbe9",
-   "case": "476129aa29c68da2b0ad6442a4de12735dbf14d2b0ee737ea4897508b7e266a9",
+   "generator": "1eed85fb907770df8c07268c986cf6ba79853c2729b0aea1b1c83dda3cc63011",
+   "case": "f234a1ee16f15dac83ea0ffbbb18b9025e8c5a384eadf4f6b1ec0201f0538cc5",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
-   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "harness": "f59f11b78fb1c071ec1dc0b8782623b58e6a6b946c3ef3962a05f9655d9e59fb",
+   "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
    "survivors": "8cd6c5c897b93cef9bc64f41b026435738def7e9f0de5ef323ff27c90522c23c"
   },
   "components": {
    "generator": {
-    "generator:core": "398e1fa59fcddde8af7a4114e8ac5d094b6e5890a1191b595d32bec49694e061",
+    "generator:core": "29846bb158e5266da9cb7ff74c7bfc4d19c7ae9b64f4481fb1f886137a62f690",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1492,11 +1464,11 @@
     "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc"
    },
    "harness": {
-    "harness:cics": "c45ae5594627db649e15c4a883089dba946d2c33f84ce20cd317149f13161413",
-    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
+    "harness:cics": "74a7732b752bf4af89a3f9f03b256fe6d82db35842dd4d0db5f344ca94e223a8",
+    "harness:core": "12f52225356930f9a054368fc63efe6cd51ed50a00054854724e0f50d741c465"
    },
    "oracle": {
-    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }

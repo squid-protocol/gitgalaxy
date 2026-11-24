@@ -1,5 +1,5 @@
 {
-"about": "One construct per case: [language, source, function, oracle key, expected count]. Written by two agents against each language's grammar, 2026-11-21; a: csharp kotlin swift scala, b: ruby php lua shell.",
+"about": "One construct per case: [language, source, function, oracle key, expected count]. Written by two agents against each language's grammar, 2026-11-21; a: csharp kotlin swift scala, b: ruby php lua shell; c: cpp (added with the C++ oracle).",
 "a": [
 [
 "csharp",
@@ -1590,6 +1590,260 @@
 "f() {\n  cmd 2>/dev/null\n}",
 "f",
 "io",
+0
+]
+],
+"c": [
+[
+"cpp",
+"class A { public: int f(int a, int b); };\nint A::f(int a, int b) { return a; }",
+"A::f",
+"args",
+2
+],
+[
+"cpp",
+"int f(void) { return 1; }",
+"f",
+"args",
+0
+],
+[
+"cpp",
+"int f(const std::string& s, int* p, ...) { return 0; }",
+"f",
+"args",
+3
+],
+[
+"cpp",
+"int& A::operator[](int i) { return x; }",
+"A::operator[]",
+"args",
+1
+],
+[
+"cpp",
+"A::~A() { }",
+"A::~A",
+"args",
+0
+],
+[
+"cpp",
+"template <typename T>\nT f(T a, T b) { return a; }",
+"f",
+"args",
+2
+],
+[
+"cpp",
+"void f(int x) { if (x) {} else if (x > 1) {} }",
+"f",
+"branch",
+2
+],
+[
+"cpp",
+"void f(std::vector<int>& v) { for (auto& e : v) { while (e) { e--; } } }",
+"f",
+"branch",
+2
+],
+[
+"cpp",
+"void f(int a, int b) { if (a && b || a) {} }",
+"f",
+"branch",
+3
+],
+[
+"cpp",
+"int f(int a) { return a ? 1 : 2; }",
+"f",
+"branch",
+1
+],
+[
+"cpp",
+"void f(int x) { switch (x) { case 1: break; case 2: break; default: break; } }",
+"f",
+"branch",
+3
+],
+[
+"cpp",
+"void f() { try { g(); } catch (const std::exception& e) { h(); } catch (...) { } }",
+"f",
+"branch",
+0
+],
+[
+"cpp",
+"void f(int a) { do { a--; } while (a); }",
+"f",
+"branch",
+1
+],
+[
+"cpp",
+"void f() { auto g = [](int x) { return x; }; auto h = [&]() { }; }",
+"f",
+"closures",
+2
+],
+[
+"cpp",
+"void f() { throw std::runtime_error(\"x\"); }",
+"f",
+"bailout",
+1
+],
+[
+"cpp",
+"void f() { std::exit(1); }",
+"f",
+"bailout",
+1
+],
+[
+"cpp",
+"void f() { std::terminate(); }",
+"f",
+"bailout",
+1
+],
+[
+"cpp",
+"void f() { abort(); }",
+"f",
+"bailout",
+1
+],
+[
+"cpp",
+"void f(int a) { int b = a << 2; int c = a >> 1; int d = a ^ b; int e = ~a; c |= 1; c &= 3; }",
+"f",
+"bitwise",
+6
+],
+[
+"cpp",
+"void f(int a) { std::cout << \"x\" << a << std::endl; }",
+"f",
+"bitwise",
+0
+],
+[
+"cpp",
+"void f(int a) { std::cout << \"x\" << a << std::endl; }",
+"f",
+"print",
+1
+],
+[
+"cpp",
+"void f(int a) { std::cerr << a; std::clog << a; }",
+"f",
+"print",
+2
+],
+[
+"cpp",
+"void f(int a) { std::cout << (a << 2); }",
+"f",
+"bitwise",
+1
+],
+[
+"cpp",
+"void f(int a) { int s; std::cin >> s; }",
+"f",
+"io",
+1
+],
+[
+"cpp",
+"void f(int a) { int s; std::cin >> s; }",
+"f",
+"bitwise",
+0
+],
+[
+"cpp",
+"void f() { printf(\"x\"); puts(\"y\"); fprintf(stderr, \"z\"); }",
+"f",
+"print",
+3
+],
+[
+"cpp",
+"void f() { std::this_thread::sleep_for(std::chrono::seconds(1)); usleep(5); }",
+"f",
+"sleep",
+2
+],
+[
+"cpp",
+"void f(const std::string& s) { std::regex r(\"a+\"); std::regex_match(s, r); }",
+"f",
+"regex",
+2
+],
+[
+"cpp",
+"void f() { auto t = std::chrono::steady_clock::now(); time(nullptr); }",
+"f",
+"time",
+2
+],
+[
+"cpp",
+"void f() { std::ifstream in(\"x\"); FILE* p = fopen(\"y\", \"r\"); }",
+"f",
+"io",
+2
+],
+[
+"cpp",
+"int f(int a, int b = 1, ...) { return a; }",
+"f",
+"args",
+3
+],
+[
+"cpp",
+"template <typename... Args>\nvoid f(Args... a, int b) { }",
+"f",
+"args",
+2
+],
+[
+"cpp",
+"void f() { log(\"x\"); obj.print(1); }",
+"f",
+"print",
+0
+],
+[
+"cpp",
+"/** Adds. */\nint f(int a) { return a; }",
+"f",
+"doc",
+1
+],
+[
+"cpp",
+"// plain\nint f(int a) { return a; }",
+"f",
+"doc",
+0
+],
+[
+"cpp",
+"int f(int a) { return a; }",
+"f",
+"doc",
 0
 ]
 ]

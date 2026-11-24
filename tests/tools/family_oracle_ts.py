@@ -392,7 +392,11 @@ SPECS: dict[str, Spec] = {
 }
 
 
-_EXTRA_MODULES = ("family_oracle_specs_a", "family_oracle_specs_b")  # C#, Kotlin, Swift, Scala; Ruby, PHP, Lua, shell
+_EXTRA_MODULES = (
+    "family_oracle_specs_a",
+    "family_oracle_specs_b",
+    "family_oracle_specs_c",
+)  # C#, Kotlin, Swift, Scala; Ruby, PHP, Lua, shell; C++
 _extras_loaded = False
 
 
@@ -402,6 +406,7 @@ GRAMMAR_ALIASES: dict[str, tuple[str, ...]] = {
     "csharp": ("csharp", "c_sharp"),
     "objc": ("objc", "objective_c", "objectivec"),
     "bash": ("bash", "shell"),
+    "cpp": ("cpp", "c_plus_plus"),
 }
 
 
@@ -442,16 +447,25 @@ def _text(node) -> str:
     return node.text.decode("utf-8", "surrogateescape") if node is not None else ""
 
 
+def _inner(d):
+    """The declarator one level in: its `declarator` field, or (C++ `reference_declarator`, which has no field) its first named child."""
+    nxt = d.child_by_field_name("declarator")
+    if nxt is None and d.type == "reference_declarator":
+        nxt = next((c for c in d.named_children if "declarator" in c.type or c.type.endswith("identifier")), None)
+    return nxt
+
+
 def _name(spec: Spec, node) -> str:
-    if spec.ts_name == "c":
+    if spec.ts_name in ("c", "cpp"):
         d = node.child_by_field_name("declarator")
         while d is not None and d.type in (
             "pointer_declarator",
+            "reference_declarator",
             "function_declarator",
             "parenthesized_declarator",
             "attributed_declarator",
         ):
-            d = d.child_by_field_name("declarator")
+            d = _inner(d)
         return _text(d)
     return _text(node.child_by_field_name("name"))
 
@@ -508,10 +522,10 @@ def _assigned_name(node) -> tuple[str, list[int]]:
 
 def _params(spec: Spec, node) -> int:
     params = node.child_by_field_name("parameters")
-    if params is None and spec.ts_name == "c":
+    if params is None and spec.ts_name in ("c", "cpp"):
         d = node.child_by_field_name("declarator")
         while d is not None and d.type != "function_declarator":
-            d = d.child_by_field_name("declarator")
+            d = _inner(d)
         params = d.child_by_field_name("parameters") if d is not None else None
     if params is None:
         return 0
@@ -521,7 +535,7 @@ def _params(spec: Spec, node) -> int:
             continue
         if spec.ts_name == "go" and c.type in ("parameter_declaration", "variadic_parameter_declaration"):
             n += max(1, len(c.children_by_field_name("name")))
-        elif spec.ts_name == "c":
+        elif spec.ts_name in ("c", "cpp"):
             if (c.type == "parameter_declaration" and _text(c).strip() != "void") or c.type == "variadic_parameter":
                 n += 1
         else:

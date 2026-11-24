@@ -223,7 +223,7 @@
     "| ipc | 1598 | 311 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
     "| time | 2235 | 307 | 0 | `elixir/elixir_stdlib/calendar_date.ex` |",
     "| serialization | 1096 | 191 | 0 | `lua/cosmopolitan/calls.lua` |",
-    "| regex | 4109 | 343 | 0 | `perl/exiftool/ExifTool.pm` |",
+    "| regex | 4331 | 347 | 0 | `perl/exiftool/ExifTool.pm` |",
     "| events | 3975 | 563 | 1 | `m4/curl/configure.ac` |",
     "| tests | 6307 | 507 | 2 | `cobol/gnucobol_internals/syn_misc.at` |",
     "| docs | 59782 | 814 | 10 | `dart/flutter/framework.dart` |",

@@ -268,7 +268,8 @@ def _normalize_type(raw: str, parent_class: str | None = None) -> str | None:
         return None
 
     base, inner = _strip_outer_generics(s)
-    leaf_base = base.replace("::", ".").rsplit(".", 1)[-1].strip()
+    dotted = base.replace("::", ".")
+    leaf_base = dotted.rsplit(".", 1)[-1].strip()
     if leaf_base in _WRAPPERS and inner:
         return _normalize_type(inner, parent_class)
     if leaf_base in _CONTAINERS or leaf_base in _PRIMITIVES:
@@ -277,6 +278,12 @@ def _normalize_type(raw: str, parent_class: str | None = None) -> str | None:
         return parent_class or None
     if not re.fullmatch(_IDENT, leaf_base):
         return None
+    # Preserve `Outer.Inner` for nested classes (e.g. `TypeSpec.Builder`, `AnnotationSpec.Builder`)
+    # so the resolver can disambiguate same-named nested classes by their enclosing class's file.
+    if "." in dotted:
+        parts = [p.strip() for p in dotted.split(".") if p.strip()]
+        if len(parts) >= 2 and parts[-2][:1].isupper() and re.fullmatch(_IDENT, parts[-2]):
+            return f"{parts[-2]}.{leaf_base}"
     return leaf_base
 
 
@@ -294,7 +301,8 @@ _RS_HEADER = re.compile(
     + r"[ \t]*(?:<[^()]{0,200}>)?[ \t]*\("
 )
 _KT_HEADER = re.compile(
-    r"^[ \t]*(?:[a-z]+[ \t]+){0,6}fun[ \t]+(?:<[^()]{0,200}>[ \t]+)?(?:" + _IDENT + r"\.)?" + _IDENT + r"[ \t]*\("
+    r"^[ \t]*(?:[a-z]+[ \t]+){0,6}fun[ \t]+(?:<[^()]{0,200}>[ \t]+)?"
+    r"(?:" + _IDENT + r"(?:<[^()]{0,200}>)?(?:\." + _IDENT + r"(?:<[^()]{0,200}>)?){0,3}\??\.)?" + _IDENT + r"[ \t]*\("
 )
 
 
@@ -482,7 +490,7 @@ def extract_return_type(lang: str, text: str, parent_class: str | None = None) -
     return _infer_body_return_type(lang, text)
 
 
-def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_segments: int = 4) -> str | None:
+def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_segments: int = 6) -> str | None:
     """Extract a chained call/member receiver before `pos` when `_call_qualifier` sees `(...)`.
 
     For `get_store().save(` -> `"get_store()"`.
@@ -502,6 +510,8 @@ def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_seg
         k = j - len(sep)
         if sep == "." and text.startswith("...", k - 2):
             break
+        if sep == "." and k > 0 and text[k - 1] == "?":
+            k -= 1  # Kotlin / TS / C# safe-call `?.`
         while k > 0 and text[k - 1] in " \t\r\n" and j - k < 80:
             k -= 1
         is_call = False
@@ -539,6 +549,62 @@ def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_seg
     return ".".join(reversed(segments))
 
 
+def extract_whole_call_chain(expr: str) -> str | None:
+    """Return a dot-joined call chain if the ENTIRE expression `expr` is a call chain (`CodeBlock.of(a, b)`,
+    `x.asTypeName()`, `AnnotationSpec.builder(a).build()`), else None."""
+    s = expr.strip()
+    if not s or not s.endswith(")") or not (s[0].isalpha() or s[0] == "_"):
+        return None
+    # Verify balanced parens cover up to the end and no top-level operator/space breaks the chain
+    segments: list[str] = []
+    i = len(s)
+    for _ in range(6):
+        if i <= 0:
+            break
+        is_call = False
+        if s[i - 1] == ")":
+            depth = 0
+            p = i - 1
+            limit = max(0, i - 400)
+            while p >= limit:
+                ch = s[p]
+                if ch == ")":
+                    depth += 1
+                elif ch == "(":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                p -= 1
+            if depth != 0:
+                return None
+            is_call = True
+            i = p
+            while i > 0 and s[i - 1] in " \t":
+                i -= 1
+        start = i
+        while start > 0 and i - start < 128 and (s[start - 1].isalnum() or s[start - 1] in "_$"):
+            start -= 1
+        ident = s[start:i].lstrip("$")
+        if not ident or ident[0].isdigit():
+            return None
+        segments.append(f"{ident}()" if is_call else ident)
+        i = start
+        if i == 0:
+            return ".".join(reversed(segments))
+        # Must be preceded by `.` or `?.`
+        while i > 0 and s[i - 1] in " \t\r\n":
+            i -= 1
+        if i > 0 and s[i - 1] == ".":
+            i -= 1
+            if i > 0 and s[i - 1] == "?":
+                i -= 1
+            while i > 0 and s[i - 1] in " \t\r\n":
+                i -= 1
+        else:
+            return None
+    return None
+
+
 _CALL_ASSIGN_TS = re.compile(
     r"(?:^|[;\n])[ \t]*(?:(?:const|let|var)[ \t]+)?(?P<n>" + _SD + _C + r"{0,127})[ \t]*=[ \t]*(?:await[ \t]+)?"
     r"(?!new\b)(?P<call>" + _SD + _C + r"{0,127}(?:\." + _SD + _C + r"{0,127}){0,4})[ \t]*\("
@@ -555,17 +621,32 @@ _CALL_ASSIGN_CPP = re.compile(
     r"(?:^|[;\n])[ \t]*(?:const[ \t]+)?auto(?:[ \t]*[&*]{1,2})?[ \t]+(?P<n>" + _S + _C + r"{0,127})[ \t]*=[ \t]*"
     r"(?P<call>" + _S + _C + r"{0,127}(?:(?:::|\.|->)" + _S + _C + r"{0,127}){0,4})[ \t]*\("
 )
+_CALL_ASSIGN_KT = re.compile(
+    r"(?:^|[;\n])[ \t]*(?:(?:public|private|protected|internal|override|open|final|const|lateinit)[ \t]+){0,3}"
+    r"(?:val|var)[ \t]+(?P<n>" + _S + _C + r"{0,127})[ \t]*=[ \t\n]{0,40}"
+    r"(?P<call>" + _S + _C + r"{0,127}(?:\??\." + _S + _C + r"{0,127}){0,4})[ \t]*\("
+)
+_CALL_ASSIGN_CS_JAVA = re.compile(
+    r"(?:^|[;\n])[ \t]*(?:final[ \t]+)?var[ \t]+(?P<n>" + _S + _C + r"{0,127})[ \t]*=[ \t]*(?:await[ \t]+)?"
+    r"(?!new\b)(?P<call>" + _S + _C + r"{0,127}(?:\??\." + _S + _C + r"{0,127}){0,4})[ \t]*\("
+)
 _CALL_ASSIGN_PATTERNS = {
     "typescript": _CALL_ASSIGN_TS,
     "javascript": _CALL_ASSIGN_TS,
     "go": _CALL_ASSIGN_GO,
     "rust": _CALL_ASSIGN_RS,
     "cpp": _CALL_ASSIGN_CPP,
+    "kotlin": _CALL_ASSIGN_KT,
+    "csharp": _CALL_ASSIGN_CS_JAVA,
+    "java": _CALL_ASSIGN_CS_JAVA,
 }
 
 
+_CHAIN_STEP = re.compile(r"[ \t\r\n]{0,40}(?:\?\.|\.|->)[ \t]{0,16}(?P<id>" + _SD + _C + r"{0,127})(?P<open>[ \t]*\()?")
+
+
 def extract_call_assigns(lang: str, text: str, receivers: set[str]) -> dict[str, str]:
-    """Extract `{var: call_expr}` for factory-call assignments (`const s = getStore()`, `s := NewStore()`)."""
+    """Extract `{var: call_expr}` for factory-call assignments (`const s = getStore()`, `val b = TypeSpec.builder()`)."""
     pat = _CALL_ASSIGN_PATTERNS.get(lang)
     if pat is None or not text or not receivers:
         return {}
@@ -574,7 +655,31 @@ def extract_call_assigns(lang: str, text: str, receivers: set[str]) -> dict[str,
         name = m.group("n")
         if name not in receivers:
             continue
-        call = m.group("call").replace("::", ".").replace("->", ".")
+        call: str | None = m.group("call").replace("::", ".").replace("->", ".").replace("?.", ".")
+        # Walk past balanced `(...)` and follow any chained `.method(...)` hops (up to 4).
+        # Abort on trailing property access (`.prop`) or indexing (`[...]`) so `x = f().prop` isn't mistyped as `f()`.
+        end = _close_paren(text, m.end() - 1, limit=600)
+        if end < 0:
+            call = None
+        else:
+            for _ in range(4):
+                if end < len(text) and text[end] == "[":
+                    call = None
+                    break
+                cm = _CHAIN_STEP.match(text, end)
+                if not cm:
+                    break
+                if not cm.group("open"):
+                    call = None
+                    break
+                next_end = _close_paren(text, cm.end() - 1, limit=600)
+                if next_end < 0:
+                    call = None
+                    break
+                call = f"{call}().{cm.group('id')}"
+                end = next_end
+            if call is not None and end < len(text) and text[end] == "[":
+                call = None
         if name in found and found[name] != call:
             found[name] = None
         else:

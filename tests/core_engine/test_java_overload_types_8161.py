@@ -77,23 +77,29 @@ def test_an_untyped_argument_leaves_the_overload_row():
     client = (
         "package p;\n"
         "public class Client {\n"
+        "    String f() { return ArrayU.pad(compute()); }\n"
+        "    int compute() { return 1; }\n"
+        "}\n"
+    )
+    ((step, _),) = _targets(client, "f", "pad")
+    assert step == "overload"
+
+
+def test_partial_arg_elimination_resolves_when_known_arg_eliminates_others():
+    client = (
+        "package p;\n"
+        "public class Client {\n"
         "    int f(int[] xs) { return ArrayU.indexOf(xs, compute()); }\n"
         "    int compute() { return 1; }\n"
         "}\n"
     )
-    ((step, _),) = _targets(client, "f", "indexOf")
-    assert step == "overload"
+    assert _targets(client, "f", "indexOf") == [("qualified", 3)]
 
 
 def test_one_undecided_site_keeps_the_arity_ambiguous_and_decided_ones_link():
-    client = (
-        "package p;\n"
-        "public class Client {\n"
-        "    void g(int[] xs, Object o) { ArrayU.indexOf(xs, 1); ArrayU.indexOf(xs, o.hashCode()); }\n"
-        "}\n"
-    )
-    rows = _targets(client, "g", "indexOf")
-    assert ("qualified", 3) in rows and any(step == "overload" for step, _ in rows)
+    client = "package p;\npublic class Client {\n    void g(Object o) { ArrayU.pad(1); ArrayU.pad(o.hashCode()); }\n}\n"
+    rows = _targets(client, "g", "pad")
+    assert ("qualified", 6) in rows and any(step == "overload" for step, _ in rows)
 
 
 def test_repo_subtypes_decide_and_unknown_reference_types_do_not():

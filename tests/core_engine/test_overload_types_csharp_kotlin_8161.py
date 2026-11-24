@@ -146,10 +146,68 @@ def test_detector_records_csharp_and_kotlin_types_and_counts():
         ("kotlin", [(["String?"], False), (["Int"], False)], ["null"], 0),
         ("kotlin", [(["KModifier[]"], True), (["Iterable"], False)], ["KModifier", "KModifier"], 0),
         ("kotlin", [(["TypeName"], False), (["Type"], False)], [""], None),
+        # Partial-argument elimination: arg 0 eliminates the other overload even though arg 1 is untyped
+        ("kotlin", [(["String", "Any[]"], True), (["CodeBlock", "Any[]"], True)], ["String", ""], 0),
+        ("csharp", [(["string", "object[]"], True), (["int", "object[]"], True)], ["string", ""], 0),
+        # Partial-argument guard: two candidates remain possible -> must NOT guess
+        ("kotlin", [(["String", "Int"], False), (["String", "Long"], False)], ["String", ""], None),
     ],
 )
 def test_choose_follows_the_language_and_refuses_when_unsure(lang, candidates, args, want):
     assert O.choose(candidates, args, lang) == want
+
+
+def test_named_argument_overload_disambiguation_kotlin_and_csharp():
+    kt = (
+        "class Spec {\n"
+        "    fun copy(nullable: Boolean = false, tags: Map<String, Any> = emptyMap()): Spec = this\n"  # 2
+        "    fun copy(nullable: Boolean = false, annotations: List<String> = emptyList()): Spec = this\n"  # 3
+        "    fun use(myTags: Any, myAnns: Any) {\n"  # 4
+        "        copy(tags = myTags)\n"
+        "        copy(annotations = myAnns)\n"
+        "    }\n"
+        "}\n"
+    )
+    assert _targets({"src/Spec.kt": kt}, "kotlin", "use", "copy") == [("class", 2), ("class", 3)]
+
+    cs = (
+        "class C {\n"
+        "    void Configure(string host, int port = 80) { }\n"  # 2
+        "    void Configure(string host, bool tls = false) { }\n"  # 3
+        '    void Use(object x) { Configure("a", tls: true); Configure("a", port: x); }\n'  # 4
+        "}\n"
+    )
+    assert _targets({"src/C.cs": cs}, "csharp", "Use", "Configure") == [("class", 2), ("class", 3)]
+
+
+def test_kotlin_extension_receiver_overload_disambiguation():
+    kt = (
+        'fun ArrayType.descriptor(types: Types): String = ""\n'  # 1
+        'fun WildcardType.descriptor(types: Types): String = ""\n'  # 2
+        "fun visitArray(t: ArrayType, types: Types): String = t.descriptor(types)\n"  # 3
+        "fun visitWildcard(t: WildcardType, types: Types): String = t.descriptor(types)\n"  # 4
+    )
+    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitArray", "descriptor") == [("file", 1)]
+    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitWildcard", "descriptor") == [("file", 2)]
+
+
+def test_kotlin_same_name_overload_delegation_with_call_arg_return_types():
+    files = {
+        "src/CodeBlock.kt": (
+            "class CodeBlock {\n"
+            "    companion object {\n"
+            "        fun of(format: String, vararg args: Any): CodeBlock = CodeBlock()\n"
+            "    }\n"
+            "}\n"
+        ),
+        "src/Spec.kt": (
+            "class Spec {\n"
+            "    fun addMember(format: String, vararg args: Any): Spec = addMember(CodeBlock.of(format, *args))\n"  # 2
+            "    fun addMember(codeBlock: CodeBlock): Spec = this\n"  # 3
+            "}\n"
+        ),
+    }
+    assert _targets(files, "kotlin", "addMember", "addMember") == [("class", 3)]
 
 
 def test_scans_are_linear():

@@ -399,7 +399,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(std::fs|File::|std::net|tokio::net|tokio::fs|reqwest|std::io|hyper::|sqlx::|diesel::|sea_orm::)\b"
+            # #8868: named-type opens and the bare io::stdin/stdout/stderr handles
+            r"\b(std::fs|File::|std::net|tokio::net|tokio::fs|reqwest|std::io|hyper::|sqlx::|diesel::|sea_orm::"
+            r"|OpenOptions::|TcpListener::|TcpStream::|UdpSocket::|UnixStream::|UnixListener::|io::(?:stdin|stdout|stderr))\b"
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the outside world.
@@ -622,9 +624,15 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: same `panic!` trailing-`\b`-after-`!` defect as
         # high_risk_execution's copy above.
         # #8868: the contract names an unreachable marker.
-        "panics_and_aborts": re.compile(r"(?:panic|unreachable|unimplemented)!|\b(?:abort|process::exit|fatalError)\b"),
+        # #8868: `use std::process::exit;` makes a bare exit(1) a process-exit call (not a method, not a definition).
+        "panics_and_aborts": re.compile(
+            r"(?:panic|unreachable|unimplemented)!|\b(?:abort|process::exit|fatalError)\b|(?<![.\w])(?<!fn )exit[ \t]*\("
+        ),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(std::thread::sleep|tokio::time::sleep|Duration::from)\b"),
+        # #8868: time::sleep (tokio/async_std) and a bare sleep( after `use std::thread::sleep;`.
+        "thread_sleeps": re.compile(
+            r"\b(std::thread::sleep|thread::sleep|time::sleep|Duration::from)\b|(?<![.\w])(?<!fn )sleep[ \t]*\("
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation. CRITICAL: Removed the pipe '|' (used for closures `|x| x+1` and patterns), ampersand '&' (used for references), and exclamation '!' (used for macros and logical NOT).
         # #8866: a ">>" closing a generic list is not a shift

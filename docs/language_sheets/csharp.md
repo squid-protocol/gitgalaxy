@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 17.5% precision / 66.7% recall | 39 imports | tree-sitter | import statements in JamesNK/Newtonsoft.Json, xunit/xunit | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 12 of 58 families: 7 >90, 2 90-75, 1 75-50, 2 <50 | 15,004 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

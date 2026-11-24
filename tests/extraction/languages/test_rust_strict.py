@@ -93,6 +93,17 @@ _RUST_SIMPLE_CASES = [
     ("panics_and_aborts", "unreachable!()", "let unreachable_code = 1;"),
     ("panics_and_aborts", "unimplemented!()", "let unimplemented_x = 1;"),
     ("ipc_rpc_bridges", 'std::process::Command::new("ls")', "let x = 1;"),
+    ("panics_and_aborts", "exit(1)", "let exit_code = 1;"),
+    ("panics_and_aborts", "exit(1)", "fn exit(code: i32) {}"),
+    ("panics_and_aborts", "exit(1)", "app.exit(1)"),
+    ("thread_sleeps", "sleep(Duration::from_secs(1))", "let sleeper = 1;"),
+    ("thread_sleeps", "time::sleep(d).await", "let sleeper = 1;"),
+    ("thread_sleeps", "thread::sleep(d)", "fn sleep(d: u64) {}"),
+    ("thread_sleeps", "sleep(d)", "worker.sleep(d)"),
+    ("io", "TcpStream::connect(addr)", "let tcp_stream_x = 1;"),
+    ("io", "TcpListener::bind(addr)", "let x = 1;"),
+    ("io", "OpenOptions::new()", "let x = 1;"),
+    ("io", "io::stdout().flush()", "let x = 1;"),
 ]
 
 

@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 100% precision / 98.8% recall | 510 imports | tree-sitter | import statements in apple/swift-argument-parser, swiftlang/swift-package-manager | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 12 of 57 families: 2 >90, 5 90-75, 4 75-50, 1 <50 | 3,039 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 58 of 58 passed, 0 failed | 58 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

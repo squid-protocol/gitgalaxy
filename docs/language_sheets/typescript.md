@@ -19,5 +19,6 @@ Context: modern-tooled
 | Imports | 100% precision / 100% recall | 870 imports | tree-sitter | import statements in colinhacks/zod | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 12 of 66 families: 3 >90, 2 90-75, 2 75-50, 5 <50 | 10,415 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

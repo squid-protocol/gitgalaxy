@@ -496316,16 +496316,16 @@
         {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "45.8%",
-          "End Line": 175,
+          "End Line": 179,
           "Function Name": "R001B1",
           "Has Header Comment": 0,
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 155,
+          "Lines of Code (LOC)": 159,
           "Reflection Hits": 16,
           "Start Line": 21,
-          "Structural Impact": 24.7
+          "Structural Impact": 24.9
         },
         {
           "Control Flow Branches": 12,
@@ -496544,16 +496544,16 @@
         {
           "Control Flow Branches": 11,
           "Control Flow Ratio": "45.8%",
-          "End Line": 253,
+          "End Line": 255,
           "Function Name": "R001B1",
           "Has Header Comment": 0,
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 233,
+          "Lines of Code (LOC)": 235,
           "Reflection Hits": 15,
           "Start Line": 21,
-          "Structural Impact": 28.6
+          "Structural Impact": 28.7
         },
         {
           "Control Flow Branches": 2,

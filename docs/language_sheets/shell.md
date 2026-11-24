@@ -12,5 +12,6 @@ Context: unclassified
 | Imports | 100% precision / 100% recall | 100 imports | tree-sitter | import statements in Bash-it/bash-it, bats-core/bats-core, ohmybash/oh-my-bash, tfutils/tfenv | `tests/import_graph_accuracy_baseline.json` |
 | Keywords | 9 of 51 families: 2 >90, 2 90-75, 2 75-50, 3 <50 | 833 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 57 of 57 passed, 0 failed | 57 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
+| Answer key | not measured | | | | |
 
 [All languages](README.md)

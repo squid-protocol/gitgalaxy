@@ -124,25 +124,38 @@ The full record is in [the validation program](docs/validation.md) (continued â†
 [language detection accuracy](docs/wiki/03-11-claim-11-multi-signal-detection.md) Â·
 [known blind spots](docs/known_blind_spots.md)).
 
-**Per language.** Each language has its own sheet of six stats that do not depend on each other: detection, functions, call links,
-imports, keywords and Rosetta. Each stat carries its value, its sample size, and the method and reference it was measured against, so a
-language with no parser or compiler to check against is not scored against one that has them. There is no overall score.
-Languages are grouped by how many of the six are measured, which says how much evidence exists, not how good the engine is.
+**Per language.** Each language has its own sheet of seven stats that do not depend on each other: detection, functions, call links,
+imports, keywords, Rosetta and, where one exists, an answer key. Each stat carries its value, its sample size, and the method and
+reference it was measured against, so a language with no parser or compiler to check against is not scored against one that has them.
+There is no overall score. Modern languages are grouped by how many of the seven are measured, which says how much evidence exists,
+not how good the engine is.
 
 <details open>
-<summary><strong>Measured on four or more of the six stats</strong> (A to Z)</summary>
+<summary><strong>Measured on four or more of the seven stats</strong> (A to Z)</summary>
 
-<p><img src="docs/language_sheets/matrix.svg" width="100%" alt="Per-language evidence for the languages measured on four or more of six stats: detection, functions, call links, imports, keyword families and Rosetta"></p>
+<p><img src="docs/language_sheets/matrix.svg" width="100%" alt="Per-language evidence for the modern languages measured on four or more of seven stats: detection, functions, call links, imports, keyword families, Rosetta and answer key"></p>
 
 Colour is the keyword chart's scale (blue is better, red is under 50%). `p` is precision and `r` is recall. Keyword bars count families by score,
 high to low.
 
 </details>
 
+<details open>
+<summary><strong>Legacy and mainframe languages</strong> (A to Z)</summary>
+
+Few of these have a parser or compiler to compare against, so most of their evidence is the **answer key**: hand-built truth for real mainframe
+source, drafted by a separately written reader and re-read by blind LLM reviewers, then compared with the engine fact by fact. The bar under each
+answer-key cell shows how much of that evidence is cross-verified and how much is still a draft. **The reviewers are LLMs, not people, and no field
+has a human sign-off.** Where blind reviewers re-read a sample of a key, the line under the bar gives the upper bound on the key's error rate (counted against the key as first drafted). A language with no answer key shows "not measured", which means nothing has been checked, not that it is wrong.
+
+<p><img src="docs/language_sheets/matrix_legacy.svg" width="100%" alt="Per-language evidence for the legacy and mainframe languages, with the answer-key column and its verification tiers"></p>
+
+</details>
+
 <details>
 <summary><strong>Sparsely measured languages</strong> (A to Z)</summary>
 
-<p><img src="docs/language_sheets/matrix_sparse.svg" width="100%" alt="Per-language evidence for the languages measured on fewer than four of six stats"></p>
+<p><img src="docs/language_sheets/matrix_sparse.svg" width="100%" alt="Per-language evidence for the modern languages measured on fewer than four of seven stats"></p>
 
 </details>
 

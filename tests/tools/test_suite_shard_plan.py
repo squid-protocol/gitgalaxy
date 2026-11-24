@@ -389,10 +389,15 @@ def test_a_measured_slow_leg_raises_its_cap_and_a_fast_one_never_undercuts_the_p
     )  # under SPLIT_ABOVE_MIN: same parts, higher cap
     fast = plan.leg_walls(_runs("macos-latest", "3.12", n0, [6.0, 7.0, 6.5]))
     up = _leg(plan.gate_plan(durations, history=slow), "macos-latest", "3.12")
-    assert (
-        up["splits"] == n0
-        and up["timeout"] >= math.ceil(22.0 * plan.SEEN_HEADROOM) > _leg(base, "macos-latest", "3.12")["timeout"]
-    )
+    # The base cap depends on .test_durations (CI's smoke-test overwrites it: 30 there, 28 locally), so the
+    # measured wall floors the cap and raises it only when the base cap is below that floor.
+    base_cap = _leg(base, "macos-latest", "3.12")["timeout"]
+    floor = math.ceil(22.0 * plan.SEEN_HEADROOM)
+    assert up["splits"] == n0
+    assert up["timeout"] >= floor
+    assert up["timeout"] >= base_cap
+    if base_cap < floor:
+        assert up["timeout"] > base_cap
     assert (
         plan.gate_plan(durations, history=fast) == base
     )  # history is a floor over the durations plan, never a cut under it

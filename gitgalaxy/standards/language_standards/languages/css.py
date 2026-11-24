@@ -108,7 +108,7 @@ DEFINITION: dict[str, Any] = {
         # Corpus: keyword-rosetta `args-no-parameter-surface-morphology`.
         # =====================================================================
         "args": None,
-        # 3. linear (Sequential Boundaries)
+        # 3. structural_boundaries (Structural Keywords)
         # Structural boundaries. EXCLUDES: Access modifiers (none in CSS) and !important (freeze_hits).
         # BUG FIX: all 8 at-rule alternatives are `@`-prefixed -- same
         # leading-\b bug as branch above. None ever matched.

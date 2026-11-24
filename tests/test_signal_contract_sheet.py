@@ -146,3 +146,22 @@ def test_resource_family_rows_are_declared_with_their_doc(name):
     assert (c.status, c.kind, c.issue, c.planted) == ("declared", "site", 8862, False)
     assert c.doc == "docs/resource_family_contracts.md"
     assert (REPO_ROOT / c.doc).read_text(encoding="utf-8").count(c.contract) == 1
+
+
+# ==============================================================================
+# TEST 9: THE FOUR UNPLANTED DRAFTS WERE DECLARED WITH THEIR EVIDENCE (#8862)
+# ==============================================================================
+@pytest.mark.parametrize(
+    ("name", "kind"),
+    [
+        ("dead_code", "annotation"),
+        ("reflection_metaprogramming", "site"),
+        ("spec_exposure", "annotation"),
+        ("llm_api", "site"),
+    ],
+)
+def test_unplanted_family_rows_are_declared_with_their_doc(name, kind):
+    c = sc.CONTRACTS[name]
+    assert (c.status, c.kind, c.issue, c.planted) == ("declared", kind, 8862, False)
+    assert c.doc == "docs/unplanted_family_contracts.md"
+    assert (REPO_ROOT / c.doc).read_text(encoding="utf-8").count(c.contract) == 1

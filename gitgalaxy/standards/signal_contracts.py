@@ -297,7 +297,15 @@ _ROWS = [
         issue=2765,
         planted=True,
     ),
-    _c("dead_code", "safety", "annotation", "Commented-out structural code and unused logic trails"),
+    _c(
+        "dead_code",
+        "safety",
+        "annotation",
+        "A comment that holds code the program no longer runs -- a keyword-led line or a statement in the language's own syntax inside a comment, as opposed to prose or documentation -- read from the comment surface",
+        status="declared",
+        doc="docs/unplanted_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "doc", "safety", "annotation", "Structured documentation meant to be parsed by IDEs or generators", planted=True
     ),
@@ -389,7 +397,10 @@ _ROWS = [
         "reflection_metaprogramming",
         "architecture",
         "site",
-        "Metaprogramming, reflection, and dynamic property assignment",
+        "A site that inspects or alters a program's own structure at run time -- a reflection or introspection call, a dynamic attribute or member lookup or assignment, or a macro, quote or code-generation form -- in its own call or keyword form",
+        status="declared",
+        doc="docs/unplanted_family_contracts.md",
+        issue=8862,
     ),
     _c(
         "import",
@@ -423,7 +434,15 @@ _ROWS = [
         doc="docs/domain_sensor_contracts.md",
         issue=2897,
     ),
-    _c("spec_exposure", "subsystems", "annotation", "Audit tags establishing traceability of intent"),
+    _c(
+        "spec_exposure",
+        "subsystems",
+        "annotation",
+        "A comment tag that ties code to a requirement, specification or audit item -- a bracketed identifier such as [SPEC-123] or an audit marker -- read from the comment surface",
+        status="declared",
+        doc="docs/unplanted_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "ssr_boundaries",
         "subsystems",
@@ -645,7 +664,15 @@ _ROWS = [
         issue=3084,
     ),
     # --- AI/ML EXTENSION PACK (python, javascript, typescript) ---
-    _c("llm_api", "ai-ml", "site", "Direct calls into a hosted LLM provider SDK"),
+    _c(
+        "llm_api",
+        "ai-ml",
+        "site",
+        "A site that binds the program to a hosted LLM provider's SDK -- an import of the provider's client package or a call on its client -- in the language's own import or call form",
+        status="declared",
+        doc="docs/unplanted_family_contracts.md",
+        issue=8862,
+    ),
     _c(
         "llm_orchestrator",
         "ai-ml",

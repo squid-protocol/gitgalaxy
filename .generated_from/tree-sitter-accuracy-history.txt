@@ -1,2 +1,2 @@
-Generated output only, never edit by hand. Source: main @ 54c2882730b0bb979f78a59c70b20a2f54653010
+Generated output only, never edit by hand. Source: main @ 32b92b7fe4b4e5e354adede13c61169ec1e67557
 Writer: tree-sitter-accuracy-history

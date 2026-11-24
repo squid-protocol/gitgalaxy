@@ -27,7 +27,12 @@ class SpecA(Spec):
     op_fields: tuple[str, ...] = ("operator", "op")
     bit_ops: frozenset[str] = frozenset()  # operator-position bitwise tokens
     compound_bit_ops: frozenset[str] = frozenset()  # <<= >>= ^= &= |=
-    branch_ops: frozenset[str] = frozenset()  # short-circuit / value-selection operators that open a choice
+    branch_ops: frozenset[str] = (
+        frozenset()
+    )  # value-selection operators that open a choice (`??`: not named by short_circuit's contract)
+    short_ops: frozenset[str] = (
+        frozenset()
+    )  # boolean operators whose right operand may be skipped (short_circuit, branch corollary 0)
     unary_types: frozenset[str] = frozenset()  # prefix operator nodes, `~` is the complement
     doc_prefixes: tuple[str, ...] = ("/**",)
     attr_types: frozenset[str] = frozenset()  # node types that are one annotation / attribute each
@@ -432,7 +437,8 @@ SPECS: dict[str, SpecA] = {
         binary_types=_fs("binary_expression", "assignment_expression"),
         bit_ops=_fs("<<", ">>", ">>>", "^", "&", "|"),
         compound_bit_ops=_fs("<<=", ">>=", ">>>=", "^=", "&=", "|="),
-        branch_ops=_fs("&&", "||", "??", "??="),
+        branch_ops=_fs("??", "??="),
+        short_ops=_fs("&&", "||"),
         unary_types=_fs("prefix_unary_expression"),
         doc_prefixes=("///", "/**"),
         attr_types=_fs("attribute"),
@@ -449,8 +455,6 @@ SPECS: dict[str, SpecA] = {
             "do_while_statement",
             "when_entry",
             "elvis_expression",
-            "conjunction_expression",
-            "disjunction_expression",
         ),
         _fs(),
         _fs("call_expression", "navigation_expression"),
@@ -481,8 +485,6 @@ SPECS: dict[str, SpecA] = {
             "switch_entry",
             "ternary_expression",
             "nil_coalescing_expression",
-            "conjunction_expression",
-            "disjunction_expression",
         ),
         _fs(),
         _fs("call_expression", "navigation_expression"),
@@ -515,7 +517,7 @@ SPECS: dict[str, SpecA] = {
         binary_types=_fs("infix_expression"),
         bit_ops=_fs("<<", ">>", ">>>", "^", "&", "|"),
         compound_bit_ops=_fs("<<=", ">>=", ">>>=", "^=", "&=", "|="),
-        branch_ops=_fs("&&", "||"),
+        short_ops=_fs("&&", "||"),
         unary_types=_fs("prefix_expression"),
         attr_types=_fs("annotation"),
         duration_units=_DUR,
@@ -710,7 +712,9 @@ class OracleA(TreeSitterOracle):
                 if op in spec.compound_bit_ops:
                     add("bitwise", op)
                 return
-            if op in spec.branch_ops:
+            if op in spec.short_ops:
+                add("short_circuit", op)
+            elif op in spec.branch_ops:
                 add("branch", op)
             elif op in spec.bit_ops or op in spec.compound_bit_ops:
                 add("bitwise", op)
@@ -759,6 +763,8 @@ class OracleA(TreeSitterOracle):
                 bad = spec.skip_in.get(t)
                 if not (bad and _under(node, bad)):
                     add("branch", t)
+            if t in ("conjunction_expression", "disjunction_expression"):  # kotlin / swift boolean operators
+                add("short_circuit", t)
             self._operator(node, add)
             if t in spec.closure_types:
                 add("closures", t)

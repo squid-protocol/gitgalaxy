@@ -72,6 +72,21 @@
    ]
   },
   {
+   "id": "fba8e07c08",
+   "op": "CON",
+   "line": 53,
+   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
+   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 14);",
+   "verdict": "equivalent",
+   "reason": "WS-LLOG's group length (13 -> 14) is read only by the WRITEQ TS LENGTH(13) through DetCics.padded(f, 13): it copies min(13, field length) bytes from the same offset, so 13 and 14 both give the same 13 bytes with no padding. The statement runs: RETURN fault inputs (INVREQ 1, INVREQ 2 then a failing log write, LENGERR 11, INVREQ 4 with a NOSPACE log write) reached it with the port equal to the COBOL and the mutant surviving.",
+   "tried": [
+    "x-ret-invreq",
+    "x-ret-invreq-wq-fail",
+    "x-ret-invreq4-wq-nospace",
+    "x-ret-lengerr"
+   ]
+  },
+  {
    "id": "2a9c721d9d",
    "op": "CON",
    "line": 57,

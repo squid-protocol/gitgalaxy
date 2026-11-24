@@ -108,6 +108,18 @@
    ]
   },
   {
+   "id": "fba8e07c08",
+   "op": "CON",
+   "line": 53,
+   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
+   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 14);",
+   "verdict": "equivalent",
+   "reason": "WS-LLOG's group length (13 -> 14) is read only by the WRITEQ TS LENGTH(13) through DetCics.padded(f, 13): it copies min(13, field length) bytes from the same offset, so 13 and 14 both give the same 13 bytes with no padding. The statement runs: the LINKed PCIMML in mode N (no COMMAREA) reaches it on every run, here with PF3 as well as ENTER; the RETURN fault inputs that would exercise the failure values separate the port from the COBOL here (the Java facade does not fire a RETURN fault in a LINKed program), so the failure values were attacked in cruc-pc-immediate-l, which runs the same PcimmlService line with the port equal to the COBOL and the mutant surviving.",
+   "tried": [
+    "y-link-nc-pf3"
+   ]
+  },
+  {
    "id": "2a9c721d9d",
    "op": "CON",
    "line": 57,

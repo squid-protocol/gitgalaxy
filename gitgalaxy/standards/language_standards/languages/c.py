@@ -227,7 +227,7 @@ DEFINITION: dict[str, Any] = {
             # it also double-counted with `pointers`.
             r"\b(assert|static_assert|_Static_assert|snprintf|strncat|strncpy|calloc|nullptr|unreachable|ckd_add|ckd_sub|ckd_mul)\b"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Dangerous legacy functions and raw void manipulation.
         "safety_bypasses": re.compile(
             r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\(["

@@ -251,7 +251,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(try|catch|finally|typeof|instanceof|Array\.isArray|Number\.(?:isFinite|isNaN)|Object\.hasOwn)\b|===|!==|\?\?|\?\."
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Loose equality and bypasses. (?<![=!]) on the == branch: without
         # it, `===`/`!==` (strict equality/inequality -- explicitly SAFE
         # per this language's own `safety` rule) both still matched via

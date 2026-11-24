@@ -3623,7 +3623,7 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "State Mutators Files",
       "rust/wasmtime/wasmtime_instance.rs": "Generic / Templated Code Files",
-      "rust/wasmtime/wasmtime_ir_instructions.rs": "Parameter Forwarders Files",
+      "rust/wasmtime/wasmtime_ir_instructions.rs": "Large Core Modules (3)",
       "rust/wasmtime/wasmtime_isle_parser.rs": "Large Core Modules (3)",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "Generic / Templated Code Files"
     },

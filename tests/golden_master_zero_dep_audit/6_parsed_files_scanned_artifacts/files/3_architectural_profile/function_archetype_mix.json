@@ -11741,11 +11741,10 @@
       },
       "rust/tokio/tokio_mpsc_bounded.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 1,
         "Compute Cores": 3,
-        "Defensive Guards": 1,
+        "Defensive Guards": 3,
         "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 28,
+        "Generic / Templated Code": 27,
         "Parameter Forwarders": 5,
         "State Mutators": 18
       },
@@ -11789,12 +11788,12 @@
       },
       "rust/wasmtime/wasmtime_ir_instructions.rs": {
         "Annotated & Test Methods": 6,
-        "Compute Cores": 5,
+        "Compute Cores": 6,
         "Defensive Guards": 1,
         "Generic / Templated Code": 22,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 52,
+        "Parameter Forwarders": 51,
         "State Mutators": 16,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 5

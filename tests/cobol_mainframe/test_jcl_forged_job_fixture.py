@@ -7,9 +7,10 @@ ABEND / ABENDCC and procedure steps. `tests/equivalence/jcl/fixture/scenarios.js
 
 Each job is forged from the `job_steps` fact shape (a procedure call carries `expands_to`, as `galaxy_ir.job_steps`
 writes it), read back, and decided by the forge's own `JclConditions` Java in the order `JclSteps.guarded` uses (the
-driver and helpers are slice 1's). An abend ends a Spring Batch job, so the steps IBM runs after one never start: those
-answers differ (#8886 closed the other ten: COND=ONLY, `.RUN`, `.ABENDCC = code`). `KNOWN_DIFFERENCES` names every one with its reason; the test fails on a new difference AND on a listed
-one that no longer reproduces, so the list is the measurement, not an excuse.
+driver and helpers are slice 1's). A step that abends records its completion code and the job goes on as IBM's flush rules say
+(`JclConditions.startsAfterAbend`: EVEN / ONLY / IF ABEND), so the eighteen abend-flush answers #8821 listed now agree (#8886).
+Two differ: an IF result IBM fixes when first evaluated (Example 9). `KNOWN_DIFFERENCES` names each with its reason; the
+test fails on a new difference AND on a listed one that no longer reproduces, so the list is the measurement, not an excuse.
 """
 
 from __future__ import annotations
@@ -31,39 +32,67 @@ REPO = Path(__file__).resolve().parents[2]
 FIXTURE = REPO / "tests/equivalence/jcl/fixture"
 SETS = [("FLOW.jcl", "scenarios.json"), ("IFFLOW.jcl", "ifflow_scenarios.json")]
 
-# Slice 1's driver splits a step cell on `|`, which an IF expression uses (OR): the same driver, split on U+001F.
+# Slice 1's driver splits a step cell on `|`, which an IF expression uses (OR), and has no abend continuation: this
+# one splits on U+001F and restates `JclSteps.guarded` with the abends map (the no-abend path is slice 1's decision).
 SEP = "\x1f"
-DRIVER = slice1.DRIVER.replace('split("\\\\|", -1)', 'split("\\u001f", -1)')
-assert DRIVER != slice1.DRIVER
+DRIVER = """package {pkg};
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/** Line: key TAB step US jobCond US cond US ifCond US given ... ; given is rc:N, abend:CODE or - (never started). */
+public final class Drive {
+    public static void main(String[] a) throws Exception {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+        String line;
+        while ((line = in.readLine()) != null) {
+            String[] f = line.split("\\t");
+            Map<String, Integer> rcs = new LinkedHashMap<>();
+            Map<String, String> abends = new LinkedHashMap<>();
+            StringBuilder out = new StringBuilder(f[0]);
+            for (int i = 1; i < f.length; i++) {
+                String[] p = f[i].split("\u001f", -1);
+                String name = p[0], jobCond = nul(p[1]), cond = nul(p[2]), ifCond = nul(p[3]), given = p[4];
+                String action;
+                boolean bypassed = !abends.isEmpty()
+                        ? !JclConditions.startsAfterAbend(jobCond, cond, ifCond, rcs, abends)
+                        : JclConditions.bypass(jobCond, rcs) || JclConditions.bypass(cond, rcs)
+                                || !JclConditions.holds(ifCond, rcs);
+                if (bypassed) {
+                    action = "bypass";
+                } else if (given.equals("-")) {
+                    action = "run-without-answer";
+                } else if (given.startsWith("abend:")) {
+                    abends.put(name, given.substring(6));
+                    action = "run";
+                } else {
+                    rcs.put(name, Integer.parseInt(given.substring(3)));
+                    action = "run";
+                }
+                out.append('\\t').append(name).append('=').append(action);
+            }
+            System.out.println(out);
+        }
+    }
+
+    private static String nul(String s) {
+        return s.isEmpty() ? null : s;
+    }
+}
+"""
 
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None or shutil.which("java") is None, reason="no JDK")
 
 
-FLUSH = "an abend ends a Spring Batch job (the tasklet throws), so a step IBM runs after an abend (EVEN / ONLY / IF ABEND) never starts"
+FROZEN = (
+    "an IF result is fixed when first evaluated (IBM Example 9: `IF NOT ABEND` stays true when a later step abends); the forge's "
+    "`holds` re-reads the flag at each step, as the job_steps fact carries no IF chain (`jcl_flow.if_chain` does)"
+)
 KNOWN_DIFFERENCES = {
-    **dict.fromkeys(
-        [
-            ("cond-s1-abend", "S5"),
-            ("cond-s1-abend", "S6"),
-            ("cond-s3-abend", "S5"),
-            ("cond-s3-abend", "S6"),
-            ("even-only-abend", "T2"),
-            ("even-only-abend", "T3"),
-            ("if-i1-abend", "I5"),
-            ("if-i2-abend", "I5"),
-            ("abn-a1-u0012", "A4"),
-            ("abn-a1-u0012", "A5"),
-            ("abn-a2-s0c4", "A3"),
-            ("abn-a2-s0c4", "A5"),
-            ("prc6-u0012", "STEP2ERR"),
-            ("prc6-other-abend", "NOERR"),
-            ("mix-m1-abend", "M4"),
-            ("mix-m1-abend", "M5"),
-            ("mix-m2-abend", "M4"),
-            ("mix-m2-abend", "M5"),
-        ],
-        FLUSH,
-    ),  # fmt: skip
+    ("abn-a2-s0c4", "A3"): FROZEN,  # IBM runs A3 (its IF was true before A2 abended); the forge bypasses it
+    ("abn-a2-s0c4", "A4"): FROZEN,  # IBM bypasses A4 (the ELSE of that IF); the forge runs it
 }
 
 
@@ -148,7 +177,7 @@ def _line(key: str, forged: list[dict], given: dict) -> str:
     cells = []
     for s in forged:
         g = given.get(s["name"])
-        gv = "-" if g is None else "abend" if "abend" in g else f"rc:{g['rc']}"
+        gv = "-" if g is None else f"abend:{g['abend']}" if "abend" in g else f"rc:{g['rc']}"
         cells.append(SEP.join([s["name"], s["job_cond"] or "", s["cond"] or "", s["if_cond"] or "", gv]))
     return "\t".join([key, *cells])
 
@@ -172,4 +201,4 @@ def test_the_forged_job_differs_from_the_ibm_written_answers_exactly_where_the_l
     assert {v for v in got.values()} <= {("run-without-answer", "bypass"), ("bypass", "run")}
     assert set(got) == set(KNOWN_DIFFERENCES), sorted(set(got) ^ set(KNOWN_DIFFERENCES))
     scenarios = {i for i, _ in got}
-    assert (len(_scenarios()), len(scenarios), len(got)) == (42, 11, 18)
+    assert (len(_scenarios()), len(scenarios), len(got)) == (42, 1, 2)

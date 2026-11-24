@@ -166,7 +166,16 @@ def check_job(job: dict[str, Any], cases: dict[str, dict[str, Any]]) -> None:
                 raise Unsupported(f"step {step['case']}: input {dd} is not one of its datasets, or is also fed")
             if not rel.startswith(CORPUS_PREFIX) and not (JOBS / rel).is_file():
                 raise Unsupported(f"step {step['case']}: input {dd}: no file {rel} beside the job case")
-    unknown = {k for s in steps for k in s} - {"case", "feeds", "inputs", "job", "gdg_in", "gdg_out", "idcams"}
+    unknown = {k for s in steps for k in s} - {
+        "case",
+        "feeds",
+        "inputs",
+        "job",
+        "gdg_in",
+        "gdg_out",
+        "idcams",
+        "forged_job",
+    }
     if unknown:
         raise Unsupported(f"unknown step key(s) {sorted(unknown)}")
     gdg.check_gdg(job, cases)  # #8883: generations across the chain
@@ -282,6 +291,8 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
                 break
             continue
         enc = api.data_encoding(case)
+        if "forged_job" in step:  # #8886: the Java side enters the step through the forge's generated Spring Batch job
+            case["forged_job"] = step["forged_job"]
         fed = {}
         catalog.begin_step(jobs[i])
         for dd, ref in step.get("gdg_in", {}).items():  # both sides read the same generation bytes (the COBOL side's)

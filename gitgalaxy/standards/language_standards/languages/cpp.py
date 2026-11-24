@@ -519,7 +519,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(try|catch|finally|std::unique_ptr|std::shared_ptr|std::weak_ptr|override|final|noexcept|static_assert|assert|std::optional|std::expected|std::span|std::variant|std::lock_guard|std::atomic)\b"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Swallowing errors or bypassing types. EXCLUDES standard casting (Phase 5).
         # BUG FIX (Rule 9): `void\s*\*` ends in `*` (non-word) but shared
         # a trailing `\b` with word-ending `std::any` -- the boundary

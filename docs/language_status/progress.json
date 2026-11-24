@@ -1,5 +1,5 @@
 {
- "commit": "5929c1bf7",
+ "commit": "641897b1e",
  "components": {
   "capabilities": {
    "groups": [
@@ -658,17 +658,17 @@
      "closed": 3,
      "closed_caught": 881,
      "closed_survived": 649,
-     "equivalent": 2596,
+     "equivalent": 2618,
      "l5": 3,
      "measured": 12,
-     "mutants": 8425,
+     "mutants": 8407,
      "programs": 31,
      "raw_pct": 42.1,
      "ready": 0,
-     "sampled": 7560,
+     "sampled": 7542,
      "sampled_pct": 89.7,
      "survived": 4156,
-     "unreachable": 819
+     "unreachable": 822
     },
     "cics-genapp": {
      "caught": 2752,
@@ -744,17 +744,17 @@
     "closed": 7,
     "closed_caught": 1328,
     "closed_survived": 789,
-    "equivalent": 6984,
+    "equivalent": 7006,
     "l5": 7,
     "measured": 64,
-    "mutants": 59215,
+    "mutants": 59197,
     "programs": 158,
     "raw_pct": 47.8,
     "ready": 0,
-    "sampled": 40526,
+    "sampled": 40508,
     "sampled_pct": 68.4,
     "survived": 20037,
-    "unreachable": 1452
+    "unreachable": 1455
    }
   },
   "mutation": {
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-24T11:36:07Z",
+  "as_of": "2026-11-24T12:01:49Z",
   "core": {
    "closed": 262,
    "open": 14,

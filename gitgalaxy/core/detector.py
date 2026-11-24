@@ -1916,7 +1916,7 @@ def c_obj_macro_body_calls(code: str) -> dict[str, tuple[frozenset[str], int, in
         if name in _C_STATEMENT_WORDS:
             continue
         body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(2)))
-        if ";" not in body:
+        if ";" not in body or not re.match(r"do[ \t]*\{", body.lstrip()):
             continue
         body = re.sub(r"[ \t]*##[ \t]*", "##", body)
         calls = frozenset(

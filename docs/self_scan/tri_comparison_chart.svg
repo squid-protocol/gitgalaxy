@@ -58,22 +58,32 @@
 <rect class="bar-track" x="154" y="211" width="88" height="34" rx="2"/>
 <rect x="154" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="219">959*</text>
-<rect x="154" y="223" width="69.9" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="231">762*</text>
+<rect x="154" y="223" width="87.1" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="231">949*</text>
+<rect x="154" y="235" width="69.9" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="198.0" y="243">762*</text>
 <rect class="bar-track" x="286" y="211" width="88" height="34" rx="2"/>
-<rect x="286" y="211" width="65.2" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="219">711/959*</text>
-<rect x="286" y="223" width="82.1" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="231">711/762*</text>
+<rect x="286" y="211" width="85.2" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="219">928/959*</text>
+<rect x="286" y="223" width="87.9" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="231">948/949*</text>
+<rect x="286" y="235" width="84.4" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="243">731/762*</text>
 <rect class="bar-track" x="418" y="211" width="88" height="34" rx="2"/>
 <rect x="418" y="211" width="2.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="219">0*</text>
-<rect x="418" y="223" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="231">52*</text>
+<rect x="418" y="223" width="2.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="462.0" y="231">0*</text>
+<rect x="418" y="235" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="243">52*</text>
 <rect class="bar-track" x="550" y="211" width="88" height="34" rx="2"/>
 <rect x="550" y="211" width="2.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="594.0" y="219">0/52*</text>
 <rect class="bar-track" x="682" y="211" width="88" height="34" rx="2"/>
+<rect x="682" y="211" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="726.0" y="219">711*</text>
+<rect x="682" y="223" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="726.0" y="231">711*</text>
 <rect class="stripe" x="16" y="250" width="780" height="44"/>
 <text class="lang-label" x="20" y="275.5">agc_assembly</text>
 <rect class="bar-track" x="154" y="255" width="88" height="34" rx="2"/>

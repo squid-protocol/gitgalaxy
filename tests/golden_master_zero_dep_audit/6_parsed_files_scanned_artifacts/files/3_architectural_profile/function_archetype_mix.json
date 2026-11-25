@@ -7541,8 +7541,8 @@
         "Many-Argument Workhorses": 1
       },
       "julia/dataframes_jl/other_broadcasting.jl": {
-        "Compute Cores": 2,
-        "Defensive Guards": 9,
+        "Compute Cores": 3,
+        "Defensive Guards": 8,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 16,
         "Many-Argument Workhorses": 2,

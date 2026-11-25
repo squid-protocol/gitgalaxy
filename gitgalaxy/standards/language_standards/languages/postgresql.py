@@ -276,9 +276,9 @@ DEFINITION: dict[str, Any] = {
             r"|\bCAST[ \t]*\([^()]{0,500}(?:\([^()]{0,300}\)[^()]{0,300}){0,10}[ \t]+AS[ \t]+[a-zA-Z_]\w{0,30}",
             re.I,
         ),
-        # panics_and_aborts: RAISE EXCEPTION, a bare re-raise, and ASSERT.
+        # panics_and_aborts: RAISE EXCEPTION and a bare re-raise (ASSERT is a check, not an abort: owner ruling, #8862).
         "panics_and_aborts": re.compile(
-            r"\bRAISE[ \t]+EXCEPTION\b|^[ \t]*RAISE[ \t]*;|^[ \t]*ASSERT\b",
+            r"\bRAISE[ \t]+EXCEPTION\b|^[ \t]*RAISE[ \t]*;",
             re.I | re.M,
         ),
         "thread_sleeps": re.compile(r"\bpg_sleep(?:_for|_until)?[ \t]*\(", re.I),

@@ -3567,13 +3567,13 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 2,
-      "python/airflow/s3.py": 5,
-      "python/airflow/scheduler_job_runner.py": 7
+      "python/airflow/dag.py": 3,
+      "python/airflow/s3.py": 4,
+      "python/airflow/scheduler_job_runner.py": 19
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 3,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 2,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
@@ -3591,7 +3591,7 @@
       "python/cython/Nodes.py": 0
     },
     "python/django_db_tests": {
-      "python/django_db_tests/test_iterator.py": 2,
+      "python/django_db_tests/test_iterator.py": 4,
       "python/django_db_tests/test_utils.py": 0
     },
     "python/fastapi": {
@@ -3699,7 +3699,7 @@
       "python/fastapi/tests/test_invalid_path_param.py": 0,
       "python/fastapi/tests/test_invalid_sequence_param.py": 0,
       "python/fastapi/tests/test_json_type.py": 0,
-      "python/fastapi/tests/test_jsonable_encoder.py": 6,
+      "python/fastapi/tests/test_jsonable_encoder.py": 7,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 0,
       "python/fastapi/tests/test_local_docs.py": 0,
       "python/fastapi/tests/test_multi_body_errors.py": 0,
@@ -3799,7 +3799,7 @@
       "python/fastapi/tests/test_serialize_response_dataclass.py": 14,
       "python/fastapi/tests/test_serialize_response_model.py": 0,
       "python/fastapi/tests/test_skip_defaults.py": 0,
-      "python/fastapi/tests/test_sse.py": 1,
+      "python/fastapi/tests/test_sse.py": 0,
       "python/fastapi/tests/test_starlette_exception.py": 0,
       "python/fastapi/tests/test_starlette_urlconvertors.py": 0,
       "python/fastapi/tests/test_stream_bare_type.py": 0,
@@ -3838,7 +3838,7 @@
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 0,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 1,
       "python/homeassistant_ble_integrations/utils.py": 0
     },
     "python/langchain_agents": {
@@ -3899,7 +3899,7 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 4,
+      "python/twisted/http.py": 7,
       "python/twisted/reflect.py": 0,
       "python/twisted/transport.py": 0
     },

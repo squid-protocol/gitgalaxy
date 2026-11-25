@@ -20110,7 +20110,7 @@
         "scrollToCursorOrSelection@3176": "Defensive Guards",
         "setDisplayByName@2772": "Stateful Encapsulated Methods",
         "setTether@2631": "Stateful Encapsulated Methods",
-        "shouldBeUsed@415": "Generic / Templated Code",
+        "shouldBeUsed@415": "Type Conversions",
         "suppressClearBrailleRegions@2616": "Encapsulated Accessors",
         "terminate@2507": "Stateful Encapsulated Methods",
         "terminate@3444": "Interface Declarations",
@@ -44377,7 +44377,7 @@
         "declared_name@982": "Parameter Forwarders",
         "dump@297": "Many-Argument Workhorses",
         "dump_child@308": "Defensive Guards",
-        "dump_pos@327": "Many-Argument Workhorses",
+        "dump_pos@327": "Compute Cores",
         "embed_position@52": "Defensive Guards",
         "end_parallel_block@10010": "Compute Cores",
         "end_parallel_control_flow_block@10171": "Many-Argument Workhorses",
@@ -46224,8 +46224,8 @@
         "no_response_model_annotation_return_invalid_model@90": "Annotated & Test Methods",
         "no_response_model_annotation_return_same_model@75": "Annotated & Test Methods",
         "no_response_model_annotation_return_submodel_with_extra_data@100": "Annotated & Test Methods",
-        "no_response_model_annotation_union_return_model1@232": "Generic / Templated Code",
-        "no_response_model_annotation_union_return_model2@237": "Generic / Templated Code",
+        "no_response_model_annotation_union_return_model1@232": "Annotated & Test Methods",
+        "no_response_model_annotation_union_return_model2@237": "Annotated & Test Methods",
         "no_response_model_no_annotation_return_dict@36": "Annotated & Test Methods",
         "no_response_model_no_annotation_return_model@31": "Annotated & Test Methods",
         "read_root@504": "Annotated & Test Methods",
@@ -47113,14 +47113,14 @@
       },
       "python/homeassistant_ble_integrations/utils.py": {
         "get_device_macs@17": "Generic / Templated Code",
-        "non_verifying_requests_session@36": "Generic / Templated Code"
+        "non_verifying_requests_session@36": "Defensive Guards"
       }
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
         "__init__@50": "Many-Argument Workhorses",
         "awrap_model_call@106": "Defensive Guards",
-        "wrap_model_call@72": "Many-Argument Workhorses"
+        "wrap_model_call@72": "Defensive Guards"
       },
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
         "__init__@66": "Many-Argument Workhorses",
@@ -47560,7 +47560,7 @@
         "outmess@235": "Compute Cores",
         "param_eval@2963": "Many-Argument Workhorses",
         "param_parse@3025": "Many-Argument Workhorses",
-        "parse_name_for_bind@960": "Compute Cores",
+        "parse_name_for_bind@960": "Parameter Forwarders",
         "postcrack2@2002": "Many-Argument Workhorses",
         "postcrack@2034": "Many-Argument Workhorses",
         "readfortrancode@355": "Many-Argument Workhorses",
@@ -48058,7 +48058,7 @@
         "pauseProducing@2897": "Stateful Encapsulated Methods",
         "process@1114": "Parameter Forwarders",
         "proxiedLogFormatter@3093": "Parameter Forwarders",
-        "rawDataReceived@2570": "Many-Argument Workhorses",
+        "rawDataReceived@2570": "Defensive Guards",
         "rawDataReceived@809": "Compute Cores",
         "redirect@1466": "Parameter Forwarders",
         "registerProducer@1124": "Compute Cores",

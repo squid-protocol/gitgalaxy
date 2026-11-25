@@ -27,6 +27,10 @@ from .._shared_patterns import (
     commented_keyword_statement,
 )
 
+# #8863: a comprehension's `for` is followed by a target list and `in` (`for x in`, `for a, b in`); the
+# word `for` in a log string or comment between brackets is not one.
+_COMP_FOR = r"for[ \t]+[\w.,()*\[\] \t]{1,60}?[ \t]+in\b"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Python 3.14",
@@ -279,6 +283,8 @@ DEFINITION: dict[str, Any] = {
         # #8865: subprocess.check_call/check_output/getoutput/getstatusoutput spawn a process like call/run.
         "high_risk_execution": re.compile(
             r"\b(eval|exec|subprocess\.(?:call|Popen|run|check_call|check_output|getoutput|getstatusoutput)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
+            # #8863: the builtin `exit(1)` ends the process like `sys.exit` (not `x.exit(`)
+            r"|(?<![.\w])exit(?=[ \t]*\()"
         ),
         # 9. io (I/O & Network Boundaries)
         # #8860: I/O is a boundary crossing. The `os.`/`sys.` alternatives name the I/O members
@@ -286,10 +292,11 @@ DEFINITION: dict[str, Any] = {
         # `sys.argv`, `sys.path` stay with `globals`, #2593), and the Path method forms
         # (`Path(p).read_text()`, `.glob(`) count without the word `pathlib` being present.
         "io": re.compile(
-            r"\b(open|requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\b"
+            r"\bopen[ \t]*\("
+            r"|(?<![.\w])(?:requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\.\w+[ \t]*\("
             r"|\bos\.(?:walk|listdir|scandir|remove|unlink|rename|replace|makedirs|mkdir|rmdir|removedirs|open|read|write)\b"
             r"|\bsys\.(?:stdin|stdout|stderr)\b"
-            r"|\.(?:read_text|write_text|read_bytes|write_bytes|glob|rglob|iterdir)[ \t]*\("
+            r"|\.(?:read_text|write_text|read_bytes|write_bytes|glob|rglob|iterdir|read|readline|readlines|write|writelines|mkdir|copyfile)[ \t]*\("
         ),
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased root definitions) + explicit __all__.
@@ -392,7 +399,9 @@ DEFINITION: dict[str, Any] = {
         # Matches embedded_python's (correct, already ReDoS-bounded)
         # comprehension pattern.
         "comprehensions": re.compile(
-            r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
+            r"\[[^\]]{0,500}\b" + _COMP_FOR + r"[^\]]{0,500}\]|\{[^}]{0,500}\b" + _COMP_FOR + r"[^}]{0,500}\}"
+            r"|\([^)]{0,500}\b" + _COMP_FOR + r"[^)]{0,500}\)"
+            r"|\b(?:map|filter|reduce|starmap)[ \t]*\("
         ),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
         # hardware_bridge / cryptography (#4238): anchored on the top-level package, see
@@ -477,6 +486,8 @@ DEFINITION: dict[str, Any] = {
         # 38. telemetry (Structured Logging / Telemetry)
         "telemetry": re.compile(
             r"\b(logging|logger|structlog|sentry_sdk|datadog|loguru)\.(?:info|error|warn|warning|debug|trace|log|exception|critical)\b"
+            r"|\b_?log(?:ger)?\.(?:info|error|warn|warning|debug|trace|log|exception|critical)\b"
+            r"|\b(?:LOG|LOGGER)\.(?:info|error|warn|warning|debug|trace|log|exception|critical)\b"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
         "debug_prints": re.compile(r"\b(print|input)\s*\("),
@@ -485,14 +496,27 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(raise|quit|exit|sys\.exit|abort)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),
+        "thread_sleeps": re.compile(r"\b(?:time\.sleep|asyncio\.sleep|anyio\.sleep|Thread\.join)\b|\bsleep[ \t]*\("),
         # 43. bitwise_ops (Bitwise Operations)
         # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /
         # `None |` type union is not a bitwise operator on values. Characters inside strings still
         # count (documented behaviour, #2535 / #8866).
-        "bitwise_ops": re.compile(r"<<|>>|\^|~" + r"|&" + r"|(?<!None)(?<!None )\|(?!\s*None\b)"),
+        "bitwise_ops": re.compile(
+            # Lines that cannot hold a bitwise value expression are skipped whole (#8863): a `def` header, a
+            # `name: A | B` parameter / annotation, a `->` return annotation, a `| X` continuation or a
+            # `A | B,` / `A | B = default` parameter line (type unions). On any other line the operator counts
+            # only before the first quote character (`&` / `^` / `<<` inside a string literal, a C-code
+            # template or a URL query is text, not an operator); `| None` stays excluded. An operator after
+            # a string on the same line is missed: the documented cost of having no per-family string
+            # shield (#2535).
+            r"(?m:^(?![ \t]*(?:(?:async[ \t]+)?def\b|[\w.]+[ \t]*:[^=\n]*\||[ \t]*\||[^\n]*->"
+            r"|[\w.\[\], \t|]*\|(?!=)[\w.\[\], \t|]*(?:,|=(?!=))))[^\"'\n]*?)"
+            r"(?:<<|(?<!>)>>(?!>)|\^|~|&|(?<!None)(?<!None )\|(?!\s*None\b))"
+        ),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(Lock|RLock|Semaphore|BoundedSemaphore|Event|Condition|Barrier)\b"),
+        "sync_locks": re.compile(
+            r"\b(?:Lock|RLock|Semaphore|BoundedSemaphore|Condition)[ \t]*\(|\.acquire[ \t]*\(|\.release[ \t]*\([ \t]*\)"
+        ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
@@ -581,12 +605,13 @@ DEFINITION: dict[str, Any] = {
         # datetime constructors, and format/parse calls. A bare `now(` is NOT matched (noisy);
         # `datetime.now` after `from datetime import datetime` matches via the `datetime.` prefix.
         "time_date_logic": re.compile(
-            r"\b(?:datetime\.datetime|timedelta|time\.sleep|time\.time|calendar"
+            r"\b(?:datetime\.datetime|timedelta|time\.time|calendar"
             r"|time\.(?:perf_counter|monotonic|process_time|thread_time)(?:_ns)?"
             r"|time\.(?:time_ns|gmtime|localtime|mktime|strftime|strptime|ctime|asctime)"
             r"|datetime\.(?:now|utcnow|today|fromtimestamp|utcfromtimestamp|fromisoformat|strptime)"
             r"|(?:perf_counter|monotonic|process_time)(?:_ns)?(?=[ \t]*\()|time_ns(?=[ \t]*\())\b"
-            r"|\.(?:strftime|strptime|isoformat)[ \t]*\("
+            r"|\.(?:strftime|strptime|isoformat|now|utcnow|today)[ \t]*\("
+            r"|\b(?:gmtime|localtime|mktime)(?=[ \t]*\()"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(multiprocessing|subprocess|xmlrpc|socketserver)\b"),
         # system_config_mutation (#3084): contract-level absence. stdlib winreg

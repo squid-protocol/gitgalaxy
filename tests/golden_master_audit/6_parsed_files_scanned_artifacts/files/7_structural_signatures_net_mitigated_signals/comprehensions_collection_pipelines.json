@@ -1201,11 +1201,11 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
-      "cpp/NVDA/__init__.py": 10,
-      "cpp/NVDA/braille.py": 17,
+      "cpp/NVDA/__init__.py": 2,
+      "cpp/NVDA/braille.py": 11,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
-      "cpp/NVDA/core.py": 1,
+      "cpp/NVDA/core.py": 0,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 3,
       "cpp/NVDA/inProcess.cpp": 0,
@@ -1685,7 +1685,7 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0,
       "fortran/wrf/cleanCMake.sh": 0,
-      "fortran/wrf/configure_reader.py": 9,
+      "fortran/wrf/configure_reader.py": 5,
       "fortran/wrf/gen_be_wrapper.ksh": 0,
       "fortran/wrf/module_configure.F": 5,
       "fortran/wrf/module_domain.F": 1,
@@ -1696,7 +1696,7 @@
       "fortran/wrf/regtest_hwrf.csh": 0,
       "fortran/wrf/regtest_nmmnest.csh": 0,
       "fortran/wrf/run_convert_e2c.ksh": 0,
-      "fortran/wrf/sourcetree.py": 2,
+      "fortran/wrf/sourcetree.py": 1,
       "fortran/wrf/wrf_timeseries.F": 2
     },
     "fortran/wrf_physics": {
@@ -3567,32 +3567,32 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 8,
-      "python/airflow/s3.py": 7,
-      "python/airflow/scheduler_job_runner.py": 65
+      "python/airflow/dag.py": 6,
+      "python/airflow/s3.py": 8,
+      "python/airflow/scheduler_job_runner.py": 33
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 1,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 2,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 1
     },
     "python/airflow_opsgenie_tests": {
       "python/airflow_opsgenie_tests/NOTICE": 0,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": 1
+      "python/airflow_opsgenie_tests/test_opsgenie.py": 0
     },
     "python/cython": {
       "python/cython/COPYING.txt": 0,
       "python/cython/CodeGeneration.py": 0,
       "python/cython/LICENSE.txt": 0,
       "python/cython/MemoryView.pxd": 0,
-      "python/cython/MemoryView.pyx": 6,
-      "python/cython/Nodes.py": 73
+      "python/cython/MemoryView.pyx": 4,
+      "python/cython/Nodes.py": 52
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": 0,
-      "python/django_db_tests/test_utils.py": 1
+      "python/django_db_tests/test_utils.py": 0
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -3602,7 +3602,7 @@
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 0,
       "python/fastapi/fastapi/__main__.py": 0,
-      "python/fastapi/fastapi/applications.py": 2,
+      "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 0,
       "python/fastapi/fastapi/cli.py": 0,
       "python/fastapi/fastapi/concurrency.py": 0,
@@ -3615,18 +3615,18 @@
       "python/fastapi/fastapi/params.py": 2,
       "python/fastapi/fastapi/requests.py": 0,
       "python/fastapi/fastapi/responses.py": 0,
-      "python/fastapi/fastapi/routing.py": 3,
-      "python/fastapi/fastapi/sse.py": 1,
+      "python/fastapi/fastapi/routing.py": 1,
+      "python/fastapi/fastapi/sse.py": 0,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
       "python/fastapi/fastapi/testclient.py": 0,
       "python/fastapi/fastapi/types.py": 0,
-      "python/fastapi/fastapi/utils.py": 1,
+      "python/fastapi/fastapi/utils.py": 0,
       "python/fastapi/fastapi/websockets.py": 0
     },
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": 0,
-      "python/fastapi/tests/main.py": 0,
+      "python/fastapi/tests/main.py": 1,
       "python/fastapi/tests/test_additional_properties.py": 0,
       "python/fastapi/tests/test_additional_properties_bool.py": 0,
       "python/fastapi/tests/test_additional_response_extra.py": 0,
@@ -3638,7 +3638,7 @@
       "python/fastapi/tests/test_additional_responses_router.py": 0,
       "python/fastapi/tests/test_additional_responses_union_duplicate_anyof.py": 0,
       "python/fastapi/tests/test_allow_inf_nan_in_enforcing.py": 0,
-      "python/fastapi/tests/test_ambiguous_params.py": 3,
+      "python/fastapi/tests/test_ambiguous_params.py": 0,
       "python/fastapi/tests/test_annotated.py": 0,
       "python/fastapi/tests/test_application.py": 0,
       "python/fastapi/tests/test_arbitrary_types.py": 0,
@@ -3712,7 +3712,7 @@
       "python/fastapi/tests/test_openapi_model_description_trim_on_formfeed.py": 0,
       "python/fastapi/tests/test_openapi_query_parameter_extension.py": 0,
       "python/fastapi/tests/test_openapi_route_extensions.py": 0,
-      "python/fastapi/tests/test_openapi_schema_type.py": 1,
+      "python/fastapi/tests/test_openapi_schema_type.py": 0,
       "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": 0,
       "python/fastapi/tests/test_openapi_servers.py": 0,
       "python/fastapi/tests/test_operations_signatures.py": 0,
@@ -3825,7 +3825,7 @@
       "python/fastapi/tests/test_validate_response_dataclass.py": 0,
       "python/fastapi/tests/test_validation_error_context.py": 0,
       "python/fastapi/tests/test_vibe.py": 0,
-      "python/fastapi/tests/test_webhooks_security.py": 1,
+      "python/fastapi/tests/test_webhooks_security.py": 0,
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 0,
       "python/fastapi/tests/test_ws_dependencies.py": 0,
       "python/fastapi/tests/test_ws_router.py": 0,
@@ -3843,7 +3843,7 @@
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 0,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 2,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 0,
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 1
     },
     "python/micropython_usb_tls": {
@@ -3854,12 +3854,12 @@
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
-      "python/numpy/_linalg.py": 6,
-      "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 26,
-      "python/numpy/crackfortran.py": 51,
+      "python/numpy/_linalg.py": 11,
+      "python/numpy/cfuncs.py": 1,
+      "python/numpy/core.py": 28,
+      "python/numpy/crackfortran.py": 33,
       "python/numpy/cversions.txt": 0,
-      "python/numpy/func2subr.py": 7,
+      "python/numpy/func2subr.py": 3,
       "python/numpy/genapi.py": 7,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
@@ -3867,7 +3867,7 @@
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 0,
-      "python/numpy/symbolic.py": 17,
+      "python/numpy/symbolic.py": 19,
       "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0
@@ -3898,10 +3898,10 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 2
     },
     "python/twisted": {
-      "python/twisted/defer.py": 2,
+      "python/twisted/defer.py": 1,
       "python/twisted/http.py": 9,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 8
+      "python/twisted/transport.py": 4
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

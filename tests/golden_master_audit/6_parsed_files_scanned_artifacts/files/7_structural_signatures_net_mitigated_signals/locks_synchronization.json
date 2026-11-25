@@ -1202,7 +1202,7 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
       "cpp/NVDA/__init__.py": 0,
-      "cpp/NVDA/braille.py": 2,
+      "cpp/NVDA/braille.py": 1,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
       "cpp/NVDA/core.py": 1,
@@ -1611,7 +1611,7 @@
       "embedded_python/meow_turtle/mpu6050.py": 0,
       "embedded_python/meow_turtle/ota.py": 0,
       "embedded_python/meow_turtle/pio_programs.py": 0,
-      "embedded_python/meow_turtle/sensors.py": 2,
+      "embedded_python/meow_turtle/sensors.py": 1,
       "embedded_python/meow_turtle/tester.py": 0,
       "embedded_python/meow_turtle/tsl2591.py": 0,
       "embedded_python/meow_turtle/vibration_driver.py": 0
@@ -3898,7 +3898,7 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 0,
+      "python/twisted/defer.py": 4,
       "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
       "python/twisted/transport.py": 0

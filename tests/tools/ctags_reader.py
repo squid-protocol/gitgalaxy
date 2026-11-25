@@ -765,6 +765,11 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
         ],
         capture_output=True,
         text=True,
+        # ctags can cut a field (the signature, the pattern) in the middle of a multi-byte UTF-8 character, so its stdout
+        # is not always valid UTF-8 even when the source file is. Replace those bytes instead of crashing the whole
+        # tri-comparison run (kotlin: "'utf-8' codec can't decode byte 0xbb", crucible v1.9.0 candidate).
+        encoding="utf-8",
+        errors="replace",
         timeout=60,
     )
 

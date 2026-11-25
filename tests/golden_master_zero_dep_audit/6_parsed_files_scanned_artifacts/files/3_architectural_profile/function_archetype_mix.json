@@ -3,6 +3,77 @@
     "abap": {
       "abap/SOURCES.md": {}
     },
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap": {},
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1
+      },
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": {
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": {
+        "Compute Cores": 6,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 4,
+        "Many-Argument Workhorses": 8,
+        "Parameter Forwarders": 18
+      },
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": {
+        "Compute Cores": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 5
+      },
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 4
+      },
+      "abap/abap2xlsx/src_zcl_excel_font.clas.testclasses.abap": {
+        "I/O & Config Routines": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": {
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 6
+      },
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2
+      },
+      "abap/abap2xlsx/src_zcl_excel_obsolete_func_wrap.clas.abap": {
+        "Defensive Guards": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": {
+        "Compute Cores": 4,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": {
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": {
+        "I/O & Config Routines": 6
+      },
+      "abap/abap2xlsx/src_zif_excel_book_protection.intf.abap": {},
+      "abap/abap2xlsx/src_zif_excel_sheet_printsettings.intf.abap": {},
+      "abap/abap2xlsx/test_cl_excel_test.clas.abap": {
+        "Compute Cores": 1
+      },
+      "abap/abap2xlsx/test_cl_excel_test.clas.testclasses.abap": {
+        "Interface Declarations": 1
+      }
+    },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": {},
       "abap/abapGit/zabapgit.prog.abap": {},
@@ -39,6 +110,110 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": {
         "I/O & Config Routines": 3,
         "Interface Declarations": 2
+      }
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": {},
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": {},
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": {
+        "I/O & Config Routines": 1
+      },
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": {
+        "I/O & Config Routines": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": {
+        "C Struct Operations": 2,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 16,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": {
+        "C Struct Operations": 1,
+        "I/O & Config Routines": 28,
+        "Interface Declarations": 4
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 4
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": {
+        "C Struct Operations": 1,
+        "I/O & Config Routines": 11,
+        "Interface Declarations": 1
+      }
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 7,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 2
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": {
+        "Compute Cores": 3,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 7,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": {
+        "Compute Cores": 1,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": {
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 2
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": {
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 4,
+        "Many-Argument Workhorses": 3
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": {
+        "Compute Cores": 4,
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 5,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 3
+      },
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff.clas.abap": {
+        "Many-Argument Workhorses": 1
+      },
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": {
+        "Compute Cores": 5,
+        "Defensive Guards": 4,
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 14,
+        "Parameter Forwarders": 7
       }
     },
     "ada": {
@@ -378,6 +553,143 @@
         "Parameter Forwarders": 9
       }
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": {
+        "I/O & Config Routines": 31,
+        "Interface Declarations": 6
+      },
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": {
+        "Compute Cores": 11,
+        "Defensive Guards": 9,
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 28,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 3
+      },
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": {
+        "Compute Cores": 8,
+        "Defensive Guards": 8,
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 41,
+        "Parameter Forwarders": 12
+      },
+      "agc_assembly/apollo-11_comanche055_cm/INTER-BANK_COMMUNICATION.agc": {
+        "Defensive Guards": 1,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 7
+      },
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": {
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 12,
+        "Parameter Forwarders": 3
+      },
+      "agc_assembly/apollo-11_comanche055_cm/LICENSE.md": {},
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": {
+        "I/O & Config Routines": 8
+      },
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": {
+        "Compute Cores": 7,
+        "I/O & Config Routines": 12,
+        "Interface Declarations": 21,
+        "Parameter Forwarders": 5
+      },
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 32,
+        "Interface Declarations": 7,
+        "Parameter Forwarders": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": {
+        "Compute Cores": 1,
+        "Defensive Guards": 8,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 3
+      },
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": {
+        "Compute Cores": 17,
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 63,
+        "Parameter Forwarders": 18
+      }
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": {
+        "Compute Cores": 4,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 13,
+        "Interface Declarations": 23,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2
+      },
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 15,
+        "Interface Declarations": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": {
+        "Compute Cores": 3,
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 7,
+        "State Mutators": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": {
+        "I/O & Config Routines": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": {
+        "Compute Cores": 2,
+        "Parameter Forwarders": 3
+      },
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": {
+        "Compute Cores": 4,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 15,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2
+      },
+      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": {},
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": {
+        "Compute Cores": 8,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 14,
+        "Interface Declarations": 17,
+        "Parameter Forwarders": 7,
+        "State Mutators": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": {
+        "I/O & Config Routines": 6
+      },
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": {
+        "Compute Cores": 16,
+        "Defensive Guards": 2,
+        "I/O & Config Routines": 11,
+        "Interface Declarations": 45,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 15
+      },
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 10
+      },
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 10,
+        "Interface Declarations": 15,
+        "Parameter Forwarders": 2
+      }
+    },
     "apex": {
       "apex/SOURCES.md": {}
     },
@@ -403,6 +715,74 @@
       },
       "apex/apex-recipes/project-scratch-def.json": {},
       "apex/apex-recipes/sfdx-project.json": {}
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": {
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 7,
+        "Generic / Templated Code": 13,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1,
+        "State Mutators": 4,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IDomainConstructor.cls": {},
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IObjects.cls": {},
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjectSelector.cls": {},
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjects.cls": {},
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IServiceFactory.cls": {},
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Objects.cls": {
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 4,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": {
+        "Compute Cores": 5,
+        "Encapsulated Accessors": 6,
+        "Generic / Templated Code": 9,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 7,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 4,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 13,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 7,
+        "State Mutators": 7,
+        "Stateful Encapsulated Methods": 2
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": {
+        "Encapsulated Accessors": 11,
+        "Generic / Templated Code": 8,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 4,
+        "State Mutators": 3,
+        "Stateful Encapsulated Methods": 9
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_StringBuilder.cls": {
+        "Generic / Templated Code": 7,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 2,
+        "State Mutators": 4
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_test_classes_fflib_ObjectsTest.cls": {
+        "Annotated & Test Methods": 7,
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "State Mutators": 1
+      }
     },
     "assembly": {
       "assembly/SOURCES.md": {}
@@ -1191,6 +1571,71 @@
     "bms": {
       "bms/SOURCES.md": {}
     },
+    "bms/carddemo_bms": {
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU01.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTLI.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTUP.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COACTUP.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COACTVW.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COADM01.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COBIL00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COCRDLI.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COCRDSL.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COCRDUP.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COMEN01.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_CORPT00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COSGN00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COTRN00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COTRN01.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COTRN02.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COUSR00.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COUSR01.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COUSR02.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/carddemo_bms/app_bms_COUSR03.bms": {
+        "I/O & Config Routines": 1
+      }
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": {
         "I/O & Config Routines": 1
@@ -1220,6 +1665,14 @@
         "I/O & Config Routines": 1
       },
       "bms/cbsa/PROVENANCE.md": {}
+    },
+    "bms/dbb_mortgage_bms": {
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmlis.bms": {
+        "I/O & Config Routines": 1
+      },
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmort.bms": {
+        "Parameter Forwarders": 1
+      }
     },
     "bms/genapp": {
       "bms/genapp/ssmap.bms": {
@@ -3880,6 +4333,93 @@
     "csharp": {
       "csharp/SOURCES.md": {}
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/LICENSE.txt": {},
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": {
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 10,
+        "I/O & Config Routines": 2,
+        "Stateful Encapsulated Methods": 9
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": {
+        "Stateful Encapsulated Methods": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": {
+        "Encapsulated Accessors": 2,
+        "I/O & Config Routines": 2,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 3
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": {
+        "Encapsulated Accessors": 2,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 3
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": {
+        "Encapsulated Accessors": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": {
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 2
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": {
+        "Stateful Encapsulated Methods": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": {
+        "I/O & Config Routines": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": {
+        "Defensive Guards": 2
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": {
+        "Encapsulated Accessors": 1,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 3
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": {},
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": {
+        "Defensive Guards": 1,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 2
+      }
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": {},
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": {
+        "Encapsulated Accessors": 1,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": {},
+      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": {},
+      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": {},
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": {
+        "Interface Declarations": 3
+      },
+      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": {},
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": {
+        "Encapsulated Accessors": 1
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": {
+        "Generic / Templated Code": 2,
+        "State Mutators": 1
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": {
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 2
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 2,
+        "Compute Cores": 1,
+        "Stateful Encapsulated Methods": 1
+      }
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": {
         "Callbacks & Closures": 2,
@@ -3944,6 +4484,84 @@
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 4,
         "Stateful Encapsulated Methods": 34
+      }
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/LICENSE.TXT": {},
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": {
+        "Generic / Templated Code": 5,
+        "Many-Argument Workhorses": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": {
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 2,
+        "I/O & Config Routines": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": {
+        "Generic / Templated Code": 1,
+        "Stateful Encapsulated Methods": 2
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": {
+        "Callbacks & Closures": 2,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 2
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": {
+        "Callbacks & Closures": 2,
+        "Generic / Templated Code": 10
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": {
+        "Callbacks & Closures": 4,
+        "Generic / Templated Code": 3,
+        "State Mutators": 2
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": {
+        "Callbacks & Closures": 9,
+        "Compute Cores": 3,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 13,
+        "Many-Argument Workhorses": 4,
+        "Stateful Encapsulated Methods": 4
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Encapsulated Accessors": 24,
+        "Generic / Templated Code": 3,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 2,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 13
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": {
+        "Callbacks & Closures": 3,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 2
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": {
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 2,
+        "Stateful Encapsulated Methods": 4
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": {
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": {
+        "Callbacks & Closures": 3,
+        "Compute Cores": 5,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 5,
+        "Generic / Templated Code": 8,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 1,
+        "Stateful Encapsulated Methods": 4
       }
     },
     "css": {
@@ -4029,6 +4647,121 @@
     },
     "dart": {
       "dart/SOURCES.md": {}
+    },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_analysis_rule_analysis_rule.dart": {},
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_diagnostic_diagnostic.dart": {},
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_context_builder.dart": {
+        "Defensive Guards": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": {
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 4,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 4,
+        "State Mutators": 3
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": {
+        "Annotated & Test Methods": 4,
+        "Defensive Guards": 21,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": {
+        "Defensive Guards": 4,
+        "Encapsulated Accessors": 1,
+        "Stateful Encapsulated Methods": 3
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": {
+        "Defensive Guards": 7,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 5,
+        "State Mutators": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_error_null_safe_api_verifier.dart": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": {
+        "Annotated & Test Methods": 5,
+        "Defensive Guards": 9,
+        "Generic / Templated Code": 6,
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 2,
+        "State Mutators": 11
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Stateful Encapsulated Methods": 2
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": {
+        "Defensive Guards": 2,
+        "Interface Declarations": 1,
+        "State Mutators": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart": {
+        "Annotated & Test Methods": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 2,
+        "State Mutators": 1
+      }
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_abstract_beats_arguments_test.dart": {
+        "State Mutators": 2
+      },
+      "dart/dart_sdk_language_tests/tests_language_class_modifiers_interface_interface_class_part_test.dart": {
+        "State Mutators": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": {
+        "Callbacks & Closures": 4,
+        "Interface Declarations": 3
+      },
+      "dart/dart_sdk_language_tests/tests_language_extension_methods_static_extension_import_test.dart": {
+        "State Mutators": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_identifier_built_in_identifier_test.dart": {
+        "Interface Declarations": 9,
+        "Parameter Forwarders": 4,
+        "State Mutators": 2
+      },
+      "dart/dart_sdk_language_tests/tests_language_invalid_returns_sync_invalid_return_00_test.dart": {
+        "Defensive Guards": 1,
+        "State Mutators": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_mixin_legacy_illegal_constructor_test.dart": {
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1,
+        "State Mutators": 2
+      },
+      "dart/dart_sdk_language_tests/tests_language_nonfunction_type_aliases_generic_usage_null_test.dart": {
+        "Generic / Templated Code": 7,
+        "Parameter Forwarders": 2,
+        "State Mutators": 3
+      },
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": {
+        "Compute Cores": 1,
+        "Interface Declarations": 5
+      },
+      "dart/dart_sdk_language_tests/tests_language_regress_regress18713_legacy_test.dart": {
+        "Annotated & Test Methods": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 2
+      },
+      "dart/dart_sdk_language_tests/tests_language_setter_override_test.dart": {
+        "Interface Declarations": 2,
+        "State Mutators": 3
+      },
+      "dart/dart_sdk_language_tests/tests_language_type_object_constant_type_literal_test.dart": {
+        "State Mutators": 2
+      }
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": {
@@ -4130,6 +4863,14 @@
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": {}
+    },
+    "db2_sql/carddemo_ddl": {
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_AUTHFRDS.ddl": {},
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_XAUTHFRD.ddl": {},
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYCAT.ddl": {},
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYPE.ddl": {},
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYCAT.ddl": {},
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYPE.ddl": {}
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": {},
@@ -4935,6 +5676,87 @@
     "fortran": {
       "fortran/SOURCES.md": {}
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": {
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 1
+      },
+      "fortran/fpm_fortran/example_packages_auto_with_nondefault_main_app_non_default_name.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/example_packages_features_with_dependency_app_main.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/fpm_fortran/example_packages_hello_world_app_main.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/fpm_fortran/example_packages_preprocess_per_dependency_app_main.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/example_packages_submodule_tree_shake_src_parent_unused.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/fpm_fortran/example_packages_with_examples_demo_prog.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/src_fpm_environment.f90": {
+        "Defensive Guards": 13,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1
+      },
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": {
+        "Defensive Guards": 6
+      }
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/example_ansi_example_ansi_color.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_bitsets_example_bitsets_read_bitset.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_hashmaps_example_hashmaps_fnv_1_hasher.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_blas_gemv.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_is_symmetric.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_state1.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_quadrature_example_simps_weights.f90": {
+        "Defensive Guards": 1
+      },
+      "fortran/stdlib_fortran/example_specialmatrices_example_specialmatrices_dp_spmv.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_string_type_example_constructor_logical.f90": {
+        "Interface Declarations": 1
+      },
+      "fortran/stdlib_fortran/example_stringlist_type_example_stringlist_type_constructor.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/example_system_example_make_directory.f90": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": {
+        "Defensive Guards": 17,
+        "Many-Argument Workhorses": 2,
+        "Type Conversions": 1
+      }
+    },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": {},
       "fortran/wrf/cleanCMake.sh": {
@@ -4997,6 +5819,40 @@
       "fortran/wrf/wrf_timeseries.F": {
         "Compute Cores": 1,
         "Many-Argument Workhorses": 3
+      }
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/LICENSE.txt": {},
+      "fortran/wrf_physics/phys_ccpp_kind_types.F": {},
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": {
+        "Many-Argument Workhorses": 8
+      },
+      "fortran/wrf_physics/phys_module_cam_mp_modal_aero_initialize_data_phys.F": {
+        "I/O & Config Routines": 1
+      },
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": {
+        "Many-Argument Workhorses": 4
+      },
+      "fortran/wrf_physics/phys_module_diag_pld.F": {
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": {
+        "Compute Cores": 1,
+        "Defensive Guards": 13,
+        "Many-Argument Workhorses": 2
+      },
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": {
+        "Many-Argument Workhorses": 1
+      },
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": {
+        "Many-Argument Workhorses": 5
+      },
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": {
+        "Many-Argument Workhorses": 3
+      },
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": {
+        "Many-Argument Workhorses": 1
       }
     },
     "fsharp": {
@@ -6172,6 +7028,49 @@
     "haskell": {
       "haskell/SOURCES.md": {}
     },
+    "haskell/aeson_core": {
+      "haskell/aeson_core/benchmarks_bench_Auto_G_BigRecord.hs": {
+        "State Mutators": 1
+      },
+      "haskell/aeson_core/benchmarks_bench_Compare_BufferBuilder.hs": {
+        "I/O & Config Routines": 4,
+        "State Mutators": 1,
+        "Type Conversions": 1
+      },
+      "haskell/aeson_core/benchmarks_bench_ReadFile.hs": {
+        "Compute Cores": 1
+      },
+      "haskell/aeson_core/examples_src_Generic.hs": {
+        "Interface Declarations": 1
+      },
+      "haskell/aeson_core/src_Data_Aeson_Decoding.hs": {
+        "Callbacks & Closures": 3,
+        "Generic / Templated Code": 6
+      },
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString-2.hs": {
+        "State Mutators": 3,
+        "Type Conversions": 1
+      },
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString.hs": {
+        "State Mutators": 3,
+        "Type Conversions": 1
+      },
+      "haskell/aeson_core/src_Data_Aeson_Parser_Time.hs": {
+        "Parameter Forwarders": 1
+      },
+      "haskell/aeson_core/tests_DataFamilies_Instances.hs": {},
+      "haskell/aeson_core/tests_PropUtils.hs": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 10,
+        "Parameter Forwarders": 4,
+        "State Mutators": 12
+      },
+      "haskell/aeson_core/tests_Regression_Issue1198.hs": {
+        "Parameter Forwarders": 1
+      },
+      "haskell/aeson_core/tests_UnitTests_Hashable.hs": {}
+    },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": {},
       "haskell/pandoc/App.hs": {
@@ -6213,6 +7112,139 @@
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 20,
         "State Mutators": 46
+      }
+    },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/COPYING.md": {},
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_AnnotatedTable.hs": {
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 8,
+        "State Mutators": 17
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs": {
+        "Compute Cores": 1,
+        "Generic / Templated Code": 1,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 5,
+        "Type Conversions": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DocBook.hs": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 5,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 4,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 4,
+        "State Mutators": 11,
+        "Type Conversions": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DokuWiki.hs": {
+        "Compute Cores": 8,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 4,
+        "State Mutators": 9
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": {
+        "Compute Cores": 4,
+        "Defensive Guards": 4,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2,
+        "State Mutators": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": {
+        "Callbacks & Closures": 3,
+        "Compute Cores": 6,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 4,
+        "Parameter Forwarders": 9,
+        "State Mutators": 5
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": {
+        "Callbacks & Closures": 3,
+        "Compute Cores": 4,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 9,
+        "State Mutators": 13
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Markdown_Table.hs": {
+        "Compute Cores": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": {
+        "Callbacks & Closures": 11,
+        "Compute Cores": 15,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 2,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 5,
+        "State Mutators": 16
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": {
+        "Callbacks & Closures": 5,
+        "Compute Cores": 13,
+        "Defensive Guards": 2,
+        "Generic / Templated Code": 4,
+        "I/O & Config Routines": 1,
+        "Parameter Forwarders": 6,
+        "State Mutators": 7
+      }
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/Main.hs": {
+        "State Mutators": 1
+      },
+      "haskell/xmonad_core/src_XMonad.hs": {},
+      "haskell/xmonad_core/src_XMonad_Core.hs": {
+        "Callbacks & Closures": 11,
+        "Compute Cores": 5,
+        "Defensive Guards": 5,
+        "Generic / Templated Code": 12,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 4,
+        "State Mutators": 26
+      },
+      "haskell/xmonad_core/src_XMonad_Main.hs": {
+        "Compute Cores": 2,
+        "Defensive Guards": 2,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 5,
+        "State Mutators": 4,
+        "Type Conversions": 1
+      },
+      "haskell/xmonad_core/src_XMonad_Operations.hs": {
+        "Callbacks & Closures": 25,
+        "Compute Cores": 5,
+        "Defensive Guards": 3,
+        "Generic / Templated Code": 4,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 8,
+        "State Mutators": 11,
+        "Type Conversions": 10
+      },
+      "haskell/xmonad_core/tests_Instances.hs": {
+        "Parameter Forwarders": 2
+      },
+      "haskell/xmonad_core/tests_Properties_Delete.hs": {},
+      "haskell/xmonad_core/tests_Properties_Floating.hs": {},
+      "haskell/xmonad_core/tests_Properties_GreedyView.hs": {
+        "Callbacks & Closures": 1
+      },
+      "haskell/xmonad_core/tests_Properties_Layout_Full.hs": {},
+      "haskell/xmonad_core/tests_Properties_Screen.hs": {},
+      "haskell/xmonad_core/tests_Properties_Stack.hs": {
+        "State Mutators": 2
       }
     },
     "hcl": {
@@ -6307,6 +7339,14 @@
     "hlasm": {
       "hlasm/PROVENANCE.md": {},
       "hlasm/SOURCES.md": {}
+    },
+    "hlasm/carddemo_hlasm": {
+      "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": {
+        "I/O & Config Routines": 1
+      },
+      "hlasm/carddemo_hlasm/app_asm_MVSWAIT.asm": {
+        "Interface Declarations": 1
+      }
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": {},
@@ -7623,6 +8663,127 @@
       "kotlin/okhttp/OkHttp.kt": {},
       "kotlin/okhttp/build.gradle.kts": {}
     },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/LICENSE.txt": {},
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_DeserializationStrategyConverter.kt": {
+        "Parameter Forwarders": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Factory.kt": {
+        "Annotated & Test Methods": 2,
+        "Generic / Templated Code": 2
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_SerializationStrategyConverter.kt": {
+        "Parameter Forwarders": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": {
+        "Generic / Templated Code": 7
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": {
+        "Annotated & Test Methods": 4,
+        "Generic / Templated Code": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": {
+        "Annotated & Test Methods": 4,
+        "Generic / Templated Code": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": {
+        "Annotated & Test Methods": 4,
+        "C Struct Operations": 1,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": {
+        "Annotated & Test Methods": 4,
+        "C Struct Operations": 1,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": {
+        "Generic / Templated Code": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": {
+        "Annotated & Test Methods": 6,
+        "Generic / Templated Code": 5,
+        "Interface Declarations": 4
+      },
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": {
+        "Interface Declarations": 2,
+        "Stateful Encapsulated Methods": 1,
+        "Type Conversions": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": {
+        "Annotated & Test Methods": 3
+      },
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": {
+        "Annotated & Test Methods": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": {
+        "Annotated & Test Methods": 24,
+        "Generic / Templated Code": 5,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 2
+      },
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": {
+        "Annotated & Test Methods": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 10
+      },
+      "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": {
+        "Annotated & Test Methods": 2,
+        "Callbacks & Closures": 1,
+        "I/O & Config Routines": 1
+      }
+    },
+    "kotlin/spring_boot_kotlin": {
+      "kotlin/spring_boot_kotlin/LICENSE.txt": {},
+      "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": {
+        "Generic / Templated Code": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": {
+        "Generic / Templated Code": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": {
+        "Annotated & Test Methods": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": {
+        "Generic / Templated Code": 3,
+        "Parameter Forwarders": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": {
+        "Annotated & Test Methods": 9
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": {
+        "Annotated & Test Methods": 3,
+        "State Mutators": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": {
+        "Annotated & Test Methods": 6
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": {
+        "Annotated & Test Methods": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": {
+        "Annotated & Test Methods": 16,
+        "State Mutators": 3
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": {
+        "Annotated & Test Methods": 30,
+        "State Mutators": 2
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": {
+        "Generic / Templated Code": 1
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": {
+        "Generic / Templated Code": 3
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": {
+        "Annotated & Test Methods": 4,
+        "Encapsulated Accessors": 1
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": {
+        "Annotated & Test Methods": 22
+      }
+    },
     "livecode": {
       "livecode/SOURCES.md": {}
     },
@@ -8445,12 +9606,134 @@
         "State Mutators": 2
       }
     },
+    "m4/gnupg_m4": {
+      "m4/gnupg_m4/COPYING": {},
+      "m4/gnupg_m4/gpg-error.m4": {
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 1
+      },
+      "m4/gnupg_m4/ksba.m4": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "m4/gnupg_m4/ldap.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/gnupg_m4/libassuan.m4": {
+        "I/O & Config Routines": 2,
+        "State Mutators": 2
+      },
+      "m4/gnupg_m4/libgcrypt.m4": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "m4/gnupg_m4/npth.m4": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "m4/gnupg_m4/ntbtls.m4": {
+        "Many-Argument Workhorses": 1
+      },
+      "m4/gnupg_m4/readline.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/gnupg_m4/socklen.m4": {
+        "I/O & Config Routines": 3
+      }
+    },
+    "m4/libffi_racket": {
+      "m4/libffi_racket/acinclude.m4": {
+        "I/O & Config Routines": 3,
+        "State Mutators": 3
+      },
+      "m4/libffi_racket/configure.ac": {
+        "State Mutators": 1
+      }
+    },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_add_flags.m4": {
+        "Many-Argument Workhorses": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": {
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_attribute_syntax.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_c_typeof.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_cross_compile.m4": {
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_csym.m4": {
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_endian.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_flags.m4": {
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_func.m4": {
+        "State Mutators": 2
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_func_attribute.m4": {
+        "Compute Cores": 6,
+        "Many-Argument Workhorses": 2,
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_have_func.m4": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_flagvar.m4": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_foreach.m4": {
+        "State Mutators": 2
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_libext.m4": {
+        "I/O & Config Routines": 1
+      },
+      "m4/nasm_autoconf_macros/configure.ac": {
+        "State Mutators": 1
+      }
+    },
     "makefile": {
       "makefile/SOURCES.md": {}
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/ctl_BUILD.mk": {},
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": {},
+      "makefile/cosmopolitan_build_mk/net_BUILD.mk": {},
+      "makefile/cosmopolitan_build_mk/test_BUILD.mk": {},
+      "makefile/cosmopolitan_build_mk/third_party_BUILD.mk": {},
+      "makefile/cosmopolitan_build_mk/tool_BUILD.mk": {}
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": {},
       "makefile/freebsd/Makefile": {
+        "I/O & Config Routines": 1
+      }
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/docs_Makefile": {},
+      "makefile/micropython_make/extmod_extmod.mk": {},
+      "makefile/micropython_make/py_dynruntime.mk": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      },
+      "makefile/micropython_make/py_mkenv.mk": {
+        "Defensive Guards": 1
+      },
+      "makefile/micropython_make/py_mkrules.mk": {
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 1,
+        "State Mutators": 1
+      },
+      "makefile/micropython_make/py_py.mk": {
         "I/O & Config Routines": 1
       }
     },
@@ -8491,6 +9774,88 @@
       "matlab/eeglab/supergui.m": {
         "Compute Cores": 1,
         "Many-Argument Workhorses": 2
+      }
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/COPYING": {},
+      "matlab/fieldtrip_core/ft_analysispipeline.m": {
+        "Compute Cores": 4,
+        "Defensive Guards": 5,
+        "Many-Argument Workhorses": 4
+      },
+      "matlab/fieldtrip_core/ft_annotate.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_anonymizedata.m": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 2
+      },
+      "matlab/fieldtrip_core/ft_appenddata.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendfreq.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendlayout.m": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendsens.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendsource.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendspike.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_core/ft_appendtimelock.m": {
+        "Many-Argument Workhorses": 1
+      }
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/COPYING": {},
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": {
+        "I/O & Config Routines": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": {
+        "Compute Cores": 2,
+        "Defensive Guards": 7,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 10
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": {
+        "Many-Argument Workhorses": 3
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": {
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": {
+        "Compute Cores": 1,
+        "Defensive Guards": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": {
+        "I/O & Config Routines": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": {
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": {
+        "Many-Argument Workhorses": 1
       }
     },
     "mlir": {
@@ -8730,6 +10095,15 @@
     "nix": {
       "nix/SOURCES.md": {}
     },
+    "nix/angular_nix": {
+      "nix/angular_nix/adev_src_content_tutorials_deferrable-views_common_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_first-app_common_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_homepage_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_learn-angular_common_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_playground_common_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_signal-forms_common_idx_dev.nix": {},
+      "nix/angular_nix/adev_src_content_tutorials_signals_common_idx_dev.nix": {}
+    },
     "nix/bun": {
       "nix/bun/LICENSE.md": {},
       "nix/bun/flake.nix": {},
@@ -8745,6 +10119,160 @@
     },
     "objective-c": {
       "objective-c/SOURCES.md": {}
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": {
+        "Many-Argument Workhorses": 3,
+        "Type Conversions": 18
+      },
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 2,
+        "Parameter Forwarders": 1,
+        "State Mutators": 3,
+        "Type Conversions": 13
+      },
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": {
+        "Compute Cores": 3,
+        "I/O & Config Routines": 2,
+        "Many-Argument Workhorses": 1,
+        "Type Conversions": 12
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 16,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 7,
+        "Parameter Forwarders": 5,
+        "Type Conversions": 67
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 3,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 45
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 7,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 1,
+        "State Mutators": 1,
+        "Type Conversions": 73
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": {
+        "I/O & Config Routines": 1,
+        "Type Conversions": 15
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": {
+        "I/O & Config Routines": 4,
+        "Many-Argument Workhorses": 1,
+        "Type Conversions": 19
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 1,
+        "Type Conversions": 14
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": {
+        "I/O & Config Routines": 3,
+        "Type Conversions": 6
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": {
+        "Compute Cores": 2,
+        "Many-Argument Workhorses": 2,
+        "Type Conversions": 14
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1,
+        "Type Conversions": 8
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": {
+        "Many-Argument Workhorses": 1,
+        "Type Conversions": 6
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": {
+        "I/O & Config Routines": 3,
+        "Type Conversions": 6
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": {
+        "Generic / Templated Code": 2,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 2,
+        "Type Conversions": 3
+      }
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/LICENSE.txt": {},
+      "objective-c/godot_ios/device_metrics.mm": {
+        "I/O & Config Routines": 1
+      },
+      "objective-c/godot_ios/display_layer_ios.mm": {
+        "I/O & Config Routines": 8,
+        "Type Conversions": 3
+      },
+      "objective-c/godot_ios/display_server_ios.mm": {
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 1,
+        "Type Conversions": 1
+      },
+      "objective-c/godot_ios/godot_view_ios.mm": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1
+      },
+      "objective-c/godot_ios/main_ios.mm": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1
+      },
+      "objective-c/godot_ios/os_ios.mm": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 1,
+        "Type Conversions": 1
+      }
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_AppDelegate.m": {},
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 1,
+        "Type Conversions": 3
+      },
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_main.m": {
+        "Parameter Forwarders": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": {
+        "Compute Cores": 2,
+        "Parameter Forwarders": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Type Conversions": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLDelegate.m": {},
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": {
+        "Type Conversions": 2
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 3,
+        "Type Conversions": 13
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreterOptions.m": {
+        "Type Conversions": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": {
+        "Compute Cores": 1,
+        "Interface Declarations": 1,
+        "Type Conversions": 2
+      }
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": {
@@ -9387,6 +10915,46 @@
       },
       "pli/dsf_cics_admin/R001TK62.pli": {
         "I/O & Config Routines": 1
+      }
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/LICENSE.md": {},
+      "pli/dsf_pli_more/src_A0010301.pli": {
+        "Many-Argument Workhorses": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0011121.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0014155.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0015314.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0019056.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_GML_R001N522.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_GML_R001U821.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_R0011203.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_pli_more/src_R0014153.pli": {
+        "Many-Argument Workhorses": 1
+      },
+      "pli/dsf_pli_more/src_R0015308.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_pli_more/src_R0019934.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_pli_more/src_R001N802.pli": {
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 1
       }
     },
     "pli/zopeneditor_sample": {
@@ -11392,6 +12960,48 @@
       "rexx/PROVENANCE.md": {},
       "rexx/SOURCES.md": {}
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzabout.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": {
+        "Many-Argument Workhorses": 1
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 2,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzconf.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": {
+        "Compute Cores": 2,
+        "I/O & Config Routines": 2
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": {
+        "Compute Cores": 1
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": {},
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": {
+        "Compute Cores": 4,
+        "I/O & Config Routines": 1
+      }
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": {},
+      "rexx/genapp_rexx/base_exec_mac1.rexx": {}
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/COPYRIGHT": {},
       "rexx/hercules_390_hyperion/sample.rexx": {}
@@ -11498,6 +13108,42 @@
     "ruby": {
       "ruby/SOURCES.md": {}
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/LICENSE.txt": {},
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": {
+        "Defensive Guards": 5,
+        "Interface Declarations": 2,
+        "Stateful Encapsulated Methods": 2
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_cmd_casks.rb": {},
+      "ruby/homebrew_ruby/Library_Homebrew_extend_object_duplicable.rb": {
+        "Interface Declarations": 4
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": {
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 3
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": {
+        "Compute Cores": 1,
+        "Parameter Forwarders": 2
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": {
+        "Interface Declarations": 1
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_test_dev-cmd_which-update_spec.rb": {},
+      "ruby/homebrew_ruby/Library_Homebrew_test_rubocops_components_order_spec.rb": {},
+      "ruby/homebrew_ruby/Library_Homebrew_test_support_fixtures_cask_Casks_missing-name.rb": {},
+      "ruby/homebrew_ruby/Library_Homebrew_test_unpack_strategy_cvs_spec.rb": {},
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": {
+        "Compute Cores": 1,
+        "Parameter Forwarders": 5
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": {
+        "Compute Cores": 1,
+        "Defensive Guards": 2,
+        "Interface Declarations": 5
+      }
+    },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": {},
       "ruby/rails/Rakefile": {},
@@ -11546,6 +13192,60 @@
         "Callbacks & Closures": 4,
         "Interface Declarations": 4,
         "Parameter Forwarders": 1
+      }
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": {
+        "Defensive Guards": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": {
+        "I/O & Config Routines": 2,
+        "Parameter Forwarders": 7
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": {
+        "Callbacks & Closures": 2,
+        "Compute Cores": 4,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 6
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common.rb": {},
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_has_context.rb": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_prints_page.rb": {
+        "Callbacks & Closures": 1,
+        "Type Conversions": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": {
+        "Parameter Forwarders": 3
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 2
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": {
+        "Callbacks & Closures": 1,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 4
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_edge_features.rb": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": {
+        "Callbacks & Closures": 1,
+        "Interface Declarations": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": {
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 1
       }
     },
     "rust": {
@@ -11883,6 +13583,63 @@
     "scala": {
       "scala/SOURCES.md": {}
     },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": {
+        "Callbacks & Closures": 1,
+        "Generic / Templated Code": 2
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": {
+        "Compute Cores": 2,
+        "Generic / Templated Code": 5,
+        "Many-Argument Workhorses": 3,
+        "Type Conversions": 5
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": {
+        "Callbacks & Closures": 2,
+        "Type Conversions": 1
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": {
+        "Many-Argument Workhorses": 2
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": {},
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": {},
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": {
+        "Generic / Templated Code": 1
+      },
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": {
+        "Compute Cores": 1
+      },
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": {
+        "Callbacks & Closures": 1,
+        "Generic / Templated Code": 2
+      },
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": {},
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": {},
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": {}
+    },
+    "scala/gradle_scala": {
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": {
+        "Generic / Templated Code": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": {},
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": {
+        "Annotated & Test Methods": 1,
+        "Interface Declarations": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": {
+        "State Mutators": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_quickstart_kotlin_src_main_scala_org_gradle_sample_Named.scala": {},
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_scala3_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": {},
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zincDependency_kotlin_src_main_scala_Hello.scala": {},
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zinc_kotlin_src_main_scala_org_gradle_sample_Person.scala": {
+        "Interface Declarations": 1
+      },
+      "scala/gradle_scala/platforms_jvm_scala_src_integTest_resources_org_gradle_scala_compile_IncrementalScalaCompileIntegrationTest_recompilesSourceWhenPropertiesChange_src_main_scala_PersonImpl.scala": {
+        "State Mutators": 1
+      },
+      "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": {}
+    },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": {
         "Callbacks & Closures": 1,
@@ -12001,6 +13758,33 @@
         "I/O & Config Routines": 4,
         "Many-Argument Workhorses": 1
       }
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/LICENSE.txt": {},
+      "scheme/racket_scheme/pkgs_compiler-test_tests_compiler_embed_embed-me12-rd.ss": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      },
+      "scheme/racket_scheme/racket_src_ChezScheme_examples_macro.ss": {},
+      "scheme/racket_scheme/racket_src_ChezScheme_nanopass_nanopass_meta-parser.ss": {
+        "Callbacks & Closures": 2,
+        "I/O & Config Routines": 4,
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 1
+      },
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": {},
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": {},
+      "scheme/racket_scheme/racket_src_ChezScheme_s_target-fixnum.ss": {},
+      "scheme/racket_scheme/racket_src_cs_demo_expander.ss": {
+        "I/O & Config Routines": 1
+      },
+      "scheme/racket_scheme/racket_src_cs_main_eval-all.ss": {
+        "Callbacks & Closures": 1
+      },
+      "scheme/racket_scheme/racket_src_cs_rumble_check.ss": {
+        "Many-Argument Workhorses": 3
+      },
+      "scheme/racket_scheme/racket_src_cs_rumble_keyword.ss": {}
     },
     "shell": {
       "shell/SOURCES.md": {}
@@ -12681,6 +14465,104 @@
         "Encapsulated Accessors": 9
       }
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": {
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_utils_ERC1155Holder.sol": {
+        "Parameter Forwarders": 3
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC1363.sol": {
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 4
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC20Pausable.sol": {
+        "Encapsulated Accessors": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_IERC20Metadata.sol": {
+        "Interface Declarations": 3
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": {
+        "Encapsulated Accessors": 2,
+        "Parameter Forwarders": 8,
+        "Stateful Encapsulated Methods": 5
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Burnable.sol": {
+        "Type Conversions": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Royalty.sol": {
+        "Parameter Forwarders": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_IERC721Metadata.sol": {
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": {
+        "Encapsulated Accessors": 3,
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 2,
+        "Type Conversions": 1
+      }
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/LICENSE.txt": {},
+      "solidity/solady_utils/src_Milady.sol": {},
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": {
+        "Encapsulated Accessors": 4,
+        "Stateful Encapsulated Methods": 8
+      },
+      "solidity/solady_utils/src_auth_OwnableRoles.sol": {
+        "Defensive Guards": 5,
+        "Encapsulated Accessors": 3,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 6
+      },
+      "solidity/solady_utils/src_utils_Base58.sol": {
+        "Compute Cores": 1,
+        "Stateful Encapsulated Methods": 3
+      },
+      "solidity/solady_utils/src_utils_ECDSA.sol": {
+        "Encapsulated Accessors": 2,
+        "Stateful Encapsulated Methods": 13
+      },
+      "solidity/solady_utils/src_utils_Initializable.sol": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 3,
+        "I/O & Config Routines": 1,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 2,
+        "Type Conversions": 1
+      },
+      "solidity/solady_utils/src_utils_LibRLP.sol": {
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 11,
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 6
+      },
+      "solidity/solady_utils/src_utils_MetadataReaderLib.sol": {
+        "Encapsulated Accessors": 15,
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "solidity/solady_utils/src_utils_SafeCastLib.sol": {
+        "Encapsulated Accessors": 96
+      },
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": {
+        "Compute Cores": 2,
+        "Encapsulated Accessors": 11,
+        "Many-Argument Workhorses": 1,
+        "State Mutators": 2,
+        "Stateful Encapsulated Methods": 6
+      },
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": {
+        "I/O & Config Routines": 1,
+        "State Mutators": 1
+      }
+    },
     "sql": {
       "sql/SOURCES.md": {}
     },
@@ -12858,6 +14740,207 @@
         "Many-Argument Workhorses": 6,
         "Parameter Forwarders": 7,
         "Type Conversions": 1
+      }
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": {
+        "Interface Declarations": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": {
+        "Defensive Guards": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": {
+        "Defensive Guards": 5,
+        "Encapsulated Accessors": 1,
+        "Parameter Forwarders": 5
+      },
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": {
+        "Compute Cores": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_Terminal_ErrorView.swift": {},
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": {},
+      "swift/ghostty_macos/macos_Sources_Ghostty_GhosttyDelegate.swift": {},
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": {
+        "Interface Declarations": 2
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_Duration_Extension.swift": {},
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": {
+        "Parameter Forwarders": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": {
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": {
+        "Defensive Guards": 2
+      }
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/LICENSE.txt": {},
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": {
+        "Compute Cores": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": {
+        "Encapsulated Accessors": 3,
+        "Stateful Encapsulated Methods": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": {
+        "Compute Cores": 2,
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 8
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": {
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 8
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": {
+        "Defensive Guards": 3,
+        "Parameter Forwarders": 2
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": {
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 2,
+        "Stateful Encapsulated Methods": 6
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": {
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": {
+        "Defensive Guards": 1,
+        "Type Conversions": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": {
+        "Compute Cores": 2,
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 6
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": {
+        "Defensive Guards": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": {
+        "Defensive Guards": 1
+      }
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/LICENSE.txt": {},
+      "swift/swift_nio_core/Sources_NIOCore_ByteBuffer-conversions.swift": {
+        "Annotated & Test Methods": 3
+      },
+      "swift/swift_nio_core/Sources_NIOCore_FileRegion.swift": {
+        "Defensive Guards": 2,
+        "Interface Declarations": 1,
+        "Type Conversions": 1
+      },
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": {
+        "Annotated & Test Methods": 3,
+        "Compute Cores": 4,
+        "Defensive Guards": 6
+      },
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": {
+        "Callbacks & Closures": 5,
+        "Compute Cores": 3,
+        "Defensive Guards": 3,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 5,
+        "Many-Argument Workhorses": 1,
+        "Stateful Encapsulated Methods": 2
+      },
+      "swift/swift_nio_core/Sources_NIOFoundationCompat_Exports.swift": {},
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 1
+      },
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": {
+        "Encapsulated Accessors": 2,
+        "Generic / Templated Code": 1,
+        "Interface Declarations": 3,
+        "Many-Argument Workhorses": 1,
+        "Stateful Encapsulated Methods": 1
+      },
+      "swift/swift_nio_core/Sources_NIOPosix_NIOPosixSendableMetatype.swift": {},
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": {
+        "Stateful Encapsulated Methods": 1
+      },
+      "swift/swift_nio_core/Sources_NIOWebSocket_NIOWebSocketClientUpgrader.swift": {
+        "Annotated & Test Methods": 1,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 3,
+        "Parameter Forwarders": 4,
+        "Stateful Encapsulated Methods": 2
+      },
+      "swift/swift_nio_core/Sources_NIO_Exports.swift": {},
+      "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": {
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 7,
+        "Stateful Encapsulated Methods": 1
+      }
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": {
+        "Annotated & Test Methods": 3,
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 2,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 4,
+        "Parameter Forwarders": 3,
+        "Stateful Encapsulated Methods": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": {},
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": {
+        "Defensive Guards": 5,
+        "Many-Argument Workhorses": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": {
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 2,
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 3
+      },
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": {},
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": {
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": {
+        "Callbacks & Closures": 2,
+        "Generic / Templated Code": 6
+      },
+      "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": {
+        "Parameter Forwarders": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Utilities_AnyResponse.swift": {
+        "Generic / Templated Code": 1,
+        "Parameter Forwarders": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Utilities_OptionalType.swift": {
+        "Compute Cores": 1,
+        "Defensive Guards": 2,
+        "Generic / Templated Code": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": {
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 5
+      },
+      "swift/vapor_sources/Sources_Vapor__Deprecations.swift": {
+        "Annotated & Test Methods": 1
       }
     },
     "tabular": {
@@ -13500,6 +15583,89 @@
         "Compute Cores": 1,
         "I/O & Config Routines": 1,
         "State Mutators": 4,
+        "Stateful Encapsulated Methods": 1
+      }
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/COPYRIGHT": {},
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 2,
+        "State Mutators": 3,
+        "Stateful Encapsulated Methods": 1
+      },
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": {},
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": {
+        "I/O & Config Routines": 7,
+        "State Mutators": 10
+      },
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": {
+        "Interface Declarations": 1
+      },
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": {
+        "Compute Cores": 14,
+        "I/O & Config Routines": 11,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 1,
+        "State Mutators": 5
+      },
+      "yacc/freebsd_yacc_lex/sbin_hastd_token.l": {},
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": {
+        "Compute Cores": 15,
+        "I/O & Config Routines": 9,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 4,
+        "State Mutators": 4
+      },
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": {},
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": {},
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": {
+        "I/O & Config Routines": 12,
+        "State Mutators": 9,
+        "Stateful Encapsulated Methods": 1
+      },
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": {
+        "Compute Cores": 1,
+        "State Mutators": 1
+      },
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": {}
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/COPYING": {},
+      "yacc/gnucobol_cobc/cobc_pplex.l": {
+        "I/O & Config Routines": 2
+      },
+      "yacc/gnucobol_cobc/cobc_ppparse.y": {
+        "Compute Cores": 3,
+        "Generic / Templated Code": 1,
+        "I/O & Config Routines": 27,
+        "State Mutators": 23
+      },
+      "yacc/gnucobol_cobc/cobc_scanner.l": {
+        "I/O & Config Routines": 6
+      }
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": {
+        "Generic / Templated Code": 1
+      },
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": {
+        "Generic / Templated Code": 1
+      },
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": {
+        "Compute Cores": 19,
+        "I/O & Config Routines": 14,
+        "Parameter Forwarders": 1,
+        "State Mutators": 144
+      }
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/LICENSE.md": {},
+      "yacc/sqlite_lemon/ext_fts5_fts5parse.y": {
+        "Type Conversions": 1
+      },
+      "yacc/sqlite_lemon/test_lemon-test01.y": {
+        "State Mutators": 1,
         "Stateful Encapsulated Methods": 1
       }
     },

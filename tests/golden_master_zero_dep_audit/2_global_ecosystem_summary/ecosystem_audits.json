@@ -394,13 +394,13 @@
     },
     "import_policy_gate": {
       "imports_blacklisted": 0,
-      "imports_unknown": 10989,
+      "imports_unknown": 12558,
       "imports_whitelisted": 0,
       "threats_allowed": 3,
       "threats_found": 3
     },
     "xray": {
-      "anomalies_found": 69
+      "anomalies_found": 71
     }
   }
 }

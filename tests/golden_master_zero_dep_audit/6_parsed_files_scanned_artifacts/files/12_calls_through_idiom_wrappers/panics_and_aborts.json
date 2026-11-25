@@ -60,6 +60,20 @@
         "Wrapped Sites": 11
       }
     },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 5
+      },
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 1
+      },
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 6
+      }
+    },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": {
         "Literal Sites": 5,

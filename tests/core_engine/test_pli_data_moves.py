@@ -119,3 +119,30 @@ def test_a_decimal_literal_before_a_number_at_line_end_is_not_a_glued_sequence_f
     """#9214 guard: `3.00002950` ends in digits after a `.` but the `.` follows a digit, so it stays a literal."""
     src = "P: PROC;\n  X  =  3.00002950\n    + Y;       00002960\nEND P;\n"
     assert _sources_of(src, "X") == ["Y"]
+
+
+def test_a_function_declared_in_the_file_is_a_call_9230():
+    src = "\n".join(
+        [
+            " DCL F ENTRY(FIXED) RETURNS(FIXED);",
+            " DCL (G, H) ENTRY RETURNS(CHAR(4)), Z FIXED;",
+            " X = F(Y);",
+            " X2 = G(F(Y2)) + Z;",
+            " X3 = F();",
+            " X4 = U(V);",
+            " K: PROC(A) RETURNS(FIXED);",
+            " X5 = k(W);",
+        ]
+    )
+    assert _rows(src) == [
+        (3, "Y", "item", "X", False, False),
+        (4, "Y2", "item", "X2", False, False),
+        (4, "Z", "item", "X2", False, False),
+        (5, "F", "function", "X3", False, False),
+        (6, "U", "item", "X4", False, False),
+        (8, "W", "item", "X5", False, False),
+    ]
+
+
+def test_an_undeclared_name_keeps_the_data_item_convention_9230():
+    assert _rows(" DCL A(10) FIXED;\n X = A(I);") == [(2, "A", "item", "X", False, False)]

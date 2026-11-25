@@ -142,7 +142,7 @@ FAMILIES: tuple[Family, ...] = (
     Family(
         "struct_branch",
         "branch",
-        "decision points: if/elif arms, loops, conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3)",
+        "decision points: if/elif arms, loops (a comprehension's `for` included), conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3)",
         "branch",
     ),
     Family(
@@ -323,9 +323,11 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         ):  # not handlers or assert: branch contract corollary 1
             c.add("branch")
         elif isinstance(node, ast.BoolOp):
-            c.n["short_circuit"] += len(node.values) - 1  # boolean operators are short_circuit's (branch corollary 0, #8939)
+            c.n["short_circuit"] += (
+                len(node.values) - 1
+            )  # boolean operators are short_circuit's (branch corollary 0, #8939)
         elif isinstance(node, ast.comprehension):
-            c.n["branch"] += len(node.ifs)
+            c.n["branch"] += 1 + len(node.ifs)  # a comprehension's `for` is a loop, each `if` a filter
         if isinstance(node, ast.Lambda):
             c.add("closures", "lambda")
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):

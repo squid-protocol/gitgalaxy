@@ -1089,13 +1089,13 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
-      "cpp/NVDA/__init__.py": 2,
-      "cpp/NVDA/braille.py": 20,
+      "cpp/NVDA/__init__.py": 1,
+      "cpp/NVDA/braille.py": 8,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
       "cpp/NVDA/core.py": 1,
       "cpp/NVDA/ensureuv.ps1": 1,
-      "cpp/NVDA/espeak.py": 2,
+      "cpp/NVDA/espeak.py": 1,
       "cpp/NVDA/inProcess.cpp": 1,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 0,
@@ -1465,7 +1465,7 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0,
       "fortran/wrf/cleanCMake.sh": 0,
-      "fortran/wrf/configure_reader.py": 2,
+      "fortran/wrf/configure_reader.py": 1,
       "fortran/wrf/gen_be_wrapper.ksh": 0,
       "fortran/wrf/module_configure.F": 29,
       "fortran/wrf/module_domain.F": 3,
@@ -1476,7 +1476,7 @@
       "fortran/wrf/regtest_hwrf.csh": 12,
       "fortran/wrf/regtest_nmmnest.csh": 11,
       "fortran/wrf/run_convert_e2c.ksh": 0,
-      "fortran/wrf/sourcetree.py": 1,
+      "fortran/wrf/sourcetree.py": 0,
       "fortran/wrf/wrf_timeseries.F": 0
     },
     "fsharp": {
@@ -3114,14 +3114,14 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 18,
-      "python/airflow/s3.py": 5,
-      "python/airflow/scheduler_job_runner.py": 11
+      "python/airflow/dag.py": 6,
+      "python/airflow/s3.py": 2,
+      "python/airflow/scheduler_job_runner.py": 4
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 2,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 4,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
     },
@@ -3134,11 +3134,11 @@
       "python/cython/CodeGeneration.py": 1,
       "python/cython/LICENSE.txt": 0,
       "python/cython/MemoryView.pxd": 0,
-      "python/cython/MemoryView.pyx": 16,
-      "python/cython/Nodes.py": 41
+      "python/cython/MemoryView.pyx": 6,
+      "python/cython/Nodes.py": 29
     },
     "python/django_db_tests": {
-      "python/django_db_tests/test_iterator.py": 1,
+      "python/django_db_tests/test_iterator.py": 0,
       "python/django_db_tests/test_utils.py": 0
     },
     "python/fastapi": {
@@ -3153,7 +3153,7 @@
       "python/fastapi/fastapi/background.py": 0,
       "python/fastapi/fastapi/cli.py": 0,
       "python/fastapi/fastapi/concurrency.py": 0,
-      "python/fastapi/fastapi/datastructures.py": 3,
+      "python/fastapi/fastapi/datastructures.py": 0,
       "python/fastapi/fastapi/encoders.py": 0,
       "python/fastapi/fastapi/exception_handlers.py": 1,
       "python/fastapi/fastapi/exceptions.py": 0,
@@ -3191,7 +3191,7 @@
       "python/fastapi/tests/test_arbitrary_types.py": 0,
       "python/fastapi/tests/test_callable_endpoint.py": 0,
       "python/fastapi/tests/test_compat.py": 0,
-      "python/fastapi/tests/test_computed_fields.py": 1,
+      "python/fastapi/tests/test_computed_fields.py": 0,
       "python/fastapi/tests/test_custom_middleware_exception.py": 1,
       "python/fastapi/tests/test_custom_route_class.py": 3,
       "python/fastapi/tests/test_custom_schema_fields.py": 0,
@@ -3242,11 +3242,11 @@
       "python/fastapi/tests/test_include_route.py": 0,
       "python/fastapi/tests/test_include_router_defaults_overrides.py": 0,
       "python/fastapi/tests/test_infer_param_optionality.py": 0,
-      "python/fastapi/tests/test_inherited_custom_class.py": 4,
+      "python/fastapi/tests/test_inherited_custom_class.py": 2,
       "python/fastapi/tests/test_invalid_path_param.py": 0,
       "python/fastapi/tests/test_invalid_sequence_param.py": 0,
       "python/fastapi/tests/test_json_type.py": 0,
-      "python/fastapi/tests/test_jsonable_encoder.py": 4,
+      "python/fastapi/tests/test_jsonable_encoder.py": 3,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 1,
       "python/fastapi/tests/test_local_docs.py": 2,
       "python/fastapi/tests/test_multi_body_errors.py": 0,
@@ -3260,7 +3260,7 @@
       "python/fastapi/tests/test_openapi_query_parameter_extension.py": 0,
       "python/fastapi/tests/test_openapi_route_extensions.py": 0,
       "python/fastapi/tests/test_openapi_schema_type.py": 0,
-      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": 1,
+      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": 0,
       "python/fastapi/tests/test_openapi_servers.py": 0,
       "python/fastapi/tests/test_operations_signatures.py": 8,
       "python/fastapi/tests/test_optional_file_list.py": 0,
@@ -3275,7 +3275,7 @@
       "python/fastapi/tests/test_pydanticv2_dataclasses_uuid_stringified_annotations.py": 0,
       "python/fastapi/tests/test_query.py": 0,
       "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": 0,
-      "python/fastapi/tests/test_read_with_orm_mode.py": 1,
+      "python/fastapi/tests/test_read_with_orm_mode.py": 0,
       "python/fastapi/tests/test_regex_deprecated_body.py": 0,
       "python/fastapi/tests/test_regex_deprecated_params.py": 0,
       "python/fastapi/tests/test_repeated_cookie_headers.py": 0,
@@ -3391,7 +3391,7 @@
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 0,
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 0,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 5
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 0
     },
     "python/micropython_usb_tls": {
       "python/micropython_usb_tls/ssl_verify_callback.py": 0,
@@ -3403,18 +3403,18 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 1,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 87,
+      "python/numpy/core.py": 73,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
       "python/numpy/genapi.py": 0,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
-      "python/numpy/generate_umath.py": 1,
+      "python/numpy/generate_umath.py": 0,
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 11,
       "python/numpy/numpy_api.py": 0,
-      "python/numpy/symbolic.py": 3,
+      "python/numpy/symbolic.py": 1,
       "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 2
@@ -3445,10 +3445,10 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 9,
-      "python/twisted/http.py": 14,
+      "python/twisted/defer.py": 7,
+      "python/twisted/http.py": 6,
       "python/twisted/reflect.py": 13,
-      "python/twisted/transport.py": 3
+      "python/twisted/transport.py": 2
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

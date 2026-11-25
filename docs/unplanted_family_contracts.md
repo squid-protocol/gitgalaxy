@@ -56,7 +56,7 @@ those that carry a rule (the rest record `None`, a contract-level absence).
 | `reflection_metaprogramming` | c, cobol, db2_sql | `goto`, `EXEC SQL` / `EXEC CICS`, `GET DIAGNOSTICS` | no: control flow and embedded-SQL statements, not self-inspection |
 | `reflection_metaprogramming` | cpp, css, dart, dockerfile | `sizeof...` (a compile-time pack size), `calc(`, the word `reflect` in a string, `--mount=type=cache` | no |
 | `reflection_metaprogramming` | csharp, java, rust | `using ...Emit;` (a namespace import), a `ClassLoader` type name, `PhantomData` | no: a type or import, not a call that inspects or alters structure |
-| `reflection_metaprogramming` | python | `@property` / `@classmethod` (322 hits), a decorator (`decorators`) | no |
+| `reflection_metaprogramming` | python, embedded_python | `@property` / `@classmethod` / `@staticmethod` (322 python hits), a declaration decorator (`decorators`') | no -- fixed: the three decorators are dropped from both rules; `getattr`, `setattr`, dunders, `inspect.` and `@micropython.viper` stay (`test_python_strict.py`, `test_embedded_python_strict.py`) |
 | `reflection_metaprogramming` | agc_assembly | `INDEX` (an address-modifier instruction) | design question: indirect addressing, not self-inspection |
 | `llm_api` | javascript, typescript | `@anthropic-ai/tokenizer` import | no: reading 2 -- fixed: `JS_LLM_API` excludes that exact package name (`@anthropic-ai/sdk` and every other scope member still fire); `tests/extraction/languages/test_llm_api_anchor_4137.py` |
 | `llm_api` | 76 languages | rule is `None` | stated absence, listed below: no rule is written until a language's provider-client import form is measured on a corpus |

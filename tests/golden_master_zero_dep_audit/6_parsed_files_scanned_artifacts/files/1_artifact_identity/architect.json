@@ -3,6 +3,25 @@
     "abap": {
       "abap/SOURCES.md": "Unknown Architect"
     },
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_font.clas.testclasses.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_obsolete_func_wrap.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zif_excel_book_protection.intf.abap": "Unknown Architect",
+      "abap/abap2xlsx/src_zif_excel_sheet_printsettings.intf.abap": "Unknown Architect",
+      "abap/abap2xlsx/test_cl_excel_test.clas.abap": "Unknown Architect",
+      "abap/abap2xlsx/test_cl_excel_test.clas.testclasses.abap": "Unknown Architect"
+    },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": "Unknown Architect",
       "abap/abapGit/zabapgit.prog.abap": "Unknown Architect",
@@ -12,6 +31,30 @@
       "abap/abapGit/zcl_abapgit_objects.clas.abap": "Unknown Architect",
       "abap/abapGit/zcl_abapgit_persistence_db.clas.abap": "Unknown Architect",
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Unknown Architect"
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": "Unknown Architect",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": "Unknown Architect"
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff.clas.abap": "Unknown Architect",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": "Unknown Architect"
     },
     "ada": {
       "ada/PROVENANCE.md": "Unknown Architect",
@@ -88,6 +131,34 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": "Hartmuth Gutsche",
       "agc_assembly/apollo-11/WAITLIST.agc": "Ron Burkey "
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/INTER-BANK_COMMUNICATION.agc": "Ron Burkey",
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": "Onno Hommes ",
+      "agc_assembly/apollo-11_comanche055_cm/LICENSE.md": "Unknown Architect",
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": "Ron Burkey",
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": "Ron Burkey "
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": "Hartmuth Gutsche ",
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": "Unknown Architect",
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": "Hartmuth Gutsche ",
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": "Ron Burkey ",
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": "HARTMUTH GUTSCHE ",
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": "Ron Burkey "
+    },
     "apex": {
       "apex/SOURCES.md": "Unknown Architect"
     },
@@ -100,6 +171,20 @@
       "apex/apex-recipes/SOQLRecipes_Tests.cls": "Unknown Architect",
       "apex/apex-recipes/project-scratch-def.json": "Unknown Architect",
       "apex/apex-recipes/sfdx-project.json": "Unknown Architect"
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IDomainConstructor.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IObjects.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjectSelector.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjects.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IServiceFactory.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Objects.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_StringBuilder.cls": "Unknown Architect",
+      "apex/fflib_apex_common/sfdx-source_apex-common_test_classes_fflib_ObjectsTest.cls": "Unknown Architect"
     },
     "assembly": {
       "assembly/SOURCES.md": "Unknown Architect"
@@ -394,6 +479,29 @@
     "bms": {
       "bms/SOURCES.md": "Unknown Architect"
     },
+    "bms/carddemo_bms": {
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU01.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTLI.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTUP.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COACTUP.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COACTVW.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COADM01.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COBIL00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COCRDLI.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COCRDSL.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COCRDUP.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COMEN01.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_CORPT00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COSGN00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COTRN00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COTRN01.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COTRN02.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COUSR00.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COUSR01.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COUSR02.bms": "Unknown Architect",
+      "bms/carddemo_bms/app_bms_COUSR03.bms": "Unknown Architect"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Unknown Architect",
       "bms/cbsa/BNK1CAM.bms": "Unknown Architect",
@@ -405,6 +513,10 @@
       "bms/cbsa/BNK1TFM.bms": "Unknown Architect",
       "bms/cbsa/BNK1UAM.bms": "Unknown Architect",
       "bms/cbsa/PROVENANCE.md": "Unknown Architect"
+    },
+    "bms/dbb_mortgage_bms": {
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmlis.bms": "Unknown Architect",
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmort.bms": "Unknown Architect"
     },
     "bms/genapp": {
       "bms/genapp/ssmap.bms": "Unknown Architect"
@@ -1200,6 +1312,35 @@
     "csharp": {
       "csharp/SOURCES.md": "Unknown Architect"
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/LICENSE.txt": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": "Unknown Architect",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": "Unknown Architect"
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "Unknown Architect",
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "Unknown Architect"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "Unknown Architect",
       "csharp/roslyn/CSharpSyntaxTree.cs": "Unknown Architect",
@@ -1208,6 +1349,21 @@
       "csharp/roslyn/License.txt": "Unknown Architect",
       "csharp/roslyn/MethodCompiler.cs": "Unknown Architect",
       "csharp/roslyn/Workspace.cs": "Unknown Architect"
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/LICENSE.TXT": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": "Unknown Architect",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": "Unknown Architect"
     },
     "css": {
       "css/SOURCES.md": "Unknown Architect"
@@ -1263,6 +1419,34 @@
     "dart": {
       "dart/SOURCES.md": "Unknown Architect"
     },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_analysis_rule_analysis_rule.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_diagnostic_diagnostic.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_context_builder.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_error_null_safe_api_verifier.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": "Unknown Architect",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart": "Unknown Architect"
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_abstract_beats_arguments_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_class_modifiers_interface_interface_class_part_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_extension_methods_static_extension_import_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_identifier_built_in_identifier_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_invalid_returns_sync_invalid_return_00_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_mixin_legacy_illegal_constructor_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_nonfunction_type_aliases_generic_usage_null_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_regress_regress18713_legacy_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_setter_override_test.dart": "Unknown Architect",
+      "dart/dart_sdk_language_tests/tests_language_type_object_constant_type_literal_test.dart": "Unknown Architect"
+    },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": "Unknown Architect",
       "dart/flutter/events.dart": "Unknown Architect",
@@ -1274,6 +1458,14 @@
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": "Unknown Architect"
+    },
+    "db2_sql/carddemo_ddl": {
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_AUTHFRDS.ddl": "Unknown Architect",
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_XAUTHFRD.ddl": "Unknown Architect",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYCAT.ddl": "Unknown Architect",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYPE.ddl": "Unknown Architect",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYCAT.ddl": "Unknown Architect",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYPE.ddl": "Unknown Architect"
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Andres Gomez Casanova (AngocA)",
@@ -1462,6 +1654,34 @@
     "fortran": {
       "fortran/SOURCES.md": "Unknown Architect"
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_auto_with_nondefault_main_app_non_default_name.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_features_with_dependency_app_main.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_hello_world_app_main.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_preprocess_per_dependency_app_main.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_submodule_tree_shake_src_parent_unused.f90": "Unknown Architect",
+      "fortran/fpm_fortran/example_packages_with_examples_demo_prog.f90": "Unknown Architect",
+      "fortran/fpm_fortran/src_fpm_environment.f90": "Unknown Architect",
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": "Unknown Architect"
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/example_ansi_example_ansi_color.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_bitsets_example_bitsets_read_bitset.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_hashmaps_example_hashmaps_fnv_1_hasher.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_linalg_example_blas_gemv.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_linalg_example_is_symmetric.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_linalg_example_state1.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_quadrature_example_simps_weights.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_specialmatrices_example_specialmatrices_dp_spmv.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_string_type_example_constructor_logical.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_stringlist_type_example_stringlist_type_constructor.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/example_system_example_make_directory.f90": "Unknown Architect",
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": "Unknown Architect"
+    },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": "Unknown Architect",
       "fortran/wrf/cleanCMake.sh": "Unknown Architect",
@@ -1478,6 +1698,19 @@
       "fortran/wrf/run_convert_e2c.ksh": "Sujata Pattanayak,   CAS, IIT Delhi, India",
       "fortran/wrf/sourcetree.py": "Unknown Architect",
       "fortran/wrf/wrf_timeseries.F": "Unknown Architect"
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/LICENSE.txt": "Unknown Architect",
+      "fortran/wrf_physics/phys_ccpp_kind_types.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_cam_mp_modal_aero_initialize_data_phys.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": "William.Gustafson@pnl.gov, Nov. 2009",
+      "fortran/wrf_physics/phys_module_diag_pld.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": "Unknown Architect",
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": "Unknown Architect"
     },
     "fsharp": {
       "fsharp/SOURCES.md": "Unknown Architect"
@@ -1890,6 +2123,20 @@
     "haskell": {
       "haskell/SOURCES.md": "Unknown Architect"
     },
+    "haskell/aeson_core": {
+      "haskell/aeson_core/benchmarks_bench_Auto_G_BigRecord.hs": "Unknown Architect",
+      "haskell/aeson_core/benchmarks_bench_Compare_BufferBuilder.hs": "Unknown Architect",
+      "haskell/aeson_core/benchmarks_bench_ReadFile.hs": "Unknown Architect",
+      "haskell/aeson_core/examples_src_Generic.hs": "Unknown Architect",
+      "haskell/aeson_core/src_Data_Aeson_Decoding.hs": "Unknown Architect",
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString-2.hs": "Unknown Architect",
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString.hs": "Unknown Architect",
+      "haskell/aeson_core/src_Data_Aeson_Parser_Time.hs": "Unknown Architect",
+      "haskell/aeson_core/tests_DataFamilies_Instances.hs": "Unknown Architect",
+      "haskell/aeson_core/tests_PropUtils.hs": "Unknown Architect",
+      "haskell/aeson_core/tests_Regression_Issue1198.hs": "Unknown Architect",
+      "haskell/aeson_core/tests_UnitTests_Hashable.hs": "Unknown Architect"
+    },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": "Unknown Architect",
       "haskell/pandoc/App.hs": "John MacFarlane",
@@ -1902,6 +2149,33 @@
       "haskell/pandoc/Pandoc.hs": "John MacFarlane",
       "haskell/pandoc/Parsing.hs": "John MacFarlane",
       "haskell/pandoc/Shared.hs": "John MacFarlane"
+    },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/COPYING.md": "Unknown Architect",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_AnnotatedTable.hs": "Christian Despres",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs": "John MacFarlane",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DocBook.hs": "John MacFarlane",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DokuWiki.hs": "Clare Macrae",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": "John MacFarlane",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": "Albert Krewinkel",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": "John MacFarlane",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Markdown_Table.hs": "John MacFarlane",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": "Alexander Krotov",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": "Albert Krewinkel"
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/Main.hs": "sjanssen@cse.unl.edu",
+      "haskell/xmonad_core/src_XMonad.hs": "Don Stewart",
+      "haskell/xmonad_core/src_XMonad_Core.hs": "spencerjanssen@gmail.com",
+      "haskell/xmonad_core/src_XMonad_Main.hs": "spencerjanssen@gmail.com",
+      "haskell/xmonad_core/src_XMonad_Operations.hs": "dons@cse.unsw.edu.au",
+      "haskell/xmonad_core/tests_Instances.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_Delete.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_Floating.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_GreedyView.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_Layout_Full.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_Screen.hs": "Unknown Architect",
+      "haskell/xmonad_core/tests_Properties_Stack.hs": "Unknown Architect"
     },
     "hcl": {
       "hcl/SOURCES.md": "Unknown Architect"
@@ -1941,6 +2215,10 @@
     "hlasm": {
       "hlasm/PROVENANCE.md": "Unknown Architect",
       "hlasm/SOURCES.md": "Unknown Architect"
+    },
+    "hlasm/carddemo_hlasm": {
+      "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": "Unknown Architect",
+      "hlasm/carddemo_hlasm/app_asm_MVSWAIT.asm": "Unknown Architect"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Unknown Architect",
@@ -2407,6 +2685,42 @@
       "kotlin/okhttp/OkHttp.kt": "Unknown Architect",
       "kotlin/okhttp/build.gradle.kts": "Unknown Architect"
     },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/LICENSE.txt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_DeserializationStrategyConverter.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Factory.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_SerializationStrategyConverter.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": "Unknown Architect",
+      "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": "Unknown Architect"
+    },
+    "kotlin/spring_boot_kotlin": {
+      "kotlin/spring_boot_kotlin/LICENSE.txt": "Unknown Architect",
+      "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": "Unknown Architect",
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": "Unknown Architect",
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": "Unknown Architect",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": "Sebastien Deleuze",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": "Sebastien Deleuze",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": "Stephane Nicoll",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": "Madhura Bhave",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": "Andy Wilkinson",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": "Stephane Nicoll",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": "Madhura Bhave",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": "Unknown Architect",
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": "Beom Su",
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": "Beom Su",
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": "Dmitry Sulman"
+    },
     "livecode": {
       "livecode/SOURCES.md": "Unknown Architect"
     },
@@ -2657,12 +2971,61 @@
       "m4/gnucobol/COPYING": "Unknown Architect",
       "m4/gnucobol/configure.ac": "Unknown Architect"
     },
+    "m4/gnupg_m4": {
+      "m4/gnupg_m4/COPYING": "Unknown Architect",
+      "m4/gnupg_m4/gpg-error.m4": "Unknown Architect",
+      "m4/gnupg_m4/ksba.m4": "Unknown Architect",
+      "m4/gnupg_m4/ldap.m4": "Unknown Architect",
+      "m4/gnupg_m4/libassuan.m4": "Unknown Architect",
+      "m4/gnupg_m4/libgcrypt.m4": "Unknown Architect",
+      "m4/gnupg_m4/npth.m4": "Unknown Architect",
+      "m4/gnupg_m4/ntbtls.m4": "Unknown Architect",
+      "m4/gnupg_m4/readline.m4": "Unknown Architect",
+      "m4/gnupg_m4/socklen.m4": "Unknown Architect"
+    },
+    "m4/libffi_racket": {
+      "m4/libffi_racket/acinclude.m4": "Unknown Architect",
+      "m4/libffi_racket/configure.ac": "Unknown Architect"
+    },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_add_flags.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_attribute_syntax.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_c_typeof.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_cross_compile.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_csym.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_endian.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_flags.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_func.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_func_attribute.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_have_func.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_flagvar.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_foreach.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_libext.m4": "Unknown Architect",
+      "m4/nasm_autoconf_macros/configure.ac": "Unknown Architect"
+    },
     "makefile": {
       "makefile/SOURCES.md": "Unknown Architect"
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/ctl_BUILD.mk": "Unknown Architect",
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": "Unknown Architect",
+      "makefile/cosmopolitan_build_mk/net_BUILD.mk": "Unknown Architect",
+      "makefile/cosmopolitan_build_mk/test_BUILD.mk": "Unknown Architect",
+      "makefile/cosmopolitan_build_mk/third_party_BUILD.mk": "Unknown Architect",
+      "makefile/cosmopolitan_build_mk/tool_BUILD.mk": "Unknown Architect"
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": "Unknown Architect",
       "makefile/freebsd/Makefile": "Unknown Architect"
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/docs_Makefile": "Unknown Architect",
+      "makefile/micropython_make/extmod_extmod.mk": "Unknown Architect",
+      "makefile/micropython_make/py_dynruntime.mk": "Unknown Architect",
+      "makefile/micropython_make/py_mkenv.mk": "Unknown Architect",
+      "makefile/micropython_make/py_mkrules.mk": "Unknown Architect",
+      "makefile/micropython_make/py_py.mk": "Unknown Architect"
     },
     "markdown": {
       "markdown/SOURCES.md": "Unknown Architect"
@@ -2685,6 +3048,34 @@
       "matlab/eeglab/pop_loadset.m": "Arnaud Delorme, CNL / Salk Institute, 2001; SCCN/INC/UCSD, 2002",
       "matlab/eeglab/runica.m": "Scott Makeig with contributions from Tony Bell, Te-Won Lee",
       "matlab/eeglab/supergui.m": "Arnaud Delorme, CNL / Salk Institute, La Jolla, 2001"
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/COPYING": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_analysispipeline.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_annotate.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_anonymizedata.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appenddata.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendfreq.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendlayout.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendsens.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendsource.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendspike.m": "Unknown Architect",
+      "matlab/fieldtrip_core/ft_appendtimelock.m": "Unknown Architect"
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/COPYING": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": "Unknown Architect",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": "Unknown Architect"
     },
     "mlir": {
       "mlir/SOURCES.md": "Unknown Architect"
@@ -2735,6 +3126,15 @@
     "nix": {
       "nix/SOURCES.md": "Unknown Architect"
     },
+    "nix/angular_nix": {
+      "nix/angular_nix/adev_src_content_tutorials_deferrable-views_common_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_first-app_common_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_homepage_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_learn-angular_common_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_playground_common_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_signal-forms_common_idx_dev.nix": "Unknown Architect",
+      "nix/angular_nix/adev_src_content_tutorials_signals_common_idx_dev.nix": "Unknown Architect"
+    },
     "nix/bun": {
       "nix/bun/LICENSE.md": "Unknown Architect",
       "nix/bun/flake.nix": "Unknown Architect",
@@ -2748,6 +3148,44 @@
     },
     "objective-c": {
       "objective-c/SOURCES.md": "Unknown Architect"
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": "Unknown Architect",
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": "Unknown Architect",
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": "Unknown Architect",
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": "Unknown Architect",
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": "Unknown Architect",
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": "Unknown Architect",
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": "Unknown Architect"
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/LICENSE.txt": "Unknown Architect",
+      "objective-c/godot_ios/device_metrics.mm": "Unknown Architect",
+      "objective-c/godot_ios/display_layer_ios.mm": "Unknown Architect",
+      "objective-c/godot_ios/display_server_ios.mm": "Unknown Architect",
+      "objective-c/godot_ios/godot_view_ios.mm": "Unknown Architect",
+      "objective-c/godot_ios/main_ios.mm": "Unknown Architect",
+      "objective-c/godot_ios/os_ios.mm": "Unknown Architect"
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_AppDelegate.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_main.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLDelegate.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreterOptions.m": "Unknown Architect",
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": "Unknown Architect"
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "Unknown Architect",
@@ -2925,6 +3363,21 @@
       "pli/dsf_cics_admin/R0010426.pli": "Unknown Architect",
       "pli/dsf_cics_admin/R0010427.pli": "Unknown Architect",
       "pli/dsf_cics_admin/R001TK62.pli": "Unknown Architect"
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/LICENSE.md": "Unknown Architect",
+      "pli/dsf_pli_more/src_A0010301.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R0011121.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R0014155.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R0015314.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R0019056.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R001N522.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_GML_R001U821.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_R0011203.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_R0014153.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_R0015308.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_R0019934.pli": "Unknown Architect",
+      "pli/dsf_pli_more/src_R001N802.pli": "Unknown Architect"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "Unknown Architect",
@@ -3501,6 +3954,32 @@
       "rexx/PROVENANCE.md": "Unknown Architect",
       "rexx/SOURCES.md": "Unknown Architect"
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzabout.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzconf.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": "Unknown Architect",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": "Unknown Architect"
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": "Unknown Architect",
+      "rexx/genapp_rexx/base_exec_mac1.rexx": "Unknown Architect"
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/COPYRIGHT": "Unknown Architect",
       "rexx/hercules_390_hyperion/sample.rexx": "Unknown Architect"
@@ -3538,6 +4017,21 @@
     "ruby": {
       "ruby/SOURCES.md": "Unknown Architect"
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/LICENSE.txt": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_cmd_casks.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_extend_object_duplicable.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_test_dev-cmd_which-update_spec.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_test_rubocops_components_order_spec.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_test_support_fixtures_cask_Casks_missing-name.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_test_unpack_strategy_cvs_spec.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": "Unknown Architect",
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": "Unknown Architect"
+    },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": "Unknown Architect",
       "ruby/rails/Rakefile": "Unknown Architect",
@@ -3551,6 +4045,20 @@
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": "Unknown Architect",
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Unknown Architect"
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_has_context.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_prints_page.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_edge_features.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": "Unknown Architect",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": "Unknown Architect"
     },
     "rust": {
       "rust/SOURCES.md": "Unknown Architect"
@@ -3630,6 +4138,32 @@
     "scala": {
       "scala/SOURCES.md": "Unknown Architect"
     },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": "Unknown Architect",
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": "Unknown Architect",
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": "Unknown Architect",
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": "Unknown Architect",
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": "Unknown Architect",
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": "Unknown Architect",
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": "Unknown Architect"
+    },
+    "scala/gradle_scala": {
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_quickstart_kotlin_src_main_scala_org_gradle_sample_Named.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_scala3_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zincDependency_kotlin_src_main_scala_Hello.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zinc_kotlin_src_main_scala_org_gradle_sample_Person.scala": "Unknown Architect",
+      "scala/gradle_scala/platforms_jvm_scala_src_integTest_resources_org_gradle_scala_compile_IncrementalScalaCompileIntegrationTest_recompilesSourceWhenPropertiesChange_src_main_scala_PersonImpl.scala": "Unknown Architect",
+      "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": "Unknown Architect"
+    },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": "Unknown Architect",
       "scala/kafka/KafkaApis.scala": "Unknown Architect",
@@ -3650,6 +4184,19 @@
       "scheme/racket/io.ss": "Unknown Architect",
       "scheme/racket/schemify.rkt": "Unknown Architect",
       "scheme/racket/thread.rkt": "Unknown Architect"
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/LICENSE.txt": "Unknown Architect",
+      "scheme/racket_scheme/pkgs_compiler-test_tests_compiler_embed_embed-me12-rd.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_ChezScheme_examples_macro.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_ChezScheme_nanopass_nanopass_meta-parser.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_target-fixnum.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_cs_demo_expander.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_cs_main_eval-all.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_cs_rumble_check.ss": "Unknown Architect",
+      "scheme/racket_scheme/racket_src_cs_rumble_keyword.ss": "Unknown Architect"
     },
     "shell": {
       "shell/SOURCES.md": "Unknown Architect"
@@ -3964,6 +4511,32 @@
       "solidity/openzeppelin/ReentrancyGuard.sol": "Unknown Architect",
       "solidity/openzeppelin/StorageSlot.sol": "Unknown Architect"
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_utils_ERC1155Holder.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC1363.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC20Pausable.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_IERC20Metadata.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Burnable.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Royalty.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_IERC721Metadata.sol": "Unknown Architect",
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": "Unknown Architect"
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/LICENSE.txt": "Unknown Architect",
+      "solidity/solady_utils/src_Milady.sol": "Unknown Architect",
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/accounts/LibEIP7702.sol)",
+      "solidity/solady_utils/src_auth_OwnableRoles.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)",
+      "solidity/solady_utils/src_utils_Base58.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/Base58.sol)",
+      "solidity/solady_utils/src_utils_ECDSA.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/ECDSA.sol)",
+      "solidity/solady_utils/src_utils_Initializable.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/Initializable.sol)",
+      "solidity/solady_utils/src_utils_LibRLP.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/LibRLP.sol)",
+      "solidity/solady_utils/src_utils_MetadataReaderLib.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/MetadataReaderLib.sol)",
+      "solidity/solady_utils/src_utils_SafeCastLib.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/SafeCastLib.sol)",
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/LibRLP.sol)",
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": "Solady (https://github.com/vectorized/solady/blob/main/src/utils/ext/zksync/ERC1967Proxy.sol)"
+    },
     "sql": {
       "sql/SOURCES.md": "Unknown Architect"
     },
@@ -4102,6 +4675,64 @@
       "swift/alamofire/Request.swift": "Unknown Architect",
       "swift/alamofire/Response.swift": "Unknown Architect",
       "swift/alamofire/Session.swift": "Unknown Architect"
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Features_Terminal_ErrorView.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Ghostty_GhosttyDelegate.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_Duration_Extension.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": "Unknown Architect",
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": "Unknown Architect"
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/LICENSE.txt": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": "Unknown Architect",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": "Unknown Architect"
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/LICENSE.txt": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOCore_ByteBuffer-conversions.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOCore_FileRegion.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOFoundationCompat_Exports.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOPosix_NIOPosixSendableMetatype.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIOWebSocket_NIOWebSocketClientUpgrader.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources_NIO_Exports.swift": "Unknown Architect",
+      "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": "Unknown Architect"
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Utilities_AnyResponse.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Utilities_OptionalType.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": "Unknown Architect",
+      "swift/vapor_sources/Sources_Vapor__Deprecations.swift": "Unknown Architect"
     },
     "tabular": {
       "tabular/SOURCES.md": "Unknown Architect"
@@ -4326,6 +4957,37 @@
       "yacc/freebsd/COPYRIGHT": "Unknown Architect",
       "yacc/freebsd/config.y": "Unknown Architect",
       "yacc/freebsd/jailparse.y": "Unknown Architect"
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/COPYRIGHT": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_hastd_token.l": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": "Unknown Architect",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": "Unknown Architect"
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/COPYING": "Unknown Architect",
+      "yacc/gnucobol_cobc/cobc_pplex.l": "Unknown Architect",
+      "yacc/gnucobol_cobc/cobc_ppparse.y": "Unknown Architect",
+      "yacc/gnucobol_cobc/cobc_scanner.l": "Unknown Architect"
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": "Unknown Architect",
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": "Unknown Architect",
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": "Unknown Architect"
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/LICENSE.md": "Unknown Architect",
+      "yacc/sqlite_lemon/ext_fts5_fts5parse.y": "Unknown Architect",
+      "yacc/sqlite_lemon/test_lemon-test01.y": "Unknown Architect"
     },
     "yaml": {
       "yaml/SOURCES.md": "Unknown Architect"

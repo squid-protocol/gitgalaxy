@@ -43,18 +43,18 @@
     "churn": {
       "highest": [
         {
-          "name": "zabapgit.prog.abap",
-          "path": "abap/abapGit/zabapgit.prog.abap",
+          "name": "src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
           "value": 0.0
         },
         {
-          "name": "zcl_abapgit_ajson.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "name": "src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
           "value": 0.0
         },
         {
-          "name": "zcl_abapgit_git_porcelain.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "name": "src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
           "value": 0.0
         }
       ],
@@ -79,19 +79,19 @@
     "cognitive_load": {
       "highest": [
         {
+          "name": "tests_language_control_flow_collections_for_await_test.dart",
+          "path": "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart",
+          "value": 100.0
+        },
+        {
+          "name": "phys_module_firebrand_spotting_mpi.F",
+          "path": "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F",
+          "value": 100.0
+        },
+        {
           "name": "library.tcl",
           "path": "tcl/macports_port_api/library.tcl",
           "value": 99.9997
-        },
-        {
-          "name": "coroutine.lua",
-          "path": "lua/cosmopolitan/coroutine.lua",
-          "value": 99.9927
-        },
-        {
-          "name": "agent_test.exs",
-          "path": "elixir/elixir_tests/agent_test.exs",
-          "value": 99.9883
         }
       ],
       "lowest": [
@@ -161,9 +161,9 @@
           "value": 99.7527
         },
         {
-          "name": "TEST6.CBL",
-          "path": "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL",
-          "value": 91.6827
+          "name": "racket_src_ChezScheme_examples_macro.ss",
+          "path": "scheme/racket_scheme/racket_src_ChezScheme_examples_macro.ss",
+          "value": 98.2014
         }
       ],
       "lowest": [
@@ -187,18 +187,18 @@
     "documentation": {
       "highest": [
         {
-          "name": "zcl_abapgit_ajson.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "name": "src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
           "value": 100.0
         },
         {
-          "name": "zcl_abapgit_git_porcelain.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "name": "src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
           "value": 100.0
         },
         {
-          "name": "zcl_abapgit_http_client.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_http_client.clas.abap",
+          "name": "src_zcl_excel.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel.clas.abap",
           "value": 100.0
         }
       ],
@@ -250,8 +250,8 @@
           "value": 0.0
         },
         {
-          "name": "Package.swift",
-          "path": "swift/alamofire/Package.swift",
+          "name": "Sources_Vapor__Deprecations.swift",
+          "path": "swift/vapor_sources/Sources_Vapor__Deprecations.swift",
           "value": 0.0
         }
       ]
@@ -295,18 +295,18 @@
     "spec_match": {
       "highest": [
         {
-          "name": "zabapgit.prog.abap",
-          "path": "abap/abapGit/zabapgit.prog.abap",
+          "name": "src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
           "value": 0.0
         },
         {
-          "name": "zcl_abapgit_ajson.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "name": "src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
           "value": 0.0
         },
         {
-          "name": "zcl_abapgit_git_porcelain.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "name": "src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
           "value": 0.0
         }
       ],
@@ -331,18 +331,18 @@
     "stability": {
       "highest": [
         {
-          "name": "zabapgit.prog.abap",
-          "path": "abap/abapGit/zabapgit.prog.abap",
+          "name": "src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
           "value": 50.0
         },
         {
-          "name": "zcl_abapgit_ajson.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "name": "src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
           "value": 50.0
         },
         {
-          "name": "zcl_abapgit_git_porcelain.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "name": "src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap",
           "value": 50.0
         }
       ],
@@ -367,18 +367,18 @@
     "state_flux": {
       "highest": [
         {
-          "name": "EXECUTIVE.agc",
-          "path": "agc_assembly/apollo-11/EXECUTIVE.agc",
+          "name": "src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
+          "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap",
           "value": 100.0
         },
         {
-          "name": "INTERPRETER.agc",
-          "path": "agc_assembly/apollo-11/INTERPRETER.agc",
+          "name": "src_zcl_excel_graph_line.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap",
           "value": 100.0
         },
         {
-          "name": "loader.c",
-          "path": "assembly/cosmopolitan/loader.c",
+          "name": "src_zcl_excel_legacy_palette.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap",
           "value": 100.0
         }
       ],
@@ -439,18 +439,18 @@
     "verification": {
       "highest": [
         {
-          "name": "zcl_abapgit_ajson.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "name": "src_zcl_excel.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel.clas.abap",
           "value": 80.0
         },
         {
-          "name": "zcl_abapgit_git_porcelain.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "name": "src_zcl_excel_graph_line.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap",
           "value": 80.0
         },
         {
-          "name": "zcl_abapgit_objects.clas.abap",
-          "path": "abap/abapGit/zcl_abapgit_objects.clas.abap",
+          "name": "src_zcl_excel_reader_huge_file.clas.abap",
+          "path": "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap",
           "value": 80.0
         }
       ],
@@ -466,8 +466,8 @@
           "value": 0.0
         },
         {
-          "name": "lib.rs",
-          "path": "rust/tokio/lib.rs",
+          "name": "platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala",
+          "path": "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala",
           "value": 0.0
         }
       ]

@@ -4,29 +4,29 @@
     "summary"
   ],
   "value": {
-    "Percent_Visible": 90.5,
+    "Percent_Visible": 90.7,
     "dominant_language": "typescript",
     "file_composition_distribution": {
-      "Callbacks & Closures Files": 42,
-      "Compute Cores Files": 85,
-      "Data / Markup / Trivial": 734,
-      "Declarative / Non-Code": 757,
-      "Encapsulated Accessors Files": 78,
-      "Generic / Templated Code Files": 80,
-      "Interface Declarations Files": 436,
-      "Large Core Modules": 383,
-      "Large Core Modules (2)": 325,
-      "Large Core Modules (3)": 369,
-      "Many-Argument Workhorses Files": 84,
-      "Parameter Forwarders Files": 180,
-      "State Mutators Files": 89,
-      "Type Conversions Files": 16
+      "Callbacks & Closures Files": 52,
+      "Compute Cores Files": 102,
+      "Data / Markup / Trivial": 810,
+      "Declarative / Non-Code": 838,
+      "Encapsulated Accessors Files": 97,
+      "Generic / Templated Code Files": 106,
+      "Interface Declarations Files": 462,
+      "Large Core Modules": 469,
+      "Large Core Modules (2)": 374,
+      "Large Core Modules (3)": 412,
+      "Many-Argument Workhorses Files": 120,
+      "Parameter Forwarders Files": 210,
+      "State Mutators Files": 126,
+      "Type Conversions Files": 38
     },
     "repo_composition_archetype": "Unvalidated",
     "repo_composition_z": 0.0,
-    "total_files": 4042,
-    "total_loc": 1108433,
-    "verified_files": 3658,
+    "total_files": 4650,
+    "total_loc": 1193775,
+    "verified_files": 4216,
     "volatility_index": 0.0
   }
 }

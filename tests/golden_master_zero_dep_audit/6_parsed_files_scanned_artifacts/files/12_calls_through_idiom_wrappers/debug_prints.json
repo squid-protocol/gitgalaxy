@@ -62,6 +62,20 @@
         "Wrapped Sites": 12
       }
     },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 5
+      },
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 1
+      },
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": {
+        "Literal Sites": 1,
+        "Wrapped Sites": 14
+      }
+    },
     "go/core": {
       "go/core/proc.go": {
         "Literal Sites": 60,
@@ -106,6 +120,24 @@
       "perl/exiftool/exiftool": {
         "Literal Sites": 165,
         "Wrapped Sites": 1
+      }
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 2
+      }
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": {
+        "Literal Sites": 5,
+        "Wrapped Sites": 1
+      }
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/test_lemon-test01.y": {
+        "Literal Sites": 4,
+        "Wrapped Sites": 4
       }
     }
   },

@@ -18,23 +18,23 @@
     {
       "Examples": [
         "ADDAMT (jcl/cobol-programming-course/ADDAMT.jcl:12)",
+        "ATK_TILGANG_KONTROLL (pli/dsf_pli_more/src_R0011203.pli:118)",
         "C$PARAMSIZE (cobol/gnucobol/CBL_OC_DUMP.cob:161)",
         "CBL0001 (jcl/cobol-programming-course/CBL0001J.jcl:12)",
-        "CBL0001 (jcl/cobol-programming-course/CBL0003J.jcl:12)",
-        "CBL0002 (jcl/cobol-programming-course/CBL0002J.jcl:12)"
+        "CBL0001 (jcl/cobol-programming-course/CBL0003J.jcl:12)"
       ],
-      "Gap Count": 197,
+      "Gap Count": 212,
       "Input": "application programs (source or load-module list)"
     },
     {
       "Examples": [
         "BNK1CCM/BNK1CCM (cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl:236)",
-        "COACTUP/CACTUPA (cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl:1048)",
-        "COACTUP/CACTUPA (cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl:3602)",
-        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:583)",
-        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:611)"
+        "S001013/S001012 (pli/dsf_cics_admin/R0010301.pli:535)",
+        "S001013/S001012 (pli/dsf_pli_more/src_A0010301.pli:411)",
+        "S001013/S001012 (pli/dsf_pli_more/src_A0010301.pli:472)",
+        "S001013/S001013 (pli/dsf_cics_admin/R0010301.pli:192)"
       ],
-      "Gap Count": 85,
+      "Gap Count": 66,
       "Input": "BMS map sources"
     },
     {
@@ -56,7 +56,7 @@
         "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl",
         "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl"
       ],
-      "Gap Count": 15,
+      "Gap Count": 16,
       "Input": "CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it"
     },
     {

@@ -1,12 +1,12 @@
 {
-  "args_comparable": 23,
-  "args_exact_match": 22,
+  "args_comparable": 89,
+  "args_exact_match": 76,
   "corpus_path": "language-crucible/data/matlab",
   "extra_classes": 0,
   "extra_functions": 0,
-  "files_scanned": 6,
-  "found_classes": 0,
-  "found_functions": 23,
-  "real_classes": 0,
-  "real_functions": 23
+  "files_scanned": 28,
+  "found_classes": 1,
+  "found_functions": 89,
+  "real_classes": 1,
+  "real_functions": 89
 }

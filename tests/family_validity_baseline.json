@@ -1244,11 +1244,11 @@
       "comprehensions": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 177,
+        "n_family": 175,
         "n_oracle": 198,
         "pinned": true,
         "precision": 0.96,
-        "recall": 0.859,
+        "recall": 0.848,
         "status": "ok"
       },
       "concurrency": {

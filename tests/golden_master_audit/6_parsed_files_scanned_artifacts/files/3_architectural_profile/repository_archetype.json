@@ -4679,7 +4679,7 @@
     "swift/ghostty_macos": {
       "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": "file_cluster_0",
       "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": "file_cluster_9",
-      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": "file_cluster_15",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": "file_cluster_10",
       "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": "file_cluster_15",
       "swift/ghostty_macos/macos_Sources_Features_Terminal_ErrorView.swift": "file_cluster_0",
       "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": "file_cluster_0",
@@ -4721,11 +4721,11 @@
       "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": "file_cluster_11"
     },
     "swift/vapor_sources": {
-      "swift/vapor_sources/Sources_Vapor_Application.swift": "file_cluster_0",
+      "swift/vapor_sources/Sources_Vapor_Application.swift": "file_cluster_10",
       "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": "file_cluster_2",
-      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": "file_cluster_13",
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": "file_cluster_10",
       "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": "file_cluster_4",
-      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "file_cluster_2",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "file_cluster_10",
       "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": "file_cluster_10",
       "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": "file_cluster_0",
       "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": "file_cluster_15",

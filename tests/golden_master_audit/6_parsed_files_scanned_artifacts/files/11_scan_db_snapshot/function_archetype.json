@@ -54627,10 +54627,10 @@
         "stableID@239": "Defensive Guards",
         "stableID@252": "Parameter Forwarders",
         "stableID@257": "Parameter Forwarders",
-        "tabIndex@112": "Parameter Forwarders",
+        "tabIndex@112": "Callbacks & Closures",
         "tabIsSelected@118": "Parameter Forwarders",
         "valueInTabs@82": "Defensive Guards",
-        "valueInTerminals@101": "Defensive Guards"
+        "valueInTerminals@101": "Callbacks & Closures"
       },
       "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": {
         "init?@8": "Compute Cores"
@@ -54665,8 +54665,8 @@
         "append@44": "Parameter Forwarders",
         "counter@185": "Defensive Guards",
         "errorForMissingValue@274": "Compute Cores",
-        "first@227": "Parameter Forwarders",
-        "firstPositional@233": "Parameter Forwarders",
+        "first@227": "Callbacks & Closures",
+        "firstPositional@233": "Callbacks & Closures",
         "flag@136": "Many-Argument Workhorses",
         "flag@73": "Many-Argument Workhorses",
         "init@260": "Encapsulated Accessors",
@@ -54678,7 +54678,7 @@
         "parseOptionalUnaryValue@474": "Many-Argument Workhorses",
         "parsePositionalValues@529": "Many-Argument Workhorses",
         "parseValue@293": "Many-Argument Workhorses",
-        "positional@239": "Parameter Forwarders",
+        "positional@239": "Callbacks & Closures",
         "setInitialValues@211": "Parameter Forwarders",
         "subscript@64": "Parameter Forwarders",
         "updateFlag@103": "Many-Argument Workhorses"
@@ -54723,19 +54723,19 @@
         "encode@37": "Defensive Guards"
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": {
-        "uniquing@15": "Generic / Templated Code",
+        "uniquing@15": "Callbacks & Closures",
         "uniquingAdjacentElements@25": "Defensive Guards"
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": {
         "==@34": "Generic / Templated Code",
         "addChild@27": "Parameter Forwarders",
-        "firstChild@83": "Parameter Forwarders",
-        "firstChild@87": "Parameter Forwarders",
+        "firstChild@83": "Callbacks & Closures",
+        "firstChild@87": "Callbacks & Closures",
         "hash@38": "Parameter Forwarders",
         "init@21": "Parameter Forwarders",
         "init@94": "Compute Cores",
         "path@46": "Compute Cores",
-        "path@79": "Parameter Forwarders"
+        "path@79": "Callbacks & Closures"
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": {
         "validate@35": "Defensive Guards"
@@ -54842,7 +54842,7 @@
     },
     "swift/vapor_sources": {
       "swift/vapor_sources/Sources_Vapor_Application.swift": {
-        "asyncBoot@261": "Interface Declarations",
+        "asyncBoot@261": "Callbacks & Closures",
         "asyncShutdown@308": "Defensive Guards",
         "boot@247": "Callbacks & Closures",
         "execute@203": "Interface Declarations",
@@ -54850,14 +54850,14 @@
         "init@138": "Stateful Encapsulated Methods",
         "init@54": "Interface Declarations",
         "init@77": "Interface Declarations",
-        "insertOrReturn@350": "Encapsulated Accessors",
+        "insertOrReturn@350": "Stateful Encapsulated Methods",
         "lock@82": "Generic / Templated Code",
         "make@169": "Parameter Forwarders",
         "make@173": "Parameter Forwarders",
         "run@187": "Annotated & Test Methods",
-        "shutdown@279": "I/O & Config Routines",
+        "shutdown@279": "Callbacks & Closures",
         "start@221": "Annotated & Test Methods",
-        "startup@232": "Defensive Guards",
+        "startup@232": "Callbacks & Closures",
         "use@58": "Parameter Forwarders"
       },
       "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": {
@@ -54881,7 +54881,7 @@
       "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": {
         "extract@93": "Compute Cores",
         "init@10": "Callbacks & Closures",
-        "init@17": "Annotated & Test Methods",
+        "init@17": "Defensive Guards",
         "respond@23": "Many-Argument Workhorses"
       },
       "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": {

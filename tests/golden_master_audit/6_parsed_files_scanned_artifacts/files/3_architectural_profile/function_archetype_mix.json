@@ -14753,9 +14753,10 @@
         "Defensive Guards": 1
       },
       "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": {
-        "Defensive Guards": 5,
+        "Callbacks & Closures": 2,
+        "Defensive Guards": 4,
         "Encapsulated Accessors": 1,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 4
       },
       "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": {
         "Compute Cores": 1
@@ -14788,13 +14789,14 @@
         "Stateful Encapsulated Methods": 1
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": {
+        "Callbacks & Closures": 3,
         "Compute Cores": 2,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 1,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 6,
-        "Parameter Forwarders": 8
+        "Parameter Forwarders": 5
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": {
         "Interface Declarations": 1,
@@ -14820,13 +14822,14 @@
         "Type Conversions": 1
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": {
-        "Defensive Guards": 1,
-        "Generic / Templated Code": 1
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 1
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": {
+        "Callbacks & Closures": 3,
         "Compute Cores": 2,
         "Generic / Templated Code": 1,
-        "Parameter Forwarders": 6
+        "Parameter Forwarders": 3
       },
       "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": {
         "Defensive Guards": 1
@@ -14894,14 +14897,12 @@
     "swift/vapor_sources": {
       "swift/vapor_sources/Sources_Vapor_Application.swift": {
         "Annotated & Test Methods": 3,
-        "Callbacks & Closures": 1,
-        "Defensive Guards": 2,
-        "Encapsulated Accessors": 1,
+        "Callbacks & Closures": 4,
+        "Defensive Guards": 1,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 4,
+        "Interface Declarations": 3,
         "Parameter Forwarders": 3,
-        "Stateful Encapsulated Methods": 1
+        "Stateful Encapsulated Methods": 2
       },
       "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": {},
       "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": {
@@ -14917,9 +14918,9 @@
       },
       "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": {},
       "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": {
-        "Annotated & Test Methods": 1,
         "Callbacks & Closures": 1,
         "Compute Cores": 1,
+        "Defensive Guards": 1,
         "Many-Argument Workhorses": 1
       },
       "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": {

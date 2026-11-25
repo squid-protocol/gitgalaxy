@@ -538,3 +538,66 @@ def test_external_stdlib_receiver_guards_cpp_rust_java_go():
     java_sites, _ = resolve_calls(_scan("java", java_files), [])
     get_site = _site(java_sites, "lookup", "get")
     assert get_site["step"] == "none"
+
+
+def test_cpp_qualified_templated_base_class_inheritance_and_kotlin_apply_blocks():
+    # C++: `class basic_memory_buffer : public detail::buffer<T>` inherits `size()` from `buffer`
+    cpp_files = {
+        "buf.h": (
+            "namespace detail {\n"
+            "template <typename T>\n"
+            "class buffer {\n"
+            "public:\n"
+            "    int size() const { return 0; }\n"
+            "};\n"
+            "}\n"
+            "template <typename T>\n"
+            "class basic_memory_buffer : public detail::buffer<T> {\n"
+            "public:\n"
+            "    void clear() {}\n"
+            "};\n"
+            "using memory_buffer = basic_memory_buffer<char>;\n"
+            "class other_buf {\n"
+            "public:\n"
+            "    int size() const { return 1; }\n"
+            "};\n"
+            "int run() {\n"
+            "    basic_memory_buffer<char> buf;\n"
+            "    return buf.size();\n"
+            "}\n"
+        )
+    }
+    cpp_sites, _ = resolve_calls(_scan("cpp", cpp_files), [])
+    sz = _site(cpp_sites, "run", "size")
+    assert sz["step"] == "typed"
+    assert sz["dst_line"] == 5
+
+    # Kotlin: `.apply { addFunction(...) }` resolves bare calls against the builder receiver
+    kt_files = {
+        "FileSpec.kt": (
+            "class FileSpec {\n"
+            "    class Builder {\n"
+            "        fun addFunction(name: String): Builder = this\n"
+            "        fun build(): FileSpec = FileSpec()\n"
+            "    }\n"
+            "    companion object {\n"
+            "        fun builder(pkg: String): FileSpec.Builder = Builder()\n"
+            "    }\n"
+            "}\n"
+        ),
+        "Other.kt": (
+            "class Other {\n    class Builder {\n        fun addFunction(name: String): Builder = this\n    }\n}\n"
+        ),
+        "App.kt": (
+            "fun makeFile(): FileSpec {\n"
+            '    return FileSpec.builder("p").apply {\n'
+            '        addFunction("foo")\n'
+            "    }.build()\n"
+            "}\n"
+        ),
+    }
+    deps = [{"src": "App.kt", "dst": "FileSpec.kt"}, {"src": "App.kt", "dst": "Other.kt"}]
+    kt_sites, _ = resolve_calls(_scan("kotlin", kt_files), deps)
+    add_fn = _site(kt_sites, "makeFile", "addFunction")
+    assert add_fn["step"] == "typed"
+    assert add_fn["dst_path"] == "FileSpec.kt"

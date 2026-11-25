@@ -1,15 +1,15 @@
 {
-  "ambiguous_precision_pct": 41.1,
-  "confident_external": 122,
-  "confident_judged": 1397,
-  "confident_overload_blind_precision_pct": 99.1,
-  "confident_precision_pct": 98.6,
-  "confident_strict_precision_pct": 90.7,
-  "confident_unmapped": 451,
-  "confident_wrong_overload": 8,
+  "ambiguous_precision_pct": 45.4,
+  "confident_external": 134,
+  "confident_judged": 1442,
+  "confident_overload_blind_precision_pct": 99.4,
+  "confident_precision_pct": 98.9,
+  "confident_strict_precision_pct": 90.5,
+  "confident_unmapped": 453,
+  "confident_wrong_overload": 7,
   "pyan_edges": 3301,
-  "recall_overload_blind_pct": 42.1,
-  "recall_pct": 41.7,
+  "recall_overload_blind_pct": 43.5,
+  "recall_pct": 43.2,
   "reference_version": "18.1.1",
-  "resolution_recall_pct": 68.6
+  "resolution_recall_pct": 71.2
 }

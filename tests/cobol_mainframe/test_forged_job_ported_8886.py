@@ -96,3 +96,38 @@ def test_both_program_steps_are_equal_to_the_chain_through_the_forged_job():
     )  # fmt: skip
     assert out.returncode == 0, out.stdout[-2000:] + out.stderr[-2000:]
     assert "proven over 2 of 2 steps" in out.stdout
+
+
+def test_the_nightly_enters_both_program_steps_through_the_forged_jobs():
+    """#8886 slice 22: carddemo-nightly's POSTTRAN and INTCALC run their Java as the generated job configs, as the two-step case."""
+    job = eq.load_case("carddemo-nightly")
+    ej.check_job(job, ej.load_steps(job, eq.load_case))
+    want = {s["case"]: s["forged_job"] for s in eq.load_case(NAME)["steps"]}
+    got = {s["case"]: s["forged_job"] for s in job["steps"] if "forged_job" in s}
+    assert got == want
+
+
+def test_the_generation_the_ported_job_wrote_is_set_against_the_chains():
+    """The Java bytes the forged job wrote for a `gdg_out` base are digested next to the COBOL step's: equal only on
+    the same size and digest; a step not run through a forged job reports nothing."""
+    ok = b"x" * 700
+    created = {"AWS.M2.CARDDEMO.SYSTRAN": ej._digest(ok)}
+    step = {"gdg_out": {"TRANSACT": "AWS.M2.CARDDEMO.SYSTRAN"}, "forged_job": {}}
+    assert ej.java_generations(step, created, {"TRANSACT": ok})["AWS.M2.CARDDEMO.SYSTRAN"]["equal"] is True
+    assert ej.java_generations(step, created, {"TRANSACT": ok[:-350]})["AWS.M2.CARDDEMO.SYSTRAN"]["equal"] is False
+    assert ej.java_generations(step, created, {}) == {}
+    assert ej.java_generations({"gdg_out": step["gdg_out"]}, created, {"TRANSACT": ok}) == {}
+
+
+def test_a_dataset_row_names_the_ported_generation_beside_the_stubbed_spring_rows():
+    sys.path.insert(0, str(ROOT / "tests/tools"))
+    import equivalence_forged_spring as efs
+
+    d = ej._digest(b"y" * 350)
+    report = {"steps": [{"case": "c", "gdg_created": {"B": d}, "java_gdg": {"B": {**d, "equal": True}}}]}
+    run = {"datasets_by_job": {m: {"J": {}} for m in ("strict", "skip")}}
+    (row,) = efs.compare_datasets({"steps": [{"case": "c", "job": "J"}]}, report, run)
+    assert row["ported"] == {"status": "equal", "got": d}
+    assert row["modes"]["strict"]["status"] == "differs"  # the stub wrote nothing: never rounded to the port's answer
+    res = {"rows": [], "datasets": [row]}
+    assert any("ported (linked port): equal" in ln for ln in efs.render(res, "n"))

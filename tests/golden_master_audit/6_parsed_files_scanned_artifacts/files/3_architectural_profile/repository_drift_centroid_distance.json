@@ -3115,8 +3115,8 @@
     "python/airflow": {
       "python/airflow/NOTICE": 0.0,
       "python/airflow/dag.py": 7.524,
-      "python/airflow/s3.py": 7.638,
-      "python/airflow/scheduler_job_runner.py": 8.0
+      "python/airflow/s3.py": 7.637,
+      "python/airflow/scheduler_job_runner.py": 7.998
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0.0,
@@ -3401,9 +3401,9 @@
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0.0,
       "python/numpy/__init__.py": 0.0,
-      "python/numpy/_linalg.py": 7.986,
+      "python/numpy/_linalg.py": 7.963,
       "python/numpy/cfuncs.py": 10.137,
-      "python/numpy/core.py": 8.023,
+      "python/numpy/core.py": 8.018,
       "python/numpy/crackfortran.py": 9.602,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 11.444,

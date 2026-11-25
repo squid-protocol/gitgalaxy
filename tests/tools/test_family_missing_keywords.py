@@ -227,3 +227,8 @@ def test_sweep_off_the_pin_exits_two(monkeypatch):
 
     monkeypatch.setattr(fos, "crucible_data", refuse)
     assert fmk.main(["--sweep"]) == 2
+
+
+def test_a_pipe_token_is_escaped_inside_its_table_row():
+    md = fmk.render_markdown(fmk.mine({"c": _res(_fam("bitwise_ops", 20, 0.0, [["||", 4]], "dead"))}))
+    assert "| `\\|\\|` | 4 |" in md

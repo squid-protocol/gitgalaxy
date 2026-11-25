@@ -112,6 +112,11 @@ def mine(results: dict[str, dict], top: int = DEFAULT_TOP, min_functions: int = 
     return {"cells": cells, "shared": {f: rows for f, rows in shared.items() if rows}}
 
 
+def _cell(text: str) -> str:
+    """A token inside a markdown table cell: `|` (bitwise or, `||`) would end the cell."""
+    return text.replace("|", "\\|")
+
+
 def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
     out = ["# Missing-keyword mining per family and language (#8863, report only)", ""]
     out.append(
@@ -131,7 +136,9 @@ def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
         if c.get("capped"):
             out.append("(the saved result was capped at 5 tokens: rerun with a larger --top)")
         out += ["", "| token | count | functions | per fn |", "|---|---|---|---|"]
-        out += [f"| `{t['token']}` | {t['count']} | {t.get('functions', '-')} | {t['per_fn']} |" for t in c["tokens"]]
+        out += [
+            f"| `{_cell(t['token'])}` | {t['count']} | {t.get('functions', '-')} | {t['per_fn']} |" for t in c["tokens"]
+        ]
         out.append("")
     if not ranked:
         out.append("None.")

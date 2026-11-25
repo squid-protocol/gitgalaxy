@@ -484,9 +484,16 @@ def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
     assert not PY_RULES["bitwise_ops"].search(src)
 
 
-def test_python_bitwise_ops_string_content_still_counts_documented():
-    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
-    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+def test_python_bitwise_ops_operator_after_a_quote_is_skipped_documented():
+    """Documented behaviour (#8863, which narrowed #2535 / #8866's "no string shielding").
+
+    On a line that can hold a value expression the operator counts only BEFORE the first quote character: `&` / `^` / `<<` inside a
+    string literal, a C-code template or a URL query is text, not an operator. The cost is stated in the rule: an operator after a
+    string on the same line is missed, and there is still no per-family string shield. Operators before the quote still count."""
+    rule = PY_RULES["bitwise_ops"]
+    assert not rule.search('re.compile(r"^a~b<<")'), "an operator inside a string literal is text"
+    assert rule.search('mask = flags & 0xFF  # 0x"ff"'), "an operator before the first quote still counts"
+    assert rule.search("mask = flags & 0xFF"), "a plain bitwise expression counts"
 
 
 # #8865: every subprocess entry point that spawns a process counts as high_risk_execution;

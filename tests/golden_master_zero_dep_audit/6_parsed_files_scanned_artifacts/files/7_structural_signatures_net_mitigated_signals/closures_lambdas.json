@@ -4671,10 +4671,10 @@
       "swift/alamofire/AFError.swift": 0,
       "swift/alamofire/Alamofire.podspec": 1,
       "swift/alamofire/Package.swift": 0,
-      "swift/alamofire/ParameterEncoder.swift": 0,
-      "swift/alamofire/Request.swift": 24,
-      "swift/alamofire/Response.swift": 1,
-      "swift/alamofire/Session.swift": 4
+      "swift/alamofire/ParameterEncoder.swift": 2,
+      "swift/alamofire/Request.swift": 42,
+      "swift/alamofire/Response.swift": 5,
+      "swift/alamofire/Session.swift": 8
     },
     "swift/ghostty_macos": {
       "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": 0,

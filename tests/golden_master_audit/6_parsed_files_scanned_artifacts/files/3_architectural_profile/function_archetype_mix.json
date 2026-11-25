@@ -14716,31 +14716,32 @@
         "Parameter Forwarders": 4
       },
       "swift/alamofire/Request.swift": {
-        "Annotated & Test Methods": 7,
-        "Callbacks & Closures": 7,
+        "Annotated & Test Methods": 6,
+        "Callbacks & Closures": 13,
         "Compute Cores": 2,
-        "Defensive Guards": 13,
+        "Defensive Guards": 12,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 14
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 11
       },
       "swift/alamofire/Response.swift": {
+        "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 8,
-        "Many-Argument Workhorses": 3,
+        "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 3
       },
       "swift/alamofire/Session.swift": {
-        "Annotated & Test Methods": 2,
-        "Callbacks & Closures": 1,
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 4,
         "Compute Cores": 5,
-        "Defensive Guards": 9,
+        "Defensive Guards": 8,
         "Generic / Templated Code": 21,
         "Interface Declarations": 5,
         "Many-Argument Workhorses": 6,
-        "Parameter Forwarders": 7,
+        "Parameter Forwarders": 6,
         "Type Conversions": 1
       }
     },

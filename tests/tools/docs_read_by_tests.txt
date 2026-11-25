@@ -33,10 +33,12 @@
 /.test_durations	tests/tools/affected_tests.py,tests/tools/test_ci_critical_path_split.py,tests/tools/time_ratchet.py
 /.tools	tests/tools/preflight.py
 /.venv	tests/tools/box
+/A.B	tests/cobol_mainframe
 /A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe
 /BLLP.cbl	tests/core_engine
+/C.D	tests/cobol_mainframe
 /CATJOB.jcl	tests/cobol_mainframe
 /CMakeLists.txt	tests/core_engine
 /COPYBOOK.CPY	tests/cobol_mainframe
@@ -342,6 +344,7 @@ docs/ex.py	tests/tools/test_doom_speedrun.py
 docs/examples/demo.c/	tests/core_engine
 docs/examples/demo.py	tests/tools/test_doom_speedrun.py
 docs/family_oracle_readings.md	tests/tools/test_family_oracle.py,tests/tools/test_family_oracle_readings.py
+docs/family_rosetta_consistency.md	tests/tools/test_family_rosetta_consistency.py
 docs/flaky.md	tests/tools/test_gate_controls_docs.py
 docs/func_start_rule_contract.md	gitgalaxy
 docs/gitgalaxy_architecture_brief.md	tests/tools/test_generated_branch.py
@@ -544,6 +547,7 @@ estate_intake.md	tests/cobol_mainframe
 estate_journey.md	tests/tools/estate_journey.py,tests/tools/test_estate_journey.py
 evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
 family_oracle_readings.md	tests/tools/test_family_oracle.py,tests/tools/test_family_oracle_readings.py
+family_rosetta_consistency.md	tests/tools/test_family_rosetta_consistency.py
 family_validity_chart.svg	tests/tools/family_validity_chart.py
 family_validity_matrix.svg	tests/tools/family_validity_chart.py,tests/tools/test_family_validity_chart.py
 feed.md	tests/tools/blocker_estate_feed.py

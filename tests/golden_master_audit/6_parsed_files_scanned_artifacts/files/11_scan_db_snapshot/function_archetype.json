@@ -32869,7 +32869,7 @@
         "broadcast_unalias@375": "I/O & Config Routines",
         "broadcast_unalias@379": "I/O & Config Routines",
         "broadcastable@8": "I/O & Config Routines",
-        "copy@49": "Defensive Guards",
+        "copy@49": "Compute Cores",
         "copyto!@194": "Defensive Guards",
         "copyto!@294": "Defensive Guards",
         "copyto!@318": "Defensive Guards",
@@ -41215,7 +41215,7 @@
         "test_broken_session_data@103": "Annotated & Test Methods",
         "test_broken_session_data_no_raise@108": "Defensive Guards",
         "test_broken_session_stream_no_raise@121": "Defensive Guards",
-        "test_broken_session_stream_raise@115": "Interface Declarations",
+        "test_broken_session_stream_raise@115": "Annotated & Test Methods",
         "test_regular_no_stream@88": "Defensive Guards",
         "test_stream_session@98": "Defensive Guards",
         "test_stream_simple@93": "Defensive Guards"
@@ -41580,7 +41580,7 @@
       },
       "python/fastapi/tests/test_empty_router.py": {
         "get_empty@12": "Annotated & Test Methods",
-        "test_include_empty@33": "Interface Declarations",
+        "test_include_empty@33": "Annotated & Test Methods",
         "test_use_empty@22": "Defensive Guards"
       },
       "python/fastapi/tests/test_enforce_once_required_parameter.py": {
@@ -41858,7 +41858,7 @@
         "test_encode_model_with_pure_windows_path@264": "Defensive Guards",
         "test_encode_pure_path@274": "Type Conversions",
         "test_encode_pydantic_undefined@311": "Defensive Guards",
-        "test_encode_unsupported@134": "Interface Declarations",
+        "test_encode_unsupported@134": "Annotated & Test Methods",
         "test_json_encoder_error_with_pydanticv1@159": "Interface Declarations"
       },
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": {
@@ -41988,7 +41988,7 @@
       },
       "python/fastapi/tests/test_orjson_response_class.py": {
         "get_orjson_non_str_keys@15": "Annotated & Test Methods",
-        "test_orjson_non_str_keys@23": "Interface Declarations"
+        "test_orjson_non_str_keys@23": "Defensive Guards"
       },
       "python/fastapi/tests/test_param_class.py": {
         "read_items@9": "Annotated & Test Methods",
@@ -42912,7 +42912,7 @@
         "stream_events@94": "Annotated & Test Methods",
         "test_async_generator_no_annotation@140": "Defensive Guards",
         "test_async_generator_with_model@108": "Defensive Guards",
-        "test_data_and_raw_data_mutually_exclusive@252": "Interface Declarations",
+        "test_data_and_raw_data_mutually_exclusive@252": "Annotated & Test Methods",
         "test_dict_items@162": "Defensive Guards",
         "test_keepalive_ping_async@290": "Defensive Guards",
         "test_keepalive_ping_sync@302": "Defensive Guards",
@@ -43143,7 +43143,7 @@
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": {
         "method@11": "Annotated & Test Methods",
         "passthrough@9": "Annotated & Test Methods",
-        "test_wrapped_method_type_inference@17": "Interface Declarations"
+        "test_wrapped_method_type_inference@17": "I/O & Config Routines"
       },
       "python/fastapi/tests/test_ws_dependencies.py": {
         "create_dependency@15": "Parameter Forwarders",

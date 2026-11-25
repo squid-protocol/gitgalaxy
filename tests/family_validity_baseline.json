@@ -112,6 +112,38 @@
     "status": "both"
    }
   },
+  "cobol": {
+   "branch": {
+    "corpus": "carddemo-app-cbl",
+    "functions": 491,
+    "n_family": 280,
+    "n_oracle": 274,
+    "pinned": false,
+    "precision": 0.979,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "carddemo-app-cbl",
+    "functions": 491,
+    "n_family": 175,
+    "n_oracle": 174,
+    "pinned": false,
+    "precision": 0.994,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "carddemo-app-cbl",
+    "functions": 491,
+    "n_family": 133,
+    "n_oracle": 130,
+    "pinned": false,
+    "precision": 0.977,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
   "csharp": {
    "args": {
     "corpus": "jellyfin",

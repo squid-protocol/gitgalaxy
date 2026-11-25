@@ -7541,8 +7541,8 @@
         "Many-Argument Workhorses": 1
       },
       "julia/dataframes_jl/other_broadcasting.jl": {
-        "Compute Cores": 2,
-        "Defensive Guards": 9,
+        "Compute Cores": 3,
+        "Defensive Guards": 8,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 16,
         "Many-Argument Workhorses": 2,
@@ -10072,10 +10072,10 @@
         "Generic / Templated Code": 3
       },
       "python/fastapi/tests/test_dependency_after_yield_streaming.py": {
-        "Annotated & Test Methods": 2,
+        "Annotated & Test Methods": 3,
         "Defensive Guards": 5,
         "Generic / Templated Code": 7,
-        "Interface Declarations": 4,
+        "Interface Declarations": 3,
         "Type Conversions": 2
       },
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": {
@@ -10184,9 +10184,8 @@
         "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_empty_router.py": {
-        "Annotated & Test Methods": 1,
-        "Defensive Guards": 1,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 1
       },
       "python/fastapi/tests/test_enforce_once_required_parameter.py": {
         "Annotated & Test Methods": 1,
@@ -10303,10 +10302,10 @@
         "Type Conversions": 1
       },
       "python/fastapi/tests/test_jsonable_encoder.py": {
-        "Annotated & Test Methods": 4,
+        "Annotated & Test Methods": 5,
         "Callbacks & Closures": 1,
         "Defensive Guards": 17,
-        "Interface Declarations": 3,
+        "Interface Declarations": 2,
         "Parameter Forwarders": 6,
         "Type Conversions": 1
       },
@@ -10385,7 +10384,7 @@
       },
       "python/fastapi/tests/test_orjson_response_class.py": {
         "Annotated & Test Methods": 1,
-        "Interface Declarations": 1
+        "Defensive Guards": 1
       },
       "python/fastapi/tests/test_param_class.py": {
         "Annotated & Test Methods": 1,
@@ -10788,9 +10787,8 @@
         "Defensive Guards": 5
       },
       "python/fastapi/tests/test_sse.py": {
-        "Annotated & Test Methods": 17,
-        "Defensive Guards": 14,
-        "Interface Declarations": 1
+        "Annotated & Test Methods": 18,
+        "Defensive Guards": 14
       },
       "python/fastapi/tests/test_starlette_exception.py": {
         "Annotated & Test Methods": 4,
@@ -10905,7 +10903,7 @@
       },
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": {
         "Annotated & Test Methods": 2,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 1
       },
       "python/fastapi/tests/test_ws_dependencies.py": {
         "Annotated & Test Methods": 3,

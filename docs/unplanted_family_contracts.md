@@ -41,14 +41,14 @@ those that carry a rule (the rest record `None`, a contract-level absence).
 | `spec_exposure` | 61 / 18 | 298 | 5 | `embedded_python` 17.2; `agc_assembly` 3.2; `solidity` 1.7 |
 | `llm_api` | 3 / 76 | 12 | 0 | `typescript` 0.1 (python, javascript, typescript only) |
 
-## Contradictions found (listed, not fixed)
+## Contradictions found (listed; the c / go / elixir `spec_exposure` rows are fixed)
 
 | signal | language | what the rule counts | reads the sentence? |
 |---|---|---|---|
 | `dead_code` | assembly | `// MOV X1,` matched in the code stream (8 of 13 hits) | no: the sentence reads the comment surface |
 | `dead_code` | assembly, dockerfile, css | prose comments (`# add NUL terminator (again)`, `# from the ... repo`, `/*.run + * {`) | no: prose, not code |
 | `dead_code` | bms | `*FLDDEAD DFHMDF ...` a map label line | design question: a commented-out macro line, but the label is a name |
-| `spec_exposure` | c, go, elixir | `[SPECIAL___ENTER__] = {`, `[Spec=%v, ...]` in a log string, `[spec, return]` a list pattern, all in the code stream | no: not a comment tag |
+| `spec_exposure` | c, go, elixir | `[SPECIAL___ENTER__] = {`, `[Spec=%v, ...]` in a log string, `[spec, return]` a list pattern, all in the code stream | no: not a comment tag -- fixed: the keyword must be a whole word not followed by `,` or `=`; crucible hits 4/1/3 -> 0 (`tests/extraction/test_spec_exposure_code_stream.py`). Every other language carries the same unguarded regex: not yet probed |
 | `spec_exposure` | agc_assembly | `Colossus` / `Comanche` in a `# Purpose:` line | no: a program name, not a traceability tag |
 | `spec_exposure` | embedded_python | `[Spec 10.9.4]` section citations in prose (241 hits) | partly: a bracketed spec reference, but a citation of a document, not a tag on code |
 | `reflection_metaprogramming` | c, cobol, db2_sql | `goto`, `EXEC SQL` / `EXEC CICS`, `GET DIAGNOSTICS` | no: control flow and embedded-SQL statements, not self-inspection |

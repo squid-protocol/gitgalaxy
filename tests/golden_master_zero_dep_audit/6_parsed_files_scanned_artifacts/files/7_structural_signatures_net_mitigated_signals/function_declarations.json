@@ -1492,7 +1492,7 @@
       "fsharp/giraffe_web/FormatExpressions.fs": 12,
       "fsharp/giraffe_web/Helpers.fs": 8,
       "fsharp/giraffe_web/HttpContextExtensions.fs": 37,
-      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 21,
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 41,
       "fsharp/giraffe_web/Json.fs": 8,
       "fsharp/giraffe_web/Middleware.fs": 5,
       "fsharp/giraffe_web/ModelParser.fs": 11,

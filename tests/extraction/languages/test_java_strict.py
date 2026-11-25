@@ -142,7 +142,7 @@ _JAVA_SIMPLE_CASES = [
     ("high_risk_execution", "System.exit(1);", "long now = System.currentTimeMillis();"),
     ("immutability_locks", "final int x = 5;", "protected void finalize() {}"),
     ("import", "import java.util.List;", "// import java.util.List;"),
-    ("io", "File f = new File(path);", "String path = getPath();"),
+    ("io", "List<String> rows = Files.readAllLines(path);", "File f = new File(path);"),
     ("ipc_rpc_bridges", "ProcessBuilder pb = new ProcessBuilder();", "KafkaConsumer consumer = new KafkaConsumer();"),
     ("listeners", "button.addEventListener(handler);", "button.removeEventListener(handler);"),
     ("memory_alloc", "Arena arena = Arena.ofConfined();", "MemorySegment seg = allocator.allocate(8);"),
@@ -516,3 +516,52 @@ def test_java_io_opening_alternatives_redos_immune():
     pattern = JAVA_RULES["io"]
     assert_redos_immune(pattern, "new " + " " * 40000 + "FileInputStream", timeout_sec=3.0)
     assert_redos_immune(pattern, "new PrintWriter(" + " " * 40000, timeout_sec=3.0)
+
+
+# #8868: io is an operation (contract: io_rule_contract C1), not a mention of a type that could do I/O.
+_JAVA_IO_INVOCATIONS = [
+    "byte[] b = Files.readAllBytes(p);",
+    "Files.write(p, lines);",
+    "Files.copy(a, b, REPLACE_EXISTING);",
+    "try (Stream<String> s = Files.lines(p)) {}",
+    "InputStream in = Files.newInputStream(p);",
+    "Socket s = new Socket(host, 80);",
+    "Scanner sc = new Scanner(System.in);",
+    "InputStream in = url.openStream();",
+    "OutputStream o = sock.getOutputStream();",
+    "String line = reader.readLine();",
+    "ResultSet rs = stmt.executeQuery(sql);",
+    "int n = ps.executeUpdate();",
+    "Connection c = DriverManager.getConnection(url);",
+    "Foo f = restTemplate.getForObject(u, Foo.class);",
+    "int c = System.in.read();",
+]
+_JAVA_IO_MENTIONS = [
+    "private File file;",
+    "void f(Path path, Reader in, Writer out) {}",
+    "private final Connection connection;",
+    "Statement s = null;",
+    "interface UserRepository extends Repository<User, Long> {}",
+    "private RestTemplate restTemplate;",
+    "private Socket socket;",
+    "File f = new File(path);",
+    "Path p = Path.of(a, b);",
+]
+
+
+@pytest.mark.parametrize("code", _JAVA_IO_INVOCATIONS)
+def test_java_io_counts_the_operation(code):
+    assert _java_io("class A {\n  void f() {\n    " + code + "\n  }\n}\n") >= 1, code
+
+
+@pytest.mark.parametrize("code", _JAVA_IO_MENTIONS)
+def test_java_io_ignores_a_mention_of_an_io_type(code):
+    assert _java_io("class A {\n  " + code + "\n}\n") == 0, code
+
+
+def test_java_io_invocation_alternatives_redos_immune():
+    pattern = JAVA_RULES["io"]
+    assert_redos_immune(pattern, "Files." + "r" * 40000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "Files.read" + "a" * 40000, timeout_sec=3.0)
+    assert_redos_immune(pattern, ".readLine" + " " * 40000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "new Socket" + " " * 40000, timeout_sec=3.0)

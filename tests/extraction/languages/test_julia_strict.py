@@ -71,10 +71,48 @@ def test_jl_extension_routes_to_julia():
 
 
 def test_function_blocks_are_units_and_short_form_is_a_func_start_hit():
-    assert _names(SRC) == ["run", "tick"]
-    # a short-form `total(xs) = ...` opens no scope, so it is no sliced unit (known gap, like a Lua one-liner before
-    # #2438), but the func_start signal still counts it
+    # #9200: the short-form `total(xs) = ...` is its own one-line unit as well as a func_start hit
+    assert _names(SRC) == ["run", "tick", "total"]
     assert "total(xs) =" in _hits("func_start", SRC)
+
+
+def test_short_form_definitions_are_one_line_units_9200():
+    src = (
+        "square(x) = x * x\n"
+        "Base.show(io::IO, p::P) = print(io, p)\n"
+        "id(x::T) where {T} = x\n"
+        "ok!(a)::Bool = true\n"
+        "pair{T}(a::T) = (a, a)\n"
+        "function multi(x)\n"
+        "    x + 1\n"
+        "end\n"
+    )
+    fns = {f["name"]: f for f in _splice(src)["functions"] if f["name"] != "__global_context__"}
+    assert sorted(fns) == ["id", "multi", "ok!", "pair", "show", "square"]
+    assert fns["square"]["start_line"] == fns["square"]["end_line"] == 1
+    assert (fns["multi"]["start_line"], fns["multi"]["end_line"]) == (6, 8)
+
+
+def test_non_definitions_are_not_one_line_units_9200():
+    src = (
+        "x = f(y)\n"
+        "a == g(b)\n"
+        "h(x) == 1\n"
+        "k = (x) -> x\n"
+        "f(x = 1)\n"
+        "for (i) = 1:3\n"
+        "    println(i)\n"
+        "end\n"
+        "if (a) == b\n"
+        "end\n"
+        "m(x) => 2\n"
+    )
+    assert [n for n in _names(src) if n != "Anonymous_Block"] == []
+
+
+def test_short_form_inside_a_module_is_a_unit_9200():
+    src = "module M\nsq(x) = x * x\nfunction g()\n    h(x) = x\nend\nend\n"
+    assert _names(src) == ["g", "h", "sq"]
 
 
 def test_function_spans_follow_end_and_index_end_opens_nothing():

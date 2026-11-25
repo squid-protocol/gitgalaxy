@@ -40,6 +40,12 @@ def _cobol(rc: str) -> dict:
     return {"return_code": {"cobol": rc, "java": rc}}
 
 
+def _made(base: str, size: int, sha256: str) -> dict:
+    """What `equivalence.py run carddemo-nightly` (GnuCOBOL, the IDCAMS model) recorded as the generation a step catalogued
+    (`gdg_created`, #8886 slice 17): the bytes' size and digest, from the 2026-11-24 chain run."""
+    return {"gdg_created": {base: {"size": size, "sha256": sha256}}}
+
+
 REPORT = {
     "case": "carddemo-nightly",
     "ibm_stop": {
@@ -50,9 +56,32 @@ REPORT = {
     },
     "steps": [
         {"case": "carddemo-posttran", **_cobol("4")},
-        {"case": "carddemo-intcalc", **_cobol("0")},
-        {"case": "tranbkp-idcams", "rc": 0, "model_only": False},
-        {"case": "carddemo-sort-combtran", **_cobol("0")},
+        {
+            "case": "carddemo-intcalc",
+            **_cobol("0"),
+            **_made(
+                "AWS.M2.CARDDEMO.SYSTRAN", 17500, "a06b73f7acdea28f74ec2c519674ca89c8def9c40b361f71ede505b1f0fd80fe"
+            ),
+        },
+        {
+            "case": "tranbkp-idcams",
+            "rc": 0,
+            "model_only": False,
+            **_made(
+                "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+                92400,
+                "431ff04b7c42df3738d620822964c9409ab0cfccca3340f75261382459b93117",
+            ),
+        },
+        {
+            "case": "carddemo-sort-combtran",
+            **_cobol("0"),
+            **_made(
+                "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+                109900,
+                "8d57782a059a3d64a56e9b20278f473c460480f23919b85a63c1337ff1ce90ea",
+            ),
+        },
         {"case": "combtran-step10-idcams", "rc": 0, "model_only": False},
         {"case": "carddemo-sort-creastmt", **_cobol("0")},
         {"case": "carddemo-tranidx", "model_only": True, "stopped": "the IDCAMS model refuses"},

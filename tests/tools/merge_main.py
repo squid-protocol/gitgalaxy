@@ -45,6 +45,7 @@ REGENERATED: tuple[tuple[re.Pattern[str], list[str] | None], ...] = (
     (re.compile(r"^tests/(ruff|mypy)_audit_baseline\.json$"), [PY, "tests/tools/audit_check.py", "--regenerate"]),
     (re.compile(r"^tests/tools/docs_read_by_tests\.txt$"), [PY, "tests/tools/change_classifier.py", "--write"]),
     (re.compile(r"^docs/self_scan/graph_coverage_chart\.svg$"), [PY, "tests/tools/graph_coverage_chart.py", "--write"]),
+    (re.compile(r"^docs/self_scan/family_validity_(chart|matrix)\.svg$"), [PY, "tests/tools/family_validity_chart.py", "--write"]),
     (re.compile(r"^\.test_durations$"), None),
 )
 GOLDEN_WRITER = [PY, "tests/tools/crucible_check.py", "--update", "--yes"]

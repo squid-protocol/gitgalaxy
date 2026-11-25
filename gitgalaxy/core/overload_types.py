@@ -863,7 +863,7 @@ _KT_COLL_DECL = re.compile(
     r"(?P<e>(?:[a-z]\w{0,63}\.){0,8}[A-Z]\w{0,127}(?:\.[A-Z]\w{0,127}){0,4})\??[ \t]*+>"
 )
 _KT_COLL_FACTORY = re.compile(
-    r"\b(?:val|var)[ \t]++(?P<n>" + _IDENT + r")[ \t]*+=[ \t]*+"
+    r"\b(?:val|var)[ \t]++(?P<n>" + _IDENT + r")[ \t]*+=[ \t\r\n]*+"
     r"(?:mutableListOf|listOf|mutableSetOf|setOf|emptyList|emptySet|arrayListOf|linkedSetOf)"
     r"[ \t]*+<[ \t]*+(?P<e>(?:[a-z]\w{0,63}\.){0,8}[A-Z]\w{0,127}(?:\.[A-Z]\w{0,127}){0,4})\??[ \t]*+>[ \t]*+\("
 )

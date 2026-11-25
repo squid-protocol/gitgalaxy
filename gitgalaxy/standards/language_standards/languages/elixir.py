@@ -155,7 +155,11 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         "planned_debt": GLOBAL_PLANNED_DEBT,
         "fragile_debt": GLOBAL_FRAGILE_DEBT,
-        "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
+        # #8862: a tag is `[spec` / `[audit` as a whole word; `[SPECIAL_X]`, `[spec, ret]` and `[Spec=%v]` are code or
+        # log text the second (code-stream) pass also reads, not a traceability tag.
+        "spec_exposure": re.compile(
+            r"\[(?:\s*SPEC\s*-\s*\d{1,10}|(?:spec|audit)(?!\w)(?![ \t]*[,=]))[^\]]{0,300}\]", re.I
+        ),
         "ssr_boundaries": re.compile(
             r"\b(?:Phoenix\.(?:Controller|Endpoint|Router)|Plug\.(?:Router|Conn|Builder)|use[ \t]+Phoenix\.LiveView)\b"
         ),

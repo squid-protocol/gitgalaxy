@@ -7,6 +7,8 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import family_missing_keywords as fmk
@@ -143,7 +145,25 @@ def test_no_input_bad_spec_and_unreadable_result_exit_two(tmp_path):
 
 def test_language_without_an_oracle_is_skipped_and_alone_exits_two(tmp_path):
     db = _make_scan(tmp_path)
-    assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}"]) == 2
+    assert fmk.main(["--scan", f"nosuchlang:{db}:{tmp_path}"]) == 2
     f = tmp_path / "r.json"
     f.write_text(json.dumps(_res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))))
-    assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
+    assert fmk.main(["--scan", f"nosuchlang:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
+
+
+def test_split_keeps_a_windows_drive_letter_with_its_path():
+    assert fmk._split("python:C:\\a\\s.db:D:/src", 3) == ["python", "C:\\a\\s.db", "D:/src"]
+    assert fmk._split("go:C:\\r.json", 2) == ["go", "C:\\r.json"]
+    assert fmk._split("go:/data/s.db:/src", 3) == ["go", "/data/s.db", "/src"]
+    assert fmk._split("c:C:\\s.db:C:\\src", 3) == ["c", "C:\\s.db", "C:\\src"]
+    with pytest.raises(ValueError):
+        fmk._split("go:onlytwo", 3)
+
+
+def test_main_reads_a_result_file_named_with_a_drive_letter(tmp_path, monkeypatch, capsys):
+    f = tmp_path / "r.json"
+    f.write_text(json.dumps(_res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))))
+    real = fmk.Path
+    monkeypatch.setattr(fmk, "Path", lambda p: real(f) if p == "C:\\r.json" else real(p))
+    assert fmk.main(["--result", "go:C:\\r.json"]) == 0
+    assert "open" in capsys.readouterr().out

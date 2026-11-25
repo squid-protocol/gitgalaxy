@@ -208,3 +208,111 @@ def test_tranbkps_repro_reads_its_sysin_from_the_control_library_member_and_copi
         seed = (REPO / "tests/equivalence/carddemo-sort-creastmt/sortin.txt").read_bytes().split(b"\n")
         want = {"size": 100 * 350, "sha256": hashlib.sha256(b"".join(r for r in seed if r)).hexdigest()}
         assert ds["AWS.M2.CARDDEMO.TRANSACT.BKUP(G0002V00)"] == want
+
+
+def test_the_jobs_final_datasets_are_set_against_what_the_chain_catalogued(res):
+    """#8886 slice 17: the chain's report records each generation a step catalogued (size and SHA-256, `gdg_created`);
+    the harness reads the same from the Spring run's datasets directory and compares. All three differ, and each says
+    why: the Spring jobs run on seeded fixtures (BKUP 100 records, SYSTRAN/BKUP for COMBTRAN 50), not the bytes the
+    chain's earlier steps wrote (BKUP 264 records, COMBINED 314), and INTCALC's program step is a stub that writes no
+    SYSTRAN. None is rounded to equal; slice 18 seeds a run from the chain's own bytes where the chain exports them (below)."""
+    rows = {d["dataset"]: d for d in res["datasets"]}
+    assert set(rows) == {
+        "AWS.M2.CARDDEMO.SYSTRAN", "AWS.M2.CARDDEMO.TRANSACT.BKUP", "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+    }  # fmt: skip
+    for mode in ("strict", "skip"):
+        assert rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["status"] == "differs"
+        assert "wrote no new generation" in rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["issue"]
+        bkup = rows["AWS.M2.CARDDEMO.TRANSACT.BKUP"]["modes"][mode]
+        assert (bkup["status"], bkup["got"]["size"], bkup["generation"]) == (
+            "differs", 100 * 350, "AWS.M2.CARDDEMO.TRANSACT.BKUP(G0002V00)",
+        )  # fmt: skip
+        assert rows["AWS.M2.CARDDEMO.TRANSACT.BKUP"]["chain"]["size"] == 264 * 350
+        comb = rows["AWS.M2.CARDDEMO.TRANSACT.COMBINED"]["modes"][mode]
+        assert (comb["status"], comb["got"]["size"]) == ("differs", 50 * 350)
+        assert rows["AWS.M2.CARDDEMO.TRANSACT.COMBINED"]["chain"]["size"] == 314 * 350
+    text = "\n".join(efs.render(res, "n"))
+    assert "n dataset AWS.M2.CARDDEMO.TRANSACT.BKUP [TRANBKP, step tranbkp-idcams] strict: differs" in text
+
+
+def test_a_dataset_equal_to_the_chains_in_size_and_digest_is_equal_and_any_other_is_not():
+    """The comparison itself, on a synthetic run: the newest unseeded generation of the base is read, and size and digest
+    must both match."""
+    spec = {"steps": [{"case": "s", "job": "J"}], "datasets": {"A.B": {"gdg": True, "seed": "x", "lrecl": 1}}}
+    good = {"size": 4, "sha256": "ab" * 32}
+    report = {"steps": [{"case": "s", "gdg_created": {"A.B": good}}]}
+
+    def run(listing):
+        return {"datasets_by_job": {m: {"J": listing} for m in ("strict", "skip")}}
+
+    same = efs.compare_datasets(
+        spec, report, run({"A.B(G0001V00)": {"size": 9, "sha256": "00"}, "A.B(G0002V00)": good})
+    )
+    assert [r["modes"][m]["status"] for r in same for m in ("strict", "skip")] == ["equal", "equal"]
+    other = efs.compare_datasets(spec, report, run({"A.B(G0002V00)": {**good, "sha256": "cd" * 32}}))
+    assert other[0]["modes"]["strict"]["status"] == "differs"
+    seeded_only = efs.compare_datasets(spec, report, run({"A.B(G0001V00)": good}))
+    assert "wrote no new generation" in seeded_only[0]["modes"]["strict"]["issue"]
+
+
+def test_a_gdg_base_the_chain_catalogued_is_seeded_with_the_chains_generations_not_the_fixture(tmp_path):
+    """#8886 slice 18: `seed_datasets(..., chain)` copies the chain's generations of a GDG base byte for byte, under their
+    own numbers; a base the chain never held keeps the fixture seed; the seeded names follow."""
+    chain = tmp_path / "chain"
+    (chain / "A.B").mkdir(parents=True)
+    (chain / "A.B" / "G0002V00").write_bytes(b"x" * 8)
+    (chain / "A.B" / "G0003V00").write_bytes(b"y" * 8)
+    fixture = tmp_path / "fx.txt"
+    fixture.write_bytes(b"z" * 4 + b"\n")
+    ds = {
+        "A.B": {"gdg": True, "lrecl": 4, "seed": str(fixture)},
+        "C.D": {"gdg": True, "lrecl": 4, "seed": str(fixture)},
+    }
+    root = tmp_path / "root"
+    root.mkdir()
+    efs.seed_datasets(ds, root, chain)
+    assert sorted(p.name for p in (root / "A.B").iterdir()) == ["G0002V00", "G0003V00"]
+    assert (root / "A.B" / "G0003V00").read_bytes() == b"y" * 8
+    assert [p.name for p in (root / "C.D").iterdir()] == ["G0001V00"]
+    assert efs.seeded_names(ds, chain) == {"A.B(G0002V00)", "A.B(G0003V00)", "C.D(G0001V00)"}
+    assert efs.seeded_names(ds) == {"A.B(G0001V00)", "C.D(G0001V00)"}
+    (chain / "A.B" / "G0004V00").write_bytes(b"w" * 5)
+    with pytest.raises(ValueError, match="whole records"):
+        efs.seed_datasets(ds, tmp_path / "again", chain)
+
+
+def test_the_chain_exports_every_generation_it_holds_as_bytes(tmp_path):
+    import equivalence_gdg as gdg
+    import equivalence_job as ej
+
+    cat = gdg.Catalog({"A.B": {"limit": 5, "reclen": 2}}, {"A.B": [b"aa", b"bbbb"]})
+    cat.begin_step("J")
+    cat.create("A.B", b"cc")
+    assert ej._export_generations(cat, tmp_path / "g")
+    assert sorted((p.name, p.read_bytes()) for p in (tmp_path / "g" / "A.B").iterdir()) == [
+        ("G0001V00", b"aa"), ("G0002V00", b"bbbb"), ("G0003V00", b"cc"),
+    ]  # fmt: skip
+    assert not ej._export_generations(gdg.Catalog({}), tmp_path / "none")
+
+
+def test_combtran_reads_the_chains_newest_generation_when_the_chain_exports_one(tmp_path):
+    """#8886 slice 18, end to end: with a chain directory holding BKUP generations (the newest 10 records) and SYSTRAN's
+    (22), COMBTRAN's SORT reads those, not the fixtures: COMBINED(+1) is 32 records, and the seeded generations are not
+    reported as written by the job."""
+    seeds = REPO / "tests/equivalence/carddemo-sort-combtran"
+    b1 = [r for r in (seeds / "sortin1.txt").read_bytes().split(b"\n") if r]
+    b2 = [r for r in (seeds / "sortin2.txt").read_bytes().split(b"\n") if r]
+    chain = tmp_path / "chain"
+    for base, gens in (("AWS.M2.CARDDEMO.TRANSACT.BKUP", [b1, b1[:10]]), ("AWS.M2.CARDDEMO.SYSTRAN", [b2])):
+        (chain / base).mkdir(parents=True)
+        for n, recs in enumerate(gens, 1):
+            (chain / base / f"G{n:04d}V00").write_bytes(b"".join(recs))
+    out = efs.scan_and_run(SPEC, CASE, REPORT, CORPUS, efj.chain_rcs, chain)
+    assert out is not None
+    for mode in ("strict", "skip"):
+        ds = out["raw"]["datasets_by_job"][mode]["COMBTRAN"]
+        assert ds["AWS.M2.CARDDEMO.TRANSACT.COMBINED(G0001V00)"]["size"] == 32 * 350
+        assert ds["AWS.M2.CARDDEMO.TRANSACT.BKUP(G0002V00)"]["size"] == 10 * 350
+        assert "AWS.M2.CARDDEMO.TRANSACT.BKUP(G0001V00)" in ds
+    bkup = next(d for d in out["datasets"] if d["dataset"] == "AWS.M2.CARDDEMO.TRANSACT.BKUP")
+    assert bkup["modes"]["strict"]["generation"] == "AWS.M2.CARDDEMO.TRANSACT.BKUP(G0003V00)"  # TRANBKP's, not a seed

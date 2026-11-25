@@ -4099,7 +4099,7 @@
       "swift/alamofire/Alamofire.podspec": 0,
       "swift/alamofire/Package.swift": 0,
       "swift/alamofire/ParameterEncoder.swift": 0,
-      "swift/alamofire/Request.swift": 1,
+      "swift/alamofire/Request.swift": 0,
       "swift/alamofire/Response.swift": 0,
       "swift/alamofire/Session.swift": 0
     },

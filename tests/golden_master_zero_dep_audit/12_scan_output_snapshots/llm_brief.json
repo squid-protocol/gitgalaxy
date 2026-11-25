@@ -219,7 +219,7 @@
     "| cleanup | 4740 | 708 | 2 | `zig/zig/Sema.zig` |",
     "| guards | 66901 | 1578 | 23 | `zig/zig/Sema.zig` |",
     "| danger | 30668 | 1622 | 17 | `fortran/wrf/regtest_hwrf.csh` |",
-    "| concurrency | 6355 | 600 | 2 | `typescript/playwright/frames.ts` |",
+    "| concurrency | 6354 | 600 | 2 | `typescript/playwright/frames.ts` |",
     "| connectivity | 27960 | 1307 | 12 | `typescript/typescript_compiler/types.ts` |",
     "| io | 16453 | 1079 | 6 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",

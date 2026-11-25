@@ -3397,12 +3397,13 @@
         "Compute Cores": 21,
         "Defensive Guards": 17,
         "Encapsulated Accessors": 46,
-        "Generic / Templated Code": 8,
+        "Generic / Templated Code": 7,
         "I/O & Config Routines": 2,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 6,
         "Parameter Forwarders": 21,
-        "Stateful Encapsulated Methods": 47
+        "Stateful Encapsulated Methods": 47,
+        "Type Conversions": 1
       },
       "cpp/NVDA/contributors.txt": {},
       "cpp/NVDA/copying.txt": {},
@@ -9857,12 +9858,12 @@
       },
       "python/cython/Nodes.py": {
         "Annotated & Test Methods": 6,
-        "Compute Cores": 153,
+        "Compute Cores": 154,
         "Defensive Guards": 28,
         "Encapsulated Accessors": 9,
         "Generic / Templated Code": 4,
         "Interface Declarations": 3,
-        "Many-Argument Workhorses": 59,
+        "Many-Argument Workhorses": 58,
         "Parameter Forwarders": 206,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 3
@@ -10522,9 +10523,9 @@
         "Parameter Forwarders": 1
       },
       "python/fastapi/tests/test_response_model_as_return_annotation.py": {
-        "Annotated & Test Methods": 34,
+        "Annotated & Test Methods": 36,
         "Defensive Guards": 30,
-        "Generic / Templated Code": 4,
+        "Generic / Templated Code": 2,
         "I/O & Config Routines": 1,
         "Type Conversions": 6
       },
@@ -10965,13 +10966,14 @@
         "Stateful Encapsulated Methods": 1
       },
       "python/homeassistant_ble_integrations/utils.py": {
-        "Generic / Templated Code": 2
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 1
       }
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": {
-        "Defensive Guards": 1,
-        "Many-Argument Workhorses": 2
+        "Defensive Guards": 2,
+        "Many-Argument Workhorses": 1
       },
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": {
         "Many-Argument Workhorses": 3
@@ -11022,12 +11024,12 @@
         "Type Conversions": 7
       },
       "python/numpy/crackfortran.py": {
-        "Compute Cores": 23,
+        "Compute Cores": 22,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 5,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 16,
-        "Parameter Forwarders": 10,
+        "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 8,
         "Type Conversions": 5
       },
@@ -11161,12 +11163,12 @@
       "python/twisted/http.py": {
         "Annotated & Test Methods": 9,
         "Compute Cores": 14,
-        "Defensive Guards": 9,
+        "Defensive Guards": 10,
         "Encapsulated Accessors": 21,
         "Generic / Templated Code": 12,
         "I/O & Config Routines": 1,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 8,
+        "Many-Argument Workhorses": 7,
         "Parameter Forwarders": 44,
         "Stateful Encapsulated Methods": 30,
         "Type Conversions": 3

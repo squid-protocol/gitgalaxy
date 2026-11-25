@@ -220,7 +220,7 @@
     "| guards | 66901 | 1578 | 23 | `zig/zig/Sema.zig` |",
     "| danger | 31289 | 1622 | 17 | `fortran/wrf/regtest_hwrf.csh` |",
     "| concurrency | 6346 | 600 | 2 | `typescript/playwright/frames.ts` |",
-    "| connectivity | 27969 | 1308 | 12 | `typescript/typescript_compiler/types.ts` |",
+    "| connectivity | 27961 | 1307 | 12 | `typescript/typescript_compiler/types.ts` |",
     "| io | 16649 | 1103 | 6 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1598 | 311 | 0 | `cobol/gnucobol/numeric-dump.cob` |",

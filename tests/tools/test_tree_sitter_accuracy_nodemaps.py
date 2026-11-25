@@ -101,6 +101,30 @@ def test_fsharp_counts_let_functions_and_methods_not_values_or_properties():
     assert _functions("fsharp", src) == [("add", 2), ("useIt", 0), ("Two", 2), ("One", 1)]
 
 
+def _fsharp_and(src: str):
+    tree = ts.get_parser("fsharp").parse(src.encode())
+    out = []
+
+    def walk(node):
+        if node.type == "function_or_value_defn":
+            out.extend(audit._fsharp_and_bindings(node))
+        for c in node.children:
+            walk(c)
+
+    walk(tree.root_node)
+    return [(n, line, pc) for n, line, pc in out]
+
+
+def test_fsharp_counts_each_and_binding_of_a_let_rec_chain():
+    src = "let rec a x = x\nand b x y = a x\nand c () = 1\n\nlet plain z = z\n"
+    assert _fsharp_and(src) == [("b", 2, 2), ("c", 3, 0)]
+
+
+def test_fsharp_and_value_binding_and_lone_let_add_nothing():
+    assert _fsharp_and("let rec a x = x\nand v = 1\n") == []
+    assert _fsharp_and("let one x = x\nlet two y = y\n") == []
+
+
 def test_python_function_names_are_not_disturbed_by_the_other_languages_branches():
     """function_definition is shared with python, c, matlab and others; none of the new branches may touch them."""
     tree = ts.get_parser("python").parse(

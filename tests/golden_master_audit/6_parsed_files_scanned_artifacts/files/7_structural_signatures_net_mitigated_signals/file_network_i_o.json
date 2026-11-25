@@ -1205,7 +1205,7 @@
       "cpp/NVDA/braille.py": 0,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
-      "cpp/NVDA/core.py": 1,
+      "cpp/NVDA/core.py": 3,
       "cpp/NVDA/ensureuv.ps1": 1,
       "cpp/NVDA/espeak.py": 0,
       "cpp/NVDA/inProcess.cpp": 0,
@@ -3568,8 +3568,8 @@
     "python/airflow": {
       "python/airflow/NOTICE": 0,
       "python/airflow/dag.py": 0,
-      "python/airflow/s3.py": 10,
-      "python/airflow/scheduler_job_runner.py": 0
+      "python/airflow/s3.py": 11,
+      "python/airflow/scheduler_job_runner.py": 2
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,

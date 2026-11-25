@@ -68,3 +68,15 @@ def test_the_2026_11_24_rulings_are_recorded_not_open():
     assert "Is `assert` an abort" not in open_part
     assert "Which documentation form" not in open_part
     assert "Ruled 2026-11-24" in open_part
+
+
+def test_only_owner_only_questions_stay_open():
+    """llm_api absences landed (#9275); generator expressions and C#/PHP `??` still need an owner ruling."""
+    open_part = DOC.split("## Open owner questions", 1)[1]
+    questions = re.findall(r"^\d+\. (.*)$", open_part, flags=re.M)
+    assert len(questions) == 2, questions
+    assert "comprehensions" in questions[0] and "generator expressions" in questions[0]
+    assert "`??`" in questions[1]
+    assert not any("llm_api" in q for q in questions)
+    unplanted = (REPO / "docs" / "unplanted_family_contracts.md").read_text(encoding="utf-8")
+    assert "### `llm_api` stated absences" in unplanted

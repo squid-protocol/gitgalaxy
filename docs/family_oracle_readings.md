@@ -80,6 +80,8 @@ The non-Python `branch` cells in `tests/family_validity_baseline.json` were meas
 
 Ruled 2026-11-24 (#8862, closed): `assert` is not an abort; `doc` is the structured form, N/A where a language has none.
 
-1. Does `comprehensions` include generator expressions?
-2. `llm_api` has a rule only for python, javascript and typescript; an absence entry is owed per language with an SDK (`docs/unplanted_family_contracts.md`).
-3. Is `??` (and `??=`) a `short_circuit` operator in C# and PHP? Until ruled it counts under `branch`.
+1. Does `comprehensions` include generator expressions? The oracle counts them until ruled (the contract's "inline iteration form" may cover them; `lazy_evaluation` excludes them, which is a different family).
+2. Is `??` (and `??=`) a `short_circuit` operator in C# and PHP? Until ruled it counts under `branch`.
+
+Answered, no longer open: the `llm_api` absence entries (a rule only for python, javascript and typescript; every other
+language is a stated absence, #9275, `### llm_api stated absences` in `docs/unplanted_family_contracts.md`).

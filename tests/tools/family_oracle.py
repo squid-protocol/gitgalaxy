@@ -95,6 +95,14 @@ _CLOCKS = frozenset(
         "localtime",
         "gmtime",
         "timezone",
+        # #8863: formatting / conversion calls the time_date_logic contract names, not any call on a `time` / `datetime` base
+        "isoformat",
+        "fromisoformat",
+        "mktime",
+        "ctime",
+        "asctime",
+        "timegm",
+        "thread_time",
     }
 )
 _DANGER_CALLS = frozenset({"eval", "exec", "system", "popen", "Popen", "unsafe_load", "_exit", "abort", "exit"})
@@ -102,7 +110,19 @@ _SUBPROCESS_CALLS = frozenset({"call", "run", "Popen", "check_output", "check_ca
 _LOG_METHODS = frozenset({"debug", "info", "warning", "warn", "error", "exception", "critical", "log"})
 _LOG_OBJECTS = frozenset({"logger", "logging", "log", "_log", "_logger", "LOG"})
 _THREAD_NAMES = frozenset(
-    {"Thread", "Pool", "Process", "ThreadPoolExecutor", "ProcessPoolExecutor", "Queue", "submit", "imap", "apply_async"}
+    {
+        "Thread",
+        "Pool",
+        "Process",
+        "ThreadPoolExecutor",
+        "ProcessPoolExecutor",
+        "Queue",
+        "submit",
+        "imap",
+        "apply_async",
+        "create_task",  # #8863: the concurrency contract names async / await tasks
+        "gather",
+    }
 )
 _LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release"})
 _SERIAL_BASES = frozenset({"json", "yaml", "pickle", "marshal", "csv", "toml", "tomllib", "ET", "etree", "plistlib"})
@@ -267,7 +287,7 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("io", name)
     if base == "re" or name in _REGEX_METHODS:
         c.add("regex", name)
-    if name in _CLOCKS or base in ("time", "datetime"):
+    if name in _CLOCKS:
         c.add("time", name)
     if (base in _SERIAL_BASES and name in _SERIAL_CALLS) or name in (
         "literal_eval",
@@ -299,8 +319,10 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("telemetry", name)
     if name in _THREAD_NAMES or base in ("threading", "multiprocessing"):
         c.add("threads", name)
-    if name in _LOCK_NAMES:
-        c.add("locks", name)
+    # #8863: `x.release(code)` / `x.acquire(var)` with arguments is another API (a Cython temp release), not a lock
+    if name in _LOCK_NAMES and not (name == "release" and (call.args or call.keywords)):
+        if name != "acquire" or all(isinstance(a, ast.Constant) for a in call.args):
+            c.add("locks", name)
     if isinstance(call.func, ast.Name) and name in _CASTS:
         c.add("cast", name)
 
@@ -313,8 +335,8 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
     )  # `str | None` in a type annotation is a type union, not a bitwise operator on values
     for node in ast.walk(fn):
         ann = getattr(node, "annotation", None) if isinstance(node, (ast.arg, ast.AnnAssign)) else None
-        if node is fn:
-            ann = fn.returns
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            ann = node.returns  # a nested def's return annotation too (#8863)
         if ann is not None:
             annotation_nodes.update(id(x) for x in ast.walk(ann))
     for node in ast.walk(fn):
@@ -358,10 +380,12 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             c.add("imports")
         if id(node) not in annotation_nodes and (
-            (isinstance(node, ast.BinOp) and isinstance(node.op, _BITWISE_OPS))
+            (isinstance(node, (ast.BinOp, ast.AugAssign)) and isinstance(node.op, _BITWISE_OPS))  # `m |= x` too (#8863)
             or (isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Invert))
         ):
             c.add("bitwise", type(node.op).__name__)
+        if isinstance(node, (ast.AsyncFunctionDef, ast.Await, ast.AsyncFor, ast.AsyncWith)):
+            c.add("threads", type(node).__name__)  # #8863: async / await is the concurrency family's
         if isinstance(node, ast.Call):
             _count_call(node, c)
     a = fn.args

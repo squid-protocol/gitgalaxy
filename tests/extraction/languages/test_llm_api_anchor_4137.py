@@ -142,6 +142,10 @@ _JS_NOT_SDK = [
     "const provider = 'openai';",
     "client.chat.completions.create({ model: 'gpt-4o' });",
     "import axios from 'axios';",
+    # a local tokenizer binds to no hosted SDK (#8862 reading 2)
+    "import { countTokens } from '@anthropic-ai/tokenizer';",
+    "const t = require('@anthropic-ai/tokenizer');",
+    "const t = await import('@anthropic-ai/tokenizer');",
 ]
 
 
@@ -153,6 +157,18 @@ def test_js_ts_sdk_import_fires(line):
 @pytest.mark.parametrize("line", _JS_NOT_SDK)
 def test_js_ts_provider_named_path_does_not_fire(line):
     assert not JS_LLM_API.search(line), line
+
+
+def test_tokenizer_scope_neighbours_still_fire():
+    assert JS_LLM_API.search("import x from '@anthropic-ai/tokenizer-pro';")
+    assert JS_LLM_API.search("import x from '@anthropic-ai/tokenizers';")
+    assert JS_LLM_API.search("import x from '@anthropic-ai/sdk';")
+
+
+@pytest.mark.parametrize("lang", ["javascript", "typescript"])
+def test_tokenizer_import_counts_zero_through_splice(lang):
+    code = "import { countTokens } from '@anthropic-ai/tokenizer';\nimport Anthropic from '@anthropic-ai/sdk';\n"
+    assert StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(code, "")["equations"]["llm_api"] == 1
 
 
 # ----------------------------------------------------------------------------- splice path

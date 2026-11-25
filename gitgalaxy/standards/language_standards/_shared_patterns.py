@@ -146,7 +146,10 @@ def _js_package_import(packages: str) -> "re.Pattern[str]":
 # `@langchain/anthropic`).
 _LLM_API_PY_PACKAGES = r"openai|anthropic|langchain_openai|langchain_anthropic"
 PY_LLM_API = _py_package_import(_LLM_API_PY_PACKAGES)
-_LLM_API_JS_PACKAGES = r"openai|anthropic|@(?:openai|anthropic-ai)/[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
+# `@anthropic-ai/tokenizer` runs locally and calls no hosted model, so it is not a site (#8862 reading 2).
+_LLM_API_JS_PACKAGES = (
+    r"openai|anthropic|@(?:openai|anthropic-ai)/(?!tokenizer(?![\w.-]))[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
+)
 JS_LLM_API = _js_package_import(_LLM_API_JS_PACKAGES)
 
 # llm_orchestrator (#4150): langchain and LlamaIndex. Every langchain

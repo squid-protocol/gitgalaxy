@@ -6989,7 +6989,7 @@
       "typescript/assemblyscript/builtins.ts": "0def6b375beb",
       "typescript/assemblyscript/compiler.ts": "0984630fc24e",
       "typescript/assemblyscript/parser.ts": "f2d21947d29e",
-      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "ea68ad476a47",
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "5471e4ae433d",
       "typescript/excalibur_math/collision_colliders_separating-axis.ts": "03efb754dd1f",
       "typescript/excalibur_math/math_ray.ts": "8d075ba1f298",
       "typescript/excalidraw_text_wrapping/textWrapping.ts": "fed74946bd2d",
@@ -12119,7 +12119,7 @@
     },
     "Row Counts": {
       "Artifacts": 3658,
-      "DNA Hits": 48041,
+      "DNA Hits": 48040,
       "Directory Groups": 395,
       "Functions": 62707,
       "Inbound Dependencies": 966,

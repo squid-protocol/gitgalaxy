@@ -506,6 +506,13 @@ class ScopeParsingRegistry:
             ],
             "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
             "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            # #9200: a short-form `f(x) = expr` opens and closes nothing, so no node was made for it. Group 1 is the name.
+            "oneline_opener": (
+                r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*"
+                r"(?!(?:if|elseif|for|while|let|return|function|macro|struct|module|using|import|export|catch)\b)"
+                r"((?:[A-Za-z_]\w*\.)*[^\W\d]\w*!?)(?:\{[^}\n]*\})?\([^)\n]*\)[ \t]*(?:::[^=\n]+?)?[ \t]*"
+                r"(?:where[ \t]+[^=\n]+?[ \t]*)?=(?![=>])"
+            ),
             "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
         },
         "vb": {
@@ -10408,7 +10415,28 @@ class StructuralExtractor:
             # lua: ruby/matlab/livecode also carry a `function_opener` but their
             # one-liner forms aren't corpus-audited yet, so they keep the strict
             # depth>0 gate.
+            oneline_src = config.get("oneline_opener")
+            oneline_pattern = re.compile(oneline_src, flags) if oneline_src else None
             for i in range(n):
+                if oneline_pattern is not None and net_changes[i] <= 0:
+                    om = oneline_pattern.match(safe_lines[i])
+                    if om:
+                        # #9200: the definition is its own one-line node, at any depth (a module wraps most files).
+                        line = original_lines[i].strip()
+                        sat, mag = self._calculate_block_metrics(
+                            om.group(1).rsplit(".", 1)[-1],
+                            line,
+                            1,
+                            offset + i + 1,
+                            offset + i + 1,
+                            rules,
+                            line_char_starts[i],
+                            line_char_starts[i] + len(original_lines[i]),
+                            spatial_map,
+                        )
+                        satellites.append(sat)
+                        sum_fxn_impact += mag
+                        continue
                 if depth_before_line[i] <= 0 and not (lang_key == "lua" and net_changes[i] <= 0):
                     continue
                 if not function_opener_pattern.search(safe_lines[i]):

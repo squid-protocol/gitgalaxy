@@ -72,6 +72,21 @@
    ]
   },
   {
+   "id": "fba8e07c08",
+   "op": "CON",
+   "line": 53,
+   "before": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 13);",
+   "after": "private final Field f4_WS_LLOG = Field.group(s_WS_LLOG, 0, 14);",
+   "verdict": "equivalent",
+   "reason": "WS-LLOG's group length (13 -> 14) is read only by the WRITEQ TS LENGTH(13) through DetCics.padded(f, 13): it copies min(13, field length) bytes from the same offset, so 13 and 14 both give the same 13 bytes with no padding. The statement runs: RETURN fault inputs (INVREQ 1, INVREQ 2 then a failing log write, LENGERR 11, INVREQ 4 with a NOSPACE log write) reached it with the port equal to the COBOL and the mutant surviving.",
+   "tried": [
+    "x-ret-invreq",
+    "x-ret-invreq-wq-fail",
+    "x-ret-invreq4-wq-nospace",
+    "x-ret-lengerr"
+   ]
+  },
+  {
    "id": "2a9c721d9d",
    "op": "CON",
    "line": 57,
@@ -444,6 +459,50 @@
    ]
   },
   {
+   "id": "5c71d03a70",
+   "op": "DEL",
+   "line": 126,
+   "before": "f1_WS_RESP = 0L;",
+   "after": "/* f1_WS_RESP = 0L; */",
+   "verdict": "equivalent",
+   "reason": "initialState zeroes WS-RESP, but every read of WS-RESP (MOVE WS-RESP TO LLOG-RESP) follows the RETURN ... RESP(WS-RESP) that stores it, on the only path that reads it (EIBCALEN 0); the other path never reads it; RETURN RESP stores on success and on each faulted condition tried",
+   "tried": [
+    "ca-12",
+    "ca-8-low",
+    "ca-8-sp",
+    "ca8-dfhenter",
+    "ca8-dfhpa1",
+    "ca8-dfhpf1",
+    "ca8-dfhpf12",
+    "ca8-dfhpf9",
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "022a0c60cd",
+   "op": "DEL",
+   "line": 127,
+   "before": "f2_WS_RESP2 = 0L;",
+   "after": "/* f2_WS_RESP2 = 0L; */",
+   "verdict": "equivalent",
+   "reason": "initialState zeroes WS-RESP2, but WS-RESP2 is read only by MOVE WS-RESP2 TO LLOG-RESP2 right after the RETURN ... RESP2(WS-RESP2) that stores it; no path reads it before that store",
+   "tried": [
+    "ca-12",
+    "ca-8-low",
+    "ca-8-sp",
+    "ca8-dfhenter",
+    "ca8-dfhpa1",
+    "ca8-dfhpf1",
+    "ca8-dfhpf12",
+    "ca8-dfhpf9",
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
    "id": "d6c4e17c43",
    "op": "DEL",
    "line": 140,
@@ -456,6 +515,190 @@
    ]
   },
   {
+   "id": "6bb8bde951",
+   "op": "DEL",
+   "line": 154,
+   "before": "Cobol.move(task.transid(), f16_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f16_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBTRNID is stored from the task's transid at entry; PCIMML (MAIN-PARA only: EIBCALEN test, RETURN TRANSID('PC52') IMMEDIATE, WRITEQ TS, RETURN) never names EIBTRNID and no command it issues takes the transaction id from the EIB, so a deleted store changes nothing the program or the proof can see",
+   "tried": [
+    "ca-12",
+    "ca-8-low",
+    "ca-8-sp",
+    "ca8-dfhenter",
+    "ca8-dfhpa1",
+    "ca8-dfhpf1",
+    "ca8-dfhpf12",
+    "ca8-dfhpf9",
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "d7e33bf1f4",
+   "op": "DEL",
+   "line": 156,
+   "before": "Cobol.store(f17_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f17_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBTASKN is stored from the task number at entry; PCIMML never reads EIBTASKN and none of RETURN, WRITEQ TS or the implicit RETURN uses it, so the deleted store is never read",
+   "tried": [
+    "ca-12",
+    "ca-8-low",
+    "ca-8-sp",
+    "ca8-dfhenter",
+    "ca8-dfhpa1",
+    "ca8-dfhpf1",
+    "ca8-dfhpf12",
+    "ca8-dfhpf9",
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "0297802139",
+   "op": "AOR",
+   "line": 158,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the year/day multiplication became another operator in the EIBDATE store: PCIMML never reads EIBDATE (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "14e75206a1",
+   "op": "DEL",
+   "line": 158,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "deleting the EIBDATE store: PCIMML never reads EIBDATE (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "1b8efc64e7",
+   "op": "CON",
+   "line": 158,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the 1900 year offset changed in the EIBDATE store: PCIMML never reads EIBDATE (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "aeb5a2bd2d",
+   "op": "AOR",
+   "line": 158,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "year - 1900 became year + 1900 in the EIBDATE store: PCIMML never reads EIBDATE (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "f8931e1c6f",
+   "op": "AOR",
+   "line": 158,
+   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the day-of-year addition became another operator in the EIBDATE store: PCIMML never reads EIBDATE (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "1c7b4f9c40",
+   "op": "AOR",
+   "line": 159,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the minute term of the EIBTIME store: PCIMML never reads EIBTIME (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "20e3596201",
+   "op": "AOR",
+   "line": 159,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the hour-times-10000 term of the EIBTIME store: PCIMML never reads EIBTIME (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "435892fa38",
+   "op": "DEL",
+   "line": 159,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "deleting the EIBTIME store: PCIMML never reads EIBTIME (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "7fdecf480f",
+   "op": "AOR",
+   "line": 159,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the hour term of the EIBTIME store: PCIMML never reads EIBTIME (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
+   "id": "f523ad7ad2",
+   "op": "AOR",
+   "line": 159,
+   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "the second term of the EIBTIME store: PCIMML never reads EIBTIME (no ASKTIME, FORMATTIME or EIB reference in its source), so the value stored there is never read",
+   "tried": [
+    "nc-clear-ret-lengerr",
+    "nc-pa2-ret-invreq2",
+    "nc-pf12-ret-invreq9"
+   ]
+  },
+  {
    "id": "494d7ec675",
    "op": "DEL",
    "line": 167,
@@ -465,126 +708,6 @@
    "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
    "tried": [
     "never-populated"
-   ]
-  },
-  {
-   "id": "0297802139",
-   "op": "AOR",
-   "line": 173,
-   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "14e75206a1",
-   "op": "DEL",
-   "line": 173,
-   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "/* Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "1b8efc64e7",
-   "op": "CON",
-   "line": 173,
-   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "aeb5a2bd2d",
-   "op": "AOR",
-   "line": 173,
-   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "f8931e1c6f",
-   "op": "AOR",
-   "line": 173,
-   "before": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
-   "after": "Cobol.store(f15_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f15_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "1c7b4f9c40",
-   "op": "AOR",
-   "line": 174,
-   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "20e3596201",
-   "op": "AOR",
-   "line": 174,
-   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "435892fa38",
-   "op": "DEL",
-   "line": 174,
-   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "/* Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "7fdecf480f",
-   "op": "AOR",
-   "line": 174,
-   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "f523ad7ad2",
-   "op": "AOR",
-   "line": 174,
-   "before": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
-   "after": "Cobol.store(f14_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
-   "verdict": "equivalent",
-   "reason": "f14_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
    ]
   },
   {

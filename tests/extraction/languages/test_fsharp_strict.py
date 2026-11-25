@@ -170,3 +170,15 @@ def test_one_line_let_function_is_a_unit_next_to_multi_line_ones_9200():
     src = "let multi (x: int) =\n    x + 1\nlet oneLiner (x: int) = x * 2\nlet other (y: int) = y\n"
     names = sorted(f["name"] for f in _splice(src)["functions"])
     assert names == ["multi", "oneLiner", "other"]
+
+
+def test_capitalised_let_is_a_function_but_capitalised_and_is_a_constructor_9200():
+    src = (
+        "module M\n"
+        "let ACCEPTED x = accepted (negotiate x)\n"
+        "let rec Walk (n: int) =\n    n\n"
+        "type A(x) =\n    member _.V = x\n"
+        "and B(y) =\n    member _.W = y\n"
+    )
+    names = sorted(f["name"] for f in _splice(src)["functions"])
+    assert names == ["ACCEPTED", "Walk"]

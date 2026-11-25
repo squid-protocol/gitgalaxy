@@ -180,10 +180,11 @@ def _line(key: str, forged: list[dict], given: dict) -> str:
 def test_the_forge_guard_is_the_one_the_driver_mirrors():
     """The driver restates `JclSteps.guarded`'s decision; pin that text so a change to it fails here, not silently."""
     guarded = forge_mod._RUNTIME["JclSteps"]
-    assert (
-        "if (JclConditions.bypass(jobCond, rcs) || JclConditions.bypass(cond, rcs)\n"
-        "                    || !JclConditions.holds(ifCond, rcs)) {" in guarded
-    )
+    conds = forge_mod._RUNTIME["JclConditions"]
+    assert "JclConditions.bypassed(" in guarded
+    assert "bypass(jobCond, rcs) || bypass(cond, rcs) || !holds(ifCond, rcs)" in conds
+    # `ifChains` is used with no IDCAMS step, so its import sits outside the IDCAMS block (zopeneditor-sample compile)
+    assert guarded.index("import java.util.concurrent.ConcurrentHashMap;") < guarded.index("//{IDCAMS_IMPORT}")
     assert "rcs.put(jcl, rc);" in guarded and 'new ExitStatus("BYPASSED")' in guarded
 
 

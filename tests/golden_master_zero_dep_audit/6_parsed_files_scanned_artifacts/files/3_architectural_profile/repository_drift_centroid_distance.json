@@ -1492,7 +1492,7 @@
       "fsharp/giraffe_web/FormatExpressions.fs": 7.789,
       "fsharp/giraffe_web/Helpers.fs": 6.696,
       "fsharp/giraffe_web/HttpContextExtensions.fs": 8.043,
-      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 5.676,
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 6.148,
       "fsharp/giraffe_web/Json.fs": 7.508,
       "fsharp/giraffe_web/Middleware.fs": 7.44,
       "fsharp/giraffe_web/ModelParser.fs": 9.302,
@@ -1588,8 +1588,8 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 6.18,
-      "groovy/gradle/DefaultProject.java": 7.013,
-      "groovy/gradle/DefaultTask.java": 6.554
+      "groovy/gradle/DefaultProject.java": 6.969,
+      "groovy/gradle/DefaultTask.java": 6.54
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 8.01,
@@ -1775,9 +1775,9 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 3.549
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 7.734,
-      "groovy/spock/SpecParser.java": 7.227,
-      "groovy/spock/SpecRewriter.java": 6.915,
+      "groovy/spock/DeepBlockRewriter.java": 7.738,
+      "groovy/spock/SpecParser.java": 7.117,
+      "groovy/spock/SpecRewriter.java": 6.834,
       "groovy/spock/SpockTransform.java": 6.865
     },
     "groovy/spock_core_groovy": {
@@ -2086,7 +2086,7 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0.0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.631
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.538
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 6.002,
@@ -2110,21 +2110,21 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 7.239,
-      "javascript/jquery/buildFragment.js": 3.955,
-      "javascript/jquery/core.js": 8.418,
-      "javascript/jquery/css.js": 7.634,
+      "javascript/jquery/ajax.js": 7.369,
+      "javascript/jquery/buildFragment.js": 4.379,
+      "javascript/jquery/core.js": 8.446,
+      "javascript/jquery/css.js": 7.733,
       "javascript/jquery/deferred.js": 8.74,
-      "javascript/jquery/event.js": 8.341,
-      "javascript/jquery/tokenize.js": 4.022
+      "javascript/jquery/event.js": 8.406,
+      "javascript/jquery/tokenize.js": 4.39
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.734,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 7.787,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 3.295,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 5.647,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 5.147,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 3.649,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 4.884,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 5.241,
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 6.072
     },
     "javascript/react": {
@@ -2136,16 +2136,16 @@
       "javascript/react/build.js": 5.827
     },
     "javascript/react_error_codes": {
-      "javascript/react_error_codes/extract-errors.js": 7.417
+      "javascript/react_error_codes/extract-errors.js": 7.537
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 5.478,
       "javascript/threejs/Editor.js": 7.209,
-      "javascript/threejs/GLTFLoader.js": 6.362,
+      "javascript/threejs/GLTFLoader.js": 6.365,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
-      "javascript/threejs/WebGLProgram.js": 7.633,
-      "javascript/threejs/WebGLRenderer.js": 8.914
+      "javascript/threejs/WebGLProgram.js": 7.661,
+      "javascript/threejs/WebGLRenderer.js": 8.916
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0
@@ -2365,34 +2365,34 @@
     "julia/dataframes_jl": {
       "julia/dataframes_jl/DataFrames.jl": 1.988,
       "julia/dataframes_jl/LICENSE.md": 0.0,
-      "julia/dataframes_jl/abstractdataframe_io.jl": 6.454,
-      "julia/dataframes_jl/abstractdataframe_iteration.jl": 7.282,
+      "julia/dataframes_jl/abstractdataframe_io.jl": 7.479,
+      "julia/dataframes_jl/abstractdataframe_iteration.jl": 7.9,
       "julia/dataframes_jl/abstractdataframe_prettytables.jl": 8.186,
       "julia/dataframes_jl/abstractdataframe_prettytables_v2.jl": 7.845,
-      "julia/dataframes_jl/abstractdataframe_reshape.jl": 6.662,
-      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": 7.372,
-      "julia/dataframes_jl/abstractdataframe_show.jl": 7.281,
-      "julia/dataframes_jl/abstractdataframe_sort.jl": 7.135,
-      "julia/dataframes_jl/abstractdataframe_subset.jl": 7.829,
-      "julia/dataframes_jl/abstractdataframe_unique.jl": 7.675,
-      "julia/dataframes_jl/dataframe_dataframe.jl": 6.948,
-      "julia/dataframes_jl/dataframe_insertion.jl": 7.985,
-      "julia/dataframes_jl/dataframerow_dataframerow.jl": 6.94,
+      "julia/dataframes_jl/abstractdataframe_reshape.jl": 6.807,
+      "julia/dataframes_jl/abstractdataframe_selectionfast.jl": 7.109,
+      "julia/dataframes_jl/abstractdataframe_show.jl": 9.325,
+      "julia/dataframes_jl/abstractdataframe_sort.jl": 7.522,
+      "julia/dataframes_jl/abstractdataframe_subset.jl": 7.531,
+      "julia/dataframes_jl/abstractdataframe_unique.jl": 7.598,
+      "julia/dataframes_jl/dataframe_dataframe.jl": 6.965,
+      "julia/dataframes_jl/dataframe_insertion.jl": 7.953,
+      "julia/dataframes_jl/dataframerow_dataframerow.jl": 7.175,
       "julia/dataframes_jl/dataframerow_show.jl": 5.276,
       "julia/dataframes_jl/deprecated.jl": 6.258,
-      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": 6.568,
-      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": 7.35,
-      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": 9.304,
-      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": 7.195,
+      "julia/dataframes_jl/groupeddataframe_callprocessing.jl": 6.737,
+      "julia/dataframes_jl/groupeddataframe_complextransforms.jl": 7.9,
+      "julia/dataframes_jl/groupeddataframe_fastaggregates.jl": 8.942,
+      "julia/dataframes_jl/groupeddataframe_groupeddataframe.jl": 7.514,
       "julia/dataframes_jl/groupeddataframe_show.jl": 6.095,
       "julia/dataframes_jl/groupeddataframe_splitapplycombine.jl": 6.976,
-      "julia/dataframes_jl/groupeddataframe_utils.jl": 9.49,
-      "julia/dataframes_jl/join_core.jl": 10.32,
+      "julia/dataframes_jl/groupeddataframe_utils.jl": 10.041,
+      "julia/dataframes_jl/join_core.jl": 9.791,
       "julia/dataframes_jl/join_inplace.jl": 8.013,
-      "julia/dataframes_jl/other_broadcasting.jl": 6.534,
-      "julia/dataframes_jl/other_index.jl": 6.519,
-      "julia/dataframes_jl/other_metadata.jl": 5.923,
-      "julia/dataframes_jl/other_names.jl": 6.702,
+      "julia/dataframes_jl/other_broadcasting.jl": 7.255,
+      "julia/dataframes_jl/other_index.jl": 6.907,
+      "julia/dataframes_jl/other_metadata.jl": 6.048,
+      "julia/dataframes_jl/other_names.jl": 6.737,
       "julia/dataframes_jl/other_precompile.jl": 2.452
     },
     "kotlin": {
@@ -4222,7 +4222,7 @@
       "typescript/excalibur_math/math_ray.ts": 4.863
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 6.858
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 7.041
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 8.519,
@@ -4266,10 +4266,10 @@
       "typescript/vscode/codeEditorWidget.ts": 7.962,
       "typescript/vscode/eslint.config.js": 6.108,
       "typescript/vscode/extHost.api.impl.ts": 11.672,
-      "typescript/vscode/gulpfile.vscode.ts": 7.76,
+      "typescript/vscode/gulpfile.vscode.ts": 7.772,
       "typescript/vscode/instantiationService.ts": 7.467,
-      "typescript/vscode/ipc.ts": 6.489,
-      "typescript/vscode/lifecycle.ts": 7.826,
+      "typescript/vscode/ipc.ts": 6.5,
+      "typescript/vscode/lifecycle.ts": 7.837,
       "typescript/vscode/package.json": 0.0,
       "typescript/vscode/vscode.d.ts": 9.244
     },

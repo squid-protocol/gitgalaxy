@@ -1,12 +1,12 @@
 {
-  "args_comparable": 666,
-  "args_exact_match": 572,
+  "args_comparable": 809,
+  "args_exact_match": 706,
   "corpus_path": "language-crucible/data/nim",
   "extra_classes": 0,
-  "extra_functions": 113,
+  "extra_functions": 58,
   "files_scanned": 30,
   "found_classes": 0,
-  "found_functions": 666,
+  "found_functions": 809,
   "real_classes": 0,
   "real_functions": 809
 }

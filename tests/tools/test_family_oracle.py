@@ -60,7 +60,9 @@ def _counts(src: str) -> dict:
         ("def f() -> Generator[int, None, None]:\n    return g()", "lazy", 1),
         ("def f(xs):\n    return (x for x in xs)", "lazy", 0),
         ("def f():\n    yield 1", "lazy", 1),
-        ("def f(a):\n    if a and a > 1:\n        return 1\n    return 0", "branch", 2),
+        ("def f(a):\n    if a and a > 1:\n        return 1\n    return 0", "branch", 1),
+        ("def f(a):\n    if a and a > 1:\n        return 1\n    return 0", "short_circuit", 1),
+        ("def f(a, b, c):\n    return a or b or c", "short_circuit", 2),
         (
             "def f():\n    try:\n        g()\n    except ValueError:\n        pass\n    assert g()",
             "branch",
@@ -250,7 +252,8 @@ def _ts_counts(lang: str, src: str, name: str, line: int = 0) -> dict:
         ("go", "package m\nfunc F(a, b int, c string) {}", "F", "args", 3),  # `a, b int` is two parameters
         ("go", 'package m\nfunc F() { fmt.Println("x") }', "F", "print", 1),
         ("go", "package m\nfunc F() { g := func() {}; g() }", "F", "closures", 1),
-        ("go", "package m\nfunc F(a int) int { if a > 1 && a < 5 { return 1 }; return 0 }", "F", "branch", 2),
+        ("go", "package m\nfunc F(a int) int { if a > 1 && a < 5 { return 1 }; return 0 }", "F", "branch", 1),
+        ("go", "package m\nfunc F(a int) int { if a > 1 && a < 5 { return 1 }; return 0 }", "F", "short_circuit", 1),
         ("c", "int f(int a, char *b) { return a; }", "f", "args", 2),
         ("c", "int f(void) { return 1; }", "f", "args", 0),
         ("c", 'int f(void) { printf("a >> b"); return 1; }', "f", "bitwise", 0),
@@ -351,3 +354,14 @@ def test_cli_writes_the_baseline(tmp_path):
     base = tmp_path / "b.json"
     assert fo.main([str(db), "--src", str(tmp_path), "--corpus", "x", "--update-baseline", str(base)]) == 0
     assert "io" in json.loads(base.read_text(encoding="utf-8"))["cells"]["python"]
+
+
+def test_every_python_oracle_family_has_a_contract_and_a_readings_row():
+    """docs/family_oracle_readings.md is the ratification ledger: one row per oracle family, with the live sentence."""
+    from gitgalaxy.standards.signal_contracts import CONTRACTS
+
+    doc = (Path(__file__).resolve().parents[2] / "docs" / "family_oracle_readings.md").read_text(encoding="utf-8")
+    for f in fo.FAMILIES:
+        assert f.rule in CONTRACTS, f.rule
+        assert f"| `{f.rule}` |" in doc, f.rule
+        assert f.sentence.replace("|", "/") in doc, f.rule

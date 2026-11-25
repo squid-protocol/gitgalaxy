@@ -88,6 +88,9 @@ class Step:
     sort_service: str = ""  # #4268: the class of its det translation (a service the step runs), "" until ported
     sort_java: str = ""  # that service's source
     concat: int = 0  # a SORT whose SORTIN is a concatenation: its datasets (the k-th, k > 1, is the DD `SORTIN<k>`)
+    if_chain: list[list] = field(
+        default_factory=list
+    )  # #8886: [IF line key, condition, in its ELSE clause], outermost first
     not_ported: str = ""  # why the lowered program is not run (the det translation failed or holds holes)
     lowered_note: str = ""  # where its record length came from
     # #8886: the lowered SORT builds fewer bytes (OUTREC) than its SORTOUT's fixed LRECL: IBM ends it, RC=16
@@ -205,6 +208,7 @@ class BatchForge:
                           dds.get((j["file"], s["ordinal"], ps["step"] if inner is not None else None), []),
                           self.programs.get(prog or ""))  # fmt: skip
                 st.parm = ps.get("parm")
+                st.if_chain = self._if_chain(s, ps, inner is not None)
                 if prog in COPY:
                     st.refused = self._iebgener_refusal(j["file"], s["ordinal"], st)
                 elif prog in IDCAMS:
@@ -619,6 +623,11 @@ class BatchForge:
         bean = j.cls[0].lower() + j.cls[1 : -len("Config")]  # unique, as the class is
         java += ["    @Bean", f"    public Job {bean}({', '.join(params)}) {{",
                  f"        return new JobBuilder({_jstr(j.spring)}, jobRepository)", "                .listener(steps.abends())"]  # fmt: skip
+        for st in j.steps:
+            if st.if_chain:  # #8886: the IF constructs of the step, by job and step (JclConditions.bypassed)
+                rows = ", ".join("{" + ", ".join(_jstr(c if isinstance(c, str) else str(c).lower()) for c in r) + "}"
+                                 for r in st.if_chain)  # fmt: skip
+                java.append(f"        steps.ifChain({_jstr(j.spring)}, {_jstr(st.jcl)}, new String[][] {{{rows}}});")
         for i, st in enumerate(j.steps):
             verb = ".start" if i == 0 else ".next"
             java.append(f"                {verb}(new StepBuilder({_jstr(st.name)}, jobRepository)")
@@ -696,6 +705,18 @@ class BatchForge:
         if st.runner:
             return f"TODO: {st.jcl} runs the utility {p} through {st.runner} ({st.via}) -- a utility step to port"
         return f"TODO: {st.jcl} runs the utility {p} (its control statements are in SYSIN) -- a utility step to port"
+
+    @staticmethod
+    def _if_chain(call: dict, ps: dict, in_proc: bool) -> list[list]:
+        """#8886: the IF constructs a step sits in, outermost first. IBM fixes a construct's result when it is first
+        evaluated (Example 9), so each carries its IF statement's line as the key; a procedure's own IF is keyed by the
+        call (each call evaluates its own)."""
+        chain = [[str(line), expr, bool(in_else)] for line, expr, in_else in call.get("if_chain") or []]
+        if in_proc:
+            chain += [
+                [f"{call['step']}.{line}", expr, bool(in_else)] for line, expr, in_else in ps.get("if_chain") or []
+            ]
+        return chain
 
     def _tasklet(self, j: Job, st: Step) -> str:
         consts = f"DDS_{self._const(st.name)}"
@@ -1313,15 +1334,56 @@ public final class JclConditions {
      */
     public static boolean startsAfterAbend(String jobCond, String cond, String ifCond, Map<String, Integer> rcs,
             Map<String, String> abends) {
-        String upper = cond == null ? "" : cond.toUpperCase(Locale.ROOT);
         boolean inIf = ifCond != null && !ifCond.isBlank();
         if (inIf && (!NAMES_ABEND.matcher(ifCond.toUpperCase(Locale.ROOT)).find() || !holds(ifCond, rcs, abends))) {
             return false;
         }
+        return liftsAbendDefault(jobCond, cond, inIf, rcs);
+    }
+
+    /**
+     * Whether a step the abend default would bypass starts: EVEN / ONLY or an IF lifts it, and the step's JOB COND
+     * and COND tests still decide.
+     */
+    private static boolean liftsAbendDefault(String jobCond, String cond, boolean inIf, Map<String, Integer> rcs) {
+        String upper = cond == null ? "" : cond.toUpperCase(Locale.ROOT);
         if (!(EVEN.matcher(upper).find() || ONLY.matcher(upper).find()) && !inIf) {
             return false;
         }
         return !(jobCond != null && testsHold(jobCond.toUpperCase(Locale.ROOT), rcs)) && !testsHold(upper, rcs);
+    }
+
+    /**
+     * Whether a step is bypassed. `chain` (null: the flat `ifCond`) holds the IF constructs the step sits in, outermost
+     * first, {line of the IF, its condition, "true" in its ELSE clause}: IBM fixes a construct's result when it is first
+     * evaluated and does not re-evaluate it for its later steps (JCL Reference, IF/THEN/ELSE Example 9), so `frozen`
+     * (IF line -> result, kept per job) holds the results. jcl_flow's `_starts` is the engine's twin.
+     */
+    public static boolean bypassed(String jobCond, String cond, String ifCond, String[][] chain,
+            Map<String, Integer> rcs, Map<String, String> abends, Map<String, Boolean> frozen) {
+        if (chain == null || chain.length == 0) {
+            return !abends.isEmpty() ? !startsAfterAbend(jobCond, cond, ifCond, rcs, abends)
+                    : bypass(jobCond, rcs) || bypass(cond, rcs) || !holds(ifCond, rcs);
+        }
+        StringBuilder names = new StringBuilder();
+        for (String[] c : chain) {
+            names.append(c[1]).append(' ');
+        }
+        for (String[] c : chain) {
+            Boolean done = frozen.get(c[0]);
+            if (done == null) {
+                if (!abends.isEmpty() && !NAMES_ABEND.matcher(names.toString().toUpperCase(Locale.ROOT)).find()) {
+                    return true;
+                }
+                done = holds(c[1], rcs, abends);
+                frozen.put(c[0], done);
+            }
+            if (done == Boolean.parseBoolean(c[2])) {
+                return true;
+            }
+        }
+        return abends.isEmpty() ? bypass(jobCond, rcs) || bypass(cond, rcs)
+                : !liftsAbendDefault(jobCond, cond, true, rcs);
     }
 
     static boolean compare(int left, String op, int right) {
@@ -1469,10 +1531,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 //{IDCAMS_IMPORT}
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.ToIntFunction;
 import __BASE__.cobolrt.job.Idcams;
 //{/IDCAMS_IMPORT}
@@ -1500,6 +1562,7 @@ public class JclSteps {
     private static final Logger LOG = LoggerFactory.getLogger(JclSteps.class);
     private final DatasetResolver datasets;
     private final boolean skipUnimplemented;
+    private final Map<String, String[][]> ifChains = new ConcurrentHashMap<>();
 //{IDCAMS_IMPORT}
     private final Map<Long, Map<String, Idcams.Entry>> catalogs = new ConcurrentHashMap<>();
 //{/IDCAMS_IMPORT}
@@ -1508,6 +1571,11 @@ public class JclSteps {
             @Value("${gitgalaxy.batch.skip-unimplemented:false}") boolean skipUnimplemented) {
         this.datasets = datasets;
         this.skipUnimplemented = skipUnimplemented;
+    }
+
+    /** The IF constructs a step sits in, outermost first: {line of the IF, its condition, "true" in its ELSE clause}. */
+    public void ifChain(String job, String jcl, String[][] chain) {
+        ifChains.put(job + "/" + jcl, chain);
     }
 
     /** A step running a program of the estate: its service's runBatch, whose result is RETURN-CODE. */
@@ -1727,13 +1795,12 @@ public class JclSteps {
             Map<String, Integer> rcs = new LinkedHashMap<>((Map<String, Integer>) ctx.get("jcl.rc", Map.class, Map.of()));
             Map<String, String> abends = new LinkedHashMap<>(
                     (Map<String, String>) ctx.get("jcl.abend", Map.class, Map.of()));
-            if (!abends.isEmpty()) {  // an earlier step abended: IBM bypasses this one unless EVEN / ONLY / IF ABEND says so
-                if (!JclConditions.startsAfterAbend(jobCond, cond, ifCond, rcs, abends)) {
-                    contribution.setExitStatus(new ExitStatus("BYPASSED"));
-                    return RepeatStatus.FINISHED;
-                }
-            } else if (JclConditions.bypass(jobCond, rcs) || JclConditions.bypass(cond, rcs)
-                    || !JclConditions.holds(ifCond, rcs)) {
+            Map<String, Boolean> frozen = new LinkedHashMap<>(
+                    (Map<String, Boolean>) ctx.get("jcl.if", Map.class, Map.of()));
+            String[][] chain = ifChains.get(chunk.getStepContext().getJobName() + "/" + jcl);
+            boolean bypassed = JclConditions.bypassed(jobCond, cond, ifCond, chain, rcs, abends, frozen);
+            ctx.put("jcl.if", frozen);  // an IF construct's result stays fixed for the rest of the job (IBM Example 9)
+            if (bypassed) {  // COND / IF; after an abend IBM bypasses unless EVEN / ONLY / IF ABEND says so
                 contribution.setExitStatus(new ExitStatus("BYPASSED"));
                 return RepeatStatus.FINISHED;
             }

@@ -282,7 +282,16 @@ DEFINITION: dict[str, Any] = {
         # `.readNext()`, `.readKey(`, `.write(350)`: a COBOL open mode or a record length, so a serializer's
         # `SCHEMA.write(buf)` does not count; close is cleanup).
         "io": re.compile(
-            r"\b(File|InputStream|OutputStream|Reader|Writer|Scanner|Files\.|Path|Socket|RestTemplate|WebClient|RestClient|HttpClient|Connection|ResultSet|Statement|EntityManager|DataSource|Repository)\b"
+            # #8868: one hit is an operation, not a mention. The type names this rule once counted bare
+            # (File, Path, Reader, Writer, Connection, Statement, Repository ...) fired on every field, parameter
+            # and return type; the forms below are the calls that move the data (contract: io_rule_contract C1).
+            r"\bFiles\.(?:read\w{0,24}|write\w{0,24}|copy|move|delete\w{0,12}|list|walk|lines|new[A-Z]\w{0,24}|create\w{0,24})[ \t]{0,4}\("
+            r"|\bnew[ \t]{1,4}(?:Socket|ServerSocket|DatagramSocket|Scanner)[ \t]{0,4}\("
+            r"|\.(?:openConnection|openStream|getInputStream|getOutputStream|sendAsync|readLine|readAllBytes|readAllLines)[ \t]{0,4}\("
+            r"|\.(?:executeQuery|executeUpdate|executeBatch|executeLargeUpdate|createNativeQuery|getResultList)[ \t]{0,4}\("
+            r"|\b(?:DriverManager|dataSource)\.getConnection[ \t]{0,4}\("
+            r"|\.(?:getForObject|getForEntity|postForObject|postForEntity|postForLocation|exchangeToMono|exchangeToFlux)[ \t]{0,4}\("
+            r"|\bSystem\.in\.read[ \t]{0,4}\("
             r"|\btask\.(?:read|readForUpdate|rewrite|delete|deleteHeld|startbr|readnext|readprev|endbr"
             r"|readqTs|readqTsNext|writeqTs|rewriteqTs|writeqTd|getCounter)\("
             r"|\btask\.write\((?!\"[^\"\n]{0,64}\",[ \t]{0,4}\(\)[ \t]{0,4}->)"

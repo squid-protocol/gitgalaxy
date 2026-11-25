@@ -391,7 +391,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(try|catch|finally|checked|is|as|nameof|required|ArgumentNullException|ThrowIfNull|ThrowIfNullOrWhiteSpace)\b|\[(?:Required|NotNull|Authorize)\]|\?\?|\?\."
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: sprintf/strcpy/void*/any, unchecked casts)
         # Null-forgiving operator, dynamic, and unsafe bypasses.
         "safety_bypasses": re.compile(r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"),
         # 8. danger (High-Risk Execution / System Calls)

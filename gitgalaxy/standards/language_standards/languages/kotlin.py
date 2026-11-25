@@ -211,7 +211,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\?\.(?!.)|as\?|(?:\b(?:require|requireNotNull|check|checkNotNull|is|onSuccess|onFailure|runCatching)|(?<![\w-])!is)\b|\?:"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: !! force unwrap, unsafe casts, lateinit, @Suppress)
         # Force unwrapping, unsafe casts, and suppression.
         "safety_bypasses": re.compile(r"!!|as(?!\?)\b|\blateinit\s+var\b|@Suppress\b"),
         # 8. danger (High-Risk Execution / System Calls)

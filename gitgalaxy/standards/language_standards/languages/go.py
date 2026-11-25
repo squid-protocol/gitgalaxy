@@ -135,7 +135,7 @@ DEFINITION: dict[str, Any] = {
         # `defer func() { recover() }()` idiom never matched.
         # C2: errors.New constructs. C3: sync.* is concurrency's. C1: context.Context is a type.
         "safety": re.compile(r"err\s*!=\s*nil|\b(?:errors\.(?:Is|As|Join))\b|\brecover\(\)"),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: the blank-identifier error discard and dot imports)
         # Explicitly ignoring errors via blank identifier.
         # BUG FIX (#2542): the import alternation made the dot OPTIONAL
         # (`import\s+(?:\.[ \t]+)?"`), so EVERY plain quoted import

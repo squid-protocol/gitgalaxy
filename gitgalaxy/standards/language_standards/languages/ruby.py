@@ -163,7 +163,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\&\.|\b(rescue|ensure|fetch|frozen_string_literal|freeze|catch|throw|safe_load|T\.must|T\.let|T\.cast|T\.bind)\b"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: eval/send dynamic dispatch and Sorbet escape hatches)
         # Dynamic logic bypasses and Sorbet escape hatches.
         "safety_bypasses": re.compile(
             r"\b(eval|class_eval|instance_eval|module_eval|send|__send__|public_send|binding|instance_variable_set|unsafe_load|T\.unsafe|T\.untyped)\b"

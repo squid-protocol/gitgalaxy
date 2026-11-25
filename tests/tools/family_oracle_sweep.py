@@ -42,7 +42,7 @@ ALIASES = {"bash"}  # an oracle spec registered under a second name for the same
 
 
 def languages() -> list[str]:
-    return ["python", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
+    return ["python", "cobol", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
 
 
 def crucible_data(env: dict[str, str] | None = None) -> Path:

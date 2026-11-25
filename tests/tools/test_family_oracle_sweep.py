@@ -38,7 +38,7 @@ def test_every_baseline_language_is_swept():
 
 def test_an_alias_is_not_a_grid_column():
     assert "bash" not in sweep.languages()
-    assert sweep.languages()[0] == "python"
+    assert sweep.languages()[:2] == ["python", "cobol"]
 
 
 def test_the_scan_is_the_golden_masters_scan(tmp_path):

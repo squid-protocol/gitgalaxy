@@ -73,7 +73,7 @@ def test_unknown_language_is_still_refused(tmp_path):
     db = tmp_path / "x.db"
     db.write_bytes(b"")
     with pytest.raises(SystemExit, match="no oracle"):
-        fo.get_oracle("cobol")
+        fo.get_oracle("nosuchlang")
 
 
 def test_grammar_names_fall_back_through_the_pack_s_renames(monkeypatch):

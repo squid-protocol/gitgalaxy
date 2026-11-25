@@ -145,10 +145,10 @@ def test_no_input_bad_spec_and_unreadable_result_exit_two(tmp_path):
 
 def test_language_without_an_oracle_is_skipped_and_alone_exits_two(tmp_path):
     db = _make_scan(tmp_path)
-    assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}"]) == 2
+    assert fmk.main(["--scan", f"nosuchlang:{db}:{tmp_path}"]) == 2
     f = tmp_path / "r.json"
     f.write_text(json.dumps(_res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))))
-    assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
+    assert fmk.main(["--scan", f"nosuchlang:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
 
 
 def test_split_keeps_a_windows_drive_letter_with_its_path():

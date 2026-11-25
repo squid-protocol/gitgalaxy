@@ -122,6 +122,38 @@
     "status": "both"
    }
   },
+  "cobol": {
+   "branch": {
+    "corpus": "language-crucible v1.8.0",
+    "functions": 8816,
+    "n_family": 3033,
+    "n_oracle": 2905,
+    "pinned": true,
+    "precision": 0.958,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.8.0",
+    "functions": 8816,
+    "n_family": 280,
+    "n_oracle": 278,
+    "pinned": true,
+    "precision": 0.993,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.8.0",
+    "functions": 8816,
+    "n_family": 793,
+    "n_oracle": 712,
+    "pinned": true,
+    "precision": 0.898,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
   "cpp": {
    "args": {
     "corpus": "language-crucible v1.8.0",

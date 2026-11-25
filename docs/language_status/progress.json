@@ -1,5 +1,5 @@
 {
- "commit": "d408f8832",
+ "commit": "22a8d1000",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-25T14:22:00Z",
+  "as_of": "2026-11-25T14:29:17Z",
   "core": {
    "closed": 263,
    "open": 14,
@@ -1192,9 +1192,9 @@
     "total": 57
    },
    {
-    "closed": 98,
+    "closed": 99,
     "number": 14,
-    "open": 7,
+    "open": 6,
     "title": "Compiler call-graph comparison",
     "total": 105
    },

@@ -142,7 +142,7 @@
 /custom17	tests/tools/test_equivalence_env.py
 /custom_notes.internal	tests/security_auditing
 /custom_spec.json	tests/security_auditing
-/data	tests/cobol_mainframe
+/data	tests/cobol_mainframe,tests/tools/family_oracle_sweep.py
 /database_config.py	tests/security_auditing
 /deploy.sh	tests/security_auditing
 /deviation_ledger.json	tests/tools/test_family_rosetta_consistency.py
@@ -210,7 +210,7 @@
 /swagger2.json	tests/security_auditing
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
 /testing	tests/cobol_mainframe
-/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/language_sheets.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
+/tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/coverage_map.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/family_oracle_sweep.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/language_sheets.py,tests/tools/mainframe_corpus.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_no_raw_wall_clock_timing_8423.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
 /zlib	tests/tools/test_callgraph_oracle.py
 0.md	tests/tools/test_doc_drift_issues.py

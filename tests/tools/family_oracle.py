@@ -587,9 +587,11 @@ BASELINE_SCHEMA = 1
 
 def _keeps_old(old: dict | None, new: dict) -> bool:
     """An informative cell is not displaced by a `no-instances` or a too-thin (< SMALL_N functions) one from a different corpus, and a pinned
-    cell is not displaced by an unpinned one."""
+    cell is not displaced by an unpinned one. A pinned cell from another pin (an older release) is replaced."""
     if old is None:
         return False
+    if old["pinned"] and new["pinned"] and old["corpus"] != new["corpus"]:
+        return False  # a re-pin supersedes: a cell measured at an older pin is a stale claim, even where the new pin sees nothing
     old_informative = old["status"] != "no-instances"
     if old_informative and new["status"] == "no-instances" and old["corpus"] != new["corpus"]:
         return True

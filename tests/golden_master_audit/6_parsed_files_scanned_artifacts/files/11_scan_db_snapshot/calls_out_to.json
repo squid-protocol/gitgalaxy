@@ -87389,6 +87389,12 @@
           "FromResult"
         ],
         "safeRedirectTo@312": [],
+        "safeRedirectToExt@282": [
+          "Redirect",
+          "FromResult",
+          "GetLogger",
+          "LogWarning"
+        ],
         "setBody@500": [],
         "setBodyFromString@508": [],
         "setContentType@199": [],
@@ -87436,6 +87442,31 @@
           "MapNestedEndpoint",
           "MultiEndpoint",
           "MapMultiEndpoint"
+        ],
+        "MapMultiEndpoint@368": [
+          "MapMultiEndpoint",
+          "iter",
+          "SimpleEndpoint",
+          "MapSingleEndpoint",
+          "TemplateEndpoint",
+          "NestedEndpoint",
+          "MapNestedEndpoint",
+          "MultiEndpoint"
+        ],
+        "MapNestedEndpoint@389": [
+          "MapNestedEndpoint",
+          "iter",
+          "SimpleEndpoint",
+          "MapSingleEndpoint",
+          "TemplateEndpoint",
+          "NestedEndpoint",
+          "MultiEndpoint",
+          "MapMultiEndpoint"
+        ],
+        "MapSingleEndpoint@353": [
+          "Map",
+          "MapMethods",
+          "ToString"
         ],
         "UseGiraffe@431": [
           "UseEndpoints",
@@ -87515,6 +87546,9 @@
         ],
         "subRoute@318": [
           "subRouteWithExtensions"
+        ],
+        "subRouteWithExtensions@311": [
+          "NestedEndpoint"
         ]
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
@@ -87767,7 +87801,13 @@
         "NegotiateAsync@144": [
           "NegotiateWithAsync"
         ],
-        "negotiate@177": []
+        "NegotiateWithAsync@104": [
+          "GetTypedHeaders"
+        ],
+        "negotiate@177": [],
+        "negotiateWith@162": [
+          "NegotiateWithAsync"
+        ]
       },
       "fsharp/giraffe_web/Preconditional.fs": {
         "FromString@25": [
@@ -87791,6 +87831,17 @@
           "exists",
           "Compare",
           "IsHeadOrGetRequest"
+        ],
+        "ValidateIfUnmodifiedSince@47": [
+          "CutOffMs"
+        ],
+        "ValidatePreconditions@126": [
+          "GetTypedHeaders",
+          "bind",
+          "ifNotSpecified",
+          "iter",
+          "Nullable",
+          "CutOffMs"
         ],
         "bind@134": [],
         "ifNotSpecified@146": [],
@@ -87832,6 +87883,10 @@
           "responseCaching",
           "Public",
           "FromSeconds"
+        ],
+        "responseCaching@40": [
+          "GetTypedHeaders",
+          "iter"
         ]
       },
       "fsharp/giraffe_web/Routing.fs": {
@@ -87911,10 +87966,42 @@
       },
       "fsharp/giraffe_web/Streaming.fs": {
         "RangeUnit@138": [],
+        "WriteFileStreamAsync@261": [
+          "GetWebHostEnvironment",
+          "Combine",
+          "FileStream",
+          "WriteStreamAsync"
+        ],
+        "WriteStreamAsync@205": [
+          "ValidatePreconditions",
+          "PreconditionFailedResponse",
+          "NotModifiedResponse",
+          "WriteStreamToBodyAsync",
+          "SetHttpHeader",
+          "RangeUnit"
+        ],
+        "WriteStreamToBodyAsync@141": [
+          "RangeUnit",
+          "SetHttpHeader",
+          "Seek",
+          "Nullable",
+          "CopyToAsync",
+          "Abort"
+        ],
+        "isIfRangeValid@110": [
+          "GetTypedHeaders",
+          "Compare"
+        ],
         "parseRange@39": [
           "IsNullOrEmpty",
           "IndexOf",
           "GetTypedHeaders"
+        ],
+        "streamData@296": [
+          "WriteStreamAsync"
+        ],
+        "streamFile@315": [
+          "WriteFileStreamAsync"
         ],
         "validateRanges@63": [
           "SingleOrDefault"

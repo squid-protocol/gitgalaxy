@@ -182,3 +182,15 @@ def test_capitalised_let_is_a_function_but_capitalised_and_is_a_constructor_9200
     )
     names = sorted(f["name"] for f in _splice(src)["functions"])
     assert names == ["ACCEPTED", "Walk"]
+
+
+def test_parameter_list_on_the_next_line_is_a_function_9200():
+    src = (
+        "let negotiateWith\n    (rules: int)\n    (h: int)\n    : int =\n    rules\n"
+        "type T() =\n"
+        "    static member NegotiateWithAsync\n        (\n            ctx: int,\n            o: obj\n        ) =\n        ctx\n"
+        "let value\n    = 3\n"
+        "let plain = 1\n"
+    )
+    names = sorted(f["name"] for f in _splice(src)["functions"])
+    assert names == ["NegotiateWithAsync", "negotiateWith"]

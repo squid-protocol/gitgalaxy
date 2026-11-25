@@ -105,19 +105,19 @@
       "assembly/SOURCES.md": -9437.63
     },
     "assembly/blst_generated_asm": {
-      "assembly/blst_generated_asm/add_mod_256-x86_64.s": -9689.4,
-      "assembly/blst_generated_asm/add_mod_384-x86_64.s": -8997.94,
-      "assembly/blst_generated_asm/add_mod_384x384-x86_64.s": -9702.47,
-      "assembly/blst_generated_asm/ct_inverse_mod_256-x86_64.s": -8853.4,
-      "assembly/blst_generated_asm/ct_is_square_mod_384-x86_64.s": -9875.8,
-      "assembly/blst_generated_asm/ctq_inverse_mod_384-x86_64.s": -9583.11,
-      "assembly/blst_generated_asm/ctx_inverse_mod_384-x86_64.s": -9038.76,
-      "assembly/blst_generated_asm/div3w-x86_64.s": -8567.36,
-      "assembly/blst_generated_asm/mulq_mont_256-x86_64.s": -9030.96,
-      "assembly/blst_generated_asm/mulx_mont_256-x86_64.s": -9065.89,
-      "assembly/blst_generated_asm/mulx_mont_384-x86_64.s": -9247.06,
-      "assembly/blst_generated_asm/sha256-portable-x86_64.s": -9386.85,
-      "assembly/blst_generated_asm/sha256-x86_64.s": -9652.6
+      "assembly/blst_generated_asm/add_mod_256-x86_64.s": -9691.43,
+      "assembly/blst_generated_asm/add_mod_384-x86_64.s": -8999.96,
+      "assembly/blst_generated_asm/add_mod_384x384-x86_64.s": -9704.49,
+      "assembly/blst_generated_asm/ct_inverse_mod_256-x86_64.s": -8855.42,
+      "assembly/blst_generated_asm/ct_is_square_mod_384-x86_64.s": -9877.83,
+      "assembly/blst_generated_asm/ctq_inverse_mod_384-x86_64.s": -9585.14,
+      "assembly/blst_generated_asm/ctx_inverse_mod_384-x86_64.s": -9040.79,
+      "assembly/blst_generated_asm/div3w-x86_64.s": -8569.38,
+      "assembly/blst_generated_asm/mulq_mont_256-x86_64.s": -9032.98,
+      "assembly/blst_generated_asm/mulx_mont_256-x86_64.s": -9067.91,
+      "assembly/blst_generated_asm/mulx_mont_384-x86_64.s": -9249.08,
+      "assembly/blst_generated_asm/sha256-portable-x86_64.s": -9388.87,
+      "assembly/blst_generated_asm/sha256-x86_64.s": -9654.62
     },
     "assembly/bootos": {
       "assembly/bootos/Makefile": 6660.3,
@@ -363,13 +363,13 @@
       "assembly/x86_bare_metal/c_hello_world_entry.S": -2767.16
     },
     "assembly/xv6_x86_kernel": {
-      "assembly/xv6_x86_kernel/bootasm.S": -10625.69,
-      "assembly/xv6_x86_kernel/entry.S": -10274.52,
-      "assembly/xv6_x86_kernel/entryother.S": -10395.18,
-      "assembly/xv6_x86_kernel/initcode.S": -10902.85,
-      "assembly/xv6_x86_kernel/swtch.S": -10692.37,
-      "assembly/xv6_x86_kernel/trapasm.S": -10725.88,
-      "assembly/xv6_x86_kernel/usys.S": -10162.46
+      "assembly/xv6_x86_kernel/bootasm.S": -10627.69,
+      "assembly/xv6_x86_kernel/entry.S": -10276.52,
+      "assembly/xv6_x86_kernel/entryother.S": -10397.17,
+      "assembly/xv6_x86_kernel/initcode.S": -10904.85,
+      "assembly/xv6_x86_kernel/swtch.S": -10694.36,
+      "assembly/xv6_x86_kernel/trapasm.S": -10727.87,
+      "assembly/xv6_x86_kernel/usys.S": -10164.46
     },
     "batch": {
       "batch/SOURCES.md": -6277.99
@@ -1223,8 +1223,8 @@
       "css/cytoscape_docs/style.css": 397.93
     },
     "css/element": {
-      "css/element/common.css": -10754.87,
-      "css/element/fonts-baseline.css": -10977.72
+      "css/element/common.css": -10756.83,
+      "css/element/fonts-baseline.css": -10979.68
     },
     "css/gutenberg_css_modules": {
       "css/gutenberg_css_modules/LICENSE.md": 10071.03,
@@ -1483,28 +1483,28 @@
       "fsharp/SOURCES.md": 866.9
     },
     "fsharp/giraffe_web": {
-      "fsharp/giraffe_web/Auth.fs": -8912.67,
-      "fsharp/giraffe_web/ComputationExpressions.fs": -8351.91,
-      "fsharp/giraffe_web/Core.fs": -8005.15,
-      "fsharp/giraffe_web/Csrf.fs": -7807.39,
-      "fsharp/giraffe_web/DateTimeExtensions.fs": -8769.15,
-      "fsharp/giraffe_web/EndpointRouting.fs": -8579.55,
-      "fsharp/giraffe_web/FormatExpressions.fs": -8257.48,
-      "fsharp/giraffe_web/Helpers.fs": -9155.23,
-      "fsharp/giraffe_web/HttpContextExtensions.fs": -8706.88,
-      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": -7781.02,
-      "fsharp/giraffe_web/Json.fs": -7393.28,
-      "fsharp/giraffe_web/Middleware.fs": -8450.09,
-      "fsharp/giraffe_web/ModelParser.fs": -8716.6,
-      "fsharp/giraffe_web/ModelValidation.fs": -8689.55,
-      "fsharp/giraffe_web/Negotiation.fs": -7923.87,
-      "fsharp/giraffe_web/Preconditional.fs": -7993.04,
-      "fsharp/giraffe_web/RequestLimitation.fs": -7947.84,
-      "fsharp/giraffe_web/ResponseCaching.fs": -7666.64,
-      "fsharp/giraffe_web/Routing.fs": -8405.04,
-      "fsharp/giraffe_web/ShortGuid.fs": -8757.94,
-      "fsharp/giraffe_web/Streaming.fs": -8020.87,
-      "fsharp/giraffe_web/Xml.fs": -8314.97
+      "fsharp/giraffe_web/Auth.fs": -7682.14,
+      "fsharp/giraffe_web/ComputationExpressions.fs": -8352.74,
+      "fsharp/giraffe_web/Core.fs": -8636.04,
+      "fsharp/giraffe_web/Csrf.fs": -8798.61,
+      "fsharp/giraffe_web/DateTimeExtensions.fs": -8770.73,
+      "fsharp/giraffe_web/EndpointRouting.fs": -7943.76,
+      "fsharp/giraffe_web/FormatExpressions.fs": -8454.33,
+      "fsharp/giraffe_web/Helpers.fs": -7913.97,
+      "fsharp/giraffe_web/HttpContextExtensions.fs": -7986.84,
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": -8829.72,
+      "fsharp/giraffe_web/Json.fs": -7393.22,
+      "fsharp/giraffe_web/Middleware.fs": -9045.59,
+      "fsharp/giraffe_web/ModelParser.fs": -8403.87,
+      "fsharp/giraffe_web/ModelValidation.fs": -8691.08,
+      "fsharp/giraffe_web/Negotiation.fs": -7818.51,
+      "fsharp/giraffe_web/Preconditional.fs": -8348.83,
+      "fsharp/giraffe_web/RequestLimitation.fs": -7915.46,
+      "fsharp/giraffe_web/ResponseCaching.fs": -8856.57,
+      "fsharp/giraffe_web/Routing.fs": -8175.97,
+      "fsharp/giraffe_web/ShortGuid.fs": -8564.35,
+      "fsharp/giraffe_web/Streaming.fs": -7726.5,
+      "fsharp/giraffe_web/Xml.fs": -8315.72
     },
     "go": {
       "go/SOURCES.md": 11999.4
@@ -2075,7 +2075,7 @@
       "html/wordpress_blocks/search.html": 6550.69
     },
     "java": {
-      "java/SOURCES.md": -11429.47
+      "java/SOURCES.md": -11431.29
     },
     "java/flutter_android_editing_tests": {
       "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": -10528.15
@@ -2109,14 +2109,14 @@
       "javascript/javascript_algorithms_bits/fullAdder.js": 956.38
     },
     "javascript/jquery": {
-      "javascript/jquery/LICENSE.txt": -10287.97,
-      "javascript/jquery/ajax.js": -9581.8,
-      "javascript/jquery/buildFragment.js": -9889.72,
-      "javascript/jquery/core.js": -9809.22,
-      "javascript/jquery/css.js": -10291.73,
-      "javascript/jquery/deferred.js": -9313.37,
-      "javascript/jquery/event.js": -9294.18,
-      "javascript/jquery/tokenize.js": -9143.7
+      "javascript/jquery/LICENSE.txt": -10289.94,
+      "javascript/jquery/ajax.js": -9583.77,
+      "javascript/jquery/buildFragment.js": -9891.69,
+      "javascript/jquery/core.js": -9811.19,
+      "javascript/jquery/css.js": -10293.7,
+      "javascript/jquery/deferred.js": -9315.34,
+      "javascript/jquery/event.js": -9296.15,
+      "javascript/jquery/tokenize.js": -9145.67
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": -1655.95,
@@ -2139,13 +2139,13 @@
       "javascript/react_error_codes/extract-errors.js": 7678.93
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -9836.05,
-      "javascript/threejs/Editor.js": -10012.88,
-      "javascript/threejs/GLTFLoader.js": -9436.03,
-      "javascript/threejs/Matrix4.js": -10389.11,
-      "javascript/threejs/Nodes.js": -9421.48,
-      "javascript/threejs/WebGLProgram.js": -9367.04,
-      "javascript/threejs/WebGLRenderer.js": -9922.34
+      "javascript/threejs/BufferGeometry.js": -9837.8,
+      "javascript/threejs/Editor.js": -10014.63,
+      "javascript/threejs/GLTFLoader.js": -9437.78,
+      "javascript/threejs/Matrix4.js": -10390.86,
+      "javascript/threejs/Nodes.js": -9423.23,
+      "javascript/threejs/WebGLProgram.js": -9368.79,
+      "javascript/threejs/WebGLRenderer.js": -9924.09
     },
     "jcl": {
       "jcl/SOURCES.md": 12153.72
@@ -3126,8 +3126,8 @@
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 7641.29
     },
     "python/airflow_opsgenie_tests": {
-      "python/airflow_opsgenie_tests/NOTICE": -10837.42,
-      "python/airflow_opsgenie_tests/test_opsgenie.py": -11194.7
+      "python/airflow_opsgenie_tests/NOTICE": -10839.3,
+      "python/airflow_opsgenie_tests/test_opsgenie.py": -11196.57
     },
     "python/cython": {
       "python/cython/COPYING.txt": -8831.92,
@@ -3983,10 +3983,10 @@
       "sql/spamassassin_mysql/neural_mysql.sql": 1342.78
     },
     "sql/sqlite": {
-      "sql/sqlite/000-mandelbrot.sql": -11032.74,
-      "sql/sqlite/001-sudoku.sql": -10341.1,
-      "sql/sqlite/LICENSE.md": -10460.92,
-      "sql/sqlite/dotcmd01.sql": -10537.38
+      "sql/sqlite/000-mandelbrot.sql": -11034.65,
+      "sql/sqlite/001-sudoku.sql": -10343.01,
+      "sql/sqlite/LICENSE.md": -10462.84,
+      "sql/sqlite/dotcmd01.sql": -10539.3
     },
     "sql/sqlmap_postgresql": {
       "sql/sqlmap_postgresql/dns_request.sql": 2182.85
@@ -4104,7 +4104,7 @@
       "swift/alamofire/Session.swift": -2527.89
     },
     "tabular": {
-      "tabular/SOURCES.md": -11174.41
+      "tabular/SOURCES.md": -11176.31
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": -10680.07,
@@ -4168,7 +4168,7 @@
       "tcl/sqlite_core_dml/LICENSE.md": -5399.17
     },
     "tcl/sqlite_cte_window": {
-      "tcl/sqlite_cte_window/LICENSE.md": -11260.08
+      "tcl/sqlite_cte_window/LICENSE.md": -11261.73
     },
     "tcl/sqlite_fts5": {
       "tcl/sqlite_fts5/LICENSE.md": 6482.8
@@ -4200,7 +4200,7 @@
       "text/baseline/control-readme.md": 12555.91
     },
     "typescript": {
-      "typescript/SOURCES.md": -11265.92
+      "typescript/SOURCES.md": -11267.8
     },
     "typescript/angular_zonejs_mocha": {
       "typescript/angular_zonejs_mocha/mocha.ts": -7002.92
@@ -4290,10 +4290,10 @@
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 3124.85
     },
     "xml/jenkins": {
-      "xml/jenkins/LICENSE.txt": -10488.17,
-      "xml/jenkins/XStreamDOMTest.data1.xml": -10562.2,
-      "xml/jenkins/XStreamDOMTest.data2.xml": -10435.84,
-      "xml/jenkins/excludesFilter.xml": -10994.61
+      "xml/jenkins/LICENSE.txt": -10489.87,
+      "xml/jenkins/XStreamDOMTest.data1.xml": -10563.9,
+      "xml/jenkins/XStreamDOMTest.data2.xml": -10437.54,
+      "xml/jenkins/excludesFilter.xml": -10996.31
     },
     "xml/odoo": {
       "xml/odoo/__manifest__.py": -9418.44
@@ -4308,7 +4308,7 @@
       "xml/powertoys/MainWindow.xaml.cs": 5017.66
     },
     "xml/springboot": {
-      "xml/springboot/LICENSE.txt": -11190.44
+      "xml/springboot/LICENSE.txt": -11192.31
     },
     "xml/springboot/build-info": {
       "xml/springboot/build-info/pom.xml": -10805.22

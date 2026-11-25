@@ -5003,7 +5003,7 @@
         "State Mutators": 4
       },
       "fsharp/giraffe_web/Core.fs": {
-        "Callbacks & Closures": 15,
+        "Callbacks & Closures": 16,
         "Compute Cores": 1,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
@@ -5021,8 +5021,9 @@
         "Callbacks & Closures": 2,
         "Compute Cores": 4,
         "Generic / Templated Code": 2,
+        "Interface Declarations": 1,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 2
+        "Stateful Encapsulated Methods": 5
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
         "Compute Cores": 4,
@@ -5062,16 +5063,17 @@
         "Generic / Templated Code": 1
       },
       "fsharp/giraffe_web/Negotiation.fs": {
-        "Callbacks & Closures": 1,
+        "Callbacks & Closures": 2,
+        "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
       "fsharp/giraffe_web/Preconditional.fs": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Encapsulated Accessors": 1,
         "Parameter Forwarders": 1,
         "State Mutators": 2,
-        "Stateful Encapsulated Methods": 3
+        "Stateful Encapsulated Methods": 4
       },
       "fsharp/giraffe_web/RequestLimitation.fs": {
         "Defensive Guards": 3,
@@ -5079,6 +5081,7 @@
       },
       "fsharp/giraffe_web/ResponseCaching.fs": {
         "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
         "Parameter Forwarders": 2
       },
       "fsharp/giraffe_web/Routing.fs": {
@@ -5092,8 +5095,11 @@
         "Callbacks & Closures": 4
       },
       "fsharp/giraffe_web/Streaming.fs": {
+        "Callbacks & Closures": 2,
         "Compute Cores": 2,
-        "Encapsulated Accessors": 1
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 3
       },
       "fsharp/giraffe_web/Xml.fs": {
         "Parameter Forwarders": 1

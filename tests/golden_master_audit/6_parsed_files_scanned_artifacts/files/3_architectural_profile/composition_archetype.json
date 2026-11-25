@@ -1503,7 +1503,7 @@
       "fsharp/giraffe_web/ResponseCaching.fs": "Parameter Forwarders Files",
       "fsharp/giraffe_web/Routing.fs": "Callbacks & Closures Files",
       "fsharp/giraffe_web/ShortGuid.fs": "Callbacks & Closures Files",
-      "fsharp/giraffe_web/Streaming.fs": "Compute Cores Files",
+      "fsharp/giraffe_web/Streaming.fs": "Large Core Modules (3)",
       "fsharp/giraffe_web/Xml.fs": "Parameter Forwarders Files"
     },
     "go": {

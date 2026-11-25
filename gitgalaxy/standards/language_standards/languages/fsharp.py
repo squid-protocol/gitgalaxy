@@ -159,9 +159,14 @@ DEFINITION: dict[str, Any] = {
         # func_start: a `let` / `let rec` / `let inline` / `and` binding, or a `member` / `override` / `default`,
         # that takes at least one parameter (a bare `let x = 1` and `member val` are values; a `let x : int = 3`
         # annotation and a property's `with get` are not parameter lists). A capitalised `and` name is a
-        # type's primary constructor (a capitalised `let` is a function). Multi-line parameter lists and operator names (`let (+) a b`) are not seen.
+        # type's primary constructor (a capitalised `let` is a function). A parameter list that starts on the next, indented line (`let f\n    (x: int) =`, Fantomas style, #9200) is seen; operator names (`let (+) a b`) are not.
         "func_start": re.compile(
-            r"^[ \t]*" + _UNIT_PREFIX + _NAME + r"(?=" + _GENERIC + r"(?![ \t]+with\b)(?:\(|[ \t]+[^\s=:|]))",
+            r"^[ \t]*"
+            + _UNIT_PREFIX
+            + _NAME
+            + r"(?="
+            + _GENERIC
+            + r"(?![ \t]+with\b)(?:\(|[ \t]+[^\s=:|]|[ \t]*\r?\n[ \t]+\())",
             re.M,
         ),
         # class_start: `type` (record, union, class, interface, abbreviation), `module`, `namespace`,

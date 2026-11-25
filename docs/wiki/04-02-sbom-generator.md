@@ -1,5 +1,6 @@
 ---
-description: "> **File Reference:** [gitgalaxy/recorders/sbom_recorder.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/recorders/sbom_recorder.py)"
+title: "Open Source SBOM Generator (CycloneDX)"
+description: "Open-source SBOM generator that outputs CycloneDX 1.4 and checks each package is really installed on disk, not just listed in a manifest."
 ---
 # Software Bill of Materials (SBOM) Generator
 

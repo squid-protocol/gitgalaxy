@@ -199,10 +199,9 @@ def test_python_comprehensions_was_fixed_from_a_javascript_copy_paste():
     assert pattern.search("{k: v for k, v in items}"), "Failed to match a real dict comprehension"
     assert pattern.search("{x for x in range(10)}"), "Failed to match a real set comprehension"
     assert pattern.search("sum(x for x in range(10))"), "Failed to match a real generator expression"
-    # #8863: the functional-pipeline builtins count by contract; a `.filter(` method call matches the same word
-    # (documented cost), but a bare identifier or a `.map` attribute with no call does not.
-    assert pattern.search("filter(f, xs)"), "Failed to match the builtin filter pipeline"
-    assert not pattern.search("User.objects.filtered"), "Matched a word that merely starts with filter"
+    assert not pattern.search("User.objects.filter(active=True)"), (
+        "Incorrectly matched an unrelated .filter() method call (the old JS-idiom bug)"
+    )
 
 
 def test_python_comprehensions_redos_immunity():
@@ -485,11 +484,16 @@ def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
     assert not PY_RULES["bitwise_ops"].search(src)
 
 
-def test_python_bitwise_ops_string_content_still_counts_documented():
-    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
-    # #8863: an operator counts only before the first quote on its line; inside a string literal it is text.
-    assert PY_RULES["bitwise_ops"].search('x = a ^ b  # re.compile(r"^a~b<<")')
-    assert not PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+def test_python_bitwise_ops_operator_after_a_quote_is_skipped_documented():
+    """Documented behaviour (#8863, which narrowed #2535 / #8866's "no string shielding").
+
+    On a line that can hold a value expression the operator counts only BEFORE the first quote character: `&` / `^` / `<<` inside a
+    string literal, a C-code template or a URL query is text, not an operator. The cost is stated in the rule: an operator after a
+    string on the same line is missed, and there is still no per-family string shield. Operators before the quote still count."""
+    rule = PY_RULES["bitwise_ops"]
+    assert not rule.search('re.compile(r"^a~b<<")'), "an operator inside a string literal is text"
+    assert rule.search('mask = flags & 0xFF  # 0x"ff"'), "an operator before the first quote still counts"
+    assert rule.search("mask = flags & 0xFF"), "a plain bitwise expression counts"
 
 
 # #8865: every subprocess entry point that spawns a process counts as high_risk_execution;

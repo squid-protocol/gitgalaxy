@@ -406,7 +406,10 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(
             r"\[[^\]]{0,500}\b" + _COMP_FOR + r"[^\]]{0,500}\]|\{[^}]{0,500}\b" + _COMP_FOR + r"[^}]{0,500}\}"
             r"|\([^)]{0,500}\b" + _COMP_FOR + r"[^)]{0,500}\)"
-            r"|\b(?:map|filter|reduce|starmap)[ \t]*\("
+            # #8863: the functional builtins, as BARE names (`map(f, xs)`) or the two qualified forms people write
+            # (`functools.reduce(`, `itertools.starmap(`). Not a method of something else: `qs.filter(` /
+            # `df.map(` are ORM / library calls (test_python_comprehensions_was_fixed_from_a_javascript_copy_paste).
+            r"|(?<![.\w])(?:map|filter|reduce|starmap)[ \t]*\(|\b(?:functools\.reduce|itertools\.starmap)[ \t]*\("
         ),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
         # hardware_bridge / cryptography (#4238): anchored on the top-level package, see

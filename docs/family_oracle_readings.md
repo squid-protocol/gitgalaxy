@@ -39,11 +39,41 @@ contracts (rows below). Scores are from the self-scan DB at this commit (29,706 
 | `cleanup` | stated | A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form. | destroys state or releases a held resource: with blocks, try/finally, close/remove/unlink/rmtree calls, del | aligned | with, try/finally, del and close/remove calls match the contract wording; Python recall is low (0.15 on the self-scan DB): an engine gap (answers #8862 question 4). |
 | `doc` | declared | A comment block in the language's structured documentation form -- the form a documentation tool or IDE parses, such as a doc comment, a docstring or a tagged block -- read from the comment surface | has a docstring (structured documentation) | open question | Python docstrings count. Which structured form counts in a language without `/** */` is an owner question (#8868). |
 
-## Not yet realigned (tree-sitter oracles)
+## Non-Python oracles (tree-sitter)
 
-`family_oracle_ts.py` and the per-language specs (`family_oracle_specs_a.py`, `family_oracle_specs_b.py`, `family_oracle_cases.json`)
-still count `&&` / `||` (and `??`, `||=`) under `branch`. Until they move to `short_circuit`, the non-Python branch cells in
-`tests/family_validity_baseline.json` are measured against the pre-#8939 reading.
+`family_oracle_ts.py` holds one sentence per family for every language it scores (Go, Java, JavaScript, TypeScript, Rust, C, C++ and
+the per-language specs in `family_oracle_specs_a.py` / `family_oracle_specs_b.py`: C#, Kotlin, Swift, Scala, Ruby, PHP, Lua, shell).
+A language whose spec lists a family in `skip_families` has no oracle for it. Since #9256 these oracles count boolean operators under
+`short_circuit`, not `branch`, as the branch contract's corollary 0 says.
+
+| family | tree-sitter oracle reading | verdict | note |
+|---|---|---|---|
+| `branch` | decision points: if/else arms, loops, case/default arms, conditional expressions (not && and //: those are short_circuit's, corollary 0; not catch handlers, goto, return or break: contract corollaries 1 and 3) | realigned | Boolean operators moved to `short_circuit` (branch corollary 0, #8939) by the slice-1 change (#9256). Cells in `tests/family_validity_baseline.json` predate it (see below). |
+| `short_circuit` | boolean operators whose right operand is evaluated only when the left does not decide: && // and or | added | New tree-sitter family, as the Python oracle's since #9252: `&&`, `||`, `and`, `or`. |
+| `args` | declared parameters | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `closures` | anonymous callables: function literals, lambdas, arrow functions, closures | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `decorators` | annotations, attributes or decorators on the function | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `panics_and_aborts` | throw / panic / unreachable marker / process exit | open question | Whether `assert` is an abort is an owner question (#8868, C precision 0.48). |
+| `bitwise_ops` | bitwise operators in operator position: << >> ^ & / ~ (and the compound assignments) | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `debug_prints` | ad-hoc debug output to the console | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `thread_sleeps` | sleeps and timed waits | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `regex_execution` | evaluates or builds a regular expression | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `time_date_logic` | instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `io` | opens or reads/writes a file or a network connection | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `doc` | structured documentation directly above (/** */, ///, godoc) | open question | Which structured form counts in a language without `/** */` is an owner question (#8868). |
+
+Per-language readings that differ from the shared sentence:
+
+| language | reading | verdict |
+|---|---|---|
+| C#, PHP | `??` and `??=` stay under `branch` (value-selection operators; the short_circuit contract does not name them) | open question (owner) |
+| Ruby | `\|\|=` and `&&=` count under `short_circuit`; `rescue` / `ensure` are handlers, not branches (corollary 1) | aligned |
+| Kotlin, Swift | conjunction and disjunction nodes count under `short_circuit` | aligned |
+| Scala | a `case` clause under a `catch` is a handler, not a decision (corollary 1) | aligned |
+| shell | `&&` / `\|\|` list chaining counts under `short_circuit` | aligned |
+
+The non-Python `branch` cells in `tests/family_validity_baseline.json` were measured before this realignment and there is no
+`short_circuit` cell yet: they are rescanned per corpus (`family_oracle.py --lang X --corpus NAME --update-baseline`), not here.
 
 ## Open owner questions
 
@@ -51,3 +81,4 @@ still count `&&` / `||` (and `??`, `||=`) under `branch`. Until they move to `sh
 2. Which documentation form counts for `doc` in a language without `/** */`? (#8868.)
 3. Does `comprehensions` include generator expressions?
 4. `llm_api` has a rule only for python, javascript and typescript; an absence entry is owed per language with an SDK (`docs/unplanted_family_contracts.md`).
+5. Is `??` (and `??=`) a `short_circuit` operator in C# and PHP? Until ruled it counts under `branch`.

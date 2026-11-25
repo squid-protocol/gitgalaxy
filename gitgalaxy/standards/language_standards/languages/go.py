@@ -508,7 +508,10 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: panic/os.Exit/log.Fatal)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(time\.Sleep|time\.After|runtime\.Gosched)\b"),
+        # #8868: the timer constructors are timed waits too (thread_sleeps: "a sleep, a timed wait, a timeout-driven deferral")
+        "thread_sleeps": re.compile(
+            r"\b(time\.Sleep|time\.After|time\.AfterFunc|time\.Tick|time\.NewTimer|time\.NewTicker|runtime\.Gosched)\b"
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|&\^"),
         # 44. sync_locks (Resource Management & Stability)
@@ -591,8 +594,9 @@ DEFINITION: dict[str, Any] = {
         # common time-related call never matched in any real usage.
         # #8868: the contract names a now/time/date constructor, duration arithmetic, a
         # formatting or timezone call: add time.Date / Unix / Until / ParseDuration / LoadLocation.
+        # #8868: time.Sleep is a timed wait (thread_sleeps), not a clock or calendar value
         "time_date_logic": re.compile(
-            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Sleep|time\.Since|time\.Until"
+            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Since|time\.Until"
             r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),

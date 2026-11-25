@@ -149,6 +149,10 @@ def _forged() -> dict[str, list[dict]]:
             steps_out = slice1._forged_steps(forge)
             (src,) = forge.sources().values()
             (cfg,) = (t for k, t in src.items() if k.endswith("JobConfig"))
+            if (
+                "steps.ifChain(" in cfg
+            ):  # statements, not builder calls: before the `return new JobBuilder(...)` expression
+                assert cfg.rindex("steps.ifChain(") < cfg.index("return new JobBuilder(")
             chains = {  # steps.ifChain(job, step, new String[][] {{line, condition, inElse}, ...}); read back as generated
                 json.loads(m["step"]): [json.loads("[" + r + "]") for r in re.findall(r"\{(\"[^{}]*)\}", m["rows"])]
                 for m in re.finditer(

@@ -1090,7 +1090,7 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0.0,
       "cpp/NVDA/__init__.py": 0.263,
-      "cpp/NVDA/braille.py": 0.277,
+      "cpp/NVDA/braille.py": 0.251,
       "cpp/NVDA/contributors.txt": 0.0,
       "cpp/NVDA/copying.txt": 0.0,
       "cpp/NVDA/core.py": -0.221,
@@ -3135,7 +3135,7 @@
       "python/cython/LICENSE.txt": 0.0,
       "python/cython/MemoryView.pxd": -0.72,
       "python/cython/MemoryView.pyx": -0.352,
-      "python/cython/Nodes.py": 0.736
+      "python/cython/Nodes.py": 0.742
     },
     "python/django_db_tests": {
       "python/django_db_tests/test_iterator.py": -0.747,
@@ -3290,7 +3290,7 @@
       "python/fastapi/tests/test_response_class_no_mediatype.py": 2.997,
       "python/fastapi/tests/test_response_code_no_body.py": 1.671,
       "python/fastapi/tests/test_response_dependency.py": -1.254,
-      "python/fastapi/tests/test_response_model_as_return_annotation.py": 0.269,
+      "python/fastapi/tests/test_response_model_as_return_annotation.py": 0.424,
       "python/fastapi/tests/test_response_model_data_filter.py": 1.797,
       "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 1.791,
       "python/fastapi/tests/test_response_model_default_factory.py": 1.859,
@@ -3386,10 +3386,10 @@
       "python/homeassistant_ble_integrations/LICENSE.md": 0.0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 0.04,
       "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0.497,
-      "python/homeassistant_ble_integrations/utils.py": -0.665
+      "python/homeassistant_ble_integrations/utils.py": 1.657
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -0.025,
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": -0.197,
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": -0.822,
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": -0.827
     },
@@ -3404,7 +3404,7 @@
       "python/numpy/_linalg.py": 1.143,
       "python/numpy/cfuncs.py": 1.272,
       "python/numpy/core.py": 0.457,
-      "python/numpy/crackfortran.py": -0.317,
+      "python/numpy/crackfortran.py": -0.366,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 0.608,
       "python/numpy/genapi.py": 0.567,
@@ -3446,7 +3446,7 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0.342,
-      "python/twisted/http.py": 0.25,
+      "python/twisted/http.py": 0.262,
       "python/twisted/reflect.py": -0.349,
       "python/twisted/transport.py": 0.327
     },

@@ -1089,13 +1089,13 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
-      "cpp/NVDA/__init__.py": 0,
-      "cpp/NVDA/braille.py": 0,
+      "cpp/NVDA/__init__.py": 51,
+      "cpp/NVDA/braille.py": 22,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
-      "cpp/NVDA/core.py": 0,
+      "cpp/NVDA/core.py": 110,
       "cpp/NVDA/ensureuv.ps1": 4,
-      "cpp/NVDA/espeak.py": 0,
+      "cpp/NVDA/espeak.py": 3,
       "cpp/NVDA/inProcess.cpp": 0,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 0,
@@ -1409,20 +1409,20 @@
       "embedded_python/SOURCES.md": 0
     },
     "embedded_python/meow_turtle": {
-      "embedded_python/meow_turtle/actuators.py": 0,
-      "embedded_python/meow_turtle/app.py": 0,
-      "embedded_python/meow_turtle/bldc_driver.py": 0,
-      "embedded_python/meow_turtle/boot.py": 0,
-      "embedded_python/meow_turtle/diagnostics.py": 0,
+      "embedded_python/meow_turtle/actuators.py": 15,
+      "embedded_python/meow_turtle/app.py": 45,
+      "embedded_python/meow_turtle/bldc_driver.py": 8,
+      "embedded_python/meow_turtle/boot.py": 10,
+      "embedded_python/meow_turtle/diagnostics.py": 2,
       "embedded_python/meow_turtle/logging.py": 4,
-      "embedded_python/meow_turtle/meowprotocol.py": 0,
-      "embedded_python/meow_turtle/mpu6050.py": 0,
-      "embedded_python/meow_turtle/ota.py": 0,
+      "embedded_python/meow_turtle/meowprotocol.py": 8,
+      "embedded_python/meow_turtle/mpu6050.py": 2,
+      "embedded_python/meow_turtle/ota.py": 18,
       "embedded_python/meow_turtle/pio_programs.py": 0,
-      "embedded_python/meow_turtle/sensors.py": 0,
-      "embedded_python/meow_turtle/tester.py": 0,
+      "embedded_python/meow_turtle/sensors.py": 10,
+      "embedded_python/meow_turtle/tester.py": 5,
       "embedded_python/meow_turtle/tsl2591.py": 0,
-      "embedded_python/meow_turtle/vibration_driver.py": 0
+      "embedded_python/meow_turtle/vibration_driver.py": 9
     },
     "erlang": {
       "erlang/SOURCES.md": 0
@@ -3114,15 +3114,15 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 0,
-      "python/airflow/s3.py": 1,
-      "python/airflow/scheduler_job_runner.py": 0
+      "python/airflow/dag.py": 7,
+      "python/airflow/s3.py": 24,
+      "python/airflow/scheduler_job_runner.py": 100
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
       "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 1,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0
     },
     "python/airflow_opsgenie_tests": {
@@ -3385,7 +3385,7 @@
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 0,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 1,
       "python/homeassistant_ble_integrations/utils.py": 0
     },
     "python/langchain_agents": {
@@ -3445,10 +3445,10 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 0,
+      "python/twisted/defer.py": 1,
+      "python/twisted/http.py": 3,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 0
+      "python/twisted/transport.py": 13
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

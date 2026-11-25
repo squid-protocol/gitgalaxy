@@ -4248,7 +4248,7 @@
       "typescript/playwright/connection.ts": 0,
       "typescript/playwright/crConnection.ts": 0,
       "typescript/playwright/dispatcher.ts": 1,
-      "typescript/playwright/frames.ts": 5,
+      "typescript/playwright/frames.ts": 3,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
@@ -4262,7 +4262,7 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 33,
+      "typescript/vscode/async.ts": 10,
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 2,
       "typescript/vscode/extHost.api.impl.ts": 0,

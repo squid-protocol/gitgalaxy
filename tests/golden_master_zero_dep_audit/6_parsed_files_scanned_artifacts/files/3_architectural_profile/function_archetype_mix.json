@@ -13159,28 +13159,31 @@
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": {
-        "Callbacks & Closures": 22,
+        "Callbacks & Closures": 15,
         "Defensive Guards": 1,
+        "Generic / Templated Code": 10,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 2
       }
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
         "Callbacks & Closures": 4,
-        "Compute Cores": 6,
+        "Compute Cores": 9,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 51
+        "Generic / Templated Code": 48
       },
       "typescript/fp-ts/HKT.ts": {},
       "typescript/fp-ts/TaskEither.ts": {
-        "Generic / Templated Code": 35,
-        "Parameter Forwarders": 5
+        "Callbacks & Closures": 2,
+        "Generic / Templated Code": 34,
+        "Parameter Forwarders": 4
       },
       "typescript/fp-ts/package.json": {},
       "typescript/fp-ts/pipeable.ts": {
-        "Generic / Templated Code": 224
+        "Callbacks & Closures": 4,
+        "Generic / Templated Code": 220
       }
     },
     "typescript/nx_util_ai": {
@@ -13206,7 +13209,8 @@
       "typescript/playwright/bidiConnection.ts": {
         "Callbacks & Closures": 1,
         "Compute Cores": 2,
-        "Generic / Templated Code": 2,
+        "Defensive Guards": 1,
+        "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Interface Declarations": 3,
         "Parameter Forwarders": 3,
@@ -13218,9 +13222,9 @@
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 2,
-        "Interface Declarations": 3,
+        "Interface Declarations": 4,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 2,
+        "Parameter Forwarders": 1,
         "State Mutators": 4,
         "Stateful Encapsulated Methods": 1
       },
@@ -13236,11 +13240,11 @@
         "State Mutators": 4
       },
       "typescript/playwright/dispatcher.ts": {
-        "Callbacks & Closures": 3,
+        "Callbacks & Closures": 4,
         "Compute Cores": 2,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 5,
-        "Interface Declarations": 3,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
         "State Mutators": 7,
@@ -13248,17 +13252,17 @@
         "Type Conversions": 2
       },
       "typescript/playwright/frames.ts": {
-        "Callbacks & Closures": 18,
-        "Compute Cores": 23,
-        "Defensive Guards": 16,
+        "Callbacks & Closures": 41,
+        "Compute Cores": 20,
+        "Defensive Guards": 15,
         "Encapsulated Accessors": 7,
         "Generic / Templated Code": 6,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 11,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 12,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 34,
+        "Parameter Forwarders": 16,
         "State Mutators": 20,
-        "Stateful Encapsulated Methods": 13,
+        "Stateful Encapsulated Methods": 12,
         "Type Conversions": 2
       },
       "typescript/playwright/protocol.ts": {}
@@ -13266,10 +13270,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": {},
       "typescript/typescript_compiler/binder.ts": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 61,
+        "Callbacks & Closures": 4,
+        "Compute Cores": 59,
         "Defensive Guards": 2,
-        "Generic / Templated Code": 4,
+        "Generic / Templated Code": 3,
         "I/O & Config Routines": 9,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 11,
@@ -13278,102 +13282,102 @@
         "Type Conversions": 22
       },
       "typescript/typescript_compiler/checker.ts": {
-        "Callbacks & Closures": 115,
-        "Compute Cores": 1054,
-        "Defensive Guards": 164,
+        "Callbacks & Closures": 171,
+        "Compute Cores": 1023,
+        "Defensive Guards": 163,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 48,
-        "I/O & Config Routines": 25,
-        "Interface Declarations": 19,
-        "Many-Argument Workhorses": 242,
-        "Parameter Forwarders": 523,
+        "I/O & Config Routines": 26,
+        "Interface Declarations": 41,
+        "Many-Argument Workhorses": 254,
+        "Parameter Forwarders": 476,
         "State Mutators": 108,
         "Stateful Encapsulated Methods": 1,
-        "Type Conversions": 329
+        "Type Conversions": 317
       },
       "typescript/typescript_compiler/emitter.ts": {
-        "Callbacks & Closures": 4,
-        "Compute Cores": 74,
-        "Defensive Guards": 16,
+        "Callbacks & Closures": 7,
+        "Compute Cores": 73,
+        "Defensive Guards": 15,
         "Generic / Templated Code": 29,
-        "I/O & Config Routines": 8,
+        "I/O & Config Routines": 9,
         "Interface Declarations": 8,
-        "Many-Argument Workhorses": 31,
-        "Parameter Forwarders": 67,
-        "State Mutators": 185,
+        "Many-Argument Workhorses": 32,
+        "Parameter Forwarders": 66,
+        "State Mutators": 183,
         "Type Conversions": 7
       },
       "typescript/typescript_compiler/package.json": {},
       "typescript/typescript_compiler/parser.ts": {
-        "Callbacks & Closures": 7,
-        "Compute Cores": 119,
+        "Callbacks & Closures": 19,
+        "Compute Cores": 111,
         "Defensive Guards": 3,
-        "Generic / Templated Code": 210,
-        "I/O & Config Routines": 60,
-        "Interface Declarations": 151,
-        "Many-Argument Workhorses": 49,
-        "Parameter Forwarders": 61,
+        "Generic / Templated Code": 214,
+        "I/O & Config Routines": 61,
+        "Interface Declarations": 150,
+        "Many-Argument Workhorses": 50,
+        "Parameter Forwarders": 55,
         "State Mutators": 21,
-        "Type Conversions": 34
+        "Type Conversions": 31
       },
       "typescript/typescript_compiler/types.ts": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 152,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 151,
         "Defensive Guards": 2,
         "Generic / Templated Code": 110,
         "I/O & Config Routines": 36,
-        "Interface Declarations": 11,
+        "Interface Declarations": 12,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 147,
+        "Parameter Forwarders": 148,
         "State Mutators": 629
       }
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
       "typescript/vscode/async.ts": {
-        "Callbacks & Closures": 37,
+        "Callbacks & Closures": 36,
         "Compute Cores": 5,
-        "Defensive Guards": 29,
+        "Defensive Guards": 31,
         "Encapsulated Accessors": 24,
-        "Generic / Templated Code": 68,
+        "Generic / Templated Code": 66,
         "I/O & Config Routines": 8,
-        "Interface Declarations": 48,
-        "Parameter Forwarders": 21,
+        "Interface Declarations": 53,
+        "Parameter Forwarders": 17,
         "State Mutators": 9,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 1
       },
       "typescript/vscode/codeEditorWidget.ts": {
-        "Callbacks & Closures": 25,
-        "Compute Cores": 41,
+        "Callbacks & Closures": 22,
+        "Compute Cores": 40,
         "Defensive Guards": 13,
         "Encapsulated Accessors": 22,
         "Generic / Templated Code": 5,
         "I/O & Config Routines": 4,
-        "Interface Declarations": 39,
-        "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 49,
+        "Interface Declarations": 48,
+        "Many-Argument Workhorses": 6,
+        "Parameter Forwarders": 43,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 13,
         "Type Conversions": 1
       },
       "typescript/vscode/eslint.config.js": {},
       "typescript/vscode/extHost.api.impl.ts": {
-        "Callbacks & Closures": 74,
-        "Compute Cores": 70,
+        "Callbacks & Closures": 6,
+        "Compute Cores": 106,
         "Defensive Guards": 15,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 89,
+        "Interface Declarations": 87,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 95,
+        "Parameter Forwarders": 129,
         "State Mutators": 7
       },
       "typescript/vscode/gulpfile.vscode.ts": {
         "Callbacks & Closures": 6,
-        "Compute Cores": 2,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 1
       },
@@ -13390,28 +13394,28 @@
         "Stateful Encapsulated Methods": 7
       },
       "typescript/vscode/ipc.ts": {
-        "Callbacks & Closures": 8,
+        "Callbacks & Closures": 9,
         "Compute Cores": 14,
-        "Defensive Guards": 2,
+        "Defensive Guards": 3,
         "Encapsulated Accessors": 12,
-        "Generic / Templated Code": 29,
-        "I/O & Config Routines": 2,
+        "Generic / Templated Code": 27,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 5,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 9,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 10,
-        "Type Conversions": 3
+        "Type Conversions": 2
       },
       "typescript/vscode/lifecycle.ts": {
         "Callbacks & Closures": 5,
-        "Compute Cores": 10,
+        "Compute Cores": 8,
         "Defensive Guards": 16,
         "Encapsulated Accessors": 6,
-        "Generic / Templated Code": 17,
+        "Generic / Templated Code": 16,
         "I/O & Config Routines": 2,
-        "Interface Declarations": 17,
-        "Parameter Forwarders": 17,
+        "Interface Declarations": 18,
+        "Parameter Forwarders": 19,
         "State Mutators": 7,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 2
@@ -13423,10 +13427,10 @@
         "Encapsulated Accessors": 9,
         "Generic / Templated Code": 150,
         "I/O & Config Routines": 5,
-        "Interface Declarations": 40,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 76,
-        "State Mutators": 219,
+        "Interface Declarations": 39,
+        "Many-Argument Workhorses": 4,
+        "Parameter Forwarders": 77,
+        "State Mutators": 218,
         "Stateful Encapsulated Methods": 1
       }
     },

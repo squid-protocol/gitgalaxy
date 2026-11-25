@@ -586,6 +586,9 @@ def _decorators(node) -> list[str]:
             out.extend(_text(m).split("(")[0] for m in c.children if m.type in ("marker_annotation", "annotation"))
         elif c.type == "decorator":
             out.append(_text(c).split("(")[0])
+        elif c.type == "formal_parameters":  # #8863: a TS parameter decorator (`@Inject() x`) sits inside the parameter
+            for p in c.children:
+                out.extend(_text(d).split("(")[0] for d in p.children if d.type == "decorator")
     prev = node.prev_named_sibling
     while prev is not None and (prev.type in ("attribute_item", "decorator") or "comment" in prev.type):
         if prev.type in ("attribute_item", "decorator"):
@@ -596,6 +599,15 @@ def _decorators(node) -> list[str]:
 
 def _documented(spec: Spec, node) -> bool:
     """A doc comment directly above, in the language's structured style: `/** */` (C, Java, JS, TS), `///` / `//!` / `/** */` (Rust), any comment (Go: godoc)."""
+    if spec.ts_name == "typescript":
+        # #8863: the doc sits above `export function f` / `export const f = () =>`, the wrapper's sibling, not the function's
+        while node.parent is not None and node.parent.type in (
+            "export_statement",
+            "lexical_declaration",
+            "variable_declaration",
+            "variable_declarator",
+        ):
+            node = node.parent
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling

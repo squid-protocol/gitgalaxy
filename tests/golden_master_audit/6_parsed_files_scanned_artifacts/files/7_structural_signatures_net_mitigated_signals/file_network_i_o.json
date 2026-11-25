@@ -4243,9 +4243,9 @@
       "typescript/playwright/README.md": 0,
       "typescript/playwright/SECURITY.md": 0,
       "typescript/playwright/SUPPORT.md": 0,
-      "typescript/playwright/api.ts": 1,
+      "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
-      "typescript/playwright/connection.ts": 1,
+      "typescript/playwright/connection.ts": 0,
       "typescript/playwright/crConnection.ts": 0,
       "typescript/playwright/dispatcher.ts": 0,
       "typescript/playwright/frames.ts": 0,
@@ -4255,23 +4255,23 @@
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
       "typescript/typescript_compiler/checker.ts": 0,
-      "typescript/typescript_compiler/emitter.ts": 0,
+      "typescript/typescript_compiler/emitter.ts": 5,
       "typescript/typescript_compiler/package.json": 0,
       "typescript/typescript_compiler/parser.ts": 0,
-      "typescript/typescript_compiler/types.ts": 0
+      "typescript/typescript_compiler/types.ts": 3
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 0,
       "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 8,
-      "typescript/vscode/extHost.api.impl.ts": 1,
-      "typescript/vscode/gulpfile.vscode.ts": 33,
+      "typescript/vscode/extHost.api.impl.ts": 0,
+      "typescript/vscode/gulpfile.vscode.ts": 7,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 1
+      "typescript/vscode/vscode.d.ts": 4
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

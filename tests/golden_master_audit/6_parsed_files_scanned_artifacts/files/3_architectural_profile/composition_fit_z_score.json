@@ -4222,14 +4222,14 @@
       "typescript/excalibur_math/math_ray.ts": 1.394
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": -0.483
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 1.117
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 0.396,
+      "typescript/fp-ts/Either.ts": 0.489,
       "typescript/fp-ts/HKT.ts": 0.736,
-      "typescript/fp-ts/TaskEither.ts": 0.244,
+      "typescript/fp-ts/TaskEither.ts": 0.189,
       "typescript/fp-ts/package.json": 0.0,
-      "typescript/fp-ts/pipeable.ts": 0.377
+      "typescript/fp-ts/pipeable.ts": 0.307
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 1.866,
@@ -4244,34 +4244,34 @@
       "typescript/playwright/SECURITY.md": 0.0,
       "typescript/playwright/SUPPORT.md": 0.0,
       "typescript/playwright/api.ts": 0.239,
-      "typescript/playwright/bidiConnection.ts": -0.258,
-      "typescript/playwright/connection.ts": -0.992,
+      "typescript/playwright/bidiConnection.ts": -0.311,
+      "typescript/playwright/connection.ts": -0.852,
       "typescript/playwright/crConnection.ts": -0.688,
-      "typescript/playwright/dispatcher.ts": -0.85,
-      "typescript/playwright/frames.ts": -0.655,
+      "typescript/playwright/dispatcher.ts": -0.789,
+      "typescript/playwright/frames.ts": -0.374,
       "typescript/playwright/protocol.ts": 0.18
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
-      "typescript/typescript_compiler/binder.ts": -0.285,
-      "typescript/typescript_compiler/checker.ts": -0.574,
-      "typescript/typescript_compiler/emitter.ts": 0.715,
+      "typescript/typescript_compiler/binder.ts": -0.347,
+      "typescript/typescript_compiler/checker.ts": -0.704,
+      "typescript/typescript_compiler/emitter.ts": 0.729,
       "typescript/typescript_compiler/package.json": 0.0,
-      "typescript/typescript_compiler/parser.ts": -0.567,
-      "typescript/typescript_compiler/types.ts": -0.048
+      "typescript/typescript_compiler/parser.ts": -0.545,
+      "typescript/typescript_compiler/types.ts": -0.049
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
-      "typescript/vscode/async.ts": -0.418,
-      "typescript/vscode/codeEditorWidget.ts": -0.695,
+      "typescript/vscode/async.ts": -0.395,
+      "typescript/vscode/codeEditorWidget.ts": -0.697,
       "typescript/vscode/eslint.config.js": 1.691,
-      "typescript/vscode/extHost.api.impl.ts": -0.158,
-      "typescript/vscode/gulpfile.vscode.ts": 1.033,
+      "typescript/vscode/extHost.api.impl.ts": 0.242,
+      "typescript/vscode/gulpfile.vscode.ts": 1.023,
       "typescript/vscode/instantiationService.ts": -1.196,
-      "typescript/vscode/ipc.ts": -0.664,
-      "typescript/vscode/lifecycle.ts": -0.839,
+      "typescript/vscode/ipc.ts": -0.756,
+      "typescript/vscode/lifecycle.ts": -0.768,
       "typescript/vscode/package.json": 0.0,
-      "typescript/vscode/vscode.d.ts": 0.946
+      "typescript/vscode/vscode.d.ts": 0.937
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0.0,

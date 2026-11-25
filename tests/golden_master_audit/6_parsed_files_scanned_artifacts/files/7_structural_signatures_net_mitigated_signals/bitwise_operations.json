@@ -4207,11 +4207,11 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 1,
-      "typescript/assemblyscript/builtins.ts": 626,
-      "typescript/assemblyscript/compiler.ts": 30,
+      "typescript/assemblyscript/ast.ts": 7,
+      "typescript/assemblyscript/builtins.ts": 674,
+      "typescript/assemblyscript/compiler.ts": 132,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 0
+      "typescript/assemblyscript/parser.ts": 78
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -4225,9 +4225,9 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 0,
+      "typescript/fp-ts/Either.ts": 23,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 0,
+      "typescript/fp-ts/TaskEither.ts": 40,
       "typescript/fp-ts/package.json": 0,
       "typescript/fp-ts/pipeable.ts": 0
     },
@@ -4246,32 +4246,32 @@
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 0,
-      "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 0,
-      "typescript/playwright/frames.ts": 2,
+      "typescript/playwright/crConnection.ts": 1,
+      "typescript/playwright/dispatcher.ts": 1,
+      "typescript/playwright/frames.ts": 6,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 16,
-      "typescript/typescript_compiler/checker.ts": 131,
-      "typescript/typescript_compiler/emitter.ts": 3,
+      "typescript/typescript_compiler/binder.ts": 163,
+      "typescript/typescript_compiler/checker.ts": 3623,
+      "typescript/typescript_compiler/emitter.ts": 119,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 21,
-      "typescript/typescript_compiler/types.ts": 498
+      "typescript/typescript_compiler/parser.ts": 116,
+      "typescript/typescript_compiler/types.ts": 665
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 3,
-      "typescript/vscode/codeEditorWidget.ts": 4,
+      "typescript/vscode/async.ts": 13,
+      "typescript/vscode/codeEditorWidget.ts": 8,
       "typescript/vscode/eslint.config.js": 246,
-      "typescript/vscode/extHost.api.impl.ts": 6,
+      "typescript/vscode/extHost.api.impl.ts": 26,
       "typescript/vscode/gulpfile.vscode.ts": 1,
-      "typescript/vscode/instantiationService.ts": 0,
-      "typescript/vscode/ipc.ts": 4,
-      "typescript/vscode/lifecycle.ts": 2,
+      "typescript/vscode/instantiationService.ts": 1,
+      "typescript/vscode/ipc.ts": 11,
+      "typescript/vscode/lifecycle.ts": 3,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 0
+      "typescript/vscode/vscode.d.ts": 125
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

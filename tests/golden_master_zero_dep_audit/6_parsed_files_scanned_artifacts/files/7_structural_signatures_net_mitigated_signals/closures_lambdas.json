@@ -4208,7 +4208,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
-      "typescript/assemblyscript/builtins.ts": 0,
+      "typescript/assemblyscript/builtins.ts": 4,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
@@ -4218,18 +4218,18 @@
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 1,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 2,
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 39
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 32
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 19,
+      "typescript/fp-ts/Either.ts": 152,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 15,
+      "typescript/fp-ts/TaskEither.ts": 199,
       "typescript/fp-ts/package.json": 0,
-      "typescript/fp-ts/pipeable.ts": 2
+      "typescript/fp-ts/pipeable.ts": 873
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0,
@@ -4244,34 +4244,34 @@
       "typescript/playwright/SECURITY.md": 0,
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
-      "typescript/playwright/bidiConnection.ts": 5,
-      "typescript/playwright/connection.ts": 4,
-      "typescript/playwright/crConnection.ts": 4,
-      "typescript/playwright/dispatcher.ts": 3,
-      "typescript/playwright/frames.ts": 73,
+      "typescript/playwright/bidiConnection.ts": 10,
+      "typescript/playwright/connection.ts": 6,
+      "typescript/playwright/crConnection.ts": 7,
+      "typescript/playwright/dispatcher.ts": 7,
+      "typescript/playwright/frames.ts": 108,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 8,
-      "typescript/typescript_compiler/checker.ts": 319,
-      "typescript/typescript_compiler/emitter.ts": 22,
+      "typescript/typescript_compiler/binder.ts": 15,
+      "typescript/typescript_compiler/checker.ts": 806,
+      "typescript/typescript_compiler/emitter.ts": 26,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 61,
-      "typescript/typescript_compiler/types.ts": 9
+      "typescript/typescript_compiler/parser.ts": 71,
+      "typescript/typescript_compiler/types.ts": 18
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 143,
-      "typescript/vscode/codeEditorWidget.ts": 46,
+      "typescript/vscode/async.ts": 139,
+      "typescript/vscode/codeEditorWidget.ts": 51,
       "typescript/vscode/eslint.config.js": 0,
-      "typescript/vscode/extHost.api.impl.ts": 91,
-      "typescript/vscode/gulpfile.vscode.ts": 37,
-      "typescript/vscode/instantiationService.ts": 4,
-      "typescript/vscode/ipc.ts": 30,
-      "typescript/vscode/lifecycle.ts": 12,
+      "typescript/vscode/extHost.api.impl.ts": 23,
+      "typescript/vscode/gulpfile.vscode.ts": 46,
+      "typescript/vscode/instantiationService.ts": 8,
+      "typescript/vscode/ipc.ts": 39,
+      "typescript/vscode/lifecycle.ts": 18,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 3
+      "typescript/vscode/vscode.d.ts": 5
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

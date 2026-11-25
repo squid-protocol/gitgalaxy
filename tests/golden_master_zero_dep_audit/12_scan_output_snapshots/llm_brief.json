@@ -235,7 +235,7 @@
     "| dead_code | 16099 | 1536 | 10 | `rust/wasmtime/wasmtime_pulley_interp.rs` |",
     "| credential | 131 | 69 | 0 | `powershell/core/packaging.psm1` |",
     "| threat | 185 | 32 | 0 | `php/wordpress/functions.php` |",
-    "| ml_ai | 3141 | 333 | 0 | `lua/cosmopolitan/math.lua` |",
+    "| ml_ai | 3140 | 332 | 0 | `lua/cosmopolitan/math.lua` |",
     "| ui | 2844 | 191 | 0 | `css/bootstrap_dist/bootstrap.rtl.css` |",
     "",
     "**Relations (repo medians):**",

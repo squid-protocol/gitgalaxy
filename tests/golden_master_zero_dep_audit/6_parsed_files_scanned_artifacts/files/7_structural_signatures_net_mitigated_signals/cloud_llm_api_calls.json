@@ -4214,7 +4214,7 @@
       "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
-      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 1
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0,

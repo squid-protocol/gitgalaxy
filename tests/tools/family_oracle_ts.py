@@ -493,6 +493,21 @@ def _callee(node) -> str:
     return "".join(full.split())
 
 
+# C stdio writers that take the stream as their first argument (the last, for fputs/fputc/putc's second): output addressed to a
+# file or writer is not a debug print (debug_prints contract), so only a console stream counts.
+_STREAM_PRINTS = frozenset({"fprintf", "vfprintf", "fputs", "fputc", "putc"})
+_CONSOLE_STREAMS = frozenset({"stdout", "stderr"})
+
+
+def _to_console(call) -> bool:
+    """True when a stream-addressed call (`fprintf(stderr, ...)`, `fputs("x", stdout)`) writes to stdout or stderr."""
+    args = call.child_by_field_name("arguments")
+    if args is None:
+        return False
+    parts = [c for c in args.children if c.is_named]
+    return any(_text(a).strip() in _CONSOLE_STREAMS for a in parts)
+
+
 def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
     """The pattern `full` matches: a prefix ending in `.` or `::`, `Name.` forms, the exact callee, or the last segment of a bare name."""
     last = full.replace("::", ".").split(".")[-1]
@@ -663,7 +678,7 @@ class TreeSitterOracle:
                 full = _callee(node)
                 for key, pats in spec.calls.items():
                     hit = _matches(full, pats)
-                    if hit:
+                    if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
         n["args"] = _params(spec, fn)
         deco = _decorators(fn)

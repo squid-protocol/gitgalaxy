@@ -1,5 +1,6 @@
 ---
-description: "When translating legacy COBOL monoliths into modern Java microservices, the most significant architectural friction occurs at the system boundary...."
+title: "COBOL to Java REST API (Spring Boot)"
+description: "Generate Spring Boot REST API contracts from COBOL programs. This is the boundary where most COBOL-to-Java migrations break."
 ---
 # Cookbook: Spring Boot API Contract Forge via Deterministic RAG Pipelines
 

@@ -1,5 +1,6 @@
 ---
-description: "> **File Reference:** [`gitgalaxy/tools/cobol_to_java/det/`](https://github.com/squid-protocol/gitgalaxy/tree/main/gitgalaxy/tools/cobol_to_java/det) ·..."
+title: "COBOL to Java Conversion, With Evidence"
+description: "Real COBOL programs converted to Java, with the evidence that the Java behaves like the original. See what was ported and how it was checked."
 ---
 # Ported COBOL-to-Java Programs and Their Evidence
 

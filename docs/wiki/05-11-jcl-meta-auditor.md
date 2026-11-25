@@ -1,5 +1,6 @@
 ---
-description: "> **File Reference:** [gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_..."
+title: "JCL Audit: Security and Redundancy Checks"
+description: "Audit JCL for security risks and redundant steps before you migrate or retire a mainframe batch estate."
 ---
 # JCL Security & Reduction Auditor
 

@@ -1,5 +1,6 @@
 ---
-description: "Enterprise mainframe modernization initiatives routinely collapse not at the application layer, but at the orchestration layer. Decades of COBOL batch..."
+title: "Generate JCL from COBOL Source"
+description: "Build JCL job streams from COBOL programs deterministically, so the batch layer of a migration doesn't stall."
 ---
 # Cookbook: Deterministic JCL Forge for COBOL Modernization
 

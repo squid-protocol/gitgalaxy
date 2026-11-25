@@ -1,5 +1,6 @@
 ---
-description: "DOOM's DNA: 43 programs in DOOM's family, from copies of the 1997 source to from-scratch rewrites. Measured by shape alone, without reading the code, they show who copied whom and which translations kept the blueprint."
+title: "DOOM Source Code Family Tree: 43 Ports Compared"
+description: "We compared 43 programs descended from DOOM's 1997 source code, from copies to rewrites, by code shape alone: who copied whom, and what survived."
 ---
 # DOOM's DNA: How Code Keeps Its Family Resemblance
 

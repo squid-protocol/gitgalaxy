@@ -1,5 +1,6 @@
 ---
-description: "Enterprise legacy modernization projects—specifically migrating decades-old COBOL mainframes to the cloud—frequently stall or fail due to sheer..."
+title: "Find Dead Code in COBOL Programs"
+description: "Identify unreachable COBOL code before a migration so you don't pay to convert code that never runs."
 ---
 # Cookbook: COBOL Dead Code Elimination for Legacy Modernization
 

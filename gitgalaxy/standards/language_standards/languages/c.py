@@ -503,7 +503,9 @@ DEFINITION: dict[str, Any] = {
             + r"]"
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
-        "panics_and_aborts": re.compile(r"\b(abort|exit|_Exit|quick_exit|return\s+-1)\b"),
+        # #8868: `return -1` is an error return, not an abort (contract: abort, fatal error, unreachable, process exit);
+        # `_exit` is the async-signal-safe exit, which `\bexit\b` cannot see (`_` is a word character).
+        "panics_and_aborts": re.compile(r"\b(abort|exit|_exit|_Exit|quick_exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep|thrd_sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)

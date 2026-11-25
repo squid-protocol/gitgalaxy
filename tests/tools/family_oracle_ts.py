@@ -137,7 +137,23 @@ SPECS: dict[str, Spec] = {
             "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
             "regex": ("regexp.",),
-            "time": ("time.",),
+            # time_date_logic: a clock or calendar value, duration arithmetic, a formatting or timezone call. Timers
+            # (time.After / Tick / NewTimer / NewTicker / AfterFunc) are timed waits: thread_sleeps' (#8868)
+            "time": (
+                "time.Now",
+                "time.Since",
+                "time.Until",
+                "time.Unix",
+                "time.UnixMilli",
+                "time.UnixMicro",
+                "time.Date",
+                "time.Parse",
+                "time.ParseDuration",
+                "time.ParseInLocation",
+                "time.Duration",
+                "time.LoadLocation",
+                "time.FixedZone",
+            ),
             "io": (
                 "os.Open",
                 "os.Create",
@@ -210,7 +226,7 @@ SPECS: dict[str, Spec] = {
                 "unimplemented!",
                 "process::exit",
                 "std::process::exit",
-                "exit",
+                # no bare "exit": `span.exit()` / `guard.exit()` method calls are not a process exit (#8868)
             ),
         },
     ),
@@ -374,11 +390,10 @@ SPECS: dict[str, Spec] = {
                 "fopen",
                 "fread",
                 "fwrite",
-                "fclose",
+                # no fclose / close: closing a handle is cleanup's (contract), as the C rule says (#8868)
                 "open",
                 "read",
                 "write",
-                "close",
                 "socket",
                 "send",
                 "recv",

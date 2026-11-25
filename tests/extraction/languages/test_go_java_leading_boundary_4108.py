@@ -73,9 +73,15 @@ def test_go_regex_boundaries(line):
     assert bool(GO_RE.search(line)) == ("MustCompile" in line)
 
 
-@pytest.mark.parametrize("line", ["t := time.Now()", "\tx(time.Now())", "time.Sleep(d)"])
+@pytest.mark.parametrize("line", ["t := time.Now()", "\tx(time.Now())", "d := time.Since(t)"])
 def test_go_time_fires(line):
     assert GO_TIME.search(line)
+
+
+@pytest.mark.parametrize("line", ["time.Sleep(d)", "<-time.After(d)", "t := time.NewTicker(d)"])
+def test_go_timed_waits_are_not_time(line):
+    # a sleep or a timer is a timed wait (thread_sleeps), not a clock or calendar value (#8868)
+    assert not GO_TIME.search(line)
 
 
 @pytest.mark.parametrize("line", ["s.matches(re)", "f().matches(x)", "  .matches(x)", "Pattern.compile(p)"])

@@ -1357,10 +1357,10 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 5.299
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 7.696,
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 7.692,
       "dockerfile/moby/test_targets/generate-files.Dockerfile": 6.604,
       "dockerfile/moby/test_targets/syscall.Dockerfile": 8.555,
-      "dockerfile/moby/test_targets/windows.Dockerfile": 5.84
+      "dockerfile/moby/test_targets/windows.Dockerfile": 5.731
     },
     "elixir": {
       "elixir/SOURCES.md": 0.0

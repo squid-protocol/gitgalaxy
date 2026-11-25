@@ -153,9 +153,12 @@ DEFINITION: dict[str, Any] = {
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out logic, commented-out structural Dockerfile commands.
+        # #8862: the instruction is written uppercase and carries an operand (prose such as `# from the repo`,
+        # `# Copy the sources`, `#  run one of ...` is not code); FROM must end after `image [AS name]`.
         "dead_code": re.compile(
-            r"^[ \t]*#[ \t]*(?:RUN|COPY|ADD|ENV|EXPOSE|FROM|CMD|ENTRYPOINT|WORKDIR)\b",
-            re.M | re.I,
+            r"^[ \t]*#[ \t]*(?:(?:RUN|COPY|ADD|ENV|EXPOSE|CMD|ENTRYPOINT|WORKDIR)[ \t]+\S"
+            r"|FROM[ \t]+(?:--\S+[ \t]+)?\S+(?:[ \t]+(?i:as)[ \t]+\S+)?[ \t]*$)",
+            re.M,
         ),
         # 13. doc (Structured Documentation)
         # Intent documentation meant for developers or image registries.

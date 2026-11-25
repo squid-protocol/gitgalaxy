@@ -15,6 +15,7 @@ def _rule(key):
 
 
 POSITIVE = {
+    "high_risk_execution": ["exit(1)", "sys.exit(2)"],
     "telemetry": ["self.log.info('x')", "self._log.warning('x')", "LOG.debug('x')", "logger.error('x')"],
     "thread_sleeps": ["time.sleep(1)", "await anyio.sleep(1)", "sleep(0.5)", "asyncio.sleep(1)"],
     "time_date_logic": [
@@ -31,10 +32,11 @@ POSITIVE = {
     "bitwise_ops": ["x = a | b", "m |= 3", "y = a & mask", "z = a << 2"],
 }
 NEGATIVE = {
+    "high_risk_execution": ["self.exit(1)", "platform.system()"],
     "thread_sleeps": ["x = sleeper"],
     "time_date_logic": ["time.sleep(1)", "parts = time.split()"],
-    "sync_locks": ["class Event(BaseModel):", "x.release(code)"],
-    "io": ["self.open = True", "pool['open']", "self.requests = []", "self.socket = s"],
+    "sync_locks": ["class Event(BaseModel):", "x.release(code)", 'log.warn("Bus Lock Detected")'],
+    "io": ["self.open = True", "pool['open']", "self.requests = []", "self.requests[-1].x", "self.socket = s"],
     "comprehensions": ['log("for the schedule runtime")', 'error(pos, "for-from loop (x)")'],
     "bitwise_ops": [
         "def f(a: int | str) -> None:",
@@ -61,3 +63,11 @@ def test_contract_forms_count(key, line):
 )
 def test_other_constructs_do_not_count(key, line):
     assert not _rule(key).search(line)
+
+
+def test_embedded_python_log_receiver_counts():
+    from gitgalaxy.standards.language_standards.languages import embedded_python as emb
+
+    rx = emb.DEFINITION["rules"]["telemetry"]
+    assert rx.search('log.info("ACT", "x")') and rx.search("self._log.warn(m)")
+    assert not rx.search("catalog.info = 1")

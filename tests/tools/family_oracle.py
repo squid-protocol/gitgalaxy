@@ -124,7 +124,7 @@ _THREAD_NAMES = frozenset(
         "gather",
     }
 )
-_LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release"})
+_LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release", "allocate_lock"})
 _SERIAL_BASES = frozenset({"json", "yaml", "pickle", "marshal", "csv", "toml", "tomllib", "ET", "etree", "plistlib"})
 _SERIAL_CALLS = frozenset(
     {
@@ -302,7 +302,9 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
     if name in ("close", "remove", "unlink", "rmtree", "rmdir", "removedirs"):
         c.add("cleanup", name)
     if (
-        name in _DANGER_CALLS
+        (
+            name in _DANGER_CALLS and (name not in ("system", "abort") or base == "os")
+        )  # `platform.system()` / `ota.abort()` are not (#8863)
         or (base == "subprocess" and name in _SUBPROCESS_CALLS)
         or (base == "os" and name.startswith(("exec", "spawn")))
     ):
@@ -320,9 +322,12 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
     if name in _THREAD_NAMES or base in ("threading", "multiprocessing"):
         c.add("threads", name)
     # #8863: `x.release(code)` / `x.acquire(var)` with arguments is another API (a Cython temp release), not a lock
-    if name in _LOCK_NAMES and not (name == "release" and (call.args or call.keywords)):
-        if name != "acquire" or all(isinstance(a, ast.Constant) for a in call.args):
-            c.add("locks", name)
+    if (
+        name in _LOCK_NAMES
+        and not (name == "release" and (call.args or call.keywords))
+        and (name != "acquire" or all(isinstance(a, ast.Constant) for a in call.args))
+    ):
+        c.add("locks", name)
     if isinstance(call.func, ast.Name) and name in _CASTS:
         c.add("cast", name)
 

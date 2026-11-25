@@ -283,6 +283,8 @@ DEFINITION: dict[str, Any] = {
         # #8865: subprocess.check_call/check_output/getoutput/getstatusoutput spawn a process like call/run.
         "high_risk_execution": re.compile(
             r"\b(eval|exec|subprocess\.(?:call|Popen|run|check_call|check_output|getoutput|getstatusoutput)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
+            # #8863: the builtin `exit(1)` ends the process like `sys.exit` (not `x.exit(`)
+            r"|(?<![.\w])exit(?=[ \t]*\()"
         ),
         # 9. io (I/O & Network Boundaries)
         # #8860: I/O is a boundary crossing. The `os.`/`sys.` alternatives name the I/O members
@@ -291,7 +293,7 @@ DEFINITION: dict[str, Any] = {
         # (`Path(p).read_text()`, `.glob(`) count without the word `pathlib` being present.
         "io": re.compile(
             r"\bopen[ \t]*\("
-            r"|\b(?:requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\b(?![ \t]*[=,)\]:]|\s*\n)"
+            r"|(?<![.\w])(?:requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\.\w+[ \t]*\("
             r"|\bos\.(?:walk|listdir|scandir|remove|unlink|rename|replace|makedirs|mkdir|rmdir|removedirs|open|read|write)\b"
             r"|\bsys\.(?:stdin|stdout|stderr)\b"
             r"|\.(?:read_text|write_text|read_bytes|write_bytes|glob|rglob|iterdir|read|readline|readlines|write|writelines|mkdir|copyfile)[ \t]*\("
@@ -513,7 +515,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
-            r"\b(?:Lock|RLock|Semaphore|BoundedSemaphore|Condition)\b|\.acquire[ \t]*\(|\.release[ \t]*\([ \t]*\)"
+            r"\b(?:Lock|RLock|Semaphore|BoundedSemaphore|Condition)[ \t]*\(|\.acquire[ \t]*\(|\.release[ \t]*\([ \t]*\)"
         ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),

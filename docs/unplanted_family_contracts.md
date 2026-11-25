@@ -56,8 +56,17 @@ those that carry a rule (the rest record `None`, a contract-level absence).
 | `reflection_metaprogramming` | csharp, java, rust | `using ...Emit;` (a namespace import), a `ClassLoader` type name, `PhantomData` | no: a type or import, not a call that inspects or alters structure |
 | `reflection_metaprogramming` | python | `@property` / `@classmethod` (322 hits), a decorator (`decorators`) | no |
 | `reflection_metaprogramming` | agc_assembly | `INDEX` (an address-modifier instruction) | design question: indirect addressing, not self-inspection |
-| `llm_api` | typescript | `@anthropic-ai/tokenizer` import | no: reading 2 |
-| `llm_api` | 76 languages | rule is `None` | design question: only python, javascript and typescript are covered; an absence ledger entry is owed per language that has an SDK |
+| `llm_api` | javascript, typescript | `@anthropic-ai/tokenizer` import | no: reading 2 -- fixed: `JS_LLM_API` excludes that exact package name (`@anthropic-ai/sdk` and every other scope member still fire); `tests/extraction/languages/test_llm_api_anchor_4137.py` |
+| `llm_api` | 76 languages | rule is `None` | stated absence, listed below: no rule is written until a language's provider-client import form is measured on a corpus |
+
+### `llm_api` stated absences (#8862)
+
+The rule is `None` (a stated absence, not a missed rule) for every language other than python, javascript and
+typescript; `test_every_llm_api_language_uses_an_anchored_pattern` pins that set. Languages with a published
+provider client, where a rule is a candidate once a corpus carries a positive: java, kotlin, go, csharp, ruby, php,
+rust, swift, dart, scala, elixir. Everything else (assembly and mainframe languages, markup, config, shell, query
+languages) has no hosted-LLM client form, so the absence is by morphology. The crucible holds no positive in any
+candidate language (12 hits, all python, javascript, typescript), so a rule written now would be unmeasured.
 
 `tests/family_validity_baseline.json` carries parser-oracle scores only for families with an oracle; none exists for
 these four (`dead_code` and `spec_exposure` have no parser oracle: they need planted positives and negatives).

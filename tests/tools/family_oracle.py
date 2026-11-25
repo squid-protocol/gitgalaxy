@@ -398,12 +398,16 @@ def get_oracle(lang: str):
     """The oracle for `lang`: Python's `ast`, or a tree-sitter one from family_oracle_ts (languages listed there)."""
     if lang == "python":
         return _PythonOracle
+    if lang == "cobol":  # the translator's own parser (a paragraph is the function), not a tree-sitter grammar
+        import family_oracle_cobol
+
+        return family_oracle_cobol.get_oracle()
     import family_oracle_ts
 
     oracle = family_oracle_ts.get_oracle(lang)
     if oracle is None:
         raise SystemExit(
-            f"no oracle for language {lang!r} yet (available: python, {', '.join(family_oracle_ts.languages())}); see #8863"
+            f"no oracle for language {lang!r} yet (available: python, cobol, {', '.join(family_oracle_ts.languages())}); see #8863"
         )
     return oracle
 

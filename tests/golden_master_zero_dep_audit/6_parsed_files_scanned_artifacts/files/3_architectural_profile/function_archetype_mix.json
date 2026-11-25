@@ -1242,13 +1242,13 @@
         "State Mutators": 27
       },
       "c/cpython/ceval.c": {
-        "Compute Cores": 20,
+        "Compute Cores": 22,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 2,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 45,
-        "Parameter Forwarders": 21,
+        "Parameter Forwarders": 19,
         "Stateful Encapsulated Methods": 9,
         "Type Conversions": 1
       },
@@ -1261,12 +1261,12 @@
         "Stateful Encapsulated Methods": 10
       },
       "c/cpython/dictobject.c": {
-        "Compute Cores": 21,
+        "Compute Cores": 23,
         "Defensive Guards": 17,
         "Encapsulated Accessors": 52,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 50,
-        "Parameter Forwarders": 35,
+        "Parameter Forwarders": 33,
         "Stateful Encapsulated Methods": 106
       },
       "c/cpython/frameobject.c": {
@@ -1304,12 +1304,12 @@
       "c/cpython/typeobject.c": {
         "C Struct Operations": 2,
         "Compute Cores": 26,
-        "Defensive Guards": 10,
+        "Defensive Guards": 11,
         "Encapsulated Accessors": 53,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 51,
-        "Parameter Forwarders": 40,
+        "Parameter Forwarders": 39,
         "Stateful Encapsulated Methods": 229,
         "Type Conversions": 4
       }
@@ -3307,14 +3307,14 @@
         "Stateful Encapsulated Methods": 67
       },
       "cobol/gnucobol_internals/fileio.c": {
-        "C Struct Operations": 10,
-        "Compute Cores": 24,
+        "C Struct Operations": 9,
+        "Compute Cores": 25,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 5,
         "I/O & Config Routines": 3,
-        "Many-Argument Workhorses": 57,
+        "Many-Argument Workhorses": 56,
         "Parameter Forwarders": 7,
-        "Stateful Encapsulated Methods": 21,
+        "Stateful Encapsulated Methods": 22,
         "Type Conversions": 1
       },
       "cobol/gnucobol_internals/numeric.c": {
@@ -4148,10 +4148,9 @@
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": {
-        "Compute Cores": 5,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 4,
-        "State Mutators": 1
+        "Callbacks & Closures": 10,
+        "Compute Cores": 3,
+        "Parameter Forwarders": 1
       },
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": {
         "Annotated & Test Methods": 1,
@@ -4173,20 +4172,17 @@
         "Type Conversions": 1
       },
       "dockerfile/moby/builder/dockerfile/containerbackend.go": {
+        "Callbacks & Closures": 2,
         "Defensive Guards": 2,
-        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2
       },
       "dockerfile/moby/builder/dockerfile/copy.go": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 2,
-        "Defensive Guards": 8,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 4,
-        "State Mutators": 1
+        "Callbacks & Closures": 4,
+        "Compute Cores": 1,
+        "Defensive Guards": 10,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 4
       },
       "dockerfile/moby/builder/dockerfile/copy_test.go": {
         "I/O & Config Routines": 2
@@ -4228,22 +4224,20 @@
         "I/O & Config Routines": 1
       },
       "dockerfile/moby/builder/dockerfile/evaluator.go": {
-        "Compute Cores": 3,
+        "Callbacks & Closures": 7,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 2,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 4,
-        "State Mutators": 1
+        "Parameter Forwarders": 3
       },
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": {
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
       "dockerfile/moby/builder/dockerfile/imagecontext.go": {
+        "Callbacks & Closures": 5,
         "Compute Cores": 2,
-        "Defensive Guards": 3,
-        "Interface Declarations": 3,
+        "Defensive Guards": 1,
         "Parameter Forwarders": 1
       },
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": {
@@ -4253,15 +4247,14 @@
         "State Mutators": 4
       },
       "dockerfile/moby/builder/dockerfile/imageprobe.go": {
-        "Defensive Guards": 3,
-        "Parameter Forwarders": 2
+        "Callbacks & Closures": 2,
+        "Defensive Guards": 3
       },
       "dockerfile/moby/builder/dockerfile/internals.go": {
-        "Callbacks & Closures": 7,
-        "Compute Cores": 3,
+        "Callbacks & Closures": 9,
+        "Compute Cores": 2,
         "Defensive Guards": 5,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
         "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 1,
         "Type Conversions": 1
@@ -4274,8 +4267,9 @@
         "I/O & Config Routines": 1
       },
       "dockerfile/moby/builder/dockerfile/internals_test.go": {
+        "Callbacks & Closures": 7,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 9,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
         "State Mutators": 4
@@ -4290,8 +4284,8 @@
         "I/O & Config Routines": 1
       },
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": {
-        "Interface Declarations": 11,
-        "Parameter Forwarders": 12
+        "Callbacks & Closures": 14,
+        "Parameter Forwarders": 9
       },
       "dockerfile/moby/builder/dockerfile/utils_test.go": {
         "Defensive Guards": 2
@@ -4299,8 +4293,8 @@
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": {
+        "Callbacks & Closures": 2,
         "Defensive Guards": 4,
-        "Interface Declarations": 2,
         "Type Conversions": 1
       },
       "dockerfile/moby/builder/remotecontext/detect.go": {
@@ -4309,22 +4303,22 @@
         "Type Conversions": 2
       },
       "dockerfile/moby/builder/remotecontext/detect_test.go": {
+        "Callbacks & Closures": 4,
         "Defensive Guards": 1,
-        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 3,
+        "Parameter Forwarders": 1,
         "State Mutators": 3
       },
       "dockerfile/moby/builder/remotecontext/filehash.go": {
-        "Defensive Guards": 1,
-        "State Mutators": 1
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 1
       },
       "dockerfile/moby/builder/remotecontext/git.go": {
         "Defensive Guards": 1
       },
       "dockerfile/moby/builder/remotecontext/lazycontext.go": {
+        "Callbacks & Closures": 2,
         "Defensive Guards": 2,
-        "Interface Declarations": 2,
         "Parameter Forwarders": 1
       },
       "dockerfile/moby/builder/remotecontext/mimetype.go": {
@@ -4357,8 +4351,8 @@
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 4,
+        "Callbacks & Closures": 2,
+        "Compute Cores": 3,
         "Defensive Guards": 5,
         "Parameter Forwarders": 1
       },
@@ -4372,28 +4366,25 @@
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": {
-        "Compute Cores": 1
+        "Callbacks & Closures": 1
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": {
         "Defensive Guards": 2
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": {
-        "Compute Cores": 3,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 2,
-        "State Mutators": 3
+        "Callbacks & Closures": 14
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": {
         "Compute Cores": 1,
         "Interface Declarations": 1
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": {
+        "Callbacks & Closures": 5,
         "Compute Cores": 1,
         "Defensive Guards": 3,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 2,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 1,
         "Type Conversions": 1
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": {},
@@ -4405,9 +4396,10 @@
         "State Mutators": 5
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": {
+        "Callbacks & Closures": 2,
         "Compute Cores": 1,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 4,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 3,
         "Type Conversions": 2
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": {
@@ -4417,7 +4409,7 @@
         "State Mutators": 3
       },
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": {
-        "Interface Declarations": 2
+        "Callbacks & Closures": 2
       }
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
@@ -5011,7 +5003,7 @@
         "State Mutators": 4
       },
       "fsharp/giraffe_web/Core.fs": {
-        "Callbacks & Closures": 15,
+        "Callbacks & Closures": 16,
         "Compute Cores": 1,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
@@ -5029,8 +5021,9 @@
         "Callbacks & Closures": 2,
         "Compute Cores": 4,
         "Generic / Templated Code": 2,
+        "Interface Declarations": 1,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 2
+        "Stateful Encapsulated Methods": 5
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
         "Compute Cores": 4,
@@ -5070,16 +5063,17 @@
         "Generic / Templated Code": 1
       },
       "fsharp/giraffe_web/Negotiation.fs": {
-        "Callbacks & Closures": 1,
+        "Callbacks & Closures": 2,
+        "I/O & Config Routines": 1,
         "Parameter Forwarders": 1
       },
       "fsharp/giraffe_web/Preconditional.fs": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Encapsulated Accessors": 1,
         "Parameter Forwarders": 1,
         "State Mutators": 2,
-        "Stateful Encapsulated Methods": 3
+        "Stateful Encapsulated Methods": 4
       },
       "fsharp/giraffe_web/RequestLimitation.fs": {
         "Defensive Guards": 3,
@@ -5087,6 +5081,7 @@
       },
       "fsharp/giraffe_web/ResponseCaching.fs": {
         "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 1,
         "Parameter Forwarders": 2
       },
       "fsharp/giraffe_web/Routing.fs": {
@@ -5100,8 +5095,11 @@
         "Callbacks & Closures": 4
       },
       "fsharp/giraffe_web/Streaming.fs": {
+        "Callbacks & Closures": 2,
         "Compute Cores": 2,
-        "Encapsulated Accessors": 1
+        "Defensive Guards": 1,
+        "Encapsulated Accessors": 1,
+        "I/O & Config Routines": 3
       },
       "fsharp/giraffe_web/Xml.fs": {
         "Parameter Forwarders": 1
@@ -5118,59 +5116,59 @@
         "Parameter Forwarders": 1
       },
       "go/core/mgc.go": {
+        "Callbacks & Closures": 1,
         "Compute Cores": 7,
         "I/O & Config Routines": 15,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 1,
-        "State Mutators": 5,
+        "State Mutators": 4,
         "Type Conversions": 3
       },
       "go/core/mutex.go": {
-        "Interface Declarations": 1,
-        "State Mutators": 2
+        "Callbacks & Closures": 3
       },
       "go/core/proc.go": {
-        "Callbacks & Closures": 3,
-        "Compute Cores": 31,
-        "Generic / Templated Code": 1,
-        "I/O & Config Routines": 59,
-        "Interface Declarations": 30,
+        "Callbacks & Closures": 32,
+        "Compute Cores": 30,
+        "I/O & Config Routines": 58,
+        "Interface Declarations": 20,
         "Many-Argument Workhorses": 21,
-        "Parameter Forwarders": 9,
-        "State Mutators": 73,
-        "Type Conversions": 18
+        "Parameter Forwarders": 8,
+        "State Mutators": 61,
+        "Type Conversions": 15
       },
       "go/core/server.go": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 30,
-        "Defensive Guards": 11,
+        "Callbacks & Closures": 67,
+        "Compute Cores": 26,
+        "Defensive Guards": 10,
         "Generic / Templated Code": 2,
-        "I/O & Config Routines": 21,
-        "Interface Declarations": 33,
+        "I/O & Config Routines": 15,
+        "Interface Declarations": 3,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 20,
-        "State Mutators": 28,
-        "Type Conversions": 7
+        "Parameter Forwarders": 11,
+        "State Mutators": 15,
+        "Type Conversions": 5
       },
       "go/core/syscall_linux.go": {
+        "Callbacks & Closures": 11,
         "Compute Cores": 2,
         "Defensive Guards": 6,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 9,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 8,
         "Parameter Forwarders": 52,
         "State Mutators": 6,
-        "Type Conversions": 23
+        "Type Conversions": 20
       },
       "go/core/value.go": {
-        "Compute Cores": 35,
-        "Generic / Templated Code": 9,
-        "I/O & Config Routines": 12,
-        "Interface Declarations": 33,
+        "Callbacks & Closures": 65,
+        "Compute Cores": 28,
+        "Generic / Templated Code": 8,
+        "I/O & Config Routines": 9,
         "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 25,
-        "State Mutators": 44,
-        "Type Conversions": 25
+        "Parameter Forwarders": 18,
+        "State Mutators": 32,
+        "Type Conversions": 23
       }
     },
     "go/go_runtime_rand": {
@@ -5183,58 +5181,50 @@
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
-        "Compute Cores": 4,
-        "Defensive Guards": 17,
-        "Interface Declarations": 8,
+        "Callbacks & Closures": 10,
+        "Compute Cores": 2,
+        "Defensive Guards": 18,
+        "Interface Declarations": 1,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 2,
         "Type Conversions": 1
       },
       "go/kubernetes/generic.go": {
-        "Compute Cores": 7,
+        "Callbacks & Closures": 13,
+        "Compute Cores": 5,
         "Defensive Guards": 1,
         "I/O & Config Routines": 1,
-        "Interface Declarations": 5,
         "Many-Argument Workhorses": 5,
-        "Parameter Forwarders": 3,
-        "State Mutators": 2,
-        "Type Conversions": 2
+        "Type Conversions": 1
       },
       "go/kubernetes/kubelet.go": {
+        "Callbacks & Closures": 5,
         "Compute Cores": 2,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 3,
-        "Many-Argument Workhorses": 2,
-        "State Mutators": 1
+        "Many-Argument Workhorses": 2
       },
       "go/kubernetes/options.go": {},
       "go/kubernetes/proxier.go": {
-        "Compute Cores": 2,
+        "Callbacks & Closures": 15,
+        "Compute Cores": 1,
         "Defensive Guards": 3,
-        "I/O & Config Routines": 4,
-        "Interface Declarations": 1,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 3,
-        "State Mutators": 10,
-        "Type Conversions": 1
+        "Parameter Forwarders": 2
       },
       "go/kubernetes/replica_set.go": {
-        "Compute Cores": 6,
+        "Callbacks & Closures": 4,
+        "Compute Cores": 4,
         "Defensive Guards": 7,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 3,
-        "State Mutators": 1
+        "Parameter Forwarders": 2
       },
       "go/kubernetes/scheduler.go": {
-        "Callbacks & Closures": 13,
+        "Callbacks & Closures": 15,
         "Compute Cores": 1,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
+        "Defensive Guards": 1,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 1,
-        "State Mutators": 1
+        "Parameter Forwarders": 1
       }
     },
     "go/kubernetes_kubectl_tls": {
@@ -11560,7 +11550,8 @@
       },
       "rust/bevy/bevy_ecs_query.rs": {
         "Annotated & Test Methods": 14,
-        "Callbacks & Closures": 2,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
         "Defensive Guards": 6,
         "Generic / Templated Code": 6,
         "I/O & Config Routines": 1,
@@ -11575,24 +11566,23 @@
         "Stateful Encapsulated Methods": 8
       },
       "rust/bevy/bevy_ecs_world.rs": {
-        "Annotated & Test Methods": 28,
-        "Callbacks & Closures": 7,
+        "Annotated & Test Methods": 29,
+        "Callbacks & Closures": 1,
         "Compute Cores": 2,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 7,
-        "Generic / Templated Code": 103,
+        "Generic / Templated Code": 104,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 13,
-        "State Mutators": 16,
+        "Parameter Forwarders": 15,
+        "State Mutators": 18,
         "Stateful Encapsulated Methods": 8
       },
       "rust/bevy/bevy_reflect_path.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 2,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 5,
+        "Generic / Templated Code": 7,
         "State Mutators": 2
       },
       "rust/bevy/bevy_render_phase.rs": {
@@ -11633,9 +11623,9 @@
         "Interface Declarations": 1
       },
       "rust/holylang/parser.rs": {
-        "Compute Cores": 9,
-        "Defensive Guards": 2,
-        "Many-Argument Workhorses": 3
+        "Compute Cores": 11,
+        "Defensive Guards": 1,
+        "Many-Argument Workhorses": 2
       },
       "rust/holylang/semantic.rs": {
         "Defensive Guards": 1,
@@ -11667,29 +11657,27 @@
       "rust/serde/serde_core_macros.rs": {},
       "rust/serde/serde_derive_de.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 2,
         "Compute Cores": 3,
         "Defensive Guards": 7,
         "Encapsulated Accessors": 1,
-        "Generic / Templated Code": 9,
+        "Generic / Templated Code": 10,
         "Many-Argument Workhorses": 6,
         "Parameter Forwarders": 4,
-        "State Mutators": 7
+        "State Mutators": 8
       },
       "rust/serde/serde_internals_ast.rs": {
-        "Callbacks & Closures": 1,
         "Generic / Templated Code": 1,
-        "Many-Argument Workhorses": 4
+        "Many-Argument Workhorses": 4,
+        "State Mutators": 1
       },
       "rust/serde/serde_internals_attr.rs": {
-        "Callbacks & Closures": 6,
         "Compute Cores": 5,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 12,
         "Many-Argument Workhorses": 12,
         "Parameter Forwarders": 3,
-        "State Mutators": 48
+        "State Mutators": 54
       },
       "rust/serde/test_annotations.rs": {
         "Annotated & Test Methods": 29,
@@ -11709,9 +11697,10 @@
       },
       "rust/syn/buffer.rs": {
         "Annotated & Test Methods": 1,
+        "Compute Cores": 1,
         "Defensive Guards": 4,
         "Encapsulated Accessors": 6,
-        "Generic / Templated Code": 10,
+        "Generic / Templated Code": 9,
         "I/O & Config Routines": 1,
         "Parameter Forwarders": 1,
         "State Mutators": 4,
@@ -11759,8 +11748,7 @@
         "Generic / Templated Code": 3
       },
       "rust/tokio/builder.rs": {
-        "Annotated & Test Methods": 11,
-        "Callbacks & Closures": 2,
+        "Annotated & Test Methods": 13,
         "Compute Cores": 3,
         "Generic / Templated Code": 17,
         "Parameter Forwarders": 10,
@@ -11769,8 +11757,7 @@
       "rust/tokio/config.rs": {},
       "rust/tokio/fuzz.rs": {},
       "rust/tokio/interval.rs": {
-        "Annotated & Test Methods": 2,
-        "Callbacks & Closures": 1,
+        "Annotated & Test Methods": 3,
         "Generic / Templated Code": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 5,
@@ -11787,35 +11774,31 @@
         "Parameter Forwarders": 1
       },
       "rust/tokio/tests.rs": {
-        "Annotated & Test Methods": 23,
-        "Callbacks & Closures": 5
+        "Annotated & Test Methods": 28
       },
       "rust/tokio/tokio_mpsc_bounded.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 2,
         "Compute Cores": 3,
-        "Defensive Guards": 1,
+        "Defensive Guards": 3,
         "Encapsulated Accessors": 2,
-        "Generic / Templated Code": 28,
+        "Generic / Templated Code": 27,
         "Parameter Forwarders": 5,
-        "State Mutators": 17
+        "State Mutators": 18
       },
       "rust/tokio/tokio_named_pipe.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 3,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Generic / Templated Code": 35,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 18,
+        "Parameter Forwarders": 20,
         "State Mutators": 7
       },
       "rust/tokio/tokio_udp.rs": {
-        "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 12,
-        "Defensive Guards": 2,
-        "Generic / Templated Code": 30,
-        "Parameter Forwarders": 2,
+        "Annotated & Test Methods": 2,
+        "Defensive Guards": 4,
+        "Generic / Templated Code": 29,
+        "Parameter Forwarders": 12,
         "State Mutators": 25
       }
     },
@@ -11832,12 +11815,11 @@
         "State Mutators": 5
       },
       "rust/wasmtime/wasmtime_instance.rs": {
-        "Callbacks & Closures": 1,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 4,
         "Generic / Templated Code": 20,
         "Many-Argument Workhorses": 4,
-        "Parameter Forwarders": 5,
+        "Parameter Forwarders": 6,
         "State Mutators": 4,
         "Stateful Encapsulated Methods": 10
       },
@@ -11854,22 +11836,21 @@
         "Type Conversions": 5
       },
       "rust/wasmtime/wasmtime_isle_parser.rs": {
-        "Callbacks & Closures": 11,
-        "Compute Cores": 22,
-        "Defensive Guards": 6,
+        "Compute Cores": 23,
+        "Defensive Guards": 7,
         "Generic / Templated Code": 15,
         "Many-Argument Workhorses": 1,
-        "State Mutators": 3
+        "Parameter Forwarders": 3,
+        "State Mutators": 9
       },
       "rust/wasmtime/wasmtime_pulley_interp.rs": {
         "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 20,
         "Compute Cores": 2,
         "Defensive Guards": 2,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 471,
         "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 75,
+        "Parameter Forwarders": 95,
         "State Mutators": 17,
         "Type Conversions": 50
       }
@@ -13355,11 +13336,11 @@
         "Compute Cores": 70,
         "Defensive Guards": 15,
         "Generic / Templated Code": 13,
-        "I/O & Config Routines": 1,
+        "I/O & Config Routines": 2,
         "Interface Declarations": 89,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 95,
-        "State Mutators": 7
+        "State Mutators": 6
       },
       "typescript/vscode/gulpfile.vscode.ts": {
         "Callbacks & Closures": 6,
@@ -13414,11 +13395,11 @@
         "Compute Cores": 166,
         "Encapsulated Accessors": 9,
         "Generic / Templated Code": 150,
-        "I/O & Config Routines": 5,
+        "I/O & Config Routines": 6,
         "Interface Declarations": 40,
         "Many-Argument Workhorses": 3,
         "Parameter Forwarders": 76,
-        "State Mutators": 219,
+        "State Mutators": 218,
         "Stateful Encapsulated Methods": 1
       }
     },

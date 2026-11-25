@@ -1,5 +1,6 @@
 ---
-description: "> **File Reference:** [`gitgalaxy/cobol_to_java_controller.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/cobol_to_java_controller..."
+title: "COBOL to Spring Boot Project Scaffolding"
+description: "How GitGalaxy turns analyzed COBOL programs into a Spring Boot project skeleton you can build on."
 ---
 # Spring Boot Scaffolding Architecture
 

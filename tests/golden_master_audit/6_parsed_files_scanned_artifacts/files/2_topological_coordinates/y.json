@@ -1483,28 +1483,28 @@
       "fsharp/SOURCES.md": 123.99
     },
     "fsharp/giraffe_web": {
-      "fsharp/giraffe_web/Auth.fs": 45.94,
-      "fsharp/giraffe_web/ComputationExpressions.fs": 37.43,
-      "fsharp/giraffe_web/Core.fs": 8.71,
-      "fsharp/giraffe_web/Csrf.fs": 15.95,
-      "fsharp/giraffe_web/DateTimeExtensions.fs": 29.0,
-      "fsharp/giraffe_web/EndpointRouting.fs": 42.93,
-      "fsharp/giraffe_web/FormatExpressions.fs": 62.88,
-      "fsharp/giraffe_web/Helpers.fs": 17.89,
-      "fsharp/giraffe_web/HttpContextExtensions.fs": 53.17,
-      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 0.52,
-      "fsharp/giraffe_web/Json.fs": 24.5,
-      "fsharp/giraffe_web/Middleware.fs": 77.07,
-      "fsharp/giraffe_web/ModelParser.fs": 84.6,
-      "fsharp/giraffe_web/ModelValidation.fs": 88.82,
-      "fsharp/giraffe_web/Negotiation.fs": 62.93,
-      "fsharp/giraffe_web/Preconditional.fs": 67.46,
-      "fsharp/giraffe_web/RequestLimitation.fs": 72.41,
-      "fsharp/giraffe_web/ResponseCaching.fs": 46.27,
-      "fsharp/giraffe_web/Routing.fs": 80.75,
-      "fsharp/giraffe_web/ShortGuid.fs": 27.98,
-      "fsharp/giraffe_web/Streaming.fs": 67.73,
-      "fsharp/giraffe_web/Xml.fs": 105.53
+      "fsharp/giraffe_web/Auth.fs": 37.09,
+      "fsharp/giraffe_web/ComputationExpressions.fs": 37.4,
+      "fsharp/giraffe_web/Core.fs": 21.48,
+      "fsharp/giraffe_web/Csrf.fs": -5.63,
+      "fsharp/giraffe_web/DateTimeExtensions.fs": 28.99,
+      "fsharp/giraffe_web/EndpointRouting.fs": 34.07,
+      "fsharp/giraffe_web/FormatExpressions.fs": 94.57,
+      "fsharp/giraffe_web/Helpers.fs": 34.28,
+      "fsharp/giraffe_web/HttpContextExtensions.fs": 77.25,
+      "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": 1.81,
+      "fsharp/giraffe_web/Json.fs": 24.49,
+      "fsharp/giraffe_web/Middleware.fs": 53.76,
+      "fsharp/giraffe_web/ModelParser.fs": 65.77,
+      "fsharp/giraffe_web/ModelValidation.fs": 88.85,
+      "fsharp/giraffe_web/Negotiation.fs": 28.71,
+      "fsharp/giraffe_web/Preconditional.fs": 60.24,
+      "fsharp/giraffe_web/RequestLimitation.fs": 34.08,
+      "fsharp/giraffe_web/ResponseCaching.fs": 75.67,
+      "fsharp/giraffe_web/Routing.fs": 71.2,
+      "fsharp/giraffe_web/ShortGuid.fs": 70.28,
+      "fsharp/giraffe_web/Streaming.fs": 80.71,
+      "fsharp/giraffe_web/Xml.fs": 105.56
     },
     "go": {
       "go/SOURCES.md": -122.51
@@ -3556,15 +3556,15 @@
       "rust/SOURCES.md": -2.03
     },
     "rust/bevy": {
-      "rust/bevy/LICENSE-APACHE": 135.65,
-      "rust/bevy/LICENSE-MIT": -84.64,
+      "rust/bevy/LICENSE-APACHE": 135.66,
+      "rust/bevy/LICENSE-MIT": -84.65,
       "rust/bevy/bevy_ecs_macros.rs": -19.58,
-      "rust/bevy/bevy_ecs_query.rs": 63.67,
-      "rust/bevy/bevy_ecs_table.rs": 60.24,
+      "rust/bevy/bevy_ecs_query.rs": 63.68,
+      "rust/bevy/bevy_ecs_table.rs": 60.28,
       "rust/bevy/bevy_ecs_world.rs": -1.82,
       "rust/bevy/bevy_reflect_path.rs": -35.78,
-      "rust/bevy/bevy_render_phase.rs": -4.57,
-      "rust/bevy/bevy_schedule_graph.rs": -62.08
+      "rust/bevy/bevy_render_phase.rs": -4.58,
+      "rust/bevy/bevy_schedule_graph.rs": -62.09
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 136.66,
@@ -3573,16 +3573,16 @@
       "rust/bevy_asset_examples/rotation.rs": 192.78
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": -80.73,
-      "rust/holylang/compile.rs": -209.3,
-      "rust/holylang/error.rs": -131.54,
-      "rust/holylang/main.rs": -149.22,
+      "rust/holylang/ast.rs": -80.66,
+      "rust/holylang/compile.rs": -209.36,
+      "rust/holylang/error.rs": -131.53,
+      "rust/holylang/main.rs": -149.19,
       "rust/holylang/parser.rs": -153.04,
       "rust/holylang/semantic.rs": -186.87,
-      "rust/holylang/transpiler.rs": -172.37
+      "rust/holylang/transpiler.rs": -172.42
     },
     "rust/serde": {
-      "rust/serde/LICENSE-APACHE": 109.47,
+      "rust/serde/LICENSE-APACHE": 109.48,
       "rust/serde/LICENSE-MIT": 93.44,
       "rust/serde/serde_core_de_impls.rs": 25.85,
       "rust/serde/serde_core_de_mod.rs": 50.28,
@@ -3590,41 +3590,41 @@
       "rust/serde/serde_derive_de.rs": 139.19,
       "rust/serde/serde_internals_ast.rs": 121.32,
       "rust/serde/serde_internals_attr.rs": 78.53,
-      "rust/serde/test_annotations.rs": 21.37
+      "rust/serde/test_annotations.rs": 21.36
     },
     "rust/syn": {
-      "rust/syn/LICENSE-APACHE": -183.99,
-      "rust/syn/bigint.rs": -166.53,
+      "rust/syn/LICENSE-APACHE": -184.01,
+      "rust/syn/bigint.rs": -166.54,
       "rust/syn/buffer.rs": -132.43,
-      "rust/syn/classify.rs": -39.33,
-      "rust/syn/custom_keyword.rs": -91.78,
-      "rust/syn/custom_punctuation.rs": -91.06,
-      "rust/syn/data.rs": -130.69,
-      "rust/syn/derive.rs": -197.09
+      "rust/syn/classify.rs": -39.31,
+      "rust/syn/custom_keyword.rs": -91.79,
+      "rust/syn/custom_punctuation.rs": -91.05,
+      "rust/syn/data.rs": -130.68,
+      "rust/syn/derive.rs": -197.11
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": -3.39,
-      "rust/tokio/block_on.rs": 101.58,
-      "rust/tokio/blocking.rs": 12.19,
-      "rust/tokio/builder.rs": 98.45,
-      "rust/tokio/config.rs": 94.41,
-      "rust/tokio/fuzz.rs": 74.16,
-      "rust/tokio/interval.rs": -58.68,
-      "rust/tokio/lib.rs": 78.5,
-      "rust/tokio/maybe_done.rs": 94.46,
-      "rust/tokio/tests.rs": 130.49,
-      "rust/tokio/tokio_mpsc_bounded.rs": 57.5,
+      "rust/tokio/addr_of.rs": -3.44,
+      "rust/tokio/block_on.rs": 101.63,
+      "rust/tokio/blocking.rs": 12.13,
+      "rust/tokio/builder.rs": 40.16,
+      "rust/tokio/config.rs": 94.48,
+      "rust/tokio/fuzz.rs": 74.17,
+      "rust/tokio/interval.rs": -58.81,
+      "rust/tokio/lib.rs": 78.54,
+      "rust/tokio/maybe_done.rs": 94.47,
+      "rust/tokio/tests.rs": 130.58,
+      "rust/tokio/tokio_mpsc_bounded.rs": 57.47,
       "rust/tokio/tokio_named_pipe.rs": 46.76,
-      "rust/tokio/tokio_udp.rs": 22.03
+      "rust/tokio/tokio_udp.rs": 80.36
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 112.13
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 184.83,
-      "rust/wasmtime/wasmtime_instance.rs": 150.53,
+      "rust/wasmtime/wasmtime_instance.rs": 150.52,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 174.65,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 229.0,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 229.02,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 160.25
     },
     "scala": {

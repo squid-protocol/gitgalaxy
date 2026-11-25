@@ -1,5 +1,6 @@
 ---
-description: "When translating legacy COBOL monoliths into modern Java microservices, translating the procedural business logic is only half of the architectural..."
+title: "COBOL to Java Data Serialization Guide"
+description: "Convert COBOL record layouts into Java classes that read and write the same mainframe data, generated deterministically rather than guessed by an LLM."
 ---
 # Cookbook: Mainframe Data Serialization Forge via Deterministic RAG Pipelines
 

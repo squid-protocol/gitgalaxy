@@ -41,7 +41,7 @@ for the same metrics tracked over time across pushes to main.
 | Dart | 100.0% | 100.0% | 100.0% | 100.0% |
 | Erlang | 100.0% | 100.0% | 0.0% | N/A |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
-| Fsharp | 68.3% | 96.8% | N/A | 0.0% |
+| Fsharp | 74.3% | 97.0% | N/A | 0.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
 | Html | 100.0% | 100.0% | N/A | N/A |

@@ -3558,10 +3558,10 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": "0.0%",
       "rust/bevy/LICENSE-MIT": "0.0%",
-      "rust/bevy/bevy_ecs_macros.rs": "9.8%",
+      "rust/bevy/bevy_ecs_macros.rs": "10.1%",
       "rust/bevy/bevy_ecs_query.rs": "3.5%",
-      "rust/bevy/bevy_ecs_table.rs": "1.2%",
-      "rust/bevy/bevy_ecs_world.rs": "4.8%",
+      "rust/bevy/bevy_ecs_table.rs": "1.6%",
+      "rust/bevy/bevy_ecs_world.rs": "4.9%",
       "rust/bevy/bevy_reflect_path.rs": "9.8%",
       "rust/bevy/bevy_render_phase.rs": "0.0%",
       "rust/bevy/bevy_schedule_graph.rs": "10.2%"
@@ -3577,8 +3577,8 @@
       "rust/holylang/compile.rs": "2.1%",
       "rust/holylang/error.rs": "20.0%",
       "rust/holylang/main.rs": "0.0%",
-      "rust/holylang/parser.rs": "28.2%",
-      "rust/holylang/semantic.rs": "19.4%",
+      "rust/holylang/parser.rs": "28.8%",
+      "rust/holylang/semantic.rs": "20.6%",
       "rust/holylang/transpiler.rs": "14.4%"
     },
     "rust/serde": {
@@ -3589,16 +3589,16 @@
       "rust/serde/serde_core_macros.rs": "0.0%",
       "rust/serde/serde_derive_de.rs": "11.6%",
       "rust/serde/serde_internals_ast.rs": "6.8%",
-      "rust/serde/serde_internals_attr.rs": "21.6%",
+      "rust/serde/serde_internals_attr.rs": "21.8%",
       "rust/serde/test_annotations.rs": "1.1%"
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": "0.0%",
       "rust/syn/bigint.rs": "13.0%",
-      "rust/syn/buffer.rs": "14.5%",
+      "rust/syn/buffer.rs": "15.2%",
       "rust/syn/classify.rs": "11.0%",
       "rust/syn/custom_keyword.rs": "9.6%",
-      "rust/syn/custom_punctuation.rs": "5.6%",
+      "rust/syn/custom_punctuation.rs": "6.7%",
       "rust/syn/data.rs": "18.4%",
       "rust/syn/derive.rs": "20.3%"
     },
@@ -3606,25 +3606,25 @@
       "rust/tokio/addr_of.rs": "0.0%",
       "rust/tokio/block_on.rs": "0.0%",
       "rust/tokio/blocking.rs": "7.7%",
-      "rust/tokio/builder.rs": "2.9%",
+      "rust/tokio/builder.rs": "3.3%",
       "rust/tokio/config.rs": "0.0%",
       "rust/tokio/fuzz.rs": "0.0%",
-      "rust/tokio/interval.rs": "2.9%",
+      "rust/tokio/interval.rs": "4.4%",
       "rust/tokio/lib.rs": "0.0%",
       "rust/tokio/maybe_done.rs": "8.9%",
-      "rust/tokio/tests.rs": "0.7%",
-      "rust/tokio/tokio_mpsc_bounded.rs": "9.2%",
-      "rust/tokio/tokio_named_pipe.rs": "6.8%",
-      "rust/tokio/tokio_udp.rs": "4.7%"
+      "rust/tokio/tests.rs": "1.2%",
+      "rust/tokio/tokio_mpsc_bounded.rs": "9.7%",
+      "rust/tokio/tokio_named_pipe.rs": "8.7%",
+      "rust/tokio/tokio_udp.rs": "9.8%"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "1.6%"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "0.0%",
-      "rust/wasmtime/wasmtime_instance.rs": "8.4%",
+      "rust/wasmtime/wasmtime_instance.rs": "8.7%",
       "rust/wasmtime/wasmtime_ir_instructions.rs": "8.1%",
-      "rust/wasmtime/wasmtime_isle_parser.rs": "39.1%",
+      "rust/wasmtime/wasmtime_isle_parser.rs": "39.8%",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "8.9%"
     },
     "scala": {

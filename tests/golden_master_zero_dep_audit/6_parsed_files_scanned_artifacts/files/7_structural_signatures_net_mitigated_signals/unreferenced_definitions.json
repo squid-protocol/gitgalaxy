@@ -1497,13 +1497,13 @@
       "fsharp/giraffe_web/Middleware.fs": 3,
       "fsharp/giraffe_web/ModelParser.fs": 0,
       "fsharp/giraffe_web/ModelValidation.fs": 1,
-      "fsharp/giraffe_web/Negotiation.fs": 1,
+      "fsharp/giraffe_web/Negotiation.fs": 2,
       "fsharp/giraffe_web/Preconditional.fs": 2,
       "fsharp/giraffe_web/RequestLimitation.fs": 3,
       "fsharp/giraffe_web/ResponseCaching.fs": 2,
       "fsharp/giraffe_web/Routing.fs": 14,
       "fsharp/giraffe_web/ShortGuid.fs": 4,
-      "fsharp/giraffe_web/Streaming.fs": 0,
+      "fsharp/giraffe_web/Streaming.fs": 2,
       "fsharp/giraffe_web/Xml.fs": 0
     },
     "go": {

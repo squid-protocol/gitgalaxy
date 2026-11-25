@@ -833,7 +833,10 @@ class AuditRecorder:
                         "Is Public": int(func.get("is_public", False)),
                         "Is Documented": int(func.get("is_documented", False)),
                         "Has Header Comment": int(func.get("has_header_comment", False)),
-                        "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
+                        # gitgalaxy#8009: named by the signal's display name, not "Reflection".
+                        f"{config.signal_display_name('reflection_metaprogramming')} Hits": func.get(
+                            "hit_vector", {}
+                        ).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])
                     # #4110: the same population as the DB's function_data.

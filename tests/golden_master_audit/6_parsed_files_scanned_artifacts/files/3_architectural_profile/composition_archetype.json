@@ -1291,12 +1291,12 @@
       "dockerfile/SOURCES.md": "Data / Markup / Trivial"
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/dockerfile/buildargs.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/builder.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/builder_unix.go": "Data / Markup / Trivial",
       "dockerfile/moby/builder/dockerfile/builder_windows.go": "Type Conversions Files",
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/copy.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/copy_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/copy_unix.go": "Large Core Modules (3)",
@@ -1307,26 +1307,26 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "Compute Cores Files",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/evaluator.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/dockerfile/evaluator.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": "Parameter Forwarders Files",
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "State Mutators Files",
       "dockerfile/moby/builder/dockerfile/imageprobe.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals_linux.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/internals_test.go": "Interface Declarations Files",
+      "dockerfile/moby/builder/dockerfile/internals_test.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/dockerfile/internals_windows.go": "Many-Argument Workhorses Files",
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/metrics.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "Parameter Forwarders Files",
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/dockerfile/utils_test.go": "Large Core Modules (2)"
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/detect.go": "Large Core Modules (2)",
-      "dockerfile/moby/builder/remotecontext/detect_test.go": "Large Core Modules (3)",
-      "dockerfile/moby/builder/remotecontext/filehash.go": "State Mutators Files",
+      "dockerfile/moby/builder/remotecontext/detect_test.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/remotecontext/filehash.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/git.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/lazycontext.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/mimetype.go": "Large Core Modules (2)",
@@ -1341,16 +1341,16 @@
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": "State Mutators Files"
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": "Compute Cores Files",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": "Large Core Modules (2)",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": "Callbacks & Closures Files",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": "Compute Cores Files",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": "Data / Markup / Trivial",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": "State Mutators Files",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "Interface Declarations Files"
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "Callbacks & Closures Files"
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": "Compute Cores Files",
@@ -1503,7 +1503,7 @@
       "fsharp/giraffe_web/ResponseCaching.fs": "Parameter Forwarders Files",
       "fsharp/giraffe_web/Routing.fs": "Callbacks & Closures Files",
       "fsharp/giraffe_web/ShortGuid.fs": "Callbacks & Closures Files",
-      "fsharp/giraffe_web/Streaming.fs": "Compute Cores Files",
+      "fsharp/giraffe_web/Streaming.fs": "Large Core Modules (3)",
       "fsharp/giraffe_web/Xml.fs": "Parameter Forwarders Files"
     },
     "go": {
@@ -1513,7 +1513,7 @@
       "go/core/PATENTS": "Data / Markup / Trivial",
       "go/core/main.go": "Large Core Modules (2)",
       "go/core/mgc.go": "Large Core Modules",
-      "go/core/mutex.go": "State Mutators Files",
+      "go/core/mutex.go": "Callbacks & Closures Files",
       "go/core/proc.go": "Large Core Modules (3)",
       "go/core/server.go": "Large Core Modules (3)",
       "go/core/syscall_linux.go": "Large Core Modules (3)",
@@ -1524,11 +1524,11 @@
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Large Core Modules (2)",
-      "go/kubernetes/generic.go": "Large Core Modules (3)",
-      "go/kubernetes/kubelet.go": "Large Core Modules (3)",
+      "go/kubernetes/generic.go": "Callbacks & Closures Files",
+      "go/kubernetes/kubelet.go": "Callbacks & Closures Files",
       "go/kubernetes/options.go": "Declarative / Non-Code",
-      "go/kubernetes/proxier.go": "Large Core Modules (3)",
-      "go/kubernetes/replica_set.go": "Large Core Modules (3)",
+      "go/kubernetes/proxier.go": "Callbacks & Closures Files",
+      "go/kubernetes/replica_set.go": "Large Core Modules (2)",
       "go/kubernetes/scheduler.go": "Callbacks & Closures Files"
     },
     "go/kubernetes_kubectl_tls": {
@@ -3609,13 +3609,13 @@
       "rust/tokio/builder.rs": "Generic / Templated Code Files",
       "rust/tokio/config.rs": "Declarative / Non-Code",
       "rust/tokio/fuzz.rs": "Data / Markup / Trivial",
-      "rust/tokio/interval.rs": "Large Core Modules (3)",
+      "rust/tokio/interval.rs": "Parameter Forwarders Files",
       "rust/tokio/lib.rs": "Encapsulated Accessors Files",
       "rust/tokio/maybe_done.rs": "Generic / Templated Code Files",
-      "rust/tokio/tests.rs": "Callbacks & Closures Files",
+      "rust/tokio/tests.rs": "Large Core Modules (3)",
       "rust/tokio/tokio_mpsc_bounded.rs": "Generic / Templated Code Files",
       "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files",
-      "rust/tokio/tokio_udp.rs": "State Mutators Files"
+      "rust/tokio/tokio_udp.rs": "Large Core Modules (3)"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Encapsulated Accessors Files"

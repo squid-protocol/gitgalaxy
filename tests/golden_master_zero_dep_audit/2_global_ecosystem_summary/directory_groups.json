@@ -2041,20 +2041,20 @@
       "avg_exposures": {
         "api_exposure": 3.21,
         "churn": 0.0,
-        "cognitive_load": 8.66,
+        "cognitive_load": 9.35,
         "concurrency": 23.71,
         "dead_code": 0.0,
-        "documentation": 29.01,
+        "documentation": 28.12,
         "safety_score": 17.34,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 13.58,
-        "tech_debt": 55.13,
-        "verification": 27.08
+        "tech_debt": 57.42,
+        "verification": 30.62
       },
       "file_count": 22,
-      "total_mass": 1046.54
+      "total_mass": 1170.34
     },
     "go": {
       "avg_exposures": {
@@ -5385,7 +5385,7 @@
       "avg_exposures": {
         "api_exposure": 5.13,
         "churn": 0.0,
-        "cognitive_load": 8.72,
+        "cognitive_load": 8.74,
         "concurrency": 13.08,
         "dead_code": 0.0,
         "documentation": 35.44,
@@ -5398,7 +5398,7 @@
         "verification": 27.72
       },
       "file_count": 9,
-      "total_mass": 1650.3
+      "total_mass": 1657.8
     },
     "rust/bevy_asset_examples": {
       "avg_exposures": {
@@ -5423,7 +5423,7 @@
       "avg_exposures": {
         "api_exposure": 6.12,
         "churn": 0.0,
-        "cognitive_load": 16.52,
+        "cognitive_load": 16.68,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 56.79,
@@ -5436,13 +5436,13 @@
         "verification": 35.62
       },
       "file_count": 7,
-      "total_mass": 1379.26
+      "total_mass": 1409.96
     },
     "rust/serde": {
       "avg_exposures": {
         "api_exposure": 4.44,
         "churn": 0.0,
-        "cognitive_load": 4.57,
+        "cognitive_load": 4.59,
         "concurrency": 0.0,
         "dead_code": 1.25,
         "documentation": 51.47,
@@ -5455,13 +5455,13 @@
         "verification": 36.34
       },
       "file_count": 9,
-      "total_mass": 2875.22
+      "total_mass": 2881.92
     },
     "rust/syn": {
       "avg_exposures": {
         "api_exposure": 5.55,
         "churn": 0.0,
-        "cognitive_load": 15.62,
+        "cognitive_load": 15.73,
         "concurrency": 1.86,
         "dead_code": 0.0,
         "documentation": 62.21,
@@ -5474,13 +5474,13 @@
         "verification": 40.89
       },
       "file_count": 8,
-      "total_mass": 649.8
+      "total_mass": 652.6
     },
     "rust/tokio": {
       "avg_exposures": {
         "api_exposure": 12.26,
         "churn": 0.0,
-        "cognitive_load": 12.84,
+        "cognitive_load": 12.78,
         "concurrency": 53.46,
         "dead_code": 0.0,
         "documentation": 38.26,
@@ -5493,7 +5493,7 @@
         "verification": 26.06
       },
       "file_count": 13,
-      "total_mass": 1604.32
+      "total_mass": 1692.52
     },
     "rust/tokio_util_rand": {
       "avg_exposures": {
@@ -5518,7 +5518,7 @@
       "avg_exposures": {
         "api_exposure": 7.89,
         "churn": 0.0,
-        "cognitive_load": 9.11,
+        "cognitive_load": 9.21,
         "concurrency": 6.82,
         "dead_code": 0.0,
         "documentation": 71.42,
@@ -5531,7 +5531,7 @@
         "verification": 64.47
       },
       "file_count": 5,
-      "total_mass": 4240.16
+      "total_mass": 4255.06
     },
     "scala": {
       "avg_exposures": {

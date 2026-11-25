@@ -1331,13 +1331,13 @@
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 2,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 4,
+      "dockerfile/moby/builder/remotecontext/remote.go": 3,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 2,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 4,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 5,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 3,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 13
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 31,
+      "go/core/server.go": 29,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -3574,9 +3574,9 @@
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
-      "rust/holylang/compile.rs": 8,
+      "rust/holylang/compile.rs": 4,
       "rust/holylang/error.rs": 0,
-      "rust/holylang/main.rs": 2,
+      "rust/holylang/main.rs": 1,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
       "rust/holylang/transpiler.rs": 0
@@ -4207,11 +4207,11 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 0,
+      "typescript/assemblyscript/ast.ts": 21,
       "typescript/assemblyscript/builtins.ts": 0,
-      "typescript/assemblyscript/compiler.ts": 0,
+      "typescript/assemblyscript/compiler.ts": 2,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 0
+      "typescript/assemblyscript/parser.ts": 17
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -4236,7 +4236,7 @@
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 0
     },
     "typescript/pixijs_examples": {
-      "typescript/pixijs_examples/events_dragging.ts": 0
+      "typescript/pixijs_examples/events_dragging.ts": 1
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 0,
@@ -4245,33 +4245,33 @@
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 1,
       "typescript/playwright/bidiConnection.ts": 0,
-      "typescript/playwright/connection.ts": 1,
+      "typescript/playwright/connection.ts": 4,
       "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 0,
-      "typescript/playwright/frames.ts": 0,
+      "typescript/playwright/dispatcher.ts": 7,
+      "typescript/playwright/frames.ts": 4,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/checker.ts": 0,
-      "typescript/typescript_compiler/emitter.ts": 0,
+      "typescript/typescript_compiler/binder.ts": 3,
+      "typescript/typescript_compiler/checker.ts": 39,
+      "typescript/typescript_compiler/emitter.ts": 9,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 0,
-      "typescript/typescript_compiler/types.ts": 0
+      "typescript/typescript_compiler/parser.ts": 8,
+      "typescript/typescript_compiler/types.ts": 20
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 0,
-      "typescript/vscode/codeEditorWidget.ts": 0,
+      "typescript/vscode/codeEditorWidget.ts": 3,
       "typescript/vscode/eslint.config.js": 8,
-      "typescript/vscode/extHost.api.impl.ts": 1,
-      "typescript/vscode/gulpfile.vscode.ts": 33,
+      "typescript/vscode/extHost.api.impl.ts": 5,
+      "typescript/vscode/gulpfile.vscode.ts": 40,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 1
+      "typescript/vscode/vscode.d.ts": 9
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

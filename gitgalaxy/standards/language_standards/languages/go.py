@@ -160,7 +160,9 @@ DEFINITION: dict[str, Any] = {
         "io": re.compile(
             r"\b(os\.(?:Open(?:File)?|Create|ReadFile|WriteFile|ReadDir|Mkdir(?:All)?|Remove(?:All)?|Rename|Stat|Lstat)"
             r"|ioutil\.|filepath\.Walk(?:Dir)?"
-            r"|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"
+            r"|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\."
+            # #8868: network calls the contract names (a connection or request leaves the runtime)
+            r"|http\.(?:Get|Post|PostForm|Head|ListenAndServe(?:TLS)?)|net\.(?:Listen|Dial)(?:Timeout|TCP|UDP)?)\b"
         ),
         # 10. api (Public Surface Area)
         # Implicit Public Reality: Capitalized top-level identifiers in Go are public.
@@ -299,7 +301,11 @@ DEFINITION: dict[str, Any] = {
         # one bounded `[^{]{0,80}` gap -- this also fixes a real,
         # separate gap: a bare (non-parenthesized) single return type
         # (`func(x int) int {`) never matched either shape.
-        "closures": re.compile(r"func[ \t\n]{0,80}\([^)]{0,300}\)[^{]{0,80}\{"),
+        # #8868: `func (s *S) Name() {` is a method DECLARATION (an identifier follows the receiver list), not a closure;
+        # a literal has the parameter list straight after `func`, then at most a result type, then the body.
+        "closures": re.compile(
+            r"\bfunc[ \t]{0,4}\([^)]{0,300}\)[ \t]{0,4}(?:\([^)]{0,200}\)|[\w.*\[\]]{1,60})?[ \t]{0,4}\{"
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX (#2660): Anchored to true column-0 (no indentation) to prevent
         # function-local var declarations from being incorrectly counted as globals.
@@ -502,7 +508,10 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: panic/os.Exit/log.Fatal)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(time\.Sleep|time\.After|runtime\.Gosched)\b"),
+        # #8868: the timer constructors are timed waits too (thread_sleeps: "a sleep, a timed wait, a timeout-driven deferral")
+        "thread_sleeps": re.compile(
+            r"\b(time\.Sleep|time\.After|time\.AfterFunc|time\.Tick|time\.NewTimer|time\.NewTicker|runtime\.Gosched)\b"
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|&\^"),
         # 44. sync_locks (Resource Management & Stability)
@@ -585,8 +594,9 @@ DEFINITION: dict[str, Any] = {
         # common time-related call never matched in any real usage.
         # #8868: the contract names a now/time/date constructor, duration arithmetic, a
         # formatting or timezone call: add time.Date / Unix / Until / ParseDuration / LoadLocation.
+        # #8868: time.Sleep is a timed wait (thread_sleeps), not a clock or calendar value
         "time_date_logic": re.compile(
-            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Sleep|time\.Since|time\.Until"
+            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Since|time\.Until"
             r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),

@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 23,
+      "go/core/server.go": 21,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -1592,7 +1592,7 @@
       "groovy/gradle/DefaultTask.java": 2
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 1,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 0,
@@ -2032,7 +2032,7 @@
       "html/playwright_dom_fixtures/headings.html": 0,
       "html/playwright_dom_fixtures/historyapi.html": 0,
       "html/playwright_dom_fixtures/overflow-large.html": 0,
-      "html/playwright_dom_fixtures/window-stop.html": 1
+      "html/playwright_dom_fixtures/window-stop.html": 0
     },
     "html/polyglot_emscripten": {
       "html/polyglot_emscripten/LICENSE.txt": 0,
@@ -2063,7 +2063,7 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": 0,
       "html/vscode_webviews/build_builtin_index.html": 0,
-      "html/vscode_webviews/github_auth_media_index.html": 1,
+      "html/vscode_webviews/github_auth_media_index.html": 0,
       "html/vscode_webviews/webWorkerExtensionHostIframe.html": 0,
       "html/vscode_webviews/webview_pre_index.html": 0,
       "html/vscode_webviews/workbench.html": 0
@@ -2110,11 +2110,11 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 2,
+      "javascript/jquery/ajax.js": 0,
       "javascript/jquery/buildFragment.js": 0,
       "javascript/jquery/core.js": 0,
       "javascript/jquery/css.js": 0,
-      "javascript/jquery/deferred.js": 1,
+      "javascript/jquery/deferred.js": 0,
       "javascript/jquery/event.js": 1,
       "javascript/jquery/tokenize.js": 0
     },
@@ -2145,7 +2145,7 @@
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 0,
-      "javascript/threejs/WebGLRenderer.js": 2
+      "javascript/threejs/WebGLRenderer.js": 0
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -2887,7 +2887,7 @@
       "php/wordpress/functions.php": 13,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
-      "php/wordpress/wp-login.php": 7,
+      "php/wordpress/wp-login.php": 6,
       "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
@@ -4247,8 +4247,8 @@
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 0,
       "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 1,
-      "typescript/playwright/frames.ts": 4,
+      "typescript/playwright/dispatcher.ts": 0,
+      "typescript/playwright/frames.ts": 0,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
@@ -4262,14 +4262,14 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 25,
+      "typescript/vscode/async.ts": 5,
       "typescript/vscode/codeEditorWidget.ts": 0,
-      "typescript/vscode/eslint.config.js": 4,
+      "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
       "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 2,
-      "typescript/vscode/ipc.ts": 3,
-      "typescript/vscode/lifecycle.ts": 1,
+      "typescript/vscode/ipc.ts": 0,
+      "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
       "typescript/vscode/vscode.d.ts": 0
     },

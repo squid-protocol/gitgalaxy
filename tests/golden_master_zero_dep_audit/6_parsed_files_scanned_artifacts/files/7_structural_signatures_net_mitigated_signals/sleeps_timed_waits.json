@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 2,
+      "go/core/server.go": 3,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -2125,7 +2125,7 @@
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0,
       "javascript/node_tls_security_tests/test-tls-psk-server.js": 0,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 1
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,

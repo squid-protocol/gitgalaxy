@@ -328,8 +328,10 @@ DEFINITION: dict[str, Any] = {
             r"|@State|@Binding|@Environment"
         ),
         # 17. closures (Closures / Anonymous Functions)
+        # #8863: also a capture list with no parameters (`{ [self] in`), a declared return type
+        # (`{ x -> Int in`) and the anonymous-argument form (`{ $0 + 1 }`, `$N` exists only in a closure).
         "closures": re.compile(
-            r"completion:[ \t]*\{|\{\s*(?:\[[^\]]*\]\s*)?(?:\([^)]*\)|["
+            r"completion:[ \t]*\{|\{\s*(?:\[[^\]]*\]\s*in\b|(?:\[[^\]]*\]\s*)?(?:\([^)]*\)|["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -337,7 +339,8 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*){0,50})[ \t\n]+in\b"
+            + r"]*){0,50})(?:[ \t]*->[ \t]*[^\n{}]{1,80}?)?[ \t\n]+in\b)"
+            r"|\{[^{}$]{0,200}\$\d"
         ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
@@ -348,7 +351,15 @@ DEFINITION: dict[str, Any] = {
             r"|\.(?:shared|standard|default)\b(?![ \t]*:)|@Environment\b"
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"@[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\([^)]*\))?"),
+        # #8863: `@escaping`, `@autoclosure` and a `@Sendable` after `:` `(` `[` `<` `=` `,` `>` or
+        # `@escaping` attribute a TYPE (a parameter, a property type), not the declaration they sit in.
+        "decorators": re.compile(
+            r"@(?<![:(\[<=,>]@)(?<![:(\[<=,>] @)(?<!@escaping @)(?!(?:escaping|autoclosure)\b)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\([^)]*\))?"
+        ),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(
             r"<\s*[A-Z][^>]*>|\bwhere\s+["
@@ -485,7 +496,10 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: throw/fatalError/abort/exit/preconditionFailure)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|exit|preconditionFailure)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(sleep|delay|Task\.sleep)\b"),
+        "thread_sleeps": re.compile(
+            # #8863: a call that blocks or defers; `retryResult.delay` is a property, not a sleep.
+            r"\b(?:u|nano)?sleep[ \t]*\(|\.asyncAfter\b|\bTimer\.scheduledTimer\b"
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|(?<![=!])~|<<=|>>=|\^="),
         # 44. sync_locks (Resource Management & Stability)

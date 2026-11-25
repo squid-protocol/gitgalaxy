@@ -1954,12 +1954,12 @@
    "closures": {
     "corpus": "language-crucible v1.8.0",
     "functions": 133,
-    "n_family": 28,
+    "n_family": 39,
     "n_oracle": 46,
     "pinned": true,
     "precision": 1.0,
-    "recall": 0.609,
-    "status": "misses"
+    "recall": 0.848,
+    "status": "ok"
    },
    "debug_prints": {
     "corpus": "vapor",
@@ -1974,12 +1974,12 @@
    "decorators": {
     "corpus": "language-crucible v1.8.0",
     "functions": 133,
-    "n_family": 35,
+    "n_family": 22,
     "n_oracle": 21,
     "pinned": true,
-    "precision": 0.6,
+    "precision": 0.955,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "doc": {
     "corpus": "language-crucible v1.8.0",
@@ -2034,12 +2034,12 @@
    "thread_sleeps": {
     "corpus": "language-crucible v1.8.0",
     "functions": 133,
-    "n_family": 1,
+    "n_family": 0,
     "n_oracle": 0,
     "pinned": true,
-    "precision": 0.0,
+    "precision": null,
     "recall": null,
-    "status": "over-counts"
+    "status": "no-instances"
    },
    "time_date_logic": {
     "corpus": "vapor",

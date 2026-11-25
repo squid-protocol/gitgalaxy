@@ -23,6 +23,25 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "abap/abap2xlsx": {
+      "avg_exposures": {
+        "api_exposure": 0.94,
+        "churn": 0.0,
+        "cognitive_load": 27.74,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 82.35,
+        "safety_score": 43.92,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 61.53,
+        "tech_debt": 6.54,
+        "verification": 15.78
+      },
+      "file_count": 17,
+      "total_mass": 1526.16
+    },
     "abap/abapGit": {
       "avg_exposures": {
         "api_exposure": 0.57,
@@ -41,6 +60,44 @@
       },
       "file_count": 8,
       "total_mass": 1771.44
+    },
+    "abap/abapgit_objects_core": {
+      "avg_exposures": {
+        "api_exposure": 1.1,
+        "churn": 0.0,
+        "cognitive_load": 18.86,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 80.0,
+        "safety_score": 44.95,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 61.59,
+        "tech_debt": 22.79,
+        "verification": 33.39
+      },
+      "file_count": 10,
+      "total_mass": 1031.06
+    },
+    "abap/abapgit_ui_pages": {
+      "avg_exposures": {
+        "api_exposure": 0.94,
+        "churn": 0.0,
+        "cognitive_load": 36.88,
+        "concurrency": 0.0,
+        "dead_code": 1.24,
+        "documentation": 100.0,
+        "safety_score": 60.32,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 90.61,
+        "tech_debt": 30.95,
+        "verification": 56.71
+      },
+      "file_count": 10,
+      "total_mass": 1930.8
     },
     "ada": {
       "avg_exposures": {
@@ -137,6 +194,44 @@
       "file_count": 12,
       "total_mass": 4844.96
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "avg_exposures": {
+        "api_exposure": 3.99,
+        "churn": 0.0,
+        "cognitive_load": 24.3,
+        "concurrency": 17.17,
+        "dead_code": 1.39,
+        "documentation": 61.54,
+        "safety_score": 54.58,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.45,
+        "state_flux": 85.3,
+        "tech_debt": 42.47,
+        "verification": 44.5
+      },
+      "file_count": 11,
+      "total_mass": 2846.52
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "avg_exposures": {
+        "api_exposure": 4.31,
+        "churn": 0.0,
+        "cognitive_load": 31.61,
+        "concurrency": 23.26,
+        "dead_code": 1.68,
+        "documentation": 68.03,
+        "safety_score": 56.18,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 89.72,
+        "tech_debt": 15.72,
+        "verification": 49.96
+      },
+      "file_count": 13,
+      "total_mass": 2785.56
+    },
     "apex": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -174,6 +269,25 @@
       },
       "file_count": 8,
       "total_mass": 203.54
+    },
+    "apex/fflib_apex_common": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 8.33,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 32.21,
+        "safety_score": 31.14,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 38.09,
+        "tech_debt": 42.46,
+        "verification": 28.24
+      },
+      "file_count": 12,
+      "total_mass": 854.34
     },
     "assembly": {
       "avg_exposures": {
@@ -612,6 +726,25 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "bms/carddemo_bms": {
+      "avg_exposures": {
+        "api_exposure": 4.01,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 100.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.31
+      },
+      "file_count": 21,
+      "total_mass": 11.01
+    },
     "bms/cbsa": {
       "avg_exposures": {
         "api_exposure": 4.35,
@@ -630,6 +763,25 @@
       },
       "file_count": 10,
       "total_mass": 4.08
+    },
+    "bms/dbb_mortgage_bms": {
+      "avg_exposures": {
+        "api_exposure": 5.11,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 100.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.32
+      },
+      "file_count": 2,
+      "total_mass": 0.68
     },
     "bms/genapp": {
       "avg_exposures": {
@@ -968,7 +1120,7 @@
         "stability": 48.89,
         "state_flux": 66.98,
         "tech_debt": 10.51,
-        "verification": 5.48
+        "verification": 5.47
       },
       "file_count": 45,
       "total_mass": 3255.36
@@ -1006,7 +1158,7 @@
         "stability": 50.0,
         "state_flux": 25.82,
         "tech_debt": 23.14,
-        "verification": 2.22
+        "verification": 2.21
       },
       "file_count": 45,
       "total_mass": 931.48
@@ -1234,7 +1386,7 @@
         "stability": 50.0,
         "state_flux": 99.59,
         "tech_debt": 38.74,
-        "verification": 41.2
+        "verification": 41.19
       },
       "file_count": 2,
       "total_mass": 181.94
@@ -1291,7 +1443,7 @@
         "stability": 50.0,
         "state_flux": 82.79,
         "tech_debt": 52.28,
-        "verification": 21.88
+        "verification": 21.87
       },
       "file_count": 12,
       "total_mass": 840.28
@@ -1391,6 +1543,44 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "csharp/powershell_commands_utility": {
+      "avg_exposures": {
+        "api_exposure": 3.11,
+        "churn": 0.0,
+        "cognitive_load": 10.97,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 16.57,
+        "safety_score": 43.58,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 67.41,
+        "tech_debt": 26.84,
+        "verification": 8.14
+      },
+      "file_count": 13,
+      "total_mass": 689.78
+    },
+    "csharp/powertoys_common": {
+      "avg_exposures": {
+        "api_exposure": 7.5,
+        "churn": 0.0,
+        "cognitive_load": 3.32,
+        "concurrency": 4.7,
+        "dead_code": 0.0,
+        "documentation": 35.0,
+        "safety_score": 19.89,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 11.17,
+        "tech_debt": 29.21,
+        "verification": 2.35
+      },
+      "file_count": 12,
+      "total_mass": 263.94
+    },
     "csharp/roslyn": {
       "avg_exposures": {
         "api_exposure": 3.95,
@@ -1409,6 +1599,25 @@
       },
       "file_count": 7,
       "total_mass": 16134.7
+    },
+    "csharp/runtime_linq": {
+      "avg_exposures": {
+        "api_exposure": 5.58,
+        "churn": 0.0,
+        "cognitive_load": 22.39,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 74.11,
+        "safety_score": 44.59,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 72.51,
+        "tech_debt": 49.01,
+        "verification": 26.12
+      },
+      "file_count": 13,
+      "total_mass": 1940.3
     },
     "css": {
       "avg_exposures": {
@@ -1619,6 +1828,44 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "dart/dart_sdk_analyzer": {
+      "avg_exposures": {
+        "api_exposure": 2.21,
+        "churn": 0.0,
+        "cognitive_load": 18.61,
+        "concurrency": 9.85,
+        "dead_code": 0.94,
+        "documentation": 33.07,
+        "safety_score": 32.67,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 42.07,
+        "tech_debt": 56.24,
+        "verification": 15.35
+      },
+      "file_count": 12,
+      "total_mass": 1165.1
+    },
+    "dart/dart_sdk_language_tests": {
+      "avg_exposures": {
+        "api_exposure": 5.61,
+        "churn": 0.0,
+        "cognitive_load": 13.7,
+        "concurrency": 13.04,
+        "dead_code": 0.0,
+        "documentation": 100.0,
+        "safety_score": 24.66,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 22.37,
+        "tech_debt": 57.56,
+        "verification": 0.0
+      },
+      "file_count": 12,
+      "total_mass": 421.74
+    },
     "dart/flutter": {
       "avg_exposures": {
         "api_exposure": 3.19,
@@ -1656,6 +1903,25 @@
       },
       "file_count": 1,
       "total_mass": 1.0
+    },
+    "db2_sql/carddemo_ddl": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.3
+      },
+      "file_count": 6,
+      "total_mass": 8.76
     },
     "db2_sql/db2unit": {
       "avg_exposures": {
@@ -1918,7 +2184,7 @@
         "stability": 50.0,
         "state_flux": 92.86,
         "tech_debt": 23.46,
-        "verification": 30.24
+        "verification": 30.23
       },
       "file_count": 14,
       "total_mass": 3592.72
@@ -1999,9 +2265,47 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "fortran/fpm_fortran": {
+      "avg_exposures": {
+        "api_exposure": 1.81,
+        "churn": 0.0,
+        "cognitive_load": 8.82,
+        "concurrency": 0.0,
+        "dead_code": 0.54,
+        "documentation": 85.58,
+        "safety_score": 24.08,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 32.62,
+        "tech_debt": 30.9,
+        "verification": 2.15
+      },
+      "file_count": 12,
+      "total_mass": 574.98
+    },
+    "fortran/stdlib_fortran": {
+      "avg_exposures": {
+        "api_exposure": 0.79,
+        "churn": 0.0,
+        "cognitive_load": 4.18,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 93.33,
+        "safety_score": 41.61,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 37.91,
+        "tech_debt": 34.61,
+        "verification": 2.32
+      },
+      "file_count": 12,
+      "total_mass": 391.46
+    },
     "fortran/wrf": {
       "avg_exposures": {
-        "api_exposure": 13.62,
+        "api_exposure": 13.82,
         "churn": 0.0,
         "cognitive_load": 44.13,
         "concurrency": 3.06,
@@ -2017,6 +2321,25 @@
       },
       "file_count": 15,
       "total_mass": 50565.52
+    },
+    "fortran/wrf_physics": {
+      "avg_exposures": {
+        "api_exposure": 3.7,
+        "churn": 0.0,
+        "cognitive_load": 50.37,
+        "concurrency": 10.28,
+        "dead_code": 3.67,
+        "documentation": 81.82,
+        "safety_score": 57.85,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.45,
+        "state_flux": 81.81,
+        "tech_debt": 11.34,
+        "verification": 44.54
+      },
+      "file_count": 11,
+      "total_mass": 6709.1
     },
     "fsharp": {
       "avg_exposures": {
@@ -2493,9 +2816,28 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "haskell/aeson_core": {
+      "avg_exposures": {
+        "api_exposure": 1.8,
+        "churn": 0.0,
+        "cognitive_load": 3.73,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 56.8,
+        "safety_score": 4.15,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 31.02,
+        "verification": 15.29
+      },
+      "file_count": 12,
+      "total_mass": 259.96
+    },
     "haskell/pandoc": {
       "avg_exposures": {
-        "api_exposure": 0.4,
+        "api_exposure": 1.57,
         "churn": 0.0,
         "cognitive_load": 3.28,
         "concurrency": 0.0,
@@ -2506,11 +2848,49 @@
         "spec_match": 0.0,
         "stability": 31.82,
         "state_flux": 0.8,
-        "tech_debt": 17.33,
+        "tech_debt": 16.45,
         "verification": 15.61
       },
       "file_count": 11,
-      "total_mass": 779.96
+      "total_mass": 780.96
+    },
+    "haskell/pandoc_writers": {
+      "avg_exposures": {
+        "api_exposure": 0.97,
+        "churn": 0.0,
+        "cognitive_load": 7.66,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 29.8,
+        "safety_score": 37.33,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.45,
+        "state_flux": 13.88,
+        "tech_debt": 19.32,
+        "verification": 65.67
+      },
+      "file_count": 11,
+      "total_mass": 1896.78
+    },
+    "haskell/xmonad_core": {
+      "avg_exposures": {
+        "api_exposure": 2.16,
+        "churn": 0.0,
+        "cognitive_load": 3.86,
+        "concurrency": 0.0,
+        "dead_code": 0.72,
+        "documentation": 43.6,
+        "safety_score": 29.81,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 5.74,
+        "tech_debt": 25.86,
+        "verification": 21.73
+      },
+      "file_count": 12,
+      "total_mass": 648.42
     },
     "hcl": {
       "avg_exposures": {
@@ -2568,6 +2948,25 @@
       },
       "file_count": 2,
       "total_mass": 2.0
+    },
+    "hlasm/carddemo_hlasm": {
+      "avg_exposures": {
+        "api_exposure": 3.32,
+        "churn": 0.0,
+        "cognitive_load": 3.23,
+        "concurrency": 0.0,
+        "dead_code": 6.28,
+        "documentation": 100.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 33.74,
+        "verification": 2.34
+      },
+      "file_count": 2,
+      "total_mass": 14.6
     },
     "hlasm/che4z_hlasm": {
       "avg_exposures": {
@@ -3481,6 +3880,44 @@
       "file_count": 7,
       "total_mass": 242.96
     },
+    "kotlin/retrofit_kotlin": {
+      "avg_exposures": {
+        "api_exposure": 0.33,
+        "churn": 0.0,
+        "cognitive_load": 9.43,
+        "concurrency": 21.65,
+        "dead_code": 0.0,
+        "documentation": 89.31,
+        "safety_score": 28.55,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 47.06,
+        "state_flux": 12.17,
+        "tech_debt": 47.05,
+        "verification": 2.22
+      },
+      "file_count": 17,
+      "total_mass": 342.0
+    },
+    "kotlin/spring_boot_kotlin": {
+      "avg_exposures": {
+        "api_exposure": 0.34,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 64.91,
+        "safety_score": 28.06,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.67,
+        "state_flux": 3.75,
+        "tech_debt": 44.69,
+        "verification": 2.16
+      },
+      "file_count": 15,
+      "total_mass": 192.68
+    },
     "livecode": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -3709,6 +4146,63 @@
       "file_count": 2,
       "total_mass": 138.58
     },
+    "m4/gnupg_m4": {
+      "avg_exposures": {
+        "api_exposure": 3.94,
+        "churn": 0.0,
+        "cognitive_load": 3.09,
+        "concurrency": 0.0,
+        "dead_code": 2.17,
+        "documentation": 90.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.0,
+        "state_flux": 0.0,
+        "tech_debt": 19.45,
+        "verification": 2.1
+      },
+      "file_count": 10,
+      "total_mass": 153.7
+    },
+    "m4/libffi_racket": {
+      "avg_exposures": {
+        "api_exposure": 9.14,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 10.03,
+        "documentation": 100.0,
+        "safety_score": 50.48,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 32.42,
+        "verification": 2.31
+      },
+      "file_count": 2,
+      "total_mass": 67.1
+    },
+    "m4/nasm_autoconf_macros": {
+      "avg_exposures": {
+        "api_exposure": 2.14,
+        "churn": 0.0,
+        "cognitive_load": 5.32,
+        "concurrency": 0.0,
+        "dead_code": 4.64,
+        "documentation": 100.0,
+        "safety_score": 10.43,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 9.3,
+        "tech_debt": 42.32,
+        "verification": 7.51
+      },
+      "file_count": 15,
+      "total_mass": 241.02
+    },
     "makefile": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -3728,6 +4222,25 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "makefile/cosmopolitan_build_mk": {
+      "avg_exposures": {
+        "api_exposure": 3.35,
+        "churn": 0.0,
+        "cognitive_load": 0.87,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 22.51,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 13.25,
+        "tech_debt": 0.0,
+        "verification": 2.3
+      },
+      "file_count": 6,
+      "total_mass": 107.52
+    },
     "makefile/freebsd": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -3746,6 +4259,25 @@
       },
       "file_count": 2,
       "total_mass": 8.82
+    },
+    "makefile/micropython_make": {
+      "avg_exposures": {
+        "api_exposure": 3.41,
+        "churn": 0.0,
+        "cognitive_load": 25.78,
+        "concurrency": 0.0,
+        "dead_code": 1.04,
+        "documentation": 66.67,
+        "safety_score": 42.01,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 41.67,
+        "state_flux": 66.42,
+        "tech_debt": 2.06,
+        "verification": 1.92
+      },
+      "file_count": 6,
+      "total_mass": 395.62
     },
     "markdown": {
       "avg_exposures": {
@@ -3841,6 +4373,44 @@
       },
       "file_count": 7,
       "total_mass": 4910.34
+    },
+    "matlab/fieldtrip_core": {
+      "avg_exposures": {
+        "api_exposure": 3.46,
+        "churn": 0.0,
+        "cognitive_load": 65.33,
+        "concurrency": 0.0,
+        "dead_code": 1.08,
+        "documentation": 90.91,
+        "safety_score": 71.53,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.45,
+        "state_flux": 90.89,
+        "tech_debt": 23.68,
+        "verification": 44.56
+      },
+      "file_count": 11,
+      "total_mass": 3327.94
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "avg_exposures": {
+        "api_exposure": 2.86,
+        "churn": 0.0,
+        "cognitive_load": 68.79,
+        "concurrency": 0.0,
+        "dead_code": 1.43,
+        "documentation": 92.31,
+        "safety_score": 71.21,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 92.24,
+        "tech_debt": 34.09,
+        "verification": 55.95
+      },
+      "file_count": 13,
+      "total_mass": 3347.58
     },
     "mlir": {
       "avg_exposures": {
@@ -3956,6 +4526,25 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "nix/angular_nix": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.3
+      },
+      "file_count": 7,
+      "total_mass": 108.64
+    },
     "nix/bun": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -4012,6 +4601,63 @@
       },
       "file_count": 1,
       "total_mass": 1.0
+    },
+    "objective-c/afnetworking": {
+      "avg_exposures": {
+        "api_exposure": 10.06,
+        "churn": 0.0,
+        "cognitive_load": 72.87,
+        "concurrency": 61.87,
+        "dead_code": 0.0,
+        "documentation": 99.67,
+        "safety_score": 61.48,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 96.23,
+        "tech_debt": 55.33,
+        "verification": 59.33
+      },
+      "file_count": 15,
+      "total_mass": 3835.8
+    },
+    "objective-c/godot_ios": {
+      "avg_exposures": {
+        "api_exposure": 30.47,
+        "churn": 0.0,
+        "cognitive_load": 18.13,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 85.71,
+        "safety_score": 33.14,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 42.86,
+        "state_flux": 39.84,
+        "tech_debt": 11.68,
+        "verification": 2.09
+      },
+      "file_count": 7,
+      "total_mass": 191.28
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "avg_exposures": {
+        "api_exposure": 3.66,
+        "churn": 0.0,
+        "cognitive_load": 20.51,
+        "concurrency": 9.85,
+        "dead_code": 0.0,
+        "documentation": 78.7,
+        "safety_score": 40.95,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 47.39,
+        "tech_debt": 35.63,
+        "verification": 17.91
+      },
+      "file_count": 10,
+      "total_mass": 582.0
     },
     "objective-c/worldwideweb": {
       "avg_exposures": {
@@ -4483,10 +5129,29 @@
         "stability": 41.67,
         "state_flux": 79.75,
         "tech_debt": 13.99,
-        "verification": 14.94
+        "verification": 14.93
       },
       "file_count": 12,
       "total_mass": 980.02
+    },
+    "pli/dsf_pli_more": {
+      "avg_exposures": {
+        "api_exposure": 0.17,
+        "churn": 0.0,
+        "cognitive_load": 40.17,
+        "concurrency": 0.0,
+        "dead_code": 3.61,
+        "documentation": 74.32,
+        "safety_score": 60.63,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 81.86,
+        "tech_debt": 21.9,
+        "verification": 32.05
+      },
+      "file_count": 13,
+      "total_mass": 1471.24
     },
     "pli/zopeneditor_sample": {
       "avg_exposures": {
@@ -5248,6 +5913,44 @@
       "file_count": 2,
       "total_mass": 2.0
     },
+    "rexx/dbb_mortgage_rexx": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 50.61,
+        "concurrency": 0.0,
+        "dead_code": 2.4,
+        "documentation": 25.0,
+        "safety_score": 76.55,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 94.64,
+        "tech_debt": 13.53,
+        "verification": 10.08
+      },
+      "file_count": 20,
+      "total_mass": 3994.62
+    },
+    "rexx/genapp_rexx": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 38.03,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 63.61,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 93.41,
+        "tech_debt": 0.0,
+        "verification": 2.3
+      },
+      "file_count": 2,
+      "total_mass": 111.46
+    },
     "rexx/hercules_390_hyperion": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -5324,6 +6027,25 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "ruby/homebrew_ruby": {
+      "avg_exposures": {
+        "api_exposure": 0.53,
+        "churn": 0.0,
+        "cognitive_load": 11.94,
+        "concurrency": 7.28,
+        "dead_code": 0.0,
+        "documentation": 23.08,
+        "safety_score": 30.94,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 31.37,
+        "tech_debt": 39.47,
+        "verification": 7.44
+      },
+      "file_count": 13,
+      "total_mass": 517.88
+    },
     "ruby/rails": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -5361,6 +6083,25 @@
       },
       "file_count": 2,
       "total_mass": 99.32
+    },
+    "ruby/selenium_ruby": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 14.67,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 66.99,
+        "safety_score": 36.1,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 47.67,
+        "tech_debt": 60.3,
+        "verification": 8.84
+      },
+      "file_count": 12,
+      "total_mass": 300.4
     },
     "rust": {
       "avg_exposures": {
@@ -5552,6 +6293,44 @@
       "file_count": 1,
       "total_mass": 1.0
     },
+    "scala/cobrix_scala": {
+      "avg_exposures": {
+        "api_exposure": 2.64,
+        "churn": 0.0,
+        "cognitive_load": 8.95,
+        "concurrency": 0.0,
+        "dead_code": 0.57,
+        "documentation": 37.15,
+        "safety_score": 38.8,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 28.49,
+        "tech_debt": 34.42,
+        "verification": 15.28
+      },
+      "file_count": 12,
+      "total_mass": 714.36
+    },
+    "scala/gradle_scala": {
+      "avg_exposures": {
+        "api_exposure": 2.88,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 50.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 23.28,
+        "verification": 2.07
+      },
+      "file_count": 10,
+      "total_mass": 80.82
+    },
     "scala/kafka": {
       "avg_exposures": {
         "api_exposure": 4.85,
@@ -5609,6 +6388,25 @@
       "file_count": 7,
       "total_mass": 24838.42
     },
+    "scheme/racket_scheme": {
+      "avg_exposures": {
+        "api_exposure": 0.21,
+        "churn": 0.0,
+        "cognitive_load": 11.16,
+        "concurrency": 0.0,
+        "dead_code": 9.46,
+        "documentation": 45.45,
+        "safety_score": 26.25,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.45,
+        "state_flux": 11.09,
+        "tech_debt": 17.9,
+        "verification": 9.19
+      },
+      "file_count": 11,
+      "total_mass": 292.74
+    },
     "shell": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -5661,7 +6459,7 @@
         "stability": 44.44,
         "state_flux": 55.53,
         "tech_debt": 20.88,
-        "verification": 19.41
+        "verification": 19.4
       },
       "file_count": 9,
       "total_mass": 1945.0
@@ -5932,6 +6730,44 @@
       "file_count": 7,
       "total_mass": 470.82
     },
+    "solidity/openzeppelin_tokens": {
+      "avg_exposures": {
+        "api_exposure": 4.43,
+        "churn": 0.0,
+        "cognitive_load": 6.88,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 2.5,
+        "safety_score": 16.53,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 28.69,
+        "tech_debt": 84.55,
+        "verification": 10.14
+      },
+      "file_count": 10,
+      "total_mass": 234.82
+    },
+    "solidity/solady_utils": {
+      "avg_exposures": {
+        "api_exposure": 0.08,
+        "churn": 0.0,
+        "cognitive_load": 9.9,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 10.47,
+        "safety_score": 47.66,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.83,
+        "state_flux": 4.64,
+        "tech_debt": 44.44,
+        "verification": 40.98
+      },
+      "file_count": 12,
+      "total_mass": 901.04
+    },
     "sql": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -6060,7 +6896,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.37
+        "verification": 2.36
       },
       "file_count": 1,
       "total_mass": 6.08
@@ -6292,6 +7128,82 @@
       },
       "file_count": 7,
       "total_mass": 1294.6
+    },
+    "swift/ghostty_macos": {
+      "avg_exposures": {
+        "api_exposure": 0.81,
+        "churn": 0.0,
+        "cognitive_load": 14.94,
+        "concurrency": 8.33,
+        "dead_code": 0.0,
+        "documentation": 37.5,
+        "safety_score": 37.99,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 56.51,
+        "tech_debt": 32.99,
+        "verification": 2.34
+      },
+      "file_count": 12,
+      "total_mass": 274.0
+    },
+    "swift/swift_argument_parser": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 24.61,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 69.71,
+        "safety_score": 45.75,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 73.53,
+        "tech_debt": 41.64,
+        "verification": 20.11
+      },
+      "file_count": 13,
+      "total_mass": 975.24
+    },
+    "swift/swift_nio_core": {
+      "avg_exposures": {
+        "api_exposure": 4.42,
+        "churn": 0.0,
+        "cognitive_load": 6.98,
+        "concurrency": 24.65,
+        "dead_code": 0.0,
+        "documentation": 33.48,
+        "safety_score": 30.79,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 40.39,
+        "tech_debt": 40.06,
+        "verification": 14.12
+      },
+      "file_count": 13,
+      "total_mass": 693.42
+    },
+    "swift/vapor_sources": {
+      "avg_exposures": {
+        "api_exposure": 7.25,
+        "churn": 0.0,
+        "cognitive_load": 18.41,
+        "concurrency": 40.14,
+        "dead_code": 0.0,
+        "documentation": 35.32,
+        "safety_score": 34.95,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 48.36,
+        "tech_debt": 29.09,
+        "verification": 8.84
+      },
+      "file_count": 12,
+      "total_mass": 676.4
     },
     "tabular": {
       "avg_exposures": {
@@ -7148,6 +8060,82 @@
       "file_count": 3,
       "total_mass": 415.44
     },
+    "yacc/freebsd_yacc_lex": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 62.15,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 53.85,
+        "safety_score": 62.1,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 46.15,
+        "state_flux": 90.69,
+        "tech_debt": 9.76,
+        "verification": 26.06
+      },
+      "file_count": 13,
+      "total_mass": 2683.28
+    },
+    "yacc/gnucobol_cobc": {
+      "avg_exposures": {
+        "api_exposure": 0.09,
+        "churn": 0.0,
+        "cognitive_load": 53.36,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 75.0,
+        "safety_score": 58.1,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 37.5,
+        "state_flux": 75.0,
+        "tech_debt": 9.4,
+        "verification": 60.0
+      },
+      "file_count": 4,
+      "total_mass": 3864.46
+    },
+    "yacc/prometheus_goyacc": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 82.89,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 100.0,
+        "safety_score": 65.91,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 99.96,
+        "tech_debt": 52.66,
+        "verification": 28.27
+      },
+      "file_count": 3,
+      "total_mass": 1380.36
+    },
+    "yacc/sqlite_lemon": {
+      "avg_exposures": {
+        "api_exposure": 0.15,
+        "churn": 0.0,
+        "cognitive_load": 6.12,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 33.33,
+        "safety_score": 38.56,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 33.33,
+        "state_flux": 66.04,
+        "tech_debt": 5.49,
+        "verification": 1.56
+      },
+      "file_count": 3,
+      "total_mass": 62.38
+    },
     "yaml": {
       "avg_exposures": {
         "api_exposure": 0.0,
@@ -7466,7 +8454,7 @@
         "stability": 50.0,
         "state_flux": 55.5,
         "tech_debt": 11.8,
-        "verification": 15.46
+        "verification": 15.45
       },
       "file_count": 6,
       "total_mass": 39493.56

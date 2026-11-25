@@ -464,6 +464,48 @@
         }
       ]
     },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": [
+        {
+          "Entry": "R00103",
+          "Kind": "PROCEDURE",
+          "Line": 6,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_pli_more/src_GML_R0014155.pli": [
+        {
+          "Entry": "FAI_GRENSER_FRAVIK",
+          "Kind": "PROCEDURE",
+          "Line": 20,
+          "Params": "W_APD,W_FAI_MAX"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0011203.pli": [
+        {
+          "Entry": "KONTROLL_FT_SØKER",
+          "Kind": "PROCEDURE",
+          "Line": 36,
+          "Params": "FEIL_FUNNET"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0014153.pli": [
+        {
+          "Entry": "BEREGN_SPT_OPT_PÅ",
+          "Kind": "PROCEDURE",
+          "Line": 27,
+          "Params": "IND,POREKKE,I4153_W_FNR13"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0019934.pli": [
+        {
+          "Entry": "OPPHØR_KOBLING_TO_PERSONER",
+          "Kind": "PROCEDURE",
+          "Line": 15,
+          "Params": "IND1,IND2"
+        }
+      ]
+    },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM2.pli": [
         {

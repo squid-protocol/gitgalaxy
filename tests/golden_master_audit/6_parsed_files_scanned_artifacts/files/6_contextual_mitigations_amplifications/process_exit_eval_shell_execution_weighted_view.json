@@ -39,6 +39,11 @@
       "embedded_python/meow_turtle/app.py": 1,
       "embedded_python/meow_turtle/boot.py": 1
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": 0,
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": 0,
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": 0
+    },
     "fortran/wrf": {
       "fortran/wrf/module_physics_init.F": 1
     },
@@ -52,6 +57,9 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/App.hs": 1
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/src_XMonad_Main.hs": 1
     },
     "javascript/react": {
       "javascript/react/build.js": 1
@@ -178,6 +186,14 @@
     "python/numpy": {
       "python/numpy/crackfortran.py": 1
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": 1
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": 0
+    },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/cmpsc.rexx": 24,
       "rexx/hercules_hyperion/hcommand.rexx": 2,
@@ -190,6 +206,9 @@
       "rexx/ibm_z_zos/jobwait.rexx": 1,
       "rexx/ibm_z_zos/rangelks2.rexx": 5,
       "rexx/ibm_z_zos/wjscrck.rexx": 5
+    },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": 10
     },
     "ruby/rails": {
       "ruby/rails/Rakefile": 3
@@ -235,9 +254,19 @@
     "solidity/openzeppelin": {
       "solidity/openzeppelin/Proxy.sol": 0
     },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": 0
+    },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": 0,
       "swift/alamofire/Session.swift": 0
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": 0,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": 0
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": 4
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/portbump.tcl": 0,

@@ -4,14 +4,14 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 384,
+    "ambig_file_count": 434,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
         "Blocked (Machine-Generated Source Code Signature: 62 LOC)": 1
       },
       ".am": {
-        "Blocked (Unsupported Extension: '.am')": 2
+        "Blocked (Unsupported Extension: '.am')": 3
       },
       ".bash": {
         "Blocked (Machine-Generated Source Code Signature: 3531 LOC)": 1
@@ -57,7 +57,10 @@
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
       },
       ".json": {
-        "Blocked (Massive Static Asset Blob: 3332 LOC)": 1
+        "Blocked (Massive Static Asset Blob: 3915 LOC)": 1
+      },
+      ".kt": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 12
       },
       ".lds": {
         "Blocked (Unsupported Extension: '.lds')": 1
@@ -106,6 +109,9 @@
       ".sh_3": {
         "Blocked (Unsupported Extension: '.sh_3')": 1
       },
+      ".sol": {
+        "Blocked (Machine-Generated Source Code Signature: 851 LOC)": 1
+      },
       ".sql": {
         "Blocked (Static Asset Blob without Intent: 1548 LOC)": 1,
         "Blocked (Static Asset Blob without Intent: 1794 LOC)": 1
@@ -146,8 +152,8 @@
       "no_extension": {
         "Blocked (Machine-Generated Source Code Signature: 36288 LOC)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 173,
-        "Unsupported Format (.undeterminable)": 3
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 205,
+        "Unsupported Format (.undeterminable)": 7
       }
     },
     "os_permissions": 0,

@@ -4,12 +4,20 @@
   ],
   "value": [
     {
-      "Diagnostic Reason": "Blocked (Massive Static Asset Blob: 3332 LOC)",
+      "Diagnostic Reason": "Blocked (Massive Static Asset Blob: 3915 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "PROVENANCE.json",
-      "Size": "106866 bytes"
+      "Size": "123583 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "abap/abap2xlsx/LICENSE",
+      "Size": "11353 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -17,6 +25,22 @@
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "abap/abapGit/LICENSE",
+      "Size": "1087 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "abap/abapgit_objects_core/LICENSE",
+      "Size": "1087 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "abap/abapgit_ui_pages/LICENSE",
       "Size": "1087 bytes"
     },
     {
@@ -34,6 +58,14 @@
       "Identity Confidence": "0.0%",
       "Path": "ada/functional/functional-version.ads",
       "Size": "2316 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "apex/fflib_apex_common/LICENSE",
+      "Size": "1524 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -184,6 +216,14 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "bms/carddemo_bms/LICENSE",
+      "Size": "10142 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "bms/cbsa/LICENSE",
       "Size": "14197 bytes"
     },
@@ -194,6 +234,14 @@
       "Identity Confidence": "2.3%",
       "Path": "bms/cbsa/NOTICES",
       "Size": "113521 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "bms/dbb_mortgage_bms/LICENSE",
+      "Size": "11357 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -496,6 +544,14 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "csharp/powertoys_common/LICENSE",
+      "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "css/bootstrap_dist/LICENSE",
       "Size": "1093 bytes"
     },
@@ -648,8 +704,32 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "dart/dart_sdk_analyzer/LICENSE",
+      "Size": "1502 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dart/dart_sdk_language_tests/LICENSE",
+      "Size": "1502 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "dart/flutter/LICENSE",
       "Size": "1519 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "db2_sql/carddemo_ddl/LICENSE",
+      "Size": "10142 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 1548 LOC)",
@@ -800,6 +880,22 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "fortran/fpm_fortran/LICENSE",
+      "Size": "1073 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "fortran/stdlib_fortran/LICENSE",
+      "Size": "1081 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "fsharp/giraffe_web/LICENSE",
       "Size": "11357 bytes"
     },
@@ -924,6 +1020,14 @@
       "Size": "1180 bytes"
     },
     {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "haskell/aeson_core/LICENSE",
+      "Size": "1500 bytes"
+    },
+    {
       "Diagnostic Reason": "Blocked (Unsupported Extension: '.cff')",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -936,8 +1040,24 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "haskell/xmonad_core/LICENSE",
+      "Size": "1562 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "hcl/terraform_aws_vpc/LICENSE",
       "Size": "10173 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "hlasm/carddemo_hlasm/LICENSE",
+      "Size": "10142 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -1120,6 +1240,110 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_BuildScanUtils.kt",
+      "Size": "1883 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_CommonExtensions.kt",
+      "Size": "15105 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_FlakyTestStrategy.kt",
+      "Size": "139 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_Jvm.kt",
+      "Size": "1831 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_JvmCategory.kt",
+      "Size": "994 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_JvmVendor.kt",
+      "Size": "755 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_JvmVersion.kt",
+      "Size": "873 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_Os.kt",
+      "Size": "4047 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_PerformanceTestExtensions.kt",
+      "Size": "4067 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_common_VersionedSettingsBranch.kt",
+      "Size": "2527 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_configurations_BaseGradleBuildType.kt",
+      "Size": "602 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/.teamcity_src_main_kotlin_configurations_BuildDistributions.kt",
+      "Size": "1381 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "kotlin/gradle_kotlin/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "livecode/livecode/LICENSE",
       "Size": "33518 bytes"
     },
@@ -1176,6 +1400,78 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "m4/libffi_racket/LICENSE",
+      "Size": "1132 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.am')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "m4/libffi_racket/Makefile.am",
+      "Size": "6318 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "m4/nasm_autoconf_macros/LICENSE",
+      "Size": "1554 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "makefile/cosmopolitan_build_mk/LICENSE",
+      "Size": "759 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "makefile/micropython_make/LICENSE",
+      "Size": "3389 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "40.0%",
+      "Path": "makefile/micropython_make/examples_embedding_Makefile",
+      "Size": "686 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "40.0%",
+      "Path": "makefile/micropython_make/examples_natmod_re_Makefile",
+      "Size": "414 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "3.1%",
+      "Path": "makefile/micropython_make/ports_stm32_Makefile",
+      "Size": "21686 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "3.5%",
+      "Path": "makefile/micropython_make/ports_unix_Makefile",
+      "Size": "10312 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "markdown/airflow_job_lifecycle/LICENSE",
       "Size": "10850 bytes"
     },
@@ -1212,6 +1508,14 @@
       "Size": "13575 bytes"
     },
     {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "nix/angular_nix/LICENSE",
+      "Size": "1105 bytes"
+    },
+    {
       "Diagnostic Reason": "Blocked (Unsupported Extension: '.lock')",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
@@ -1234,6 +1538,22 @@
       "Identity Confidence": "0.0%",
       "Path": "nix/ghostty/flake.lock",
       "Size": "3326 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "objective-c/afnetworking/LICENSE",
+      "Size": "1102 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "objective-c/tensorflow_lite_objc/LICENSE",
+      "Size": "13575 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 73 LOC)",
@@ -1584,6 +1904,30 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "rexx/dbb_mortgage_rexx/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "rexx/genapp_rexx/LICENSE",
+      "Size": "14199 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "ruby/selenium_ruby/LICENSE",
+      "Size": "11365 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "rust/holylang/LICENSE",
       "Size": "1064 bytes"
     },
@@ -1610,6 +1954,22 @@
       "Identity Confidence": "0.0%",
       "Path": "rust/wasmtime/LICENSE",
       "Size": "12243 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "scala/cobrix_scala/LICENSE",
+      "Size": "11215 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "scala/gradle_scala/LICENSE",
+      "Size": "10174 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -1768,6 +2128,22 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "solidity/openzeppelin_tokens/LICENSE",
+      "Size": "1090 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 851 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "solidity/solady_utils/src_utils_g_EnumerableMapLib.sol",
+      "Size": "32285 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "sql/spamassassin_mysql/LICENSE",
       "Size": "11358 bytes"
     },
@@ -1810,6 +2186,22 @@
       "Identity Confidence": "0.0%",
       "Path": "swift/alamofire/LICENSE",
       "Size": "1102 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "swift/ghostty_macos/LICENSE",
+      "Size": "1097 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "swift/vapor_sources/LICENSE",
+      "Size": "1080 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -2882,6 +3274,14 @@
       "Identity Confidence": "0.0%",
       "Path": "xml/powertoys/MainWindow.xaml",
       "Size": "1922 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yacc/prometheus_goyacc/LICENSE",
+      "Size": "11357 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",

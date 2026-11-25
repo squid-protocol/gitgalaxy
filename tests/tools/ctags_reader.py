@@ -288,6 +288,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from gitgalaxy.core.source_text import decode_bytes
+
 # GitGalaxy has a zero-dependency stance for the SHIPPED `gitgalaxy` package (see README.md's
 # "0 dependencies" claim and pyproject.toml's `yaml` extra, the only optional Python dependency
 # the actual engine has). universal-ctags is a system BINARY, not a Python package, and this
@@ -763,14 +765,18 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
             f"--language-force={LANG_MAP[lang]}",
             str(filepath),
         ],
+        # Bytes, decoded below: ctags can cut a field (the signature, the pattern) in the middle of a multi-byte
+        # UTF-8 character, so its stdout is not always valid UTF-8 even when the source file is. A text-mode read crashed
+        # the whole tri-comparison run (kotlin: "'utf-8' codec can't decode byte 0xbb", crucible v1.9.0 candidate).
         capture_output=True,
-        text=True,
         timeout=60,
     )
+    # #3813: every source read decodes through source_text, never a lossy errors= handler; no byte is dropped.
+    stdout = decode_bytes(result.stdout)
 
     wanted_kinds = CTAGS_FUNC_KINDS.get(lang, set()) | CTAGS_CLASS_KINDS.get(lang, set())
     symbols: list[CtagsSymbol] = []
-    for line in result.stdout.splitlines():
+    for line in stdout.splitlines():
         if line.startswith("!"):
             continue
         # NOT a blind line.split("\t") -- the address/pattern field (cols[2] in the naive

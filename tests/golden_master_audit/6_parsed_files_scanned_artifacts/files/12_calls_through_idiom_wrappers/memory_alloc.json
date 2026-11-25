@@ -17,6 +17,18 @@
         "Literal Sites": 1,
         "Wrapped Sites": 7
       }
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": {
+        "Literal Sites": 43,
+        "Wrapped Sites": 1
+      }
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": {
+        "Literal Sites": 10,
+        "Wrapped Sites": 1
+      }
     }
   },
   "path": [

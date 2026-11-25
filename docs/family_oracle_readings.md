@@ -45,19 +45,6 @@ contracts (rows below). Scores are from the self-scan DB at this commit (29,706 
 still count `&&` / `||` (and `??`, `||=`) under `branch`. Until they move to `short_circuit`, the non-Python branch cells in
 `tests/family_validity_baseline.json` are measured against the pre-#8939 reading.
 
-## COBOL (statement-parser oracle)
-
-`tests/tools/family_oracle_cobol.py` reads each paragraph through the translator's statement parser, not tree-sitter. Scored on the CardDemo
-`app/cbl` scan (491 paragraphs matched, 95 sections unmatched; exploratory, not pinned).
-
-| family | oracle reading | note |
-|---|---|---|
-| `branch` | IF, each EVALUATE / SEARCH WHEN arm (OTHER included, C3), PERFORM UNTIL / VARYING / TIMES, GO TO DEPENDING | A bare PERFORM is a call; AT END / INVALID KEY / SIZE ERROR are handlers, not decisions. The engine's regex counts those phrases. |
-| `debug_prints` | DISPLAY, EXHIBIT | |
-| `io` | OPEN, READ, WRITE, REWRITE, DELETE, START; EXEC SQL / DLI and EXEC CICS file, browse and queue commands | CLOSE is cleanup's (io contract C2). |
-| `short_circuit` | counted, not scored | COBOL has no `short_circuit` rule, so the cell stays N/A; whether to add or decline one is an owner decision. |
-| `args` | not scored | A paragraph has no parameters. |
-
 ## Open owner questions
 
 1. Is `assert` an abort for `panics_and_aborts`? (#8868, C precision 0.48.)

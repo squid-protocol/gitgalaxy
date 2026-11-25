@@ -365,3 +365,125 @@ def test_every_python_oracle_family_has_a_contract_and_a_readings_row():
         assert f.rule in CONTRACTS, f.rule
         assert f"| `{f.rule}` |" in doc, f.rule
         assert f.sentence.replace("|", "/") in doc, f.rule
+
+
+# ---- COBOL oracle (family_oracle_cobol.py): paragraphs read through the translator's statement parser ----
+def _cobol():
+    import family_oracle_cobol
+
+    return family_oracle_cobol
+
+
+COBOL_HEAD = """       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DEMO.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  A PIC 9(4).
+       01  B PIC 9(4).
+       01  I PIC 9(4).
+       01  F-STATUS PIC XX.
+       PROCEDURE DIVISION.
+"""
+
+
+def _cobol_paragraph(body: str, name: str = "P1"):
+    src = (
+        COBOL_HEAD
+        + f"       {name}.\n"
+        + "".join(f"           {ln}\n" for ln in body.strip().splitlines())
+        + "           STOP RUN.\n"
+    )
+    oracle = _cobol().get_oracle()
+    index = oracle.index(src)
+    para = next((p for (nm, _ln), p in index.items() if nm == name), None)
+    assert para is not None, "the paragraph was not indexed"
+    return oracle.count(para)[0]
+
+
+@needs_ts
+def test_cobol_if_and_evaluate_arms_are_branches_other_included():
+    n = _cobol_paragraph(
+        """
+IF A > 1
+    MOVE 1 TO B
+ELSE
+    MOVE 2 TO B
+END-IF
+EVALUATE A
+    WHEN 1 MOVE 1 TO B
+    WHEN 2 MOVE 2 TO B
+    WHEN OTHER MOVE 3 TO B
+END-EVALUATE
+"""
+    )
+    assert n["branch"] == 4
+
+
+@needs_ts
+def test_cobol_a_bare_perform_is_a_call_a_loop_is_a_branch():
+    n = _cobol_paragraph(
+        """
+PERFORM P2
+PERFORM UNTIL A > 3
+    ADD 1 TO A
+END-PERFORM
+"""
+    )
+    assert n["branch"] == 1
+
+
+@needs_ts
+def test_cobol_and_or_are_counted_as_short_circuit():
+    n = _cobol_paragraph(
+        """
+IF A > 1 AND B > 1 OR I = 0
+    MOVE 1 TO B
+END-IF
+"""
+    )
+    assert n["short_circuit"] == 2 and n["branch"] == 1
+
+
+@needs_ts
+def test_cobol_display_is_a_print():
+    assert _cobol_paragraph("DISPLAY 'HELLO'\nDISPLAY A")["print"] == 2
+
+
+@needs_ts
+def test_cobol_file_verbs_are_io_and_close_is_not():
+    n = _cobol_paragraph(
+        """
+OPEN INPUT INFILE
+READ INFILE
+CLOSE INFILE
+"""
+    )
+    assert n["io"] == 2
+
+
+@needs_ts
+def test_cobol_an_exception_phrase_is_not_a_branch():
+    n = _cobol_paragraph(
+        """
+READ INFILE
+    AT END MOVE 1 TO A
+END-READ
+"""
+    )
+    assert n["io"] == 1 and n["branch"] == 0
+
+
+@needs_ts
+def test_cobol_the_index_is_keyed_by_name_and_line_and_a_refusal_is_empty():
+    oracle = _cobol().get_oracle()
+    index = oracle.index(COBOL_HEAD + "       P1.\n           STOP RUN.\n")
+    assert any(nm == "P1" for nm, _ in index)
+    assert oracle.index("this is not cobol at all") == {}
+
+
+@needs_ts
+def test_cobol_the_dispatch_and_families():
+    oracle = fo.get_oracle("cobol")
+    assert oracle is _cobol().get_oracle()
+    assert [f.rule for f in oracle.families] == ["branch", "debug_prints", "io"]

@@ -16,7 +16,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="812" height="2834"/>
 <text class="title" x="16" y="20">GitGalaxy Structural Extraction: Tri-Comparison vs. Tree-sitter and ctags</text>
-<text class="subtitle" x="16" y="36">2026-11-24 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
+<text class="subtitle" x="16" y="36">2026-11-25 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
 <text class="scope-note" x="16" y="52">No tool is ground truth. Found-count panels are unranked raw counts (no badge) -- a shared "how many are real" denominator turned out as corruptible as any one tool's own noise. Precision is each tool's own claims vs. what another tool corroborated.</text>
 <text class="scope-note" x="16" y="64">Bar groups vary 1-3 by language's tool coverage -- order is always GitGalaxy, tree-sitter, ctags. css/html class panels are out of scope by design (selectors, not OOP classes).</text>
 <text class="scope-note" x="16" y="76">`*` marks EVERY tool's label in a cell with any unvalidated disagreement, not just GitGalaxy's -- not a verdict either way. Badge = the tool that scored strictly highest on a RANKED, UN-disputed panel (blank on a tie, a disputed cell, or a found-count panel).</text>
@@ -526,15 +526,15 @@
 <rect class="stripe" x="16" y="1042" width="780" height="44"/>
 <text class="lang-label" x="20" y="1067.5">fsharp</text>
 <rect class="bar-track" x="154" y="1047" width="88" height="34" rx="2"/>
-<rect x="154" y="1047" width="56.1" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1055">167*</text>
+<rect x="154" y="1047" width="62.8" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1055">187*</text>
 <rect x="154" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1067">262*</text>
 <rect class="bar-track" x="286" y="1047" width="88" height="34" rx="2"/>
-<rect x="286" y="1047" width="84.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1055">161/167*</text>
-<rect x="286" y="1059" width="54.1" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1067">161/262*</text>
+<rect x="286" y="1047" width="85.2" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1055">181/187*</text>
+<rect x="286" y="1059" width="60.8" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1067">181/262*</text>
 <rect class="bar-track" x="418" y="1047" width="88" height="34" rx="2"/>
 <rect x="418" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1055">4*</text>
@@ -545,9 +545,9 @@
 <text class="bar-value-label" x="594.0" y="1055">0/4*</text>
 <rect class="bar-track" x="682" y="1047" width="88" height="34" rx="2"/>
 <rect x="682" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1055">161*</text>
+<text class="bar-value-label" x="726.0" y="1055">181*</text>
 <rect x="682" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1067">161*</text>
+<text class="bar-value-label" x="726.0" y="1067">181*</text>
 <text class="lang-label" x="20" y="1111.5">go</text>
 <rect class="bar-track" x="154" y="1091" width="88" height="34" rx="2"/>
 <rect x="154" y="1091" width="88.0" height="10" rx="2" fill="#2a78d6"/>

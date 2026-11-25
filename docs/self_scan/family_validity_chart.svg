@@ -21,16 +21,16 @@
 </style>
 <rect class="surface" x="0" y="0" width="934" height="930"/>
 <text class="title" x="16" y="24">Keyword families: how much is checked, and how well</text>
-<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 206 are measured against a parser (17 languages), 674 more only by a decoy test, 2,056 not tested yet.</text>
+<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 206 are measured against a parser (17 languages), 1,751 more only by a decoy test, 979 not tested yet.</text>
 <rect x="16.0" y="56" width="63.3" height="16" fill="#4f9be8"/>
 <rect x="16" y="80" width="9" height="9" fill="#4f9be8"/>
 <text class="legend" x="30" y="88">206 measured against a parser</text>
-<rect x="79.3" y="56" width="207.1" height="16" fill="#8b949e"/>
+<rect x="79.3" y="56" width="537.9" height="16" fill="#8b949e"/>
 <rect x="200" y="80" width="9" height="9" fill="#8b949e"/>
-<text class="legend" x="214" y="88">674 decoy test only</text>
-<rect x="286.4" y="56" width="631.6" height="16" fill="#30363d"/>
-<rect x="328" y="80" width="9" height="9" fill="#30363d"/>
-<text class="legend" x="342" y="88">2,056 not tested yet</text>
+<text class="legend" x="214" y="88">1,751 decoy test only</text>
+<rect x="617.2" y="56" width="300.8" height="16" fill="#30363d"/>
+<rect x="339" y="80" width="9" height="9" fill="#30363d"/>
+<text class="legend" x="353" y="88">979 not tested yet</text>
 <text class="h" x="16" y="120">Measured against a parser: the lower of recall and precision, in %</text>
 <text class="lang" transform="translate(228,192) rotate(-90)">python</text>
 <text class="lang" transform="translate(270,192) rotate(-90)">csharp</text>
@@ -861,15 +861,15 @@
 <rect x="279" y="736" width="12" height="9" fill="#a9d1ff"/>
 <text class="legend" x="295" y="744">98-100%</text>
 <text class="h" x="16" y="778">Decoy test (no parser needed)</text>
-<text class="note" x="16" y="793">Each family keyword planted in a comment and in a string literal, in 45 languages.</text>
+<text class="note" x="16" y="793">Each family keyword planted in a comment and in a string literal, in 65 languages.</text>
 <text class="big" x="16" y="816">In a comment: ignored</text>
 <rect x="16" y="822" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="822" width="330.0" height="14" fill="#8b949e"/>
-<text class="legend" x="356" y="833">756 of 756 cells</text>
+<rect x="16" y="822" width="323.5" height="14" fill="#8b949e"/>
+<text class="legend" x="356" y="833">1,880 of 1,918 cells</text>
 <text class="big" x="16" y="860">In a string literal: counted</text>
 <rect x="16" y="866" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="866" width="306.9" height="14" fill="#e5534b"/>
-<text class="legend" x="356" y="877">665 of 715 cells</text>
+<rect x="16" y="866" width="289.0" height="14" fill="#e5534b"/>
+<text class="legend" x="356" y="877">1,591 of 1,817 cells</text>
 <text class="note" x="476" y="808">Comments are stripped before any family is counted,</text>
 <text class="note" x="476" y="821">as designed. Strings are not: a keyword inside a string</text>
 <text class="note" x="476" y="834">counts like code. That is documented behaviour (issue</text>

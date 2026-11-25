@@ -55,6 +55,7 @@
 /FAKE.APP.DBRMLIB	tests/cobol_mainframe
 /FORMS.jcl	tests/cobol_mainframe
 /IFOXJOB.jcl	tests/cobol_mainframe
+/K	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine
@@ -617,7 +618,7 @@ port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py
 quote.md	tests/core_engine
-r.md	tests/cobol_mainframe
+r.md	tests/cobol_mainframe,tests/tools/test_family_missing_keywords.py
 readiness.md	tests/cobol_mainframe
 recorders/README.md	tests/core_engine
 refusal_map.json	tests/tools/support_matrix.py

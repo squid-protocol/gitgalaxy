@@ -199,7 +199,17 @@ def chain_generations(chain: Path | None, dsn: str) -> list[Path]:
     return sorted(p for p in (chain / dsn).iterdir() if p.is_file()) if chain and (chain / dsn).is_dir() else []
 
 
-def seed_datasets(datasets: dict[str, dict], root: Path, chain: Path | None = None) -> None:
+def chain_fed(outputs: Path | None, d: dict) -> Path | None:
+    """The file the chain's step output a dataset is fed from (`chain_feed`: {case, dd}), None when the spec names none or the
+    chain did not export it."""
+    f = d.get("chain_feed")
+    p = outputs / f["case"] / f["dd"] if outputs and f else None
+    return p if p is not None and p.is_file() else None
+
+
+def seed_datasets(
+    datasets: dict[str, dict], root: Path, chain: Path | None = None, outputs: Path | None = None
+) -> None:
     """Write each seeded input dataset as the file the DatasetResolver finds under `root` (DSN = file name): the seed's
     lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has.
 
@@ -207,7 +217,12 @@ def seed_datasets(datasets: dict[str, dict], root: Path, chain: Path | None = No
     and under their own numbers, so (0) is the generation the COBOL step read; the fixture seed is the fallback."""
     for dsn, d in datasets.items():
         gens = chain_generations(chain, dsn) if d.get("gdg") else []
-        if gens:
+        fed = chain_fed(outputs, d)
+        if fed is not None and not d.get("gdg"):  # #8886 slice 21: the bytes the chain's earlier step left this dataset
+            if fed.stat().st_size % d["lrecl"]:
+                raise ValueError(f"{fed}: not whole records of {d['lrecl']} bytes")
+            shutil.copyfile(fed, root / dsn)
+        elif gens:
             (root / dsn).mkdir(parents=True, exist_ok=True)
             for g in gens:
                 if g.stat().st_size % d["lrecl"]:
@@ -302,6 +317,7 @@ def run_forged(
     work: Path,
     seeds: dict | None = None,
     chain: Path | None = None,
+    outputs: Path | None = None,
 ) -> dict | None:
     """Compile the forge's generated sources and run every generated job, strict and skip-unimplemented.
 
@@ -363,7 +379,7 @@ def run_forged(
         ) in configs:  # one JVM and a freshly seeded directory per job: each job is its own case (#8886 slice 8)
             ds = datasets / mode / config.rsplit(".", 1)[-1]
             ds.mkdir(parents=True)
-            seed_datasets(seeds or {}, ds, chain)
+            seed_datasets(seeds or {}, ds, chain, outputs)
             seeded = _listing(ds)
             cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
                    "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, config]  # fmt: skip
@@ -490,7 +506,13 @@ def compare_datasets(spec: dict, report: dict, run: dict, chain: Path | None = N
 
 
 def scan_and_run(
-    spec: dict, case: dict, report: dict, corpus: Path, chain_rcs, chain: Path | None = None
+    spec: dict,
+    case: dict,
+    report: dict,
+    corpus: Path,
+    chain_rcs,
+    chain: Path | None = None,
+    outputs: Path | None = None,
 ) -> dict | None:
     """The whole slice-2 run for one job case; None when Spring or a JDK is missing. `chain` is the directory the COBOL
     chain exported its generations to (`report["generations_dir"]`): the Spring jobs read those bytes."""
@@ -521,7 +543,7 @@ def scan_and_run(
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])
         # a program step's stub returns the RC of the case step that covers it
         rc_by_step = {(m["job"], j): rcs.get(m["case"]) for m in spec["steps"] for j in m["jcl_steps"]}
-        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"), chain)
+        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"), chain, outputs)
         if run is None:
             return None
         rows = compare_run(forge, spec, rcs, ran, run)

@@ -3302,10 +3302,10 @@
     "dart/flutter": {
       "Average Risk Exposures": {
         "API Exposure": "3.19%",
-        "Cognitive Load Exposure": "24.98%",
+        "Cognitive Load Exposure": "24.97%",
         "Commented Logic Exposure": "0.72%",
         "Concurrency Exposure": "12.89%",
-        "Documentation Exposure": "44.0%",
+        "Documentation Exposure": "43.97%",
         "Error & Exception Exposure": "36.06%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -3615,10 +3615,10 @@
     "dockerfile/moby/test_targets": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "17.84%",
+        "Cognitive Load Exposure": "7.14%",
         "Commented Logic Exposure": "1.36%",
         "Concurrency Exposure": "3.42%",
-        "Documentation Exposure": "99.77%",
+        "Documentation Exposure": "99.57%",
         "Error & Exception Exposure": "12.42%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -10835,7 +10835,7 @@
     "shell/brew": {
       "Average Risk Exposures": {
         "API Exposure": "4.57%",
-        "Cognitive Load Exposure": "30.92%",
+        "Cognitive Load Exposure": "28.99%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "34.91%",

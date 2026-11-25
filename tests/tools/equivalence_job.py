@@ -364,6 +364,10 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     work.mkdir(parents=True, exist_ok=True)
     if _export_generations(catalog, work / "generations"):  # #8886 slice 18: the Spring harness seeds from these bytes
         report["generations_dir"] = str(work / "generations")
+    if _export_outputs(
+        outputs, work / "outputs"
+    ):  # #8886 slice 21: a dataset a step's output fed (the KSDS) seeds Spring
+        report["outputs_dir"] = str(work / "outputs")
     (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     for s in report["steps"]:
         if s.get("model_only"):
@@ -378,6 +382,19 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {ran} of {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
+
+
+def _export_outputs(outputs: dict[str, dict[str, Any]], out: Path) -> bool:
+    """Write each step's COBOL output as bytes (`<out>/<step case>/<DD>`, whole fixed records, no line ending): the bytes a
+    later step was fed. True when any was written."""
+    wrote = False
+    for case, dds in outputs.items():
+        for dd, data in dds.items():
+            if isinstance(data, bytes):
+                (out / case).mkdir(parents=True, exist_ok=True)
+                (out / case / dd).write_bytes(data)
+                wrote = True
+    return wrote
 
 
 def _export_generations(catalog: gdg.Catalog, out: Path) -> bool:

@@ -101,3 +101,15 @@ def test_grammar_names_fall_back_through_the_pack_s_renames(monkeypatch):
             types.SimpleNamespace(get_parser=lambda n: (_ for _ in ()).throw(LookupError(n))),
         )
         ts.get_parser("c_sharp")
+
+
+@needs_ts
+@pytest.mark.parametrize("lang", ["c", "cpp"])
+def test_c_stream_writers_count_as_debug_prints_only_on_the_console(lang):
+    """debug_prints excludes output addressed to a file or writer: fprintf(fp, ...) is not a site, fprintf(stderr, ...) is."""
+    src = """
+    void f(FILE *fp) { fprintf(fp, "x"); fputs("y", fp); fputc('z', fp); putc('z', fp); vfprintf(fp, "x", 0); }
+    void g(FILE *fp) { fprintf(stderr, "x"); fputs("y", stdout); putc('z', stderr); printf("w"); }
+    """
+    assert _count(lang, src, "f", "print") == 0
+    assert _count(lang, src, "g", "print") == 4

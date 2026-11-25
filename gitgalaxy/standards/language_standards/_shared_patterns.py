@@ -407,7 +407,10 @@ _PERL_BUILTIN = (
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
     r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock|select"
-    r"|time|times|wait|wantarray|fork|getppid|getlogin|eof|pos|study|fileno|readline|chroot|rewinddir|telldir)"
+    r"|time|times|wait|wantarray|fork|getppid|getlogin|eof|pos|study|fileno|readline|chroot|rewinddir|telldir"
+    # #6433 slice 7: list operators whose first argument is another call or a bare list (`reverse sort @l`,
+    # `warn sprintf(...)`, `join defined $x ? ...`), which `_PERL_ARG` cannot see.
+    r"|reverse|pack|unpack|splice|unshift|sprintf|printf|print|say|warn|die|join|push|index|rindex|substr)"
     rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
 # #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
@@ -418,7 +421,9 @@ _PERL_ARG = (
     # #6433: `open FH, ...` (a bareword handle then a comma) and `open my $fh, ...`.
     r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%]"
     # #6433 slice 5: a digit-first argument, `plan 4;`, `skip 3, 'why';`, `fetch -1;`.
-    r"|-?[0-9])"
+    r"|-?[0-9]"
+    # #6433 slice 7: the argument is itself a call, `return subtest name(@args) => sub {..}`, `ok defined($x)`.
+    r"|[a-z_][a-z0-9_]*[ \t]*\()"
 )
 _PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(

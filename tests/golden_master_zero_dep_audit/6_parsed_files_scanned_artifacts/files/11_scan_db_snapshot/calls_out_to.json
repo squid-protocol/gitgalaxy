@@ -120778,6 +120778,7 @@
     "perl/ack3_tests": {
       "perl/ack3_tests/file-permission.t": {
         "check_with@60": [
+          "subtest",
           "subtest_name",
           "plan",
           "ref",
@@ -122584,6 +122585,7 @@
           "_bz_schema",
           "get_table_ddl",
           "usage_mode",
+          "say",
           "install_string",
           "do"
         ],
@@ -122608,6 +122610,7 @@
           "SCHEMA_VERSION",
           "defined",
           "_bz_add_table_raw",
+          "say",
           "install_string",
           "prepare",
           "bind_param",
@@ -122704,6 +122707,7 @@
           "get_add_column_ddl",
           "quote",
           "undef",
+          "print",
           "get_text",
           "usage_mode",
           "do",
@@ -122729,6 +122733,7 @@
           "bz_fk_info",
           "_check_references",
           "usage_mode",
+          "print",
           "get_text",
           "scalar",
           "_bz_real_schema",
@@ -122816,6 +122821,7 @@
           "bz_server_version",
           "lc",
           "_checking_for",
+          "die",
           "install_string",
           "exists",
           "vers_cmp",
@@ -122851,6 +122857,7 @@
           "bz_column_info",
           "_bz_real_schema",
           "get_drop_column_ddl",
+          "print",
           "get_text",
           "usage_mode",
           "do",
@@ -122865,6 +122872,7 @@
         ],
         "bz_drop_fk@988": [
           "bz_fk_info",
+          "print",
           "get_text",
           "usage_mode",
           "_bz_real_schema",
@@ -122904,6 +122912,7 @@
           "bz_table_info",
           "_bz_schema",
           "get_drop_table_ddl",
+          "print",
           "get_text",
           "usage_mode",
           "do",
@@ -122938,17 +122947,18 @@
         "bz_populate_enum_tables@589": [
           "selectrow_array",
           "sql_limit",
+          "print",
           "install_string",
           "bz_enum_initial_values",
           "each",
-          "_bz_populate_enum_table",
-          "print"
+          "_bz_populate_enum_table"
         ],
         "bz_rename_column@1127": [
           "bz_column_info",
           "ThrowCodeError",
           "_bz_real_schema",
           "get_rename_column_ddl",
+          "print",
           "get_text",
           "usage_mode",
           "do",
@@ -122963,6 +122973,7 @@
           "bz_drop_related_fks",
           "_bz_real_schema",
           "get_rename_table_sql",
+          "print",
           "get_text",
           "usage_mode",
           "do",
@@ -122988,11 +122999,13 @@
           "_bz_schema",
           "get_table_list",
           "bz_table_info",
+          "say",
           "install_string",
           "bz_add_table"
         ],
         "bz_setup_foreign_keys@604": [
           "bz_fk_info",
+          "say",
           "get_text",
           "bz_table_list",
           "bz_table_columns",
@@ -123149,6 +123162,7 @@
         "check_graphviz@688": [
           "params",
           "_checking_for",
+          "print",
           "install_string",
           "bz_locations",
           "new",
@@ -123156,7 +123170,6 @@
           "die",
           "grep",
           "getlines",
-          "print",
           "close"
         ],
         "check_requirements@484": [
@@ -123185,11 +123198,11 @@
         ],
         "print_module_instructions@582": [
           "scalar",
+          "print",
           "install_string",
           "max",
           "map",
           "length",
-          "print",
           "printf",
           "_translate_feature",
           "join",
@@ -123243,6 +123256,7 @@
           "push",
           "defined",
           "GroupMatches",
+          "reverse",
           "CopyAltInfo",
           "FoundTag",
           "delete",
@@ -123470,6 +123484,7 @@
           "keys",
           "HandleTag",
           "BuildCompositeTags",
+          "reverse",
           "InsertTagValues",
           "ExtractInfo",
           "SetFoundTags"
@@ -124216,6 +124231,7 @@
         "SetByteOrder@6137": [
           "shift",
           "unpack",
+          "warn",
           "sprintf",
           "pack"
         ],
@@ -125507,6 +125523,7 @@
           "undef",
           "chomp",
           "die",
+          "warn",
           "bgabort"
         ],
         "bgsend_and_start_lookup@204": [
@@ -127118,7 +127135,8 @@
           "shift",
           "sed_path",
           "defined",
-          "stat"
+          "stat",
+          "warn"
         ],
         "get_and_create_userstate_dir@1996": [
           "defined",

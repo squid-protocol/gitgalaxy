@@ -424,6 +424,42 @@ def compare_run(forge, spec: dict, rcs: dict, ran: set[str], run: dict) -> list[
     return rows
 
 
+def seeded_names(datasets: dict[str, dict] | None) -> set[str]:
+    """The file names `seed_datasets` writes (a GDG base's seed is its generation G0001V00), as `_listing` names them."""
+    return {f"{dsn}(G0001V00)" if d.get("gdg") else dsn for dsn, d in (datasets or {}).items() if d.get("seed")}
+
+
+def compare_datasets(spec: dict, report: dict, run: dict) -> list[dict]:
+    """Every dataset the chain's steps catalogued (`gdg_created` in the chain report: base -> size and digest of the
+    generation a step wrote) against what the forged job left under Spring, per mode: the newest generation of that base
+    the job wrote, beyond the seeded one. `equal` needs the same size and digest. A step that ran stubbed or on a seed
+    that is not the chain's own input differs, and says so: the row names both digests, never rounds them."""
+    case_job = {m["case"]: m["job"] for m in spec["steps"]}
+    seeded = seeded_names(spec.get("datasets"))
+    rows = []
+    for st in report["steps"]:
+        for base, want in (st.get("gdg_created") or {}).items():
+            job = case_job.get(st["case"])
+            row: dict = {"case": st["case"], "job": job, "dataset": base, "chain": want, "modes": {}}
+            for mode in ("strict", "skip"):
+                files = run.get("datasets_by_job", {}).get(mode, {}).get(job, {})
+                new = sorted(k for k in files if k.startswith(f"{base}(") and k not in seeded)
+                if not new:
+                    issue = f"{job} wrote no new generation of {base}"
+                    row["modes"][mode] = {"status": "differs", "got": None, "issue": issue}
+                    continue
+                got = files[new[-1]]
+                same = (got["size"], got["sha256"]) == (want["size"], want["sha256"])
+                row["modes"][mode] = {
+                    "status": "equal" if same else "differs", "got": got, "generation": new[-1],
+                    "issue": None if same else (
+                        f"{new[-1]}: {got['size']} bytes {got['sha256'][:12]}, chain {want['size']} bytes {want['sha256'][:12]}"
+                    ),
+                }  # fmt: skip
+            rows.append(row)
+    return rows
+
+
 def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) -> dict | None:
     """The whole slice-2 run for one job case; None when Spring or a JDK is missing."""
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
@@ -459,6 +495,7 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
+            "datasets": compare_datasets(spec, report, run),
             "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`
@@ -478,6 +515,12 @@ def render(res: dict, case_name: str) -> list[str]:
                 f"{case_name} executed step {r['case']} [{r['job']}.{'+'.join(r['jcl_steps'])}] {mode}: {md['status']}"
             )
             out += [f"    differs: {i}" for i in md["issues"]]
+    for d in res.get("datasets", ()):
+        for mode in ("strict", "skip"):
+            md = d["modes"][mode]
+            out.append(f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] {mode}: {md['status']}")
+            if md["issue"]:
+                out.append(f"    differs: {md['issue']}")
     for mode in ("strict", "skip"):
         n = sum(r["modes"][mode]["status"] == "equal" for r in res["rows"])
         out.append(

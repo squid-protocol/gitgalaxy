@@ -621,13 +621,16 @@ class BatchForge:
             java.append(f"    static final List<Dd> DDS_{self._const(st.name)} = List.of({self._dds(st)});")
         java.append("")
         bean = j.cls[0].lower() + j.cls[1 : -len("Config")]  # unique, as the class is
-        java += ["    @Bean", f"    public Job {bean}({', '.join(params)}) {{",
-                 f"        return new JobBuilder({_jstr(j.spring)}, jobRepository)", "                .listener(steps.abends())"]  # fmt: skip
+        java += ["    @Bean", f"    public Job {bean}({', '.join(params)}) {{"]
         for st in j.steps:
             if st.if_chain:  # #8886: the IF constructs of the step, by job and step (JclConditions.bypassed)
                 rows = ", ".join("{" + ", ".join(_jstr(c if isinstance(c, str) else str(c).lower()) for c in r) + "}"
                                  for r in st.if_chain)  # fmt: skip
                 java.append(f"        steps.ifChain({_jstr(j.spring)}, {_jstr(st.jcl)}, new String[][] {{{rows}}});")
+        java += [
+            f"        return new JobBuilder({_jstr(j.spring)}, jobRepository)",
+            "                .listener(steps.abends())",
+        ]
         for i, st in enumerate(j.steps):
             verb = ".start" if i == 0 else ".next"
             java.append(f"                {verb}(new StepBuilder({_jstr(st.name)}, jobRepository)")

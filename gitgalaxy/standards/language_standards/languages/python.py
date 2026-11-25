@@ -497,7 +497,10 @@ DEFINITION: dict[str, Any] = {
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
-            r"\b(?<!def )(close|__exit__|del|shutdown|cleanup)\b\s*\("
+            r"\b(?<!def )(close|__exit__|shutdown|cleanup|rmtree|unlink|rmdir|removedirs|remove)\b\s*\("
+            # #8862 cleanup contract: also the openers of a guaranteed-teardown region (`with x:` / `with f(..)`,
+            # `finally:`) and the `del` statement, not only the call forms
+            r"|\bwith\s+[\w.]+\s*(?:\(|:|\bas\b)|\bfinally\s*:|\bdel\s+[\w.\[(]"
         ),  # #2888 C1: `def close(self):` declares (embedded_python twin)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Captures protected/private members via underscore convention.

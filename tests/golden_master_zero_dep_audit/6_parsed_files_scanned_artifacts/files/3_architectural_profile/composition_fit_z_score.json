@@ -4099,9 +4099,9 @@
       "swift/alamofire/Alamofire.podspec": -0.519,
       "swift/alamofire/Package.swift": -0.246,
       "swift/alamofire/ParameterEncoder.swift": 1.948,
-      "swift/alamofire/Request.swift": 0.685,
-      "swift/alamofire/Response.swift": 0.977,
-      "swift/alamofire/Session.swift": 0.581
+      "swift/alamofire/Request.swift": 0.616,
+      "swift/alamofire/Response.swift": 0.822,
+      "swift/alamofire/Session.swift": 0.475
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0

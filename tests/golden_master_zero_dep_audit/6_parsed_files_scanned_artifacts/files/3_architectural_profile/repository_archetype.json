@@ -4099,7 +4099,7 @@
       "swift/alamofire/Alamofire.podspec": "file_cluster_2",
       "swift/alamofire/Package.swift": "file_cluster_2",
       "swift/alamofire/ParameterEncoder.swift": "file_cluster_15",
-      "swift/alamofire/Request.swift": "file_cluster_15",
+      "swift/alamofire/Request.swift": "file_cluster_10",
       "swift/alamofire/Response.swift": "file_cluster_0",
       "swift/alamofire/Session.swift": "file_cluster_0"
     },

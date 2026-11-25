@@ -417,13 +417,13 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 2.022,
-      "c/cpython/ceval.c": 0.303,
+      "c/cpython/ceval.c": 0.322,
       "c/cpython/compile.c": 0.058,
-      "c/cpython/dictobject.c": 0.285,
+      "c/cpython/dictobject.c": 0.315,
       "c/cpython/frameobject.c": 0.209,
       "c/cpython/gc.c": -0.687,
       "c/cpython/object.c": 0.482,
-      "c/cpython/typeobject.c": 0.155
+      "c/cpython/typeobject.c": 0.167
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -1060,7 +1060,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
       "cobol/gnucobol_internals/codegen.c": 0.424,
-      "cobol/gnucobol_internals/fileio.c": 1.082,
+      "cobol/gnucobol_internals/fileio.c": 1.038,
       "cobol/gnucobol_internals/numeric.c": -0.193,
       "cobol/gnucobol_internals/parser.y": 2.816,
       "cobol/gnucobol_internals/scanner.l": 2.331,
@@ -1291,13 +1291,13 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 0.057,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0.404,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 2.411,
       "dockerfile/moby/builder/dockerfile/builder.go": 0.188,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1.451,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.582,
-      "dockerfile/moby/builder/dockerfile/copy.go": -0.524,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.747,
+      "dockerfile/moby/builder/dockerfile/copy.go": -0.182,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 3.037,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.485,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 1.371,
@@ -1307,28 +1307,28 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": -0.731,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0.179,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 3.239,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": 0.691,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": -0.611,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 2.63,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 0.344,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 0.514,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.532,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": -0.25,
-      "dockerfile/moby/builder/dockerfile/internals.go": 0.763,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.796,
+      "dockerfile/moby/builder/dockerfile/internals.go": 0.41,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": -0.293,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 3.019,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 1.152,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 2.247,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
       "dockerfile/moby/builder/dockerfile/metrics.go": 2.903,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.438,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 2.546,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 1.892
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -0.858,
+      "dockerfile/moby/builder/remotecontext/archive.go": -0.054,
       "dockerfile/moby/builder/remotecontext/detect.go": 0.103,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 1.708,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 0.411,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 0.685,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 1.654,
       "dockerfile/moby/builder/remotecontext/git.go": 1.817,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": -0.2,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 0.772,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 2.55,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0.126,
       "dockerfile/moby/builder/remotecontext/remote.go": -0.021,
@@ -1337,20 +1337,20 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": 2.077
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -0.65,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -0.056,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 1.078
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.542,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": -0.222,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 1.595,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.022,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0.099,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.931,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.678,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.42,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0.1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": -0.193,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.436,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.103,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.402
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": -0.097
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2.863,
@@ -1512,24 +1512,24 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": -0.012,
-      "go/core/mgc.go": 1.593,
-      "go/core/mutex.go": 0.048,
-      "go/core/proc.go": 0.308,
-      "go/core/server.go": 0.889,
-      "go/core/syscall_linux.go": 0.575,
-      "go/core/value.go": 0.259
+      "go/core/mgc.go": 1.681,
+      "go/core/mutex.go": 0.238,
+      "go/core/proc.go": 0.499,
+      "go/core/server.go": -0.098,
+      "go/core/syscall_linux.go": 0.542,
+      "go/core/value.go": -0.337
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 1.058
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -0.964,
-      "go/kubernetes/generic.go": 1.283,
-      "go/kubernetes/kubelet.go": 0.382,
+      "go/kubernetes/csi_plugin.go": -0.384,
+      "go/kubernetes/generic.go": -0.74,
+      "go/kubernetes/kubelet.go": -0.648,
       "go/kubernetes/options.go": 1.292,
-      "go/kubernetes/proxier.go": 0.68,
-      "go/kubernetes/replica_set.go": 0.096,
-      "go/kubernetes/scheduler.go": -0.182
+      "go/kubernetes/proxier.go": 0.341,
+      "go/kubernetes/replica_set.go": 0.072,
+      "go/kubernetes/scheduler.go": 0.034
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 1.569
@@ -3558,11 +3558,11 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
-      "rust/bevy/bevy_ecs_macros.rs": 1.955,
-      "rust/bevy/bevy_ecs_query.rs": 0.597,
-      "rust/bevy/bevy_ecs_table.rs": 0.625,
-      "rust/bevy/bevy_ecs_world.rs": 1.182,
-      "rust/bevy/bevy_reflect_path.rs": 0.562,
+      "rust/bevy/bevy_ecs_macros.rs": 1.953,
+      "rust/bevy/bevy_ecs_query.rs": 0.558,
+      "rust/bevy/bevy_ecs_table.rs": 0.63,
+      "rust/bevy/bevy_ecs_world.rs": 1.18,
+      "rust/bevy/bevy_reflect_path.rs": 1.596,
       "rust/bevy/bevy_render_phase.rs": 1.022,
       "rust/bevy/bevy_schedule_graph.rs": 0.817
     },
@@ -3577,8 +3577,8 @@
       "rust/holylang/compile.rs": -0.327,
       "rust/holylang/error.rs": -0.185,
       "rust/holylang/main.rs": 0.919,
-      "rust/holylang/parser.rs": -0.572,
-      "rust/holylang/semantic.rs": 0.452,
+      "rust/holylang/parser.rs": 0.198,
+      "rust/holylang/semantic.rs": 0.445,
       "rust/holylang/transpiler.rs": 0.531
     },
     "rust/serde": {
@@ -3587,18 +3587,18 @@
       "rust/serde/serde_core_de_impls.rs": 0.937,
       "rust/serde/serde_core_de_mod.rs": 0.312,
       "rust/serde/serde_core_macros.rs": 0.049,
-      "rust/serde/serde_derive_de.rs": -0.243,
-      "rust/serde/serde_internals_ast.rs": -0.245,
-      "rust/serde/serde_internals_attr.rs": 0.108,
+      "rust/serde/serde_derive_de.rs": -0.479,
+      "rust/serde/serde_internals_ast.rs": -0.273,
+      "rust/serde/serde_internals_attr.rs": 0.327,
       "rust/serde/test_annotations.rs": 2.296
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0.0,
       "rust/syn/bigint.rs": 1.293,
-      "rust/syn/buffer.rs": 0.076,
+      "rust/syn/buffer.rs": 0.372,
       "rust/syn/classify.rs": 0.385,
       "rust/syn/custom_keyword.rs": 1.876,
-      "rust/syn/custom_punctuation.rs": 1.47,
+      "rust/syn/custom_punctuation.rs": 1.463,
       "rust/syn/data.rs": 0.65,
       "rust/syn/derive.rs": 0.82
     },
@@ -3606,26 +3606,26 @@
       "rust/tokio/addr_of.rs": -0.537,
       "rust/tokio/block_on.rs": -0.4,
       "rust/tokio/blocking.rs": 1.028,
-      "rust/tokio/builder.rs": 2.015,
+      "rust/tokio/builder.rs": 2.085,
       "rust/tokio/config.rs": -0.176,
       "rust/tokio/fuzz.rs": 0.0,
-      "rust/tokio/interval.rs": 2.072,
+      "rust/tokio/interval.rs": 1.035,
       "rust/tokio/lib.rs": 0.382,
       "rust/tokio/maybe_done.rs": -0.521,
-      "rust/tokio/tests.rs": -0.595,
-      "rust/tokio/tokio_mpsc_bounded.rs": 1.901,
-      "rust/tokio/tokio_named_pipe.rs": 1.573,
-      "rust/tokio/tokio_udp.rs": 1.738
+      "rust/tokio/tests.rs": 0.714,
+      "rust/tokio/tokio_mpsc_bounded.rs": 1.728,
+      "rust/tokio/tokio_named_pipe.rs": 1.463,
+      "rust/tokio/tokio_udp.rs": 2.356
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": -1.093
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": -0.607,
-      "rust/wasmtime/wasmtime_instance.rs": 1.049,
+      "rust/wasmtime/wasmtime_instance.rs": 1.004,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 0.957,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 0.296,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 0.599
+      "rust/wasmtime/wasmtime_isle_parser.rs": 0.262,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 0.55
     },
     "scala": {
       "scala/SOURCES.md": 0.0
@@ -4271,7 +4271,7 @@
       "typescript/vscode/ipc.ts": -0.664,
       "typescript/vscode/lifecycle.ts": -0.839,
       "typescript/vscode/package.json": 0.0,
-      "typescript/vscode/vscode.d.ts": 0.938
+      "typescript/vscode/vscode.d.ts": 0.946
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0.0,

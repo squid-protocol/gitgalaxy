@@ -21621,7 +21621,7 @@
         "io@832": 0,
         "new@200": 0,
         "new@230": 0,
-        "new@251": 10,
+        "new@251": 9,
         "new_request@828": 4,
         "raise_invalid_host@172": 1,
         "read_timeout=@283": 0,
@@ -21653,7 +21653,7 @@
         "keep_alive?@48": 0,
         "mandatory_body?@86": 2,
         "mime_type@65": 0,
-        "new@25": 4,
+        "new@25": 2,
         "status_code@57": 0,
         "success?@38": 0,
         "supports_chunked?@90": 1,
@@ -21661,28 +21661,28 @@
       },
       "crystal/crystal_stdlib_http/common.cr": {
         "check_content_type_charset@148": 1,
-        "content_length@333": 2,
-        "dequote_string@418": 0,
+        "content_length@333": 3,
+        "dequote_string@418": 1,
         "expect_continue?@372": 1,
         "format_time@405": 0,
         "header_name@260": 1,
-        "keep_alive?@355": 0,
+        "keep_alive?@355": 4,
         "parse_header@164": 0,
-        "parse_header@169": 1,
-        "parse_headers_and_body@29": 0,
-        "parse_time@387": 0,
-        "quote_string@448": 0,
+        "parse_header@169": 2,
+        "parse_headers_and_body@29": 2,
+        "parse_time@387": 2,
+        "quote_string@448": 2,
         "quote_string@473": 0,
         "read_header_line@102": 1,
         "serialize_chunked_body@321": 1,
         "serialize_headers@316": 0,
-        "serialize_headers_and_body@271": 0,
+        "serialize_headers_and_body@271": 2,
         "serialize_headers_and_string_body@308": 1,
-        "valid_token?@543": 1,
-        "validate_content_length@348": 0,
-        "validate_resource@566": 0,
-        "validate_token@548": 0,
-        "validate_version@557": 0
+        "valid_token?@543": 2,
+        "validate_content_length@348": 1,
+        "validate_resource@566": 1,
+        "validate_token@548": 3,
+        "validate_version@557": 3
       },
       "crystal/crystal_stdlib_http/content.cr": {
         "close@11": 0,
@@ -21772,10 +21772,10 @@
       },
       "crystal/crystal_stdlib_http/formdata.cr": {
         "build@189": 0,
-        "build@215": 0,
-        "parse@118": 0,
+        "build@215": 2,
+        "parse@118": 1,
         "parse@95": 0,
-        "parse_content_disposition@133": 0
+        "parse_content_disposition@133": 1
       },
       "crystal/crystal_stdlib_http/formdata_builder.cr": {
         "content_type@38": 0,
@@ -21871,9 +21871,9 @@
         "if_none_match@406": 0,
         "ignore_body?@129": 0,
         "initialize@70": 0,
-        "keep_alive?@125": 1,
+        "keep_alive?@125": 0,
         "method=@78": 0,
-        "new@65": 19,
+        "new@65": 22,
         "parse_etags@410": 2,
         "parse_request_line@195": 0,
         "parse_request_line@231": 0,
@@ -21920,14 +21920,14 @@
         "max_request_line_size=@178": 0,
         "max_request_line_size@173": 1,
         "new@145": 0,
-        "new@151": 7,
+        "new@151": 8,
         "new@156": 0
       },
       "crystal/crystal_stdlib_http/server_context.cr": {
         "initialize@41": 0
       },
       "crystal/crystal_stdlib_http/server_handler.cr": {
-        "call_next@28": 4
+        "call_next@28": 0
       },
       "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": {
         "call@13": 0,
@@ -21948,7 +21948,7 @@
         "run@39": 0,
         "setup_404@121": 0,
         "setup_trap_signal@129": 0,
-        "stop@94": 0,
+        "stop@94": 1,
         "wait_for_in_flight_requests@107": 0
       },
       "crystal/kemal_framework/kemal_cli.cr": {
@@ -21964,7 +21964,7 @@
         "add_handler@177": 0,
         "add_handler@181": 0,
         "clear@144": 0,
-        "config@277": 0,
+        "config@277": 17,
         "config@281": 0,
         "error_handlers@190": 0,
         "exception_handlers@200": 0,
@@ -22074,7 +22074,7 @@
         "unrouted_filters@202": 1
       },
       "crystal/kemal_framework/kemal_handler.cr": {
-        "__add_handler_routes@77": 0,
+        "__add_handler_routes@77": 2,
         "call@94": 0,
         "exclude@72": 0,
         "exclude_match?@136": 0,
@@ -22083,7 +22083,7 @@
         "matches_verb?@167": 1,
         "only@59": 0,
         "only_match?@115": 0,
-        "radix_method@43": 0,
+        "radix_method@43": 1,
         "radix_path@179": 2
       }
     },

@@ -1328,12 +1328,13 @@
     "crystal/crystal_stdlib_http": {
       "crystal/crystal_stdlib_http/client.cr": [
         "fcall:crystal/crystal_stdlib_http/client_response.cr",
+        "fcall:crystal/crystal_stdlib_http/request.cr",
         "import:crystal/crystal_stdlib_http/common.cr",
         "import:nim/nim_stdlib/base64.nim"
       ],
       "crystal/crystal_stdlib_http/client_response.cr": [
-        "fcall:crystal/crystal_stdlib_http/cookies.cr",
-        "fcall:crystal/crystal_stdlib_http/request.cr"
+        "fcall:crystal/crystal_stdlib_http/common.cr",
+        "fcall:crystal/crystal_stdlib_http/cookies.cr"
       ],
       "crystal/crystal_stdlib_http/common.cr": [
         "fcall:crystal/crystal_stdlib_http/client_response.cr",
@@ -1353,6 +1354,15 @@
       "crystal/crystal_stdlib_http/cookies.cr": [
         "import:crystal/crystal_stdlib_http/cookie.cr"
       ],
+      "crystal/crystal_stdlib_http/formdata.cr": [
+        "fcall:crystal/crystal_stdlib_http/common.cr"
+      ],
+      "crystal/crystal_stdlib_http/formdata_builder.cr": [
+        "fcall:crystal/crystal_stdlib_http/common.cr"
+      ],
+      "crystal/crystal_stdlib_http/formdata_part.cr": [
+        "fcall:crystal/crystal_stdlib_http/formdata.cr"
+      ],
       "crystal/crystal_stdlib_http/headers.cr": [
         "import:crystal/crystal_stdlib_http/common.cr"
       ],
@@ -1367,28 +1377,28 @@
       ],
       "crystal/crystal_stdlib_http/server_context.cr": [
         "import:crystal/crystal_stdlib_http/request.cr"
-      ],
-      "crystal/crystal_stdlib_http/server_handlers_compress_handler.cr": [
-        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
       ]
     },
     "crystal/kemal_framework": {
       "crystal/kemal_framework/kemal.cr": [
+        "fcall:crystal/crystal_stdlib_http/server.cr",
+        "fcall:crystal/kemal_framework/kemal_config.cr",
         "fcall:crystal/kemal_framework/kemal_dsl.cr",
         "import:python/twisted/http.py"
       ],
+      "crystal/kemal_framework/kemal_cli.cr": [
+        "fcall:crystal/kemal_framework/kemal_config.cr"
+      ],
       "crystal/kemal_framework/kemal_dsl.cr": [
-        "fcall:crystal/crystal_stdlib_http/client_response.cr",
+        "fcall:crystal/crystal_stdlib_http/request.cr",
+        "fcall:crystal/kemal_framework/kemal_config.cr",
         "fcall:crystal/kemal_framework/kemal_event_stream.cr"
       ],
       "crystal/kemal_framework/kemal_exception_handler.cr": [
-        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+        "fcall:crystal/kemal_framework/kemal_config.cr"
       ],
       "crystal/kemal_framework/kemal_filter_handler.cr": [
-        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
-      ],
-      "crystal/kemal_framework/kemal_handler.cr": [
-        "fcall:crystal/crystal_stdlib_http/server_handler.cr"
+        "fcall:crystal/kemal_framework/kemal_config.cr"
       ]
     },
     "csd/carddemo": {

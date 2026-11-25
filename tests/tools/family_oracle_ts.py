@@ -210,7 +210,7 @@ SPECS: dict[str, Spec] = {
                 "unimplemented!",
                 "process::exit",
                 "std::process::exit",
-                "exit",
+                # no bare "exit": `span.exit()` / `guard.exit()` method calls are not a process exit (#8868)
             ),
         },
     ),
@@ -374,11 +374,10 @@ SPECS: dict[str, Spec] = {
                 "fopen",
                 "fread",
                 "fwrite",
-                "fclose",
+                # no fclose / close: closing a handle is cleanup's (contract), as the C rule says (#8868)
                 "open",
                 "read",
                 "write",
-                "close",
                 "socket",
                 "send",
                 "recv",

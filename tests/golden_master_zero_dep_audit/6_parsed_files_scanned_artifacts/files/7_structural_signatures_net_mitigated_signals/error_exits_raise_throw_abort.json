@@ -417,13 +417,13 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 12,
-      "c/cpython/ceval.c": 33,
-      "c/cpython/compile.c": 4,
-      "c/cpython/dictobject.c": 79,
-      "c/cpython/frameobject.c": 33,
-      "c/cpython/gc.c": 2,
-      "c/cpython/object.c": 35,
-      "c/cpython/typeobject.c": 258
+      "c/cpython/ceval.c": 2,
+      "c/cpython/compile.c": 2,
+      "c/cpython/dictobject.c": 2,
+      "c/cpython/frameobject.c": 0,
+      "c/cpython/gc.c": 0,
+      "c/cpython/object.c": 0,
+      "c/cpython/typeobject.c": 0
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
@@ -437,7 +437,7 @@
       "c/doom/p_mobj.h": 0,
       "c/doom/r_bsp.c": 0,
       "c/doom/r_defs.h": 0,
-      "c/doom/w_wad.c": 1,
+      "c/doom/w_wad.c": 0,
       "c/doom/z_zone.c": 0
     },
     "c/freebsd_openpam": {
@@ -460,7 +460,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 28,
+      "c/sqlite/lemon.c": 27,
       "c/sqlite/parse.y": 0
     },
     "cobol": {
@@ -1059,9 +1059,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 5,
-      "cobol/gnucobol_internals/fileio.c": 40,
-      "cobol/gnucobol_internals/numeric.c": 2,
+      "cobol/gnucobol_internals/codegen.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 4,
+      "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 3,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0
@@ -3412,7 +3412,7 @@
       "python/numpy/generate_ufunc_api.py": 0,
       "python/numpy/generate_umath.py": 5,
       "python/numpy/generate_umath_doc.py": 0,
-      "python/numpy/lapack_litemodule.c": 2,
+      "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 17,
       "python/numpy/testutils.py": 9,

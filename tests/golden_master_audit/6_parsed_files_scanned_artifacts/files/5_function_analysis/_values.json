@@ -344228,7 +344228,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 282,
           "Structural Impact": 3.0
         },
@@ -344626,7 +344626,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 368,
           "Structural Impact": 8.0
         },
@@ -344640,7 +344640,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 389,
           "Structural Impact": 8.0
         },
@@ -344682,7 +344682,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 353,
           "Structural Impact": 4.6
         },
@@ -344766,7 +344766,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 311,
           "Structural Impact": 1.3
         }
@@ -345960,7 +345960,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 104,
           "Structural Impact": 8.5
         },
@@ -346002,7 +346002,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 162,
           "Structural Impact": 1.3
         }
@@ -346032,7 +346032,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 126,
           "Structural Impact": 23.3
         },
@@ -346088,7 +346088,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 47,
           "Structural Impact": 10.9
         },
@@ -346246,7 +346246,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 40,
           "Structural Impact": 9.5
         },
@@ -346630,7 +346630,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 43,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 205,
           "Structural Impact": 18.1
         },
@@ -346658,7 +346658,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 110,
           "Structural Impact": 10.9
         },
@@ -346672,7 +346672,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 51,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 141,
           "Structural Impact": 8.6
         },
@@ -346700,7 +346700,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 261,
           "Structural Impact": 5.0
         },
@@ -346728,7 +346728,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 296,
           "Structural Impact": 1.4
         },
@@ -346742,7 +346742,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 315,
           "Structural Impact": 1.4
         }

@@ -31,8 +31,12 @@ definition; the maintainer can overrule it by editing the sentence):
 2. **`concurrency` and `sync_locks` are separate keys** (`how_to_add_a_language.md` rule 8): starting
    or awaiting work is `concurrency`; a lock, mutex, semaphore or atomic operation is `sync_locks`.
    An atomic *store* is `sync_locks`; spawning the task that performs it is `concurrency`.
-3. **Left open, not decided here:** whether `assert` is an abort (`panics_and_aborts`, #8868) and
-   what `doc` means in a language without `/** */` (a planted row, so it needs the family audit).
+3. **Ruled by the owner (2026-11-24, comment on #8862):**
+   - **`assert` is not an abort** for `panics_and_aborts`: it is a check, not a statement that ends the execution context.
+     A language rule that counts it (Lua) is a rule bug; if assertions are wanted they become their own family.
+   - **`doc` is the structured form each language's tools read** (docstring, `///`, `/** */`, a Go declaration comment).
+     A language with no such form is N/A for `doc`, never "any comment"; TS/JS counting any comment is a rule bug.
+     Both fixes are tracked under #8863 and are not made here.
 
 ## What was measured
 

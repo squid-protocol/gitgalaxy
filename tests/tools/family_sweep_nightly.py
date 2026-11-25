@@ -106,7 +106,10 @@ def own_crucible(root: Path) -> Path:
             or crucible_pins.primary_checkout().parent / "language-crucible"
         )
         dest.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "clone", "-q", str(primary), str(dest)], check=True)  # noqa: S603,S607
+        # clone from the primary's own remote, not the local path: a local clone sees the pinned commit as "no remote has it"
+        # and `crucible_pins.py sync` refuses it
+        url = git("remote", "get-url", "origin", cwd=primary, check=False) or str(primary)
+        subprocess.run(["git", "clone", "-q", url, str(dest)], check=True)  # noqa: S603,S607
     env = {**os.environ, "LANGUAGE_CRUCIBLE_PATH": str(dest)}
     subprocess.run([sys.executable, str(TOOLS / "crucible_pins.py"), "sync", "language"], check=True, env=env)  # noqa: S603
     return dest

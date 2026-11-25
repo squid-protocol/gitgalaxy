@@ -46,7 +46,8 @@ those that carry a rule (the rest record `None`, a contract-level absence).
 | signal | language | what the rule counts | reads the sentence? |
 |---|---|---|---|
 | `dead_code` | assembly | `// MOV X1,` matched in the code stream (8 of 13 hits) | no: the sentence reads the comment surface |
-| `dead_code` | assembly, dockerfile, css | prose comments (`# add NUL terminator (again)`, `# from the ... repo`, `/*.run + * {`) | no: prose, not code |
+| `dead_code` | assembly, css | prose comments (`# add NUL terminator (again)`, `/*.run + * {`) | no: prose, not code; listed, not fixed |
+| `dead_code` | dockerfile | prose led by an instruction word (`# from the ... repo`, `# Copy the sources`, `#  run one of ...`, `# FROM statement is updated`) | no: prose -- fixed: the keyword is uppercase and takes an operand, `FROM` must end after `image [AS name]`; crucible hits 5 -> 1 (`tests/extraction/languages/test_dockerfile_dead_code_shape_8862.py`) |
 | `dead_code` | bms | `*FLDDEAD DFHMDF ...` a map label line | design question: a commented-out macro line, but the label is a name |
 | `spec_exposure` | c, go, elixir | `[SPECIAL___ENTER__] = {`, `[Spec=%v, ...]` in a log string, `[spec, return]` a list pattern, all in the code stream | no: not a comment tag -- fixed: the keyword must be a whole word not followed by `,` or `=`; crucible hits 4/1/3 -> 0 (`tests/extraction/test_spec_exposure_code_stream.py`). matlab (`[specdata;[real(tmp) imag(tmp)]]` in `runica.m`, 1 hit) and objective-c (`[spec ...]` is a message send) carry the same guard, crucible matlab 1 -> 0. Every other language carries the same unguarded regex with 0 measured hits (crucible and rosetta): listed, not yet guarded |
 | `spec_exposure` | objective-c | `WorldWideWeb` inside a `NXGetDefaultValue("WorldWideWeb", ...)` string (4 code-stream hits) | design question: a deliberate product-name alternation pinned by `test_language_standards_strict.py`, not a tag; left as is |

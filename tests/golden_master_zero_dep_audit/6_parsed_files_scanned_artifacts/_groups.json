@@ -3616,7 +3616,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
         "Cognitive Load Exposure": "17.84%",
-        "Commented Logic Exposure": "4.19%",
+        "Commented Logic Exposure": "1.36%",
         "Concurrency Exposure": "3.42%",
         "Documentation Exposure": "99.77%",
         "Error & Exception Exposure": "12.42%",

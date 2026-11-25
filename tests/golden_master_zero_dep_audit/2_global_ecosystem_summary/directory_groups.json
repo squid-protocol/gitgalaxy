@@ -1796,7 +1796,7 @@
         "churn": 0.0,
         "cognitive_load": 17.84,
         "concurrency": 3.42,
-        "dead_code": 4.19,
+        "dead_code": 1.36,
         "documentation": 99.77,
         "safety_score": 12.42,
         "secrets_risk": 0.0,

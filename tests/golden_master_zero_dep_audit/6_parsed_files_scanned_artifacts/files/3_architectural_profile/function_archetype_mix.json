@@ -5142,9 +5142,9 @@
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 59,
         "Interface Declarations": 30,
-        "Many-Argument Workhorses": 21,
+        "Many-Argument Workhorses": 22,
         "Parameter Forwarders": 9,
-        "State Mutators": 73,
+        "State Mutators": 72,
         "Type Conversions": 18
       },
       "go/core/server.go": {
@@ -5170,13 +5170,13 @@
         "Type Conversions": 23
       },
       "go/core/value.go": {
-        "Compute Cores": 35,
+        "Compute Cores": 37,
         "Generic / Templated Code": 9,
-        "I/O & Config Routines": 12,
-        "Interface Declarations": 33,
+        "I/O & Config Routines": 14,
+        "Interface Declarations": 32,
         "Many-Argument Workhorses": 9,
-        "Parameter Forwarders": 25,
-        "State Mutators": 44,
+        "Parameter Forwarders": 24,
+        "State Mutators": 42,
         "Type Conversions": 25
       }
     },

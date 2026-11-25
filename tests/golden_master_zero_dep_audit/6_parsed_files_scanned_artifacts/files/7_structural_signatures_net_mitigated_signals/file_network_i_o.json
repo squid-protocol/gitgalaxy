@@ -1291,14 +1291,14 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 1,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 0,
-      "dockerfile/moby/builder/dockerfile/builder.go": 4,
+      "dockerfile/moby/builder/dockerfile/builder.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 2,
-      "dockerfile/moby/builder/dockerfile/copy.go": 14,
-      "dockerfile/moby/builder/dockerfile/copy_test.go": 2,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy.go": 10,
+      "dockerfile/moby/builder/dockerfile/copy_test.go": 1,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 1,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
@@ -1319,38 +1319,38 @@
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 0,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 3,
-      "dockerfile/moby/builder/remotecontext/detect.go": 4,
+      "dockerfile/moby/builder/remotecontext/archive.go": 2,
+      "dockerfile/moby/builder/remotecontext/detect.go": 3,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 2,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0,
       "dockerfile/moby/builder/remotecontext/git.go": 1,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 2,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 4,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 2,
+      "dockerfile/moby/builder/remotecontext/remote.go": 2,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 8,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 4,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 5,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 13
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 4,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 10
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 4,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 8,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 19,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 18,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 0,
@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 31,
+      "go/core/server.go": 8,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },

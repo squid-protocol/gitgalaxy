@@ -1291,14 +1291,14 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 4.991,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 4.974,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 6.624,
-      "dockerfile/moby/builder/dockerfile/builder.go": 6.444,
+      "dockerfile/moby/builder/dockerfile/builder.go": 6.434,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 5.978,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 6.182,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 6.071,
-      "dockerfile/moby/builder/dockerfile/copy.go": 5.566,
-      "dockerfile/moby/builder/dockerfile/copy_test.go": 4.836,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 6.041,
+      "dockerfile/moby/builder/dockerfile/copy.go": 5.514,
+      "dockerfile/moby/builder/dockerfile/copy_test.go": 4.799,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 5.892,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.667,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 7.106,
@@ -1319,38 +1319,38 @@
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 6.737,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 5.281,
       "dockerfile/moby/builder/dockerfile/metrics.go": 6.022,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 4.724,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 4.701,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 6.92
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 6.352,
-      "dockerfile/moby/builder/remotecontext/detect.go": 7.463,
+      "dockerfile/moby/builder/remotecontext/archive.go": 6.297,
+      "dockerfile/moby/builder/remotecontext/detect.go": 7.436,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 5.983,
       "dockerfile/moby/builder/remotecontext/filehash.go": 6.421,
       "dockerfile/moby/builder/remotecontext/git.go": 6.699,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 6.794,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 7.101,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 6.862,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 6.596,
-      "dockerfile/moby/builder/remotecontext/remote.go": 7.687,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 6.193,
+      "dockerfile/moby/builder/remotecontext/remote.go": 7.611,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 6.329,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 6.451,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 6.865
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 6.718,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 7.204
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 6.696,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 7.164
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 5.605,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 6.918,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 5.446,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.588,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.014,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 6.914,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.462,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 5.357,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.455,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 5.34,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 5.139,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 4.444
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 4.07
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5.123,
@@ -1514,22 +1514,22 @@
       "go/core/main.go": 8.494,
       "go/core/mgc.go": 6.605,
       "go/core/mutex.go": 6.278,
-      "go/core/proc.go": 7.331,
-      "go/core/server.go": 8.313,
+      "go/core/proc.go": 7.327,
+      "go/core/server.go": 8.268,
       "go/core/syscall_linux.go": 6.631,
-      "go/core/value.go": 7.778
+      "go/core/value.go": 7.777
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 6.814
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 5.85,
+      "go/kubernetes/csi_plugin.go": 5.846,
       "go/kubernetes/generic.go": 6.936,
       "go/kubernetes/kubelet.go": 6.481,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 6.803,
-      "go/kubernetes/replica_set.go": 6.146,
-      "go/kubernetes/scheduler.go": 7.054
+      "go/kubernetes/proxier.go": 6.77,
+      "go/kubernetes/replica_set.go": 6.133,
+      "go/kubernetes/scheduler.go": 7.018
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 6.577

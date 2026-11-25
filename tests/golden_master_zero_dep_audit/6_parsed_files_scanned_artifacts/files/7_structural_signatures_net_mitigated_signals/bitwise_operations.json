@@ -1297,10 +1297,10 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 0,
-      "dockerfile/moby/builder/dockerfile/copy.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy.go": 2,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 0,
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 1,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
@@ -1326,12 +1326,12 @@
       "dockerfile/moby/builder/remotecontext/archive.go": 0,
       "dockerfile/moby/builder/remotecontext/detect.go": 0,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 0,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 1,
       "dockerfile/moby/builder/remotecontext/git.go": 0,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 0,
+      "dockerfile/moby/builder/remotecontext/remote.go": 4,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 0
@@ -1511,25 +1511,25 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 1,
-      "go/core/mgc.go": 13,
+      "go/core/main.go": 3,
+      "go/core/mgc.go": 14,
       "go/core/mutex.go": 0,
-      "go/core/proc.go": 15,
-      "go/core/server.go": 9,
-      "go/core/syscall_linux.go": 14,
-      "go/core/value.go": 20
+      "go/core/proc.go": 34,
+      "go/core/server.go": 11,
+      "go/core/syscall_linux.go": 42,
+      "go/core/value.go": 153
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 22
+      "go/go_runtime_rand/rand.go": 31
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 1,
       "go/kubernetes/generic.go": 0,
       "go/kubernetes/kubelet.go": 0,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 1,
+      "go/kubernetes/proxier.go": 9,
       "go/kubernetes/replica_set.go": 0,
-      "go/kubernetes/scheduler.go": 0
+      "go/kubernetes/scheduler.go": 3
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0

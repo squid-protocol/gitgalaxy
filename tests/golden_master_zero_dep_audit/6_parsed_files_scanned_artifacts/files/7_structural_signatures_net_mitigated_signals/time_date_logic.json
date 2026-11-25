@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 21,
+      "go/core/server.go": 8,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -1523,13 +1523,13 @@
       "go/go_runtime_rand/rand.go": 0
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 2,
+      "go/kubernetes/csi_plugin.go": 0,
       "go/kubernetes/generic.go": 0,
       "go/kubernetes/kubelet.go": 1,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 14,
-      "go/kubernetes/replica_set.go": 6,
-      "go/kubernetes/scheduler.go": 6
+      "go/kubernetes/proxier.go": 2,
+      "go/kubernetes/replica_set.go": 4,
+      "go/kubernetes/scheduler.go": 2
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0

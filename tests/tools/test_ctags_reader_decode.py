@@ -3,7 +3,7 @@
 ctags can cut a field (the signature, the verbatim pattern) in the middle of a multi-byte UTF-8 character, so its
 stdout is not always valid UTF-8 even when the source file is. The crucible v1.9.0 candidate (new Kotlin sources) made
 `tri_comparison_chart.py --all --write` die with `UnicodeDecodeError: 'utf-8' codec can't decode byte 0xbb` from
-`subprocess.run(..., text=True)`. `read_ctags_symbols` now decodes with errors="replace".
+`subprocess.run(..., text=True)`. `read_ctags_symbols` now decodes through `gitgalaxy.core.source_text.decode_bytes` (#3813: no lossy errors= handler).
 
 Not an integration test: the real `subprocess.run` is kept (so the decoding settings are what is under test) but the
 command it runs is replaced by a python one-liner that prints a lone continuation byte, so no ctags binary is needed.

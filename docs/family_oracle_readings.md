@@ -50,16 +50,16 @@ A language whose spec lists a family in `skip_families` has no oracle for it. Si
 |---|---|---|---|
 | `branch` | decision points: if/else arms, loops, case/default arms, conditional expressions (not && and //: those are short_circuit's, corollary 0; not catch handlers, goto, return or break: contract corollaries 1 and 3) | realigned | Boolean operators moved to `short_circuit` (branch corollary 0, #8939) by the slice-1 change (#9256). Cells in `tests/family_validity_baseline.json` predate it (see below). |
 | `short_circuit` | boolean operators whose right operand is evaluated only when the left does not decide: && // and or | added | New tree-sitter family, as the Python oracle's since #9252: `&&`, `||`, `and`, `or`. |
-| `args` | declared parameters | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `closures` | anonymous callables: function literals, lambdas, arrow functions, closures | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `decorators` | annotations, attributes or decorators on the function | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `args` | declared parameters | aligned | Restates the stated contract (`args`): the parameters a callable declares. C++ also counts the implicit parameters `_extra_params` adds. |
+| `closures` | anonymous callables: function literals, lambdas, arrow functions, closures | aligned | Restates the contract's anonymous callable (lambda, arrow function, block literal). A named nested function is a declaration, not a closure. C++ skips the family (`skip_families`): no oracle. |
+| `decorators` | annotations, attributes or decorators on the function | aligned | Restates the contract: a metadata attribute attached to the declaration it precedes (annotation, attribute, decorator); the oracle reads those preceding the function node, comments skipped. |
 | `panics_and_aborts` | throw / panic / unreachable marker / process exit | open question | Whether `assert` is an abort is an owner question (#8868, C precision 0.48). |
-| `bitwise_ops` | bitwise operators in operator position: << >> ^ & / ~ (and the compound assignments) | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `debug_prints` | ad-hoc debug output to the console | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `thread_sleeps` | sleeps and timed waits | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `regex_execution` | evaluates or builds a regular expression | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `time_date_logic` | instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
-| `io` | opens or reads/writes a file or a network connection | provisional | Not re-read for the contracts in this change; the sentence is the tree-sitter oracle's working reading. |
+| `bitwise_ops` | bitwise operators in operator position: << >> ^ & / ~ (and the compound assignments) | aligned | Same operators as the contract (shift, and, or, xor, complement) in operator position; the compound assignments (`<<=`, `&=`) are the oracle's addition, the contract names the operators only. C++ re-reads `std::cout <<` / `cin >>` chains as a stream write or read, not a shift (`CppOracle`). |
+| `debug_prints` | ad-hoc debug output to the console | open question (oracle owes a fix) | The contract excludes output addressed to a file or writer. The C and C++ callee lists count `fprintf`, `vfprintf`, `fputs`, `fputc` and `putc` by name whatever the stream, so a write to a file is read as a debug print: the oracle over-counts against the contract (an oracle fix, not an engine one; not made here). Go's `Fprintf` is excluded (#8868). |
+| `thread_sleeps` | sleeps and timed waits | aligned | Sleep calls and timed waits match the contract's sleep, timed wait and timeout-driven deferral; the per-language callee lists are the author's reading, a second reading of the contract and not independent proof. |
+| `regex_execution` | evaluates or builds a regular expression | aligned | Evaluating or constructing a regular expression matches the contract's match, substitution, split operator or constructor/compile call. C++ adds the `std::regex` constructor (`_CTOR_REGEX`). |
+| `time_date_logic` | instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting | aligned | Clock and calendar constructors, durations and formatting match the contract; callee lists per language are the author's reading. |
+| `io` | opens or reads/writes a file or a network connection | aligned | A file or network connection is a system outside the runtime, so the sentence restates the stated `io` contract for those; console output is `debug_prints`'s. C++ adds the `std::ifstream` / `ofstream` / `fstream` constructors and `cin >>`. |
 | `doc` | structured documentation directly above (/** */, ///, godoc) | open question | Which structured form counts in a language without `/** */` is an owner question (#8868). |
 
 Per-language readings that differ from the shared sentence:
@@ -70,6 +70,7 @@ Per-language readings that differ from the shared sentence:
 | Ruby | `\|\|=` and `&&=` count under `short_circuit`; `rescue` / `ensure` are handlers, not branches (corollary 1) | aligned |
 | Kotlin, Swift | conjunction and disjunction nodes count under `short_circuit` | aligned |
 | Scala | a `case` clause under a `catch` is a handler, not a decision (corollary 1) | aligned |
+| C++ | `std::cout <<` / `std::cerr <<` / `clog <<` chains count as one `debug_prints` (and no `bitwise_ops`); `cin >>` as one `io`; `catch` is a handler, not a branch (corollary 1); no `closures` oracle | aligned |
 | shell | `&&` / `\|\|` list chaining counts under `short_circuit` | aligned |
 
 The non-Python `branch` cells in `tests/family_validity_baseline.json` were measured before this realignment and there is no

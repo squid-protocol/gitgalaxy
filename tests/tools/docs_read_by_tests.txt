@@ -33,10 +33,12 @@
 /.test_durations	tests/tools/affected_tests.py,tests/tools/test_ci_critical_path_split.py,tests/tools/time_ratchet.py
 /.tools	tests/tools/preflight.py
 /.venv	tests/tools/box
+/A.B	tests/cobol_mainframe
 /A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe
 /BLLP.cbl	tests/core_engine
+/C.D	tests/cobol_mainframe
 /CATJOB.jcl	tests/cobol_mainframe
 /CMakeLists.txt	tests/core_engine
 /COPYBOOK.CPY	tests/cobol_mainframe

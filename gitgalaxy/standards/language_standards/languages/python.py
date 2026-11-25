@@ -402,7 +402,7 @@ DEFINITION: dict[str, Any] = {
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(
-            r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
+            r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|\b(?:getattr|setattr|inspect\.)\b"
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": PY_LLM_API,

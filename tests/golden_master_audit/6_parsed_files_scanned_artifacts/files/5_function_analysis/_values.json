@@ -526299,7 +526299,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 25,
-          "Reflection Hits": 1,
+          "Reflection Hits": 0,
           "Start Line": 8,
           "Structural Impact": 2.7
         },
@@ -539613,7 +539613,7 @@
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 36,
-          "Reflection Hits": 1,
+          "Reflection Hits": 0,
           "Start Line": 8,
           "Structural Impact": 2.8
         },

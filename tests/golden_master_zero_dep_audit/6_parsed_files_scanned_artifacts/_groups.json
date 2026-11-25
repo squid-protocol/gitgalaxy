@@ -2531,7 +2531,7 @@
     "cpp/NVDA": {
       "Average Risk Exposures": {
         "API Exposure": "15.68%",
-        "Cognitive Load Exposure": "36.05%",
+        "Cognitive Load Exposure": "35.9%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "5.31%",
         "Documentation Exposure": "29.19%",
@@ -3983,7 +3983,7 @@
     "fortran/wrf": {
       "Average Risk Exposures": {
         "API Exposure": "13.62%",
-        "Cognitive Load Exposure": "44.24%",
+        "Cognitive Load Exposure": "44.13%",
         "Commented Logic Exposure": "7.98%",
         "Concurrency Exposure": "3.06%",
         "Documentation Exposure": "76.91%",
@@ -9151,7 +9151,7 @@
     "python/airflow": {
       "Average Risk Exposures": {
         "API Exposure": "4.3%",
-        "Cognitive Load Exposure": "40.06%",
+        "Cognitive Load Exposure": "38.64%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "29.38%",
         "Documentation Exposure": "48.43%",
@@ -9181,7 +9181,7 @@
     "python/airflow_ai_providers": {
       "Average Risk Exposures": {
         "API Exposure": "6.98%",
-        "Cognitive Load Exposure": "25.55%",
+        "Cognitive Load Exposure": "23.81%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "3.14%",
         "Documentation Exposure": "48.58%",
@@ -9239,7 +9239,7 @@
     "python/cython": {
       "Average Risk Exposures": {
         "API Exposure": "31.41%",
-        "Cognitive Load Exposure": "26.49%",
+        "Cognitive Load Exposure": "25.92%",
         "Commented Logic Exposure": "0.88%",
         "Concurrency Exposure": "2.21%",
         "Documentation Exposure": "64.95%",
@@ -9273,7 +9273,7 @@
     "python/django_db_tests": {
       "Average Risk Exposures": {
         "API Exposure": "9.35%",
-        "Cognitive Load Exposure": "18.44%",
+        "Cognitive Load Exposure": "13.69%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "90.0%",
@@ -9326,7 +9326,7 @@
     "python/fastapi/fastapi": {
       "Average Risk Exposures": {
         "API Exposure": "24.94%",
-        "Cognitive Load Exposure": "14.01%",
+        "Cognitive Load Exposure": "13.48%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "18.74%",
         "Documentation Exposure": "58.56%",
@@ -9379,7 +9379,7 @@
     "python/fastapi/tests": {
       "Average Risk Exposures": {
         "API Exposure": "10.22%",
-        "Cognitive Load Exposure": "4.06%",
+        "Cognitive Load Exposure": "4.05%",
         "Commented Logic Exposure": "0.03%",
         "Concurrency Exposure": "22.49%",
         "Documentation Exposure": "96.74%",
@@ -9673,7 +9673,7 @@
     "python/langchain_agents": {
       "Average Risk Exposures": {
         "API Exposure": "7.19%",
-        "Cognitive Load Exposure": "57.02%",
+        "Cognitive Load Exposure": "56.63%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "99.97%",
         "Documentation Exposure": "100.0%",
@@ -9729,7 +9729,7 @@
     "python/numpy": {
       "Average Risk Exposures": {
         "API Exposure": "14.06%",
-        "Cognitive Load Exposure": "34.63%",
+        "Cognitive Load Exposure": "34.57%",
         "Commented Logic Exposure": "3.58%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "31.55%",
@@ -9946,7 +9946,7 @@
     "python/twisted": {
       "Average Risk Exposures": {
         "API Exposure": "15.77%",
-        "Cognitive Load Exposure": "42.66%",
+        "Cognitive Load Exposure": "42.39%",
         "Commented Logic Exposure": "1.23%",
         "Concurrency Exposure": "3.16%",
         "Documentation Exposure": "29.9%",

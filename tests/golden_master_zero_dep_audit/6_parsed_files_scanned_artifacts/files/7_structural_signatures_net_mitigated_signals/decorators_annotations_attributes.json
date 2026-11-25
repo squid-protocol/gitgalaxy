@@ -4095,13 +4095,13 @@
       "swift/SOURCES.md": 0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 3,
+      "swift/alamofire/AFError.swift": 1,
       "swift/alamofire/Alamofire.podspec": 0,
       "swift/alamofire/Package.swift": 0,
-      "swift/alamofire/ParameterEncoder.swift": 3,
-      "swift/alamofire/Request.swift": 54,
+      "swift/alamofire/ParameterEncoder.swift": 1,
+      "swift/alamofire/Request.swift": 29,
       "swift/alamofire/Response.swift": 0,
-      "swift/alamofire/Session.swift": 21
+      "swift/alamofire/Session.swift": 8
     },
     "tabular": {
       "tabular/SOURCES.md": 0

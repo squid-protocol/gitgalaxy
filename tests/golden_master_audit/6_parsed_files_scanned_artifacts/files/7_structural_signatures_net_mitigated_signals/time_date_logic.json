@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 23,
+      "go/core/server.go": 21,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },

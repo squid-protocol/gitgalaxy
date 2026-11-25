@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 6.614,
       "go/core/mutex.go": 6.026,
       "go/core/proc.go": 7.554,
-      "go/core/server.go": 9.012,
+      "go/core/server.go": 9.009,
       "go/core/syscall_linux.go": 6.922,
       "go/core/value.go": 8.239
     },

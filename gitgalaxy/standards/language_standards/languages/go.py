@@ -588,8 +588,9 @@ DEFINITION: dict[str, Any] = {
         # common time-related call never matched in any real usage.
         # #8868: the contract names a now/time/date constructor, duration arithmetic, a
         # formatting or timezone call: add time.Date / Unix / Until / ParseDuration / LoadLocation.
+        # #8868: time.Sleep is a timed wait (thread_sleeps), not a clock or calendar value
         "time_date_logic": re.compile(
-            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Sleep|time\.Since|time\.Until"
+            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Since|time\.Until"
             r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),

@@ -1,6 +1,8 @@
 """family_sweep_nightly: the diff, the PR body, and the stamp are what a nightly PR is built from (#8863)."""
 
+import argparse
 import datetime
+import sys
 from pathlib import Path
 
 import family_sweep_nightly as fsn
@@ -48,3 +50,10 @@ def test_stamp_is_per_sha_per_utc_day(tmp_path):
     s = fsn.stamp_file(tmp_path, "c" * 40)
     today = f"{datetime.datetime.now(datetime.UTC):%Y-%m-%d}"
     assert s == Path(tmp_path) / "family-sweep-nightly" / f"{today}-cccccccccccc.done"
+
+
+def test_windows_skips_before_any_subprocess(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setattr(fsn.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError("spawned")))
+    assert fsn.run(argparse.Namespace(root=None, force=True)) == 0
+    assert "skipped" in capsys.readouterr().out

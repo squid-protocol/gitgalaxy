@@ -116,9 +116,8 @@ def own_crucible(root: Path) -> Path:
 
 
 def run(args: argparse.Namespace) -> int:
-    # heavy-run.sh needs flock(1); the nightly is a Linux-box job (and a Windows `bash` is WSL)
-    if sys.platform != "linux":
-        print(f"skipped: the family sweep runs on the Linux box only, not {sys.platform}")
+    if sys.platform == "win32":  # heavy-run.sh is bash: on Windows that is the WSL launcher (#7312, #7619)
+        print("skipped: the family sweep runs on the Linux box (heavy-run.sh is bash)")
         return 0
     root = equivalence_env.scratch_root(args.root)
     verdict = census_nightly.box_verdict()

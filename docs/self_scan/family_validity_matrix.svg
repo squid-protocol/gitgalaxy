@@ -734,7 +734,7 @@
 <rect x="192" y="356" width="11" height="11" fill="#2f6aa8"><title>python / io: recall 0.88, precision 0.84 (72 oracle, 75 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="#1f3b5c"><title>csharp / io: recall 0.67, precision 0.55 (427 oracle, 514 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="url(#hatch)"/>
-<rect x="216" y="356" width="11" height="11" fill="#1f3b5c"><title>go / io: recall 1.00, precision 0.62 (46 oracle, 74 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="356" width="11" height="11" fill="#a9d1ff"><title>go / io: recall 1.00, precision 0.98 (61 oracle, 62 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / io: recall 0.21, precision 0.14 (115 oracle, 172 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>php / io: recall 0.61, precision 0.27 (18 oracle, 41 family functions; language-crucible v1.9.0)</title></rect>
@@ -994,7 +994,7 @@
 <text class="fam" x="24" y="413">doc</text>
 <rect x="192" y="404" width="11" height="11" fill="#2f6aa8"><title>python / doc: recall 0.84, precision 1.00 (1151 oracle, 967 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="404" width="11" height="11" fill="#4f9be8"><title>csharp / doc: recall 1.00, precision 0.91 (266 oracle, 291 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="404" width="11" height="11" fill="#1f3b5c"><title>go / doc: recall 0.64, precision 0.95 (719 oracle, 485 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="404" width="11" height="11" fill="#4f9be8"><title>go / doc: recall 0.95, precision 0.91 (719 oracle, 750 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="404" width="11" height="11" fill="#1f3b5c"><title>kotlin / doc: recall 1.00, precision 0.75 (30 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="404" width="11" height="11" fill="#a9d1ff"><title>php / doc: recall 1.00, precision 1.00 (1621 oracle, 1623 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="404" width="11" height="11" fill="#4f9be8"><title>scala / doc: recall 1.00, precision 0.90 (141 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
@@ -2497,7 +2497,7 @@
 <text class="fam" x="24" y="797">bitwise_ops</text>
 <rect x="192" y="788" width="11" height="11" fill="#2f6aa8"><title>python / bitwise_ops: recall 0.84, precision 0.91 (75 oracle, 69 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / bitwise_ops: recall 0.17, precision 0.62 (30 oracle, 8 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>go / bitwise_ops: recall 0.40, precision 0.89 (122 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="788" width="11" height="11" fill="#a9d1ff"><title>go / bitwise_ops: recall 1.00, precision 1.00 (128 oracle, 128 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / bitwise_ops: recall 0.46, precision 1.00 (92 oracle, 42 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>php / bitwise_ops: recall 1.00, precision 0.13 (24 oracle, 190 family functions; language-crucible v1.9.0)</title></rect>
@@ -3014,7 +3014,7 @@
 <rect x="192" y="920" width="11" height="11" fill="#4f9be8"><title>python / time_date_logic: recall 0.93, precision 0.97 (41 oracle, 39 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="920" width="11" height="11" fill="#1f3b5c"><title>csharp / time_date_logic: recall 0.78, precision 0.91 (318 oracle, 273 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="920" width="11" height="11" fill="url(#hatch)"/>
-<rect x="216" y="920" width="11" height="11" fill="#1f3b5c"><title>go / time_date_logic: recall 1.00, precision 0.50 (12 oracle, 24 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="920" width="11" height="11" fill="#a9d1ff"><title>go / time_date_logic: recall 1.00, precision 1.00 (12 oracle, 12 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / time_date_logic: recall 0.12, precision 1.00 (184 oracle, 22 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="920" width="11" height="11" fill="#1f3b5c"><title>php / time_date_logic: recall 0.79, precision 0.95 (24 oracle, 20 family functions; language-crucible v1.9.0)</title></rect>

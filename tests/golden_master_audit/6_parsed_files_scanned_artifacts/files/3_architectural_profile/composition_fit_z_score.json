@@ -1747,10 +1747,10 @@
       "go/core/main.go": -0.068,
       "go/core/mgc.go": 1.647,
       "go/core/mutex.go": 0.192,
-      "go/core/proc.go": 0.479,
+      "go/core/proc.go": 0.457,
       "go/core/server.go": -0.122,
       "go/core/syscall_linux.go": 0.509,
-      "go/core/value.go": -0.365
+      "go/core/value.go": -0.402
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 1.028

@@ -502,7 +502,10 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: panic/os.Exit/log.Fatal)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(time\.Sleep|time\.After|runtime\.Gosched)\b"),
+        # #8868: the timer constructors are timed waits too (thread_sleeps: "a sleep, a timed wait, a timeout-driven deferral")
+        "thread_sleeps": re.compile(
+            r"\b(time\.Sleep|time\.After|time\.AfterFunc|time\.Tick|time\.NewTimer|time\.NewTicker|runtime\.Gosched)\b"
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|\^|&\^"),
         # 44. sync_locks (Resource Management & Stability)

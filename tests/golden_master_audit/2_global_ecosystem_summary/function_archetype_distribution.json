@@ -6,17 +6,17 @@
   "value": {
     "Annotated & Test Methods": "3.3% (2029)",
     "C Struct Operations": "0.1% (89)",
-    "Callbacks & Closures": "2.2% (1399)",
-    "Compute Cores": "10.2% (6317)",
-    "Defensive Guards": "8.6% (5337)",
+    "Callbacks & Closures": "2.3% (1424)",
+    "Compute Cores": "10.1% (6305)",
+    "Defensive Guards": "8.6% (5338)",
     "Encapsulated Accessors": "4.5% (2806)",
-    "Generic / Templated Code": "5.7% (3521)",
-    "I/O & Config Routines": "14.8% (9190)",
-    "Interface Declarations": "16.0% (9949)",
-    "Many-Argument Workhorses": "6.3% (3927)",
-    "Parameter Forwarders": "12.9% (7993)",
-    "State Mutators": "8.3% (5182)",
-    "Stateful Encapsulated Methods": "4.1% (2573)",
-    "Type Conversions": "3.0% (1889)"
+    "Generic / Templated Code": "5.7% (3520)",
+    "I/O & Config Routines": "14.8% (9193)",
+    "Interface Declarations": "16.1% (9986)",
+    "Many-Argument Workhorses": "6.3% (3943)",
+    "Parameter Forwarders": "12.8% (7944)",
+    "State Mutators": "8.3% (5179)",
+    "Stateful Encapsulated Methods": "4.1% (2572)",
+    "Type Conversions": "3.0% (1873)"
   }
 }

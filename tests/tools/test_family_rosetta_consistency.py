@@ -234,3 +234,15 @@ def test_a_planted_cell_has_no_reading_cells_key():
     result = frc.analyze(_manifests(fam, [1, 1, 1, 0]), [fam], _defined([fam]))
     assert "reading_cells" not in result["families"][fam]
     assert frc.silent_cells(result, include_readings=False) == [(fam, "d")]
+
+
+def test_the_committed_report_is_a_snapshot_of_both_runs_with_its_sibling_gaps():
+    """docs/family_rosetta_consistency.md carries both commands, both tables and the gap list (it is a dated reading, rerun to refresh)."""
+    doc = (frc.REPO_ROOT / "docs" / "family_rosetta_consistency.md").read_text(encoding="utf-8")
+    assert "family_rosetta_consistency.py" in doc and "--live" in doc
+    assert doc.count("## Silent cells") == 2  # one per run
+    assert "## Run 1: manifests" in doc and "## Run 2: `--live`" in doc
+    assert "## Sibling gaps" in doc
+    assert "- `dead_code` (target 1, fires in 4 of 5): python" in doc
+    rows = [ln.split("|")[1].strip() for ln in doc.splitlines() if ln.startswith("| ") and ln.count("|") == 10]
+    assert "branch" in rows and "family" in rows

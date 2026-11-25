@@ -697,6 +697,19 @@ def test_the_graph_history_judges_call_baseline_and_import_corpus_languages_stri
     assert new_plan(f, aap.GRAPH_HISTORY, [("extensions", None)])["run"]
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "tests/tools/family_validity_chart.py",
+        "tests/family_validity_baseline.json",
+        "gitgalaxy/standards/signal_contracts.py",
+    ],
+)
+def test_the_keyword_family_grid_inputs_run_the_graph_history_but_not_the_tri_audit_8863(path):
+    assert new_plan([path], aap.GRAPH_HISTORY, [])["run"]
+    assert new_plan([path], aap.TRI, [])["run"] is False
+
+
 def test_a_graph_resolution_baseline_matches_the_glob_entry():
     assert new_plan(["tests/call_graph_resolution_rust_baseline.json"], aap.GRAPH_HISTORY, [])["run"]
     assert new_plan(["tests/call_graph_resolution_baseline.json"], aap.GRAPH_HISTORY, [])["run"]

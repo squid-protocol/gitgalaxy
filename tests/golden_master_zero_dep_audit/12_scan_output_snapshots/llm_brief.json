@@ -205,7 +205,7 @@
     "| Dead Code Surface (formerly Commented Logic Exposure) | 0.0 | 99.8 | 0.9 | 0.0 | 0.0 |",
     "| Historical Stability (predictive layer, promotion pending #2987) (formerly Instability Exposure) | 0.0 | 50.0 | 50.0 | 50.0 | 50.0 |",
     "| Historical Churn (predictive layer, promotion pending #2987) (formerly Volatility Exposure) | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |",
-    "| Doc Surface (formerly Documentation Exposure) _(coverage)_ | 0.0 | 100.0 | 55.3 | 55.6 | 100.0 |",
+    "| Doc Surface (formerly Documentation Exposure) _(coverage)_ | 0.0 | 100.0 | 55.4 | 55.6 | 100.0 |",
     "| Credential Material (formerly Hardcoded Payload Artifacts) | 0.0 | 100.0 | 0.2 | 0.0 | 0.0 |",
     "",
     "> `Doc Surface (formerly Documentation Exposure)` is **documentation coverage, not a fragility driver**. It is reported for context beside program length, and is deliberately excluded from the ranked-file drivers in this brief: it measures the share of a file's unit weight a reader cannot recover from documentation, so on a codebase that documents little it sits near ceiling everywhere and describes the repo rather than distinguishing files within it.",

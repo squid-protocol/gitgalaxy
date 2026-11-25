@@ -550,9 +550,9 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(Math\.|MathF\.|Vector[234]|Matrix4x4|Random|Complex|Tensor|TensorPrimitives)\b"),
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
-        # Reflection and dynamic Emit.
+        # Reflection and dynamic Emit. A `using` import and a bare `Emit` name are not a call (#8862).
         "reflection_metaprogramming": re.compile(
-            r"\b(System\.Reflection|DllImport|LibraryImport|MethodInfo|Activator|Marshal\.|Emit|ILGenerator)\b"
+            r"\b((?<!using )System\.Reflection|DllImport|LibraryImport|MethodInfo|Activator|Marshal\.|ILGenerator)\b|\.Emit\("
         ),
         # 24. import (Dependency Inclusions)
         # #2875 contract C1: the alias directive `using Alias = Target.Namespace;` binds a

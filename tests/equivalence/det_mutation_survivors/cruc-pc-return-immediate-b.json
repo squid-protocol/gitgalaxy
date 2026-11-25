@@ -918,6 +918,21 @@
    ]
   },
   {
+   "id": "4fd8d8b205",
+   "op": "DEL",
+   "line": 349,
+   "before": "Cobol.store(f40_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f40_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "PCIMMB never names EIBRESP2 or a RESP option, so the stored 0 is read by nothing; the log WRITEQ with NOSPACE and IOERR faults did not separate it",
+   "tried": [
+    "s2-long-hex-40",
+    "s2-wq-ioerr-short",
+    "s2-wq-nospace",
+    "s3-text"
+   ]
+  },
+  {
    "id": "32cd21f44d",
    "op": "ROR",
    "line": 352,
@@ -939,18 +954,6 @@
    "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
    "tried": [
     "flow-plumbing"
-   ]
-  },
-  {
-   "id": "4fd8d8b205",
-   "op": "DEL",
-   "line": 366,
-   "before": "Cobol.store(f40_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
-   "after": "/* Cobol.store(f40_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f40_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
    ]
   },
   {

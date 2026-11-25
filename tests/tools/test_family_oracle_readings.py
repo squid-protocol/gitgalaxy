@@ -52,3 +52,19 @@ def test_every_spec_language_is_named_in_the_ledger():
 
 def test_the_cpp_stream_reading_is_recorded():
     assert "| C++ |" in DOC and "cin >>" in DOC
+
+
+def test_the_2026_11_24_rulings_are_recorded_not_open():
+    """#8862 closed with rulings: assert is not an abort, doc is the structured form, the C/C++ debug_prints fix landed."""
+    seen = 0
+    for line in DOC.splitlines():
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+        if cells and cells[0] in ("`panics_and_aborts`", "`doc`", "`debug_prints`") and len(cells) >= 4:
+            seen += 1
+            verdict = cells[-2]
+            assert verdict.startswith("aligned"), line[:80]
+    assert seen >= 5
+    open_part = DOC.split("## Open owner questions", 1)[1]
+    assert "Is `assert` an abort" not in open_part
+    assert "Which documentation form" not in open_part
+    assert "Ruled 2026-11-24" in open_part

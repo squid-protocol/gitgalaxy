@@ -291,7 +291,11 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("sleep", name)
     if name in ("exit", "_exit", "abort", "quit"):
         c.add("bailout", name)
-    if name in _LOG_METHODS and base in _LOG_OBJECTS:
+    # `self.logger.info(..)` / `cls._log.debug(..)`: the receiver's last name decides, not only a bare `logger.` (#8862 contract:
+    # a call that records a log line through a logging framework)
+    recv = call.func.value if isinstance(call.func, ast.Attribute) else None
+    recv_name = recv.attr if isinstance(recv, ast.Attribute) else base
+    if name in _LOG_METHODS and recv_name in _LOG_OBJECTS:
         c.add("telemetry", name)
     if name in _THREAD_NAMES or base in ("threading", "multiprocessing"):
         c.add("threads", name)

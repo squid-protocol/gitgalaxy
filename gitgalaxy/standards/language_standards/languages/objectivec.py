@@ -559,7 +559,7 @@ DEFINITION: dict[str, Any] = {
         # cpp, csharp, groovy, shell, and sqlite earlier in this epic.
         # Bounded both quantifiers.
         "spec_exposure": re.compile(
-            r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
+            r"\[(?:\s*SPEC\s*-\s*\d{1,10}|(?:spec|audit)(?!\w)(?![ \t]*[,=])|RFC|W3C|CERN|TBL|ENQUIRE)[^\]]{0,300}\]|\b(?:WorldWideWeb|HyperText\s+Proposal|NeXTSTEP\s+Docs)\b",
             re.I,
         ),
         "ssr_boundaries": re.compile(r"\b(WOComponent|WOResponse|WOContext|WOApplication|WODirectAction|WebObjects)\b"),

@@ -701,11 +701,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 87.23,
-        "tech_debt": 37.05,
+        "tech_debt": 37.25,
         "verification": 80.0
       },
       "file_count": 8,
-      "total_mass": 22611.14
+      "total_mass": 22617.74
     },
     "c/doom": {
       "avg_exposures": {
@@ -1072,7 +1072,7 @@
       "avg_exposures": {
         "api_exposure": 5.05,
         "churn": 0.0,
-        "cognitive_load": 57.09,
+        "cognitive_load": 57.1,
         "concurrency": 0.0,
         "dead_code": 0.69,
         "documentation": 70.81,
@@ -1081,11 +1081,11 @@
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 71.43,
-        "tech_debt": 13.49,
+        "tech_debt": 13.55,
         "verification": 57.47
       },
       "file_count": 7,
-      "total_mass": 37173.0
+      "total_mass": 37179.6
     },
     "cobol/zECS": {
       "avg_exposures": {

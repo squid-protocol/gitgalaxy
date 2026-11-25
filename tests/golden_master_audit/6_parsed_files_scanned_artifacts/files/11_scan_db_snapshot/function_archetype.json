@@ -5216,6 +5216,12 @@
         "releasebuffer_maybe_call_super_unlocked@11181": "Stateful Encapsulated Methods",
         "remove_all_subclasses@9622": "Stateful Encapsulated Methods",
         "remove_subclass@9599": "Stateful Encapsulated Methods",
+        "richcmp_eq@10101": "I/O & Config Routines",
+        "richcmp_ge@10104": "I/O & Config Routines",
+        "richcmp_gt@10103": "I/O & Config Routines",
+        "richcmp_le@10100": "I/O & Config Routines",
+        "richcmp_lt@10099": "I/O & Config Routines",
+        "richcmp_ne@10102": "I/O & Config Routines",
         "same_slots_added@7415": "Stateful Encapsulated Methods",
         "set_flags_recursive@6352": "Stateful Encapsulated Methods",
         "set_mro_error@3308": "Many-Argument Workhorses",
@@ -16641,7 +16647,9 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/codegen.c": {
         "add_new_label@1342": "C Struct Operations",
+        "attr_list_reverse@386": "I/O & Config Routines",
         "base_cache_cmp@405": "Encapsulated Accessors",
+        "call_list_reverse@383": "I/O & Config Routines",
         "cb_code_field@265": "Stateful Encapsulated Methods",
         "cb_emit_decl_case@1367": "C Struct Operations",
         "cb_fit_to_int@2885": "C Struct Operations",
@@ -16667,6 +16675,7 @@
         "is_index_1@1069": "Stateful Encapsulated Methods",
         "is_literal_or_prototype_ref@5911": "Encapsulated Accessors",
         "list_cache_sort@418": "Many-Argument Workhorses",
+        "literal_list_reverse@388": "I/O & Config Routines",
         "literal_value@9922": "Stateful Encapsulated Methods",
         "lookup_attr@1460": "C Struct Operations",
         "lookup_call@317": "C Struct Operations",
@@ -16834,6 +16843,7 @@
         "output_string_cache@2778": "C Struct Operations",
         "output_zero@2492": "Encapsulated Accessors",
         "perform_label@1301": "C Struct Operations",
+        "pic_list_reverse@385": "I/O & Config Routines",
         "pickup_any_length@10617": "C Struct Operations",
         "pickup_c_param@10648": "Many-Argument Workhorses",
         "pickup_cob_param@10542": "Many-Argument Workhorses",
@@ -16841,6 +16851,8 @@
         "real_field_founder@682": "Stateful Encapsulated Methods",
         "set_param_to_null@10531": "C Struct Operations",
         "setup_param@10502": "C Struct Operations",
+        "static_call_list_reverse@384": "I/O & Config Routines",
+        "string_list_reverse@387": "I/O & Config Routines",
         "try_get_by_value_parameter_type@12054": "Compute Cores"
       },
       "cobol/gnucobol_internals/fileio.c": {

@@ -69694,6 +69694,90 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1031,
           "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10099,
+          "Function Name": "richcmp_lt",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10099,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10100,
+          "Function Name": "richcmp_le",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10100,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10101,
+          "Function Name": "richcmp_eq",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10101,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10102,
+          "Function Name": "richcmp_ne",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10102,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10103,
+          "Function Name": "richcmp_gt",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10103,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 10104,
+          "Function Name": "richcmp_ge",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 10104,
+          "Structural Impact": 1.1
         }
       ]
     },
@@ -219040,6 +219124,90 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2749,
           "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 383,
+          "Function Name": "call_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 383,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 384,
+          "Function Name": "static_call_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 384,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 385,
+          "Function Name": "pic_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 385,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 386,
+          "Function Name": "attr_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 386,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 387,
+          "Function Name": "string_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 387,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 388,
+          "Function Name": "literal_list_reverse",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 388,
+          "Structural Impact": 1.1
         }
       ],
       "cobol/gnucobol_internals/fileio.c": [
@@ -344228,7 +344396,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 282,
           "Structural Impact": 3.0
         },
@@ -344626,7 +344794,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 368,
           "Structural Impact": 8.0
         },
@@ -344640,7 +344808,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 389,
           "Structural Impact": 8.0
         },
@@ -344682,7 +344850,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 353,
           "Structural Impact": 4.6
         },
@@ -344766,7 +344934,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 311,
           "Structural Impact": 1.3
         }
@@ -345960,7 +346128,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 104,
           "Structural Impact": 8.5
         },
@@ -346002,7 +346170,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 162,
           "Structural Impact": 1.3
         }
@@ -346032,7 +346200,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 126,
           "Structural Impact": 23.3
         },
@@ -346088,7 +346256,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 47,
           "Structural Impact": 10.9
         },
@@ -346246,7 +346414,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 40,
           "Structural Impact": 9.5
         },
@@ -346630,7 +346798,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 43,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 205,
           "Structural Impact": 18.1
         },
@@ -346658,7 +346826,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 110,
           "Structural Impact": 10.9
         },
@@ -346672,7 +346840,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 51,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 141,
           "Structural Impact": 8.6
         },
@@ -346700,7 +346868,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 261,
           "Structural Impact": 5.0
         },
@@ -346728,7 +346896,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 296,
           "Structural Impact": 1.4
         },
@@ -346742,7 +346910,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 315,
           "Structural Impact": 1.4
         }

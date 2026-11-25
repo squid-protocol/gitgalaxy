@@ -1306,7 +1306,7 @@
         "Compute Cores": 26,
         "Defensive Guards": 11,
         "Encapsulated Accessors": 53,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 8,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 51,
         "Parameter Forwarders": 39,
@@ -3302,7 +3302,7 @@
         "C Struct Operations": 42,
         "Compute Cores": 25,
         "Encapsulated Accessors": 23,
-        "I/O & Config Routines": 9,
+        "I/O & Config Routines": 15,
         "Many-Argument Workhorses": 36,
         "Stateful Encapsulated Methods": 67
       },

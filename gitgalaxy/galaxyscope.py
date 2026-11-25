@@ -260,6 +260,7 @@ def _init_worker(
     c_macro_args: dict[str, Any] | None = None,
     c_unset_toggles: frozenset[str] | None = None,
     c_macro_calls: dict[str, frozenset[str]] | None = None,
+    c_macro_body_funcs: tuple[dict[str, Any], dict[str, Any]] | None = None,
 ):
     """
     Initializes the CPU-bound optical modules within the worker process's isolated memory.
@@ -272,11 +273,17 @@ def _init_worker(
     compiled regex objects across the IPC (Inter-Process Communication) boundary.
     """
     from gitgalaxy.core.detector import StructuralExtractor as OpticalDetector
-    from gitgalaxy.core.detector import set_c_repo_macro_args, set_c_repo_macro_calls, set_c_repo_unset_toggles
+    from gitgalaxy.core.detector import (
+        set_c_repo_macro_args,
+        set_c_repo_macro_body_funcs,
+        set_c_repo_macro_calls,
+        set_c_repo_unset_toggles,
+    )
 
     set_c_repo_unset_toggles(c_unset_toggles or frozenset())  # #6770: reset like the macro table below
     set_c_repo_macro_calls(c_macro_calls or {})  # #6770: the macro-body call table, reset the same way
     set_c_repo_macro_args(c_macro_args or {})  # #5563: always reset, so an in-process scan never inherits the last one
+    set_c_repo_macro_body_funcs(*(c_macro_body_funcs or ({}, {})))
 
     if offline:  # #5235: a spawn-start worker is a fresh interpreter; the assess guard does not reach it by inheritance
         from gitgalaxy.tools.readiness.offline import install as install_offline_guard
@@ -2607,6 +2614,22 @@ class Orchestrator:
 
         return c_repo_macro_name_args(texts())
 
+    def _c_repo_macro_body_funcs(self) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Collect C header function-generator `#define` tables for worker processes."""
+        from gitgalaxy.core.detector import c_repo_macro_body_functions
+
+        rels = {*self.stem_map.values(), *self.ram_cache.keys()}
+        headers = sorted(r for r in rels if Path(r).suffix.lower() in self._C_HEADER_EXTS)
+
+        def texts():
+            for rel in headers:
+                try:
+                    yield read_source(self.root / self.disk_paths.get(rel, rel), limit=2_000_000).text
+                except OSError:
+                    continue
+
+        return c_repo_macro_body_functions(texts())
+
     # #6770: C-family sources (headers included) and the build files that may define a toggle on a command line.
     _C_SOURCE_EXTS = _C_HEADER_EXTS | frozenset({".c", ".cc", ".cpp", ".cxx", ".c++", ".m", ".mm", ".def", ".inc"})
     _BUILD_FILE_NAMES = frozenset(
@@ -2712,6 +2735,7 @@ class Orchestrator:
             self._c_repo_macro_args(),
             self._c_repo_unset_toggles(),
             self._c_repo_macro_calls(),
+            self._c_repo_macro_body_funcs(),
         )
         # #3913: never more workers than files, and none at all for a small scan (or a pinned
         # single worker) -- the files are extracted in this process, by the same worker code.

@@ -11801,7 +11801,9 @@
           "unicode_get_hash",
           "DK_UNICODE_ENTRIES",
           "get_index_from_order",
-          "UNLOCK_KEYS_IF_SPLIT"
+          "UNLOCK_KEYS_IF_SPLIT",
+          "Py_STRINGIFY",
+          "_PyObject_ASSERT_FAILED_MSG"
         ],
         "_PyDict_ClearKeysVersionLockHeld@4982": [
           "_PyAnyDict_CAST",
@@ -15358,7 +15360,9 @@
           "PyUnicode_Check",
           "_PyUnicode_CheckConsistency",
           "PyAnyDict_Check",
-          "_PyDict_CheckConsistency"
+          "_PyDict_CheckConsistency",
+          "Py_STRINGIFY",
+          "_PyObject_ASSERT_FAILED_MSG"
         ],
         "_PyObject_ClearFreeLists@923": [
           "clear_freelist"
@@ -16190,7 +16194,9 @@
           "is_readying",
           "lookup_tp_dict",
           "PyDict_Contains",
-          "_Py_ID"
+          "_Py_ID",
+          "Py_STRINGIFY",
+          "_PyObject_ASSERT_FAILED_MSG"
         ],
         "_PyType_ClearCache@1019": [
           "type_cache_clear",
@@ -17308,6 +17314,24 @@
           "Py_XDECREF",
           "PyDict_Size",
           "clear_tp_subclasses"
+        ],
+        "richcmp_eq@10101": [
+          "wrap_richcmpfunc"
+        ],
+        "richcmp_ge@10104": [
+          "wrap_richcmpfunc"
+        ],
+        "richcmp_gt@10103": [
+          "wrap_richcmpfunc"
+        ],
+        "richcmp_le@10100": [
+          "wrap_richcmpfunc"
+        ],
+        "richcmp_lt@10099": [
+          "wrap_richcmpfunc"
+        ],
+        "richcmp_ne@10102": [
+          "wrap_richcmpfunc"
         ],
         "same_slots_added@7415": [
           "assert",
@@ -46484,7 +46508,9 @@
           "cobc_parse_malloc",
           "output_line"
         ],
+        "attr_list_reverse@386": [],
         "base_cache_cmp@405": [],
+        "call_list_reverse@383": [],
         "cb_code_field@265": [
           "likely",
           "CB_REFERENCE_P",
@@ -46635,6 +46661,7 @@
         "list_cache_sort@418": [
           "int"
         ],
+        "literal_list_reverse@388": [],
         "literal_value@9922": [
           "CB_TREE_CLASS",
           "cb_get_int",
@@ -48174,6 +48201,7 @@
           "output_line",
           "cobc_parse_malloc"
         ],
+        "pic_list_reverse@385": [],
         "pickup_any_length@10617": [
           "setup_param",
           "output_line",
@@ -48229,6 +48257,8 @@
           "CB_PURPOSE_INT",
           "force_cache"
         ],
+        "static_call_list_reverse@384": [],
+        "string_list_reverse@387": [],
         "try_get_by_value_parameter_type@12054": [
           "CB_SIZES",
           "CB_TREE_CLASS",

@@ -173,3 +173,68 @@ def test_worker_init_installs_and_resets_the_table():
     finally:
         det._C_REPO_MACRO_ARGS = saved
         root_logger.setLevel(level)
+
+
+def test_same_file_local_macro_calls_override_repo_collision():
+    file_a = "#define INIT(x) do { helper_a(x); } while (0)\nvoid run_a(int n) {\n    INIT(n);\n}\n"
+    file_b = "#define INIT(x) do { helper_b(x); } while (0)\nvoid run_b(int n) {\n    INIT(n);\n}\n"
+    saved = det._C_REPO_MACRO_CALLS
+    try:
+        # Cross-file collision clears INIT in the repo-wide table, yet each file's own `#define` still expands.
+        det.set_c_repo_macro_calls(det.c_repo_macro_body_calls([file_a, file_b]))
+        assert det._C_REPO_MACRO_CALLS.get("INIT", frozenset()) == frozenset()
+        ext = det.StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
+        calls_a = {f["name"]: f["calls_out_to"] for f in ext.splice(file_a, "")["functions"]}
+        calls_b = {f["name"]: f["calls_out_to"] for f in ext.splice(file_b, "")["functions"]}
+        assert "helper_a" in calls_a["run_a"]
+        assert "helper_b" in calls_b["run_b"]
+    finally:
+        det._C_REPO_MACRO_CALLS = saved
+
+
+def test_c_macro_body_functions_standalone_and_wrapper():
+    header = (
+        "#define BENCHMARK_IMPL(name) \\\n"
+        "  int run_benchmark_##name(void); \\\n"
+        "  int run_benchmark_##name(void)\n"
+        "#define TEST_FS_IMPL(name) \\\n"
+        "  int run_test_##name(void); \\\n"
+        "  int run_test_##name##_iouring(void) { \\\n"
+        "    uv_loop_configure(uv_default_loop(), 1); \\\n"
+        "    return run_test_##name(); \\\n"
+        "  } \\\n"
+        "  int run_test_##name(void)\n"
+    )
+    standalone_src = (
+        "#define WATCHER_DEF(name) \\\n"
+        "  int uv_##name##_init(int x) { return handle_init(x); } \\\n"
+        "  int uv_##name##_stop(int x) { return handle_stop(x); }\n"
+        "WATCHER_DEF(idle)\n"
+        "#define X(a, b) \\\n"
+        "  BENCHMARK_IMPL(p_##a##v##b) { return pummel(a, b); }\n"
+        "X(1, 10)\n"
+    )
+    wrapper_src = "TEST_FS_IMPL(fs_stat) {\n    return uv_fs_stat();\n}\n"
+
+    saved_args = det._C_REPO_MACRO_ARGS
+    saved_bf = det._C_REPO_MACRO_BODY_FUNCS
+    saved_st = det._C_REPO_MACRO_SIG_TEMPLATES
+    try:
+        det.set_c_repo_macro_args(det.c_repo_macro_name_args([header]))
+        bf, st = det.c_repo_macro_body_functions([header])
+        det.set_c_repo_macro_body_funcs(bf, st)
+        ext = det.StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
+
+        s_funcs = {f["name"]: f["calls_out_to"] for f in ext.splice(standalone_src, "")["functions"]}
+        assert "uv_idle_init" in s_funcs and "handle_init" in s_funcs["uv_idle_init"]
+        assert "uv_idle_stop" in s_funcs and "handle_stop" in s_funcs["uv_idle_stop"]
+        assert "run_benchmark_p_1v10" in s_funcs and "pummel" in s_funcs["run_benchmark_p_1v10"]
+
+        w_funcs = {f["name"]: f["calls_out_to"] for f in ext.splice(wrapper_src, "")["functions"]}
+        assert "fs_stat" in w_funcs and "uv_fs_stat" in w_funcs["fs_stat"]
+        assert "run_test_fs_stat_iouring" in w_funcs
+        assert {"uv_loop_configure", "uv_default_loop"} <= set(w_funcs["run_test_fs_stat_iouring"])
+    finally:
+        det._C_REPO_MACRO_ARGS = saved_args
+        det._C_REPO_MACRO_BODY_FUNCS = saved_bf
+        det._C_REPO_MACRO_SIG_TEMPLATES = saved_st

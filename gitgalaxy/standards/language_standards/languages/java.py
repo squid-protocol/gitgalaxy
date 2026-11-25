@@ -455,9 +455,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(Math\.|BigDecimal|BigInteger|Random|SecureRandom|StrictMath|VectorSpecies|FloatVector|IntVector)\b"
         ),
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
-        # Reflection and dynamic proxies.
+        # Reflection and dynamic proxies. A bare `ClassLoader` type name is not a call (#8862).
         "reflection_metaprogramming": re.compile(
-            r"\b(reflect\.|native|Class\.forName|Method\.invoke|Field\.setAccessible|Proxy\.newProxyInstance|ClassLoader|MethodHandles|VarHandle|Linker\.nativeLinker)\b|@SneakyThrows"
+            r"\b(reflect\.|native|Class\.forName|Method\.invoke|Field\.setAccessible|Proxy\.newProxyInstance|ClassLoader\.|MethodHandles|VarHandle|Linker\.nativeLinker)\b|\.(?:getClassLoader|loadClass|defineClass)\(|@SneakyThrows"
         ),
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"^[ \t]*import\s+(?:static[ \t]+)?[\w.]+;", re.M),

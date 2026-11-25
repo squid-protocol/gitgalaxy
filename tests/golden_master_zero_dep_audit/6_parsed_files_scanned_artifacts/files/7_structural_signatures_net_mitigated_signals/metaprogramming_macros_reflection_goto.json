@@ -1201,12 +1201,12 @@
       "csharp/SOURCES.md": 0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 5,
+      "csharp/roslyn/CSharpCompilation.cs": 0,
       "csharp/roslyn/CSharpSyntaxTree.cs": 0,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
       "csharp/roslyn/LanguageParser.cs": 0,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 4,
+      "csharp/roslyn/MethodCompiler.cs": 2,
       "csharp/roslyn/Workspace.cs": 0
     },
     "css": {
@@ -2089,14 +2089,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 1
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 7,
+      "java/springboot/AutoConfigurationImportSelector.java": 1,
       "java/springboot/Binder.java": 0,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
-      "java/springboot/OnClassCondition.java": 4,
+      "java/springboot/OnClassCondition.java": 1,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
-      "java/springboot/SpringApplication.java": 5,
-      "java/springboot/WebMvcAutoConfiguration.java": 1
+      "java/springboot/SpringApplication.java": 4,
+      "java/springboot/WebMvcAutoConfiguration.java": 2
     },
     "javascript": {
       "javascript/SOURCES.md": 0
@@ -3584,18 +3584,18 @@
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 51,
-      "rust/serde/serde_core_de_mod.rs": 9,
+      "rust/serde/serde_core_de_impls.rs": 20,
+      "rust/serde/serde_core_de_mod.rs": 1,
       "rust/serde/serde_core_macros.rs": 3,
-      "rust/serde/serde_derive_de.rs": 5,
+      "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
       "rust/serde/serde_internals_attr.rs": 0,
-      "rust/serde/test_annotations.rs": 5
+      "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,
       "rust/syn/bigint.rs": 0,
-      "rust/syn/buffer.rs": 4,
+      "rust/syn/buffer.rs": 0,
       "rust/syn/classify.rs": 0,
       "rust/syn/custom_keyword.rs": 9,
       "rust/syn/custom_punctuation.rs": 13,
@@ -3605,7 +3605,7 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 1,
       "rust/tokio/block_on.rs": 0,
-      "rust/tokio/blocking.rs": 1,
+      "rust/tokio/blocking.rs": 0,
       "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
@@ -3622,7 +3622,7 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 2,
+      "rust/wasmtime/wasmtime_instance.rs": 0,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 0,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 2

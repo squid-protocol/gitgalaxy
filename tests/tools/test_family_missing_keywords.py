@@ -81,7 +81,7 @@ def test_top_limits_tokens_and_marks_a_result_capped_at_five():
 def test_markdown_names_the_cell_and_the_timing_caveat():
     md = fmk.render_markdown(fmk.mine({"go": _res(_fam("arch_io", 20, 0.5, [["open", 4]]))}), skipped=["cobol"])
     assert "### go / arch_io: 10 of 20 missed" in md
-    assert "| `open` | 4 | 0.4 |" in md
+    assert "| `open` | 4 | - | 0.4 |" in md
     assert "timed" in md
     assert "cobol" in md
 
@@ -167,3 +167,68 @@ def test_main_reads_a_result_file_named_with_a_drive_letter(tmp_path, monkeypatc
     monkeypatch.setattr(fmk, "Path", lambda p: real(f) if p == "C:\\r.json" else real(p))
     assert fmk.main(["--result", "go:C:\\r.json"]) == 0
     assert "open" in capsys.readouterr().out
+
+
+def test_distinct_function_counts_are_carried_when_the_result_has_them():
+    fam = _fam("arch_io", 20, 0.5, [["open", 4]])
+    fam["missed_token_functions"] = {"open": 2}
+    cell = fmk.mine({"go": _res(fam)})["cells"][0]
+    assert cell["tokens"][0]["functions"] == 2
+    assert "| `open` | 4 | 2 | 0.4 |" in fmk.render_markdown(fmk.mine({"go": _res(fam)}))
+    assert "functions" not in fmk.mine({"go": _res(_fam("arch_io", 20, 0.5, [["open", 4]]))})["cells"][0]["tokens"][0]
+
+
+def test_score_counts_a_token_once_per_function(tmp_path):
+    (tmp_path / "m.py").write_text(
+        "import re\n\ndef twice(s):\n    re.finditer('a', s)\n    re.finditer('b', s)\n", encoding="utf-8"
+    )
+    db = tmp_path / "scan_master.db"
+    con = sqlite3.connect(db)
+    con.execute("CREATE TABLE file_data (id INTEGER PRIMARY KEY, file_path TEXT)")
+    con.execute(
+        "CREATE TABLE function_data (id INTEGER PRIMARY KEY, file_id INT, func_name TEXT, start_line INT, arch_regex INT)"
+    )
+    con.execute("INSERT INTO file_data VALUES (1, 'm.py')")
+    con.execute("INSERT INTO function_data (file_id, func_name, start_line, arch_regex) VALUES (1,'twice',3,0)")
+    con.commit()
+    con.close()
+    import family_oracle
+
+    fam = family_oracle.score(db, tmp_path, "python")["families"][0]
+    assert fam["missed_tokens"] == [["finditer", 2]] or fam["missed_tokens"] == [("finditer", 2)]
+    assert fam["missed_token_functions"] == {"finditer": 1}
+
+
+def test_sweep_mines_every_language_from_a_given_scan(tmp_path, monkeypatch):
+    import family_oracle
+    import family_oracle_sweep as fos
+
+    monkeypatch.setattr(fos, "crucible_data", lambda *_a, **_k: tmp_path)
+    monkeypatch.setattr(fos, "languages", lambda: ["go", "cobol"])
+
+    def fake(_db, _data, lang, **_k):
+        if lang == "cobol":
+            raise SystemExit("no oracle")
+        return _res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))
+
+    monkeypatch.setattr(family_oracle, "score", fake)
+    out = tmp_path / "r.md"
+    assert fmk.main(["--sweep", "--db", str(tmp_path / "x.db"), "--out", str(out)]) == 0
+    text = out.read_text()
+    assert "### go / arch_io" in text
+    assert "cobol" in text
+
+
+def test_sweep_off_the_pin_exits_two(monkeypatch):
+    import family_oracle_sweep as fos
+
+    def refuse(*_a, **_k):
+        raise SystemExit("crucible is off the pin")
+
+    monkeypatch.setattr(fos, "crucible_data", refuse)
+    assert fmk.main(["--sweep"]) == 2
+
+
+def test_a_pipe_token_is_escaped_inside_its_table_row():
+    md = fmk.render_markdown(fmk.mine({"c": _res(_fam("bitwise_ops", 20, 0.0, [["||", 4]], "dead"))}))
+    assert "| `\\|\\|` | 4 |" in md

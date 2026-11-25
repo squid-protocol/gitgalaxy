@@ -529,6 +529,7 @@ def score(
     fam_vals: dict[str, list[float]] = {f.column: [] for f in fams}
     orc_vals: dict[str, list[float]] = {f.column: [] for f in fams}
     missed: dict[str, collections.Counter[str]] = {f.column: collections.Counter() for f in fams}
+    missed_fns: dict[str, collections.Counter[str]] = {f.column: collections.Counter() for f in fams}
     matched = unmatched = 0
     exts = oracle.exts
     for row in rows:
@@ -554,7 +555,9 @@ def score(
             fam_vals[fam.column].append(float(v))
             orc_vals[fam.column].append(float(o))
             if o > 0 and not v > 0:
-                missed[fam.column].update(tokens.get(fam.oracle, {}))
+                seen = tokens.get(fam.oracle, {})
+                missed[fam.column].update(seen)
+                missed_fns[fam.column].update(set(seen))  # distinct functions: one per token per function
     out = []
     for fam in fams:
         fv, ov = fam_vals[fam.column], orc_vals[fam.column]
@@ -563,20 +566,21 @@ def score(
         both = sum(1 for x, y in zip(fv, ov, strict=True) if x > 0 and y > 0)
         recall = both / n_o if n_o else None
         precision = both / n_f if n_f else None
-        out.append(
-            {
-                "family": fam.column,
-                "rule": fam.rule,
-                "definition": fam.sentence,
-                "oracle_functions": n_o,
-                "family_functions": n_f,
-                "recall": None if recall is None else round(recall, 3),
-                "precision": None if precision is None else round(precision, 3),
-                "rho": None if (r := spearman(fv, ov)) is None else round(r, 3),
-                "status": status(n_o, n_f, recall, precision, recall_bar=recall_bar, precision_bar=precision_bar),
-                "missed_tokens": missed[fam.column].most_common(top),
-            }
-        )
+        row = {
+            "family": fam.column,
+            "rule": fam.rule,
+            "definition": fam.sentence,
+            "oracle_functions": n_o,
+            "family_functions": n_f,
+            "recall": None if recall is None else round(recall, 3),
+            "precision": None if precision is None else round(precision, 3),
+            "rho": None if (r := spearman(fv, ov)) is None else round(r, 3),
+            "status": status(n_o, n_f, recall, precision, recall_bar=recall_bar, precision_bar=precision_bar),
+            "missed_tokens": missed[fam.column].most_common(top),
+        }
+        if missed_fns[fam.column]:  # added only when non-empty: an always-present empty key breaks equality tests
+            row["missed_token_functions"] = {t: missed_fns[fam.column][t] for t, _ in row["missed_tokens"]}
+        out.append(row)
     return {"language": lang, "matched": matched, "unmatched": unmatched, "families": out}
 
 

@@ -1204,20 +1204,20 @@
       "bitwise_ops": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 231,
-        "n_oracle": 64,
+        "n_family": 69,
+        "n_oracle": 75,
         "pinned": true,
-        "precision": 0.242,
-        "recall": 0.875,
-        "status": "over-counts"
+        "precision": 0.913,
+        "recall": 0.84,
+        "status": "ok"
       },
       "branch": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
         "n_family": 1498,
-        "n_oracle": 1453,
+        "n_oracle": 1479,
         "pinned": true,
-        "precision": 0.97,
+        "precision": 0.987,
         "recall": 1.0,
         "status": "ok"
       },
@@ -1244,22 +1244,22 @@
       "comprehensions": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 233,
+        "n_family": 177,
         "n_oracle": 198,
         "pinned": true,
-        "precision": 0.674,
-        "recall": 0.793,
-        "status": "both"
+        "precision": 0.96,
+        "recall": 0.859,
+        "status": "ok"
       },
       "concurrency": {
-        "corpus": "GitGalaxy engine code",
-        "functions": 72044,
-        "n_family": 555,
-        "n_oracle": 371,
-        "pinned": false,
-        "precision": 0.477,
-        "recall": 0.714,
-        "status": "both"
+        "corpus": "language-crucible v1.8.0",
+        "functions": 4341,
+        "n_family": 455,
+        "n_oracle": 444,
+        "pinned": true,
+        "precision": 0.976,
+        "recall": 1.0,
+        "status": "ok"
       },
       "debug_prints": {
         "corpus": "language-crucible v1.8.0",
@@ -1314,12 +1314,12 @@
       "high_risk_execution": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 12,
-        "n_oracle": 17,
+        "n_family": 16,
+        "n_oracle": 13,
         "pinned": true,
-        "precision": 0.917,
-        "recall": 0.647,
-        "status": "misses"
+        "precision": 0.812,
+        "recall": 1.0,
+        "status": "ok"
       },
       "import": {
         "corpus": "language-crucible v1.8.0",
@@ -1334,12 +1334,12 @@
       "io": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 103,
+        "n_family": 75,
         "n_oracle": 72,
         "pinned": true,
-        "precision": 0.408,
-        "recall": 0.583,
-        "status": "both"
+        "precision": 0.84,
+        "recall": 0.875,
+        "status": "ok"
       },
       "lazy_evaluation": {
         "corpus": "language-crucible v1.8.0",
@@ -1394,42 +1394,42 @@
       "sync_locks": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 5,
-        "n_oracle": 11,
+        "n_family": 8,
+        "n_oracle": 8,
         "pinned": true,
-        "precision": 0.2,
-        "recall": 0.091,
-        "status": "both"
+        "precision": 1.0,
+        "recall": 1.0,
+        "status": "ok"
       },
       "telemetry": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 4,
+        "n_family": 146,
         "n_oracle": 144,
         "pinned": true,
-        "precision": 1.0,
-        "recall": 0.028,
-        "status": "misses"
+        "precision": 0.986,
+        "recall": 1.0,
+        "status": "ok"
       },
       "thread_sleeps": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 11,
+        "n_family": 20,
         "n_oracle": 20,
         "pinned": true,
         "precision": 1.0,
-        "recall": 0.55,
-        "status": "misses"
+        "recall": 1.0,
+        "status": "ok"
       },
       "time_date_logic": {
         "corpus": "language-crucible v1.8.0",
         "functions": 4341,
-        "n_family": 30,
-        "n_oracle": 48,
+        "n_family": 39,
+        "n_oracle": 41,
         "pinned": true,
-        "precision": 0.533,
-        "recall": 0.333,
-        "status": "both"
+        "precision": 0.974,
+        "recall": 0.927,
+        "status": "ok"
       }
     },
     "ruby": {
@@ -8182,9 +8182,20 @@
         "block_comment": null,
         "comment": "pass",
         "corpus": "decoy-suite",
-        "ident_boundary": "pass",
+        "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "Lock",
+        "keyword": "Lock()",
+        "protocol": "SOP-001-v1",
+        "string_comment_boundary": "pass",
+        "string_counts": true
+      },
+      "telemetry": {
+        "block_comment": null,
+        "comment": "pass",
+        "corpus": "decoy-suite",
+        "ident_boundary": null,
+        "inline_comment": "pass",
+        "keyword": "log.info",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -11944,9 +11955,9 @@
         "block_comment": "pass",
         "comment": "pass",
         "corpus": "decoy-suite",
-        "ident_boundary": "pass",
+        "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "setTimeout",
+        "keyword": "Date.now",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -17736,7 +17747,7 @@
         "keyword": "a << 1",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
-        "string_counts": true
+        "string_counts": false
       },
       "branch": {
         "block_comment": null,
@@ -17777,7 +17788,7 @@
         "corpus": "decoy-suite",
         "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "[x for x in xs]",
+        "keyword": "map()",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -17907,9 +17918,9 @@
         "block_comment": null,
         "comment": "pass",
         "corpus": "decoy-suite",
-        "ident_boundary": "pass",
+        "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "open",
+        "keyword": "open()",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -18061,9 +18072,20 @@
         "block_comment": null,
         "comment": "pass",
         "corpus": "decoy-suite",
-        "ident_boundary": "pass",
+        "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "Lock",
+        "keyword": "Lock()",
+        "protocol": "SOP-001-v1",
+        "string_comment_boundary": "pass",
+        "string_counts": true
+      },
+      "telemetry": {
+        "block_comment": null,
+        "comment": "pass",
+        "corpus": "decoy-suite",
+        "ident_boundary": null,
+        "inline_comment": "pass",
+        "keyword": "LOG.info",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -19249,6 +19271,17 @@
         "ident_boundary": null,
         "inline_comment": "pass",
         "keyword": "drop()",
+        "protocol": "SOP-001-v1",
+        "string_comment_boundary": "pass",
+        "string_counts": true
+      },
+      "closures": {
+        "block_comment": "pass",
+        "comment": "pass",
+        "corpus": "decoy-suite",
+        "ident_boundary": null,
+        "inline_comment": "pass",
+        "keyword": "x = |x| x + 1(y)",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true
@@ -22430,9 +22463,9 @@
         "block_comment": "pass",
         "comment": "pass",
         "corpus": "decoy-suite",
-        "ident_boundary": "pass",
+        "ident_boundary": null,
         "inline_comment": "pass",
-        "keyword": "setTimeout",
+        "keyword": "Date.now",
         "protocol": "SOP-001-v1",
         "string_comment_boundary": "pass",
         "string_counts": true

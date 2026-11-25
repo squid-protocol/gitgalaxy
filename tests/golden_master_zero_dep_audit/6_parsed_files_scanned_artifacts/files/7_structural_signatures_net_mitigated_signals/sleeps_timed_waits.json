@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 2,
+      "go/core/server.go": 3,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -2125,7 +2125,7 @@
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0,
       "javascript/node_tls_security_tests/test-tls-psk-server.js": 0,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 1
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
@@ -3162,7 +3162,7 @@
       "python/fastapi/fastapi/params.py": 0,
       "python/fastapi/fastapi/requests.py": 0,
       "python/fastapi/fastapi/responses.py": 0,
-      "python/fastapi/fastapi/routing.py": 0,
+      "python/fastapi/fastapi/routing.py": 3,
       "python/fastapi/fastapi/sse.py": 0,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
@@ -3247,7 +3247,7 @@
       "python/fastapi/tests/test_invalid_sequence_param.py": 0,
       "python/fastapi/tests/test_json_type.py": 0,
       "python/fastapi/tests/test_jsonable_encoder.py": 0,
-      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 0,
+      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 1,
       "python/fastapi/tests/test_local_docs.py": 0,
       "python/fastapi/tests/test_multi_body_errors.py": 0,
       "python/fastapi/tests/test_multi_query_errors.py": 0,
@@ -3350,7 +3350,7 @@
       "python/fastapi/tests/test_starlette_exception.py": 0,
       "python/fastapi/tests/test_starlette_urlconvertors.py": 0,
       "python/fastapi/tests/test_stream_bare_type.py": 0,
-      "python/fastapi/tests/test_stream_cancellation.py": 0,
+      "python/fastapi/tests/test_stream_cancellation.py": 1,
       "python/fastapi/tests/test_stream_json_validation_error.py": 0,
       "python/fastapi/tests/test_strict_content_type_app_level.py": 0,
       "python/fastapi/tests/test_strict_content_type_nested.py": 0,

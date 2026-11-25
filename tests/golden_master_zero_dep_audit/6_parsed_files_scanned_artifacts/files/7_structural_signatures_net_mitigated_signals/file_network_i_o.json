@@ -1093,7 +1093,7 @@
       "cpp/NVDA/braille.py": 0,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
-      "cpp/NVDA/core.py": 4,
+      "cpp/NVDA/core.py": 1,
       "cpp/NVDA/ensureuv.ps1": 1,
       "cpp/NVDA/espeak.py": 0,
       "cpp/NVDA/inProcess.cpp": 0,
@@ -1331,13 +1331,13 @@
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 2,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 3,
+      "dockerfile/moby/builder/remotecontext/remote.go": 4,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 2,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 4,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 1
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 3,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 5,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 13
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
@@ -1465,7 +1465,7 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0,
       "fortran/wrf/cleanCMake.sh": 16,
-      "fortran/wrf/configure_reader.py": 5,
+      "fortran/wrf/configure_reader.py": 10,
       "fortran/wrf/gen_be_wrapper.ksh": 0,
       "fortran/wrf/module_configure.F": 25,
       "fortran/wrf/module_domain.F": 31,
@@ -1515,7 +1515,7 @@
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 0,
       "go/core/proc.go": 0,
-      "go/core/server.go": 29,
+      "go/core/server.go": 31,
       "go/core/syscall_linux.go": 0,
       "go/core/value.go": 0
     },
@@ -3114,9 +3114,9 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0,
-      "python/airflow/dag.py": 7,
+      "python/airflow/dag.py": 0,
       "python/airflow/s3.py": 10,
-      "python/airflow/scheduler_job_runner.py": 17
+      "python/airflow/scheduler_job_runner.py": 0
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0,
@@ -3147,22 +3147,22 @@
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": 1,
+      "python/fastapi/fastapi/__init__.py": 0,
       "python/fastapi/fastapi/__main__.py": 0,
-      "python/fastapi/fastapi/applications.py": 1,
+      "python/fastapi/fastapi/applications.py": 0,
       "python/fastapi/fastapi/background.py": 0,
       "python/fastapi/fastapi/cli.py": 0,
       "python/fastapi/fastapi/concurrency.py": 0,
-      "python/fastapi/fastapi/datastructures.py": 0,
-      "python/fastapi/fastapi/encoders.py": 1,
-      "python/fastapi/fastapi/exception_handlers.py": 1,
+      "python/fastapi/fastapi/datastructures.py": 2,
+      "python/fastapi/fastapi/encoders.py": 0,
+      "python/fastapi/fastapi/exception_handlers.py": 0,
       "python/fastapi/fastapi/exceptions.py": 0,
       "python/fastapi/fastapi/logger.py": 0,
       "python/fastapi/fastapi/param_functions.py": 0,
       "python/fastapi/fastapi/params.py": 0,
-      "python/fastapi/fastapi/requests.py": 2,
+      "python/fastapi/fastapi/requests.py": 0,
       "python/fastapi/fastapi/responses.py": 0,
-      "python/fastapi/fastapi/routing.py": 1,
+      "python/fastapi/fastapi/routing.py": 0,
       "python/fastapi/fastapi/sse.py": 0,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
@@ -3192,18 +3192,18 @@
       "python/fastapi/tests/test_callable_endpoint.py": 0,
       "python/fastapi/tests/test_compat.py": 0,
       "python/fastapi/tests/test_computed_fields.py": 0,
-      "python/fastapi/tests/test_custom_middleware_exception.py": 5,
+      "python/fastapi/tests/test_custom_middleware_exception.py": 4,
       "python/fastapi/tests/test_custom_route_class.py": 0,
       "python/fastapi/tests/test_custom_schema_fields.py": 0,
       "python/fastapi/tests/test_custom_swagger_ui_redirect.py": 0,
-      "python/fastapi/tests/test_datastructures.py": 3,
+      "python/fastapi/tests/test_datastructures.py": 6,
       "python/fastapi/tests/test_datetime_custom_encoder.py": 0,
       "python/fastapi/tests/test_default_response_class.py": 0,
       "python/fastapi/tests/test_default_response_class_router.py": 0,
       "python/fastapi/tests/test_dependencies_utils.py": 0,
       "python/fastapi/tests/test_dependency_after_yield_raise.py": 0,
-      "python/fastapi/tests/test_dependency_after_yield_streaming.py": 4,
-      "python/fastapi/tests/test_dependency_after_yield_websockets.py": 4,
+      "python/fastapi/tests/test_dependency_after_yield_streaming.py": 0,
+      "python/fastapi/tests/test_dependency_after_yield_websockets.py": 0,
       "python/fastapi/tests/test_dependency_cache.py": 0,
       "python/fastapi/tests/test_dependency_class.py": 0,
       "python/fastapi/tests/test_dependency_contextmanager.py": 0,
@@ -3216,8 +3216,8 @@
       "python/fastapi/tests/test_dependency_security_overrides.py": 0,
       "python/fastapi/tests/test_dependency_wrapped.py": 0,
       "python/fastapi/tests/test_dependency_yield_except_httpexception.py": 0,
-      "python/fastapi/tests/test_dependency_yield_scope.py": 15,
-      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": 15,
+      "python/fastapi/tests/test_dependency_yield_scope.py": 0,
+      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": 0,
       "python/fastapi/tests/test_depends_hashable.py": 0,
       "python/fastapi/tests/test_deprecated_openapi_prefix.py": 0,
       "python/fastapi/tests/test_deprecated_responses.py": 0,
@@ -3228,7 +3228,7 @@
       "python/fastapi/tests/test_exception_handlers.py": 0,
       "python/fastapi/tests/test_extra_routes.py": 0,
       "python/fastapi/tests/test_fastapi_cli.py": 0,
-      "python/fastapi/tests/test_file_and_form_order_issue_9116.py": 6,
+      "python/fastapi/tests/test_file_and_form_order_issue_9116.py": 5,
       "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": 0,
       "python/fastapi/tests/test_form_default.py": 0,
       "python/fastapi/tests/test_forms_from_non_typing_sequences.py": 0,
@@ -3238,7 +3238,7 @@
       "python/fastapi/tests/test_generic_parameterless_depends.py": 0,
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": 0,
       "python/fastapi/tests/test_get_request_body.py": 0,
-      "python/fastapi/tests/test_http_connection_injection.py": 1,
+      "python/fastapi/tests/test_http_connection_injection.py": 0,
       "python/fastapi/tests/test_include_route.py": 0,
       "python/fastapi/tests/test_include_router_defaults_overrides.py": 0,
       "python/fastapi/tests/test_infer_param_optionality.py": 0,
@@ -3246,7 +3246,7 @@
       "python/fastapi/tests/test_invalid_path_param.py": 0,
       "python/fastapi/tests/test_invalid_sequence_param.py": 0,
       "python/fastapi/tests/test_json_type.py": 0,
-      "python/fastapi/tests/test_jsonable_encoder.py": 1,
+      "python/fastapi/tests/test_jsonable_encoder.py": 0,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 0,
       "python/fastapi/tests/test_local_docs.py": 0,
       "python/fastapi/tests/test_multi_body_errors.py": 0,
@@ -3264,7 +3264,7 @@
       "python/fastapi/tests/test_openapi_servers.py": 0,
       "python/fastapi/tests/test_operations_signatures.py": 0,
       "python/fastapi/tests/test_optional_file_list.py": 0,
-      "python/fastapi/tests/test_orjson_response_class.py": 1,
+      "python/fastapi/tests/test_orjson_response_class.py": 0,
       "python/fastapi/tests/test_param_class.py": 0,
       "python/fastapi/tests/test_param_in_path_and_dependency.py": 0,
       "python/fastapi/tests/test_param_include_in_schema.py": 0,
@@ -3386,7 +3386,7 @@
       "python/homeassistant_ble_integrations/LICENSE.md": 0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 0,
       "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0,
-      "python/homeassistant_ble_integrations/utils.py": 3
+      "python/homeassistant_ble_integrations/utils.py": 1
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 0,
@@ -3394,24 +3394,24 @@
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 0
     },
     "python/micropython_usb_tls": {
-      "python/micropython_usb_tls/ssl_verify_callback.py": 6,
-      "python/micropython_usb_tls/tls_dtls.py": 0,
-      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 0
+      "python/micropython_usb_tls/ssl_verify_callback.py": 3,
+      "python/micropython_usb_tls/tls_dtls.py": 2,
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": 2
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
-      "python/numpy/cfuncs.py": 2,
+      "python/numpy/cfuncs.py": 3,
       "python/numpy/core.py": 0,
-      "python/numpy/crackfortran.py": 7,
+      "python/numpy/crackfortran.py": 14,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
-      "python/numpy/genapi.py": 4,
+      "python/numpy/genapi.py": 6,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
-      "python/numpy/generate_umath.py": 1,
-      "python/numpy/generate_umath_doc.py": 1,
+      "python/numpy/generate_umath.py": 2,
+      "python/numpy/generate_umath_doc.py": 4,
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 0,
@@ -3424,7 +3424,7 @@
     },
     "python/pip_vendored_requests": {
       "python/pip_vendored_requests/LICENSE.txt": 0,
-      "python/pip_vendored_requests/packages.py": 3
+      "python/pip_vendored_requests/packages.py": 0
     },
     "python/scikit-learn_examples": {
       "python/scikit-learn_examples/COPYING": 0,
@@ -3446,16 +3446,16 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 12,
+      "python/twisted/http.py": 14,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 0
+      "python/twisted/transport.py": 2
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,
       "python/wtfpython/README.md": 0,
-      "python/wtfpython/insert_ids.py": 2,
+      "python/wtfpython/insert_ids.py": 4,
       "python/wtfpython/mixed_tabs_and_spaces.py": 0,
-      "python/wtfpython/notebook_generator.py": 2,
+      "python/wtfpython/notebook_generator.py": 3,
       "python/wtfpython/noxfile.py": 0
     },
     "r": {
@@ -3574,9 +3574,9 @@
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
-      "rust/holylang/compile.rs": 4,
+      "rust/holylang/compile.rs": 8,
       "rust/holylang/error.rs": 0,
-      "rust/holylang/main.rs": 1,
+      "rust/holylang/main.rs": 2,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
       "rust/holylang/transpiler.rs": 0
@@ -4207,11 +4207,11 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 21,
+      "typescript/assemblyscript/ast.ts": 0,
       "typescript/assemblyscript/builtins.ts": 0,
-      "typescript/assemblyscript/compiler.ts": 2,
+      "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 17
+      "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -4236,7 +4236,7 @@
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 0
     },
     "typescript/pixijs_examples": {
-      "typescript/pixijs_examples/events_dragging.ts": 1
+      "typescript/pixijs_examples/events_dragging.ts": 0
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 0,
@@ -4245,33 +4245,33 @@
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 1,
       "typescript/playwright/bidiConnection.ts": 0,
-      "typescript/playwright/connection.ts": 4,
+      "typescript/playwright/connection.ts": 1,
       "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 7,
-      "typescript/playwright/frames.ts": 4,
+      "typescript/playwright/dispatcher.ts": 0,
+      "typescript/playwright/frames.ts": 0,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 3,
-      "typescript/typescript_compiler/checker.ts": 39,
-      "typescript/typescript_compiler/emitter.ts": 9,
+      "typescript/typescript_compiler/binder.ts": 0,
+      "typescript/typescript_compiler/checker.ts": 0,
+      "typescript/typescript_compiler/emitter.ts": 0,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 8,
-      "typescript/typescript_compiler/types.ts": 20
+      "typescript/typescript_compiler/parser.ts": 0,
+      "typescript/typescript_compiler/types.ts": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 0,
-      "typescript/vscode/codeEditorWidget.ts": 3,
+      "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 8,
-      "typescript/vscode/extHost.api.impl.ts": 5,
-      "typescript/vscode/gulpfile.vscode.ts": 40,
+      "typescript/vscode/extHost.api.impl.ts": 1,
+      "typescript/vscode/gulpfile.vscode.ts": 33,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
       "typescript/vscode/lifecycle.ts": 0,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 9
+      "typescript/vscode/vscode.d.ts": 1
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

@@ -22,6 +22,8 @@ A cell is red when the weaker of recall and precision is under 0.8 on at least 1
 4. **Trace before you edit.** Find the functions where family and oracle disagree and read the actual lines. Do not infer the cause
    from the numbers: Go `closures` looked like "lambdas missed" and was method declarations; C `panics` looked like `assert` and
    was `return -1`; Rust `exit` looked like missing process exits and was `span.exit()`.
+   When the cause is a missing keyword, read the cell's token table in `docs/family_missing_keywords.md` (mining report) for
+   candidates; each is timed on keyword-rosetta and language-crucible before it is added.
 5. **Fix the smallest thing.** A wrong oracle is fixed in `tests/tools/family_oracle.py` (Python) or `family_oracle_ts.py`
    (everything else), with a comment citing the contract. A wrong rule is fixed in
    `gitgalaxy/standards/language_standards/languages/<lang>.py`, with a comment citing the issue. Prefer narrowing a rule to

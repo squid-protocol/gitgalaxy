@@ -363,6 +363,10 @@ def test_copybook_family_owner_and_status():
     for fam in ("ISPF", "Sockets", "DFSORT", "COBOL compiler", "z/OS Connect", "z/OS client web toolkit"):
         assert gp.owner_of(f"missing copybook: {fam} product").startswith("#7709 (product copybook frontier")
         assert gp.status_of(f"missing copybook: {fam} product") == "unknown"
+    # owner ruling 2026-11-23 (#8412): HWT is refused by name, with IBM's reason
+    assert "IBM does not publish the HWT copybook layout" in gp.owner_of(
+        "missing copybook: z/OS client web toolkit product"
+    )
     assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
     assert gp.status_of("missing copybook: LE system") == "unknown"
 

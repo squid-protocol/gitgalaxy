@@ -404,10 +404,10 @@ def test_typescript_intentional_double_classification_sweep():
     Ambiguity sweep finding: several typescript constructs legitimately
     fire two signatures representing different perspectives on the same
     underlying action -- intentional, not false collisions:
-    - `clearTimeout(id)` -> cleanup (resource release) + time_date_logic
-      (timer/clock API)
+    - `clearTimeout(id)` -> cleanup (resource release) alone: a timer is a timed
+      wait, not a clock value, so it is not time_date_logic (#8868)
     - `setTimeout(fn, ms)` -> concurrency (async scheduling) + thread_sleeps
-      (a delayed/blocking-shaped primitive) + time_date_logic
+      (a delayed/blocking-shaped primitive); not time_date_logic (#8868)
     - `fetch(url, {telemetry: data})` -> io (network call) + exfiltration_
       camouflage (disguised traffic) -- the whole point of the sensor
     - `Object.freeze(x)` -> immutability_locks + safety (defensive freezing)
@@ -420,12 +420,12 @@ def test_typescript_intentional_double_classification_sweep():
       encapsulation (private modifier)
     """
     assert TYPESCRIPT_RULES["cleanup"].search("clearTimeout(id);")
-    assert TYPESCRIPT_RULES["time_date_logic"].search("clearTimeout(id);")
+    assert not TYPESCRIPT_RULES["time_date_logic"].search("clearTimeout(id);")
 
     set_timeout = "setTimeout(fn, 100);"
     assert TYPESCRIPT_RULES["concurrency"].search(set_timeout)
     assert TYPESCRIPT_RULES["thread_sleeps"].search(set_timeout)
-    assert TYPESCRIPT_RULES["time_date_logic"].search(set_timeout)
+    assert not TYPESCRIPT_RULES["time_date_logic"].search(set_timeout)
 
     fetch_camo = "fetch(url, {telemetry: data})"
     assert TYPESCRIPT_RULES["io"].search(fetch_camo)

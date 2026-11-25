@@ -1291,44 +1291,44 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 12,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 0,
       "dockerfile/moby/builder/dockerfile/builder.go": 2,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 6,
-      "dockerfile/moby/builder/dockerfile/copy.go": 12,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 2,
+      "dockerfile/moby/builder/dockerfile/copy.go": 5,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 1,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 2,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 19,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 0,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": 11,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": 2,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 3,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 8,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 1,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 1,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": 5,
-      "dockerfile/moby/builder/dockerfile/internals.go": 11,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": 1,
+      "dockerfile/moby/builder/dockerfile/internals.go": 7,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 2,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 2,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 8,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 1,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 14,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 0,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 5,
-      "dockerfile/moby/builder/remotecontext/detect.go": 1,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 4,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 1,
+      "dockerfile/moby/builder/remotecontext/archive.go": 1,
+      "dockerfile/moby/builder/remotecontext/detect.go": 0,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 0,
       "dockerfile/moby/builder/remotecontext/git.go": 1,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 4,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
       "dockerfile/moby/builder/remotecontext/remote.go": 0,
@@ -1337,20 +1337,20 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 6,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 2,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 6
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 14,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 10,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 2
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 0,
@@ -1511,25 +1511,25 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 1,
-      "go/core/mgc.go": 23,
-      "go/core/mutex.go": 3,
-      "go/core/proc.go": 82,
-      "go/core/server.go": 133,
-      "go/core/syscall_linux.go": 14,
-      "go/core/value.go": 101
+      "go/core/main.go": 0,
+      "go/core/mgc.go": 20,
+      "go/core/mutex.go": 0,
+      "go/core/proc.go": 36,
+      "go/core/server.go": 16,
+      "go/core/syscall_linux.go": 0,
+      "go/core/value.go": 1
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 37,
-      "go/kubernetes/generic.go": 18,
-      "go/kubernetes/kubelet.go": 11,
+      "go/kubernetes/csi_plugin.go": 11,
+      "go/kubernetes/generic.go": 2,
+      "go/kubernetes/kubelet.go": 5,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 22,
-      "go/kubernetes/replica_set.go": 29,
-      "go/kubernetes/scheduler.go": 21
+      "go/kubernetes/proxier.go": 3,
+      "go/kubernetes/replica_set.go": 15,
+      "go/kubernetes/scheduler.go": 15
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 1
@@ -3558,13 +3558,13 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 8,
-      "rust/bevy/bevy_ecs_query.rs": 4,
-      "rust/bevy/bevy_ecs_table.rs": 4,
-      "rust/bevy/bevy_ecs_world.rs": 27,
-      "rust/bevy/bevy_reflect_path.rs": 0,
+      "rust/bevy/bevy_ecs_macros.rs": 29,
+      "rust/bevy/bevy_ecs_query.rs": 14,
+      "rust/bevy/bevy_ecs_table.rs": 13,
+      "rust/bevy/bevy_ecs_world.rs": 55,
+      "rust/bevy/bevy_reflect_path.rs": 3,
       "rust/bevy/bevy_render_phase.rs": 0,
-      "rust/bevy/bevy_schedule_graph.rs": 1
+      "rust/bevy/bevy_schedule_graph.rs": 3
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 0,
@@ -3577,19 +3577,19 @@
       "rust/holylang/compile.rs": 0,
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
-      "rust/holylang/parser.rs": 3,
-      "rust/holylang/semantic.rs": 5,
-      "rust/holylang/transpiler.rs": 1
+      "rust/holylang/parser.rs": 18,
+      "rust/holylang/semantic.rs": 12,
+      "rust/holylang/transpiler.rs": 9
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_impls.rs": 11,
       "rust/serde/serde_core_de_mod.rs": 0,
       "rust/serde/serde_core_macros.rs": 0,
-      "rust/serde/serde_derive_de.rs": 5,
-      "rust/serde/serde_internals_ast.rs": 1,
-      "rust/serde/serde_internals_attr.rs": 6,
+      "rust/serde/serde_derive_de.rs": 16,
+      "rust/serde/serde_internals_ast.rs": 4,
+      "rust/serde/serde_internals_attr.rs": 13,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
@@ -3606,26 +3606,26 @@
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 0,
-      "rust/tokio/builder.rs": 0,
+      "rust/tokio/builder.rs": 4,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 0,
+      "rust/tokio/interval.rs": 4,
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
-      "rust/tokio/tests.rs": 17,
-      "rust/tokio/tokio_mpsc_bounded.rs": 2,
-      "rust/tokio/tokio_named_pipe.rs": 2,
-      "rust/tokio/tokio_udp.rs": 11
+      "rust/tokio/tests.rs": 58,
+      "rust/tokio/tokio_mpsc_bounded.rs": 6,
+      "rust/tokio/tokio_named_pipe.rs": 15,
+      "rust/tokio/tokio_udp.rs": 36
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 1,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 0,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 1,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 1
+      "rust/wasmtime/wasmtime_instance.rs": 9,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 7,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 22,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 89
     },
     "scala": {
       "scala/SOURCES.md": 0

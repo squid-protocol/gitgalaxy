@@ -292202,7 +292202,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 55,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 6049,
           "Structural Impact": 7.9
         },
@@ -316642,7 +316642,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 38,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 559,
           "Structural Impact": 8.9
         },
@@ -316656,7 +316656,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 20,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 163,
           "Structural Impact": 8.0
         },
@@ -316684,7 +316684,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 18,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 322,
           "Structural Impact": 5.9
         },
@@ -316698,7 +316698,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 75,
           "Structural Impact": 5.5
         },
@@ -316712,7 +316712,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 17,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 256,
           "Structural Impact": 4.8
         },
@@ -316726,7 +316726,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 13,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 214,
           "Structural Impact": 4.7
         },
@@ -316740,7 +316740,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 227,
           "Structural Impact": 3.5
         },
@@ -316782,7 +316782,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 48,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 390,
           "Structural Impact": 3.0
         },
@@ -316796,7 +316796,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 33,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 474,
           "Structural Impact": 3.0
         },
@@ -316810,7 +316810,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 16,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 507,
           "Structural Impact": 2.8
         },
@@ -316824,7 +316824,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 14,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 340,
           "Structural Impact": 2.7
         },
@@ -316838,7 +316838,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 91,
           "Structural Impact": 2.5
         },
@@ -316852,7 +316852,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 204,
           "Structural Impact": 2.5
         },
@@ -316866,7 +316866,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 138,
           "Structural Impact": 2.4
         },
@@ -316880,7 +316880,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 183,
           "Structural Impact": 2.4
         },
@@ -316894,7 +316894,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 191,
           "Structural Impact": 2.4
         },
@@ -316908,7 +316908,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 248,
           "Structural Impact": 2.4
         },
@@ -316922,7 +316922,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 315,
           "Structural Impact": 2.4
         },
@@ -316936,7 +316936,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 442,
           "Structural Impact": 2.4
         },
@@ -316950,7 +316950,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 523,
           "Structural Impact": 2.4
         },
@@ -317006,7 +317006,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 157,
           "Structural Impact": 2.3
         },
@@ -317020,7 +317020,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 198,
           "Structural Impact": 2.3
         },
@@ -317048,7 +317048,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 454,
           "Structural Impact": 2.3
         },
@@ -317160,7 +317160,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 4,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 281,
           "Structural Impact": 2.2
         },
@@ -317230,7 +317230,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 17,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 291,
           "Structural Impact": 1.9
         },
@@ -317258,7 +317258,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 14,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 124,
           "Structural Impact": 1.5
         },
@@ -317272,7 +317272,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 22,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 531,
           "Structural Impact": 1.5
         },
@@ -317300,7 +317300,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 57,
           "Structural Impact": 1.4
         },
@@ -317314,7 +317314,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 285,
           "Structural Impact": 1.3
         },
@@ -317456,7 +317456,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 12,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 61,
           "Structural Impact": 3.6
         },
@@ -317512,7 +317512,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 15,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 35,
           "Structural Impact": 1.5
         },
@@ -344228,7 +344228,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 282,
           "Structural Impact": 3.0
         },
@@ -344626,7 +344626,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 368,
           "Structural Impact": 8.0
         },
@@ -344640,7 +344640,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 389,
           "Structural Impact": 8.0
         },
@@ -344682,7 +344682,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 12,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 353,
           "Structural Impact": 4.6
         },
@@ -344766,7 +344766,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 311,
           "Structural Impact": 1.3
         }
@@ -345960,7 +345960,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 104,
           "Structural Impact": 8.5
         },
@@ -346002,7 +346002,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 162,
           "Structural Impact": 1.3
         }
@@ -346032,7 +346032,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 41,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 126,
           "Structural Impact": 23.3
         },
@@ -346088,7 +346088,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 47,
           "Structural Impact": 10.9
         },
@@ -346246,7 +346246,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 30,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 40,
           "Structural Impact": 9.5
         },
@@ -346630,7 +346630,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 43,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 205,
           "Structural Impact": 18.1
         },
@@ -346658,7 +346658,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 110,
           "Structural Impact": 10.9
         },
@@ -346672,7 +346672,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 51,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 141,
           "Structural Impact": 8.6
         },
@@ -346700,7 +346700,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 261,
           "Structural Impact": 5.0
         },
@@ -346728,7 +346728,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 7,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 296,
           "Structural Impact": 1.4
         },
@@ -346742,7 +346742,7 @@
           "Is Documented": 1,
           "Is Public": 0,
           "Lines of Code (LOC)": 8,
-          "Reflection Hits": 0,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 315,
           "Structural Impact": 1.4
         }
@@ -576048,8 +576048,8 @@
       "rust/bevy/LICENSE-MIT": [],
       "rust/bevy/bevy_ecs_macros.rs": [
         {
-          "Control Flow Branches": 25,
-          "Control Flow Ratio": "26.0%",
+          "Control Flow Branches": 24,
+          "Control Flow Ratio": "25.3%",
           "End Line": 483,
           "Function Name": "derive_system_param_impl",
           "Has Header Comment": 0,
@@ -576059,11 +576059,11 @@
           "Lines of Code (LOC)": 237,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 247,
-          "Structural Impact": 56.9
+          "Structural Impact": 55.2
         },
         {
-          "Control Flow Branches": 16,
-          "Control Flow Ratio": "23.9%",
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "22.7%",
           "End Line": 208,
           "Function Name": "derive_bundle",
           "Has Header Comment": 1,
@@ -576073,7 +576073,7 @@
           "Lines of Code (LOC)": 155,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 54,
-          "Structural Impact": 31.8
+          "Structural Impact": 30.4
         },
         {
           "Control Flow Branches": 9,
@@ -577018,20 +577018,6 @@
           "Structural Impact": 4.1
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 44,
-          "Function Name": "with_capacity",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 34,
-          "Structural Impact": 4.0
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 185,
@@ -577114,6 +577100,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 297,
           "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 44,
+          "Function Name": "with_capacity",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 34,
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 0,
@@ -577889,20 +577889,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 2761,
-          "Function Name": "resource_scope",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 2757,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 2932,
           "Function Name": "write_message",
@@ -578039,20 +578025,6 @@
           "Lines of Code (LOC)": 10,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 3305,
-          "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 4072,
-          "Function Name": "panic_while_overwriting_component",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 26,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 4047,
           "Structural Impact": 3.3
         },
         {
@@ -578277,6 +578249,20 @@
           "Lines of Code (LOC)": 11,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 3862,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 4072,
+          "Function Name": "panic_while_overwriting_component",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 26,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 4047,
           "Structural Impact": 2.3
         },
         {
@@ -578697,6 +578683,20 @@
           "Lines of Code (LOC)": 11,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2299,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 2761,
+          "Function Name": "resource_scope",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 2757,
           "Structural Impact": 2.0
         },
         {
@@ -580461,8 +580461,8 @@
           "Structural Impact": 96.7
         },
         {
-          "Control Flow Branches": 31,
-          "Control Flow Ratio": "41.9%",
+          "Control Flow Branches": 28,
+          "Control Flow Ratio": "39.4%",
           "End Line": 189,
           "Function Name": "parse_function",
           "Has Header Comment": 1,
@@ -580472,21 +580472,7 @@
           "Lines of Code (LOC)": 123,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 67,
-          "Structural Impact": 61.6
-        },
-        {
-          "Control Flow Branches": 18,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 292,
-          "Function Name": "parse_block",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 64,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 229,
-          "Structural Impact": 36.1
+          "Structural Impact": 56.4
         },
         {
           "Control Flow Branches": 17,
@@ -580501,6 +580487,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 295,
           "Structural Impact": 35.2
+        },
+        {
+          "Control Flow Branches": 17,
+          "Control Flow Ratio": "58.6%",
+          "End Line": 292,
+          "Function Name": "parse_block",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 64,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 229,
+          "Structural Impact": 34.4
         },
         {
           "Control Flow Branches": 14,
@@ -580645,8 +580645,8 @@
       ],
       "rust/holylang/semantic.rs": [
         {
-          "Control Flow Branches": 118,
-          "Control Flow Ratio": "45.9%",
+          "Control Flow Branches": 111,
+          "Control Flow Ratio": "44.4%",
           "End Line": 994,
           "Function Name": "check_stmts",
           "Has Header Comment": 1,
@@ -580656,11 +580656,11 @@
           "Lines of Code (LOC)": 779,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 216,
-          "Structural Impact": 353.8
+          "Structural Impact": 335.3
         },
         {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "45.8%",
           "End Line": 1096,
           "Function Name": "check_call",
           "Has Header Comment": 1,
@@ -580670,7 +580670,7 @@
           "Lines of Code (LOC)": 72,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1025,
-          "Structural Impact": 40.6
+          "Structural Impact": 35.3
         },
         {
           "Control Flow Branches": 7,
@@ -580849,8 +580849,8 @@
       "rust/serde/LICENSE-MIT": [],
       "rust/serde/serde_core_de_impls.rs": [
         {
-          "Control Flow Branches": 15,
-          "Control Flow Ratio": "28.8%",
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "27.5%",
           "End Line": 2410,
           "Function Name": "deserialize",
           "Has Header Comment": 0,
@@ -580860,7 +580860,7 @@
           "Lines of Code (LOC)": 139,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2272,
-          "Structural Impact": 29.6
+          "Structural Impact": 28.2
         },
         {
           "Control Flow Branches": 14,
@@ -585688,8 +585688,8 @@
           "Structural Impact": 17.2
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
           "End Line": 1631,
           "Function Name": "is_cow",
           "Has Header Comment": 0,
@@ -585699,11 +585699,11 @@
           "Lines of Code (LOC)": 23,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1609,
-          "Structural Impact": 13.3
+          "Structural Impact": 11.5
         },
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "45.5%",
           "End Line": 1655,
           "Function Name": "is_option",
           "Has Header Comment": 0,
@@ -585713,21 +585713,7 @@
           "Lines of Code (LOC)": 23,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1633,
-          "Structural Impact": 13.3
-        },
-        {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "45.5%",
-          "End Line": 1818,
-          "Function Name": "collect_lifetimes_from_tokens",
-          "Has Header Comment": 0,
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 20,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1799,
-          "Structural Impact": 11.4
+          "Structural Impact": 11.5
         },
         {
           "Control Flow Branches": 3,
@@ -585742,6 +585728,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1497,
           "Structural Impact": 9.9
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 1818,
+          "Function Name": "collect_lifetimes_from_tokens",
+          "Has Header Comment": 0,
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 20,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1799,
+          "Structural Impact": 9.7
         },
         {
           "Control Flow Branches": 3,
@@ -588161,20 +588161,6 @@
       ],
       "rust/syn/buffer.rs": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
-          "End Line": 372,
-          "Function Name": "skip",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 20,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 353,
-          "Structural Impact": 8.1
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "30.0%",
           "End Line": 261,
@@ -588204,20 +588190,6 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 238,
-          "Function Name": "lifetime",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 15,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 224,
-          "Structural Impact": 7.8
-        },
-        {
-          "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 181,
           "Function Name": "ignore_none",
@@ -588232,6 +588204,20 @@
         },
         {
           "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 372,
+          "Function Name": "skip",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 20,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 353,
+          "Structural Impact": 6.7
+        },
+        {
+          "Control Flow Branches": 3,
           "Control Flow Ratio": "60.0%",
           "End Line": 337,
           "Function Name": "span",
@@ -588243,6 +588229,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 322,
           "Structural Impact": 6.5
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
+          "End Line": 238,
+          "Function Name": "lifetime",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 224,
+          "Structural Impact": 6.4
         },
         {
           "Control Flow Branches": 2,
@@ -589497,20 +589497,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 338,
-          "Function Name": "new",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 64,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 275,
-          "Structural Impact": 5.5
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "7.1%",
           "End Line": 1861,
           "Function Name": "build_threaded_runtime",
@@ -589553,20 +589539,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 547,
-          "Function Name": "thread_name",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 543,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "100.0%",
           "End Line": 1074,
           "Function Name": "get_cfg",
@@ -589606,6 +589578,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1595,
           "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 338,
+          "Function Name": "new",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 64,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 275,
+          "Structural Impact": 3.2
         },
         {
           "Control Flow Branches": 1,
@@ -589815,6 +589801,20 @@
           "Lines of Code (LOC)": 6,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 467,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 547,
+          "Function Name": "thread_name",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 543,
           "Structural Impact": 2.0
         },
         {
@@ -590103,20 +590103,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 147,
-          "Function Name": "internal_interval_at",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 35,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 113,
-          "Structural Impact": 5.8
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "100.0%",
           "End Line": 363,
           "Function Name": "next_timeout",
@@ -590130,8 +590116,22 @@
           "Structural Impact": 5.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 147,
+          "Function Name": "internal_interval_at",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 35,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 113,
+          "Structural Impact": 3.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 448,
           "Function Name": "tick",
           "Has Header Comment": 1,
@@ -590141,7 +590141,7 @@
           "Lines of Code (LOC)": 16,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 433,
-          "Structural Impact": 3.6
+          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -590486,62 +590486,6 @@
           "Structural Impact": 3.7
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "8.3%",
-          "End Line": 803,
-          "Function Name": "sync_all_err_ordered_after_write",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 32,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 772,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "8.3%",
-          "End Line": 867,
-          "Function Name": "sync_data_err_ordered_after_write",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 32,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 836,
-          "Structural Impact": 3.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "8.3%",
-          "End Line": 770,
-          "Function Name": "sync_all_ordered_after_write",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 30,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 741,
-          "Structural Impact": 3.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "8.3%",
-          "End Line": 834,
-          "Function Name": "sync_data_ordered_after_write",
-          "Has Header Comment": 0,
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 30,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 805,
-          "Structural Impact": 3.5
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 193,
@@ -590670,6 +590614,34 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 803,
+          "Function Name": "sync_all_err_ordered_after_write",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 32,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 772,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 867,
+          "Function Name": "sync_data_err_ordered_after_write",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 32,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 836,
+          "Structural Impact": 2.6
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 707,
           "Function Name": "write_seek_write_err",
           "Has Header Comment": 0,
@@ -590693,6 +590665,34 @@
           "Lines of Code (LOC)": 31,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 709,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 770,
+          "Function Name": "sync_all_ordered_after_write",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 741,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 834,
+          "Function Name": "sync_data_ordered_after_write",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 805,
           "Structural Impact": 2.5
         },
         {
@@ -590937,20 +590937,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1823,
-          "Function Name": "send",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 8,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1816,
-          "Structural Impact": 3.9
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 1183,
           "Function Name": "reserve_many",
@@ -590975,20 +590961,6 @@
           "Lines of Code (LOC)": 11,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1477,
-          "Structural Impact": 3.4
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 1865,
-          "Function Name": "release",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1855,
           "Structural Impact": 3.4
         },
         {
@@ -591120,6 +591092,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 1823,
+          "Function Name": "send",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 8,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1816,
+          "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 747,
           "Function Name": "fmt",
           "Has Header Comment": 0,
@@ -591185,6 +591171,20 @@
           "Lines of Code (LOC)": 6,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1771,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1865,
+          "Function Name": "release",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 11,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1855,
           "Structural Impact": 2.0
         },
         {
@@ -591694,8 +591694,8 @@
           "Structural Impact": 7.6
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "66.7%",
           "End Line": 202,
           "Function Name": "connect",
           "Has Header Comment": 1,
@@ -591705,11 +591705,11 @@
           "Lines of Code (LOC)": 11,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 192,
-          "Structural Impact": 6.2
+          "Structural Impact": 4.8
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "18.2%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "10.0%",
           "End Line": 618,
           "Function Name": "try_read_buf",
           "Has Header Comment": 1,
@@ -591719,11 +591719,11 @@
           "Lines of Code (LOC)": 19,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 600,
-          "Structural Impact": 6.1
+          "Structural Impact": 4.4
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "18.2%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "10.0%",
           "End Line": 1410,
           "Function Name": "try_read_buf",
           "Has Header Comment": 1,
@@ -591733,7 +591733,7 @@
           "Lines of Code (LOC)": 19,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1392,
-          "Structural Impact": 6.1
+          "Structural Impact": 4.4
         },
         {
           "Control Flow Branches": 1,
@@ -591751,62 +591751,6 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 461,
-          "Function Name": "try_read",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 457,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 539,
-          "Function Name": "try_read_vectored",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 535,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 753,
-          "Function Name": "try_write",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 749,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 815,
-          "Function Name": "try_write_vectored",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 811,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
           "Control Flow Ratio": "33.3%",
           "End Line": 1103,
           "Function Name": "ready",
@@ -591817,62 +591761,6 @@
           "Lines of Code (LOC)": 4,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1100,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1254,
-          "Function Name": "try_read",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1250,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1331,
-          "Function Name": "try_read_vectored",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1327,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 1543,
-          "Function Name": "try_write",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1539,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 1604,
-          "Function Name": "try_write_vectored",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1600,
           "Structural Impact": 3.7
         },
         {
@@ -592098,6 +591986,118 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1699,
           "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 461,
+          "Function Name": "try_read",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 457,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 539,
+          "Function Name": "try_read_vectored",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 535,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 753,
+          "Function Name": "try_write",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 749,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 815,
+          "Function Name": "try_write_vectored",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 811,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1254,
+          "Function Name": "try_read",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1250,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1331,
+          "Function Name": "try_read_vectored",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1327,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1543,
+          "Function Name": "try_write",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1539,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1604,
+          "Function Name": "try_write_vectored",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1600,
+          "Structural Impact": 2.0
         },
         {
           "Control Flow Branches": 0,
@@ -592606,8 +592606,8 @@
       ],
       "rust/tokio/tokio_udp.rs": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
           "End Line": 365,
           "Function Name": "connect",
           "Has Header Comment": 1,
@@ -592617,11 +592617,11 @@
           "Lines of Code (LOC)": 18,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 348,
-          "Structural Impact": 9.6
+          "Structural Impact": 7.8
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
           "End Line": 167,
           "Function Name": "bind",
           "Has Header Comment": 1,
@@ -592631,63 +592631,7 @@
           "Lines of Code (LOC)": 18,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 150,
-          "Structural Impact": 8.0
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
-          "End Line": 1369,
-          "Function Name": "poll_recv_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 22,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1348,
-          "Structural Impact": 7.1
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
-          "End Line": 1766,
-          "Function Name": "poll_peek_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 22,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1745,
-          "Structural Impact": 7.1
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
-          "End Line": 832,
-          "Function Name": "poll_recv",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 18,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 815,
-          "Structural Impact": 6.9
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "22.2%",
-          "End Line": 1619,
-          "Function Name": "poll_peek",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 18,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1602,
-          "Structural Impact": 6.9
+          "Structural Impact": 6.6
         },
         {
           "Control Flow Branches": 2,
@@ -592704,22 +592648,64 @@
           "Structural Impact": 6.5
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 1877,
-          "Function Name": "peek_sender_inner",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 12,
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 1369,
+          "Function Name": "poll_recv_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 22,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1866,
-          "Structural Impact": 6.3
+          "Start Line": 1348,
+          "Structural Impact": 5.1
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 1766,
+          "Function Name": "poll_peek_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 22,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1745,
+          "Structural Impact": 5.1
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 832,
+          "Function Name": "poll_recv",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 815,
+          "Structural Impact": 4.9
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "12.5%",
+          "End Line": 1619,
+          "Function Name": "poll_peek",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 18,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1602,
+          "Structural Impact": 4.9
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
           "End Line": 956,
           "Function Name": "try_recv_buf",
           "Has Header Comment": 1,
@@ -592729,11 +592715,11 @@
           "Lines of Code (LOC)": 17,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 940,
-          "Structural Impact": 6.0
+          "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "18.2%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "10.0%",
           "End Line": 1004,
           "Function Name": "recv_buf",
           "Has Header Comment": 1,
@@ -592743,11 +592729,11 @@
           "Lines of Code (LOC)": 17,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 988,
-          "Structural Impact": 6.0
+          "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "11.1%",
           "End Line": 1079,
           "Function Name": "try_recv_buf_from",
           "Has Header Comment": 1,
@@ -592757,11 +592743,11 @@
           "Lines of Code (LOC)": 17,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1063,
-          "Structural Impact": 6.0
+          "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "18.2%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "10.0%",
           "End Line": 1135,
           "Function Name": "recv_buf_from",
           "Has Header Comment": 1,
@@ -592771,161 +592757,7 @@
           "Lines of Code (LOC)": 17,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 1119,
-          "Structural Impact": 6.0
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1212,
-          "Function Name": "poll_send_to",
-          "Has Header Comment": 1,
-          "Input Parameters": 4,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1203,
-          "Structural Impact": 5.0
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1475,
-          "Function Name": "try_io",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 9,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1467,
-          "Structural Impact": 4.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 1511,
-          "Function Name": "async_io",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 10,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1502,
-          "Structural Impact": 4.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1272,
-          "Function Name": "send_to_addr",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1267,
           "Structural Impact": 4.3
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 599,
-          "Function Name": "poll_send",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 595,
-          "Structural Impact": 4.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 1265,
-          "Function Name": "try_send_to",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1261,
-          "Structural Impact": 4.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 570,
-          "Function Name": "send",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 565,
-          "Structural Impact": 3.8
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 790,
-          "Function Name": "recv",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 785,
-          "Structural Impact": 3.8
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1320,
-          "Function Name": "recv_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1315,
-          "Structural Impact": 3.8
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1561,
-          "Function Name": "peek",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1556,
-          "Structural Impact": 3.8
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 1703,
-          "Function Name": "peek_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1698,
-          "Structural Impact": 3.8
         },
         {
           "Control Flow Branches": 1,
@@ -592944,86 +592776,16 @@
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "100.0%",
-          "End Line": 653,
-          "Function Name": "try_send",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
+          "End Line": 1877,
+          "Function Name": "peek_sender_inner",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 649,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 888,
-          "Function Name": "try_recv",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 884,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1433,
-          "Function Name": "try_recv_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1429,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1652,
-          "Function Name": "try_peek",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1648,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1800,
-          "Function Name": "try_peek_from",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1796,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1846,
-          "Function Name": "poll_peek_sender",
-          "Has Header Comment": 1,
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1842,
-          "Structural Impact": 3.7
+          "Start Line": 1866,
+          "Structural Impact": 3.4
         },
         {
           "Control Flow Branches": 1,
@@ -593051,34 +592813,6 @@
           "Lines of Code (LOC)": 5,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 174,
-          "Structural Impact": 3.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 1820,
-          "Function Name": "peek_sender",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1815,
-          "Structural Impact": 3.1
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 1864,
-          "Function Name": "try_peek_sender",
-          "Has Header Comment": 1,
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 1860,
           "Structural Impact": 3.1
         },
         {
@@ -593168,6 +592902,48 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 1212,
+          "Function Name": "poll_send_to",
+          "Has Header Comment": 1,
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1203,
+          "Structural Impact": 2.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1475,
+          "Function Name": "try_io",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1467,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1511,
+          "Function Name": "async_io",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1502,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 274,
           "Function Name": "into_std",
           "Has Header Comment": 1,
@@ -593220,6 +592996,48 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2108,
           "Structural Impact": 2.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1272,
+          "Function Name": "send_to_addr",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1267,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 599,
+          "Function Name": "poll_send",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 595,
+          "Structural Impact": 2.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1265,
+          "Function Name": "try_send_to",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1261,
+          "Structural Impact": 2.2
         },
         {
           "Control Flow Branches": 0,
@@ -593290,6 +593108,160 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2261,
           "Structural Impact": 2.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 570,
+          "Function Name": "send",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 565,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 653,
+          "Function Name": "try_send",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 649,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 790,
+          "Function Name": "recv",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 785,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 888,
+          "Function Name": "try_recv",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 884,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1320,
+          "Function Name": "recv_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1315,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1433,
+          "Function Name": "try_recv_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1429,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1561,
+          "Function Name": "peek",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1556,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1652,
+          "Function Name": "try_peek",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1648,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1703,
+          "Function Name": "peek_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1698,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1800,
+          "Function Name": "try_peek_from",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1796,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1846,
+          "Function Name": "poll_peek_sender",
+          "Has Header Comment": 1,
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1842,
+          "Structural Impact": 2.0
         },
         {
           "Control Flow Branches": 0,
@@ -593416,6 +593388,34 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 2202,
           "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1820,
+          "Function Name": "peek_sender",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1815,
+          "Structural Impact": 1.7
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 1864,
+          "Function Name": "try_peek_sender",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 5,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 1860,
+          "Structural Impact": 1.7
         },
         {
           "Control Flow Branches": 0,
@@ -593820,20 +593820,6 @@
           "Structural Impact": 12.7
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
-          "End Line": 202,
-          "Function Name": "get_typed_func",
-          "Has Header Comment": 1,
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 15,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 188,
-          "Structural Impact": 10.8
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "18.2%",
           "End Line": 1054,
@@ -593944,6 +593930,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 255,
           "Structural Impact": 6.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 202,
+          "Function Name": "get_typed_func",
+          "Has Header Comment": 1,
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 15,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 188,
+          "Structural Impact": 6.8
         },
         {
           "Control Flow Branches": 2,
@@ -596162,20 +596162,6 @@
           "Structural Impact": 21.8
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 223,
-          "Function Name": "str_to_ident",
-          "Has Header Comment": 0,
-          "Input Parameters": 3,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 22,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 202,
-          "Structural Impact": 21.1
-        },
-        {
           "Control Flow Branches": 13,
           "Control Flow Ratio": "76.5%",
           "End Line": 895,
@@ -596258,6 +596244,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 302,
           "Structural Impact": 13.8
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "62.5%",
+          "End Line": 223,
+          "Function Name": "str_to_ident",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 22,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 202,
+          "Structural Impact": 13.1
         },
         {
           "Control Flow Branches": 6,
@@ -596444,20 +596444,6 @@
         {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "100.0%",
-          "End Line": 100,
-          "Function Name": "pos",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 92,
-          "Structural Impact": 6.1
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "100.0%",
           "End Line": 130,
           "Function Name": "is_spec_bit_vector",
           "Has Header Comment": 0,
@@ -596467,20 +596453,6 @@
           "Lines of Code (LOC)": 6,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 125,
-          "Structural Impact": 6.0
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 137,
-          "Function Name": "is_spec_bool",
-          "Has Header Comment": 0,
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
-          "Start Line": 132,
           "Structural Impact": 6.0
         },
         {
@@ -596510,6 +596482,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 156,
           "Structural Impact": 5.5
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 100,
+          "Function Name": "pos",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 92,
+          "Structural Impact": 4.7
         },
         {
           "Control Flow Branches": 2,
@@ -596579,6 +596565,20 @@
           "Lines of Code (LOC)": 6,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 118,
+          "Structural Impact": 4.5
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 137,
+          "Function Name": "is_spec_bool",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
+          "Start Line": 132,
           "Structural Impact": 4.5
         },
         {
@@ -622268,7 +622268,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 21,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 2,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 79,
           "Structural Impact": 11.1
         },
@@ -622282,7 +622282,7 @@
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 5,
-          "Metaprogramming (Macros, Reflection, goto) Hits": 1,
+          "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 72,
           "Structural Impact": 5.2
         },

@@ -1149,7 +1149,7 @@
         "api_exposure": 15.68,
         "churn": 0.0,
         "cognitive_load": 35.9,
-        "concurrency": 5.31,
+        "concurrency": 5.36,
         "dead_code": 0.0,
         "documentation": 29.19,
         "safety_score": 40.6,
@@ -1623,10 +1623,10 @@
       "avg_exposures": {
         "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 24.98,
+        "cognitive_load": 24.97,
         "concurrency": 12.89,
         "dead_code": 0.72,
-        "documentation": 44.0,
+        "documentation": 43.97,
         "safety_score": 36.06,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -1794,10 +1794,10 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 17.84,
+        "cognitive_load": 7.14,
         "concurrency": 3.42,
         "dead_code": 1.36,
-        "documentation": 99.77,
+        "documentation": 99.57,
         "safety_score": 12.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -1909,7 +1909,7 @@
         "api_exposure": 29.68,
         "churn": 0.0,
         "cognitive_load": 39.47,
-        "concurrency": 21.9,
+        "concurrency": 22.14,
         "dead_code": 0.0,
         "documentation": 3.58,
         "safety_score": 70.27,
@@ -2007,7 +2007,7 @@
         "concurrency": 3.06,
         "dead_code": 7.98,
         "documentation": 76.91,
-        "safety_score": 72.64,
+        "safety_score": 72.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
@@ -5139,7 +5139,7 @@
         "api_exposure": 15.77,
         "churn": 0.0,
         "cognitive_load": 42.39,
-        "concurrency": 3.16,
+        "concurrency": 0.0,
         "dead_code": 1.23,
         "documentation": 29.9,
         "safety_score": 71.8,
@@ -5385,7 +5385,7 @@
       "avg_exposures": {
         "api_exposure": 5.13,
         "churn": 0.0,
-        "cognitive_load": 8.74,
+        "cognitive_load": 8.72,
         "concurrency": 13.08,
         "dead_code": 0.0,
         "documentation": 35.44,
@@ -5398,7 +5398,7 @@
         "verification": 27.72
       },
       "file_count": 9,
-      "total_mass": 1657.8
+      "total_mass": 1650.3
     },
     "rust/bevy_asset_examples": {
       "avg_exposures": {
@@ -5423,7 +5423,7 @@
       "avg_exposures": {
         "api_exposure": 6.12,
         "churn": 0.0,
-        "cognitive_load": 16.68,
+        "cognitive_load": 16.52,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 56.79,
@@ -5436,13 +5436,13 @@
         "verification": 35.62
       },
       "file_count": 7,
-      "total_mass": 1409.96
+      "total_mass": 1379.26
     },
     "rust/serde": {
       "avg_exposures": {
         "api_exposure": 4.44,
         "churn": 0.0,
-        "cognitive_load": 4.59,
+        "cognitive_load": 4.57,
         "concurrency": 0.0,
         "dead_code": 1.25,
         "documentation": 51.47,
@@ -5455,13 +5455,13 @@
         "verification": 36.34
       },
       "file_count": 9,
-      "total_mass": 2881.92
+      "total_mass": 2875.22
     },
     "rust/syn": {
       "avg_exposures": {
         "api_exposure": 5.55,
         "churn": 0.0,
-        "cognitive_load": 15.73,
+        "cognitive_load": 15.62,
         "concurrency": 1.86,
         "dead_code": 0.0,
         "documentation": 62.21,
@@ -5474,13 +5474,13 @@
         "verification": 40.89
       },
       "file_count": 8,
-      "total_mass": 652.6
+      "total_mass": 649.8
     },
     "rust/tokio": {
       "avg_exposures": {
         "api_exposure": 12.26,
         "churn": 0.0,
-        "cognitive_load": 12.78,
+        "cognitive_load": 12.84,
         "concurrency": 53.46,
         "dead_code": 0.0,
         "documentation": 38.26,
@@ -5493,7 +5493,7 @@
         "verification": 26.06
       },
       "file_count": 13,
-      "total_mass": 1692.52
+      "total_mass": 1604.32
     },
     "rust/tokio_util_rand": {
       "avg_exposures": {
@@ -5518,7 +5518,7 @@
       "avg_exposures": {
         "api_exposure": 7.89,
         "churn": 0.0,
-        "cognitive_load": 9.21,
+        "cognitive_load": 9.11,
         "concurrency": 6.82,
         "dead_code": 0.0,
         "documentation": 71.42,
@@ -5531,7 +5531,7 @@
         "verification": 64.47
       },
       "file_count": 5,
-      "total_mass": 4255.06
+      "total_mass": 4240.16
     },
     "scala": {
       "avg_exposures": {
@@ -5651,7 +5651,7 @@
       "avg_exposures": {
         "api_exposure": 4.57,
         "churn": 0.0,
-        "cognitive_load": 30.92,
+        "cognitive_load": 28.99,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 34.91,

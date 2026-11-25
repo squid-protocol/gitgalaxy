@@ -26,9 +26,13 @@ Still open (file a question on the epic, do not guess): Rust `?` as a branch; Go
 | recall low, one callee dominates the missed list | the **oracle reads the contract too broadly** | Go `time.` counted timers; C `close`; Rust bare `exit` matched `span.exit()` |
 | precision low, oracle sees far fewer | the **rule counts a different construct** | Go `closures` matched method declarations; Rust `short_circuit` counted `||` closures; TypeScript `io` matched the bare word `path` |
 | precision low, recall 1.00, a self-scan only | **the oracle misses a form** | `self.logger.info()` read only as a bare `logger.` receiver |
-| recall low, the missed tokens are named by the contract | a **real missing keyword** | Go `NewTicker`; Python `with` / `finally` / `del` for cleanup |
+| recall low, the missed tokens are named by the contract | a **real missing keyword** | Go `NewTicker`; Python `with` / `finally` / `del` for cleanup; candidates: `docs/family_missing_keywords.md` |
 | `dead` / `no-instances` | the oracle or the corpus has nothing; do not fix an engine rule to it | |
 | the contract is `draft`, silent or contradicts itself | a **question**, not a bug | file it on #8863 and move on |
+
+The mining report `docs/family_missing_keywords.md` lists, per family and language, the tokens the oracle saw in functions where the
+family read 0 (`functions` = distinct missed functions). Regenerate with `python tests/tools/family_missing_keywords.py --sweep
+--top 15 --out docs/family_missing_keywords.md` under `heavy-run.sh`.
 
 Already-fixed is common: re-measure the cell on current `origin/main` before any edit. Of the 20 #8868 rows, about half were already
 green or were an oracle error.

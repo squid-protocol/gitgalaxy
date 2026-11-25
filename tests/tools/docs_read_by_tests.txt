@@ -14,6 +14,7 @@
 .claude/skills/box-capacity/SKILL.md	tests/tools/test_file_cap_grant_wording_8422.py
 .claude/skills/cics-command-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/det-port/SKILL.md	tests/tools/test_ci_replay_6278.py,tests/tools/test_det_sweep_balance.py
+.claude/skills/family-validity-fix/SKILL.md	tests/tools/family_red_cells.py
 .claude/skills/ladder-slice/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/porting-loop/SKILL.md	tests/tools/test_det_sweep_balance.py
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
@@ -54,6 +55,7 @@
 /FAKE.APP.DBRMLIB	tests/cobol_mainframe
 /FORMS.jcl	tests/cobol_mainframe
 /IFOXJOB.jcl	tests/cobol_mainframe
+/K	tests/cobol_mainframe
 /LAYCPY.cpy	tests/cobol_mainframe
 /LAYTOY.cbl	tests/cobol_mainframe
 /LICENSE.txt	tests/core_engine
@@ -487,8 +489,8 @@ docs/self_scan/README.md	tests/tools/test_progress_report.py
 docs/self_scan/ROSETTA_AUDIT.md	tests/tools/rosetta_audit.py
 docs/self_scan/_stale_test_chart.svg	tests/tools/test_family_validity_chart.py
 docs/self_scan/call_resolution_history.csv	tests/tools/call_resolution_rates.py,tests/tools/test_generated_branch.py
-docs/self_scan/family_validity_chart.svg	tests/tools/family_validity_chart.py
-docs/self_scan/family_validity_matrix.svg	tests/tools/family_validity_chart.py
+docs/self_scan/family_validity_chart.svg	tests/tools/family_sweep_nightly.py,tests/tools/family_validity_chart.py
+docs/self_scan/family_validity_matrix.svg	tests/tools/family_sweep_nightly.py,tests/tools/family_validity_chart.py
 docs/self_scan/gitgalaxy.json	tests/tools/self_scan.py
 docs/self_scan/gitgalaxy_master.db	tests/tools/context_pack.py
 docs/self_scan/gitgalaxy_master.db/	tests/tools/context_pack.py,tests/tools/self_scan.py
@@ -616,7 +618,7 @@ port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py
 quote.md	tests/core_engine
-r.md	tests/cobol_mainframe
+r.md	tests/cobol_mainframe,tests/tools/test_family_missing_keywords.py
 readiness.md	tests/cobol_mainframe
 recorders/README.md	tests/core_engine
 refusal_map.json	tests/tools/support_matrix.py

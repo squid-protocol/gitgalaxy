@@ -2962,7 +2962,7 @@
     "csharp/roslyn": {
       "Average Risk Exposures": {
         "API Exposure": "3.95%",
-        "Cognitive Load Exposure": "22.17%",
+        "Cognitive Load Exposure": "22.02%",
         "Commented Logic Exposure": "1.45%",
         "Concurrency Exposure": "20.17%",
         "Documentation Exposure": "50.52%",
@@ -5943,10 +5943,10 @@
     "java/springboot": {
       "Average Risk Exposures": {
         "API Exposure": "4.16%",
-        "Cognitive Load Exposure": "15.0%",
+        "Cognitive Load Exposure": "13.36%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "10.9%",
-        "Documentation Exposure": "59.79%",
+        "Documentation Exposure": "59.57%",
         "Error & Exception Exposure": "49.72%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "43.75%",
@@ -10472,10 +10472,10 @@
     "rust/serde": {
       "Average Risk Exposures": {
         "API Exposure": "4.44%",
-        "Cognitive Load Exposure": "4.99%",
+        "Cognitive Load Exposure": "4.59%",
         "Commented Logic Exposure": "1.25%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "50.57%",
+        "Documentation Exposure": "51.47%",
         "Error & Exception Exposure": "30.44%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "38.89%",
@@ -10507,10 +10507,10 @@
     "rust/syn": {
       "Average Risk Exposures": {
         "API Exposure": "5.55%",
-        "Cognitive Load Exposure": "16.0%",
+        "Cognitive Load Exposure": "15.73%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "1.86%",
-        "Documentation Exposure": "62.06%",
+        "Documentation Exposure": "62.21%",
         "Error & Exception Exposure": "33.55%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "43.75%",
@@ -10544,7 +10544,7 @@
     "rust/tokio": {
       "Average Risk Exposures": {
         "API Exposure": "12.26%",
-        "Cognitive Load Exposure": "13.51%",
+        "Cognitive Load Exposure": "12.78%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "53.46%",
         "Documentation Exposure": "38.26%",
@@ -10609,10 +10609,10 @@
     "rust/wasmtime": {
       "Average Risk Exposures": {
         "API Exposure": "7.89%",
-        "Cognitive Load Exposure": "9.26%",
+        "Cognitive Load Exposure": "9.21%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "6.82%",
-        "Documentation Exposure": "71.3%",
+        "Documentation Exposure": "71.42%",
         "Error & Exception Exposure": "42.61%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",

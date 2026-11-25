@@ -27,7 +27,7 @@ A cell is red when the weaker of recall and precision is under 0.8 on at least 1
    `gitgalaxy/standards/language_standards/languages/<lang>.py`, with a comment citing the issue. Prefer narrowing a rule to
    an operative form over deleting it; prefer anchoring on what must be next to the match over a longer alternation.
 6. **Test both directions.** Add cases to a test beside the rule: the forms that must count and the false-positive forms that
-   motivated the change (`tests/test_batch_b_rules.py` is the shape).
+   motivated the change (`tests/test_python_cleanup_rule.py` is the shape).
 7. **Re-score** the cell. It must move toward 0.8 and nothing else in that language may fall; read the whole language's rows, not
    one.
 

@@ -81,3 +81,15 @@ hunks by hand. A conflict in a source file is a real conflict: read it.
 `python tests/tools/family_red_cells.py --slices` prints one per language:
 `- [ ] **go**: 7 red cells (recall/precision: ...). Follow .claude/skills/family-validity-fix/SKILL.md. Done when every cell is 0.8 or better on the pinned crucible, or the contract is silent and a question is filed; one PR for this language only.`
 Re-run it after every `family_oracle_sweep.py --write` and replace the epic's lines.
+
+## Nightly
+`tests/tools/family_sweep_nightly.py` re-measures the grid every night and keeps one standing draft PR (`bot/family-validity-baseline`)
+with the new baseline and grid, regressions listed first, and the per-language epic lines. It shares `census-nightly`'s rules: it
+needs `box_status` GREEN, runs once per main SHA per UTC day (stamp under `<scratch>/family-sweep-nightly/`), runs in a dedicated
+worktree, and uses its own clone of the pinned language-crucible (never the shared checkout). It never force-pushes, never merges,
+and never edits an engine rule: it measures and reports.
+
+Units (user systemd, `~/.config/systemd/user/`): `family-sweep-nightly.service` and `.timer` (06:30 local). The service has
+`ConditionPathExists` on the script, so the timer is a quiet no-op until the tool is on `origin/main` in the worktree
+`/srv/storage_16tb/projects/gitgalaxy-worktrees/family-sweep-nightly`. Run it by hand with `--dry-run --force` (sweeps, prints the PR
+body, publishes nothing). Pause it with `systemctl --user stop family-sweep-nightly.timer`.

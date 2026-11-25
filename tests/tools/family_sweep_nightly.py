@@ -32,7 +32,8 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
 sys.path.insert(0, str(TOOLS))
-import census_nightly  # noqa: E402  (box_verdict: one gate for every nightly)
+import census_nightly  # noqa: E402
+import crucible_pins  # noqa: E402  (primary_checkout: a worktree finds the main checkout's sibling corpus)  (box_verdict: one gate for every nightly)
 import equivalence_env  # noqa: E402  (scratch_root: the shared scratch every nightly uses)
 import family_red_cells  # noqa: E402
 
@@ -100,7 +101,10 @@ def own_crucible(root: Path) -> Path:
     """This job's own language-crucible checkout, cloned from the primary one the first time, then synced to the pin."""
     dest = root / "family-sweep-nightly" / "language-crucible"
     if not (dest / ".git").exists():
-        primary = Path(os.environ.get("FAMILY_SWEEP_CRUCIBLE_SOURCE", REPO.parent / "language-crucible"))
+        primary = Path(
+            os.environ.get("FAMILY_SWEEP_CRUCIBLE_SOURCE")
+            or crucible_pins.primary_checkout().parent / "language-crucible"
+        )
         dest.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["git", "clone", "-q", str(primary), str(dest)], check=True)  # noqa: S603,S607
     env = {**os.environ, "LANGUAGE_CRUCIBLE_PATH": str(dest)}

@@ -2389,7 +2389,7 @@
       "julia/dataframes_jl/groupeddataframe_utils.jl": -0.366,
       "julia/dataframes_jl/join_core.jl": 0.371,
       "julia/dataframes_jl/join_inplace.jl": 1.038,
-      "julia/dataframes_jl/other_broadcasting.jl": 2.036,
+      "julia/dataframes_jl/other_broadcasting.jl": 1.373,
       "julia/dataframes_jl/other_index.jl": 0.389,
       "julia/dataframes_jl/other_metadata.jl": 0.361,
       "julia/dataframes_jl/other_names.jl": -0.16,

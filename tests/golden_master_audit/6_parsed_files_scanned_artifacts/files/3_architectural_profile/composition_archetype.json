@@ -2389,7 +2389,7 @@
       "julia/dataframes_jl/groupeddataframe_utils.jl": "Large Core Modules (3)",
       "julia/dataframes_jl/join_core.jl": "Large Core Modules (3)",
       "julia/dataframes_jl/join_inplace.jl": "Large Core Modules (2)",
-      "julia/dataframes_jl/other_broadcasting.jl": "Large Core Modules",
+      "julia/dataframes_jl/other_broadcasting.jl": "Large Core Modules (3)",
       "julia/dataframes_jl/other_index.jl": "Large Core Modules (3)",
       "julia/dataframes_jl/other_metadata.jl": "Large Core Modules (3)",
       "julia/dataframes_jl/other_names.jl": "State Mutators Files",

@@ -293,6 +293,11 @@ DEFINITION: dict[str, Any] = {
         # (`Path(p).read_text()`, `.glob(`) count without the word `pathlib` being present.
         "io": re.compile(
             r"\bopen[ \t]*\("
+            # #9311 / io contract C1: the builtin `open` and the I/O module names referenced BARE (`reader = open`,
+            # `plug = socket`, the rosetta plant) fire; attribute access (`self.socket`), a name being assigned or
+            # keyworded (`socket = s`, `open=True`), a string and an import line do not.
+            r"|(?<![.\w'\"])(?<!import )(?<!from )(?:open|requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)"
+            r"(?![\w.('\"\[]|[ \t]*[=:,](?!=))"
             r"|(?<![.\w])(?:requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\.\w+[ \t]*\("
             r"|\bos\.(?:walk|listdir|scandir|remove|unlink|rename|replace|makedirs|mkdir|rmdir|removedirs|open|read|write)\b"
             r"|\bsys\.(?:stdin|stdout|stderr)\b"

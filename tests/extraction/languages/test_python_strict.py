@@ -199,9 +199,10 @@ def test_python_comprehensions_was_fixed_from_a_javascript_copy_paste():
     assert pattern.search("{k: v for k, v in items}"), "Failed to match a real dict comprehension"
     assert pattern.search("{x for x in range(10)}"), "Failed to match a real set comprehension"
     assert pattern.search("sum(x for x in range(10))"), "Failed to match a real generator expression"
-    assert not pattern.search("User.objects.filter(active=True)"), (
-        "Incorrectly matched an unrelated .filter() method call (the old JS-idiom bug)"
-    )
+    # #8863: the functional-pipeline builtins count by contract; a `.filter(` method call matches the same word
+    # (documented cost), but a bare identifier or a `.map` attribute with no call does not.
+    assert pattern.search("filter(f, xs)"), "Failed to match the builtin filter pipeline"
+    assert not pattern.search("User.objects.filtered"), "Matched a word that merely starts with filter"
 
 
 def test_python_comprehensions_redos_immunity():
@@ -486,7 +487,9 @@ def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
 
 def test_python_bitwise_ops_string_content_still_counts_documented():
     """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
-    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+    # #8863: an operator counts only before the first quote on its line; inside a string literal it is text.
+    assert PY_RULES["bitwise_ops"].search('x = a ^ b  # re.compile(r"^a~b<<")')
+    assert not PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
 
 
 # #8865: every subprocess entry point that spawns a process counts as high_risk_execution;

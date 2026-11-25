@@ -138,15 +138,15 @@
 <text class="n" x="630" y="223">n=7,755 calls</text>
 <text class="n" x="630" y="235">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 98.9% of 1,442, recall 43.2% of 3,301; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 99.0% of 1,700, recall 51.0% of 3,301; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="222.5">Precision</text>
 <rect class="track" x="778" y="215" width="110" height="8" rx="2"/>
-<rect x="778" y="215" width="108.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="223">98.9%</text>
+<rect x="778" y="215" width="108.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="223">99.0%</text>
 <text class="pr" x="732" y="234.5">Recall</text>
 <rect class="track" x="778" y="227" width="110" height="8" rx="2"/>
-<rect x="778" y="227" width="47.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="235">43.2%</text>
+<rect x="778" y="227" width="56.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="235">51.0%</text>
 <text class="n" x="936" y="223">n=3,301 edges</text>
 <text class="n" x="936" y="235">vs libclang (c++) 18.1.1</text>
 </g>

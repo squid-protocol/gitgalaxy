@@ -360,18 +360,6 @@
    ]
   },
   {
-   "id": "a3679db9c3",
-   "op": "DEL",
-   "line": 81,
-   "before": "caBack.run();",
-   "after": "/* caBack.run(); */",
-   "verdict": "unreachable",
-   "reason": "abended() is reached from no entry point of the program (no-entry-path)",
-   "tried": [
-    "no-entry-path"
-   ]
-  },
-  {
    "id": "75b4a24b2a",
    "op": "LIT",
    "line": 86,
@@ -615,6 +603,22 @@
    "reason": "f11_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b4e83c4709",
+   "op": "DEL",
+   "line": 208,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "the deleted caBack.run() sits behind the end-of-program guard !task.ended(): both branches of MAIN-PARA end in EXEC CICS RETURN with no RESP, which ends the task, so the guard is false on every path; five inputs did not enter it",
+   "tried": [
+    "s0-text",
+    "s2-hex-long-20",
+    "s2-hex-long-wq-invreq",
+    "s2-hex-short-3",
+    "s2-wq-nospace"
    ]
   },
   {
@@ -903,6 +907,22 @@
    "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "561956eda2",
+   "op": "DEL",
+   "line": 337,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "the deleted caBack.run() is the one before the stage-2 plain RETURN; MAIN-PARA stores nothing into DFHCOMMAREA on that path (MOVE '2' TO CA-STAGE is stage 1 only), so caBack copies back the bytes the area already holds, long or short; five inputs did not separate it",
+   "tried": [
+    "s0-text",
+    "s2-hex-long-20",
+    "s2-hex-long-wq-invreq",
+    "s2-hex-short-3",
+    "s2-wq-nospace"
    ]
   },
   {

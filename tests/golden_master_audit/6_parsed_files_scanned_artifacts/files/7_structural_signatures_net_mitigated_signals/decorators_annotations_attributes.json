@@ -2406,7 +2406,7 @@
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 1,
+      "javascript/react/BabelPlugin.ts": 0,
       "javascript/react/ReactFiberBeginWork.js": 0,
       "javascript/react/ReactFiberWorkLoop.js": 0,
       "javascript/react/ReactFlightServer.js": 0,
@@ -4845,7 +4845,7 @@
       "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/effect_ai_anthropic": {
-      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0,
@@ -4853,7 +4853,7 @@
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 0
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,
@@ -4863,7 +4863,7 @@
       "typescript/fp-ts/pipeable.ts": 0
     },
     "typescript/nx_util_ai": {
-      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 1,
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0,
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 0
     },
     "typescript/pixijs_examples": {
@@ -4876,16 +4876,16 @@
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
-      "typescript/playwright/connection.ts": 1,
-      "typescript/playwright/crConnection.ts": 1,
-      "typescript/playwright/dispatcher.ts": 1,
-      "typescript/playwright/frames.ts": 2,
+      "typescript/playwright/connection.ts": 0,
+      "typescript/playwright/crConnection.ts": 0,
+      "typescript/playwright/dispatcher.ts": 0,
+      "typescript/playwright/frames.ts": 0,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/checker.ts": 2,
+      "typescript/typescript_compiler/checker.ts": 1,
       "typescript/typescript_compiler/emitter.ts": 0,
       "typescript/typescript_compiler/package.json": 0,
       "typescript/typescript_compiler/parser.ts": 0,
@@ -4897,7 +4897,7 @@
       "typescript/vscode/codeEditorWidget.ts": 10,
       "typescript/vscode/eslint.config.js": 73,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 39,
+      "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 1,
       "typescript/vscode/lifecycle.ts": 0,

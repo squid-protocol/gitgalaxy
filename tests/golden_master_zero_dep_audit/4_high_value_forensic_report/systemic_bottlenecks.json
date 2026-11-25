@@ -25,15 +25,15 @@
       },
       {
         "btw": 0.0,
-        "path": "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m",
+        "path": "crystal/crystal_stdlib_http/common.cr",
         "score": 0.001,
-        "state_mutation": 99.986
+        "state_mutation": 100.0
       },
       {
         "btw": 0.0,
-        "path": "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap",
-        "score": 0.0,
-        "state_mutation": 0.0
+        "path": "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m",
+        "score": 0.001,
+        "state_mutation": 99.986
       }
     ],
     "fragile_dependency_chain": [
@@ -72,32 +72,32 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 9.859,
-        "score": 985.9
+        "pr": 10.28,
+        "score": 1028.0
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 8.362,
-        "score": 810.861
-      },
-      {
-        "doc": 100.0,
-        "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.041,
-        "score": 504.1
+        "pr": 8.317,
+        "score": 806.497
       },
       {
         "doc": 100.0,
         "path": "rust/tokio/lib.rs",
-        "pr": 4.851,
-        "score": 485.1
+        "pr": 5.076,
+        "score": 507.6
+      },
+      {
+        "doc": 100.0,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "pr": 5.011,
+        "score": 501.1
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 4.756,
-        "score": 475.6
+        "pr": 4.73,
+        "score": 473.0
       }
     ]
   }

@@ -56,7 +56,6 @@ INTENDED = {
     ("rust", "panic!", "high_risk_execution+panics_and_aborts"),
     # setTimeout: async scheduling (concurrency) and a delay (thread_sleeps). It is not a clock value: a timer is a timed
     # wait, so time_date_logic no longer counts it (#8868).
-    ("typescript", "setTimeout", "concurrency+thread_sleeps"),
     ("javascript", "setTimeout", "concurrency+thread_sleeps"),
     # on: an event-API call (events) and a listener registration (listeners).
     ("javascript", "on", "events+listeners"),

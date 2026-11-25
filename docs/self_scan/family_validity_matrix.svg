@@ -734,13 +734,13 @@
 <rect x="192" y="356" width="11" height="11" fill="#2f6aa8"><title>python / io: recall 0.88, precision 0.84 (72 oracle, 75 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="#1f3b5c"><title>csharp / io: recall 0.67, precision 0.55 (427 oracle, 514 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="url(#hatch)"/>
-<rect x="216" y="356" width="11" height="11" fill="#1f3b5c"><title>go / io: recall 1.00, precision 0.62 (46 oracle, 74 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="356" width="11" height="11" fill="#a9d1ff"><title>go / io: recall 1.00, precision 0.98 (61 oracle, 62 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / io: recall 0.21, precision 0.14 (115 oracle, 172 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>php / io: recall 0.61, precision 0.27 (18 oracle, 41 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / io: recall 0.97, precision 0.35 (39 oracle, 108 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="356" width="11" height="11" fill="url(#hatch)"/>
-<rect x="264" y="356" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>typescript / io: recall 0.29, precision 0.20 (7 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>typescript / io: recall 1.00, precision 1.00 (7 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="356" width="11" height="11" fill="#3b3f4a"><title>java / io: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="276" y="356" width="11" height="11" fill="url(#dots)"/>
 <rect x="288" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / io: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
@@ -994,11 +994,11 @@
 <text class="fam" x="24" y="413">doc</text>
 <rect x="192" y="404" width="11" height="11" fill="#2f6aa8"><title>python / doc: recall 0.84, precision 1.00 (1151 oracle, 967 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="404" width="11" height="11" fill="#4f9be8"><title>csharp / doc: recall 1.00, precision 0.91 (266 oracle, 291 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="404" width="11" height="11" fill="#1f3b5c"><title>go / doc: recall 0.64, precision 0.95 (719 oracle, 485 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="404" width="11" height="11" fill="#4f9be8"><title>go / doc: recall 0.95, precision 0.91 (719 oracle, 750 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="404" width="11" height="11" fill="#1f3b5c"><title>kotlin / doc: recall 1.00, precision 0.75 (30 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="404" width="11" height="11" fill="#a9d1ff"><title>php / doc: recall 1.00, precision 1.00 (1621 oracle, 1623 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="404" width="11" height="11" fill="#4f9be8"><title>scala / doc: recall 1.00, precision 0.90 (141 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="264" y="404" width="11" height="11" fill="#1f3b5c"><title>typescript / doc: recall 1.00, precision 0.58 (423 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="404" width="11" height="11" fill="#1f3b5c"><title>typescript / doc: recall 1.00, precision 0.76 (557 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="404" width="11" height="11" fill="#2f6aa8"><title>java / doc: recall 1.00, precision 0.89 (115 oracle, 129 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="404" width="11" height="11" fill="#1f3b5c"><title>javascript / doc: recall 1.00, precision 0.60 (108 oracle, 180 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="404" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / doc: recall 0.07, precision 0.02 (61 oracle, 221 family functions; language-crucible v1.9.0)</title></rect>
@@ -1223,7 +1223,7 @@
 <rect x="228" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / closures: recall 0.42, precision 0.97 (67 oracle, 29 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="464" width="11" height="11" fill="#4f9be8"><title>php / closures: recall 0.95, precision 1.00 (102 oracle, 97 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="464" width="11" height="11" fill="#1f3b5c"><title>scala / closures: recall 1.00, precision 0.80 (278 oracle, 349 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="264" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>typescript / closures: recall 0.50, precision 0.60 (910 oracle, 757 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="464" width="11" height="11" fill="#2f6aa8"><title>typescript / closures: recall 0.98, precision 0.83 (910 oracle, 1070 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="464" width="11" height="11" fill="#1f3b5c"><title>java / closures: recall 1.00, precision 0.63 (29 oracle, 46 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>javascript / closures: recall 0.96, precision 0.31 (77 oracle, 239 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="464" width="11" height="11" fill="#4f9be8"><title>ruby / closures: recall 0.95, precision 0.98 (64 oracle, 62 family functions; language-crucible v1.9.0)</title></rect>
@@ -1324,7 +1324,7 @@
 <rect x="240" y="488" width="11" height="11" fill="url(#hatch)"/>
 <rect x="252" y="488" width="11" height="11" fill="#4f9be8"><title>scala / decorators: recall 0.97, precision 0.99 (2415 oracle, 2365 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="488" width="11" height="11" fill="url(#hatch)"/>
-<rect x="264" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>typescript / decorators: recall 0.00, precision 0.00 (1 oracle, 5 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="488" width="11" height="11" fill="#1f3b5c" opacity="0.5"><title>typescript / decorators: recall 0.50, precision 0.50 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="488" width="11" height="11" fill="#4f9be8"><title>java / decorators: recall 0.96, precision 0.98 (474 oracle, 464 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="488" width="11" height="11" fill="#3b3f4a"><title>javascript / decorators: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="288" y="488" width="11" height="11" fill="url(#dots)"/>
@@ -2440,7 +2440,7 @@
 <rect x="240" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>php / thread_sleeps: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="776" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / thread_sleeps: recall 0.25, precision 0.95 (81 oracle, 21 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="776" width="11" height="11" fill="url(#hatch)"/>
-<rect x="264" y="776" width="11" height="11" fill="#1f3b5c"><title>typescript / thread_sleeps: recall 1.00, precision 0.64 (18 oracle, 28 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="776" width="11" height="11" fill="#a9d1ff"><title>typescript / thread_sleeps: recall 1.00, precision 1.00 (18 oracle, 18 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>java / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / thread_sleeps: recall 1.00, precision 1.00 (7 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="776" width="11" height="11" fill="#1f3b5c"><title>ruby / thread_sleeps: recall 0.69, precision 0.65 (16 oracle, 17 family functions; brew (not pinned))</title></rect>
@@ -2497,12 +2497,12 @@
 <text class="fam" x="24" y="797">bitwise_ops</text>
 <rect x="192" y="788" width="11" height="11" fill="#2f6aa8"><title>python / bitwise_ops: recall 0.84, precision 0.91 (75 oracle, 69 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / bitwise_ops: recall 0.17, precision 0.62 (30 oracle, 8 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>go / bitwise_ops: recall 0.40, precision 0.89 (122 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="788" width="11" height="11" fill="#a9d1ff"><title>go / bitwise_ops: recall 1.00, precision 1.00 (128 oracle, 128 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / bitwise_ops: recall 0.46, precision 1.00 (92 oracle, 42 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>php / bitwise_ops: recall 1.00, precision 0.13 (24 oracle, 190 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="788" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>scala / bitwise_ops: recall 1.00, precision 0.20 (4 oracle, 20 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="264" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>typescript / bitwise_ops: recall 0.07, precision 0.81 (1287 oracle, 113 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="788" width="11" height="11" fill="#4f9be8"><title>typescript / bitwise_ops: recall 0.91, precision 0.94 (1287 oracle, 1255 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>java / bitwise_ops: recall 0.00, precision - (10 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>javascript / bitwise_ops: recall 0.11, precision 0.50 (71 oracle, 16 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / bitwise_ops: recall 0.23, precision 0.04 (113 oracle, 602 family functions; brew (not pinned))</title></rect>
@@ -3014,7 +3014,7 @@
 <rect x="192" y="920" width="11" height="11" fill="#4f9be8"><title>python / time_date_logic: recall 0.93, precision 0.97 (41 oracle, 39 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="920" width="11" height="11" fill="#1f3b5c"><title>csharp / time_date_logic: recall 0.78, precision 0.91 (318 oracle, 273 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="920" width="11" height="11" fill="url(#hatch)"/>
-<rect x="216" y="920" width="11" height="11" fill="#1f3b5c"><title>go / time_date_logic: recall 1.00, precision 0.50 (12 oracle, 24 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="920" width="11" height="11" fill="#a9d1ff"><title>go / time_date_logic: recall 1.00, precision 1.00 (12 oracle, 12 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / time_date_logic: recall 0.12, precision 1.00 (184 oracle, 22 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="920" width="11" height="11" fill="#1f3b5c"><title>php / time_date_logic: recall 0.79, precision 0.95 (24 oracle, 20 family functions; language-crucible v1.9.0)</title></rect>

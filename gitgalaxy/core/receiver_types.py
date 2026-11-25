@@ -502,6 +502,31 @@ _CPP_BODY_OPEN = re.compile(r"\)(?:[ \t\r\n]|const|noexcept|override|final|volat
 _CPP_FOR_AUTO = re.compile(
     r"\bfor[ \t]*\([ \t]*(?:const[ \t]+)?auto[ \t]*[*&]{0,2}[ \t]*(?P<n>" + _CPP_IDENT + r")[ \t]*:(?!:)"
 )
+_CPP_CONST_AUTO = re.compile(r"\bconst[ \t]+auto[ \t]*[*&]{0,2}[ \t]*(?P<n>" + _CPP_IDENT + r")\b")
+_CPP_CONST_WORD = re.compile(r"\bconst\b")
+
+
+def cpp_const_receivers(text: str, receivers: Iterable[str]) -> list[str]:
+    """Return sorted receiver variable names declared `const` in a C++ function's header/body."""
+    wanted = {r for r in receivers if r and "." not in r}
+    if not wanted:
+        return []
+    const_names: set[str] = set()
+    for m in _CPP_DECL.finditer(text):
+        n = m.group("n")
+        if n not in wanted:
+            continue
+        t = m.group("t")
+        if t in _CPP_NOT_TYPES or n in _CPP_NOT_TYPES or t[0].isdigit():
+            continue
+        prefix = m.group(0)[: m.start("t") - m.start()]
+        if _CPP_CONST_WORD.search(prefix) or _CPP_CONST_WORD.search(m.group("m")):
+            const_names.add(n)
+    for m in _CPP_CONST_AUTO.finditer(text):
+        n = m.group("n")
+        if n in wanted:
+            const_names.add(n)
+    return sorted(const_names)
 
 
 _CPP_STD_NS = re.compile(r"\bstd[ \t]*::")

@@ -22,9 +22,19 @@
         "Wrapped Sites": 3
       }
     },
+    "c/cpython": {
+      "c/cpython/object.c": {
+        "Literal Sites": 35,
+        "Wrapped Sites": 1
+      },
+      "c/cpython/typeobject.c": {
+        "Literal Sites": 258,
+        "Wrapped Sites": 1
+      }
+    },
     "c/sqlite": {
       "c/sqlite/lemon.c": {
-        "Literal Sites": 27,
+        "Literal Sites": 28,
         "Wrapped Sites": 2
       }
     },

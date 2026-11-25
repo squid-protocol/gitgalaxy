@@ -146,7 +146,10 @@ def _js_package_import(packages: str) -> "re.Pattern[str]":
 # `@langchain/anthropic`).
 _LLM_API_PY_PACKAGES = r"openai|anthropic|langchain_openai|langchain_anthropic"
 PY_LLM_API = _py_package_import(_LLM_API_PY_PACKAGES)
-_LLM_API_JS_PACKAGES = r"openai|anthropic|@(?:openai|anthropic-ai)/[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
+# `@anthropic-ai/tokenizer` runs locally and calls no hosted model, so it is not a site (#8862 reading 2).
+_LLM_API_JS_PACKAGES = (
+    r"openai|anthropic|@(?:openai|anthropic-ai)/(?!tokenizer(?![\w.-]))[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
+)
 JS_LLM_API = _js_package_import(_LLM_API_JS_PACKAGES)
 
 # llm_orchestrator (#4150): langchain and LlamaIndex. Every langchain
@@ -407,7 +410,10 @@ _PERL_BUILTIN = (
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
     r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock|select"
-    r"|time|times|wait|wantarray|fork|getppid|getlogin|eof|pos|study|fileno|readline|chroot|rewinddir|telldir)"
+    r"|time|times|wait|wantarray|fork|getppid|getlogin|eof|pos|study|fileno|readline|chroot|rewinddir|telldir"
+    # #6433 slice 7: list operators whose first argument is another call or a bare list (`reverse sort @l`,
+    # `warn sprintf(...)`, `join defined $x ? ...`), which `_PERL_ARG` cannot see.
+    r"|reverse|pack|unpack|splice|unshift|sprintf|printf|print|say|warn|die|join|push|index|rindex|substr)"
     rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
 # #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
@@ -418,7 +424,9 @@ _PERL_ARG = (
     # #6433: `open FH, ...` (a bareword handle then a comma) and `open my $fh, ...`.
     r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%]"
     # #6433 slice 5: a digit-first argument, `plan 4;`, `skip 3, 'why';`, `fetch -1;`.
-    r"|-?[0-9])"
+    r"|-?[0-9]"
+    # #6433 slice 7: the argument is itself a call, `return subtest name(@args) => sub {..}`, `ok defined($x)`.
+    r"|[a-z_][a-z0-9_]*[ \t]*\()"
 )
 _PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(

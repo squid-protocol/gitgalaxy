@@ -2125,7 +2125,7 @@
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
       "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 0,
       "javascript/node_tls_security_tests/test-tls-psk-server.js": 0,
-      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 1
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 0
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,

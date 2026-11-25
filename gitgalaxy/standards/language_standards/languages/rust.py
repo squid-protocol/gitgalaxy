@@ -507,13 +507,11 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(ndarray::|nalgebra::|num::|f32|f64|std::simd)\b"),
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
-        # Metaprogramming and memory transmutation.
+        # Metaprogramming and memory transmutation. `PhantomData` is a type marker, not a site (#8862).
         # BUG FIX: `macro_rules!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`
         # in real usage (`macro_rules! foo { ... }`), never a word char.
-        "reflection_metaprogramming": re.compile(
-            r"macro_rules!|\b(?:std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"
-        ),
+        "reflection_metaprogramming": re.compile(r"macro_rules!|\b(?:std::mem::transmute|Pin::|UnsafeCell)\b"),
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"\b(?:pub[ \t]+)?use\s+[^;]+;", re.M),
         "_dependency_capture": re.compile(

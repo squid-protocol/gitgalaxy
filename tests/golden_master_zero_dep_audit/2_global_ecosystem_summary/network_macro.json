@@ -5,9 +5,9 @@
   ],
   "value": {
     "articulation_points": 236,
-    "assortativity": -0.0747,
+    "assortativity": -0.0761,
     "avg_path_length": 1.8116,
     "cyclic_density": 0.0308,
-    "modularity": 0.8606
+    "modularity": 0.861
   }
 }

@@ -45,7 +45,7 @@ def test_a_receiver_call_reaches_a_unique_extension_and_guesses_among_several():
     sites, _ = resolve_calls(parsed)
     got = {(s["callee"], s["step"], s["dst_path"]) for s in sites if s["src_name"].endswith("emit")}
     assert ("escapeIfKeyword", "file", "src/p/Util.kt") in got or ("escapeIfKeyword", "import", "src/p/Util.kt") in got
-    assert any(c == "escapeIfNotJavaIdentifier" and step in ("file", "import") for c, step, _ in got)
+    assert any(c == "escapeIfNotJavaIdentifier" and step in ("typed", "file", "import") for c, step, _ in got)
     assert {step for c, step, _ in got if c == "asClassName"} == {"receiver"}  # KClass or Class: not typed here
 
 

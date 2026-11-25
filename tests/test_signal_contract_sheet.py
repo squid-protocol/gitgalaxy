@@ -191,3 +191,15 @@ def test_planted_family_rows_are_declared_with_their_doc(name, kind):
     assert c.name in PLANTED_DECLARED
     assert c.doc == "docs/planted_family_contracts.md"
     assert (REPO_ROOT / c.doc).read_text(encoding="utf-8").count(c.contract) == 1
+
+
+# ==============================================================================
+# TEST 11: THE OWNER'S 2026-11-24 RULINGS ON assert AND doc ARE RECORDED (#8862)
+# ==============================================================================
+def test_assert_and_doc_rulings_are_recorded_not_left_open():
+    text = (REPO_ROOT / "docs/resource_family_contracts.md").read_text(encoding="utf-8")
+    assert "Left open" not in text
+    assert "`assert` is not an abort" in text
+    assert "N/A for `doc`" in text
+    # The sentence itself never names assert: the ruling excludes it by omission.
+    assert "assert" not in sc.CONTRACTS["panics_and_aborts"].contract.lower()

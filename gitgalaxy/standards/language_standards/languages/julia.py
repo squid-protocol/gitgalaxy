@@ -152,7 +152,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:parse|tryparse|convert|trunc|round|floor|ceil|Int|Int8|Int16|Int32|Int64|UInt|UInt8|UInt16|UInt32"
             r"|UInt64|Float16|Float32|Float64|BigInt|BigFloat|Char|String|Symbol)\("
         ),
-        "panics_and_aborts": re.compile(r"(?<![@\w])(?:error|throw|rethrow|exit|quit)\(|@assert\b"),
+        "panics_and_aborts": re.compile(r"(?<![@\w])(?:error|throw|rethrow|exit|quit)\("),
         "thread_sleeps": re.compile(r"\bsleep\([ \t]*[0-9.]+"),
         "bitwise_ops": re.compile(
             r"\b(?:xor|count_ones|leading_zeros|trailing_zeros|bitrotate)\(|<<|>>>?|(?<![|&])[ \t](?:&|\|)[ \t]"

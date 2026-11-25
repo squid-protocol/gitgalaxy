@@ -1148,7 +1148,7 @@
       "avg_exposures": {
         "api_exposure": 15.68,
         "churn": 0.0,
-        "cognitive_load": 36.05,
+        "cognitive_load": 35.9,
         "concurrency": 5.31,
         "dead_code": 0.0,
         "documentation": 29.19,
@@ -1395,7 +1395,7 @@
       "avg_exposures": {
         "api_exposure": 3.95,
         "churn": 0.0,
-        "cognitive_load": 22.17,
+        "cognitive_load": 22.02,
         "concurrency": 20.17,
         "dead_code": 1.45,
         "documentation": 50.52,
@@ -1796,7 +1796,7 @@
         "churn": 0.0,
         "cognitive_load": 17.84,
         "concurrency": 3.42,
-        "dead_code": 4.19,
+        "dead_code": 1.36,
         "documentation": 99.77,
         "safety_score": 12.42,
         "secrets_risk": 0.0,
@@ -2003,7 +2003,7 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.24,
+        "cognitive_load": 44.13,
         "concurrency": 3.06,
         "dead_code": 7.98,
         "documentation": 76.91,
@@ -3048,10 +3048,10 @@
       "avg_exposures": {
         "api_exposure": 4.16,
         "churn": 0.0,
-        "cognitive_load": 15.0,
+        "cognitive_load": 13.36,
         "concurrency": 10.9,
         "dead_code": 0.0,
-        "documentation": 59.79,
+        "documentation": 59.57,
         "safety_score": 49.72,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -4777,7 +4777,7 @@
       "avg_exposures": {
         "api_exposure": 4.3,
         "churn": 0.0,
-        "cognitive_load": 40.06,
+        "cognitive_load": 38.64,
         "concurrency": 29.38,
         "dead_code": 0.0,
         "documentation": 48.43,
@@ -4796,7 +4796,7 @@
       "avg_exposures": {
         "api_exposure": 6.98,
         "churn": 0.0,
-        "cognitive_load": 25.55,
+        "cognitive_load": 23.81,
         "concurrency": 3.14,
         "dead_code": 0.0,
         "documentation": 48.58,
@@ -4834,7 +4834,7 @@
       "avg_exposures": {
         "api_exposure": 31.41,
         "churn": 0.0,
-        "cognitive_load": 26.49,
+        "cognitive_load": 25.92,
         "concurrency": 2.21,
         "dead_code": 0.88,
         "documentation": 64.95,
@@ -4853,7 +4853,7 @@
       "avg_exposures": {
         "api_exposure": 9.35,
         "churn": 0.0,
-        "cognitive_load": 18.44,
+        "cognitive_load": 13.69,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.0,
@@ -4891,7 +4891,7 @@
       "avg_exposures": {
         "api_exposure": 24.94,
         "churn": 0.0,
-        "cognitive_load": 14.01,
+        "cognitive_load": 13.48,
         "concurrency": 18.74,
         "dead_code": 0.0,
         "documentation": 58.56,
@@ -4910,7 +4910,7 @@
       "avg_exposures": {
         "api_exposure": 10.22,
         "churn": 0.0,
-        "cognitive_load": 4.06,
+        "cognitive_load": 4.05,
         "concurrency": 22.49,
         "dead_code": 0.03,
         "documentation": 96.74,
@@ -4967,7 +4967,7 @@
       "avg_exposures": {
         "api_exposure": 7.19,
         "churn": 0.0,
-        "cognitive_load": 57.02,
+        "cognitive_load": 56.63,
         "concurrency": 99.97,
         "dead_code": 0.0,
         "documentation": 100.0,
@@ -5005,7 +5005,7 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.63,
+        "cognitive_load": 34.57,
         "concurrency": 0.0,
         "dead_code": 3.58,
         "documentation": 31.55,
@@ -5138,7 +5138,7 @@
       "avg_exposures": {
         "api_exposure": 15.77,
         "churn": 0.0,
-        "cognitive_load": 42.66,
+        "cognitive_load": 42.39,
         "concurrency": 3.16,
         "dead_code": 1.23,
         "documentation": 29.9,
@@ -5385,7 +5385,7 @@
       "avg_exposures": {
         "api_exposure": 5.13,
         "churn": 0.0,
-        "cognitive_load": 8.72,
+        "cognitive_load": 8.74,
         "concurrency": 13.08,
         "dead_code": 0.0,
         "documentation": 35.44,
@@ -5398,7 +5398,7 @@
         "verification": 27.72
       },
       "file_count": 9,
-      "total_mass": 1650.3
+      "total_mass": 1657.8
     },
     "rust/bevy_asset_examples": {
       "avg_exposures": {
@@ -5423,7 +5423,7 @@
       "avg_exposures": {
         "api_exposure": 6.12,
         "churn": 0.0,
-        "cognitive_load": 16.52,
+        "cognitive_load": 16.68,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 56.79,
@@ -5436,16 +5436,16 @@
         "verification": 35.62
       },
       "file_count": 7,
-      "total_mass": 1379.26
+      "total_mass": 1409.96
     },
     "rust/serde": {
       "avg_exposures": {
         "api_exposure": 4.44,
         "churn": 0.0,
-        "cognitive_load": 4.97,
+        "cognitive_load": 4.59,
         "concurrency": 0.0,
         "dead_code": 1.25,
-        "documentation": 50.57,
+        "documentation": 51.47,
         "safety_score": 30.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -5455,16 +5455,16 @@
         "verification": 36.34
       },
       "file_count": 9,
-      "total_mass": 2875.22
+      "total_mass": 2881.92
     },
     "rust/syn": {
       "avg_exposures": {
         "api_exposure": 5.55,
         "churn": 0.0,
-        "cognitive_load": 15.89,
+        "cognitive_load": 15.73,
         "concurrency": 1.86,
         "dead_code": 0.0,
-        "documentation": 62.06,
+        "documentation": 62.21,
         "safety_score": 33.55,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -5474,13 +5474,13 @@
         "verification": 40.89
       },
       "file_count": 8,
-      "total_mass": 649.8
+      "total_mass": 652.6
     },
     "rust/tokio": {
       "avg_exposures": {
         "api_exposure": 12.26,
         "churn": 0.0,
-        "cognitive_load": 13.56,
+        "cognitive_load": 12.78,
         "concurrency": 53.46,
         "dead_code": 0.0,
         "documentation": 38.26,
@@ -5493,7 +5493,7 @@
         "verification": 26.06
       },
       "file_count": 13,
-      "total_mass": 1604.32
+      "total_mass": 1692.52
     },
     "rust/tokio_util_rand": {
       "avg_exposures": {
@@ -5518,10 +5518,10 @@
       "avg_exposures": {
         "api_exposure": 7.89,
         "churn": 0.0,
-        "cognitive_load": 9.15,
+        "cognitive_load": 9.21,
         "concurrency": 6.82,
         "dead_code": 0.0,
-        "documentation": 71.3,
+        "documentation": 71.42,
         "safety_score": 42.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -5531,7 +5531,7 @@
         "verification": 64.47
       },
       "file_count": 5,
-      "total_mass": 4240.16
+      "total_mass": 4255.06
     },
     "scala": {
       "avg_exposures": {

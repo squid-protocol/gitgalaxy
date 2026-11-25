@@ -251,7 +251,9 @@ DEFINITION: dict[str, Any] = {
         # independently in embedded_python, css, and tcl in this epic.
         # Confirmed via scaling sweep (~4x per doubling before the fix).
         # Bounded both quantifiers, consistent with the established fix.
-        "spec_exposure": re.compile(r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
+        "spec_exposure": re.compile(
+            r"\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|(?:spec|audit)(?!\w)(?![ \t]*[,=]))[^\]]{0,300}\]", re.I
+        ),
         # ssr_boundaries: Web App compiler hooks.
         "ssr_boundaries": re.compile(r"\b(?:webwindow|htmlTree)\b"),
         # events: MATLAB Object-Oriented Event triggering.

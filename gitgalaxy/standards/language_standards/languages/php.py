@@ -150,7 +150,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(
             r"\b(try|catch|finally|declare\s*\(\s*strict_types[ \t]*=\s*1\s*\)|readonly|Throwable|Exception|assert|isset|empty|is_null|instanceof)\b|\?\?|\?->|#\[Override\]"
         ),
-        # 7. safety_neg (Safety Bypasses / Unchecked Types)
+        # 7. safety_neg: safety_bypasses (Unsafe Constructs: error suppression, eval, loose equality)
         # Error suppression, dangerous eval, and loose equality.
         # (?<![=!]) on the == branch: without it, `===`/`!==` (strict
         # equality/inequality, explicitly SAFE per this language's own

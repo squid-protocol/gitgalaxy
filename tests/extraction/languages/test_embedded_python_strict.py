@@ -504,3 +504,15 @@ def test_embedded_python_doc_docstring_counts_once_regression():
     assert len(doc.findall(two)) == 2, "two separate docstrings must count as 2"
 
     assert_redos_immune(doc, '"""' + "x" * 200000, timeout_sec=3.0)
+
+
+@pytest.mark.parametrize("decorator", ["@staticmethod", "@classmethod", "@property"])
+def test_embedded_python_declaration_decorators_are_not_reflection(decorator):
+    """#8862: a declaration decorator is `decorators`' site, not run-time inspection."""
+    code = f"class C:\n    {decorator}\n    def m(self):\n        return 1\n"
+    assert not EP_RULES["reflection_metaprogramming"].search(code)
+    assert EP_RULES["decorators"].search(code)
+
+
+def test_embedded_python_viper_emitter_still_reflection():
+    assert EP_RULES["reflection_metaprogramming"].search("@micropython.viper\ndef f(): pass")

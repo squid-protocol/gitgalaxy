@@ -2947,6 +2947,7 @@ def resolve_calls(
                     _kind: str = kind,
                     _group: str = group,
                     _lang: str = lang,
+                    _receiver_types: dict[str, str] = receiver_types,
                 ) -> tuple[str, _Definition | None, str | None]:
                     if q == "<expr>" and _kind == "call" and _expr_chains.get(_callee):
                         best: tuple[str, _Definition | None, str | None] = ("none", None, q)
@@ -2982,6 +2983,31 @@ def resolve_calls(
                                     best = (st, d, "<expr>")
                         if best[1] is not None:
                             return best[0], best[1], best[2]
+                    if (
+                        _lang == "kotlin"
+                        and _kind == "call"
+                        and q
+                        and q != "<expr>"
+                        and q not in _typed
+                        and _bucket is not None
+                    ):
+                        ext_recv_t = str(_receiver_types.get(q) or "").rsplit(".", 1)[-1]
+                        if ext_recv_t:
+                            ext_defs = [
+                                d
+                                for d in _bucket.all.defs
+                                if d.shape == EXTENSION_SHAPE
+                                and d.ext_receiver == ext_recv_t
+                                and (d.path == _caller.path or d.path in _caller.imported or d.pkg == _caller.pkg)
+                            ]
+                            if ext_defs:
+                                same_f = [d for d in ext_defs if d.path == _caller.path]
+                                pick_ext = (
+                                    same_f[0]
+                                    if same_f
+                                    else (_nearest_of(ext_defs, _caller.parts) or min(ext_defs, key=lambda d: d.path))
+                                )
+                                return "typed", pick_ext, q
                     st, d = _resolve_one(_bucket, _caller, _lineage, q, cache, _typed, _typed_scope)
                     return st, d, q
 

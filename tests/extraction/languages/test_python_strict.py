@@ -688,3 +688,16 @@ def test_python_time_date_logic_matches_clocks(code):
 )
 def test_python_time_date_logic_ignores_non_clock_names(code):
     assert not PY_RULES["time_date_logic"].search(code), code
+
+
+@pytest.mark.parametrize("decorator", ["@staticmethod", "@classmethod", "@property"])
+def test_python_declaration_decorators_are_not_reflection(decorator):
+    """#8862: a declaration decorator is `decorators`' site, not run-time inspection."""
+    code = f"class C:\n    {decorator}\n    def m(self):\n        return 1\n"
+    assert not PY_RULES["reflection_metaprogramming"].search(code)
+    assert PY_RULES["decorators"].search(code)
+
+
+@pytest.mark.parametrize("code", ["getattr(o, 'a')", "setattr(o, 'a', 1)", "inspect.signature(f)", "o.__dict__"])
+def test_python_reflection_calls_still_count(code):
+    assert PY_RULES["reflection_metaprogramming"].search(code)

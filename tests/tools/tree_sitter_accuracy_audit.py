@@ -1171,6 +1171,22 @@ def _fsharp_member_name(node: Any) -> str | None:
     return (method if method is not None else nm).text.decode("utf8")
 
 
+def _fsharp_and_bindings(node: Any) -> list[tuple[str, int, int]]:
+    """The `and` bindings of an F# `let rec a x = .. and b y = ..` node: (name, line, parameter count) for each
+    function_declaration_left after the first. An `and` value binding is not a function and is skipped."""
+    out: list[tuple[str, int, int]] = []
+    lefts = [c for c in node.named_children if c.type == "function_declaration_left"]
+    for left in lefts[1:]:
+        nm = next((c for c in left.named_children if c.type in ("identifier", "op_identifier")), None)
+        pats = next((c for c in left.named_children if c.type == "argument_patterns"), None)
+        if nm is None or pats is None:
+            continue
+        kids = pats.named_children
+        pc = 0 if len(kids) == 1 and kids[0].text.strip() == b"()" else len(kids)
+        out.append((nm.text.decode("utf8"), left.start_point[0] + 1, pc))
+    return out
+
+
 def _get_node_name(node: Any) -> str | None:
     if node.type == "function_or_value_defn":
         # F#: a function has a function_declaration_left (name then argument_patterns); a value has a
@@ -2687,6 +2703,14 @@ def measure(lang: str, verbose: bool = False) -> dict:
                             real_funcs.setdefault(name, []).append((abs_line, pc))
                             real_func_node_by_occ[(name, abs_line)] = sub_node
                         return
+
+                    if lang == "fsharp" and node.type == "function_or_value_defn":
+                        # #9200: `let rec a x = ... and b x = ...` is ONE node holding two bindings; the first is
+                        # counted below, each `and` binding after it is its own function.
+                        for name, line, pc in _fsharp_and_bindings(node):
+                            raw_ts_funcs.setdefault(name, []).append((line, pc))
+                            real_funcs.setdefault(name, []).append((line, pc))
+                            real_func_node_by_occ[(name, line)] = node
 
                     if node.type in func_node_types:
                         raw_name = _get_node_name(node)

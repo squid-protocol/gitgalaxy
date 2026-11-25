@@ -1089,13 +1089,13 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0.0,
-      "cpp/NVDA/__init__.py": 1.371,
-      "cpp/NVDA/braille.py": 1.074,
+      "cpp/NVDA/__init__.py": 1.368,
+      "cpp/NVDA/braille.py": 1.051,
       "cpp/NVDA/contributors.txt": 0.0,
       "cpp/NVDA/copying.txt": 0.0,
       "cpp/NVDA/core.py": 0.729,
       "cpp/NVDA/ensureuv.ps1": 0.743,
-      "cpp/NVDA/espeak.py": 1.358,
+      "cpp/NVDA/espeak.py": 1.331,
       "cpp/NVDA/inProcess.cpp": 0.706,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0.0,
       "cpp/NVDA/readme.md": 0.0,
@@ -1201,12 +1201,12 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 0.721,
+      "csharp/roslyn/CSharpCompilation.cs": 0.712,
       "csharp/roslyn/CSharpSyntaxTree.cs": 0.497,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0.0,
       "csharp/roslyn/LanguageParser.cs": 0.763,
       "csharp/roslyn/License.txt": 0.0,
-      "csharp/roslyn/MethodCompiler.cs": 0.943,
+      "csharp/roslyn/MethodCompiler.cs": 0.936,
       "csharp/roslyn/Workspace.cs": 0.424
     },
     "css": {
@@ -1465,7 +1465,7 @@
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0.0,
       "fortran/wrf/cleanCMake.sh": 0.93,
-      "fortran/wrf/configure_reader.py": 1.074,
+      "fortran/wrf/configure_reader.py": 1.062,
       "fortran/wrf/gen_be_wrapper.ksh": 0.429,
       "fortran/wrf/module_configure.F": 1.616,
       "fortran/wrf/module_domain.F": 0.911,
@@ -1476,7 +1476,7 @@
       "fortran/wrf/regtest_hwrf.csh": 0.344,
       "fortran/wrf/regtest_nmmnest.csh": 0.338,
       "fortran/wrf/run_convert_e2c.ksh": 0.06,
-      "fortran/wrf/sourcetree.py": 1.021,
+      "fortran/wrf/sourcetree.py": 0.999,
       "fortran/wrf/wrf_timeseries.F": 0.909
     },
     "fsharp": {
@@ -2089,14 +2089,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.403
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.703,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.602,
       "java/springboot/Binder.java": 0.475,
       "java/springboot/JarLauncher.java": 0.0,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.531,
+      "java/springboot/OnClassCondition.java": 0.453,
       "java/springboot/ServletWebServerApplicationContext.java": 0.266,
-      "java/springboot/SpringApplication.java": 0.696,
-      "java/springboot/WebMvcAutoConfiguration.java": 0.335
+      "java/springboot/SpringApplication.java": 0.689,
+      "java/springboot/WebMvcAutoConfiguration.java": 0.346
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0
@@ -3114,14 +3114,14 @@
     },
     "python/airflow": {
       "python/airflow/NOTICE": 0.0,
-      "python/airflow/dag.py": 1.302,
-      "python/airflow/s3.py": 1.27,
-      "python/airflow/scheduler_job_runner.py": 0.837
+      "python/airflow/dag.py": 1.158,
+      "python/airflow/s3.py": 1.257,
+      "python/airflow/scheduler_job_runner.py": 0.822
     },
     "python/airflow_ai_providers": {
       "python/airflow_ai_providers/NOTICE": 0.0,
-      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0.941,
-      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0.917,
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": 0.879,
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": 0.794,
       "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": 0.608,
       "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": 0.627
     },
@@ -3134,11 +3134,11 @@
       "python/cython/CodeGeneration.py": 0.0,
       "python/cython/LICENSE.txt": 0.0,
       "python/cython/MemoryView.pxd": 0.0,
-      "python/cython/MemoryView.pyx": 1.039,
-      "python/cython/Nodes.py": 1.531
+      "python/cython/MemoryView.pyx": 0.992,
+      "python/cython/Nodes.py": 1.52
     },
     "python/django_db_tests": {
-      "python/django_db_tests/test_iterator.py": 0.616,
+      "python/django_db_tests/test_iterator.py": 0.476,
       "python/django_db_tests/test_utils.py": 0.14
     },
     "python/fastapi": {
@@ -3153,7 +3153,7 @@
       "python/fastapi/fastapi/background.py": 0.0,
       "python/fastapi/fastapi/cli.py": 0.26,
       "python/fastapi/fastapi/concurrency.py": 1.3,
-      "python/fastapi/fastapi/datastructures.py": 0.839,
+      "python/fastapi/fastapi/datastructures.py": 0.587,
       "python/fastapi/fastapi/encoders.py": 0.467,
       "python/fastapi/fastapi/exception_handlers.py": 0.78,
       "python/fastapi/fastapi/exceptions.py": 0.486,
@@ -3246,7 +3246,7 @@
       "python/fastapi/tests/test_invalid_path_param.py": 0.0,
       "python/fastapi/tests/test_invalid_sequence_param.py": 0.0,
       "python/fastapi/tests/test_json_type.py": 0.0,
-      "python/fastapi/tests/test_jsonable_encoder.py": 0.711,
+      "python/fastapi/tests/test_jsonable_encoder.py": 0.677,
       "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 1.76,
       "python/fastapi/tests/test_local_docs.py": 0.0,
       "python/fastapi/tests/test_multi_body_errors.py": 0.0,
@@ -3391,7 +3391,7 @@
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 1.254,
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 1.44,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 2.493
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 1.785
     },
     "python/micropython_usb_tls": {
       "python/micropython_usb_tls/ssl_verify_callback.py": 0.44,
@@ -3403,18 +3403,18 @@
       "python/numpy/__init__.py": 0.0,
       "python/numpy/_linalg.py": 1.4,
       "python/numpy/cfuncs.py": 0.927,
-      "python/numpy/core.py": 1.165,
+      "python/numpy/core.py": 1.141,
       "python/numpy/crackfortran.py": 1.529,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 1.125,
       "python/numpy/genapi.py": 1.274,
       "python/numpy/generate_numpy_api.py": 0.865,
       "python/numpy/generate_ufunc_api.py": 0.831,
-      "python/numpy/generate_umath.py": 0.595,
+      "python/numpy/generate_umath.py": 0.592,
       "python/numpy/generate_umath_doc.py": 0.68,
       "python/numpy/lapack_litemodule.c": 0.283,
       "python/numpy/numpy_api.py": 0.0,
-      "python/numpy/symbolic.py": 1.59,
+      "python/numpy/symbolic.py": 1.578,
       "python/numpy/testutils.py": 1.015,
       "python/numpy/ufunc_docstrings.py": 0.136,
       "python/numpy/verify_c_api_version.py": 0.64
@@ -3445,10 +3445,10 @@
       "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": 0.85
     },
     "python/twisted": {
-      "python/twisted/defer.py": 1.263,
-      "python/twisted/http.py": 1.335,
+      "python/twisted/defer.py": 1.251,
+      "python/twisted/http.py": 1.299,
       "python/twisted/reflect.py": 1.622,
-      "python/twisted/transport.py": 0.899
+      "python/twisted/transport.py": 0.894
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0.0,
@@ -3558,7 +3558,7 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0.0,
       "rust/bevy/LICENSE-MIT": 0.0,
-      "rust/bevy/bevy_ecs_macros.rs": 0.411,
+      "rust/bevy/bevy_ecs_macros.rs": 0.416,
       "rust/bevy/bevy_ecs_query.rs": 0.317,
       "rust/bevy/bevy_ecs_table.rs": 0.428,
       "rust/bevy/bevy_ecs_world.rs": 0.194,
@@ -3577,54 +3577,54 @@
       "rust/holylang/compile.rs": 0.5,
       "rust/holylang/error.rs": 0.06,
       "rust/holylang/main.rs": 0.0,
-      "rust/holylang/parser.rs": 0.596,
-      "rust/holylang/semantic.rs": 0.357,
+      "rust/holylang/parser.rs": 0.602,
+      "rust/holylang/semantic.rs": 0.369,
       "rust/holylang/transpiler.rs": 0.894
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0.0,
       "rust/serde/LICENSE-MIT": 0.0,
-      "rust/serde/serde_core_de_impls.rs": 0.299,
-      "rust/serde/serde_core_de_mod.rs": 0.139,
+      "rust/serde/serde_core_de_impls.rs": 0.219,
+      "rust/serde/serde_core_de_mod.rs": 0.068,
       "rust/serde/serde_core_macros.rs": 0.0,
-      "rust/serde/serde_derive_de.rs": 0.205,
+      "rust/serde/serde_derive_de.rs": 0.174,
       "rust/serde/serde_internals_ast.rs": 0.1,
-      "rust/serde/serde_internals_attr.rs": 0.486,
-      "rust/serde/test_annotations.rs": 0.035
+      "rust/serde/serde_internals_attr.rs": 0.488,
+      "rust/serde/test_annotations.rs": 0.024
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0.0,
       "rust/syn/bigint.rs": 0.88,
-      "rust/syn/buffer.rs": 0.424,
+      "rust/syn/buffer.rs": 0.362,
       "rust/syn/classify.rs": 0.11,
       "rust/syn/custom_keyword.rs": 0.561,
-      "rust/syn/custom_punctuation.rs": 0.563,
+      "rust/syn/custom_punctuation.rs": 0.578,
       "rust/syn/data.rs": 0.284,
       "rust/syn/derive.rs": 0.333
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0.0,
       "rust/tokio/block_on.rs": 0.0,
-      "rust/tokio/blocking.rs": 0.865,
-      "rust/tokio/builder.rs": 1.145,
+      "rust/tokio/blocking.rs": 0.769,
+      "rust/tokio/builder.rs": 1.134,
       "rust/tokio/config.rs": 0.0,
       "rust/tokio/fuzz.rs": 0.0,
-      "rust/tokio/interval.rs": 0.273,
+      "rust/tokio/interval.rs": 0.282,
       "rust/tokio/lib.rs": 0.0,
       "rust/tokio/maybe_done.rs": 0.578,
-      "rust/tokio/tests.rs": 0.409,
-      "rust/tokio/tokio_mpsc_bounded.rs": 0.382,
-      "rust/tokio/tokio_named_pipe.rs": 0.502,
-      "rust/tokio/tokio_udp.rs": 0.302
+      "rust/tokio/tests.rs": 0.402,
+      "rust/tokio/tokio_mpsc_bounded.rs": 0.385,
+      "rust/tokio/tokio_named_pipe.rs": 0.515,
+      "rust/tokio/tokio_udp.rs": 0.267
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0.34
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0.0,
-      "rust/wasmtime/wasmtime_instance.rs": 0.163,
+      "rust/wasmtime/wasmtime_instance.rs": 0.152,
       "rust/wasmtime/wasmtime_ir_instructions.rs": 0.241,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 0.546,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 0.553,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 0.355
     },
     "scala": {

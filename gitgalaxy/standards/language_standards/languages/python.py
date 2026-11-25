@@ -402,7 +402,7 @@ DEFINITION: dict[str, Any] = {
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(
-            r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
+            r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|\b(?:getattr|setattr|inspect\.)\b"
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": PY_LLM_API,
@@ -497,7 +497,10 @@ DEFINITION: dict[str, Any] = {
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
-            r"\b(?<!def )(close|__exit__|del|shutdown|cleanup)\b\s*\("
+            r"\b(?<!def )(close|__exit__|shutdown|cleanup|rmtree|unlink|rmdir|removedirs|remove)\b\s*\("
+            # #8862 cleanup contract: also the openers of a guaranteed-teardown region (`with x:` / `with f(..)`,
+            # `finally:`) and the `del` statement, not only the call forms
+            r"|\bwith\s+[\w.]+\s*(?:\(|:|\bas\b)|\bfinally\s*:|\bdel\s+[\w.\[(]"
         ),  # #2888 C1: `def close(self):` declares (embedded_python twin)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Captures protected/private members via underscore convention.

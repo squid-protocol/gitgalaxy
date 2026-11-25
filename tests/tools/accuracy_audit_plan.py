@@ -161,6 +161,9 @@ EVERYTHING = {
         T + "graph_ledger.py",
         T + "tri_comparison_ledger.py",
         T + "graph_coverage_chart.py",
+        T + "family_validity_chart.py",  # #8863: the keyword-family grid shares this history job
+        "tests/family_validity_baseline.json",
+        "gitgalaxy/standards/signal_contracts.py",
         BASELINE,
         "tests/import_graph_accuracy_baseline.json",
         "tests/import_graph_corpus.json",

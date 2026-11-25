@@ -187,8 +187,8 @@ def test_kotlin_extension_receiver_overload_disambiguation():
         "fun visitArray(t: ArrayType, types: Types): String = t.descriptor(types)\n"  # 3
         "fun visitWildcard(t: WildcardType, types: Types): String = t.descriptor(types)\n"  # 4
     )
-    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitArray", "descriptor") == [("file", 1)]
-    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitWildcard", "descriptor") == [("file", 2)]
+    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitArray", "descriptor") == [("typed", 1)]
+    assert _targets({"src/Desc.kt": kt}, "kotlin", "visitWildcard", "descriptor") == [("typed", 2)]
 
 
 def test_kotlin_same_name_overload_delegation_with_call_arg_return_types():

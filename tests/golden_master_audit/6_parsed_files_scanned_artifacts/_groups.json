@@ -2531,7 +2531,7 @@
     "cpp/NVDA": {
       "Average Risk Exposures": {
         "API Exposure": "15.68%",
-        "Cognitive Load Exposure": "36.05%",
+        "Cognitive Load Exposure": "35.9%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "5.31%",
         "Documentation Exposure": "29.19%",
@@ -2962,7 +2962,7 @@
     "csharp/roslyn": {
       "Average Risk Exposures": {
         "API Exposure": "3.95%",
-        "Cognitive Load Exposure": "22.17%",
+        "Cognitive Load Exposure": "22.02%",
         "Commented Logic Exposure": "1.45%",
         "Concurrency Exposure": "20.17%",
         "Documentation Exposure": "50.52%",
@@ -3436,9 +3436,10 @@
       },
       "Directory Group Magnitude": 2757.18,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_11": "10.0%",
+        "file_cluster_10": "16.7%",
+        "file_cluster_11": "3.3%",
         "file_cluster_12": "10.0%",
-        "file_cluster_15": "40.0%",
+        "file_cluster_15": "30.0%",
         "file_cluster_16": "3.3%",
         "file_cluster_2": "16.7%",
         "file_cluster_4": "13.3%",
@@ -3496,10 +3497,9 @@
       },
       "Directory Group Magnitude": 485.5,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_10": "8.3%",
-        "file_cluster_11": "8.3%",
+        "file_cluster_10": "41.7%",
         "file_cluster_12": "8.3%",
-        "file_cluster_15": "50.0%",
+        "file_cluster_15": "25.0%",
         "file_cluster_2": "16.7%",
         "file_cluster_9": "8.3%"
       },
@@ -3565,9 +3565,9 @@
       "Directory Group Magnitude": 728.54,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "10.0%",
-        "file_cluster_11": "10.0%",
+        "file_cluster_10": "30.0%",
         "file_cluster_12": "10.0%",
-        "file_cluster_15": "40.0%",
+        "file_cluster_15": "20.0%",
         "file_cluster_4": "20.0%",
         "file_cluster_9": "10.0%"
       },
@@ -3616,7 +3616,7 @@
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
         "Cognitive Load Exposure": "17.84%",
-        "Commented Logic Exposure": "4.19%",
+        "Commented Logic Exposure": "1.36%",
         "Concurrency Exposure": "3.42%",
         "Documentation Exposure": "99.77%",
         "Error & Exception Exposure": "12.42%",
@@ -3983,7 +3983,7 @@
     "fortran/wrf": {
       "Average Risk Exposures": {
         "API Exposure": "13.62%",
-        "Cognitive Load Exposure": "44.24%",
+        "Cognitive Load Exposure": "44.13%",
         "Commented Logic Exposure": "7.98%",
         "Concurrency Exposure": "3.06%",
         "Documentation Exposure": "76.91%",
@@ -4148,7 +4148,7 @@
       "Directory Group Magnitude": 9709.12,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "12.5%",
-        "file_cluster_11": "12.5%",
+        "file_cluster_10": "12.5%",
         "file_cluster_15": "25.0%",
         "file_cluster_4": "37.5%",
         "file_cluster_8": "12.5%"
@@ -4208,7 +4208,7 @@
       },
       "Directory Group Magnitude": 2422.26,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_15": "28.6%",
+        "file_cluster_10": "28.6%",
         "file_cluster_2": "14.3%",
         "file_cluster_4": "42.9%",
         "file_cluster_6": "14.3%"
@@ -5943,10 +5943,10 @@
     "java/springboot": {
       "Average Risk Exposures": {
         "API Exposure": "4.16%",
-        "Cognitive Load Exposure": "15.0%",
+        "Cognitive Load Exposure": "13.36%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "10.9%",
-        "Documentation Exposure": "59.79%",
+        "Documentation Exposure": "59.57%",
         "Error & Exception Exposure": "49.72%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "43.75%",
@@ -9151,7 +9151,7 @@
     "python/airflow": {
       "Average Risk Exposures": {
         "API Exposure": "4.3%",
-        "Cognitive Load Exposure": "40.06%",
+        "Cognitive Load Exposure": "38.64%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "29.38%",
         "Documentation Exposure": "48.43%",
@@ -9181,7 +9181,7 @@
     "python/airflow_ai_providers": {
       "Average Risk Exposures": {
         "API Exposure": "6.98%",
-        "Cognitive Load Exposure": "25.55%",
+        "Cognitive Load Exposure": "23.81%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "3.14%",
         "Documentation Exposure": "48.58%",
@@ -9239,7 +9239,7 @@
     "python/cython": {
       "Average Risk Exposures": {
         "API Exposure": "31.41%",
-        "Cognitive Load Exposure": "26.49%",
+        "Cognitive Load Exposure": "25.92%",
         "Commented Logic Exposure": "0.88%",
         "Concurrency Exposure": "2.21%",
         "Documentation Exposure": "64.95%",
@@ -9273,7 +9273,7 @@
     "python/django_db_tests": {
       "Average Risk Exposures": {
         "API Exposure": "9.35%",
-        "Cognitive Load Exposure": "18.44%",
+        "Cognitive Load Exposure": "13.69%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "90.0%",
@@ -9326,7 +9326,7 @@
     "python/fastapi/fastapi": {
       "Average Risk Exposures": {
         "API Exposure": "24.94%",
-        "Cognitive Load Exposure": "14.01%",
+        "Cognitive Load Exposure": "13.48%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "18.74%",
         "Documentation Exposure": "58.56%",
@@ -9379,7 +9379,7 @@
     "python/fastapi/tests": {
       "Average Risk Exposures": {
         "API Exposure": "10.22%",
-        "Cognitive Load Exposure": "4.06%",
+        "Cognitive Load Exposure": "4.05%",
         "Commented Logic Exposure": "0.03%",
         "Concurrency Exposure": "22.49%",
         "Documentation Exposure": "96.74%",
@@ -9673,7 +9673,7 @@
     "python/langchain_agents": {
       "Average Risk Exposures": {
         "API Exposure": "7.19%",
-        "Cognitive Load Exposure": "57.02%",
+        "Cognitive Load Exposure": "56.63%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "99.97%",
         "Documentation Exposure": "100.0%",
@@ -9729,7 +9729,7 @@
     "python/numpy": {
       "Average Risk Exposures": {
         "API Exposure": "14.06%",
-        "Cognitive Load Exposure": "34.63%",
+        "Cognitive Load Exposure": "34.57%",
         "Commented Logic Exposure": "3.58%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "31.55%",
@@ -9946,7 +9946,7 @@
     "python/twisted": {
       "Average Risk Exposures": {
         "API Exposure": "15.77%",
-        "Cognitive Load Exposure": "42.66%",
+        "Cognitive Load Exposure": "42.39%",
         "Commented Logic Exposure": "1.23%",
         "Concurrency Exposure": "3.16%",
         "Documentation Exposure": "29.9%",
@@ -10373,7 +10373,7 @@
     "rust/bevy": {
       "Average Risk Exposures": {
         "API Exposure": "5.13%",
-        "Cognitive Load Exposure": "8.72%",
+        "Cognitive Load Exposure": "8.74%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "13.08%",
         "Documentation Exposure": "35.44%",
@@ -10386,7 +10386,7 @@
         "Testing Exposure": "27.72%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1650.3,
+      "Directory Group Magnitude": 1657.8,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "22.2%",
         "file_cluster_0": "55.6%",
@@ -10438,7 +10438,7 @@
     "rust/holylang": {
       "Average Risk Exposures": {
         "API Exposure": "6.12%",
-        "Cognitive Load Exposure": "16.52%",
+        "Cognitive Load Exposure": "16.68%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "56.79%",
@@ -10451,7 +10451,7 @@
         "Testing Exposure": "35.62%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1379.26,
+      "Directory Group Magnitude": 1409.96,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "28.6%",
         "file_cluster_14": "28.6%",
@@ -10472,10 +10472,10 @@
     "rust/serde": {
       "Average Risk Exposures": {
         "API Exposure": "4.44%",
-        "Cognitive Load Exposure": "4.97%",
+        "Cognitive Load Exposure": "4.59%",
         "Commented Logic Exposure": "1.25%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "50.57%",
+        "Documentation Exposure": "51.47%",
         "Error & Exception Exposure": "30.44%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "38.89%",
@@ -10485,7 +10485,7 @@
         "Testing Exposure": "36.34%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2875.22,
+      "Directory Group Magnitude": 2881.92,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "22.2%",
         "file_cluster_0": "66.7%",
@@ -10507,10 +10507,10 @@
     "rust/syn": {
       "Average Risk Exposures": {
         "API Exposure": "5.55%",
-        "Cognitive Load Exposure": "15.89%",
+        "Cognitive Load Exposure": "15.73%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "1.86%",
-        "Documentation Exposure": "62.06%",
+        "Documentation Exposure": "62.21%",
         "Error & Exception Exposure": "33.55%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "43.75%",
@@ -10520,7 +10520,7 @@
         "Testing Exposure": "40.89%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 649.8,
+      "Directory Group Magnitude": 652.6,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "12.5%",
         "file_cluster_0": "12.5%",
@@ -10544,7 +10544,7 @@
     "rust/tokio": {
       "Average Risk Exposures": {
         "API Exposure": "12.26%",
-        "Cognitive Load Exposure": "13.56%",
+        "Cognitive Load Exposure": "12.78%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "53.46%",
         "Documentation Exposure": "38.26%",
@@ -10557,11 +10557,10 @@
         "Testing Exposure": "26.06%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1604.32,
+      "Directory Group Magnitude": 1692.52,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "69.2%",
-        "file_cluster_10": "7.7%",
-        "file_cluster_13": "7.7%",
+        "file_cluster_13": "15.4%",
         "file_cluster_2": "7.7%",
         "file_cluster_5": "7.7%"
       },
@@ -10610,10 +10609,10 @@
     "rust/wasmtime": {
       "Average Risk Exposures": {
         "API Exposure": "7.89%",
-        "Cognitive Load Exposure": "9.15%",
+        "Cognitive Load Exposure": "9.21%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "6.82%",
-        "Documentation Exposure": "71.3%",
+        "Documentation Exposure": "71.42%",
         "Error & Exception Exposure": "42.61%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -10623,7 +10622,7 @@
         "Testing Exposure": "64.47%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 4240.16,
+      "Directory Group Magnitude": 4255.06,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "40.0%",
         "file_cluster_13": "20.0%",

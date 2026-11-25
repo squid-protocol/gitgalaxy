@@ -30,6 +30,18 @@
         }
       ]
     },
+    "c/cpython": {
+      "c/cpython/object.c": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 2,
+          "Kind": "function",
+          "Name": "PyObject_HashNotImplemented",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
     "c/doom": {
       "c/doom/i_system.c": [
         {

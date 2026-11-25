@@ -106,6 +106,18 @@ def _callees(line: str) -> list[str]:
         ("my $d = !eof FH;", ["eof"]),
         ("my $p = pos $s;", ["pos"]),
         ("my $e = time - $t0;", ["time"]),
+        # slice 7: list operators with a non-sigil first argument, and an argument that is itself a call
+        ("my @t = reverse sort keys %h;", ["reverse", "keys"]),
+        ("foreach reverse @keys;", ["reverse"]),
+        ("warn sprintf('x %s', $y);", ["warn", "sprintf"]),
+        ("$v = join defined $b ? $b : ',', @v;", ["join", "defined"]),
+        ("my $p = pack 'N', 5;", ["pack"]),
+        ("my @f = unpack('A2', $s);", ["unpack"]),
+        ("my $i = index $s, 'x';", ["index"]),
+        ("print STDERR;", ["print"]),
+        ("return subtest subtest_name( @args ) => sub {", ["subtest", "subtest_name"]),
+        ("ok defined($x), 'why';", ["ok", "defined"]),
+        ("say install_string('x');", ["say", "install_string"]),
     ],
 )
 def test_callees(line, expected):
@@ -136,7 +148,7 @@ def test_callees(line, expected):
         "my @x = map { $_ } @l;",
         "my @x = grep { $_ } @l;",
         "BEGIN { 1 }",
-        "$o->{or} die",
+        "$o->{or} foo",
         "my $r = $a % 3;",
         "$x = foo {a} + 1;",
         "-e $file",
@@ -148,7 +160,6 @@ def test_callees(line, expected):
         "x::y",
         "package Foo::Bar;",
         "sub new { 1 }",
-        "print STDERR;",
         "my $n = new;",
         "$h{select}",
         "select => 1,",
@@ -167,6 +178,17 @@ def test_callees(line, expected):
         "$time = 3;",
         "my $wait = 1;",
         "$pos{x}",
+        # slice 7: the new list operators are barewords where Perl says so
+        "$h{reverse}",
+        "$h{print}",
+        "print => 1,",
+        "join => ',',",
+        "sub reverse { 1 }",
+        "sub\tsprintf { 1 }",
+        "$o->{warn}",
+        "my $join = 1;",
+        "$substr = 2;",
+        "my @pack = (1);",
     ],
 )
 def test_not_calls(line):

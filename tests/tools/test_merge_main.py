@@ -17,6 +17,8 @@ import merge_main as mm
         ("tests/ruff_audit_baseline.json", "regenerated"),
         ("tests/tools/docs_read_by_tests.txt", "regenerated"),
         (".test_durations", "regenerated"),
+        ("docs/self_scan/family_validity_chart.svg", "regenerated"),
+        ("docs/self_scan/family_validity_matrix.svg", "regenerated"),
         ("docs/language_status/mutation_testing.md", "region"),
         ("tests/equivalence/det_sweep_coverage/cbsa-inqacc.json", "record"),
         ("tests/equivalence/cbsa-inqacc/evidence.json", "record"),
@@ -38,6 +40,12 @@ def test_writers_run_once_each_and_goldens_last():
     paths = ["tests/golden_master_audit/x.json", "tests/ruff_audit_baseline.json", "tests/mypy_audit_baseline.json"]
     writers = mm.writers_for(paths)
     assert writers[-1] == mm.GOLDEN_WRITER and len(writers) == 2
+
+
+def test_both_family_validity_svgs_share_one_writer_8863():
+    paths = ["docs/self_scan/family_validity_chart.svg", "docs/self_scan/family_validity_matrix.svg"]
+    writers = mm.writers_for(paths)
+    assert len(writers) == 1 and writers[0][1:] == ["tests/tools/family_validity_chart.py", "--write"]
 
 
 def test_blank_region_keeps_the_markers():

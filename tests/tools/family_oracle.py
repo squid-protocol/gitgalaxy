@@ -142,7 +142,7 @@ FAMILIES: tuple[Family, ...] = (
     Family(
         "struct_branch",
         "branch",
-        "decision points: if/elif arms, loops, conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3)",
+        "decision points: if/elif arms, loops (a comprehension's `for` included), conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3)",
         "branch",
     ),
     Family(
@@ -291,7 +291,11 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("sleep", name)
     if name in ("exit", "_exit", "abort", "quit"):
         c.add("bailout", name)
-    if name in _LOG_METHODS and base in _LOG_OBJECTS:
+    # `self.logger.info(..)` / `cls._log.debug(..)`: the receiver's last name decides, not only a bare `logger.` (#8862 contract:
+    # a call that records a log line through a logging framework)
+    recv = call.func.value if isinstance(call.func, ast.Attribute) else None
+    recv_name = recv.attr if isinstance(recv, ast.Attribute) else base
+    if name in _LOG_METHODS and recv_name in _LOG_OBJECTS:
         c.add("telemetry", name)
     if name in _THREAD_NAMES or base in ("threading", "multiprocessing"):
         c.add("threads", name)
@@ -319,9 +323,11 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         ):  # not handlers or assert: branch contract corollary 1
             c.add("branch")
         elif isinstance(node, ast.BoolOp):
-            c.n["short_circuit"] += len(node.values) - 1  # boolean operators are short_circuit's (branch corollary 0, #8939)
+            c.n["short_circuit"] += (
+                len(node.values) - 1
+            )  # boolean operators are short_circuit's (branch corollary 0, #8939)
         elif isinstance(node, ast.comprehension):
-            c.n["branch"] += len(node.ifs)
+            c.n["branch"] += 1 + len(node.ifs)  # a comprehension's `for` is a loop, each `if` a filter
         if isinstance(node, ast.Lambda):
             c.add("closures", "lambda")
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
@@ -394,12 +400,16 @@ def get_oracle(lang: str):
     """The oracle for `lang`: Python's `ast`, or a tree-sitter one from family_oracle_ts (languages listed there)."""
     if lang == "python":
         return _PythonOracle
+    if lang == "cobol":  # the translator's own parser (a paragraph is the function), not a tree-sitter grammar
+        import family_oracle_cobol
+
+        return family_oracle_cobol.get_oracle()
     import family_oracle_ts
 
     oracle = family_oracle_ts.get_oracle(lang)
     if oracle is None:
         raise SystemExit(
-            f"no oracle for language {lang!r} yet (available: python, {', '.join(family_oracle_ts.languages())}); see #8863"
+            f"no oracle for language {lang!r} yet (available: python, cobol, {', '.join(family_oracle_ts.languages())}); see #8863"
         )
     return oracle
 
@@ -583,9 +593,11 @@ BASELINE_SCHEMA = 1
 
 def _keeps_old(old: dict | None, new: dict) -> bool:
     """An informative cell is not displaced by a `no-instances` or a too-thin (< SMALL_N functions) one from a different corpus, and a pinned
-    cell is not displaced by an unpinned one."""
+    cell is not displaced by an unpinned one. A pinned cell from another pin (an older release) is replaced."""
     if old is None:
         return False
+    if old["pinned"] and new["pinned"] and old["corpus"] != new["corpus"]:
+        return False  # a re-pin supersedes: a cell measured at an older pin is a stale claim, even where the new pin sees nothing
     old_informative = old["status"] != "no-instances"
     if old_informative and new["status"] == "no-instances" and old["corpus"] != new["corpus"]:
         return True

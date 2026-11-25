@@ -28,7 +28,9 @@ from typing import Any
 
 from family_oracle import Family
 
-_IO_VERBS = frozenset({"OPEN", "READ", "WRITE", "REWRITE", "DELETE", "START"})  # CLOSE is cleanup's hit (io contract C2)
+_IO_VERBS = frozenset(
+    {"OPEN", "READ", "WRITE", "REWRITE", "DELETE", "START"}
+)  # CLOSE is cleanup's hit (io contract C2)
 _EXEC_IO = re.compile(
     r"EXEC\s+(?:SQL|DLI)\b|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE|UNLOCK|STARTBR|READNEXT|READPREV|ENDBR|RESETBR|READQ|WRITEQ|DELETEQ)\b",
     re.I,
@@ -43,7 +45,12 @@ FAMILIES: tuple[Family, ...] = (
         "branch",
     ),
     Family("state_print_hits", "print", "console output: DISPLAY, EXHIBIT", "debug_prints"),
-    Family("arch_io", "io", "file verbs OPEN, READ, WRITE, REWRITE, DELETE, START and EXEC SQL / DLI / CICS file and queue commands (CLOSE is cleanup's, io contract C2)", "io"),
+    Family(
+        "arch_io",
+        "io",
+        "file verbs OPEN, READ, WRITE, REWRITE, DELETE, START and EXEC SQL / DLI / CICS file and queue commands (CLOSE is cleanup's, io contract C2)",
+        "io",
+    ),
 )
 
 
@@ -81,7 +88,7 @@ class CobolOracle:
             proc = S.parse(SRC.logical_lines(text.splitlines(), "family_oracle"))
         except ImportError:
             raise
-        except Exception:  # a refusal by name (ExprError, NotCobol, ...) is "no oracle for this program"  # noqa: BLE001
+        except Exception:  # a refusal by name (ExprError, NotCobol, ...) is "no oracle for this program"
             return {}
         out: dict = {}
         for para in proc.paragraphs:
@@ -107,11 +114,7 @@ class CobolOracle:
                 if kind == "IF":
                     add("branch", "IF")
                     add("short_circuit", "AND/OR", _boolean_ops(data.get("cond")))
-                elif kind == "EVALUATE":
-                    for conds, _ in s.whens:
-                        add("branch", "WHEN")
-                        add("short_circuit", "AND/OR", _boolean_ops(conds))
-                elif kind == "SEARCH":
+                elif kind in ("EVALUATE", "SEARCH"):
                     for conds, _ in s.whens:
                         add("branch", "WHEN")
                         add("short_circuit", "AND/OR", _boolean_ops(conds))
@@ -119,7 +122,11 @@ class CobolOracle:
                     loop = data.get("until") or data.get("varying") or data.get("times")
                     if loop is not None:
                         add("branch", "PERFORM loop")
-                        add("short_circuit", "AND/OR", _boolean_ops(data.get("until")) + _boolean_ops(data.get("varying")))
+                        add(
+                            "short_circuit",
+                            "AND/OR",
+                            _boolean_ops(data.get("until")) + _boolean_ops(data.get("varying")),
+                        )
                 elif kind in ("GOTO", "GO") and data.get("depending"):
                     add("branch", "GO TO DEPENDING")
                 elif kind in _PRINT_VERBS:

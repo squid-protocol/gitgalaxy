@@ -193,7 +193,7 @@ def test_gate_and_cli(tmp_path, capsys):
 
 def test_unknown_language_is_refused(tmp_path):
     with pytest.raises(SystemExit, match="no oracle"):
-        fo.score(_make_scan(tmp_path), tmp_path, "cobol")
+        fo.score(_make_scan(tmp_path), tmp_path, "nosuchlang")
 
 
 def test_list_families(capsys):

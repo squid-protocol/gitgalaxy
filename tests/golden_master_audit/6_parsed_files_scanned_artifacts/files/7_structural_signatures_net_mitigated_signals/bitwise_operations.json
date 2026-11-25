@@ -1489,10 +1489,10 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 0,
-      "dockerfile/moby/builder/dockerfile/copy.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy.go": 2,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 0,
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 1,
       "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
@@ -1518,12 +1518,12 @@
       "dockerfile/moby/builder/remotecontext/archive.go": 0,
       "dockerfile/moby/builder/remotecontext/detect.go": 0,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 0,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 1,
       "dockerfile/moby/builder/remotecontext/git.go": 0,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/remote.go": 0,
+      "dockerfile/moby/builder/remotecontext/remote.go": 4,
       "dockerfile/moby/builder/remotecontext/remote_test.go": 0,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 0
@@ -1744,25 +1744,25 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 1,
-      "go/core/mgc.go": 13,
+      "go/core/main.go": 3,
+      "go/core/mgc.go": 14,
       "go/core/mutex.go": 0,
-      "go/core/proc.go": 15,
-      "go/core/server.go": 9,
-      "go/core/syscall_linux.go": 14,
-      "go/core/value.go": 20
+      "go/core/proc.go": 34,
+      "go/core/server.go": 11,
+      "go/core/syscall_linux.go": 42,
+      "go/core/value.go": 153
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 22
+      "go/go_runtime_rand/rand.go": 31
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 1,
       "go/kubernetes/generic.go": 0,
       "go/kubernetes/kubelet.go": 0,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 1,
+      "go/kubernetes/proxier.go": 9,
       "go/kubernetes/replica_set.go": 0,
-      "go/kubernetes/scheduler.go": 0
+      "go/kubernetes/scheduler.go": 3
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 0
@@ -4838,11 +4838,11 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
-      "typescript/assemblyscript/ast.ts": 1,
-      "typescript/assemblyscript/builtins.ts": 626,
-      "typescript/assemblyscript/compiler.ts": 30,
+      "typescript/assemblyscript/ast.ts": 7,
+      "typescript/assemblyscript/builtins.ts": 674,
+      "typescript/assemblyscript/compiler.ts": 132,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 0
+      "typescript/assemblyscript/parser.ts": 78
     },
     "typescript/effect_ai_anthropic": {
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 0
@@ -4856,9 +4856,9 @@
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 1
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 0,
+      "typescript/fp-ts/Either.ts": 23,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 0,
+      "typescript/fp-ts/TaskEither.ts": 40,
       "typescript/fp-ts/package.json": 0,
       "typescript/fp-ts/pipeable.ts": 0
     },
@@ -4877,32 +4877,32 @@
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 0,
-      "typescript/playwright/crConnection.ts": 0,
-      "typescript/playwright/dispatcher.ts": 0,
-      "typescript/playwright/frames.ts": 2,
+      "typescript/playwright/crConnection.ts": 1,
+      "typescript/playwright/dispatcher.ts": 1,
+      "typescript/playwright/frames.ts": 6,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 16,
-      "typescript/typescript_compiler/checker.ts": 131,
-      "typescript/typescript_compiler/emitter.ts": 3,
+      "typescript/typescript_compiler/binder.ts": 163,
+      "typescript/typescript_compiler/checker.ts": 3623,
+      "typescript/typescript_compiler/emitter.ts": 119,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 21,
-      "typescript/typescript_compiler/types.ts": 498
+      "typescript/typescript_compiler/parser.ts": 116,
+      "typescript/typescript_compiler/types.ts": 665
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 3,
-      "typescript/vscode/codeEditorWidget.ts": 4,
+      "typescript/vscode/async.ts": 13,
+      "typescript/vscode/codeEditorWidget.ts": 8,
       "typescript/vscode/eslint.config.js": 246,
-      "typescript/vscode/extHost.api.impl.ts": 6,
+      "typescript/vscode/extHost.api.impl.ts": 26,
       "typescript/vscode/gulpfile.vscode.ts": 1,
-      "typescript/vscode/instantiationService.ts": 0,
-      "typescript/vscode/ipc.ts": 4,
-      "typescript/vscode/lifecycle.ts": 2,
+      "typescript/vscode/instantiationService.ts": 1,
+      "typescript/vscode/ipc.ts": 11,
+      "typescript/vscode/lifecycle.ts": 3,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 0
+      "typescript/vscode/vscode.d.ts": 125
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,

@@ -51,7 +51,7 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("test", "it('works', () => {})", "myRegex.test('x')"),
     ("concurrency", "await foo();", "const x = 1;"),
     ("ui_framework", "className='foo'", "const x = 1;"),
-    ("closures", "() => {", "const x = 1;"),
+    ("closures", "run(() => {", "const x = 1;"),
     ("globals", "window.location", "const x = 1;"),
     ("decorators", "@Component", "const x = 1;"),
     ("generics", "Array<Foo>", "const x = 1;"),

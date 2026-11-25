@@ -768,6 +768,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # stayed permanently empty (0/19 real classes) despite cobol's own regex working.
         "cobol",
         "cpp",
+        # #9200: crystal's class_start captures the whole namespaced name (`HTTP::Client`).
+        "crystal",
         "csharp",
         # #2511: db2_sql's class_start extracts CREATE TABLE / VIEW / TABLESPACE
         # names (schema-qualified, optionally double-quoted -- the quote pair is

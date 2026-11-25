@@ -1148,7 +1148,7 @@
       "avg_exposures": {
         "api_exposure": 15.68,
         "churn": 0.0,
-        "cognitive_load": 36.05,
+        "cognitive_load": 35.9,
         "concurrency": 5.31,
         "dead_code": 0.0,
         "documentation": 29.19,
@@ -2003,7 +2003,7 @@
       "avg_exposures": {
         "api_exposure": 13.62,
         "churn": 0.0,
-        "cognitive_load": 44.24,
+        "cognitive_load": 44.13,
         "concurrency": 3.06,
         "dead_code": 7.98,
         "documentation": 76.91,
@@ -4777,7 +4777,7 @@
       "avg_exposures": {
         "api_exposure": 4.3,
         "churn": 0.0,
-        "cognitive_load": 40.06,
+        "cognitive_load": 38.64,
         "concurrency": 29.38,
         "dead_code": 0.0,
         "documentation": 48.43,
@@ -4796,7 +4796,7 @@
       "avg_exposures": {
         "api_exposure": 6.98,
         "churn": 0.0,
-        "cognitive_load": 25.55,
+        "cognitive_load": 23.81,
         "concurrency": 3.14,
         "dead_code": 0.0,
         "documentation": 48.58,
@@ -4834,7 +4834,7 @@
       "avg_exposures": {
         "api_exposure": 31.41,
         "churn": 0.0,
-        "cognitive_load": 26.49,
+        "cognitive_load": 25.92,
         "concurrency": 2.21,
         "dead_code": 0.88,
         "documentation": 64.95,
@@ -4853,7 +4853,7 @@
       "avg_exposures": {
         "api_exposure": 9.35,
         "churn": 0.0,
-        "cognitive_load": 18.44,
+        "cognitive_load": 13.69,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.0,
@@ -4891,7 +4891,7 @@
       "avg_exposures": {
         "api_exposure": 24.94,
         "churn": 0.0,
-        "cognitive_load": 14.01,
+        "cognitive_load": 13.48,
         "concurrency": 18.74,
         "dead_code": 0.0,
         "documentation": 58.56,
@@ -4910,7 +4910,7 @@
       "avg_exposures": {
         "api_exposure": 10.22,
         "churn": 0.0,
-        "cognitive_load": 4.06,
+        "cognitive_load": 4.05,
         "concurrency": 22.49,
         "dead_code": 0.03,
         "documentation": 96.74,
@@ -4967,7 +4967,7 @@
       "avg_exposures": {
         "api_exposure": 7.19,
         "churn": 0.0,
-        "cognitive_load": 57.02,
+        "cognitive_load": 56.63,
         "concurrency": 99.97,
         "dead_code": 0.0,
         "documentation": 100.0,
@@ -5005,7 +5005,7 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.63,
+        "cognitive_load": 34.57,
         "concurrency": 0.0,
         "dead_code": 3.58,
         "documentation": 31.55,
@@ -5138,7 +5138,7 @@
       "avg_exposures": {
         "api_exposure": 15.77,
         "churn": 0.0,
-        "cognitive_load": 42.66,
+        "cognitive_load": 42.39,
         "concurrency": 3.16,
         "dead_code": 1.23,
         "documentation": 29.9,

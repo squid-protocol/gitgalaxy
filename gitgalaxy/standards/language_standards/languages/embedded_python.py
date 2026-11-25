@@ -284,7 +284,7 @@ DEFINITION: dict[str, Any] = {
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto).
         # High Cognitive Load: Dunder methods and Viper/Native emitters.
         "reflection_metaprogramming": re.compile(
-            r"__(?:getattr|setattr|new|call|dict|dir|import)__|@(?:staticmethod|classmethod|property)|@micropython\.(?:viper|native)\b|\b(?:getattr|setattr|hasattr)\b"
+            r"__(?:getattr|setattr|new|call|dict|dir|import)__|@micropython\.(?:viper|native)\b|\b(?:getattr|setattr|hasattr)\b"
         ),
         # 24. import (Dependency Inclusions)
         # #2875 contract: twin parity with python -- the loader calls join the anchored

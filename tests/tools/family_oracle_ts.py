@@ -174,6 +174,10 @@ SPECS: dict[str, Spec] = {
                 "http.Post",
                 "filepath.Walk",
                 "filepath.WalkDir",
+                "io.Copy",
+                "io.ReadAll",
+                "io.ReadFull",
+                "io.WriteString",
             ),
             "bailout": ("panic", "os.Exit", "log.Fatal", "log.Fatalf", "log.Fatalln", "log.Panic", "log.Panicf"),
         },
@@ -672,7 +676,10 @@ class TreeSitterOracle:
                     add("short_circuit", op)
                 if op in ("<<", ">>", "^", "&^", "&", "|"):
                     add("bitwise", op)
-            elif t == "unary_expression" and _text(node.child_by_field_name("operator")) == "~":
+            elif t == "unary_expression" and _text(node.child_by_field_name("operator")) in (
+                "~",
+                "^",  # Go's unary complement (`^uint32(0)`); no other oracle language has a unary `^`
+            ):
                 add("bitwise", "~")
             elif "assignment" in t and _text(node.child_by_field_name("operator")) in (
                 "<<=",

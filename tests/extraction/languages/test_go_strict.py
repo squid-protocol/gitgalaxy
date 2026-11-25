@@ -54,7 +54,8 @@ _GO_SIMPLE_CASES = [
     ("debug_prints", 'fmt.Println("debug")', 'fmt.Sprintf("debug")'),
     ("decorators", "//go:build linux", "// go to sleep"),
     ("dependency_injection", "wire.Build(NewFoo)", "wire.NewFoo()"),
-    ("doc", "// Foo does something useful.", "// foo does something useful"),
+    # #8863: a godoc comment is any column-0 `// text` line (unexported declarations too); a directive has no space
+    ("doc", "// Foo does something useful.", "//nolint:errcheck"),
     ("encapsulation", "var foo = 5", "var Foo = 5"),
     ("events", "bus.Publish(event)", "bus.Published = true"),
     ("explicit_casts", "int(x)", "intVar := 5"),

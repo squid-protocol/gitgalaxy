@@ -526,15 +526,15 @@
 <rect class="stripe" x="16" y="1042" width="780" height="44"/>
 <text class="lang-label" x="20" y="1067.5">fsharp</text>
 <rect class="bar-track" x="154" y="1047" width="88" height="34" rx="2"/>
-<rect x="154" y="1047" width="62.8" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1055">187*</text>
+<rect x="154" y="1047" width="68.2" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1055">203*</text>
 <rect x="154" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1067">262*</text>
 <rect class="bar-track" x="286" y="1047" width="88" height="34" rx="2"/>
-<rect x="286" y="1047" width="85.2" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1055">181/187*</text>
-<rect x="286" y="1059" width="60.8" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1067">181/262*</text>
+<rect x="286" y="1047" width="85.4" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1055">197/203*</text>
+<rect x="286" y="1059" width="66.2" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1067">197/262*</text>
 <rect class="bar-track" x="418" y="1047" width="88" height="34" rx="2"/>
 <rect x="418" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1055">4*</text>
@@ -545,9 +545,9 @@
 <text class="bar-value-label" x="594.0" y="1055">0/4*</text>
 <rect class="bar-track" x="682" y="1047" width="88" height="34" rx="2"/>
 <rect x="682" y="1047" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1055">181*</text>
+<text class="bar-value-label" x="726.0" y="1055">197*</text>
 <rect x="682" y="1059" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1067">181*</text>
+<text class="bar-value-label" x="726.0" y="1067">197*</text>
 <text class="lang-label" x="20" y="1111.5">go</text>
 <rect class="bar-track" x="154" y="1091" width="88" height="34" rx="2"/>
 <rect x="154" y="1091" width="88.0" height="10" rx="2" fill="#2a78d6"/>

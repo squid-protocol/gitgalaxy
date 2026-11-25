@@ -345075,6 +345075,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 51,
+          "Function Name": "UNAUTHORIZED",
+          "Has Header Comment": 0,
+          "Input Parameters": 3,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 51,
+          "Structural Impact": 2.0
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 15,
           "Function Name": "ok",
           "Has Header Comment": 1,
@@ -345084,6 +345098,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 15,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 16,
+          "Function Name": "OK",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 16,
           "Structural Impact": 1.5
         },
         {
@@ -345103,6 +345131,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 19,
+          "Function Name": "CREATED",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 19,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 21,
           "Function Name": "accepted",
           "Has Header Comment": 0,
@@ -345112,6 +345154,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 21,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 22,
+          "Function Name": "ACCEPTED",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 22,
           "Structural Impact": 1.5
         },
         {
@@ -345131,6 +345187,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 31,
+          "Function Name": "BAD_REQUEST",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 31,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 53,
           "Function Name": "forbidden",
           "Has Header Comment": 0,
@@ -345140,6 +345210,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 53,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 54,
+          "Function Name": "FORBIDDEN",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 54,
           "Structural Impact": 1.5
         },
         {
@@ -345159,6 +345243,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 57,
+          "Function Name": "NOT_FOUND",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 57,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 59,
           "Function Name": "methodNotAllowed",
           "Has Header Comment": 0,
@@ -345168,6 +345266,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 59,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 60,
+          "Function Name": "METHOD_NOT_ALLOWED",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 60,
           "Structural Impact": 1.5
         },
         {
@@ -345187,6 +345299,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 63,
+          "Function Name": "NOT_ACCEPTABLE",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 63,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 65,
           "Function Name": "conflict",
           "Has Header Comment": 0,
@@ -345196,6 +345322,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 65,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 66,
+          "Function Name": "CONFLICT",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 66,
           "Structural Impact": 1.5
         },
         {
@@ -345215,6 +345355,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 69,
+          "Function Name": "GONE",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 69,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 71,
           "Function Name": "unsupportedMediaType",
           "Has Header Comment": 0,
@@ -345224,6 +345378,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 71,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 72,
+          "Function Name": "UNSUPPORTED_MEDIA_TYPE",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 72,
           "Structural Impact": 1.5
         },
         {
@@ -345243,6 +345411,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 75,
+          "Function Name": "UNPROCESSABLE_ENTITY",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 75,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 77,
           "Function Name": "preconditionRequired",
           "Has Header Comment": 0,
@@ -345252,6 +345434,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 77,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 78,
+          "Function Name": "PRECONDITION_REQUIRED",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 78,
           "Structural Impact": 1.5
         },
         {
@@ -345271,6 +345467,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 81,
+          "Function Name": "TOO_MANY_REQUESTS",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 81,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 88,
           "Function Name": "internalError",
           "Has Header Comment": 1,
@@ -345280,6 +345490,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 88,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 89,
+          "Function Name": "INTERNAL_ERROR",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 89,
           "Structural Impact": 1.5
         },
         {
@@ -345299,6 +345523,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 92,
+          "Function Name": "NOT_IMPLEMENTED",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 92,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 94,
           "Function Name": "badGateway",
           "Has Header Comment": 0,
@@ -345308,6 +345546,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 94,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 95,
+          "Function Name": "BAD_GATEWAY",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 95,
           "Structural Impact": 1.5
         },
         {
@@ -345327,6 +345579,20 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 98,
+          "Function Name": "SERVICE_UNAVAILABLE",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 98,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 100,
           "Function Name": "gatewayTimeout",
           "Has Header Comment": 0,
@@ -345336,6 +345602,20 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 100,
+          "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 101,
+          "Function Name": "GATEWAY_TIMEOUT",
+          "Has Header Comment": 0,
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1,
+          "Reflection Hits": 0,
+          "Start Line": 101,
           "Structural Impact": 1.5
         },
         {

@@ -14,7 +14,7 @@
     "I/O & Config Routines": "14.8% (8576)",
     "Interface Declarations": "16.0% (9279)",
     "Many-Argument Workhorses": "6.4% (3720)",
-    "Parameter Forwarders": "13.0% (7566)",
+    "Parameter Forwarders": "13.1% (7586)",
     "State Mutators": "8.1% (4673)",
     "Stateful Encapsulated Methods": "4.2% (2423)",
     "Type Conversions": "2.6% (1495)"

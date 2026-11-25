@@ -44,7 +44,12 @@ from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
 from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
-from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
+from gitgalaxy.core.return_types import (
+    extract_call_assigns,
+    extract_expr_chain,
+    extract_return_type,
+    extract_whole_call_chain,
+)
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -506,6 +511,13 @@ class ScopeParsingRegistry:
             ],
             "closers": [r"(?<![\[(,:.@$\w])\bend\b(?![ \t]*[-+*/\u00f7%^\]:,\[])"],
             "function_opener": r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*function\b",
+            # #9200: a short-form `f(x) = expr` opens and closes nothing, so no node was made for it. Group 1 is the name.
+            "oneline_opener": (
+                r"(?m:^)[ \t]*(?:(?:[A-Za-z_]\w*\.)?@[A-Za-z_]\w*[ \t]+)*"
+                r"(?!(?:if|elseif|for|while|let|return|function|macro|struct|module|using|import|export|catch)\b)"
+                r"((?:[A-Za-z_]\w*\.)*[^\W\d]\w*!?)(?:\{[^}\n]*\})?\([^)\n]*\)[ \t]*(?:::[^=\n]+?)?[ \t]*"
+                r"(?:where[ \t]+[^=\n]+?[ \t]*)?=(?![=>])"
+            ),
             "class_opener": r"(?m:^)[ \t]*(?:(?:mutable[ \t]+)?struct|(?:bare)?module)\b",
         },
         "vb": {
@@ -1490,6 +1502,127 @@ def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
 
 
 _KT_IDENT = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*")
+
+
+def _cpp_class_parents(stream: str, header_start: int, body_end: int) -> list[str]:
+    """Extract C++ base class leaf names from `class/struct Name [final] : [public|private|protected] [virtual] ns::Base<T>, ... {`.
+
+    Skips `std::` bases (e.g. `std::true_type`, `std::runtime_error`) so stdlib inheritance does not pollute
+    repository class lineages.
+    """
+    limit = min(len(stream), body_end, header_start + 3000)
+    # Find the single `:` introducing the base-clause (ignoring `::` scope operators and `<...>` args)
+    i = header_start
+    angle = paren = 0
+    colon = -1
+    open_at = -1
+    while i < limit:
+        ch = stream[i]
+        if ch == "<":
+            angle += 1
+        elif ch == ">" and angle > 0:
+            angle -= 1
+        elif ch == "(":
+            paren += 1
+        elif ch == ")" and paren > 0:
+            paren -= 1
+        elif angle == 0 and paren == 0:
+            if ch == ":":
+                if i + 1 < limit and stream[i + 1] == ":":
+                    i += 2
+                    continue
+                if colon < 0:
+                    colon = i
+            elif ch == "{":
+                open_at = i
+                break
+            elif ch == ";":
+                return []
+        i += 1
+    if colon < 0 or open_at < 0 or open_at <= colon + 1:
+        return []
+    clause = stream[colon + 1 : open_at]
+    # Split top-level commas outside `<...>` and `(...)`
+    parts: list[str] = []
+    cur: list[str] = []
+    depth = 0
+    for ch in clause:
+        if ch in "<(":
+            depth += 1
+        elif ch in ">)" and depth > 0:
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    parts.append("".join(cur))
+    parents: list[str] = []
+    for raw in parts:
+        # Strip template arguments and access/virtual specifiers
+        s = raw.strip()
+        if not s:
+            continue
+        # Remove balanced `<...>` suffix
+        lt = s.find("<")
+        if lt > 0:
+            s = s[:lt].strip()
+        tokens = [t for t in s.split() if t not in ("public", "private", "protected", "virtual")]
+        if not tokens:
+            continue
+        base_expr = tokens[-1]
+        if base_expr.startswith(("std::", "::std::")):
+            continue
+        leaf = base_expr.rsplit("::", 1)[-1].strip()
+        if leaf and (leaf[0].isalpha() or leaf[0] == "_") and leaf not in parents:
+            parents.append(leaf)
+    return parents
+
+
+_KT_APPLY_OPEN = re.compile(r"\??\.[ \t\r\n]{0,40}apply[ \t]*\{|\bwith[ \t]*\((?P<w>[^()\n]{1,120})\)[ \t]*\{")
+
+
+def _kotlin_apply_spans(text: str) -> list[tuple[int, int, str, str | None]]:
+    """Find Kotlin `.apply { ... }` and `with(x) { ... }` receiver blocks in `text`.
+
+    Returns `[(brace_open, brace_close, qualifier, expr_chain), ...]` so bare calls inside a builder DSL
+    (`FileSpec.builder(p, n).apply { addFunction(...) }`) can resolve against the `.apply` receiver.
+    """
+    if "apply" not in text and "with" not in text:
+        return []
+    closes: dict[int, int] = {}
+    stack: list[int] = []
+    for k, ch in enumerate(text):
+        if ch == "{":
+            stack.append(k)
+        elif ch == "}" and stack:
+            closes[stack.pop()] = k + 1
+    spans: list[tuple[int, int, str, str | None]] = []
+    for m in _KT_APPLY_OPEN.finditer(text):
+        brace = m.end() - 1
+        end = closes.get(brace, -1)
+        if end <= brace:
+            continue
+        w = m.group("w")
+        if w is not None:
+            ws = w.strip()
+            if re.fullmatch(r"[A-Za-z_]\w{0,127}", ws):
+                spans.append((brace, end, ws, None))
+            else:
+                chain = extract_whole_call_chain(ws)
+                if chain:
+                    spans.append((brace, end, "<expr>", chain))
+        else:
+            # `.apply {` or `?.apply {`
+            dot_after = m.start() + (2 if text[m.start()] == "?" else 1)
+            chain = extract_expr_chain(text, dot_after, (".",))
+            if chain:
+                spans.append((brace, end, "<expr>", chain))
+            else:
+                q = _call_qualifier(text, dot_after, (".",))
+                if q and q != "<expr>" and "." not in q:
+                    spans.append((brace, end, q, None))
+    return spans
 
 
 def _kotlin_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
@@ -4642,6 +4775,10 @@ class StructuralExtractor:
                     classes[-1]["inheritance"] = _php_class_parents(class_safe_stream, match.end(), end_idx)
                 elif self.primary_lang_id == "kotlin" and not inheritance and name != "Anonymous_Class":
                     classes[-1]["inheritance"] = _kotlin_class_parents(class_safe_stream, match.end(), end_idx)
+                elif self.primary_lang_id == "cpp" and name != "Anonymous_Class":
+                    cpp_parents = _cpp_class_parents(class_safe_stream, match.start(), end_idx)
+                    if cpp_parents:
+                        classes[-1]["inheritance"] = cpp_parents
 
             # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
             # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's
@@ -10408,7 +10545,28 @@ class StructuralExtractor:
             # lua: ruby/matlab/livecode also carry a `function_opener` but their
             # one-liner forms aren't corpus-audited yet, so they keep the strict
             # depth>0 gate.
+            oneline_src = config.get("oneline_opener")
+            oneline_pattern = re.compile(oneline_src, flags) if oneline_src else None
             for i in range(n):
+                if oneline_pattern is not None and net_changes[i] <= 0:
+                    om = oneline_pattern.match(safe_lines[i])
+                    if om:
+                        # #9200: the definition is its own one-line node, at any depth (a module wraps most files).
+                        line = original_lines[i].strip()
+                        sat, mag = self._calculate_block_metrics(
+                            om.group(1).rsplit(".", 1)[-1],
+                            line,
+                            1,
+                            offset + i + 1,
+                            offset + i + 1,
+                            rules,
+                            line_char_starts[i],
+                            line_char_starts[i] + len(original_lines[i]),
+                            spatial_map,
+                        )
+                        satellites.append(sat)
+                        sum_fxn_impact += mag
+                        continue
                 if depth_before_line[i] <= 0 and not (lang_key == "lua" and net_changes[i] <= 0):
                     continue
                 if not function_opener_pattern.search(safe_lines[i]):
@@ -12596,6 +12754,7 @@ class StructuralExtractor:
                     else 0
                 )
                 init_span: tuple[int, int] | None = None
+                kt_apply_spans = _kotlin_apply_spans(safe_block) if self.primary_lang_id == "kotlin" else []
                 default_spans: list[tuple[int, int]] | None = None
                 for m in invocation_pattern.finditer(safe_block):
                     # #5639: a message send's groups are (receiver, selector); a C call's is group 1
@@ -12699,6 +12858,16 @@ class StructuralExtractor:
                             seen_chains = expr_chains_seen.setdefault(callee, [])
                             if chain not in seen_chains:
                                 seen_chains.append(chain)
+                    elif kt_apply_spans and not qualifier and not own_header_call:
+                        enclosing_apply = [s for s in kt_apply_spans if s[0] < callee_pos < s[1]]
+                        if enclosing_apply:
+                            _, _, a_qual, a_chain = max(enclosing_apply, key=lambda s: s[0])
+                            if a_qual not in seen:
+                                seen.append(a_qual)
+                            if a_chain:
+                                seen_chains = expr_chains_seen.setdefault(callee, [])
+                                if a_chain not in seen_chains:
+                                    seen_chains.append(a_chain)
                     if track_arities and not own_header_call:
                         arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
                         if self.primary_lang_id == "kotlin":

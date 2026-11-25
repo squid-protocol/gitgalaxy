@@ -444,7 +444,11 @@ DEFINITION: dict[str, Any] = {
         # same ReDoS shape already found and fixed independently in
         # embedded_python, css, tcl, matlab, scheme, typescript, and
         # rust earlier in this epic. Bounded both quantifiers.
-        "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
+        # #8862: a tag is `[spec` / `[audit` as a whole word; `[SPECIAL_X]`, `[spec, ret]` and `[Spec=%v]` are code or
+        # log text the second (code-stream) pass also reads, not a traceability tag.
+        "spec_exposure": re.compile(
+            r"\[(?:\s*SPEC\s*-\s*\d{1,10}|(?:spec|audit)(?!\w)(?![ \t]*[,=]))[^\]]{0,300}\]", re.I
+        ),
         # 31. ssr_boundaries (Server-Side Rendering)
         "ssr_boundaries": re.compile(r"\b(FCGI_Accept|khttp_parse|MHD_start_daemon|facil\.io)\b"),
         # 32. events (Event Emitters / Pub-Sub)

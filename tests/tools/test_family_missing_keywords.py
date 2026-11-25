@@ -151,9 +151,19 @@ def test_language_without_an_oracle_is_skipped_and_alone_exits_two(tmp_path):
     assert fmk.main(["--scan", f"cobol:{db}:{tmp_path}", "--result", f"go:{f}"]) == 0
 
 
-def test_split_keeps_windows_drive_letters():
-    assert fmk._split(r"python:C:\tmp\scan.db:C:\tmp\src", 3) == ["python", r"C:\tmp\scan.db", r"C:\tmp\src"]
-    assert fmk._split("go:/a/scan.db:/a/src", 3) == ["go", "/a/scan.db", "/a/src"]
-    assert fmk._split(r"go:C:\r.json", 2) == ["go", r"C:\r.json"]
+def test_split_keeps_a_windows_drive_letter_with_its_path():
+    assert fmk._split("python:C:\\a\\s.db:D:/src", 3) == ["python", "C:\\a\\s.db", "D:/src"]
+    assert fmk._split("go:C:\\r.json", 2) == ["go", "C:\\r.json"]
+    assert fmk._split("go:/data/s.db:/src", 3) == ["go", "/data/s.db", "/src"]
+    assert fmk._split("c:C:\\s.db:C:\\src", 3) == ["c", "C:\\s.db", "C:\\src"]
     with pytest.raises(ValueError):
         fmk._split("go:onlytwo", 3)
+
+
+def test_main_reads_a_result_file_named_with_a_drive_letter(tmp_path, monkeypatch, capsys):
+    f = tmp_path / "r.json"
+    f.write_text(json.dumps(_res(_fam("arch_io", 20, 0.0, [["open", 3]], "dead"))))
+    real = fmk.Path
+    monkeypatch.setattr(fmk, "Path", lambda p: real(f) if p == "C:\\r.json" else real(p))
+    assert fmk.main(["--result", "go:C:\\r.json"]) == 0
+    assert "open" in capsys.readouterr().out

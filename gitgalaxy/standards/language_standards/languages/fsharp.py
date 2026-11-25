@@ -21,14 +21,16 @@ _MODS = (
 )
 _GENERIC = r"(?:<[^>\n]{0,200}>)?"
 # What opens a named, parameterised unit: `let` / `and` (module functions and local helpers; a capitalised
-# name there is a type's `and Foo(x) =`, never a function) or a `member` / `override` / `default`
+# `and` name is a type's `and Foo(x) =`, never a function, but `let ACCEPTED x =` is one, #9200) or a `member` / `override` / `default`
 # (an optional self identifier, `this.`, steps over; `member val` is a field, not a method).
 _UNIT_PREFIX = (
-    r"(?:(?:let|and)[ \t]+"
+    r"(?:(?:let[ \t]+"
+    + _MODS
+    + r"|and[ \t]+"
     + _MODS
     + r"(?!["
     + CAPITAL
-    + r"])"
+    + r"]))"
     + r"|(?:static[ \t]+)?(?:member|override|default)[ \t]+(?!val\b)"
     + _MODS
     + r"(?:["
@@ -156,8 +158,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # func_start: a `let` / `let rec` / `let inline` / `and` binding, or a `member` / `override` / `default`,
         # that takes at least one parameter (a bare `let x = 1` and `member val` are values; a `let x : int = 3`
-        # annotation and a property's `with get` are not parameter lists). Capitalised `let` / `and` names are a
-        # type's primary constructor. Multi-line parameter lists and operator names (`let (+) a b`) are not seen.
+        # annotation and a property's `with get` are not parameter lists). A capitalised `and` name is a
+        # type's primary constructor (a capitalised `let` is a function). Multi-line parameter lists and operator names (`let (+) a b`) are not seen.
         "func_start": re.compile(
             r"^[ \t]*" + _UNIT_PREFIX + _NAME + r"(?=" + _GENERIC + r"(?![ \t]+with\b)(?:\(|[ \t]+[^\s=:|]))",
             re.M,

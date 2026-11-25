@@ -1,5 +1,16 @@
 {
   "groups": {
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": "33 instances",
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": "2 instances",
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": "33 instances",
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": "1 instances",
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": "56 instances",
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": "4 instances",
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": "20 instances",
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": "4 instances",
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": "22 instances"
+    },
     "abap/abapGit": {
       "abap/abapGit/zcl_abapgit_ajson.clas.abap": "65 instances",
       "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": "57 instances",
@@ -7,6 +18,23 @@
       "abap/abapGit/zcl_abapgit_objects.clas.abap": "80 instances",
       "abap/abapGit/zcl_abapgit_persistence_db.clas.abap": "11 instances",
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "6 instances"
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": "70 instances",
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": "7 instances",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": "35 instances",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": "6 instances"
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": "26 instances",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": "46 instances",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": "16 instances",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": "2 instances",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": "26 instances",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": "56 instances",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": "2 instances",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": "17 instances",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": "83 instances"
     },
     "ada/alire": {
       "ada/alire/alire-conditional_trees.adb": "2 instances",
@@ -48,10 +76,40 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": "1 instances",
       "agc_assembly/apollo-11/WAITLIST.agc": "15 instances"
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": "29 instances",
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": "51 instances",
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": "48 instances",
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": "10 instances",
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": "3 instances",
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": "68 instances",
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": "32 instances",
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": "4 instances",
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": "41 instances"
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": "90 instances",
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": "13 instances",
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": "16 instances",
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": "12 instances",
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": "3 instances",
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": "23 instances",
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": "80 instances",
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": "1 instances",
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": "57 instances",
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": "17 instances",
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": "20 instances"
+    },
     "apex/apex-recipes": {
       "apex/apex-recipes/QueueableRecipes.cls": "2 instances",
       "apex/apex-recipes/SOQLRecipes.cls": "2 instances",
       "apex/apex-recipes/SOQLRecipes_Tests.cls": "10 instances"
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": "2 instances",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": "18 instances",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": "13 instances",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": "13 instances"
     },
     "assembly/bootos": {
       "assembly/bootos/counter.asm": "2 instances",
@@ -493,12 +551,53 @@
       "crystal/kemal_framework/kemal_filter_handler.cr": "19 instances",
       "crystal/kemal_framework/kemal_handler.cr": "5 instances"
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": "22 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": "1 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": "7 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": "2 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": "17 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": "1 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": "5 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": "4 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": "8 instances",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": "1 instances"
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "1 instances",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "1 instances"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "143 instances",
       "csharp/roslyn/CSharpSyntaxTree.cs": "23 instances",
       "csharp/roslyn/LanguageParser.cs": "759 instances",
       "csharp/roslyn/MethodCompiler.cs": "107 instances",
       "csharp/roslyn/Workspace.cs": "27 instances"
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": "2 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "4 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": "2 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "2 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "61 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "54 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "2 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": "11 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": "4 instances",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": "33 instances"
+    },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": "2 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": "42 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": "8 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": "1 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": "5 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": "1 instances",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": "4 instances"
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": "13 instances",
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": "4 instances"
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": "147 instances",
@@ -583,6 +682,16 @@
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": "6 instances",
       "erlang/ranch_socket_pool/ranch_server.erl": "12 instances"
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": "6 instances",
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": "1 instances",
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": "1 instances",
+      "fortran/fpm_fortran/src_fpm_environment.f90": "63 instances",
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": "4 instances"
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": "56 instances"
+    },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": "13 instances",
       "fortran/wrf/configure_reader.py": "88 instances",
@@ -594,6 +703,16 @@
       "fortran/wrf/module_sf_noahdrv.F": "725 instances",
       "fortran/wrf/sourcetree.py": "51 instances",
       "fortran/wrf/wrf_timeseries.F": "200 instances"
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": "258 instances",
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": "193 instances",
+      "fortran/wrf_physics/phys_module_diag_pld.F": "27 instances",
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": "39 instances",
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": "5 instances",
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": "89 instances",
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": "205 instances",
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": "12 instances"
     },
     "fsharp/giraffe_web": {
       "fsharp/giraffe_web/FormatExpressions.fs": "3 instances",
@@ -708,6 +827,17 @@
       "groovy/spring_boot_gradle/cli_spring-boot-cli_build.gradle": "2 instances",
       "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": "2 instances"
     },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": "1 instances",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": "2 instances",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": "4 instances",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": "10 instances",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": "1 instances"
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/src_XMonad_Main.hs": "3 instances",
+      "haskell/xmonad_core/src_XMonad_Operations.hs": "1 instances"
+    },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": "2 instances",
       "hlasm/zecs/ZECSNC.asm": "1 instances"
@@ -812,6 +942,9 @@
       "kotlin/okhttp/Dispatcher.kt": "9 instances",
       "kotlin/okhttp/OkHttp.android.kt": "1 instances",
       "kotlin/okhttp/build.gradle.kts": "9 instances"
+    },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": "1 instances"
     },
     "livecode/livecode": {
       "livecode/livecode/accountsignupcardbehavior.livecodescript": "2 instances",
@@ -934,6 +1067,18 @@
       "lua/redis/strict.lua": "5 instances",
       "lua/redis/trace-calls.lua": "4 instances"
     },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": "2 instances"
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": "1 instances"
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/extmod_extmod.mk": "47 instances",
+      "makefile/micropython_make/py_dynruntime.mk": "22 instances",
+      "makefile/micropython_make/py_mkrules.mk": "10 instances",
+      "makefile/micropython_make/py_py.mk": "8 instances"
+    },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": "41 instances",
       "matlab/eeglab/eeglab.m": "314 instances",
@@ -941,6 +1086,32 @@
       "matlab/eeglab/pop_loadset.m": "60 instances",
       "matlab/eeglab/runica.m": "318 instances",
       "matlab/eeglab/supergui.m": "90 instances"
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/ft_analysispipeline.m": "171 instances",
+      "matlab/fieldtrip_core/ft_annotate.m": "3 instances",
+      "matlab/fieldtrip_core/ft_anonymizedata.m": "58 instances",
+      "matlab/fieldtrip_core/ft_appenddata.m": "69 instances",
+      "matlab/fieldtrip_core/ft_appendfreq.m": "20 instances",
+      "matlab/fieldtrip_core/ft_appendlayout.m": "87 instances",
+      "matlab/fieldtrip_core/ft_appendsens.m": "73 instances",
+      "matlab/fieldtrip_core/ft_appendsource.m": "72 instances",
+      "matlab/fieldtrip_core/ft_appendspike.m": "27 instances",
+      "matlab/fieldtrip_core/ft_appendtimelock.m": "22 instances"
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": "36 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": "179 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": "33 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": "95 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": "49 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": "66 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": "40 instances",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": "5 instances",
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": "27 instances",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": "3 instances",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": "28 instances",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": "23 instances"
     },
     "nim/nim_stdlib": {
       "nim/nim_stdlib/algorithm.nim": "36 instances",
@@ -965,6 +1136,37 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": "1 instances"
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": "9 instances",
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": "11 instances",
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": "14 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": "73 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": "45 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": "56 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": "16 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": "21 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": "13 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": "3 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": "12 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": "7 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": "2 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": "3 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": "4 instances"
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/display_layer_ios.mm": "7 instances",
+      "objective-c/godot_ios/display_server_ios.mm": "1 instances",
+      "objective-c/godot_ios/godot_view_ios.mm": "8 instances",
+      "objective-c/godot_ios/main_ios.mm": "1 instances"
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": "12 instances",
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": "1 instances",
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": "12 instances",
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": "1 instances",
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": "14 instances",
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": "11 instances"
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "14 instances",
@@ -1070,6 +1272,17 @@
       "pli/dsf_cics_admin/R0010425.pli": "5 instances",
       "pli/dsf_cics_admin/R0010426.pli": "3 instances",
       "pli/dsf_cics_admin/R001TK62.pli": "8 instances"
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": "25 instances",
+      "pli/dsf_pli_more/src_GML_R0011121.pli": "4 instances",
+      "pli/dsf_pli_more/src_GML_R0014155.pli": "1 instances",
+      "pli/dsf_pli_more/src_GML_R001N522.pli": "15 instances",
+      "pli/dsf_pli_more/src_GML_R001U821.pli": "15 instances",
+      "pli/dsf_pli_more/src_R0011203.pli": "28 instances",
+      "pli/dsf_pli_more/src_R0014153.pli": "38 instances",
+      "pli/dsf_pli_more/src_R0015308.pli": "3 instances",
+      "pli/dsf_pli_more/src_R0019934.pli": "4 instances"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": "21 instances",
@@ -1311,6 +1524,30 @@
       "r/rlang_package/cnd.R": "6 instances",
       "r/rlang_package/deparse.R": "20 instances"
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": "35 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": "95 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": "149 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": "1 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": "40 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": "25 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": "120 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": "18 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": "37 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": "6 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": "2 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": "14 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": "27 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": "1 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": "2 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": "142 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": "19 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": "228 instances"
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": "9 instances",
+      "rexx/genapp_rexx/base_exec_mac1.rexx": "2 instances"
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/sample.rexx": "2 instances"
     },
@@ -1341,6 +1578,12 @@
       "rexx/ibm_z_zos/wjssmfr.rexx": "151 instances",
       "rexx/ibm_z_zos/wjsst92.rexx": "17 instances"
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": "3 instances",
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": "9 instances",
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": "2 instances",
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": "5 instances"
+    },
     "ruby/rails": {
       "ruby/rails/Rakefile": "22 instances",
       "ruby/rails/base.rb": "7 instances",
@@ -1351,6 +1594,12 @@
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "13 instances"
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": "4 instances",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": "2 instances",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": "1 instances",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": "12 instances"
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "14 instances",
@@ -1395,6 +1644,13 @@
       "rust/wasmtime/wasmtime_isle_parser.rs": "23 instances",
       "rust/wasmtime/wasmtime_pulley_interp.rs": "118 instances"
     },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": "27 instances",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": "2 instances",
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": "1 instances",
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": "1 instances",
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": "1 instances"
+    },
     "scala/kafka": {
       "scala/kafka/KafkaApis.scala": "97 instances",
       "scala/kafka/LogManager.scala": "26 instances",
@@ -1409,6 +1665,10 @@
       "scheme/racket/io.ss": "85 instances",
       "scheme/racket/schemify.rkt": "2 instances",
       "scheme/racket/thread.rkt": "3 instances"
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": "1 instances",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": "2 instances"
     },
     "shell/ansible": {
       "shell/ansible/aggregate-coverage.sh": "1 instances",
@@ -1587,6 +1847,16 @@
       "solidity/openzeppelin/ERC2771Forwarder.sol": "3 instances",
       "solidity/openzeppelin/Governor.sol": "5 instances"
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": "5 instances",
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": "4 instances",
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": "4 instances"
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": "1 instances",
+      "solidity/solady_utils/src_utils_LibRLP.sol": "1 instances",
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": "1 instances"
+    },
     "sql/baseline": {
       "sql/baseline/schema.php": "104 instances"
     },
@@ -1598,6 +1868,43 @@
       "swift/alamofire/ParameterEncoder.swift": "4 instances",
       "swift/alamofire/Request.swift": "37 instances",
       "swift/alamofire/Session.swift": "11 instances"
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": "8 instances",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": "4 instances",
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": "2 instances",
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": "4 instances",
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": "2 instances",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": "1 instances",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": "1 instances",
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": "4 instances"
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": "10 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": "9 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": "13 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": "2 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": "6 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": "26 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": "20 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": "2 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": "1 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": "4 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": "1 instances"
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": "3 instances",
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": "29 instances",
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": "2 instances",
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": "3 instances"
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": "8 instances",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": "28 instances",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "2 instances",
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": "9 instances",
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": "1 instances",
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": "2 instances"
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": "50 instances",
@@ -1686,6 +1993,32 @@
     "yacc/freebsd": {
       "yacc/freebsd/config.y": "36 instances",
       "yacc/freebsd/jailparse.y": "37 instances"
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": "56 instances",
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": "1 instances",
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": "7 instances",
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": "12 instances",
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": "60 instances",
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": "228 instances",
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": "22 instances",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": "2 instances",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": "53 instances",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": "24 instances",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": "12 instances"
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/cobc_pplex.l": "325 instances",
+      "yacc/gnucobol_cobc/cobc_ppparse.y": "265 instances",
+      "yacc/gnucobol_cobc/cobc_scanner.l": "352 instances"
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": "6 instances",
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": "5 instances",
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": "201 instances"
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/test_lemon-test01.y": "2 instances"
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": "1 instances",

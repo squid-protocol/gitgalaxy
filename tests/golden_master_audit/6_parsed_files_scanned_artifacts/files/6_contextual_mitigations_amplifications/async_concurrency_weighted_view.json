@@ -13,6 +13,23 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 15,
       "agc_assembly/apollo-11/WAITLIST.agc": 9
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": 33,
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": 35,
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": 6,
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": 13,
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": 6,
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": 25
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": 6,
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": 12,
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": 6,
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": 12,
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": 6,
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": 25,
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": 69
+    },
     "apex/apex-recipes": {
       "apex/apex-recipes/QueueableRecipes.cls": 7
     },
@@ -48,6 +65,12 @@
       "csharp/roslyn/CSharpSyntaxTree.cs": 17,
       "csharp/roslyn/MethodCompiler.cs": 35
     },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": 48
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": 195
+    },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 86,
       "dart/flutter/framework.dart": 44
@@ -71,6 +94,9 @@
     "erlang/ranch_socket_pool": {
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": 49,
       "erlang/ranch_socket_pool/ranch_server.erl": 30
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": 282
     },
     "fsharp/giraffe_web": {
       "fsharp/giraffe_web/Core.fs": 17,
@@ -167,6 +193,21 @@
       "nim/nim_stdlib/asyncmacro.nim": 56,
       "nim/nim_stdlib/asyncnet.nim": 83,
       "nim/nim_stdlib/concurrency_atomics.nim": 65
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": 12,
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": 13,
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": 36,
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": 13,
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": 43,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": 13,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": 45,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": 43,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": 12,
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": 12
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": 27
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 10
@@ -277,6 +318,18 @@
     "swift/alamofire": {
       "swift/alamofire/Request.swift": 125,
       "swift/alamofire/Session.swift": 80
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": 20
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": 12,
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": 41
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": 63,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": 8,
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": 20
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/portlint.tcl": 6

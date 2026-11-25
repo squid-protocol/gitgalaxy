@@ -1,30 +1,30 @@
 {
   "ada": {
-    "fn": 1158,
-    "fp": 355,
-    "matched_functions": 604,
+    "fn": 277,
+    "fp": 323,
+    "matched_functions": 928,
     "parse_failures": 0,
-    "precision_pct": 82.2,
-    "recall_pct": 58.6,
-    "tp": 1637
+    "precision_pct": 89.5,
+    "recall_pct": 90.9,
+    "tp": 2757
   },
   "apex": {
-    "fn": 7,
-    "fp": 12,
-    "matched_functions": 60,
+    "fn": 27,
+    "fp": 15,
+    "matched_functions": 200,
     "parse_failures": 0,
-    "precision_pct": 95.7,
-    "recall_pct": 97.5,
-    "tp": 269
+    "precision_pct": 97.0,
+    "recall_pct": 94.8,
+    "tp": 491
   },
   "c": {
-    "fn": 457,
+    "fn": 451,
     "fp": 306,
     "matched_functions": 2561,
     "parse_failures": 0,
     "precision_pct": 97.6,
     "recall_pct": 96.5,
-    "tp": 12594
+    "tp": 12600
   },
   "cpp": {
     "fn": 180,
@@ -36,31 +36,31 @@
     "tp": 7575
   },
   "csharp": {
-    "fn": 2,
+    "fn": 4,
     "fp": 5,
-    "matched_functions": 650,
+    "matched_functions": 909,
     "parse_failures": 0,
     "precision_pct": 99.8,
     "recall_pct": 99.9,
-    "tp": 2635
+    "tp": 3210
   },
   "dart": {
-    "fn": 25,
-    "fp": 23,
-    "matched_functions": 1734,
+    "fn": 31,
+    "fp": 42,
+    "matched_functions": 1906,
     "parse_failures": 0,
-    "precision_pct": 99.1,
-    "recall_pct": 99.1,
-    "tp": 2619
+    "precision_pct": 98.6,
+    "recall_pct": 98.9,
+    "tp": 2882
   },
   "fortran": {
-    "fn": 111,
-    "fp": 138,
-    "matched_functions": 120,
+    "fn": 116,
+    "fp": 156,
+    "matched_functions": 199,
     "parse_failures": 0,
-    "precision_pct": 66.8,
-    "recall_pct": 67.4,
-    "tp": 278
+    "precision_pct": 64.2,
+    "recall_pct": 70.7,
+    "tp": 280
   },
   "go": {
     "fn": 3,
@@ -81,13 +81,13 @@
     "tp": 702
   },
   "haskell": {
-    "fn": 4,
-    "fp": 17,
-    "matched_functions": 142,
+    "fn": 60,
+    "fp": 140,
+    "matched_functions": 580,
     "parse_failures": 0,
-    "precision_pct": 95.7,
-    "recall_pct": 98.9,
-    "tp": 376
+    "precision_pct": 94.5,
+    "recall_pct": 97.6,
+    "tp": 2392
   },
   "java": {
     "fn": 0,
@@ -108,13 +108,13 @@
     "tp": 2343
   },
   "kotlin": {
-    "fn": 3,
-    "fp": 1,
-    "matched_functions": 27,
+    "fn": 57,
+    "fp": 9,
+    "matched_functions": 194,
     "parse_failures": 0,
-    "precision_pct": 96.8,
-    "recall_pct": 90.9,
-    "tp": 30
+    "precision_pct": 98.7,
+    "recall_pct": 92.5,
+    "tp": 701
   },
   "lua": {
     "fn": 25,
@@ -126,49 +126,49 @@
     "tp": 1331
   },
   "matlab": {
-    "fn": 240,
-    "fp": 84,
-    "matched_functions": 23,
+    "fn": 440,
+    "fp": 329,
+    "matched_functions": 89,
     "parse_failures": 0,
-    "precision_pct": 72.4,
-    "recall_pct": 47.8,
-    "tp": 220
+    "precision_pct": 77.4,
+    "recall_pct": 71.9,
+    "tp": 1124
   },
   "objective-c": {
-    "fn": 6,
-    "fp": 7,
-    "matched_functions": 153,
+    "fn": 69,
+    "fp": 273,
+    "matched_functions": 619,
     "parse_failures": 0,
-    "precision_pct": 97.8,
-    "recall_pct": 98.1,
-    "tp": 315
+    "precision_pct": 84.7,
+    "recall_pct": 95.6,
+    "tp": 1514
   },
   "perl": {
-    "fn": 120,
+    "fn": 102,
     "fp": 286,
     "matched_functions": 943,
     "parse_failures": 0,
     "precision_pct": 93.9,
-    "recall_pct": 97.3,
-    "tp": 4404
+    "recall_pct": 97.7,
+    "tp": 4422
   },
   "php": {
     "fn": 47,
     "fp": 8,
-    "matched_functions": 1721,
+    "matched_functions": 1722,
     "parse_failures": 0,
     "precision_pct": 99.9,
     "recall_pct": 99.3,
-    "tp": 6254
+    "tp": 6266
   },
   "powershell": {
-    "fn": 99,
+    "fn": 96,
     "fp": 71,
-    "matched_functions": 490,
+    "matched_functions": 492,
     "parse_failures": 0,
     "precision_pct": 97.4,
-    "recall_pct": 96.4,
-    "tp": 2641
+    "recall_pct": 96.5,
+    "tp": 2651
   },
   "python": {
     "fn": 21,
@@ -180,13 +180,13 @@
     "tp": 11562
   },
   "ruby": {
-    "fn": 39,
-    "fp": 1,
-    "matched_functions": 349,
+    "fn": 77,
+    "fp": 57,
+    "matched_functions": 441,
     "parse_failures": 0,
-    "precision_pct": 99.9,
-    "recall_pct": 96.3,
-    "tp": 1006
+    "precision_pct": 95.4,
+    "recall_pct": 93.9,
+    "tp": 1192
   },
   "rust": {
     "fn": 0,
@@ -199,21 +199,21 @@
   },
   "scala": {
     "fn": 227,
-    "fp": 25,
-    "matched_functions": 541,
+    "fp": 35,
+    "matched_functions": 575,
     "parse_failures": 0,
-    "precision_pct": 99.2,
-    "recall_pct": 93.2,
-    "tp": 3132
+    "precision_pct": 98.9,
+    "recall_pct": 93.5,
+    "tp": 3239
   },
   "scheme": {
-    "fn": 360,
-    "fp": 1759,
-    "matched_functions": 147,
+    "fn": 391,
+    "fp": 1836,
+    "matched_functions": 160,
     "parse_failures": 0,
-    "precision_pct": 35.3,
-    "recall_pct": 72.7,
-    "tp": 961
+    "precision_pct": 35.7,
+    "recall_pct": 72.3,
+    "tp": 1020
   },
   "shell": {
     "fn": 32,
@@ -227,20 +227,20 @@
   "solidity": {
     "fn": 1,
     "fp": 2,
-    "matched_functions": 99,
+    "matched_functions": 350,
     "parse_failures": 0,
-    "precision_pct": 98.7,
-    "recall_pct": 99.3,
-    "tp": 148
+    "precision_pct": 99.4,
+    "recall_pct": 99.7,
+    "tp": 336
   },
   "swift": {
-    "fn": 17,
-    "fp": 1,
-    "matched_functions": 132,
+    "fn": 35,
+    "fp": 6,
+    "matched_functions": 340,
     "parse_failures": 0,
-    "precision_pct": 99.7,
-    "recall_pct": 95.6,
-    "tp": 370
+    "precision_pct": 99.3,
+    "recall_pct": 96.2,
+    "tp": 883
   },
   "tcl": {
     "fn": 219,

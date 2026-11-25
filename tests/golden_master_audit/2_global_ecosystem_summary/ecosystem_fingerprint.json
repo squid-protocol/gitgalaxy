@@ -6,18 +6,18 @@
   "value": {
     "ml_clusters": {
       "Unclassified": {
-        "count": 3391,
-        "pct": 92.7
+        "count": 3927,
+        "pct": 93.1
       },
       "Unknown": {
         "count": 2,
-        "pct": 0.1
+        "pct": 0.0
       }
     },
     "static_mass": {
       "Static: Literature & Documentation": {
-        "count": 265,
-        "pct": 7.2
+        "count": 287,
+        "pct": 6.8
       }
     }
   }

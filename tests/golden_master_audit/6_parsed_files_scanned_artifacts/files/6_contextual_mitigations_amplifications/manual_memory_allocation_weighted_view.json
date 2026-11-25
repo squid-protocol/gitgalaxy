@@ -1,9 +1,28 @@
 {
   "groups": {
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": 1,
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": 14,
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": 1,
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": 2,
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": 4
+    },
     "abap/abapGit": {
       "abap/abapGit/zcl_abapgit_ajson.clas.abap": 11,
       "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": 0,
       "abap/abapGit/zcl_abapgit_objects.clas.abap": 7
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": 0
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": 3,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": 1,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": 3,
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": 11
     },
     "ada/alire": {
       "ada/alire/alire-directories.adb": 4,
@@ -18,6 +37,9 @@
       "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 1,
       "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 8,
       "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 2
+    },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": 0
     },
     "c/doom": {
       "c/doom/d_main.c": 8,
@@ -37,12 +59,22 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/src_fpm_environment.f90": 2
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": 1
+    },
     "fortran/wrf": {
       "fortran/wrf/module_configure.F": 4,
       "fortran/wrf/module_domain.F": 6,
       "fortran/wrf/module_initialize_real.F": 13,
       "fortran/wrf/module_physics_init.F": 3,
       "fortran/wrf/wrf_timeseries.F": 4
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": 4,
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": 0
     },
     "go/core": {
       "go/core/server.go": 23
@@ -66,6 +98,10 @@
       "lua/cosmopolitan/nextvar.lua": 2,
       "lua/cosmopolitan/sort.lua": 0,
       "lua/cosmopolitan/tracegc.lua": 0
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/ft_anonymizedata.m": 2,
+      "matlab/fieldtrip_core/ft_appendsource.m": 9
     },
     "nim/nim_stdlib": {
       "nim/nim_stdlib/asyncfile.nim": 3,
@@ -126,6 +162,12 @@
     "yacc/freebsd": {
       "yacc/freebsd/config.y": 3,
       "yacc/freebsd/jailparse.y": 0
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": 3,
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": 1,
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": 1,
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": 0
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": 7,

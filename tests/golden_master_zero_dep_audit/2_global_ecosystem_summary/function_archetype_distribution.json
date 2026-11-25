@@ -11,7 +11,7 @@
     "Defensive Guards": "8.7% (5055)",
     "Encapsulated Accessors": "4.4% (2560)",
     "Generic / Templated Code": "5.7% (3280)",
-    "I/O & Config Routines": "14.8% (8594)",
+    "I/O & Config Routines": "14.8% (8582)",
     "Interface Declarations": "16.0% (9274)",
     "Many-Argument Workhorses": "6.4% (3720)",
     "Parameter Forwarders": "13.1% (7586)",

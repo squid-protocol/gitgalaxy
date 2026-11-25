@@ -1278,11 +1278,11 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "87.23%",
-        "Tech Debt Exposure": "37.25%",
+        "Tech Debt Exposure": "37.05%",
         "Testing Exposure": "80.0%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 22617.74,
+      "Directory Group Magnitude": 22611.14,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_16": "12.5%",
         "file_cluster_4": "75.0%",
@@ -2404,7 +2404,7 @@
     "cobol/gnucobol_internals": {
       "Average Risk Exposures": {
         "API Exposure": "5.05%",
-        "Cognitive Load Exposure": "57.1%",
+        "Cognitive Load Exposure": "57.09%",
         "Commented Logic Exposure": "0.69%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "70.81%",
@@ -2413,11 +2413,11 @@
         "Instability Exposure": "42.86%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "71.43%",
-        "Tech Debt Exposure": "13.55%",
+        "Tech Debt Exposure": "13.49%",
         "Testing Exposure": "57.47%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 37179.6,
+      "Directory Group Magnitude": 37173.0,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "14.3%",
         "file_cluster_15": "14.3%",

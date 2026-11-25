@@ -423,7 +423,7 @@
       "c/cpython/frameobject.c": 6.139,
       "c/cpython/gc.c": 6.411,
       "c/cpython/object.c": 6.423,
-      "c/cpython/typeobject.c": 8.24
+      "c/cpython/typeobject.c": 8.222
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -1059,7 +1059,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 9.189,
+      "cobol/gnucobol_internals/codegen.c": 9.549,
       "cobol/gnucobol_internals/fileio.c": 7.732,
       "cobol/gnucobol_internals/numeric.c": 6.354,
       "cobol/gnucobol_internals/parser.y": 9.636,

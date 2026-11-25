@@ -2177,8 +2177,47 @@ def c_macro_sig_templates(code: str) -> dict[str, tuple[tuple[str, ...], str] | 
     return out
 
 
+def c_local_stmt_macro_body_calls(code: str) -> dict[str, tuple[frozenset[str], int, int]]:
+    """Same-file function-like statement `#define NAME(params) do/if { ... }` macros in C.
+
+    Returns `{name: (callees, def_offset, undef_offset)}` used ONLY to recover cross-file macro
+    collisions that `c_repo_macro_body_calls` cleared to empty (e.g. `src/unix/fs.c` vs `src/win/fs.c`
+    `INIT(subtype)` or `adapters/libevent.h` vs `adapters/libsdevent.h` `CHECK_DELETED()`).
+    """
+    global _C_DEFINE_WITH_PARAMS
+    if _C_DEFINE_WITH_PARAMS is None:
+        _c_function_like_defines("")
+    out: dict[str, frozenset[str] | None] = {}
+    def_pos: dict[str, int] = {}
+    for m in _C_DEFINE_WITH_PARAMS.finditer(code):
+        name = m.group(1)
+        params = {p.strip() for p in m.group(2).split(",")}
+        body = _C_MACRO_COMMENT.sub(lambda c: '""' if c.group(1) else " ", re.sub(r"\\\r?\n", " ", m.group(3)))
+        stripped = body.lstrip()
+        if ";" not in body or not (re.match(r"do[ \t]*\{", stripped) or re.match(r"if[ \t]*\(", stripped)):
+            continue
+        body = re.sub(r"[ \t]*##[ \t]*", "##", body)
+        calls = frozenset(
+            c
+            for c in _C_MACRO_BODY_CALL.findall(body)
+            if c not in params and c not in _C_STATEMENT_WORDS and c not in _C_MACRO_NOT_CALLS and c != name
+        )
+        prior = out.get(name, calls)
+        out[name] = prior if prior == calls else (prior | calls if prior and calls else None)
+        def_pos.setdefault(name, m.start())
+    undef_pos: dict[str, int] = {}
+    if any(out.values()):
+        for m in _C_UNDEF_OBJ.finditer(code):
+            uname = m.group(1)
+            if uname in def_pos and m.start() > def_pos[uname]:
+                undef_pos.setdefault(uname, m.start())
+    n = len(code)
+    return {k: (v, def_pos[k], undef_pos.get(k, n)) for k, v in out.items() if v}
+
+
 def c_macro_body_functions(code: str) -> dict[str, _CMacroBodyFuncSpec | None]:
-    """Extract C function-generator `#define MACRO(params) ...` specs whose body defines complete `{ ... }` functions."""
+    """Extract C wrapper `#define MACRO(params) ...` specs that define complete `{ ... }` helper functions
+    before a trailing open function signature (e.g. `TEST_FS_IMPL(name)`)."""
     if "#" not in code or "define" not in code or "##" not in code or "{" not in code:
         return {}
     out: dict[str, _CMacroBodyFuncSpec | None] = {}
@@ -2220,12 +2259,6 @@ def c_macro_body_functions(code: str) -> dict[str, _CMacroBodyFuncSpec | None]:
                             cand = re.sub(r"[ \t]*##[ \t]*", "##", chain.group(1))
                             if any(p in cand.split("##") for p in params):
                                 name_tmpl = cand
-                        elif len(words) == 1 and words[0].isupper():
-                            inner = header[paren_pos + 1 : header.rfind(")")].strip()
-                            if "##" in inner and "," not in inner:
-                                cand = re.sub(r"[ \t]*##[ \t]*", "##", inner)
-                                if any(p in cand.split("##") for p in params):
-                                    name_tmpl = f"@{words[0]}:{cand}"
                         if name_tmpl:
                             funcs.append((name_tmpl, body[open_idx : i + 1]))
                         open_idx = -1
@@ -2242,7 +2275,9 @@ def c_macro_body_functions(code: str) -> dict[str, _CMacroBodyFuncSpec | None]:
             and not any(c in tail_head for c in "{};=")
             and ("##" in tail_head or any(w in params for w in tail_words))
         )
-        entry: _CMacroBodyFuncSpec = (params, tuple(funcs), has_trailing_sig)
+        if not has_trailing_sig:
+            continue
+        entry: _CMacroBodyFuncSpec = (params, tuple(funcs), True)
         out[name] = entry if out.get(name, entry) == entry else None
     return out
 
@@ -4270,7 +4305,7 @@ class StructuralExtractor:
         self._java_field_values: dict[str, str | None] | None = None
         self._kt_file_index: overload_types.KotlinFileIndex | None = None
         self._c_obj_macro_calls: dict[str, tuple[frozenset[str], int, int]] = {}
-        self._c_local_macro_calls: dict[str, frozenset[str]] = {}
+        self._c_local_macro_calls: dict[str, tuple[frozenset[str], int, int]] = {}
         # #8161 (X5): the file's renamed imports, local name -> imported name (core/import_renames.py)
         self._name_renames: dict[str, str] = {}
 
@@ -8195,9 +8230,7 @@ class StructuralExtractor:
             c_obj_macro_body_calls(code) if lang_id in _UNSET_TOGGLE_LANGS and "#" in code and "define" in code else {}
         )
         self._c_local_macro_calls = (
-            {k: v for k, v in c_macro_body_calls(code).items() if v and not k.startswith(INIT_LIST_QUALIFIER)}
-            if lang_id in _UNSET_TOGGLE_LANGS and "#" in code and "define" in code
-            else {}
+            c_local_stmt_macro_body_calls(code) if lang_id == "c" and "#" in code and "define" in code else {}
         )
         self._kt_file_index = None
         if self.languages.get(lang_id, {}).get("calls_out_arg_types") and lang_id in overload_types.LANGS:
@@ -8244,7 +8277,6 @@ class StructuralExtractor:
         macro_expansions: dict[str, list[bool]] = {}
         macro_name_args: dict[str, tuple[int, tuple[int, ...]] | None] = {}
         macro_body_funcs: dict[str, _CMacroBodyFuncSpec | None] = {}
-        macro_sig_tmpls: dict[str, tuple[tuple[str, ...], str] | None] = {}
         if lang_id in ("c", "cpp"):
             macro_expansions = _c_function_like_defines(code)
             # #5563: this file's defines win over the repo-wide (header) table.
@@ -8252,10 +8284,6 @@ class StructuralExtractor:
             if lang_id == "c":
                 local_bf = c_macro_body_functions(code) if "#" in code else {}
                 macro_body_funcs = {**_C_REPO_MACRO_BODY_FUNCS, **local_bf} if local_bf else _C_REPO_MACRO_BODY_FUNCS
-                local_st = c_macro_sig_templates(code) if "#" in code else {}
-                macro_sig_tmpls = (
-                    {**_C_REPO_MACRO_SIG_TEMPLATES, **local_st} if local_st else _C_REPO_MACRO_SIG_TEMPLATES
-                )
             for m in re.finditer(
                 r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\(", code, re.M
             ):
@@ -9594,7 +9622,7 @@ class StructuralExtractor:
             # when some variant of the define expands to a signature (odamex FUNC); a statement/expression define
             # (`do { } while (0)`) is not. No define in the file: the invocation form alone decides.
             branch_macro_name: str | None = None
-            if (macro_expansions or macro_name_args) and match.group(0)[:1].isupper():
+            if (macro_expansions or macro_name_args or macro_body_funcs) and match.group(0)[:1].isupper():
                 branch_macro_name = _c_macro_branch_match(safe_code, match)
                 if (
                     branch_macro_name is not None
@@ -9682,55 +9710,6 @@ class StructuralExtractor:
                     sat["parent_class_name"] = recv_type.group(1)
             satellites.append(sat)
             sum_fxn_impact += mag
-
-        if lang_id == "c" and macro_body_funcs:
-            standalone_specs = {k: v for k, v in macro_body_funcs.items() if v is not None and not v[2]}
-            if standalone_specs:
-                func_spans = [(s.get("start_idx", -1), s.get("end_idx", -1)) for s in satellites]
-                existing_names = {(s.get("name"), s.get("start_line")) for s in satellites}
-                for m_inv in _C_TOP_MACRO_CALL.finditer(safe_code):
-                    mname = m_inv.group(1)
-                    spec = standalone_specs.get(mname)
-                    if spec is None:
-                        continue
-                    inv_pos = m_inv.start()
-                    if any(lo <= inv_pos < hi for lo, hi in func_spans):
-                        continue
-                    bf_params, bf_funcs, _ = spec
-                    inv_args = [a.strip() for a in m_inv.group(2).split(",") if a.strip()]
-                    if len(inv_args) != len(bf_params):
-                        continue
-                    inv_line = 1 + code.count("\n", 0, inv_pos)
-                    for name_tmpl, body_tmpl in bf_funcs:
-                        if name_tmpl.startswith("@"):
-                            outer_m, inner_tmpl = name_tmpl[1:].split(":", 1)
-                            inner_val = _c_macro_substitute(inner_tmpl, bf_params, inv_args)
-                            sig_entry = macro_sig_tmpls.get(outer_m)
-                            if sig_entry is not None and len(sig_entry[0]) == 1:
-                                gen_name = _c_macro_substitute(sig_entry[1], sig_entry[0], [inner_val])
-                            else:
-                                gen_name = inner_val
-                        else:
-                            gen_name = _c_macro_substitute(name_tmpl, bf_params, inv_args)
-                        if not gen_name or not gen_name.isidentifier() or (gen_name, inv_line) in existing_names:
-                            continue
-                        existing_names.add((gen_name, inv_line))
-                        gen_body = f"void {gen_name}(void) {_c_macro_substitute(body_tmpl, bf_params, inv_args)}"
-                        g_sat, g_mag = self._calculate_block_metrics(
-                            gen_name,
-                            gen_body,
-                            1,
-                            inv_line,
-                            inv_line,
-                            rules,
-                            inv_pos,
-                            inv_pos,
-                            spatial_map,
-                            "",
-                            0,
-                        )
-                        satellites.append(g_sat)
-                        sum_fxn_impact += g_mag
 
         return satellites, sum_fxn_impact
 
@@ -12550,11 +12529,17 @@ class StructuralExtractor:
                     qualifier = _mark_scope_qualifier(self.primary_lang_id, safe, m.start(1), qualifier)
                     if qualifier not in seen:
                         seen.append(qualifier)
-            macro_calls = (
-                {**_C_REPO_MACRO_CALLS, **self._c_local_macro_calls}
-                if self._c_local_macro_calls
-                else _C_REPO_MACRO_CALLS
-            )
+            macro_calls = _C_REPO_MACRO_CALLS
+            if _C_REPO_MACRO_CALLS and self._c_local_macro_calls and self.primary_lang_id == "c":
+                s_idx = sat.get("start_idx", -1)
+                e_idx = sat.get("end_idx", -1)
+                overrides = {
+                    k: v[0]
+                    for k, v in self._c_local_macro_calls.items()
+                    if k in _C_REPO_MACRO_CALLS and not _C_REPO_MACRO_CALLS[k] and v[1] < e_idx and s_idx < v[2]
+                }
+                if overrides:
+                    macro_calls = {**_C_REPO_MACRO_CALLS, **overrides}
             if macro_calls and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
                 for c in _macro_expansion_callees(list(kept), macro_calls):
                     kept.setdefault(c, [""])
@@ -13185,9 +13170,15 @@ class StructuralExtractor:
                     scanned = fortran_call_names(safe_block, rules.get("_calls_out_ignore") or frozenset())
                     raw_calls = scanned + [c for c in raw_calls if c not in scanned]
 
-        macro_calls = (
-            {**_C_REPO_MACRO_CALLS, **self._c_local_macro_calls} if self._c_local_macro_calls else _C_REPO_MACRO_CALLS
-        )
+        macro_calls = _C_REPO_MACRO_CALLS
+        if _C_REPO_MACRO_CALLS and self._c_local_macro_calls and self.primary_lang_id == "c":
+            overrides = {
+                k: v[0]
+                for k, v in self._c_local_macro_calls.items()
+                if k in _C_REPO_MACRO_CALLS and not _C_REPO_MACRO_CALLS[k] and v[1] < end_idx and start_idx < v[2]
+            }
+            if overrides:
+                macro_calls = {**_C_REPO_MACRO_CALLS, **overrides}
         # #6770: a macro invoked here calls what its body calls, as the compiler's expansion makes it this unit's call.
         if self._c_obj_macro_calls and self.primary_lang_id in _UNSET_TOGGLE_LANGS:
             obj_callees = [

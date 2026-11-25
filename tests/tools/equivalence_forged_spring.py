@@ -193,11 +193,27 @@ def jcl_instream_deck(jcl: str, step: str) -> str:
     return "\n".join(deck)
 
 
-def seed_datasets(datasets: dict[str, dict], root: Path) -> None:
+def chain_generations(chain: Path | None, dsn: str) -> list[Path]:
+    """The generations of a GDG base the COBOL chain catalogued (`equivalence_job` writes `<dir>/<base>/GnnnnV00`), oldest
+    first; empty without a chain directory or when the chain never held the base."""
+    return sorted(p for p in (chain / dsn).iterdir() if p.is_file()) if chain and (chain / dsn).is_dir() else []
+
+
+def seed_datasets(datasets: dict[str, dict], root: Path, chain: Path | None = None) -> None:
     """Write each seeded input dataset as the file the DatasetResolver finds under `root` (DSN = file name): the seed's
-    lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has."""
+    lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has.
+
+    #8886 slice 18: a GDG base the chain catalogued (`chain`) is seeded with the chain's own generations, byte for byte
+    and under their own numbers, so (0) is the generation the COBOL step read; the fixture seed is the fallback."""
     for dsn, d in datasets.items():
-        if d.get("seed"):
+        gens = chain_generations(chain, dsn) if d.get("gdg") else []
+        if gens:
+            (root / dsn).mkdir(parents=True, exist_ok=True)
+            for g in gens:
+                if g.stat().st_size % d["lrecl"]:
+                    raise ValueError(f"{g}: not whole records of {d['lrecl']} bytes")
+                shutil.copyfile(g, root / dsn / g.name)
+        elif d.get("seed"):
             lines = (REPO / d["seed"]).read_bytes().split(b"\n")
             recs = [ln for ln in lines if ln]
             if any(len(r) != d["lrecl"] for r in recs):
@@ -280,13 +296,18 @@ def _service_class(key: str) -> str:
 
 
 def run_forged(
-    forge, rc_by_step: dict[tuple[str, str], int | None], datasets: Path, work: Path, seeds: dict | None = None
+    forge,
+    rc_by_step: dict[tuple[str, str], int | None],
+    datasets: Path,
+    work: Path,
+    seeds: dict | None = None,
+    chain: Path | None = None,
 ) -> dict | None:
     """Compile the forge's generated sources and run every generated job, strict and skip-unimplemented.
 
     `rc_by_step[(job, jcl step)]` is the chain's return code for a program step (the stub service returns it).
     Returns {mode: {job: {"status", "exit", "steps": {name: (exit code, failure)}}}, "datasets": {mode: {file: {size,
-    sha256}}}} or None without Spring jars. `seeds` are the input datasets written before each run (`seed_datasets`)."""
+    sha256}}}} or None without Spring jars. `seeds` are the input datasets written before each run (`seed_datasets`, from `chain`'s generations where it has them)."""
     jars = classpath()
     if jars is None or not shutil.which("javac") or not shutil.which("java"):
         return None
@@ -342,7 +363,7 @@ def run_forged(
         ) in configs:  # one JVM and a freshly seeded directory per job: each job is its own case (#8886 slice 8)
             ds = datasets / mode / config.rsplit(".", 1)[-1]
             ds.mkdir(parents=True)
-            seed_datasets(seeds or {}, ds)
+            seed_datasets(seeds or {}, ds, chain)
             seeded = _listing(ds)
             cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
                    "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, config]  # fmt: skip
@@ -424,18 +445,26 @@ def compare_run(forge, spec: dict, rcs: dict, ran: set[str], run: dict) -> list[
     return rows
 
 
-def seeded_names(datasets: dict[str, dict] | None) -> set[str]:
-    """The file names `seed_datasets` writes (a GDG base's seed is its generation G0001V00), as `_listing` names them."""
-    return {f"{dsn}(G0001V00)" if d.get("gdg") else dsn for dsn, d in (datasets or {}).items() if d.get("seed")}
+def seeded_names(datasets: dict[str, dict] | None, chain: Path | None = None) -> set[str]:
+    """The file names `seed_datasets` writes (a GDG base's seed is its generation G0001V00, or the chain's generations),
+    as `_listing` names them."""
+    names: set[str] = set()
+    for dsn, d in (datasets or {}).items():
+        gens = chain_generations(chain, dsn) if d.get("gdg") else []
+        if gens:
+            names |= {f"{dsn}({g.name})" for g in gens}
+        elif d.get("seed"):
+            names.add(f"{dsn}(G0001V00)" if d.get("gdg") else dsn)
+    return names
 
 
-def compare_datasets(spec: dict, report: dict, run: dict) -> list[dict]:
+def compare_datasets(spec: dict, report: dict, run: dict, chain: Path | None = None) -> list[dict]:
     """Every dataset the chain's steps catalogued (`gdg_created` in the chain report: base -> size and digest of the
     generation a step wrote) against what the forged job left under Spring, per mode: the newest generation of that base
     the job wrote, beyond the seeded one. `equal` needs the same size and digest. A step that ran stubbed or on a seed
     that is not the chain's own input differs, and says so: the row names both digests, never rounds them."""
     case_job = {m["case"]: m["job"] for m in spec["steps"]}
-    seeded = seeded_names(spec.get("datasets"))
+    seeded = seeded_names(spec.get("datasets"), chain)
     rows = []
     for st in report["steps"]:
         for base, want in (st.get("gdg_created") or {}).items():
@@ -460,8 +489,11 @@ def compare_datasets(spec: dict, report: dict, run: dict) -> list[dict]:
     return rows
 
 
-def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) -> dict | None:
-    """The whole slice-2 run for one job case; None when Spring or a JDK is missing."""
+def scan_and_run(
+    spec: dict, case: dict, report: dict, corpus: Path, chain_rcs, chain: Path | None = None
+) -> dict | None:
+    """The whole slice-2 run for one job case; None when Spring or a JDK is missing. `chain` is the directory the COBOL
+    chain exported its generations to (`report["generations_dir"]`): the Spring jobs read those bytes."""
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
 
     work = Path(tempfile.mkdtemp(prefix="forged-spring-"))
@@ -489,13 +521,13 @@ def scan_and_run(spec: dict, case: dict, report: dict, corpus: Path, chain_rcs) 
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])
         # a program step's stub returns the RC of the case step that covers it
         rc_by_step = {(m["job"], j): rcs.get(m["case"]) for m in spec["steps"] for j in m["jcl_steps"]}
-        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"))
+        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"), chain)
         if run is None:
             return None
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
-            "datasets": compare_datasets(spec, report, run),
+            "datasets": compare_datasets(spec, report, run, chain),
             "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`

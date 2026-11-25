@@ -365,7 +365,7 @@ def test_rerun_moved_passes_over_a_case_too_large_for_the_budget_and_runs_the_ne
 
 def test_the_nightly_keeps_the_ledgers_of_a_mutation_job_that_hit_its_time_limit():
     text = (dm.REPO / ".github" / "workflows" / "evidence-refresh.yml").read_text(encoding="utf-8")
-    step = text[text.index("id: detmut_in"):text.index("uses:", text.index("id: detmut_in"))]
+    step = text[text.index("id: detmut_in") : text.index("uses:", text.index("id: detmut_in"))]
     assert "needs.det-mutation.result == 'cancelled'" in step
 
 

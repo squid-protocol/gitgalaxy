@@ -204,6 +204,21 @@ def test_python_comprehensions_was_fixed_from_a_javascript_copy_paste():
     )
 
 
+@pytest.mark.parametrize(
+    "call",
+    [
+        "User.objects.filter(active=True)",
+        "df.map(fn)",
+        "pd.Series.reduce(add)",
+        "items.flatMap(f)",
+        "qs.exclude(x=1).filter(y=2)",
+    ],
+)
+def test_python_comprehensions_ignores_every_js_idiom_method_call(call):
+    """Whole class of the old JS-idiom bug: no `.method(` call is a comprehension."""
+    assert not PY_RULES["comprehensions"].search(call)
+
+
 def test_python_comprehensions_redos_immunity():
     pattern = PY_RULES["comprehensions"]
     assert_redos_immune(pattern, "(" * 40000, timeout_sec=3.0)

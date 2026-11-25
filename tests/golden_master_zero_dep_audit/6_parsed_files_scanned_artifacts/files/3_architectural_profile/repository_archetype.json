@@ -1498,12 +1498,12 @@
       "fsharp/giraffe_web/ModelParser.fs": "file_cluster_6",
       "fsharp/giraffe_web/ModelValidation.fs": "file_cluster_0",
       "fsharp/giraffe_web/Negotiation.fs": "file_cluster_12",
-      "fsharp/giraffe_web/Preconditional.fs": "file_cluster_16",
+      "fsharp/giraffe_web/Preconditional.fs": "file_cluster_9",
       "fsharp/giraffe_web/RequestLimitation.fs": "file_cluster_9",
-      "fsharp/giraffe_web/ResponseCaching.fs": "file_cluster_10",
+      "fsharp/giraffe_web/ResponseCaching.fs": "file_cluster_15",
       "fsharp/giraffe_web/Routing.fs": "file_cluster_0",
       "fsharp/giraffe_web/ShortGuid.fs": "file_cluster_10",
-      "fsharp/giraffe_web/Streaming.fs": "file_cluster_16",
+      "fsharp/giraffe_web/Streaming.fs": "file_cluster_4",
       "fsharp/giraffe_web/Xml.fs": "file_cluster_0"
     },
     "go": {

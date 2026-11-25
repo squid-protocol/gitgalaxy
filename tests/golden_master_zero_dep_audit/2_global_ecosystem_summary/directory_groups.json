@@ -2041,20 +2041,20 @@
       "avg_exposures": {
         "api_exposure": 3.21,
         "churn": 0.0,
-        "cognitive_load": 8.66,
+        "cognitive_load": 9.35,
         "concurrency": 23.71,
         "dead_code": 0.0,
-        "documentation": 29.01,
+        "documentation": 28.12,
         "safety_score": 17.34,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 13.58,
-        "tech_debt": 55.13,
-        "verification": 27.08
+        "tech_debt": 57.42,
+        "verification": 30.62
       },
       "file_count": 22,
-      "total_mass": 1046.54
+      "total_mass": 1170.34
     },
     "go": {
       "avg_exposures": {

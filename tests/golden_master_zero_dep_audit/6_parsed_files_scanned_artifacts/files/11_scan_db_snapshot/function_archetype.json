@@ -26313,6 +26313,7 @@
         "mustAccept@237": "Callbacks & Closures",
         "redirectTo@324": "Callbacks & Closures",
         "safeRedirectTo@312": "Parameter Forwarders",
+        "safeRedirectToExt@282": "Callbacks & Closures",
         "setBody@500": "Callbacks & Closures",
         "setBodyFromString@508": "Callbacks & Closures",
         "setContentType@199": "Callbacks & Closures",
@@ -26334,6 +26335,9 @@
       },
       "fsharp/giraffe_web/EndpointRouting.fs": {
         "MapGiraffeEndpoints@410": "Compute Cores",
+        "MapMultiEndpoint@368": "Stateful Encapsulated Methods",
+        "MapNestedEndpoint@389": "Stateful Encapsulated Methods",
+        "MapSingleEndpoint@353": "Stateful Encapsulated Methods",
         "UseGiraffe@431": "Callbacks & Closures",
         "addMetadata@342": "Parameter Forwarders",
         "applyAfter@328": "Compute Cores",
@@ -26344,7 +26348,8 @@
         "getConstraint@24": "Stateful Encapsulated Methods",
         "routeBind@308": "Generic / Templated Code",
         "routef@284": "Generic / Templated Code",
-        "subRoute@318": "Parameter Forwarders"
+        "subRoute@318": "Parameter Forwarders",
+        "subRouteWithExtensions@311": "Interface Declarations"
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
         "convert@70": "Compute Cores",
@@ -26447,7 +26452,9 @@
       },
       "fsharp/giraffe_web/Negotiation.fs": {
         "NegotiateAsync@144": "Parameter Forwarders",
-        "negotiate@177": "Callbacks & Closures"
+        "NegotiateWithAsync@104": "I/O & Config Routines",
+        "negotiate@177": "Callbacks & Closures",
+        "negotiateWith@162": "Callbacks & Closures"
       },
       "fsharp/giraffe_web/Preconditional.fs": {
         "FromString@25": "Parameter Forwarders",
@@ -26457,6 +26464,8 @@
         "ValidateIfMatch@34": "Stateful Encapsulated Methods",
         "ValidateIfModifiedSince@82": "Stateful Encapsulated Methods",
         "ValidateIfNoneMatch@66": "Stateful Encapsulated Methods",
+        "ValidateIfUnmodifiedSince@47": "Stateful Encapsulated Methods",
+        "ValidatePreconditions@126": "Compute Cores",
         "bind@134": "Compute Cores",
         "ifNotSpecified@146": "Callbacks & Closures",
         "validatePreconditions@209": "Callbacks & Closures"
@@ -26470,7 +26479,8 @@
       "fsharp/giraffe_web/ResponseCaching.fs": {
         "cacheHeader@25": "Encapsulated Accessors",
         "privateResponseCaching@85": "Parameter Forwarders",
-        "publicResponseCaching@98": "Parameter Forwarders"
+        "publicResponseCaching@98": "Parameter Forwarders",
+        "responseCaching@40": "I/O & Config Routines"
       },
       "fsharp/giraffe_web/Routing.fs": {
         "getNextPartOfPath@15": "Compute Cores",
@@ -26501,7 +26511,13 @@
       },
       "fsharp/giraffe_web/Streaming.fs": {
         "RangeUnit@138": "Encapsulated Accessors",
+        "WriteFileStreamAsync@261": "I/O & Config Routines",
+        "WriteStreamAsync@205": "I/O & Config Routines",
+        "WriteStreamToBodyAsync@141": "I/O & Config Routines",
+        "isIfRangeValid@110": "Defensive Guards",
         "parseRange@39": "Compute Cores",
+        "streamData@296": "Callbacks & Closures",
+        "streamFile@315": "Callbacks & Closures",
         "validateRanges@63": "Compute Cores"
       },
       "fsharp/giraffe_web/Xml.fs": {

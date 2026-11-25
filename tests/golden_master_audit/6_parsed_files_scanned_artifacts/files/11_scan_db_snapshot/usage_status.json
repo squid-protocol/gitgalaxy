@@ -26313,6 +26313,7 @@
         "mustAccept@237": 1,
         "redirectTo@324": 1,
         "safeRedirectTo@312": 1,
+        "safeRedirectToExt@282": 0,
         "setBody@500": 1,
         "setBodyFromString@508": 1,
         "setContentType@199": 1,
@@ -26334,6 +26335,9 @@
       },
       "fsharp/giraffe_web/EndpointRouting.fs": {
         "MapGiraffeEndpoints@410": 0,
+        "MapMultiEndpoint@368": 0,
+        "MapNestedEndpoint@389": 0,
+        "MapSingleEndpoint@353": 0,
         "UseGiraffe@431": 1,
         "addMetadata@342": 1,
         "applyAfter@328": 1,
@@ -26344,7 +26348,8 @@
         "getConstraint@24": 0,
         "routeBind@308": 1,
         "routef@284": 1,
-        "subRoute@318": 1
+        "subRoute@318": 1,
+        "subRouteWithExtensions@311": 0
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
         "convert@70": 0,
@@ -26447,7 +26452,9 @@
       },
       "fsharp/giraffe_web/Negotiation.fs": {
         "NegotiateAsync@144": 0,
-        "negotiate@177": 1
+        "NegotiateWithAsync@104": 0,
+        "negotiate@177": 1,
+        "negotiateWith@162": 1
       },
       "fsharp/giraffe_web/Preconditional.fs": {
         "FromString@25": 1,
@@ -26457,6 +26464,8 @@
         "ValidateIfMatch@34": 0,
         "ValidateIfModifiedSince@82": 0,
         "ValidateIfNoneMatch@66": 0,
+        "ValidateIfUnmodifiedSince@47": 0,
+        "ValidatePreconditions@126": 0,
         "bind@134": 0,
         "ifNotSpecified@146": 0,
         "validatePreconditions@209": 1
@@ -26470,7 +26479,8 @@
       "fsharp/giraffe_web/ResponseCaching.fs": {
         "cacheHeader@25": 0,
         "privateResponseCaching@85": 1,
-        "publicResponseCaching@98": 1
+        "publicResponseCaching@98": 1,
+        "responseCaching@40": 0
       },
       "fsharp/giraffe_web/Routing.fs": {
         "getNextPartOfPath@15": 0,
@@ -26501,7 +26511,13 @@
       },
       "fsharp/giraffe_web/Streaming.fs": {
         "RangeUnit@138": 0,
+        "WriteFileStreamAsync@261": 0,
+        "WriteStreamAsync@205": 0,
+        "WriteStreamToBodyAsync@141": 0,
+        "isIfRangeValid@110": 0,
         "parseRange@39": 0,
+        "streamData@296": 1,
+        "streamFile@315": 1,
         "validateRanges@63": 0
       },
       "fsharp/giraffe_web/Xml.fs": {

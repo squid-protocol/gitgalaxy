@@ -26296,31 +26296,32 @@
         "Zero@16": 0.0
       },
       "fsharp/giraffe_web/Core.fs": {
-        "bindForm@372": 0.379,
-        "bindJson@341": -0.618,
-        "bindModel@468": 0.379,
-        "bindQuery@422": 0.379,
-        "choose@141": -0.618,
-        "chooseHttpFunc@121": 2.373,
-        "compose@100": 0.878,
-        "handleContext@76": 2.373,
-        "htmlFile@564": -0.618,
-        "htmlString@573": -0.618,
-        "htmlView@605": -0.618,
-        "httpVerb@157": -0.12,
-        "isValidRedirectUrl@257": 2.373,
-        "markdown@586": -0.618,
-        "mustAccept@237": 0.878,
-        "redirectTo@324": -0.618,
-        "safeRedirectTo@312": -0.618,
-        "setBody@500": -0.618,
-        "setBodyFromString@508": -0.618,
-        "setContentType@199": -0.618,
-        "setHttpHeader@224": -0.618,
-        "setStatusCode@211": -0.618,
-        "text@516": -0.618,
-        "warbler@53": -0.618,
-        "xml@554": -0.618
+        "bindForm@372": 0.391,
+        "bindJson@341": -0.626,
+        "bindModel@468": 0.391,
+        "bindQuery@422": 0.391,
+        "choose@141": -0.626,
+        "chooseHttpFunc@121": 2.424,
+        "compose@100": 0.899,
+        "handleContext@76": 2.424,
+        "htmlFile@564": -0.626,
+        "htmlString@573": -0.626,
+        "htmlView@605": -0.626,
+        "httpVerb@157": -0.117,
+        "isValidRedirectUrl@257": 2.424,
+        "markdown@586": -0.626,
+        "mustAccept@237": 0.899,
+        "redirectTo@324": -0.626,
+        "safeRedirectTo@312": -0.626,
+        "safeRedirectToExt@282": -0.117,
+        "setBody@500": -0.626,
+        "setBodyFromString@508": -0.626,
+        "setContentType@199": -0.626,
+        "setHttpHeader@224": -0.626,
+        "setStatusCode@211": -0.626,
+        "text@516": -0.626,
+        "warbler@53": -0.626,
+        "xml@554": -0.626
       },
       "fsharp/giraffe_web/Csrf.fs": {
         "validateCsrfTokenExt@39": 0.0
@@ -26333,18 +26334,22 @@
         "ToIsoString@39": 0.0
       },
       "fsharp/giraffe_web/EndpointRouting.fs": {
-        "MapGiraffeEndpoints@410": 1.659,
-        "UseGiraffe@431": -0.882,
-        "addMetadata@342": -0.882,
-        "applyAfter@328": 1.235,
-        "applyBefore@321": 1.235,
-        "bindRouteHandler@293": -0.035,
-        "configureEndpoint@335": 1.235,
-        "convertToRouteTemplate@38": -0.882,
-        "getConstraint@24": -0.035,
-        "routeBind@308": -0.882,
-        "routef@284": -0.882,
-        "subRoute@318": -0.882
+        "MapGiraffeEndpoints@410": 1.4,
+        "MapMultiEndpoint@368": 1.4,
+        "MapNestedEndpoint@389": 1.4,
+        "MapSingleEndpoint@353": 0.2,
+        "UseGiraffe@431": -1.0,
+        "addMetadata@342": -1.0,
+        "applyAfter@328": 1.0,
+        "applyBefore@321": 1.0,
+        "bindRouteHandler@293": -0.2,
+        "configureEndpoint@335": 1.0,
+        "convertToRouteTemplate@38": -1.0,
+        "getConstraint@24": -0.2,
+        "routeBind@308": -1.0,
+        "routef@284": -1.0,
+        "subRoute@318": -1.0,
+        "subRouteWithExtensions@311": -1.0
       },
       "fsharp/giraffe_web/FormatExpressions.fs": {
         "convert@70": -0.254,
@@ -26446,20 +26451,24 @@
         "validateModel@26": 0.0
       },
       "fsharp/giraffe_web/Negotiation.fs": {
-        "NegotiateAsync@144": 0.0,
-        "negotiate@177": 0.0
+        "NegotiateAsync@144": -0.577,
+        "NegotiateWithAsync@104": 1.732,
+        "negotiate@177": -0.577,
+        "negotiateWith@162": -0.577
       },
       "fsharp/giraffe_web/Preconditional.fs": {
-        "FromString@25": -1.056,
-        "IsHeadOrGetRequest@31": -1.056,
-        "NotModifiedResponse@173": -1.056,
-        "PreconditionFailedResponse@182": -1.056,
-        "ValidateIfMatch@34": 0.966,
-        "ValidateIfModifiedSince@82": 0.966,
-        "ValidateIfNoneMatch@66": 1.64,
-        "bind@134": 0.966,
-        "ifNotSpecified@146": -0.157,
-        "validatePreconditions@209": -0.157
+        "FromString@25": -1.191,
+        "IsHeadOrGetRequest@31": -1.191,
+        "NotModifiedResponse@173": -1.191,
+        "PreconditionFailedResponse@182": -1.191,
+        "ValidateIfMatch@34": 0.647,
+        "ValidateIfModifiedSince@82": 0.647,
+        "ValidateIfNoneMatch@66": 1.259,
+        "ValidateIfUnmodifiedSince@47": 0.647,
+        "ValidatePreconditions@126": 1.668,
+        "bind@134": 0.647,
+        "ifNotSpecified@146": -0.374,
+        "validatePreconditions@209": -0.374
       },
       "fsharp/giraffe_web/RequestLimitation.fs": {
         "hasAnyContentTypes@69": 0.728,
@@ -26468,9 +26477,10 @@
         "mustAcceptAny@28": 0.728
       },
       "fsharp/giraffe_web/ResponseCaching.fs": {
-        "cacheHeader@25": 0.0,
-        "privateResponseCaching@85": 0.0,
-        "publicResponseCaching@98": 0.0
+        "cacheHeader@25": -0.577,
+        "privateResponseCaching@85": -0.577,
+        "publicResponseCaching@98": -0.577,
+        "responseCaching@40": 1.732
       },
       "fsharp/giraffe_web/Routing.fs": {
         "getNextPartOfPath@15": 0.244,
@@ -26500,9 +26510,15 @@
         "toUInt64@94": 1.0
       },
       "fsharp/giraffe_web/Streaming.fs": {
-        "RangeUnit@138": -1.225,
-        "parseRange@39": 0.0,
-        "validateRanges@63": 1.225
+        "RangeUnit@138": -1.025,
+        "WriteFileStreamAsync@261": -0.396,
+        "WriteStreamAsync@205": 2.119,
+        "WriteStreamToBodyAsync@141": 0.023,
+        "isIfRangeValid@110": 0.862,
+        "parseRange@39": -0.186,
+        "streamData@296": -1.025,
+        "streamFile@315": -1.025,
+        "validateRanges@63": 0.652
       },
       "fsharp/giraffe_web/Xml.fs": {
         "Serialize@33": 0.0

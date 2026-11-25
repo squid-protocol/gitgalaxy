@@ -344219,6 +344219,20 @@
           "Structural Impact": 3.1
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "16.7%",
+          "End Line": 300,
+          "Function Name": "safeRedirectToExt",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 282,
+          "Structural Impact": 3.0
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 361,
@@ -344603,6 +344617,34 @@
           "Structural Impact": 10.7
         },
         {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
+          "End Line": 386,
+          "Function Name": "MapMultiEndpoint",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 368,
+          "Structural Impact": 8.0
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "54.5%",
+          "End Line": 407,
+          "Function Name": "MapNestedEndpoint",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 389,
+          "Structural Impact": 8.0
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "40.0%",
           "End Line": 36,
@@ -344629,6 +344671,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 293,
           "Structural Impact": 4.7
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 364,
+          "Function Name": "MapSingleEndpoint",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 353,
+          "Structural Impact": 4.6
         },
         {
           "Control Flow Branches": 0,
@@ -344699,6 +344755,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 342,
           "Structural Impact": 1.8
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 316,
+          "Function Name": "subRouteWithExtensions",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 311,
+          "Structural Impact": 1.3
         }
       ],
       "fsharp/giraffe_web/FormatExpressions.fs": [
@@ -345881,6 +345951,20 @@
       ],
       "fsharp/giraffe_web/Negotiation.fs": [
         {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 133,
+          "Function Name": "NegotiateWithAsync",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 104,
+          "Structural Impact": 8.5
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 146,
@@ -345907,6 +345991,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 177,
           "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 167,
+          "Function Name": "negotiateWith",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 162,
+          "Structural Impact": 1.3
         }
       ],
       "fsharp/giraffe_web/Preconditional.fs": [
@@ -345922,6 +346020,20 @@
           "Lines of Code (LOC)": 15,
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 66,
+          "Structural Impact": 23.3
+        },
+        {
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "73.7%",
+          "End Line": 166,
+          "Function Name": "ValidatePreconditions",
+          "Has Header Comment": 1,
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 41,
+          "Reflection Hits": 0,
+          "Start Line": 126,
           "Structural Impact": 23.3
         },
         {
@@ -345965,6 +346077,20 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 134,
           "Structural Impact": 14.7
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "69.2%",
+          "End Line": 64,
+          "Function Name": "ValidateIfUnmodifiedSince",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 47,
+          "Structural Impact": 10.9
         },
         {
           "Control Flow Branches": 4,
@@ -346110,6 +346236,20 @@
         }
       ],
       "fsharp/giraffe_web/ResponseCaching.fs": [
+        {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "53.8%",
+          "End Line": 69,
+          "Function Name": "responseCaching",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 30,
+          "Reflection Hits": 0,
+          "Start Line": 40,
+          "Structural Impact": 9.5
+        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -346481,6 +346621,20 @@
       ],
       "fsharp/giraffe_web/Streaming.fs": [
         {
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "71.4%",
+          "End Line": 247,
+          "Function Name": "WriteStreamAsync",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 43,
+          "Reflection Hits": 0,
+          "Start Line": 205,
+          "Structural Impact": 18.1
+        },
+        {
           "Control Flow Branches": 8,
           "Control Flow Ratio": "38.1%",
           "End Line": 101,
@@ -346493,6 +346647,34 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 63,
           "Structural Impact": 17.5
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "56.2%",
+          "End Line": 128,
+          "Function Name": "isIfRangeValid",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 110,
+          "Structural Impact": 10.9
+        },
+        {
+          "Control Flow Branches": 5,
+          "Control Flow Ratio": "38.5%",
+          "End Line": 191,
+          "Function Name": "WriteStreamToBodyAsync",
+          "Has Header Comment": 0,
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 51,
+          "Reflection Hits": 0,
+          "Start Line": 141,
+          "Structural Impact": 8.6
         },
         {
           "Control Flow Branches": 4,
@@ -346509,6 +346691,20 @@
           "Structural Impact": 7.9
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 279,
+          "Function Name": "WriteFileStreamAsync",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 19,
+          "Reflection Hits": 0,
+          "Start Line": 261,
+          "Structural Impact": 5.0
+        },
+        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 138,
@@ -346521,6 +346717,34 @@
           "Metaprogramming (Macros, Reflection, goto) Hits": 0,
           "Start Line": 138,
           "Structural Impact": 1.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 302,
+          "Function Name": "streamData",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 7,
+          "Reflection Hits": 0,
+          "Start Line": 296,
+          "Structural Impact": 1.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 322,
+          "Function Name": "streamFile",
+          "Has Header Comment": 1,
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 8,
+          "Reflection Hits": 0,
+          "Start Line": 315,
+          "Structural Impact": 1.4
         }
       ],
       "fsharp/giraffe_web/Xml.fs": [

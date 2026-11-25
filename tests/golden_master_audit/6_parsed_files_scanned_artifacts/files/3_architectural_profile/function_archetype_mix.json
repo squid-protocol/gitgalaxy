@@ -5039,7 +5039,7 @@
         "State Mutators": 5
       },
       "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": {
-        "Parameter Forwarders": 21
+        "Parameter Forwarders": 41
       },
       "fsharp/giraffe_web/Json.fs": {
         "Defensive Guards": 1,

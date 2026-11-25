@@ -1,12 +1,12 @@
 {
-  "args_comparable": 120,
-  "args_exact_match": 113,
+  "args_comparable": 181,
+  "args_exact_match": 171,
   "corpus_path": "language-crucible/data/fsharp",
   "extra_classes": 3,
   "extra_functions": 6,
   "files_scanned": 22,
   "found_classes": 0,
-  "found_functions": 120,
+  "found_functions": 181,
   "real_classes": 0,
   "real_functions": 262
 }

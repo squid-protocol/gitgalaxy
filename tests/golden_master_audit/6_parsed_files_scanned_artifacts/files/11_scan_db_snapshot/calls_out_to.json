@@ -87586,6 +87586,66 @@
         ]
       },
       "fsharp/giraffe_web/HttpStatusCodeHandlers.fs": {
+        "ACCEPTED@22": [
+          "accepted"
+        ],
+        "BAD_GATEWAY@95": [
+          "badGateway"
+        ],
+        "BAD_REQUEST@31": [
+          "badRequest"
+        ],
+        "CONFLICT@66": [
+          "conflict"
+        ],
+        "CREATED@19": [
+          "created"
+        ],
+        "FORBIDDEN@54": [
+          "forbidden"
+        ],
+        "GATEWAY_TIMEOUT@101": [
+          "gatewayTimeout"
+        ],
+        "GONE@69": [
+          "gone"
+        ],
+        "INTERNAL_ERROR@89": [
+          "internalError"
+        ],
+        "METHOD_NOT_ALLOWED@60": [
+          "methodNotAllowed"
+        ],
+        "NOT_ACCEPTABLE@63": [
+          "notAcceptable"
+        ],
+        "NOT_FOUND@57": [
+          "notFound"
+        ],
+        "NOT_IMPLEMENTED@92": [
+          "notImplemented"
+        ],
+        "OK@16": [
+          "ok"
+        ],
+        "PRECONDITION_REQUIRED@78": [
+          "preconditionRequired"
+        ],
+        "SERVICE_UNAVAILABLE@98": [
+          "serviceUnavailable"
+        ],
+        "TOO_MANY_REQUESTS@81": [
+          "tooManyRequests"
+        ],
+        "UNAUTHORIZED@51": [
+          "realm"
+        ],
+        "UNPROCESSABLE_ENTITY@75": [
+          "unprocessableEntity"
+        ],
+        "UNSUPPORTED_MEDIA_TYPE@72": [
+          "unsupportedMediaType"
+        ],
         "accepted@21": [],
         "badGateway@94": [],
         "badRequest@30": [],

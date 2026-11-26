@@ -4069,8 +4069,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4085,10 +4085,10 @@
         }
       ],
       "metric": "argument_part/-+generic+bang",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/argument_part/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -4291,8 +4291,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 3,
@@ -4323,10 +4323,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<argument",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4337,8 +4337,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4353,10 +4353,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<cascade_section/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4367,8 +4367,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4383,10 +4383,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<cascade_section",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4397,8 +4397,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4413,10 +4413,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<equality_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4427,8 +4427,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4443,10 +4443,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<equality_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<if_null_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4457,8 +4457,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -4481,10 +4481,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<if_null_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<named_argument/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4495,8 +4495,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4511,10 +4511,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<named_argument",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<optional_formal_parameters/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4525,8 +4525,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4541,10 +4541,50 @@
         }
       ],
       "metric": "not-a-call-in-ts:const_object_expression<optional_formal_parameters",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
+    },
+    "dart/call/not-a-call-in-ts:constructor_signature<declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:25:03Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "dart",
+      "last_reconciled_at": "2026-11-26T01:25:03Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart",
+          "name": "AnalysisStatusIdle._ -> _",
+          "readings": {
+            "gitgalaxy": 22,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart",
+          "name": "AnalysisStatusWorking._ -> _",
+          "readings": {
+            "gitgalaxy": 38,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:constructor_signature<declaration",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy right. Read the live examples: `: super.constructor();`, `: super.raw(...)`, `: super._();` are initializer-list invocations of a named super constructor, a real constructor call (C3: a constructor is a call). Tree-sitter models the initializer as an `initializer_list_entry`, not a call node. Credit gitgalaxy."
     },
     "dart/call/not-a-call-in-ts:factory_constructor_signature<method_signature/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4555,8 +4595,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4571,10 +4611,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:factory_constructor_signature<method_signature",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read navigator.dart: `factory _RestorationInformation.fromSerializableData(Object data) {` is the DEFINITION of the factory, whose own name is reported as a callee. A declaration is not a call. No credit."
     },
     "dart/call/not-a-call-in-ts:formal_parameter<formal_parameter_list/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4585,8 +4625,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4601,10 +4641,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:formal_parameter<formal_parameter_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read editable_text.dart: `void _handleContextMenuOnParentScroll(ScrollNotification notification)` names a parameter TYPE (`ScrollNotification`), not a call. No credit."
     },
     "dart/call/not-a-call-in-ts:formal_parameter<optional_formal_parameters/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4677,8 +4717,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4693,22 +4733,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:initialized_variable_definition<local_variable_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/not-a-call-in-ts:initializer_list_entry<initializers/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:16:49Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -4731,10 +4773,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:initializer_list_entry<initializers",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Read the live examples: `: super.constructor();`, `: super.raw(...)`, `: super._();` are initializer-list invocations of a named super constructor, a real constructor call (C3: a constructor is a call). Tree-sitter models the initializer as an `initializer_list_entry`, not a call node. Credit gitgalaxy."
     },
     "dart/call/not-a-call-in-ts:object_pattern<for_loop_parts/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4745,8 +4787,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:16:49Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4761,10 +4803,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:object_pattern<for_loop_parts",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read the live examples: each names the type of an OBJECT PATTERN (`node case MethodInvocation(...)`, `for (var MapEntry(key: file, ...) in ...)`, `StatefulElement(:final T state) => state`, `case AnalysisStatusIdle():`), a destructuring pattern, not a constructor call (C3: a pattern is not a call). No credit. Engine defect: a Dart object-pattern type reported as a callee."
     },
     "dart/call/not-a-call-in-ts:object_pattern<if_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4775,8 +4817,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -4799,10 +4841,64 @@
         }
       ],
       "metric": "not-a-call-in-ts:object_pattern<if_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read the live examples: each names the type of an OBJECT PATTERN (`node case MethodInvocation(...)`, `for (var MapEntry(key: file, ...) in ...)`, `StatefulElement(:final T state) => state`, `case AnalysisStatusIdle():`), a destructuring pattern, not a constructor call (C3: a pattern is not a call). No credit. Engine defect: a Dart object-pattern type reported as a callee."
+    },
+    "dart/call/not-a-call-in-ts:object_pattern<object_pattern/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:25:03Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "dart",
+      "last_reconciled_at": "2026-11-26T01:25:03Z",
+      "last_seen_count": 4,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> SimpleIdentifier",
+          "readings": {
+            "gitgalaxy": 34,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> ConstructorName",
+          "readings": {
+            "gitgalaxy": 103,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> Block",
+          "readings": {
+            "gitgalaxy": 90,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> ArgumentList",
+          "readings": {
+            "gitgalaxy": 36,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:object_pattern<object_pattern",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read the live examples: each names the type of an OBJECT PATTERN (`node case MethodInvocation(...)`, `for (var MapEntry(key: file, ...) in ...)`, `StatefulElement(:final T state) => state`, `case AnalysisStatusIdle():`), a destructuring pattern, not a constructor call (C3: a pattern is not a call). No credit. Engine defect: a Dart object-pattern type reported as a callee."
     },
     "dart/call/not-a-call-in-ts:object_pattern<switch_expression_case/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4813,8 +4909,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4829,10 +4925,56 @@
         }
       ],
       "metric": "not-a-call-in-ts:object_pattern<switch_expression_case",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read the live examples: each names the type of an OBJECT PATTERN (`node case MethodInvocation(...)`, `for (var MapEntry(key: file, ...) in ...)`, `StatefulElement(:final T state) => state`, `case AnalysisStatusIdle():`), a destructuring pattern, not a constructor call (C3: a pattern is not a call). No credit. Engine defect: a Dart object-pattern type reported as a callee."
+    },
+    "dart/call/not-a-call-in-ts:object_pattern<switch_statement_case/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:25:03Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "dart",
+      "last_reconciled_at": "2026-11-26T01:25:03Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart",
+          "name": "waitForIdle -> AnalysisStatusIdle",
+          "readings": {
+            "gitgalaxy": 193,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> ExpressionFunctionBody",
+          "readings": {
+            "gitgalaxy": 88,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart",
+          "name": "hasDependentDotShorthand -> BlockFunctionBody",
+          "readings": {
+            "gitgalaxy": 90,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:object_pattern<switch_statement_case",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read the live examples: each names the type of an OBJECT PATTERN (`node case MethodInvocation(...)`, `for (var MapEntry(key: file, ...) in ...)`, `StatefulElement(:final T state) => state`, `case AnalysisStatusIdle():`), a destructuring pattern, not a constructor call (C3: a pattern is not a call). No credit. Engine defect: a Dart object-pattern type reported as a callee."
     },
     "dart/call/not-a-call-in-ts:type_test<type_test_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4843,8 +4985,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -4867,10 +5009,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:type_test<type_test_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read editable_text.dart: `notification is! ScrollStartNotification && notification is! ScrollEndNotification` names types in `is!` tests, not calls. No credit. Engine defect: a type named in an `is`/`is!` test reported as a callee."
     },
     "dart/call/not-a-call-in-ts:unconditional_assignable_selector<selector/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4881,8 +5023,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -4897,10 +5039,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:unconditional_assignable_selector<selector",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5039,8 +5181,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-11T21:03:06Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-12T06:06:28Z",
       "last_seen_count": 4,
@@ -5079,10 +5221,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "dart/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5093,8 +5235,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-11T21:03:06Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "dart",
       "last_reconciled_at": "2026-11-12T06:06:28Z",
       "last_seen_count": 1,
@@ -5109,10 +5251,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "At HEAD (fresh run on the pinned language-crucible) this shape has no live occurrence, so there is no source line left to read; the seeded examples no longer reproduce. Closed as not reproducing. No credit."
     },
     "elixir/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

@@ -593,7 +593,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": None,
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(exit|kill|abort|halt|return\s+[1-9][0-9]*)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|read\s+-t)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": None,

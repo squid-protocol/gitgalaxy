@@ -7700,20 +7700,20 @@
         "Defensive Guards": 3
       },
       "javascript/react/ReactFiberBeginWork.js": {
-        "Defensive Guards": 17,
+        "Defensive Guards": 16,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 42,
-        "Parameter Forwarders": 10,
+        "Many-Argument Workhorses": 44,
+        "Parameter Forwarders": 9,
         "State Mutators": 1
       },
       "javascript/react/ReactFiberWorkLoop.js": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 6,
+        "Compute Cores": 8,
         "Defensive Guards": 52,
         "I/O & Config Routines": 12,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 21,
-        "State Mutators": 19
+        "State Mutators": 17
       },
       "javascript/react/ReactFlightServer.js": {
         "Callbacks & Closures": 11,
@@ -7764,10 +7764,10 @@
       "javascript/threejs/GLTFLoader.js": {
         "Callbacks & Closures": 5,
         "Compute Cores": 20,
-        "Defensive Guards": 49,
+        "Defensive Guards": 50,
         "I/O & Config Routines": 2,
         "Interface Declarations": 3,
-        "Many-Argument Workhorses": 14,
+        "Many-Argument Workhorses": 13,
         "Parameter Forwarders": 7,
         "State Mutators": 28
       },

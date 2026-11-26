@@ -437,11 +437,11 @@
 <text class="n" x="324" y="495">n=139 imports</text>
 <text class="n" x="324" y="507">repos 1 · files 31</text>
 </g>
-<g><title>haskell callee names: precision 94.5% of 2,532, recall 97.6% of 2,452 (raw 94.5% / 97.6%; 23 shapes without a verdict)</title>
+<g><title>haskell callee names: precision 94.7% of 2,532, recall 97.6% of 2,452 (raw 94.5% / 97.6%; 2 shapes without a verdict)</title>
 <text class="pr" x="426" y="494.5">Precision</text>
 <rect class="track" x="472" y="487" width="110" height="8" rx="2"/>
-<rect x="472" y="487" width="104.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="495">94.5%*</text>
+<rect x="472" y="487" width="104.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="495">94.7%*</text>
 <text class="pr" x="426" y="506.5">Recall</text>
 <rect class="track" x="472" y="499" width="110" height="8" rx="2"/>
 <rect x="472" y="499" width="107.4" height="8" rx="2" fill="#eda100"/>

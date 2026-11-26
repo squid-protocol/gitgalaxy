@@ -13593,8 +13593,7 @@
     },
     "scala/cobrix_scala": {
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": {
-        "Callbacks & Closures": 1,
-        "Generic / Templated Code": 2
+        "Generic / Templated Code": 3
       },
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": {
         "Compute Cores": 2,
@@ -13603,7 +13602,7 @@
         "Type Conversions": 5
       },
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": {
-        "Callbacks & Closures": 2,
+        "Compute Cores": 2,
         "Type Conversions": 1
       },
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": {
@@ -13618,8 +13617,8 @@
         "Compute Cores": 1
       },
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": {
-        "Callbacks & Closures": 1,
-        "Generic / Templated Code": 2
+        "Generic / Templated Code": 2,
+        "State Mutators": 1
       },
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": {},
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": {},
@@ -13650,15 +13649,14 @@
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Encapsulated Accessors": 1
       },
       "scala/kafka/KafkaApis.scala": {
-        "Callbacks & Closures": 38,
-        "Compute Cores": 19,
+        "Callbacks & Closures": 32,
+        "Compute Cores": 21,
         "Encapsulated Accessors": 9,
-        "Generic / Templated Code": 25,
+        "Generic / Templated Code": 29,
         "Many-Argument Workhorses": 15,
         "Parameter Forwarders": 5,
         "State Mutators": 16,
@@ -13673,47 +13671,48 @@
         "Stateful Encapsulated Methods": 2
       },
       "scala/kafka/LogManager.scala": {
-        "Callbacks & Closures": 16,
+        "Callbacks & Closures": 11,
         "Compute Cores": 2,
         "Encapsulated Accessors": 10,
-        "Generic / Templated Code": 10,
-        "I/O & Config Routines": 3,
+        "Generic / Templated Code": 13,
+        "I/O & Config Routines": 4,
         "Many-Argument Workhorses": 8,
         "State Mutators": 12,
-        "Stateful Encapsulated Methods": 14
+        "Stateful Encapsulated Methods": 15
       },
       "scala/kafka/Partition.scala": {
-        "Callbacks & Closures": 38,
-        "Compute Cores": 2,
+        "Callbacks & Closures": 23,
+        "Compute Cores": 9,
         "Encapsulated Accessors": 8,
-        "Generic / Templated Code": 10,
+        "Generic / Templated Code": 14,
         "I/O & Config Routines": 3,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 9,
-        "State Mutators": 15,
-        "Stateful Encapsulated Methods": 16
+        "State Mutators": 18,
+        "Stateful Encapsulated Methods": 17
       },
       "scala/kafka/ReplicaManager.scala": {
-        "Callbacks & Closures": 24,
-        "Compute Cores": 2,
+        "Callbacks & Closures": 9,
+        "Compute Cores": 7,
         "Encapsulated Accessors": 23,
-        "Generic / Templated Code": 12,
+        "Generic / Templated Code": 21,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 13,
         "Parameter Forwarders": 2,
-        "State Mutators": 14,
+        "State Mutators": 15,
         "Stateful Encapsulated Methods": 15
       },
       "scala/kafka/SocketServer.scala": {
-        "Callbacks & Closures": 15,
-        "Compute Cores": 3,
+        "Callbacks & Closures": 9,
+        "Compute Cores": 4,
         "Encapsulated Accessors": 33,
         "Generic / Templated Code": 11,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 1,
+        "I/O & Config Routines": 5,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 2,
-        "State Mutators": 19,
-        "Stateful Encapsulated Methods": 19
+        "State Mutators": 20,
+        "Stateful Encapsulated Methods": 19,
+        "Type Conversions": 1
       }
     },
     "scheme": {

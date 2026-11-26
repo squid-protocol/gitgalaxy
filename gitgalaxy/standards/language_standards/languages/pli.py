@@ -388,8 +388,13 @@ DEFINITION: dict[str, Any] = {
         # ui_framework: the CICS terminal surface (BMS maps and 3270 control), cobol's
         # vocabulary verbatim (#2990).
         "ui_framework": re.compile(
-            r"\bEXEC\s+CICS\s+(?:SEND|CONVERSE|ROUTE|PURGE\s+MESSAGE|ISSUE\s+ERASEAUP)\b"
-            r"|\b(?:DFHMDF|DFHMDI|DFHMSD)\b",
+            _L
+            + r"EXEC\s+CICS\s+(?:SEND|CONVERSE|ROUTE|PURGE\s+MESSAGE|ISSUE\s+ERASEAUP)"
+            + _R
+            + r"|"
+            + _L
+            + r"(?:DFHMDF|DFHMDI|DFHMSD)"
+            + _R,
             re.I,
         ),
         # closures: PL/I has no anonymous procedure; every procedure carries a label.

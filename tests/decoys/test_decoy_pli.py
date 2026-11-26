@@ -122,10 +122,21 @@ def test_pli_all_branch_word_boundaries():
     assert leaks == [], f"PL/I word-boundary leaks: {leaks}"
 
 
-@pytest.mark.xfail(strict=True, reason="https://github.com/squid-protocol/gitgalaxy/issues/9319")
 def test_pli_ui_framework_national_char_boundary():
     """Req B/E: PL/I national characters (`$`, `@`, `#`) continue identifiers; `$DFHMDF` must not fire."""
     assert _hits("ui_framework", "$DFHMDF\n") == 0
+
+
+@pytest.mark.parametrize("nat", ["@", "#", "$", "\u00a7", "\u00a3"])
+def test_pli_ui_framework_national_char_class(nat):
+    """Every national character, before or after the keyword, continues the identifier (#9319)."""
+    for kw in ("DFHMDF", "DFHMDI", "DFHMSD"):
+        assert _hits("ui_framework", f"{nat}{kw}\n") == 0
+        assert _hits("ui_framework", f"{kw}{nat}\n") == 0
+        assert _hits("ui_framework", f"X = 1; {kw}\n") > 0
+    assert _hits("ui_framework", f"{nat}EXEC CICS SEND MAP('M') END-EXEC;\n") == 0
+    assert _hits("ui_framework", f"EXEC CICS SEND{nat} MAP('M');\n") == 0
+    assert _hits("ui_framework", "EXEC CICS SEND MAP('M');\n") > 0
 
 
 @pytest.mark.parametrize(

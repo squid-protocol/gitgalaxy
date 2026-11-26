@@ -2896,8 +2896,8 @@
       "lua/freebsd-src/gfx-orbbw.lua": 0,
       "lua/freebsd-src/hook.lua": 0,
       "lua/freebsd-src/loader.lua": 0,
-      "lua/freebsd-src/menu.lua": 0,
-      "lua/freebsd-src/password.lua": 0,
+      "lua/freebsd-src/menu.lua": 1,
+      "lua/freebsd-src/password.lua": 1,
       "lua/freebsd-src/screen.lua": 0
     },
     "lua/pandoc": {

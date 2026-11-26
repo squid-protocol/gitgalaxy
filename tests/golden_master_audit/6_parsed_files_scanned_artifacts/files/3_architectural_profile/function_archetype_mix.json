@@ -9421,10 +9421,10 @@
         "Parameter Forwarders": 3
       },
       "lua/freebsd-src/config.lua": {
-        "Compute Cores": 15,
+        "Compute Cores": 14,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
-        "Parameter Forwarders": 9
+        "Parameter Forwarders": 10
       },
       "lua/freebsd-src/core.lua": {
         "Compute Cores": 10,

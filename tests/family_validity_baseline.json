@@ -1072,12 +1072,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1721,
-    "n_family": 190,
+    "n_family": 27,
     "n_oracle": 24,
     "pinned": true,
-    "precision": 0.126,
+    "precision": 0.889,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1102,22 +1102,22 @@
    "debug_prints": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1721,
-    "n_family": 22,
+    "n_family": 19,
     "n_oracle": 18,
     "pinned": true,
-    "precision": 0.773,
+    "precision": 0.895,
     "recall": 0.944,
-    "status": "over-counts"
+    "status": "ok"
    },
    "decorators": {
     "corpus": "wordpress",
     "functions": 10462,
-    "n_family": 80,
-    "n_oracle": 43,
+    "n_family": 78,
+    "n_oracle": 76,
     "pinned": false,
-    "precision": 0.537,
+    "precision": 0.974,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "doc": {
     "corpus": "language-crucible v1.9.0",
@@ -1132,12 +1132,12 @@
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1721,
-    "n_family": 41,
+    "n_family": 18,
     "n_oracle": 18,
     "pinned": true,
-    "precision": 0.268,
-    "recall": 0.611,
-    "status": "both"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
@@ -1182,12 +1182,12 @@
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1721,
-    "n_family": 20,
+    "n_family": 26,
     "n_oracle": 24,
     "pinned": true,
-    "precision": 0.95,
-    "recall": 0.792,
-    "status": "misses"
+    "precision": 0.923,
+    "recall": 1.0,
+    "status": "ok"
    }
   },
   "python": {
@@ -1646,11 +1646,11 @@
     "status": "ok"
    },
    "regex_execution": {
-    "corpus": "tokio",
-    "functions": 6826,
+    "corpus": "language-crucible v1.9.0",
+    "functions": 1905,
     "n_family": 0,
     "n_oracle": 0,
-    "pinned": false,
+    "pinned": true,
     "precision": null,
     "recall": null,
     "status": "no-instances"

@@ -738,6 +738,22 @@ NODE_MAPS = {
         "func_node_types": {"rule"},
         "class_node_types": set(),
     },
+    "embedded_python": {
+        "ts_lang": "python",
+        # MicroPython / CircuitPython source is plain Python syntax: same node types as "python" above.
+        "func_node_types": {"function_definition"},
+        "class_node_types": {"class_definition"},
+    },
+    "sqlite": {
+        "ts_lang": "sql",
+        # Classes only. GitGalaxy's sqlite class_start = CREATE TABLE; the reference is tree-sitter-sql's create_table.
+        # Functions are deliberately empty: under the #2866 contract the units sqlite's func_start extracts are
+        # STATEMENTS, not named things (a SQL script has no syntax that reaches a statement by name), so there is no
+        # name-for-name function ground truth to diff. (Measured with create_index/create_view mapped: tree-sitter
+        # names 223 index/view units the engine's function population never carries by design.)
+        "func_node_types": set(),
+        "class_node_types": {"create_table"},
+    },
     "matlab": {
         "ts_lang": "matlab",
         "func_node_types": {"function_definition"},
@@ -870,12 +886,20 @@ NODE_MAPS = {
 #     grep-based ground-truth cross-check across the 188-file corpus, three real GitGalaxy engine
 #     defects found and fixed along the way) and docs/self_scan/manual_verification.json for the
 #     resulting verified count. Same shape as cobol above, minus the CI-budget problem.
+#   - assembly: tree-sitter-asm (asm/nasm) tags EVERY label (2,307 `label` nodes on the corpus, 3% ERROR nodes)
+#     and cannot tell a code entry point from a data label. GitGalaxy's func_start deliberately keeps only code
+#     labels (it drops `.L*` locals and labels followed by a data directive such as `.word` / `db`), so a node-type
+#     diff would book every data label as a "missing" function against a rule that excludes it by design. Same
+#     shape as scheme above: it needs content-aware walking, not node-type membership.
+#   - abap, agc_assembly, jcl, livecode, m4, yacc: tree-sitter-language-pack 1.24.0 has NO grammar for any of
+#     them (get_parser raises "not in the download manifest"), so there is nothing to diff against.
+#   - sqlite is mapped for CLASSES only (CREATE TABLE) -- see its NODE_MAPS entry for why functions stay empty.
 
 
 def _gg_only_langs() -> list[str]:
     """Languages GitGalaxy has a func_start rule for but which aren't in NODE_MAPS -- either not
-    yet mapped (a real future candidate: abap/agc_assembly/assembly/embedded_python/jcl/livecode/
-    m4/sqlite/yacc, as of this writing) or permanently excluded for one of the documented reasons
+    yet mapped (abap/agc_assembly/assembly/jcl/livecode/m4/yacc, as of this writing: none has a
+    usable tree-sitter reference, see the comment block above) or permanently excluded for one of the documented reasons
     in the comment block just above (cobol/dockerfile/scheme/yaml). Computed dynamically against
     LANGUAGE_DEFINITIONS rather than hand-listed, so a language added to either side later shows
     up (or drops out) here automatically instead of needing separate bookkeeping. --history/--chart
@@ -1333,6 +1357,13 @@ def _get_node_name(node: Any) -> str | None:
         )
         ada_name = spec.child_by_field_name("name") if spec is not None else None
         return ada_name.text.decode("utf8") if ada_name is not None else None
+
+    if node.type == "create_table":
+        # SQL: the name sits on a nested object_reference (`schema.name` -> the `name` field). The schema prefix is
+        # dropped and the identifier quotes (`"x"`, backticks, `[x]`) are stripped, as GitGalaxy's recorded name does.
+        ref = next((c for c in node.named_children if c.type == "object_reference"), None)
+        nm = ref.child_by_field_name("name") if ref is not None else None
+        return nm.text.decode("utf8").strip('"`[]') if nm is not None else None
 
     name_node = node.child_by_field_name("name")
     if name_node:

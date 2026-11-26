@@ -567,9 +567,10 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(r"\b(cJSON_Parse|json_loads|xmlReadMemory|xmlParseFile|jansson)\b"),
         "regex_execution": re.compile(r"\b(regcomp|regexec|regfree)\b"),
         "time_date_logic": re.compile(
-            r"\b(time_t|clock_gettime|gettimeofday|localtime_r?|strftime|difftime|mktime)\b"
-            # a bare `time(` / `clock(` call, never a member (`x.time(`, `p->time(`) or a longer name
-            r"|(?<![.>\w])(?:time|clock)\s*\("
+            # #9334: call-anchored (contract: "at its invocation"). A bare `time_t` declaration or cast is a type, not
+            # a clock computation (28 of redis's 30 over-counted functions); the call that fills it (`time(`) counts
+            r"(?<![.>\w])(?:clock_gettime|gettimeofday|(?:local|gm)time(?:_r)?|strftime|strptime|difftime|mktime"
+            r"|timegm|ctime(?:_r)?|asctime(?:_r)?|time|clock)\s*\("
         ),
         "ipc_rpc_bridges": re.compile(r"\b(fork|pipe|shmget|shmat|mmap|socket|bind|listen|accept)\b"),
         # system_config_mutation (#3084): contract-level absence. no dedicated

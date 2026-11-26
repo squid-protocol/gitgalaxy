@@ -2407,8 +2407,8 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 7.224,
-      "javascript/react/ReactFiberBeginWork.js": 5.633,
-      "javascript/react/ReactFiberWorkLoop.js": 7.146,
+      "javascript/react/ReactFiberBeginWork.js": 5.599,
+      "javascript/react/ReactFiberWorkLoop.js": 7.105,
       "javascript/react/ReactFlightServer.js": 8.886,
       "javascript/react/ReactSymbols.js": 6.811,
       "javascript/react/build.js": 5.946
@@ -2419,7 +2419,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 5.478,
       "javascript/threejs/Editor.js": 6.709,
-      "javascript/threejs/GLTFLoader.js": 6.248,
+      "javascript/threejs/GLTFLoader.js": 6.253,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
       "javascript/threejs/WebGLProgram.js": 7.4,

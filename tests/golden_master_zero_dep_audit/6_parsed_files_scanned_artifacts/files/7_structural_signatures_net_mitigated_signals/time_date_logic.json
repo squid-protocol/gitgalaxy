@@ -1172,7 +1172,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
       "cobol/gnucobol_internals/codegen.c": 3,
-      "cobol/gnucobol_internals/fileio.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 5,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
       "cobol/gnucobol_internals/scanner.l": 0,

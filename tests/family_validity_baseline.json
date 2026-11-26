@@ -686,12 +686,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 628,
-    "n_family": 16,
+    "n_family": 73,
     "n_oracle": 71,
     "pinned": true,
-    "precision": 0.5,
-    "recall": 0.113,
-    "status": "both"
+    "precision": 0.945,
+    "recall": 0.972,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1729,22 +1729,22 @@
    },
    "debug_prints": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 19,
+    "functions": 6442,
+    "n_family": 14,
     "n_oracle": 14,
     "pinned": false,
-    "precision": 0.737,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "decorators": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 2365,
-    "n_oracle": 2415,
+    "functions": 6442,
+    "n_family": 2551,
+    "n_oracle": 2601,
     "pinned": false,
-    "precision": 0.986,
-    "recall": 0.966,
+    "precision": 0.987,
+    "recall": 0.968,
     "status": "ok"
    },
    "doc": {
@@ -1759,13 +1759,13 @@
    },
    "io": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 108,
-    "n_oracle": 39,
+    "functions": 6442,
+    "n_family": 70,
+    "n_oracle": 62,
     "pinned": false,
-    "precision": 0.352,
-    "recall": 0.974,
-    "status": "over-counts"
+    "precision": 0.886,
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
@@ -1779,13 +1779,13 @@
    },
    "regex_execution": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 2,
+    "functions": 6442,
+    "n_family": 14,
     "n_oracle": 14,
     "pinned": false,
     "precision": 1.0,
-    "recall": 0.143,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",
@@ -1799,23 +1799,23 @@
    },
    "thread_sleeps": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 21,
-    "n_oracle": 81,
+    "functions": 6442,
+    "n_family": 100,
+    "n_oracle": 98,
     "pinned": false,
-    "precision": 0.952,
-    "recall": 0.247,
-    "status": "misses"
+    "precision": 0.98,
+    "recall": 1.0,
+    "status": "ok"
    },
    "time_date_logic": {
     "corpus": "kafka",
-    "functions": 6051,
-    "n_family": 47,
-    "n_oracle": 127,
+    "functions": 6442,
+    "n_family": 132,
+    "n_oracle": 128,
     "pinned": false,
-    "precision": 0.979,
-    "recall": 0.362,
-    "status": "misses"
+    "precision": 0.97,
+    "recall": 1.0,
+    "status": "ok"
    }
   },
   "shell": {

@@ -189,3 +189,11 @@ def test_safety_bypasses_comments_use_the_display_name():
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety_bypasses ({name}:" in text, stem
         assert "Safety Bypasses / Unchecked Types" not in text, stem
+
+
+def test_thread_sleeps_comments_use_the_display_name():
+    name = SIGNAL_DISPLAY_NAMES["thread_sleeps"][1].split(" (")[0]
+    for stem in ("c", "cpp", "python", "javascript"):
+        text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
+        assert f"thread_sleeps ({name}:" in text, stem
+        assert "Thread Blocking / Synchronous Pauses" not in text, stem

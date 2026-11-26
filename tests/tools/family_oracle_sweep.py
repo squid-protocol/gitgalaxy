@@ -44,7 +44,7 @@ ALIASES = {
 
 
 def languages() -> list[str]:
-    return ["python", "cobol", "jcl", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
+    return ["python", "cobol", "jcl", "hlasm", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
 
 
 def crucible_data(env: dict[str, str] | None = None) -> Path:

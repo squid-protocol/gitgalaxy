@@ -68,7 +68,12 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
+        "_scope_filters": {
+            "branch": "outside_literals",
+            "short_circuit": "outside_literals",
+            # #9330: `and` / `or` in a message string is not an operator
+            "bitwise_ops": "outside_literals",
+        },
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_KOTLIN,  # #3359 C1 annotation guard; #4124 `X<T>(`; #6266 `x.f { .. }`
         # #3359 (contract C2): keywords and special forms, never calls
@@ -222,8 +227,15 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:System\.exit|exitProcess|Runtime\.getRuntime\(\)\.(?:exec|halt)|Thread\.stop)\b"
         ),
         # 9. io (I/O & Network Boundaries)
+        # #9330: the contract is an operation that moves data, so the sites are the calls (a
+        # file/socket/URL handle, a kotlin.io File extension, a stream accessor, stdin), not a
+        # bare type name that only appears in a signature or an import.
         "io": re.compile(
-            r"\b(File|InputStream|OutputStream|Retrofit|OkHttpClient|Ktor|HttpClient|RoomDatabase|Dao|SharedPreferences|DataStore|java\.nio)\b"
+            r"(?<![\w.])(?:File|FileInputStream|FileOutputStream|FileReader|FileWriter|RandomAccessFile|Socket|ServerSocket|URL|HttpURLConnection)\("
+            r"|\bFiles\.\w"
+            r"|\.(?:readText|readBytes|readLines|writeText|writeBytes|appendText|appendBytes|useLines|bufferedReader|bufferedWriter"
+            r"|inputStream|outputStream|listFiles|openConnection|openStream)\b"
+            r"|(?<![\w.])(?:readLine|readln|readlnOrNull)\("
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Implicit public/internal defaults + Ktor/Spring routes.
@@ -450,11 +462,19 @@ DEFINITION: dict[str, Any] = {
             + r"]*|\.to(?:Int|Long|Short|Byte|Double|Float|String|Boolean|UInt|ULong|UShort|UByte)\(\)"
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
-        "panics_and_aborts": re.compile(r"\b(throw|raise|exitProcess|return|panic)\b"),
+        # #9330: `return` is an error return at most, not an abort (#8868); a bare `error(` /
+        # `TODO(` call throws, a `.error(` log method does not.
+        "panics_and_aborts": re.compile(
+            r"\bthrow\b|(?<![\w.])(?:TODO|error|exitProcess)\b[ \t]*[(\"]|\bSystem\.exit\("
+            r"|\bRuntime\.getRuntime\(\)\.halt\("
+        ),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(delay|Thread\.sleep|yield)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|\b(?:shl|shr|ushr|xor)\b"),
+        # #9330: Kotlin's bitwise operators are the infix functions `and` / `or` as well.
+        "bitwise_ops": re.compile(
+            r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|(?<![.\w])(?:shl|shr|ushr|xor|and|or)\b(?![ \t]*[(:,=)])"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomic[" + CAPITAL + r"][" + ID_CONTINUE + r"]*)\b", re.I
@@ -510,9 +530,17 @@ DEFINITION: dict[str, Any] = {
         # argument). `\.toRegex\(\)` (the real zero-arg extension
         # function on String) keeps its literal empty parens but still
         # needed the same trailing-\b fix as the rest of this sweep.
-        "regex_execution": re.compile(r"\bRegex\(|\.toRegex\(\)|\.matches\(|\.find\("),
+        # #9330: `.matches(` / `.find(` are collection and string members, not regex sites.
+        "regex_execution": re.compile(
+            r"\bRegex[.(]|\.toRegex\(|\bPattern\.(?:compile|matches|quote)\(|\.(?:matcher|matchEntire|containsMatchIn)\("
+        ),
         "time_date_logic": re.compile(
-            r"\b(Clock\.System\.now|Instant\.now|System\.currentTimeMillis|Duration\.minutes|LocalDate)\b"
+            r"\b(?:System\.(?:currentTimeMillis|nanoTime)|measureTime(?:Millis|Nanos)?|measureNanoTime)\b"
+            r"|\b(?:Clock|Instant|Duration|LocalDate|LocalDateTime|LocalTime|ZonedDateTime|OffsetDateTime|Period|ChronoUnit"
+            r"|DateTimeFormatter|TimeSource|Calendar|TimeZone|ZoneId)\.\w"
+            r"|\b(?:Date|SimpleDateFormat)\("
+            r"|\.(?:toNanos|toMillis|toSeconds|toMinutes|toDuration)\b"
+            r"|\b\d[\d_]*\.(?:nanoseconds|microseconds|milliseconds|seconds|minutes|hours|days)\b"
         ),
         # BUG FIX: `Intent\(`/`HttpClient\(` both end on `(` (non-word),
         # so the shared trailing \b only fired when a word char

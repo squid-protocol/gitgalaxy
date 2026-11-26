@@ -1314,13 +1314,13 @@
     },
     "csharp/powershell_commands_utility": {
       "csharp/powershell_commands_utility/LICENSE.txt": 0,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 30,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 29,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": 3,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": 16,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": 6,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": 2,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 10,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 2,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 1,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": 3,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": 1,
@@ -1339,13 +1339,13 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 1,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 0,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 11
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 2
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 3,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 12,
+      "csharp/roslyn/CSharpCompilation.cs": 4,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 14,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 8,
+      "csharp/roslyn/LanguageParser.cs": 9,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 0,
       "csharp/roslyn/Workspace.cs": 5

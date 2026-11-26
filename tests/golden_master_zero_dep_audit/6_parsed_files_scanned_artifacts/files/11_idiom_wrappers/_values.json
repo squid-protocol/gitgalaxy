@@ -280,6 +280,18 @@
         }
       ]
     },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "load_old_version",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        }
+      ]
+    },
     "scheme/racket": {
       "scheme/racket/fun.c": [
         {

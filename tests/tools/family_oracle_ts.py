@@ -636,6 +636,23 @@ def _documented(spec: Spec, node) -> bool:
             c.type == "comment" and _text(c).lstrip().startswith("/**") for c in params.children
         ):
             return True
+    elif spec.ts_name == "javascript":
+        # #8868: the same wrappers in the JavaScript grammar (`export default function f`, `const f = () =>`, `key: function () {}`,
+        # a class field, and `a.b = function () {}` / `this.f = function () {}`, whose doc sits above the assignment statement)
+        while node.parent is not None and (
+            node.parent.type
+            in (
+                "export_statement",
+                "lexical_declaration",
+                "variable_declaration",
+                "variable_declarator",
+                "pair",
+                "field_definition",
+                "expression_statement",
+            )
+            or (node.parent.type == "assignment_expression" and node.parent.child_by_field_name("right") == node)
+        ):
+            node = node.parent
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling

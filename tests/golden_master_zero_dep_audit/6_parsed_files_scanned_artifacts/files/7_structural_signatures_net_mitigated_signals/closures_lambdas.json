@@ -1330,40 +1330,40 @@
     "csharp/powertoys_common": {
       "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": 0,
       "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": 0,
-      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 6,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 2,
       "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": 0,
       "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": 0,
       "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": 0,
       "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": 0,
       "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": 0,
-      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 1,
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 1,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 4
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 1
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 63,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 17,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 1,
-      "csharp/roslyn/LanguageParser.cs": 143,
+      "csharp/roslyn/CSharpCompilation.cs": 34,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 3,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
+      "csharp/roslyn/LanguageParser.cs": 82,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 15,
-      "csharp/roslyn/Workspace.cs": 115
+      "csharp/roslyn/MethodCompiler.cs": 14,
+      "csharp/roslyn/Workspace.cs": 74
     },
     "csharp/runtime_linq": {
       "csharp/runtime_linq/LICENSE.TXT": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 1,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 5,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": 12,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 6,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 22,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 12,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 11,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 2,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 1,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 18
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0
     },
     "css": {
       "css/SOURCES.md": 0

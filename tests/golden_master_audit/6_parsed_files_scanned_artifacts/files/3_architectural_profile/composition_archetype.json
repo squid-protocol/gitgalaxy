@@ -1339,12 +1339,12 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "Encapsulated Accessors Files",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "Generic / Templated Code Files",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "State Mutators Files",
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "Callbacks & Closures Files"
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "State Mutators Files"
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "Large Core Modules (3)",
       "csharp/roslyn/CSharpSyntaxTree.cs": "Large Core Modules (3)",
-      "csharp/roslyn/DiagnosticAnalyzer.cs": "Declarative / Non-Code",
+      "csharp/roslyn/DiagnosticAnalyzer.cs": "State Mutators Files",
       "csharp/roslyn/LanguageParser.cs": "Encapsulated Accessors Files",
       "csharp/roslyn/License.txt": "Data / Markup / Trivial",
       "csharp/roslyn/MethodCompiler.cs": "Large Core Modules (3)",
@@ -1355,9 +1355,9 @@
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": "Generic / Templated Code Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "Large Core Modules (2)",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": "Generic / Templated Code Files",
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Generic / Templated Code Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": "Generic / Templated Code Files",
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "State Mutators Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "Large Core Modules (3)",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "Encapsulated Accessors Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "Large Core Modules (3)",

@@ -4030,14 +4030,14 @@
       "ruby/homebrew_ruby/Library_Homebrew_test_support_fixtures_cask_Casks_missing-name.rb": 0,
       "ruby/homebrew_ruby/Library_Homebrew_test_unpack_strategy_cvs_spec.rb": 0,
       "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": 0,
-      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": 0
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": 2
     },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
-      "ruby/rails/Rakefile": 8,
+      "ruby/rails/Rakefile": 10,
       "ruby/rails/base.rb": 0,
       "ruby/rails/blob.rb": 0,
-      "ruby/rails/generator.rb": 5,
+      "ruby/rails/generator.rb": 8,
       "ruby/rails/inbound_emails_controller.rb": 0,
       "ruby/rails/metal.rb": 0,
       "ruby/rails/routing.rb": 0
@@ -4047,7 +4047,7 @@
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 0
     },
     "ruby/selenium_ruby": {
-      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": 2,
       "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": 0,
       "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": 0,
       "ruby/selenium_ruby/rb_lib_selenium_webdriver_common.rb": 0,
@@ -4228,9 +4228,9 @@
       "shell/brew/Dockerfile": 3,
       "shell/brew/LICENSE.txt": 0,
       "shell/brew/brew": 8,
-      "shell/brew/brew.rb": 9,
+      "shell/brew/brew.rb": 10,
       "shell/brew/cask.rb": 0,
-      "shell/brew/download_strategy.rb": 5,
+      "shell/brew/download_strategy.rb": 6,
       "shell/brew/formula.rb": 0,
       "shell/brew/formula_installer.rb": 0,
       "shell/brew/sandbox.rb": 0

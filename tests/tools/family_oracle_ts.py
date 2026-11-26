@@ -137,7 +137,8 @@ SPECS: dict[str, Spec] = {
         {
             "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
-            "regex": ("regexp.",),
+            # #9343: `re.MatchString(s)` on a *regexp.Regexp value evaluates the expression too (contract: "a match ... call at its invocation")
+            "regex": ("regexp.", "MatchString"),
             # time_date_logic: a clock or calendar value, duration arithmetic, a formatting or timezone call. Timers
             # (time.After / Tick / NewTimer / NewTicker / AfterFunc) are timed waits: thread_sleeps' (#8868)
             "time": (

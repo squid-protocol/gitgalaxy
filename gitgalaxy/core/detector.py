@@ -2566,6 +2566,29 @@ def _haskell_leading_pragmas(code: str, def_idx: int, rule: "re.Pattern[str] | N
     return count
 
 
+_GO_PRAGMA_LINE = re.compile(r"//go:[a-z]\w*")
+
+
+def _go_leading_pragmas(raw_lines: list[str], func_line: int) -> int:
+    """Count of `//go:` pragma lines directly above the func on 1-based `func_line` (#9343).
+
+    Go's attribute syntax on a declaration is the pragma line above it (`//go:noinline`). The unit starts at `func`,
+    and the shielded payload blanks comments, so a unit-scoped rule never sees it: read the raw lines. Reads up through
+    plain `//` comment lines (a doc comment may sit between) and stops at a blank line (which detaches the lines
+    above: a file-level `//go:build` is not the function's).
+    """
+    count = 0
+    for j in range(func_line - 2, max(-1, func_line - 2 - _DECORATOR_LOOKBACK_LINES), -1):
+        if j >= len(raw_lines):
+            continue
+        line = raw_lines[j].strip()
+        if not line.startswith("//"):
+            break
+        if _GO_PRAGMA_LINE.match(line):
+            count += 1
+    return count
+
+
 def _python_decorators(safe_code: str, def_idx: int) -> list[tuple[str, str]]:
     """(leaf, qualifier) for each decorator applied to the def at `def_idx`, outermost first.
 
@@ -9577,6 +9600,12 @@ class StructuralExtractor:
                 recv_type = _GO_RECEIVER_TYPE.match(block)
                 if recv_type:
                     sat["parent_class_name"] = recv_type.group(1)
+            if lang_id == "go":
+                # #9343: a `//go:` pragma sits on the line(s) above `func`, outside the unit span.
+                go_pragmas = _go_leading_pragmas(self.raw_content_lines, current_line_count)
+                if go_pragmas:
+                    sat["hit_vector"]["decorators"] = sat["hit_vector"].get("decorators", 0) + go_pragmas
+
             satellites.append(sat)
             sum_fxn_impact += mag
 

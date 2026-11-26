@@ -218,7 +218,7 @@
     "| danger | 31837 | 1786 | 15 | `fortran/wrf/regtest_hwrf.csh` |",
     "| concurrency | 6892 | 661 | 2 | `typescript/playwright/frames.ts` |",
     "| connectivity | 29716 | 1628 | 12 | `typescript/typescript_compiler/types.ts` |",
-    "| io | 16808 | 1169 | 6 | `fortran/wrf/regtest.csh` |",
+    "| io | 16807 | 1168 | 6 | `fortran/wrf/regtest.csh` |",
     "| crypto | 19 | 11 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1754 | 343 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
     "| time | 2196 | 302 | 0 | `elixir/elixir_stdlib/calendar_date.ex` |",

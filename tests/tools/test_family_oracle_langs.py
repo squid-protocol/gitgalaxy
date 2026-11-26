@@ -131,3 +131,19 @@ def test_c_stream_writers_count_as_debug_prints_only_on_the_console(lang):
 def test_go_decorators_are_pragmas_above_and_struct_tags_inside(src, want):
     """#8868: Go's attribute syntax on a declaration is a `//go:` pragma line directly above it or a tagged field; a plain comment is neither."""
     assert _count("go", src, "f", "decorators") == want
+
+
+@needs_ts
+@pytest.mark.parametrize(
+    ("src", "want"),
+    [
+        ("fn f() { let s = assert_ok!(TcpListener::bind(a).await); }", 1),
+        ('fn f() { let m = format!("{:?}", OpenOptions::new().mode(1)); }', 1),
+        ("fn f() { let s = TcpStream::connect(a); }", 1),
+        ('fn f() { let m = format!("{}", helper::go(1)); }', 0),
+        ("fn f() { let s = assert_ok!(srv.accept().await); }", 0),
+    ],
+)
+def test_rust_io_reads_type_path_calls_inside_a_macro_argument_9340(src, want):
+    """A macro's arguments are a token tree to the grammar; the call inside `assert_ok!(..)` still opens the socket."""
+    assert _count("rust", src, "f", "io") == want

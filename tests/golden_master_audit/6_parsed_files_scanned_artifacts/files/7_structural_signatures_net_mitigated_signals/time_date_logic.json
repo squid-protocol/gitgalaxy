@@ -1172,7 +1172,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
       "cobol/gnucobol_internals/codegen.c": 3,
-      "cobol/gnucobol_internals/fileio.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 5,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
       "cobol/gnucobol_internals/scanner.l": 0,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 0,
       "php/magento2/Interceptor.php": 0,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 2,
+      "php/magento2/Mysql.php": 1,
       "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
@@ -3312,21 +3312,21 @@
       "php/symfony/EventDispatcher.php": 0,
       "php/symfony/HttpKernel.php": 0,
       "php/symfony/Parser.php": 0,
-      "php/symfony/Request.php": 1,
+      "php/symfony/Request.php": 2,
       "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 0,
+      "php/wordpress/admin-ajax.php": 1,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 4,
-      "php/wordpress/functions.php": 13,
+      "php/wordpress/formatting.php": 11,
+      "php/wordpress/functions.php": 24,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 6,
-      "php/wordpress/wp-settings.php": 0
+      "php/wordpress/wp-settings.php": 1
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0
@@ -4541,7 +4541,7 @@
       "sql/SOURCES.md": 0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 2
+      "sql/baseline/schema.php": 4
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 0,

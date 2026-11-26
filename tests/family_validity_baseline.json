@@ -540,6 +540,58 @@
     "status": "ok"
    }
   },
+  "hlasm": {
+   "branch": {
+    "corpus": "language-crucible v1.9.0",
+    "functions": 8,
+    "n_family": 4,
+    "n_oracle": 4,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "debug_prints": {
+    "corpus": "language-crucible v1.9.0",
+    "functions": 8,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "explicit_casts": {
+    "corpus": "language-crucible v1.9.0",
+    "functions": 8,
+    "n_family": 1,
+    "n_oracle": 1,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "io": {
+    "corpus": "language-crucible v1.9.0",
+    "functions": 8,
+    "n_family": 3,
+    "n_oracle": 3,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   },
+   "panics_and_aborts": {
+    "corpus": "language-crucible v1.9.0",
+    "functions": 8,
+    "n_family": 2,
+    "n_oracle": 2,
+    "pinned": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
+   }
+  },
   "java": {
    "args": {
     "corpus": "language-crucible v1.9.0",

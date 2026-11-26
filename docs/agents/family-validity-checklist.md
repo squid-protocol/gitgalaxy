@@ -24,6 +24,8 @@ Nothing from #8868 is still open as a question; Go struct tags as `decorators` w
 
 Go `decorators` counts the `//go:` pragma line(s) directly above a `func` (a blank line detaches; a doc comment between does not), read from the raw lines in `detector._go_leading_pragmas` because the unit starts at `func` (#9343: crucible 0 / 151 -> 151 / 151). Go `regex_execution`'s oracle reads `re.MatchString` method calls as well as `regexp.` calls (prometheus, re-measured 2026-11-26 on the current engine: recall 0.93, precision 1.00 over 7,935 functions, baseline row updated, #9343; the pinned Go crucible has no regexp use, so that cell stays hatched).
 
+Shell (#9338, re-measured 2026-11-26 on the pinned crucible, language-crucible v1.9.0, 816 functions): the five cells the issue listed (`bitwise_ops`, `time_date_logic`, `panics_and_aborts`, `io`, `debug_prints`) were already at or above 0.8 after #9409; `family_oracle_sweep.py --write` reproduced the committed baseline byte for byte, so no rule or oracle changed. Lowest Shell cells now: `thread_sleeps` precision 0.828, `branch` 0.833 (both above the bar).
+
 ## What a red cell usually is (check in this order)
 | Symptom | Usual cause | Real examples |
 |---|---|---|

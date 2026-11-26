@@ -460,14 +460,14 @@
     "status": "ok"
    },
    "decorators": {
-    "corpus": "prometheus",
-    "functions": 7935,
-    "n_family": 19,
-    "n_oracle": 0,
-    "pinned": false,
-    "precision": 0.0,
-    "recall": null,
-    "status": "over-counts"
+    "corpus": "language-crucible v1.9.0",
+    "functions": 1314,
+    "n_family": 0,
+    "n_oracle": 151,
+    "pinned": true,
+    "precision": null,
+    "recall": 0.0,
+    "status": "dead"
    },
    "doc": {
     "corpus": "language-crucible v1.9.0",

@@ -749,7 +749,7 @@
 <rect x="312" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="356" width="11" height="11" fill="#1f3b5c"><title>swift / io: recall 0.73, precision 1.00 (11 oracle, 8 family functions; vapor (not pinned))</title></rect>
 <rect x="324" y="356" width="11" height="11" fill="url(#hatch)"/>
-<rect x="336" y="356" width="11" height="11" fill="#1f3b5c"><title>c / io: recall 1.00, precision 0.77 (43 oracle, 56 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="336" y="356" width="11" height="11" fill="#4f9be8"><title>c / io: recall 1.00, precision 0.93 (52 oracle, 56 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="356" width="11" height="11" fill="#1f3b5c"><title>lua / io: recall 0.50, precision 1.00 (14 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="356" width="11" height="11" fill="#1f3b5c"><title>shell / io: recall 0.83, precision 0.58 (236 oracle, 338 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>cpp / io: recall 0.08, precision 0.50 (12 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
@@ -2264,7 +2264,7 @@
 <rect x="312" y="740" width="11" height="11" fill="#a9d1ff"><title>rust / debug_prints: recall 1.00, precision 0.98 (54 oracle, 55 family functions; tokio (not pinned))</title></rect>
 <rect x="312" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / debug_prints: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="336" y="740" width="11" height="11" fill="#1f3b5c"><title>c / debug_prints: recall 0.95, precision 0.60 (43 oracle, 68 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="336" y="740" width="11" height="11" fill="#4f9be8"><title>c / debug_prints: recall 0.95, precision 1.00 (43 oracle, 41 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="740" width="11" height="11" fill="#4f9be8"><title>lua / debug_prints: recall 0.96, precision 0.94 (51 oracle, 52 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="740" width="11" height="11" fill="#1f3b5c"><title>shell / debug_prints: recall 1.00, precision 0.68 (196 oracle, 287 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="740" width="11" height="11" fill="#3b3f4a"><title>cpp / debug_prints: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
@@ -2378,7 +2378,7 @@
 <rect x="300" y="764" width="11" height="11" fill="#4f9be8"><title>ruby / panics_and_aborts: recall 0.95, precision 1.00 (22 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="764" width="11" height="11" fill="#4f9be8"><title>rust / panics_and_aborts: recall 0.97, precision 1.00 (66 oracle, 64 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="764" width="11" height="11" fill="#4f9be8"><title>swift / panics_and_aborts: recall 1.00, precision 0.95 (21 oracle, 22 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="336" y="764" width="11" height="11" fill="#1f3b5c"><title>c / panics_and_aborts: recall 0.97, precision 0.76 (29 oracle, 37 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="336" y="764" width="11" height="11" fill="#4f9be8"><title>c / panics_and_aborts: recall 0.97, precision 1.00 (29 oracle, 28 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="764" width="11" height="11" fill="#2f6aa8"><title>lua / panics_and_aborts: recall 1.00, precision 0.86 (30 oracle, 35 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="764" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>shell / panics_and_aborts: recall 1.00, precision 0.32 (58 oracle, 179 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="764" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / panics_and_aborts: recall -, precision 0.00 (0 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
@@ -2509,7 +2509,7 @@
 <rect x="312" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>rust / bitwise_ops: recall 0.45, precision 0.46 (47 oracle, 46 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="788" width="11" height="11" fill="#1f3b5c"><title>swift / bitwise_ops: recall 1.00, precision 0.77 (13 oracle, 17 family functions; vapor (not pinned))</title></rect>
 <rect x="324" y="788" width="11" height="11" fill="url(#hatch)"/>
-<rect x="336" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>c / bitwise_ops: recall 0.49, precision 0.96 (414 oracle, 210 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="336" y="788" width="11" height="11" fill="#4f9be8"><title>c / bitwise_ops: recall 0.99, precision 0.96 (414 oracle, 423 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="788" width="11" height="11" fill="#1f3b5c"><title>lua / bitwise_ops: recall 1.00, precision 0.52 (27 oracle, 52 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="788" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>shell / bitwise_ops: recall 0.00, precision - (2 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>cpp / bitwise_ops: recall 0.12, precision 0.50 (112 oracle, 26 family functions; language-crucible v1.9.0)</title></rect>

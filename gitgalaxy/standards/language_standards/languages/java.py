@@ -425,7 +425,15 @@ DEFINITION: dict[str, Any] = {
             r"|@ModelAttribute"
         ),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"->|::"),
+        # #8863: an anonymous callable only -- a lambda `x ->` / `(a, b) ->` / `() ->`. A method reference (`Foo::bar`) names an
+        # existing callable, a switch arm (`case A ->`, `default ->`) is a branch, and an annotation string (`@Contract("_ -> !null")`)
+        # is text, so none counts. The arrow must follow `(`, `,`, `=`, `?`, `:`, `&&`, `||`, `->`, `return` or a line start, on a
+        # line that is not a `case` / `default` label or an annotation. One count per line: the line prefix is consumed.
+        "closures": re.compile(
+            r"^(?![ \t]*(?:case\b|default\b|@))[^\n]{0,300}?"
+            r"(?:[(,=?:]|\breturn\b|&&|\|\||->|^)[ \t]*(?:[" + ID_CONTINUE + r"]+|\([^()\n]{0,200}\))[ \t]*->",
+            re.M,
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX: the `public static final ... =` alternative ends on
         # `=` (non-word), so the shared trailing \b could never fire --
@@ -538,7 +546,14 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|TimeUnit\.[A-Z_]+\.sleep|delay|CountDownLatch\.await)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # #8866: a ">>" closing a generic list is not a shift
-        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>>?|(?<=\w)>>>?(?=\w))|\^|~"),
+        # #8863: `&` / `|` (and `&=` / `|=`) between value operands. `&&` / `||`, a multi-catch (`catch (A | B e)`) and a generic
+        # bound (`<T extends A & B>`) are not bitwise: the right operand must not be followed by `|`, `>` or `{`, or be a catch parameter.
+        "bitwise_ops": re.compile(
+            r"<<|(?:(?<=[\s)\]])>>>?|(?<=\w)>>>?(?=\w))|\^|~"
+            r"|(?:[" + ID_CONTINUE + r".]|[)\]])[ \t]+[&|]=?(?![&|=])(?=\s)"
+            r"(?![ \t]*[" + ID_CONTINUE + r".$]+(?:<[^>\n]*>)?[ \t]*[|>{])"
+            r"(?![ \t]*[" + CAPITAL + r"][" + ID_CONTINUE + r".]*[ \t]+[" + ID_CONTINUE + r"]+[ \t]*\))"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|ReentrantLock|ReadWriteLock|Condition)\b",
@@ -576,10 +591,15 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(ObjectMapper|readValue|readTree|fromJson|ObjectInputStream|DocumentBuilder|SAXParser)\b"
         ),
-        "regex_execution": re.compile(r"\b(?:Pattern\.compile|Matcher\.find)\b|\.matches\("),
+        # #8863: a bare `.matches(` is any predicate's method (`ClassNameFilter.MISSING.matches(...)`), not a regex site, so only the
+        # `Pattern` entry points count (`Matcher.find` is a class name and never read a matcher variable).
+        "regex_execution": re.compile(r"\bPattern\.(?:compile|matches|quote)\b"),
         "time_date_logic": re.compile(
-            r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance|System\.nanoTime)\b"
-            r"|\bTimeUnit\."
+            # #8863: a static clock / duration / formatter member, `new Date(` / `new SimpleDateFormat(`, and the tick counters, not a bare
+            # `Duration` in a signature or a local declaration (`Duration timeout = cfg.getTimeout();` computes nothing).
+            r"\b(?:Instant|Duration|LocalDate(?:Time)?|LocalTime|ZonedDateTime|OffsetDateTime|Period|Clock|ChronoUnit|DateTimeFormatter"
+            r"|Calendar|Date|TimeUnit)\.[A-Za-z]"
+            r"|\bSystem\.(?:currentTimeMillis|nanoTime)\b|\bnew\s+(?:Date|SimpleDateFormat|GregorianCalendar)\b"
         ),
         # The det port's CICS program control (cobol.py's EXEC CICS LINK / XCTL / RETURN). Not `task.start(`:
         # Kafka and Elasticsearch name their worker tasks `task` and start them.

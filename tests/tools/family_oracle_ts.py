@@ -311,6 +311,9 @@ SPECS: dict[str, Spec] = {
                 "System.err.print",
                 "System.err.println",
                 "System.err.printf",
+                # #8863: the print contract names a "diagnostic stream ... trace call": a no-argument printStackTrace() writes the
+                # trace to System.err for a developer to read, the same as System.err.println.
+                "printStackTrace",
             ),
             "sleep": (
                 "Thread.sleep",

@@ -96,6 +96,38 @@
    ]
   },
   {
+   "id": "351bca91e6",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
+   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DVISITSL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and widening to 5 digits reads bytes 12..15 (a 4-byte item), the extra byte 15 being the first byte of the DVISITSO text: its three high-order bytes are X'00' on every path, so the value is 0..255 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
+   "id": "3c84fab151",
+   "op": "CON",
+   "line": 62,
+   "before": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 12, 4, 0, true, false);",
+   "after": "private final Field f28_DVISITSL = Field.binary(s_PCDTI, 13, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DVISITSL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and moving the offset to 13 reads bytes 13..14, one into the attribute byte: both bytes are X'00' on every path, so the value is 0 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
    "id": "f29b12b429",
    "op": "CON",
    "line": 62,
@@ -133,6 +165,38 @@
    ]
   },
   {
+   "id": "a816067c76",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
+   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DLASTL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and widening to 5 digits reads bytes 19..22 (a 4-byte item), the extra byte 22 being the first byte of the DLASTO text: its three high-order bytes are X'00' on every path, so the value is 0..255 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
+   "id": "f743e4a6cb",
+   "op": "CON",
+   "line": 64,
+   "before": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 19, 4, 0, true, false);",
+   "after": "private final Field f33_DLASTL = Field.binary(s_PCDTI, 20, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DLASTL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and moving the offset to 20 reads bytes 20..21, one into the attribute byte: both bytes are X'00' on every path, so the value is 0 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
    "id": "629230f32c",
    "op": "CON",
    "line": 65,
@@ -158,6 +222,38 @@
    ]
   },
   {
+   "id": "6bb00a1f62",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
+   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 27, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DTRANL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and moving the offset to 27 reads bytes 27..28, one into the attribute byte: both bytes are X'00' on every path, so the value is 0 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
+   "id": "f21397216e",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 4, 0, true, false);",
+   "after": "private final Field f38_DTRANL = Field.binary(s_PCDTI, 26, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DTRANL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and widening to 5 digits reads bytes 26..29 (a 4-byte item), the extra byte 29 being the first byte of the DTRANO text: its three high-order bytes are X'00' on every path, so the value is 0..255 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
    "id": "e8c9e65494",
    "op": "CON",
    "line": 67,
@@ -180,6 +276,38 @@
    "reason": "f43_DMSGL is only stored as a text length and read as == -1, which no scale makes true (map-length-scale)",
    "tried": [
     "map-length-scale"
+   ]
+  },
+  {
+   "id": "8896bd908e",
+   "op": "CON",
+   "line": 68,
+   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
+   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DMSGL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and widening to 5 digits reads bytes 33..36 (a 4-byte item), the extra byte 36 being the first byte of the DMSGO text: its three high-order bytes are X'00' on every path, so the value is 0..255 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
+   ]
+  },
+  {
+   "id": "fd71cb6092",
+   "op": "CON",
+   "line": 68,
+   "before": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 33, 4, 0, true, false);",
+   "after": "private final Field f43_DMSGL = Field.binary(s_PCDTI, 34, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "DMSGL is never named by PCDETL, and the only read of the port's item is the SEND MAP cursor test `== -1`; MOVE LOW-VALUES TO PCDTO zeroes all of PCDTI before the one SEND MAP, so the length bytes and the attribute byte are X'00' and moving the offset to 34 reads bytes 34..35, one into the attribute byte: both bytes are X'00' on every path, so the value is 0 and never -1. Five inputs (all-X'FF' COMMAREA, X'FF' visits only, X'FF' last only, X'00' area, 9999/ZZZZ under CLEAR) left it alive: hand-read source argument plus the attack, not a tool fact.",
+   "tried": [
+    "digits-area",
+    "ff-area",
+    "ff-last-only",
+    "ff-visits-only",
+    "low-area"
    ]
   },
   {

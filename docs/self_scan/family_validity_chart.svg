@@ -468,8 +468,9 @@
 <rect x="246" y="460" width="40" height="18" fill="#4f9be8"/>
 <text class="num" x="266.0" y="473">90</text>
 <text class="side" x="249" y="468">P</text>
-<rect x="288" y="460" width="40" height="18" fill="none" stroke="#8b949e" stroke-width="1" stroke-dasharray="3 2"/>
-<text class="thin" x="308.0" y="473">0</text>
+<rect x="288" y="460" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
+<text class="num" x="308.0" y="473">0</text>
+<text class="side" x="291" y="468">R</text>
 <rect x="330" y="460" width="40" height="18" fill="#4f9be8"/>
 <text class="num" x="350.0" y="473">94</text>
 <text class="side" x="333" y="468">P</text>

@@ -1317,8 +1317,7 @@
 <text class="fam" x="24" y="497">decorators</text>
 <rect x="192" y="488" width="11" height="11" fill="#4f9be8"><title>python / decorators: recall 1.00, precision 0.91 (1018 oracle, 1121 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="488" width="11" height="11" fill="#4f9be8"><title>csharp / decorators: recall 0.95, precision 0.91 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>go / decorators: recall -, precision 0.00 (0 oracle, 19 family functions; prometheus (not pinned))</title></rect>
-<rect x="216" y="488" width="11" height="11" fill="url(#hatch)"/>
+<rect x="216" y="488" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>go / decorators: recall 0.00, precision - (151 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="488" width="11" height="11" fill="#4f9be8"><title>kotlin / decorators: recall 0.99, precision 0.94 (158 oracle, 167 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="#1f3b5c"><title>php / decorators: recall 1.00, precision 0.54 (43 oracle, 80 family functions; wordpress (not pinned))</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="url(#hatch)"/>

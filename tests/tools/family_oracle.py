@@ -433,12 +433,16 @@ def get_oracle(lang: str):
         import family_oracle_cobol
 
         return family_oracle_cobol.get_oracle()
+    if lang == "hlasm":  # the translator's assembler statement reader (a CSECT or macro is the function)
+        import family_oracle_hlasm
+
+        return family_oracle_hlasm.get_oracle()
     import family_oracle_ts
 
     oracle = family_oracle_ts.get_oracle(lang)
     if oracle is None:
         raise SystemExit(
-            f"no oracle for language {lang!r} yet (available: python, cobol, {', '.join(family_oracle_ts.languages())}); see #8863"
+            f"no oracle for language {lang!r} yet (available: python, cobol, hlasm, {', '.join(family_oracle_ts.languages())}); see #8863"
         )
     return oracle
 

@@ -147,7 +147,7 @@ _KOTLIN_SIMPLE_CASES = [
     ("test_skip", "@Ignore", "@Test"),
     ("serialization_parsing", "Json.decodeFromString(str)", "val json = Json { prettyPrint = true }"),
     ("regex_execution", "Regex(pattern)", "val regexLibrary = RegexUtils.compile(pattern)"),
-    ("time_date_logic", "Instant.now()", 'val timestamp = Instant.parse("2024-01-01T00:00:00Z")'),
+    ("time_date_logic", "Instant.now()", "val rate = ClockUtils.tick()"),
     ("ipc_rpc_bridges", "val intent = Intent(this, Foo::class.java)", "val intentFilter = IntentFilter()"),
 ]
 
@@ -243,12 +243,12 @@ def test_kotlin_test_vs_regex_execution_no_false_collision():
     kotlin's `test` signature only matches `@Test`-style annotations,
     `assert*(`/`mockk`/`spyk`/`test(` barewords, or `shouldBe`/`every`/
     `verify` calls -- never a bare `.test(`-style regex method, so it
-    doesn't collide with `regex_execution`'s `Regex(`/`.matches(`/
-    `.find(` forms.
+    doesn't collide with `regex_execution`'s `Regex(`/`.matchEntire(`/
+    `.toRegex(` forms.
     """
     test_pattern = KOTLIN_RULES["test"]
     regex_pattern = KOTLIN_RULES["regex_execution"]
-    snippet = "myRegex.matches(input)"
+    snippet = "myRegex.matchEntire(input)"
     assert regex_pattern.search(snippet)
     assert not test_pattern.search(snippet), "test incorrectly matched a regex method call"
 

@@ -838,12 +838,12 @@
    "closures": {
     "corpus": "language-crucible v1.9.0",
     "functions": 246,
-    "n_family": 29,
+    "n_family": 69,
     "n_oracle": 67,
     "pinned": true,
-    "precision": 0.966,
-    "recall": 0.418,
-    "status": "misses"
+    "precision": 0.971,
+    "recall": 1.0,
+    "status": "ok"
    },
    "debug_prints": {
     "corpus": "okhttp",
@@ -868,12 +868,12 @@
    "doc": {
     "corpus": "language-crucible v1.9.0",
     "functions": 246,
-    "n_family": 40,
+    "n_family": 30,
     "n_oracle": 30,
     "pinned": true,
-    "precision": 0.75,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "io": {
     "corpus": "okhttp",

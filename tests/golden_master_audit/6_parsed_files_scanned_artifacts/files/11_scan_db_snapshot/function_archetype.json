@@ -35877,19 +35877,19 @@
       },
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": {
         "deserialize@33": "Annotated & Test Methods",
-        "deserialize@45": "Parameter Forwarders",
+        "deserialize@45": "Callbacks & Closures",
         "deserialize@73": "Annotated & Test Methods",
         "serialize@36": "Generic / Templated Code",
-        "serialize@50": "C Struct Operations",
+        "serialize@50": "Encapsulated Accessors",
         "serialize@80": "Annotated & Test Methods",
         "setUp@63": "Annotated & Test Methods"
       },
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": {
         "deserialize@33": "Annotated & Test Methods",
-        "deserialize@45": "Parameter Forwarders",
+        "deserialize@45": "Callbacks & Closures",
         "deserialize@73": "Annotated & Test Methods",
         "serialize@36": "Generic / Templated Code",
-        "serialize@50": "C Struct Operations",
+        "serialize@50": "Encapsulated Accessors",
         "serialize@80": "Annotated & Test Methods",
         "setUp@63": "Annotated & Test Methods"
       },
@@ -35938,8 +35938,8 @@
         "bodyThrowsOnNull@119": "Annotated & Test Methods",
         "bodyWithCallType@69": "Annotated & Test Methods",
         "cancelationWorks@233": "Annotated & Test Methods",
-        "checkedExceptionsAreNotSynchronouslyThrownForBody@321": "Annotated & Test Methods",
-        "checkedExceptionsAreNotSynchronouslyThrownForResponse@347": "Annotated & Test Methods",
+        "checkedExceptionsAreNotSynchronouslyThrownForBody@321": "Callbacks & Closures",
+        "checkedExceptionsAreNotSynchronouslyThrownForResponse@347": "Callbacks & Closures",
         "dispatch@395": "Parameter Forwarders",
         "doesNotUseCallbackExecutor@260": "Annotated & Test Methods",
         "enqueue@291": "Generic / Templated Code",
@@ -35993,7 +35993,7 @@
         "fun@30": "Annotated & Test Methods"
       },
       "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": {
-        "fromApplication@57": "Generic / Templated Code",
+        "fromApplication@57": "Callbacks & Closures",
         "runApplication@33": "Generic / Templated Code",
         "runApplication@45": "Generic / Templated Code",
         "with@77": "Parameter Forwarders"

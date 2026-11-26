@@ -385,9 +385,9 @@
 <rect x="288" y="380" width="40" height="18" fill="#a9d1ff"/>
 <text class="numd" x="308.0" y="393">98</text>
 <text class="sided" x="291" y="388">R</text>
-<rect x="330" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="350.0" y="393">42</text>
-<text class="side" x="333" y="388">R</text>
+<rect x="330" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="350.0" y="393">97</text>
+<text class="side" x="333" y="388">P</text>
 <rect x="372" y="380" width="40" height="18" fill="#4f9be8"/>
 <text class="num" x="392.0" y="393">95</text>
 <text class="side" x="375" y="388">R</text>
@@ -507,9 +507,9 @@
 <rect x="288" y="480" width="40" height="18" fill="#4f9be8"/>
 <text class="num" x="308.0" y="493">91</text>
 <text class="side" x="291" y="488">P</text>
-<rect x="330" y="480" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="350.0" y="493">75</text>
-<text class="side" x="333" y="488">P</text>
+<rect x="330" y="480" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="350.0" y="493">100</text>
+<text class="sided" x="333" y="488">P</text>
 <rect x="372" y="480" width="40" height="18" fill="#a9d1ff"/>
 <text class="numd" x="392.0" y="493">100</text>
 <text class="sided" x="375" y="488">P</text>

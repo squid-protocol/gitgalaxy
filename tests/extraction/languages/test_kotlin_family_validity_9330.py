@@ -117,3 +117,68 @@ def test_doc_belongs_to_the_declaration_directly_below():
 def test_file_header_doc_above_an_import_still_documents():
     src = "/** @param a probe */\n// note\nimport a.b\n\nfun entry(a: Int): Int {\n    return a\n}\n"
     assert _docs(src)["entry"] is True
+
+
+# --- the okhttp-measured cells (hatched: the pinned crucible has under 10 oracle functions for them) -------------------
+
+
+def _rule_fires(rule: str, src: str) -> bool:
+    code = _PRISM.split_streams(src, "kotlin")["code_stream"]
+    return bool(LANGUAGE_DEFINITIONS["kotlin"]["rules"][rule].search(code))
+
+
+_CASES = {
+    # rule: (forms that must count, forms that must not)
+    "panics_and_aborts": (
+        ['throw IOException("x")', 'TODO("later")', 'error("bad")', "exitProcess(1)", "System.exit(2)"],
+        ["return -1", "return null", "log.error(e)", "val error = 1", "fun todoList() = 1"],
+    ),
+    "io": (
+        [
+            "val f = File(path)",
+            "val t = f.readText()",
+            "path.appendText(x)",
+            "val s = Socket(host, 80)",
+            "conn = url.openConnection()",
+            "Files.readAllBytes(p)",
+            "val l = readln()",
+        ],
+        ["import java.io.File", "val c: HttpClient = x", "class Foo(val dao: Dao)", "val hash = FileUtils.hash(p)"],
+    ),
+    "time_date_logic": (
+        [
+            "val t = System.nanoTime()",
+            "Duration.ofSeconds(3)",
+            "val i = Instant.ofEpochMilli(s)",
+            "d.toMillis()",
+            "measureTimeMillis { go() }",
+            "val d = Date()",
+        ],
+        ["val i = Instant.parse(s)", "val update = 1", "val duration = 5", "fun candidate() = 1"],
+    ),
+    "bitwise_ops": (
+        ["val a = flags and FLAG_ACK", "b1 = b1 or 0x80", "x and (y shl 2)", "a.and(b)", "val c = n or tag.toInt()"],
+        ['val s = "a and b"', "fun `RSA issuer and signature`() {}", "val ok = a && b", "val brand = Brand.or"],
+    ),
+    "regex_execution": (
+        [
+            'Regex("a+")',
+            "s.toRegex()",
+            "re.matchEntire(s)",
+            "re.containsMatchIn(s)",
+            "Pattern.compile(p)",
+            "p.matcher(s)",
+        ],
+        ["list.find { it > 1 }", "cookie.matches(url)", "hostname.matches(name)"],
+    ),
+}
+
+
+@pytest.mark.parametrize(("rule", "src"), [(r, s) for r, (pos, _) in _CASES.items() for s in pos])
+def test_okhttp_cell_forms_count(rule, src):
+    assert _rule_fires(rule, src), (rule, src)
+
+
+@pytest.mark.parametrize(("rule", "src"), [(r, s) for r, (_, neg) in _CASES.items() for s in neg])
+def test_okhttp_cell_false_positive_forms_do_not_count(rule, src):
+    assert not _rule_fires(rule, src), (rule, src)

@@ -222,8 +222,15 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:System\.exit|exitProcess|Runtime\.getRuntime\(\)\.(?:exec|halt)|Thread\.stop)\b"
         ),
         # 9. io (I/O & Network Boundaries)
+        # #9330 contract: an operation that moves data, not a mention of an I/O type. The rule fired on every
+        # `File` / `Dao` / `HttpClient` in an import or a type position (okhttp: precision 0.14); it now needs the
+        # constructor or the call.
         "io": re.compile(
-            r"\b(File|InputStream|OutputStream|Retrofit|OkHttpClient|Ktor|HttpClient|RoomDatabase|Dao|SharedPreferences|DataStore|java\.nio)\b"
+            r"\b(?:File|FileInputStream|FileOutputStream|FileReader|FileWriter|RandomAccessFile|Socket|ServerSocket|URL"
+            r"|HttpURLConnection|HttpClient|OkHttpClient)\("
+            r"|\.(?:readText|readBytes|readLines|writeText|writeBytes|appendText|appendBytes|useLines|bufferedReader"
+            r"|bufferedWriter|inputStream|outputStream|listFiles|openConnection|openStream)\("
+            r"|\b(?:Files|Paths)\.[a-z]|\b(?:readLine|readln|readlnOrNull)\("
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Implicit public/internal defaults + Ktor/Spring routes.
@@ -450,11 +457,18 @@ DEFINITION: dict[str, Any] = {
             + r"]*|\.to(?:Int|Long|Short|Byte|Double|Float|String|Boolean|UInt|ULong|UShort|UByte)\(\)"
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
-        "panics_and_aborts": re.compile(r"\b(throw|raise|exitProcess|return|panic)\b"),
+        # #9330: `return` is an error return at most, not an abort (#8868 ruling); `TODO()` / `error()` throw.
+        "panics_and_aborts": re.compile(r"\bthrow\b|\b(?:exitProcess|System\.exit)\(|(?<![.\w])(?:TODO|error)\("),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(delay|Thread\.sleep|yield)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|\b(?:shl|shr|ushr|xor)\b"),
+        # #9330: the infix `a and b` / `a or b` on Int / Long is the common spelling; the right operand must be a
+        # literal, a constant, a paren or a member / call, which keeps English in a string (`"A and b"`) and a
+        # backticked test name apart (strings are not shielded for this family, #2535).
+        "bitwise_ops": re.compile(
+            r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|\b(?:shl|shr|ushr|xor)\b"
+            r"|[\w)\]][ \t]+(?:and|or)[ \t]+(?:[0-9(~-]|[A-Z]|\w{1,40}[.(])"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomic[" + CAPITAL + r"][" + ID_CONTINUE + r"]*)\b", re.I
@@ -510,9 +524,17 @@ DEFINITION: dict[str, Any] = {
         # argument). `\.toRegex\(\)` (the real zero-arg extension
         # function on String) keeps its literal empty parens but still
         # needed the same trailing-\b fix as the rest of this sweep.
-        "regex_execution": re.compile(r"\bRegex\(|\.toRegex\(\)|\.matches\(|\.find\("),
+        # #9330: a bare `.find(` / `.matches(` is a collection or a domain-type call (okhttp: 49 of 111 hits);
+        # the regex members are named.
+        "regex_execution": re.compile(
+            r"\bRegex\(|\.toRegex\(|\.(?:matchEntire|containsMatchIn|matcher)\("
+            r"|\bPattern\.(?:compile|matches|quote)\("
+        ),
         "time_date_logic": re.compile(
-            r"\b(Clock\.System\.now|Instant\.now|System\.currentTimeMillis|Duration\.minutes|LocalDate)\b"
+            r"\b(?:Clock\.System\.now|Instant\.now|System\.currentTimeMillis|System\.nanoTime|Duration\.|LocalDate"
+            r"|LocalDateTime|LocalTime|ZonedDateTime|Instant\.ofEpoch\w{1,12}|measureTime(?:Millis)?|measureNanoTime|DateTimeFormatter"
+            r"|SimpleDateFormat|TimeZone|ZoneId)\b"
+            r"|\.(?:toNanos|toMillis|toSeconds|toMinutes|toDuration)\(|\bDate\("
         ),
         # BUG FIX: `Intent\(`/`HttpClient\(` both end on `(` (non-word),
         # so the shared trailing \b only fired when a word char

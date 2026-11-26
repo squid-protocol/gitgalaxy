@@ -122,6 +122,58 @@ def _stream_kind(node) -> str | None:
     return None
 
 
+_STRING_NODES = frozenset({"string_literal", "raw_string_literal", "concatenated_string"})
+# Socket verbs: a free or global-scope call is a socket call, `signal.connect(...)` / `Object::connect(...)` / `fn.bind(...)` /
+# `std::bind` are not (#9335, the `io` contract: data moves between the program and a system outside its runtime).
+_SOCKET_VERBS = frozenset({"connect", "bind", "accept", "listen", "send", "recv"})
+
+
+def _is_insertion(node) -> bool:
+    """True for a `<<` link of a chain that holds a string literal: a literal cannot be shifted, so the chain is a stream insertion
+    (`LOG(L"x " << n)`, `s << "a" << b`), not the shift `bitwise_ops` counts (#9335)."""
+    if node.type != "binary_expression" or _text(node.child_by_field_name("operator")) != "<<":
+        return False
+    root = node
+    while root.parent is not None and root.parent.type == "binary_expression":
+        up = root.parent
+        if _text(up.child_by_field_name("operator")) != "<<" or up.child_by_field_name("left") != root:
+            break
+        root = up
+    stack = [root]
+    while stack:
+        cur = stack.pop()
+        if cur.type in _STRING_NODES:
+            return True
+        if cur.type == "binary_expression" and _text(cur.child_by_field_name("operator")) == "<<":
+            stack.extend((cur.child_by_field_name("left"), cur.child_by_field_name("right")))
+    return False
+
+
+def _is_cast_address(node) -> bool:
+    """`(WPARAM)&func`: tree-sitter reads a C cast of an address-of as a binary `&` whose left is a parenthesised bare type name."""
+    if node.type != "binary_expression" or _text(node.child_by_field_name("operator")) != "&":
+        return False
+    left = node.child_by_field_name("left")
+    if left is None or left.type != "parenthesized_expression" or left.named_child_count != 1:
+        return False
+    inner = left.named_children[0]
+    return inner.type in ("identifier", "type_identifier", "qualified_identifier") and _text(inner)[:1].isupper()
+
+
+def _io_miscount(node) -> str | None:
+    """The io callee the base reading matched that the contract does not mean: a member call (`.write`, `->open`), a qualified
+    socket verb (`Object::connect`) or `std::bind`; None when the call stays io."""
+    full = "".join(_text(node.child_by_field_name("function")).split())
+    hit = fts._matches(full, _CPP_CALLS["io"])
+    if hit is None:
+        return None
+    if "." in full or "->" in full:
+        return hit
+    if hit in _SOCKET_VERBS and "::" in full.lstrip(":"):
+        return hit
+    return hit if full == "std::bind" else None
+
+
 def _extra_params(fn) -> int:
     """Parameters the base C reading misses: defaulted (`int b = 1`), pack (`Args... a`) and a bare C-style `...`."""
     d = fn.child_by_field_name("declarator")
@@ -159,8 +211,17 @@ class CppOracle(TreeSitterOracle):
                 if ctor in pats:
                     n[key] += 1
                     tokens[key][ctor] += 1
+            if node.type == "call_expression":
+                wrong = _io_miscount(node)
+                if wrong:
+                    n["io"] -= 1
+                    tokens["io"][wrong] -= 1
+                continue
             kind = _stream_kind(node)
             if kind is None:
+                if _is_cast_address(node) or _is_insertion(node):
+                    n["bitwise"] -= 1
+                    tokens["bitwise"][_text(node.child_by_field_name("operator"))] -= 1
                 continue
             op = _text(node.child_by_field_name("operator"))
             n["bitwise"] -= 1  # the base oracle counted this operator as a shift
@@ -171,7 +232,7 @@ class CppOracle(TreeSitterOracle):
             key = "print" if kind == "out" else "io"
             n[key] += 1
             tokens[key]["cout" if kind == "out" else "cin"] += 1
-        for key in [k for k, v in n.items() if v <= 0 and k == "bitwise"]:
+        for key in [k for k, v in n.items() if v <= 0 and k in ("bitwise", "io")]:
             del n[key]
         for key in [k for k, v in tokens.items() if not +v]:
             del tokens[key]

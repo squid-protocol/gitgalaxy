@@ -168,12 +168,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 26,
-    "n_oracle": 112,
+    "n_family": 55,
+    "n_oracle": 57,
     "pinned": true,
-    "precision": 0.5,
-    "recall": 0.116,
-    "status": "both"
+    "precision": 0.909,
+    "recall": 0.877,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -198,7 +198,7 @@
    "decorators": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 4,
+    "n_family": 2,
     "n_oracle": 0,
     "pinned": true,
     "precision": 0.0,
@@ -218,22 +218,22 @@
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 2,
-    "n_oracle": 12,
+    "n_family": 6,
+    "n_oracle": 5,
     "pinned": true,
-    "precision": 0.5,
-    "recall": 0.083,
-    "status": "both"
+    "precision": 0.833,
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 6,
+    "n_family": 0,
     "n_oracle": 0,
     "pinned": true,
-    "precision": 0.0,
+    "precision": null,
     "recall": null,
-    "status": "over-counts"
+    "status": "no-instances"
    },
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
@@ -261,9 +261,9 @@
     "n_family": 1,
     "n_oracle": 1,
     "pinned": true,
-    "precision": 0.0,
-    "recall": 0.0,
-    "status": "both"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
@@ -1646,11 +1646,11 @@
     "status": "ok"
    },
    "regex_execution": {
-    "corpus": "tokio",
-    "functions": 6826,
+    "corpus": "language-crucible v1.9.0",
+    "functions": 1905,
     "n_family": 0,
     "n_oracle": 0,
-    "pinned": false,
+    "pinned": true,
     "precision": null,
     "recall": null,
     "status": "no-instances"

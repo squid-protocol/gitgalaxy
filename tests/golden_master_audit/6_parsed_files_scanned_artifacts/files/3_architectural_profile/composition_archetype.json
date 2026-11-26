@@ -4458,7 +4458,7 @@
       "shell/reactos/remaster.sh": "Large Core Modules (2)"
     },
     "shell/serenity": {
-      "shell/serenity/BuildFuzzers.sh": "Parameter Forwarders Files",
+      "shell/serenity/BuildFuzzers.sh": "Large Core Modules (2)",
       "shell/serenity/ClassiCube__package.sh": "Interface Declarations Files",
       "shell/serenity/FAudio__package.sh": "Large Core Modules",
       "shell/serenity/ObjFW__package.sh": "Declarative / Non-Code",

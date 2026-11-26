@@ -277,6 +277,28 @@ the recall gap has engine-side causes the reference is right about: libuv's `TES
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
 call to a declared function still resolves.
 
+**Miss triage on hiredis + libuv (#9327, libclang 18.1.1).** Recall 53.0% -> 56.1% (resolution recall 55.2% ->
+58.5%), 13,286 -> 12,544 reference edges, confident links unchanged (7,040 -> 7,041 judged, precision and strict
+precision 100.0% / 100.0%). The gain is reference-side: two adapter defects scored one engine link as several misses.
+The engine did not change.
+
+- A def's key is its start line, and a leading `__attribute__((destructor))` under `#if defined(__GNUC__) && !defined(_WIN32)`
+  moved libuv's `uv_library_shutdown` from line 1131 (Linux parse) to 1133 (Windows parse): two def keys, every edge scored
+  twice (465 `confident_other_target`). The adapter now keys a def by its name's own line.
+- A caller in a translation unit that defines the callee externally (`linux.c` calling `uv_get_free_memory`) was also linked to
+  every other platform's copy (132 edges). The unit's own def now wins; a caller with no def of its own still links every variant.
+
+| bucket (missed edges) | before | after | status |
+|---|---|---|---|
+| `ambiguous/tie` | 4,724 | 4,729 | per-platform definitions, kept as `variant` edges by design (#8161) |
+| `confident_other_target` | 836 | 103 | residual: hiredis `hi_malloc` / `hi_free` (`static inline` in `alloc.h` against `alloc.c` under `#if`; both defensible), `uv_barrier_wait` |
+| `caller_unmapped` | 375 | 363 | open: functions a multi-function macro defines (`TEST_FS_IMPL`, `UV_LOOP_WATCHER_DEFINE`, X-macros) |
+| `resolved_outside` | 129 | 129 | open: the callees of the same macro-defined functions (`uv_idle_init`, `uv__run_check`) |
+| `not_extracted/other` | 137 | 137 | open: macro aliases (`uv__stream_fd` -> `uv___stream_fd`) and `RB_GENERATE` tree functions |
+
+The open rows are one class, a def written by macro expansion, which needs expanding a macro's definition into units
+(related to the macro-body work in #6770). Calls through function pointers are in no bucket: the adapter skips them (#9042).
+
 
 ## Call resolution in C++ (#3784)
 

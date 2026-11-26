@@ -515,7 +515,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: panic/os.Exit/log.Fatal)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # #8868: the timer constructors are timed waits too (thread_sleeps: "a sleep, a timed wait, a timeout-driven deferral")
         "thread_sleeps": re.compile(
             r"\b(time\.Sleep|time\.After|time\.AfterFunc|time\.Tick|time\.NewTimer|time\.NewTicker|runtime\.Gosched)\b"

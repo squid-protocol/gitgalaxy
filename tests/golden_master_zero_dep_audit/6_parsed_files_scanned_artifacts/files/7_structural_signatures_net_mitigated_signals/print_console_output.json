@@ -534,7 +534,7 @@
       "c/cpython/dictobject.c": 2,
       "c/cpython/frameobject.c": 0,
       "c/cpython/gc.c": 0,
-      "c/cpython/object.c": 22,
+      "c/cpython/object.c": 16,
       "c/cpython/typeobject.c": 0
     },
     "c/doom": {
@@ -542,15 +542,15 @@
       "c/doom/README.TXT": 0,
       "c/doom/d_main.c": 33,
       "c/doom/doomdef.h": 0,
-      "c/doom/i_system.c": 2,
+      "c/doom/i_system.c": 3,
       "c/doom/m_fixed.c": 0,
       "c/doom/m_fixed.h": 0,
       "c/doom/p_mobj.c": 0,
       "c/doom/p_mobj.h": 0,
       "c/doom/r_bsp.c": 0,
       "c/doom/r_defs.h": 0,
-      "c/doom/w_wad.c": 5,
-      "c/doom/z_zone.c": 11
+      "c/doom/w_wad.c": 2,
+      "c/doom/z_zone.c": 6
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
@@ -572,7 +572,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 287,
+      "c/sqlite/lemon.c": 43,
       "c/sqlite/parse.y": 0
     },
     "cobol": {
@@ -1171,9 +1171,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 3,
-      "cobol/gnucobol_internals/fileio.c": 40,
-      "cobol/gnucobol_internals/numeric.c": 8,
+      "cobol/gnucobol_internals/codegen.c": 2,
+      "cobol/gnucobol_internals/fileio.c": 1,
+      "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 3,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0

@@ -106,3 +106,24 @@ def test_java_outputs_digest_each_compared_dd_of_a_forged_step_only():
     assert got["ACCTFILE"]["sha256"] == hashlib.sha256(b"abc").hexdigest()
     assert ej.java_outputs({}, case, cobol, java) == {}
     assert ej.java_outputs({"forged_job": {}}, case, {}, java) == {}
+
+
+def test_filler_only_difference_is_named_with_its_count_and_still_listed(tmp_path):
+    rpt = _report(b"B" * 600)
+    rpt["steps"][0]["java_out"][ENTRY["dd"]]["filler_differs"] = 25
+    rows = efs.compare_program_outputs(SPEC, rpt, _outputs(tmp_path, DATA), _run({}))
+    row = next(r for r in rows if r["dataset"] == ENTRY["dataset"] and r["case"] == ENTRY["case"])
+    assert row["ported"]["status"] == "equal-outside-filler" and row["ported"]["filler_records"] == 25
+    res = {"rows": [], "datasets": [row]}
+    assert efs.differs(res)[-1].endswith("ported")
+    assert any("FILLER bytes differ in 25 records" in ln for ln in efs.render(res, "x"))
+
+
+def test_java_outputs_marks_filler_only_but_not_a_field_difference():
+    case = {"datasets": {"A": {"compare": True}}}
+    c, j = {"A": b"abc"}, {"A": b"abd"}
+    only = {"A": {"records": 2, "equal": 2, "diffs": [], "filler_differs": 2}}
+    assert ej.java_outputs({"forged_job": {}}, case, c, j, only)["A"]["filler_differs"] == 2
+    field = {"A": {"records": 2, "equal": 1, "diffs": [{"record": 1}], "filler_differs": 1}}
+    assert "filler_differs" not in ej.java_outputs({"forged_job": {}}, case, c, j, field)["A"]
+    assert "filler_differs" not in ej.java_outputs({"forged_job": {}}, case, c, c, only)["A"]

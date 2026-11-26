@@ -364,6 +364,14 @@ def compare_program_outputs(spec: dict, report: dict, outputs: Path | None, run:
         if java is not None and want is not None:
             same = (java["size"], java["sha256"]) == (want["size"], want["sha256"])
             row["ported"] = {"status": "equal" if same else "differs", "got": {k: java[k] for k in ("size", "sha256")}}
+            if not same and java.get("filler_differs"):
+                # every field equal, only FILLER bytes apart (diff_records counts a FILLER apart: IBM's INITIALIZE leaves one
+                # untouched, so the bytes are the runtime's leftover): stated by name with its count, never "equal"
+                row["ported"] = {
+                    **row["ported"],
+                    "status": "equal-outside-filler",
+                    "filler_records": java["filler_differs"],
+                }
         else:
             why = "the chain exported no bytes" if want is None else "the chain's Java run left no bytes"
             row["ported"] = {"status": "differs", "got": None, "issue": f"{f['case']}/{f['dd']}: {why}"}
@@ -663,6 +671,8 @@ def render(res: dict, case_name: str) -> list[str]:
             )
             if p.get("issue"):
                 out.append(f"    differs: {p['issue']}")
+            if p.get("filler_records"):
+                out.append(f"    every field equal; FILLER bytes differ in {p['filler_records']} records (not a field)")
     for mode in ("strict", "skip"):
         n = sum(r["modes"][mode]["status"] == "equal" for r in res["rows"])
         out.append(

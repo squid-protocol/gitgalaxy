@@ -348,7 +348,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": None,
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(?:process\.exit|history\.back|window\.close)\s*\(", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(?:setTimeout|setInterval)\s*\(", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": None,

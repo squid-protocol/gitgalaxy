@@ -90,16 +90,16 @@
 <text class="n" x="630" y="189">n=13,051 calls</text>
 <text class="n" x="630" y="201">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 7,040, recall 53.0% of 13,286; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 7,041, recall 56.1% of 12,544; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
 <rect x="778" y="181" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="189">100.0%</text>
 <text class="pr" x="732" y="200.5">Recall</text>
 <rect class="track" x="778" y="193" width="110" height="8" rx="2"/>
-<rect x="778" y="193" width="58.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="201">53.0%</text>
-<text class="n" x="936" y="189">n=13,286 edges</text>
+<rect x="778" y="193" width="61.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="201">56.1%</text>
+<text class="n" x="936" y="189">n=12,544 edges</text>
 <text class="n" x="936" y="201">vs libclang 18.1.1</text>
 </g>
 <g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
@@ -437,15 +437,15 @@
 <text class="n" x="324" y="495">n=139 imports</text>
 <text class="n" x="324" y="507">repos 1 · files 31</text>
 </g>
-<g><title>haskell callee names: precision 94.5% of 2,532, recall 97.6% of 2,452 (raw 94.5% / 97.6%; 11 shapes without a verdict)</title>
+<g><title>haskell callee names: precision 94.7% of 2,532, recall 97.6% of 2,452</title>
 <text class="pr" x="426" y="494.5">Precision</text>
 <rect class="track" x="472" y="487" width="110" height="8" rx="2"/>
-<rect x="472" y="487" width="104.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="495">94.5%*</text>
+<rect x="472" y="487" width="104.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="495">94.7%</text>
 <text class="pr" x="426" y="506.5">Recall</text>
 <rect class="track" x="472" y="499" width="110" height="8" rx="2"/>
 <rect x="472" y="499" width="107.4" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="507">97.6%*</text>
+<text class="val" x="587" y="507">97.6%</text>
 <text class="n" x="630" y="495">n=2,452 calls</text>
 <text class="n" x="630" y="507">functions 580</text>
 </g>
@@ -835,15 +835,15 @@
 <text class="n" x="324" y="869">n=397 imports</text>
 <text class="n" x="324" y="881">repos 2 · files 269</text>
 </g>
-<g><title>perl callee names: precision 97.1% of 4,708, recall 98.2% of 4,524 (raw 93.9% / 97.7%; 38 shapes without a verdict)</title>
+<g><title>perl callee names: precision 98.3% of 4,708, recall 97.7% of 4,524 (raw 93.9% / 97.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
-<rect x="472" y="861" width="106.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="869">97.1%*</text>
+<rect x="472" y="861" width="108.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="869">98.3%*</text>
 <text class="pr" x="426" y="880.5">Recall</text>
 <rect class="track" x="472" y="873" width="110" height="8" rx="2"/>
-<rect x="472" y="873" width="108.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="881">98.2%*</text>
+<rect x="472" y="873" width="107.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="881">97.7%*</text>
 <text class="n" x="630" y="869">n=4,524 calls</text>
 <text class="n" x="630" y="881">functions 943</text>
 </g>

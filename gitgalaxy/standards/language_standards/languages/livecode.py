@@ -470,7 +470,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\bis\s+(?:not\s+)?a\b|\bis\s+strictly\b", re.I),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort): Hard detonations.
         "panics_and_aborts": re.compile(r"\b(exit\s+to\s+top|quit|throw|abort)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses): Temporal Duct Tape (Blocking wait).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay): Temporal Duct Tape (Blocking wait).
         "thread_sleeps": re.compile(r"\bwait\s+(?:for[ \t]+)?\d+\s+[^ \t\n]+?(?!\s+with\s+messages)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\b(bitAnd|bitOr|bitXor|bitNot|bitShiftLeft|bitShiftRight)\b", re.I),

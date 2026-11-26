@@ -500,7 +500,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: throw/fatalError/abort/exit/preconditionFailure)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|exit|preconditionFailure)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(
             # #8863: a call that blocks or defers; `retryResult.delay` is a property, not a sleep.
             r"\b(?:u|nano)?sleep[ \t]*\(|\.asyncAfter\b|\bTimer\.scheduledTimer\b"

@@ -39,6 +39,7 @@ for the same metrics tracked over time across pushes to main.
 | Csharp | 99.0% | 99.9% | 100.0% | 98.9% |
 | Css | 100.0% | 100.0% | N/A | N/A |
 | Dart | 99.8% | 99.3% | 100.0% | 96.4% |
+| Embedded_Python | 100.0% | 100.0% | 100.0% | 100.0% |
 | Erlang | 100.0% | 100.0% | 0.0% | N/A |
 | Fortran | 100.0% | 100.0% | 100.0% | 93.3% |
 | Fsharp | 74.3% | 97.0% | N/A | 0.0% |
@@ -64,6 +65,7 @@ for the same metrics tracked over time across pushes to main.
 | Scala | 99.0% | 100.0% | 97.9% | 100.0% |
 | Shell | 84.2% | 98.1% | N/A | N/A |
 | Solidity | 100.0% | 95.1% | 100.0% | 100.0% |
+| Sqlite | N/A | N/A | 100.0% | 97.8% |
 | Swift | 96.9% | 96.0% | 100.0% | 100.0% |
 | Tcl | 100.0% | 96.6% | N/A | N/A |
 | Typescript | 99.8% | 100.0% | 100.0% | 100.0% |

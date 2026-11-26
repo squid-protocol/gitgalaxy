@@ -520,6 +520,38 @@
    ]
   },
   {
+   "id": "9166cf8689",
+   "op": "DEL",
+   "line": 168,
+   "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+   "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */",
+   "verdict": "case-gap",
+   "reason": "DEL at line 168: DetCics.loadCommarea of the typed layout bytes. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived: the loaded layout matches the area the input already carried. Open.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "40d296f033",
+   "op": "DEL",
+   "line": 173,
+   "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+   "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */",
+   "verdict": "case-gap",
+   "reason": "DEL at line 173: DetCics.loadCommarea of the typed layout bytes in the calen == 0 && non-byte[] arm. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived. Open: this arm is entered only with a typed COMMAREA object and calen 0.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
    "id": "79dd7fe87b",
    "op": "DEL",
    "line": 173,
@@ -637,6 +669,118 @@
    "reason": "f65_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dc93748f79",
+   "op": "DEL",
+   "line": 178,
+   "before": "DetCics.loadCommarea(s_DFHCOMMAREA, raw);",
+   "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, raw); */",
+   "verdict": "case-gap",
+   "reason": "DEL at line 178: DetCics.loadCommarea(s_DFHCOMMAREA, raw) for task.linkArea() bytes. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived: the compared scenarios pass the COMMAREA as typed fields, not as raw link bytes. Open.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "09bfdc00aa",
+   "op": "CON",
+   "line": 181,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };",
+   "verdict": "case-gap",
+   "reason": "CON at line 181: source offset 0 -> 1 when copying the beyond-area bytes back into the link bytes. Reached only when s_DFHCOMMAREA.beyond != null (a link area longer than 10 bytes). calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived. Open: needs a long link area whose returned tail is read.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "868b2e491d",
+   "op": "AOR",
+   "line": 181,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };",
+   "verdict": "case-gap",
+   "reason": "AOR at line 181: raw.length - keep -> raw.length + keep, the length of the beyond-area copy-back. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived; the larger length would overrun raw and throw only when beyond != null, which none of the 5 inputs reached with a compared result. Open.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "9d35ad2668",
+   "op": "DEL",
+   "line": 181,
+   "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+   "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */",
+   "verdict": "case-gap",
+   "reason": "DEL at line 181: the caBack that copies the typed area back into the caller's link bytes (task.linkArea()). calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived: the compared run does not read the link bytes back after the program returns. Open: the case needs a scenario whose caller inspects the returned link area.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "082d72b8e8",
+   "op": "ROR",
+   "line": 184,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "ROR at line 184 (< -> <=): the body runs when calen == 10 and exactCommarea() holds; the copy of 10 bytes into a 10-byte area changes nothing the program shows. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived; no input of the case made exactCommarea() true with calen 10 and a result that differs. Open until an input states that geometry with a compared difference.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "474139a9b9",
+   "op": "COR",
+   "line": 184,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "COR at line 184 (&& -> ||): it differs from the port only where the area is not exact (task.exactCommarea() false) and calen < 10; the case enters PCDETL as a LINKed program (linked: true), so that is the case's own entry. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: events equal, or 0/0 events (both sides refused a reference past EIBCALEN, X23), so the end state is not compared. Open: a short LINKed COMMAREA whose COBOL run completes without reading past EIBCALEN is not in the case.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
+   ]
+  },
+  {
+   "id": "77c137d144",
+   "op": "DEL",
+   "line": 189,
+   "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+   "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */",
+   "verdict": "case-gap",
+   "reason": "DEL at line 189: the caBack that restores the whole area after the exact-length cut at line 184. calen-len-1/4/10 (commarea_length), calen-hex-9 and calen-hex-0-fill: survived; the cut at 184 is not taken by the case's LINKed entry (exactCommarea() is level-1 only), so no restore is compared. Open: needs a level-1 entry with commarea_length.",
+   "tried": [
+    "calen-hex-0-fill",
+    "calen-hex-9",
+    "calen-len-1",
+    "calen-len-10",
+    "calen-len-4"
    ]
   },
   {

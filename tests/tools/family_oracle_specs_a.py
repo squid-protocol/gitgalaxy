@@ -676,6 +676,12 @@ class OracleA(TreeSitterOracle):
                 out.extend(_text(a).split("(")[0] for a in c.children if a.type in t)
             elif c.type in t:
                 out.append(_text(c).split("(")[0])
+            elif c.type == "parameter_list" and self.spec.lang == "csharp":
+                # #8863: a C# parameter attribute (`[NotNull] ref T x`) is a metadata attribute on the declaration it precedes
+                for prm in c.children:
+                    for al in prm.children:
+                        if al.type == "attribute_list":
+                            out.extend(_text(a).split("(")[0] for a in al.children if a.type in t)
         return out
 
     def _documented(self, fn) -> bool:

@@ -3918,10 +3918,9 @@
       },
       "cpp/godot/editor_node.h": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 1,
         "Interface Declarations": 27,
         "Parameter Forwarders": 3,
-        "State Mutators": 1,
+        "State Mutators": 2,
         "Type Conversions": 1
       },
       "cpp/godot/gdscript_vm.cpp": {
@@ -3938,10 +3937,10 @@
       },
       "cpp/godot/main.h": {},
       "cpp/godot/node.cpp": {
-        "Compute Cores": 79,
+        "Compute Cores": 78,
         "I/O & Config Routines": 26,
         "Interface Declarations": 61,
-        "Many-Argument Workhorses": 17,
+        "Many-Argument Workhorses": 18,
         "Parameter Forwarders": 47,
         "Type Conversions": 6
       },
@@ -3955,8 +3954,8 @@
         "State Mutators": 3
       },
       "cpp/godot/object.cpp": {
-        "Compute Cores": 44,
-        "I/O & Config Routines": 17,
+        "Compute Cores": 43,
+        "I/O & Config Routines": 18,
         "Interface Declarations": 22,
         "Many-Argument Workhorses": 13,
         "Parameter Forwarders": 25,

@@ -737,11 +737,11 @@
     "corpus": "language-crucible v1.9.0",
     "functions": 628,
     "n_family": 180,
-    "n_oracle": 108,
+    "n_oracle": 155,
     "pinned": true,
-    "precision": 0.6,
+    "precision": 0.861,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "io": {
     "corpus": "language-crucible v1.9.0",

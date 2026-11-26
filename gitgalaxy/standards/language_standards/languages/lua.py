@@ -124,7 +124,12 @@ DEFINITION: dict[str, Any] = {
         # io.popen and dofile join (C1b/C1c).
         "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|io\.popen|load|loadstring|loadfile|dofile)\b"),
         # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
-        "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.input|io\.output|io\.popen|os\.getenv)\b"),
+        # #9339: file-handle methods (f:read / f:write / f:lines / f:seek) and io.tmpfile are streams too; io.stdout/io.stderr
+        # handles are the console (print's), so they are skipped.
+        "io": re.compile(
+            r"\b(io\.open|io\.read|io\.lines|io\.input|io\.output|io\.popen|io\.tmpfile|os\.getenv)\b"
+            r"|(?<!io\.stdout)(?<!io\.stderr):(?:read|write|lines|seek)\s*[(\"'{]"
+        ),
         # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
         # BUG FIX #2657: The 'return M' module-export idiom is anchored to column 0 (^return)
         # to avoid false positives on indented function-body returns, which spiked risk_api_exposure.
@@ -278,9 +283,13 @@ DEFINITION: dict[str, Any] = {
         # #2898: `assert` removed -- safety's token (its rule already counts it).
         "panics_and_aborts": re.compile(r"\b(error|os\.exit)\b"),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
-        "thread_sleeps": re.compile(r'\b(task\.wait|os\.execute\s*\(?[\'"]sleep)\b'),
-        # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|&|\||\^|~(?!=)"),
+        # #9339: host-library sleeps (LuaSocket, OpenResty, luaposix) and the boot-loader delay.
+        "thread_sleeps": re.compile(
+            r'\b(task\.wait|loader\.delay|socket\.sleep|ngx\.sleep|posix\.(?:unistd\.)?u?sleep|os\.execute\s*\(?[\'"]sleep)\b'
+        ),
+        # 43. bitwise_ops (Bitwise Operations). #9339: `^` is exponentiation in Lua (xor is binary `~`).
+        # `<<` `>>` `&` `|` need an operand on both sides, so a `"|"` / `">>> "` string or log marker is not counted.
+        "bitwise_ops": re.compile(r"(?:(?<=[\w)\]}])|(?<=[\w)\]}] ))(?:<<|>>|&|\|)(?=\s*[\w(\-~{#\"'])|~(?!=)"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(mutex|lock|semaphore|critical_section|uv\.mutex)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)
@@ -309,7 +318,10 @@ DEFINITION: dict[str, Any] = {
         # access phase, a game engine's account service); no native vocabulary.
         "auth_middleware": None,
         "serialization_parsing": re.compile(r"\b(string\.dump|loadstring|load|cjson\.decode|cjson\.encode)\b"),
-        "regex_execution": re.compile(r"\b(string\.match|string\.gmatch|string\.find|string\.gsub)\b"),
+        # #9339: method-form s:match( / s:gmatch( / s:gsub( count; s:find only with a string-literal pattern (a plain-value find is not a pattern).
+        "regex_execution": re.compile(
+            r"\b(string\.match|string\.gmatch|string\.find|string\.gsub)\b|:(?:match|gmatch|gsub)\s*[(\"']|:find\s*\(\s*[\"']"
+        ),
         "time_date_logic": re.compile(r"\b(os\.time|os\.clock|os\.date|os\.difftime)\b"),
         # #2898: the coroutine.* family removed -- in-process control transfer is
         # concurrency's (its rule already counts `coroutine`); a bridge crosses a

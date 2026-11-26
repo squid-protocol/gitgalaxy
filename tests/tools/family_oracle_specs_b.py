@@ -269,8 +269,8 @@ _LUA_CALLS = {
     ),
     # os.time/date/clock/difftime are the entire standard clock and calendar library.
     "time": ("os.time", "os.date", "os.clock", "os.difftime"),
-    # io.open/lines/read/input/output/popen/tmpfile open streams; os.remove/rename/tmpname touch files; file handles are read/written with
-    # :read/:write/:lines/:seek. `require`/`dofile` are imports (not listed), io.write is the console (print above).
+    # io.open/lines/read/input/output/popen/tmpfile open streams; os.remove/rename are cleanup's and tmpname only returns a name
+    # (#9339); file handles are read/written with :read/:write/:lines/:seek (method calls only). `require`/`dofile` are imports (not listed), io.write is the console (print above).
     "io": (
         "io.open",
         "io.lines",
@@ -279,10 +279,6 @@ _LUA_CALLS = {
         "io.output",
         "io.popen",
         "io.tmpfile",
-        "os.remove",
-        "os.rename",
-        "os.tmpname",
-        "loadfile",
         "*.read",
         "*.write",
         "*.lines",
@@ -799,7 +795,7 @@ class BOracle(TreeSitterOracle):
                 elif lang == "php" and op == "??":
                     add("branch", op)  # value-selection operator: counts per branch_rule_contract.md ("stay dual")
                 if (
-                    op in ("<<", ">>", "^", "&", "|")
+                    (op in ("<<", ">>", "&", "|") or (op == "^" and lang != "lua"))  # Lua `^` is exponentiation (#9339)
                     or (lang == "lua" and op == "~")
                     or (lang == "bash" and op in ("<<=", ">>=", "^=", "&=", "|="))
                 ):
@@ -889,6 +885,12 @@ class BOracle(TreeSitterOracle):
                         continue
                     if lang == "lua" and hit == "*.find":
                         continue
+                    if lang == "lua" and key == "io" and hit in ("*.read", "*.write", "*.lines", "*.seek"):
+                        # #9339: only a file-handle METHOD call (f:read) is a stream operation; pandoc.read / password.read are plain
+                        # functions, and io.stdout:/io.stderr: are the console handles (print's).
+                        fn = node.child_by_field_name("name")
+                        if fn is None or fn.type != "method_index_expression" or recv in ("io.stdout", "io.stderr"):
+                            continue
                     if (
                         lang == "ruby"
                         and key == "io"

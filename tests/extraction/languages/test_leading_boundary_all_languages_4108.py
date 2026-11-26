@@ -14,7 +14,8 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa:
 
 # Recorded as not a functional miss (the guard sees a non-word-first alternative, the rule still fires):
 # dart `!is` (bare `is` catches its tail), ruby `::T::` (the whole prefix group is optional), dart/acs/crystal
-# arguments `(`/`//` in non-boundary positions, agc `#REF:` and objective-c's split-out top-level alternatives.
+# arguments `(`/`//` in non-boundary positions, agc `#REF:` and objective-c's split-out top-level alternatives,
+# ruby debug_prints `$stdout.puts` (a top-level alternative, not behind the `\\b` group; #9331).
 HARMLESS = {
     ("acs", "dead_code"),
     ("agc_assembly", "spec_exposure"),
@@ -23,6 +24,7 @@ HARMLESS = {
     ("dart", "class_start"),
     ("dart", "safety"),
     ("objective-c", "globals"),
+    ("ruby", "debug_prints"),
     ("ruby", "generics"),
 }
 

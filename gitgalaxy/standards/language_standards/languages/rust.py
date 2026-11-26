@@ -637,7 +637,7 @@ DEFINITION: dict[str, Any] = {
         "panics_and_aborts": re.compile(
             r"(?:panic|unreachable|unimplemented)!|\b(?:abort|process::exit|fatalError)\b|(?<![.\w])(?<!fn )exit[ \t]*\("
         ),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # #8868: time::sleep (tokio/async_std) and a bare sleep( after `use std::thread::sleep;`.
         "thread_sleeps": re.compile(
             r"\b(std::thread::sleep|thread::sleep|time::sleep|Duration::from)\b|(?<![.\w])(?<!fn )sleep[ \t]*\("

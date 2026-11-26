@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,746 decoy test only, 973 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,758 decoy test only, 961 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -744,7 +744,7 @@
 <rect x="264" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="276" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>typescript / io: recall 1.00, precision 1.00 (7 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / io: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / io: recall 0.65, precision 0.28 (17 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="356" width="11" height="11" fill="#4f9be8"><title>ruby / io: recall 1.00, precision 0.94 (17 oracle, 18 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="356" width="11" height="11" fill="#4f9be8"><title>rust / io: recall 1.00, precision 0.97 (34 oracle, 35 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="356" width="11" height="11" fill="#4f9be8"><title>c / io: recall 1.00, precision 0.93 (52 oracle, 56 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="356" width="11" height="11" fill="#3b3f4a"><title>java / io: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
@@ -815,7 +815,7 @@
 <rect x="348" y="368" width="11" height="11" fill="#3d6a8c"><title>lua / api: decoy test with &#x27;function x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="360" y="368" width="11" height="11" fill="#3d6a8c"><title>shell / api: decoy test with &#x27;export x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="368" width="11" height="11" fill="#8a6d3b"><title>cpp / api: decoy test with &#x27;export module&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="384" y="368" class="u"/>
+<rect x="384" y="368" width="11" height="11" fill="#566074"><title>jcl / api: decoy test with &#x27;//MYPROC   PROC&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="368" width="11" height="11" fill="#566074"><title>hlasm / api: decoy test with &#x27;a CSECT b&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="368" width="11" height="11" fill="#8a6d3b"><title>cobol / api: decoy test with &#x27;ENTRY&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="368" width="11" height="11" fill="#8a6d3b"><title>abap / api: decoy test with &#x27;REMOTE FUNCTION&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -879,7 +879,7 @@
 <rect x="348" y="380" width="11" height="11" fill="#3d6a8c"><title>lua / state_mutation: decoy test with &#x27;x = !local(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="360" y="380" class="u"/>
 <rect x="372" y="380" width="11" height="11" fill="#3d6a8c"><title>cpp / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<use href="#c" x="384" y="380" class="u"/>
+<rect x="384" y="380" width="11" height="11" fill="#566074"><title>jcl / state_mutation: decoy test with &#x27;//SET1     SET ENV=PROD&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="380" width="11" height="11" fill="#566074"><title>hlasm / state_mutation: decoy test with &#x27;OI&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="380" width="11" height="11" fill="#8a6d3b"><title>cobol / state_mutation: decoy test with &#x27;MOVE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="380" width="11" height="11" fill="#8a6d3b"><title>abap / state_mutation: decoy test with &#x27;MOVE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -911,7 +911,7 @@
 <rect x="852" y="380" width="11" height="11" fill="#3d6a8c"><title>objective-c / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="864" y="380" width="11" height="11" fill="#e5534b"><title>ocaml / state_mutation: decoy test with &#x27;incr&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="380" width="11" height="11" fill="#8a6d3b"><title>perl / state_mutation: decoy test with &#x27;x++&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="888" y="380" class="u"/>
+<rect x="888" y="380" width="11" height="11" fill="#8a6d3b"><title>pli / state_mutation: decoy test with &#x27;; X = 1;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="380" width="11" height="11" fill="#3d6a8c"><title>postgresql / state_mutation: decoy test with &#x27;INSERT INTO&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="912" y="380" width="11" height="11" fill="#8a6d3b"><title>powershell / state_mutation: decoy test with &#x27;Set-Variable&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="380" width="11" height="11" fill="#8a6d3b"><title>r / state_mutation: decoy test with &#x27;assign()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1268,7 +1268,7 @@
 <rect x="348" y="476" width="11" height="11" fill="#8a6d3b"><title>lua / globals: decoy test with &#x27;_G&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="476" width="11" height="11" fill="#3d6a8c"><title>shell / globals: decoy test with &#x27;PATH=&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="476" width="11" height="11" fill="#3d6a8c"><title>cpp / globals: decoy test with &#x27;extern&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<use href="#c" x="384" y="476" class="u"/>
+<rect x="384" y="476" width="11" height="11" fill="#566074"><title>jcl / globals: decoy test with &#x27;//JOBLIB   DD DSN=MY.LOADLIB,DISP=SHR&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="476" width="11" height="11" fill="#566074"><title>hlasm / globals: decoy test with &#x27;a DC b&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="476" width="11" height="11" fill="#8a6d3b"><title>cobol / globals: decoy test with &#x27;COMMON&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="476" width="11" height="11" fill="#8a6d3b"><title>abap / globals: decoy test with &#x27;TABLES&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1334,7 +1334,7 @@
 <use href="#c" x="348" y="488" class="u"/>
 <rect x="372" y="488" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>cpp / decorators: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="396" y="488" width="11" height="11" fill="#566074"><title>hlasm / decorators: decoy test with &#x27;AMODE&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
-<use href="#c" x="408" y="488" class="u"/>
+<rect x="408" y="488" width="11" height="11" fill="#3d6a8c"><title>cobol / decorators: decoy test with &#x27;&gt;&gt;IF DEBUG-MODE = 1&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="420" y="488" width="11" height="11" fill="#8a6d3b"><title>abap / decorators: decoy test with &#x27;@deprecated&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="444" y="488" width="11" height="11" fill="#8a6d3b"><title>ada / decorators: decoy test with &#x27;pragma SPARK_Mode&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="468" y="488" width="11" height="11" fill="#8a6d3b"><title>apex / decorators: decoy test with &#x27;@deprecated&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1378,7 +1378,7 @@
 <rect x="336" y="500" width="11" height="11" fill="#8a6d3b"><title>java / generics: decoy test with &#x27;Vec&lt;T&gt;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="348" y="500" class="u"/>
 <rect x="372" y="500" width="11" height="11" fill="#8a6d3b"><title>cpp / generics: decoy test with &#x27;concept&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="408" y="500" class="u"/>
+<rect x="408" y="500" width="11" height="11" fill="#8a6d3b"><title>cobol / generics: decoy test with &#x27;CLASS-ID. MY-LIST USING T.&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="500" width="11" height="11" fill="#8a6d3b"><title>abap / generics: decoy test with &#x27;TYPE ANY&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="444" y="500" width="11" height="11" fill="#8a6d3b"><title>ada / generics: decoy test with &#x27;generic&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="468" y="500" width="11" height="11" fill="#8a6d3b"><title>apex / generics: decoy test with &#x27;List&lt;int&gt;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1471,7 +1471,7 @@
 <rect x="360" y="524" width="11" height="11" fill="#8a6d3b"><title>shell / scientific: decoy test with &#x27;bc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="524" width="11" height="11" fill="#8a6d3b"><title>cpp / scientific: decoy test with &#x27;__m128&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="524" width="11" height="11" fill="#566074"><title>hlasm / scientific: decoy test with &#x27;SQEB&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
-<use href="#c" x="408" y="524" class="u"/>
+<rect x="408" y="524" width="11" height="11" fill="#8a6d3b"><title>cobol / scientific: decoy test with &#x27;COMPUTE X = FUNCTION SQRT(Y).&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="524" width="11" height="11" fill="#8a6d3b"><title>abap / scientific: decoy test with &#x27;ABS&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="432" y="524" width="11" height="11" fill="#8a6d3b"><title>acs / scientific: decoy test with &#x27;Sin()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="444" y="524" width="11" height="11" fill="#8a6d3b"><title>ada / scientific: decoy test with &#x27;Ada.Numerics&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1589,7 +1589,7 @@
 <use href="#c" x="348" y="548" class="u"/>
 <rect x="360" y="548" width="11" height="11" fill="#3d6a8c"><title>shell / import: decoy test with &#x27;source x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="372" y="548" class="u"/>
-<use href="#c" x="384" y="548" class="u"/>
+<rect x="384" y="548" width="11" height="11" fill="#566074"><title>jcl / import: decoy test with &#x27;//INC1     INCLUDE MEMBER=MYMEM&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="548" width="11" height="11" fill="#566074"><title>hlasm / import: decoy test with &#x27;a COPY b&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="548" width="11" height="11" fill="#3d6a8c"><title>cobol / import: decoy test with &#x27;COPY&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="420" y="548" width="11" height="11" fill="#3d6a8c"><title>abap / import: decoy test with &#x27;INCLUDE x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -1921,7 +1921,7 @@
 <rect x="360" y="632" width="11" height="11" fill="#8a6d3b"><title>shell / ssr_boundaries: decoy test with &#x27;CONTENT_TYPE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="632" width="11" height="11" fill="#8a6d3b"><title>cpp / ssr_boundaries: decoy test with &#x27;FCGI_Accept&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="396" y="632" class="u"/>
-<use href="#c" x="408" y="632" class="u"/>
+<rect x="408" y="632" width="11" height="11" fill="#8a6d3b"><title>cobol / ssr_boundaries: decoy test with &#x27;EXEC CICS WEB SEND END-EXEC.&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="632" width="11" height="11" fill="#8a6d3b"><title>abap / ssr_boundaries: decoy test with &#x27;CL_BSP_CONTEXT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="468" y="632" width="11" height="11" fill="#8a6d3b"><title>apex / ssr_boundaries: decoy test with &#x27;RestRequest&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="540" y="632" width="11" height="11" fill="#8a6d3b"><title>crystal / ssr_boundaries: decoy test with &#x27;Kemal&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1937,7 +1937,7 @@
 <rect x="804" y="632" width="11" height="11" fill="#8a6d3b"><title>matlab / ssr_boundaries: decoy test with &#x27;webwindow&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="632" width="11" height="11" fill="#8a6d3b"><title>objective-c / ssr_boundaries: decoy test with &#x27;WOComponent&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="632" width="11" height="11" fill="#8a6d3b"><title>perl / ssr_boundaries: decoy test with &#x27;Dancer2&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="888" y="632" class="u"/>
+<rect x="888" y="632" width="11" height="11" fill="#8a6d3b"><title>pli / ssr_boundaries: decoy test with &#x27;EXEC CICS WEB SEND;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="912" y="632" width="11" height="11" fill="#8a6d3b"><title>powershell / ssr_boundaries: decoy test with &#x27;New-PodeServer&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="632" width="11" height="11" fill="#8a6d3b"><title>r / ssr_boundaries: decoy test with &#x27;shinyApp()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="1044" y="632" width="11" height="11" fill="#8a6d3b"><title>zig / ssr_boundaries: decoy test with &#x27;zap.Endpoint&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2051,7 +2051,7 @@
 <rect x="360" y="668" width="11" height="11" fill="#3d6a8c"><title>shell / macros: decoy test with &#x27;alias&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="668" width="11" height="11" fill="#3d6a8c"><title>cpp / macros: decoy test with &#x27;#define&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="396" y="668" width="11" height="11" fill="#566074"><title>hlasm / macros: decoy test with &#x27;MACRO&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
-<use href="#c" x="408" y="668" class="u"/>
+<rect x="408" y="668" width="11" height="11" fill="#8a6d3b"><title>cobol / macros: decoy test with &#x27;&gt;&gt;DEFINE DEBUG-MODE AS 1&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="420" y="668" class="u"/>
 <rect x="432" y="668" width="11" height="11" fill="#3d6a8c"><title>acs / macros: decoy test with &#x27;#define&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="444" y="668" class="u"/>
@@ -2077,7 +2077,7 @@
 <rect x="852" y="668" width="11" height="11" fill="#3d6a8c"><title>objective-c / macros: decoy test with &#x27;#define&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="864" y="668" class="u"/>
 <rect x="876" y="668" width="11" height="11" fill="#8a6d3b"><title>perl / macros: decoy test with &#x27;Filter::Simple&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="888" y="668" class="u"/>
+<rect x="888" y="668" width="11" height="11" fill="#8a6d3b"><title>pli / macros: decoy test with &#x27;%DCL X FIXED;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="668" width="11" height="11" fill="#8a6d3b"><title>r / macros: decoy test with &#x27;enquo()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="960" y="668" width="11" height="11" fill="#3d6a8c"><title>scheme / macros: decoy test with &#x27;define-syntax&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="984" y="668" width="11" height="11" fill="#8a6d3b"><title>sqlite / macros: decoy test with &#x27;PRAGMA compile_options&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2258,7 +2258,7 @@
 <rect x="264" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / debug_prints: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="740" width="11" height="11" fill="#4f9be8"><title>typescript / debug_prints: recall 0.94, precision 0.94 (17 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="740" width="11" height="11" fill="#a9d1ff"><title>javascript / debug_prints: recall 1.00, precision 1.00 (33 oracle, 33 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="740" width="11" height="11" fill="#1f3b5c"><title>ruby / debug_prints: recall 1.00, precision 0.76 (16 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="740" width="11" height="11" fill="#a9d1ff"><title>ruby / debug_prints: recall 1.00, precision 1.00 (16 oracle, 16 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="740" width="11" height="11" fill="#a9d1ff"><title>rust / debug_prints: recall 1.00, precision 0.98 (54 oracle, 55 family functions; tokio (not pinned))</title></rect>
 <rect x="312" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="740" width="11" height="11" fill="#4f9be8"><title>c / debug_prints: recall 0.95, precision 1.00 (43 oracle, 41 family functions; language-crucible v1.9.0)</title></rect>
@@ -2972,7 +2972,7 @@
 <rect x="264" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="276" y="908" width="11" height="11" fill="#2f6aa8"><title>typescript / regex_execution: recall 0.97, precision 0.82 (34 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="908" width="11" height="11" fill="#2f6aa8"><title>javascript / regex_execution: recall 0.94, precision 0.81 (36 oracle, 42 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="908" width="11" height="11" fill="#1f3b5c"><title>ruby / regex_execution: recall 0.67, precision 0.94 (24 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="908" width="11" height="11" fill="#4f9be8"><title>ruby / regex_execution: recall 1.00, precision 0.96 (24 oracle, 25 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="908" width="11" height="11" fill="#3b3f4a"><title>rust / regex_execution: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="312" y="908" width="11" height="11" fill="url(#dots)"/>
 <rect x="324" y="908" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>c / regex_execution: recall 1.00, precision 1.00 (1 oracle, 1 family functions; redis (not pinned))</title></rect>
@@ -3024,7 +3024,7 @@
 <rect x="264" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="276" y="920" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>typescript / time_date_logic: recall 1.00, precision 1.00 (6 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="920" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / time_date_logic: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / time_date_logic: recall 0.20, precision 1.00 (10 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="920" width="11" height="11" fill="#a9d1ff"><title>ruby / time_date_logic: recall 1.00, precision 1.00 (10 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="920" width="11" height="11" fill="#4f9be8"><title>rust / time_date_logic: recall 1.00, precision 0.93 (13 oracle, 14 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="920" width="11" height="11" fill="#1f3b5c"><title>c / time_date_logic: recall 0.52, precision 0.65 (65 oracle, 52 family functions; redis (not pinned))</title></rect>
 <rect x="324" y="920" width="11" height="11" fill="url(#hatch)"/>

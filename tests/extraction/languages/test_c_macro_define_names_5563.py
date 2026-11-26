@@ -173,3 +173,64 @@ def test_worker_init_installs_and_resets_the_table():
     finally:
         det._C_REPO_MACRO_ARGS = saved
         root_logger.setLevel(level)
+
+
+def test_same_file_local_macro_calls_override_repo_collision():
+    shared = "#define LOG(x) log_fn(x)\n"
+    file_a = "#define INIT(x) do { helper_a(x); } while (0)\nvoid run_a(int n) {\n    INIT(n);\n}\n"
+    file_b = "#define INIT(x) do { helper_b(x); } while (0)\nvoid run_b(int n) {\n    INIT(n);\n}\n"
+    saved = det._C_REPO_MACRO_CALLS
+    try:
+        # Cross-file collision clears INIT in the repo-wide table, yet each file's own `#define` still expands.
+        det.set_c_repo_macro_calls(det.c_repo_macro_body_calls([shared, file_a, file_b]))
+        assert det._C_REPO_MACRO_CALLS.get("INIT", frozenset()) == frozenset()
+        ext = det.StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
+        calls_a = {f["name"]: f["calls_out_to"] for f in ext.splice(file_a, "")["functions"]}
+        calls_b = {f["name"]: f["calls_out_to"] for f in ext.splice(file_b, "")["functions"]}
+        assert "helper_a" in calls_a["run_a"]
+        assert "helper_b" in calls_b["run_b"]
+    finally:
+        det._C_REPO_MACRO_CALLS = saved
+
+
+def test_c_macro_body_functions_wrapper():
+    header = (
+        "#define TEST_FS_IMPL(name) \\\n"
+        "  int run_test_##name(void); \\\n"
+        "  int run_test_##name##_iouring(void) { \\\n"
+        "    uv_loop_configure(uv_default_loop(), 1); \\\n"
+        "    return run_test_##name(); \\\n"
+        "  } \\\n"
+        "  int run_test_##name(void)\n"
+    )
+    wrapper_src = "TEST_FS_IMPL(fs_stat) {\n    return uv_fs_stat();\n}\n"
+
+    saved_args = det._C_REPO_MACRO_ARGS
+    saved_bf = det._C_REPO_MACRO_BODY_FUNCS
+    saved_st = det._C_REPO_MACRO_SIG_TEMPLATES
+    try:
+        det.set_c_repo_macro_args(det.c_repo_macro_name_args([header]))
+        bf, st = det.c_repo_macro_body_functions([header])
+        det.set_c_repo_macro_body_funcs(bf, st)
+        ext = det.StructuralExtractor(lang_id="c", language_definitions=LANGUAGE_DEFINITIONS)
+
+        w_funcs = {f["name"]: f["calls_out_to"] for f in ext.splice(wrapper_src, "")["functions"]}
+        assert "fs_stat" in w_funcs and "uv_fs_stat" in w_funcs["fs_stat"]
+        assert "run_test_fs_stat_iouring" in w_funcs
+        assert {"uv_loop_configure", "uv_default_loop"} <= set(w_funcs["run_test_fs_stat_iouring"])
+    finally:
+        det._C_REPO_MACRO_ARGS = saved_args
+        det._C_REPO_MACRO_BODY_FUNCS = saved_bf
+        det._C_REPO_MACRO_SIG_TEMPLATES = saved_st
+
+
+def test_local_macro_override_skips_conditional_compilation_variants():
+    # `#ifdef DEBUG #define CHECK(..) if (..) { I_Error(..); } #else #define CHECK(..) #endif`: the compiled variant is
+    # unknown, so the file-local override must not claim the statement variant's callee (prboom-plus/dsda-doom p_pspr.c).
+    cond = (
+        "#ifdef DEBUG\n#define CHECK(a, b) \\\n  if (!a) { I_Error(b); return; }\n#else\n#define CHECK(a, b)\n#endif\n"
+        'void run(int p) {\n    CHECK(p, "x");\n}\n'
+    )
+    assert det.c_local_stmt_macro_body_calls(cond) == {}
+    plain = "#define CHECK(a, b) \\\n  if (!a) { I_Error(b); return; }\n"
+    assert det.c_local_stmt_macro_body_calls(plain)["CHECK"][0] == frozenset({"I_Error"})

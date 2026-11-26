@@ -11706,11 +11706,11 @@
     "ruby/homebrew_ruby": {
       "Average Risk Exposures": {
         "API Exposure": "0.53%",
-        "Cognitive Load Exposure": "11.94%",
+        "Cognitive Load Exposure": "12.75%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "7.28%",
-        "Documentation Exposure": "23.08%",
-        "Error & Exception Exposure": "30.94%",
+        "Documentation Exposure": "28.72%",
+        "Error & Exception Exposure": "31.12%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "46.15%",
         "Specification Exposure": "0.0%",
@@ -11747,11 +11747,11 @@
     "ruby/rails": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "27.76%",
+        "Cognitive Load Exposure": "36.85%",
         "Commented Logic Exposure": "6.49%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "52.26%",
-        "Error & Exception Exposure": "47.85%",
+        "Documentation Exposure": "39.52%",
+        "Error & Exception Exposure": "48.01%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "43.75%",
         "Specification Exposure": "0.0%",
@@ -11813,7 +11813,7 @@
         "Cognitive Load Exposure": "14.67%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "66.99%",
+        "Documentation Exposure": "88.06%",
         "Error & Exception Exposure": "36.1%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
@@ -12453,11 +12453,11 @@
     "shell/brew": {
       "Average Risk Exposures": {
         "API Exposure": "4.57%",
-        "Cognitive Load Exposure": "28.99%",
+        "Cognitive Load Exposure": "35.03%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
-        "Documentation Exposure": "34.91%",
-        "Error & Exception Exposure": "34.45%",
+        "Documentation Exposure": "75.51%",
+        "Error & Exception Exposure": "34.75%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "44.44%",
         "Specification Exposure": "0.0%",

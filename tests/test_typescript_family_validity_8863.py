@@ -64,7 +64,13 @@ NEGATIVE = {
         "const x = a >= b;",
         "function named(a: number) {",
     ],
-    "decorators": ["const k = `__@${id}@`;", "a = b ? c : d;", "// @ts-ignore", "email.send('a@b.c')"],
+    "decorators": [
+        "const k = `__@${id}@`;",
+        "n = `__@${a.name}@${getId(a)}`;",
+        "a = b ? c : d;",
+        "// @ts-ignore",
+        "email.send('a@b.c')",
+    ],
     "thread_sleeps": ["get delay(): number {", "set delay(v: number) {", "const d = this.delayMs;", "run(delay);"],
     "bitwise_ops": [
         "let x: Identifier | undefined;",
@@ -113,3 +119,13 @@ def test_oracle_reads_a_doc_above_an_exported_function():
 def test_oracle_counts_a_parameter_decorator():
     src = "class C { constructor(@Inject(T) private t: number) {} }\n"
     assert _count(src, "constructor", "decorators") == 1
+
+
+def test_oracle_reads_a_doc_on_the_property_or_a_parameter():
+    prop = "const o = {\n  /** Joins. */\n  join: (a: string) => a,\n};\n"
+    assert _count(prop, "join", "doc") == 1
+    field = "class C {\n  /** Runs. */\n  run = (a: number) => a;\n}\n"
+    assert _count(field, "run", "doc") == 1
+    params = "class C {\n  constructor(\n    /** The name. */\n    public name: string,\n  ) {}\n}\n"
+    assert _count(params, "constructor", "doc") == 1
+    assert _count("class C {\n  constructor(public name: string) {}\n}\n", "constructor", "doc") == 0

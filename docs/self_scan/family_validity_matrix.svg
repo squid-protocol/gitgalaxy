@@ -998,7 +998,7 @@
 <rect x="228" y="404" width="11" height="11" fill="#1f3b5c"><title>kotlin / doc: recall 1.00, precision 0.75 (30 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="404" width="11" height="11" fill="#a9d1ff"><title>php / doc: recall 1.00, precision 1.00 (1621 oracle, 1623 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="404" width="11" height="11" fill="#4f9be8"><title>scala / doc: recall 1.00, precision 0.90 (141 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="264" y="404" width="11" height="11" fill="#1f3b5c"><title>typescript / doc: recall 1.00, precision 0.76 (557 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="404" width="11" height="11" fill="#2f6aa8"><title>typescript / doc: recall 0.99, precision 0.89 (661 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="404" width="11" height="11" fill="#2f6aa8"><title>java / doc: recall 1.00, precision 0.89 (115 oracle, 129 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="404" width="11" height="11" fill="#1f3b5c"><title>javascript / doc: recall 1.00, precision 0.60 (108 oracle, 180 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="404" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / doc: recall 0.07, precision 0.02 (61 oracle, 221 family functions; language-crucible v1.9.0)</title></rect>
@@ -1324,7 +1324,7 @@
 <rect x="240" y="488" width="11" height="11" fill="url(#hatch)"/>
 <rect x="252" y="488" width="11" height="11" fill="#4f9be8"><title>scala / decorators: recall 0.97, precision 0.99 (2415 oracle, 2365 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="488" width="11" height="11" fill="url(#hatch)"/>
-<rect x="264" y="488" width="11" height="11" fill="#1f3b5c" opacity="0.5"><title>typescript / decorators: recall 0.50, precision 0.50 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="264" y="488" width="11" height="11" fill="#1f3b5c" opacity="0.5"><title>typescript / decorators: recall 0.50, precision 1.00 (2 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="488" width="11" height="11" fill="#4f9be8"><title>java / decorators: recall 0.96, precision 0.98 (474 oracle, 464 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="488" width="11" height="11" fill="#3b3f4a"><title>javascript / decorators: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="288" y="488" width="11" height="11" fill="url(#dots)"/>

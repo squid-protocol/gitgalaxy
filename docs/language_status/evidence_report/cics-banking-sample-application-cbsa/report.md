@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `2930a93b27b48dd43499fa3cfc581852cd52fb12` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7390aab211e2da340f756df2eb26c8b941885453` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `b906c7036e1b`).
 
@@ -110,7 +110,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | src/base/cobol_src/CRDTAGY1.cbl | L4 | 44/44 | 0 | cbsa-crdtagy1 | equal | 16 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 35% | raw 35% (345/983 caught; 1015 of 1015 mutants, seed 0); 61 of 638 survivors unaccounted | 4/9 |
 | src/base/cobol_src/CRDTAGY2.cbl | L4 | 44/44 | 0 | cbsa-crdtagy2 | equal | 11 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | 34% | raw 34% (334/983 caught; 1015 of 1015 mutants, seed 0); 138 of 649 survivors unaccounted | 4/9 |
 | src/base/cobol_src/CRDTAGY3.cbl | L4 | 44/44 | 0 | cbsa-crdtagy3 | equal | 11 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | 34% | raw 34% (334/983 caught; 1015 of 1015 mutants, seed 0); 351 of 649 survivors unaccounted | 4/9 |
-| src/base/cobol_src/CRDTAGY4.cbl | L4 | 44/44 | 0 | cbsa-crdtagy4 | equal | 13 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 35% | raw 35% (343/983 caught; 1015 of 1015 mutants, seed 0); 292 of 640 survivors unaccounted | 4/9 |
+| src/base/cobol_src/CRDTAGY4.cbl | L4 | 44/44 | 0 | cbsa-crdtagy4 | equal | 13 | none | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 35% | raw 35% (344/983 caught; 1015 of 1015 mutants, seed 0); 189 of 639 survivors unaccounted | 4/9 |
 | src/base/cobol_src/CRDTAGY5.cbl | L4 | 44/44 | 0 | cbsa-crdtagy5 | equal | 11 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | 45% | raw 45% (65/146 caught; 150 of 1015 mutants, seed 0); 2 of 81 survivors unaccounted | 4/9 |
 | src/base/cobol_src/CREACC.cbl | L4 | 292/292 | 0 | cbsa-creacc | equal | 24 | none | 34/34 (100.0%) | 35/38 (92.1%) | 35/35 (100.0%) | — | not measured (no det_mutation/ entry) | 4/8 |
 | src/base/cobol_src/CRECUST.cbl | L4 | 321/321 | 0 | cbsa-crecust | equal | 24 | none | 37/37 (100.0%) | 57/70 (81.4%) | 57/57 (100.0%) | — | not measured (no det_mutation/ entry) | 4/16 |
@@ -848,7 +848,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 ### src/base/cobol_src/CRDTAGY4.cbl -- L4
 
 - **Executed equivalent** on the 13 scenarios of cbsa-crdtagy4 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 35% (343/983 caught; 1015 of 1015 mutants, seed 0); 292 of 640 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 35% (344/983 caught; 1015 of 1015 mutants, seed 0); 189 of 639 survivors unaccounted)
 - **Translation:** 44/44 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -880,7 +880,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X42 (ASSUMED (REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
-- **Det-port mutation:** raw 35% (343/983 caught; 1015 of 1015 mutants, seed 0); 292 of 640 survivors unaccounted
+- **Det-port mutation:** raw 35% (344/983 caught; 1015 of 1015 mutants, seed 0); 189 of 639 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X42, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach (where not stated above) and the migration dimensions above: not measured
 
 ### src/base/cobol_src/CRDTAGY5.cbl -- L4
@@ -1420,18 +1420,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `2930a93b27b48dd43499fa3cfc581852cd52fb12`
+- translator commit (the survey's): `7390aab211e2da340f756df2eb26c8b941885453`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.19.0`, estate `v0.9.0`, language `v1.9.0`; cics crucible baseline measured at `v0.19.0 (d0e7ebe9)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:719a6c463e3847806b2c961c345a30f24e44ab6bcff70b50b73b48c1799f7296`
+- oracle images the evidence records ran on: `sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86`, `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 2930a93b27b48dd43499fa3cfc581852cd52fb12
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 2930a93b27b48dd43499fa3cfc581852cd52fb12
+python tests/tools/cics_census.py survey --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-count,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-beyond,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (41) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated

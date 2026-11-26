@@ -3097,7 +3097,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "2930a93b27b48dd43499fa3cfc581852cd52fb12",
+   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
    "translator": {
     "files": 189,
     "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
@@ -6391,7 +6391,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:719a6c463e3847806b2c961c345a30f24e44ab6bcff70b50b73b48c1799f7296",
+       "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -6442,7 +6442,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:719a6c463e3847806b2c961c345a30f24e44ab6bcff70b50b73b48c1799f7296",
+      "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -6984,7 +6984,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:719a6c463e3847806b2c961c345a30f24e44ab6bcff70b50b73b48c1799f7296",
+       "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -26135,8 +26135,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 2930a93b27b48dd43499fa3cfc581852cd52fb12",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 2930a93b27b48dd43499fa3cfc581852cd52fb12",
+   "python tests/tools/cics_census.py survey --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readacct carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -26154,7 +26154,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:719a6c463e3847806b2c961c345a30f24e44ab6bcff70b50b73b48c1799f7296",
+   "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -26162,13 +26162,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "2930a93b27b48dd43499fa3cfc581852cd52fb12",
+   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
    "translator": {
     "files": 189,
     "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
    }
   },
-  "translator_commit": "2930a93b27b48dd43499fa3cfc581852cd52fb12",
+  "translator_commit": "7390aab211e2da340f756df2eb26c8b941885453",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

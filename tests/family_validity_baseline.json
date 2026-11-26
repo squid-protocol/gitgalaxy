@@ -686,12 +686,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 628,
-    "n_family": 16,
+    "n_family": 73,
     "n_oracle": 71,
     "pinned": true,
-    "precision": 0.5,
-    "recall": 0.113,
-    "status": "both"
+    "precision": 0.945,
+    "recall": 0.972,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",

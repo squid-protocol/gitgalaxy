@@ -2504,7 +2504,7 @@
 <rect x="264" y="788" width="11" height="11" fill="url(#hatch)"/>
 <rect x="276" y="788" width="11" height="11" fill="#4f9be8"><title>typescript / bitwise_ops: recall 0.91, precision 0.94 (1287 oracle, 1255 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>java / bitwise_ops: recall 0.00, precision - (10 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>javascript / bitwise_ops: recall 0.11, precision 0.50 (71 oracle, 16 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="788" width="11" height="11" fill="#4f9be8"><title>javascript / bitwise_ops: recall 0.97, precision 0.94 (71 oracle, 73 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / bitwise_ops: recall 0.23, precision 0.04 (113 oracle, 602 family functions; brew (not pinned))</title></rect>
 <rect x="312" y="788" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="788" width="11" height="11" fill="#4f9be8"><title>rust / bitwise_ops: recall 0.96, precision 0.98 (47 oracle, 46 family functions; language-crucible v1.9.0)</title></rect>

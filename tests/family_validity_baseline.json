@@ -1579,11 +1579,11 @@
     "corpus": "language-crucible v1.9.0",
     "functions": 1905,
     "n_family": 702,
-    "n_oracle": 530,
+    "n_oracle": 694,
     "pinned": true,
-    "precision": 0.755,
+    "precision": 0.989,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "closures": {
     "corpus": "language-crucible v1.9.0",

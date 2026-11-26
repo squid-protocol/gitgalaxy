@@ -591,11 +591,11 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(ObjectMapper|readValue|readTree|fromJson|ObjectInputStream|DocumentBuilder|SAXParser)\b"
         ),
-        # #8863: `Pattern.compile` / `Pattern.matches` and a `.matches(` called on a variable or call result (`str.matches(re)`,
-        # `matcher.matches()`). A `.matches(` on a constant or type member (`ClassNameFilter.MISSING.matches(...)`) is a
+        # #8863: `Pattern.compile` / `Pattern.matches` and a `.matches(` called on a variable, call result, string literal or a chained line (`str.matches(re)`,
+        # `matcher.matches()`, `"a".matches(re)`, `  .matches(re)`). A `.matches(` on a constant or type member (`ClassNameFilter.MISSING.matches(...)`) is a
         # predicate, not a regex site; `Pattern.quote` only escapes text, and `Matcher.find` never named a matcher variable.
         "regex_execution": re.compile(
-            r"\bPattern\.(?:compile|matches)\b|(?:\b[a-z][" + ID_CONTINUE + r"]*|\))\.matches\("
+            r"\bPattern\.(?:compile|matches)\b|(?:\b[a-z][" + ID_CONTINUE + r"]*|[)\"]|(?m:^)[ \t]*)\.matches\("
         ),
         "time_date_logic": re.compile(
             # #8863: a static clock / duration / formatter member, `new Date(` / `new SimpleDateFormat(`, and the tick counters, not a bare

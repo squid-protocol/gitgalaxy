@@ -2961,7 +2961,7 @@
 <rect x="192" y="908" width="11" height="11" fill="#4f9be8"><title>python / regex_execution: recall 0.94, precision 1.00 (51 oracle, 48 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="908" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / regex_execution: recall 0.39, precision 1.00 (18 oracle, 7 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="908" width="11" height="11" fill="url(#hatch)"/>
-<rect x="216" y="908" width="11" height="11" fill="#1f3b5c"><title>go / regex_execution: recall 0.89, precision 0.56 (26 oracle, 41 family functions; prometheus (not pinned))</title></rect>
+<rect x="216" y="908" width="11" height="11" fill="#4f9be8"><title>go / regex_execution: recall 0.93, precision 1.00 (44 oracle, 41 family functions; prometheus (not pinned))</title></rect>
 <rect x="216" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="228" y="908" width="11" height="11" fill="#1f3b5c"><title>kotlin / regex_execution: recall 0.98, precision 0.55 (62 oracle, 111 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="908" width="11" height="11" fill="url(#hatch)"/>

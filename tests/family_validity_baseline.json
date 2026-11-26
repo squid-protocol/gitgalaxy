@@ -503,11 +503,11 @@
     "corpus": "prometheus",
     "functions": 7935,
     "n_family": 41,
-    "n_oracle": 26,
+    "n_oracle": 44,
     "pinned": false,
-    "precision": 0.561,
-    "recall": 0.885,
-    "status": "over-counts"
+    "precision": 1.0,
+    "recall": 0.932,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",

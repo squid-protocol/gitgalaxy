@@ -282,7 +282,14 @@ DEFINITION: dict[str, Any] = {
             r"\b(dom\.|Laminar|Tyrian|HtmlElement|Document|Node|SGML|HyperLink|scala\.xml|Elem|XML|WorldWideWeb|BrowserView)\b"
         ),
         # 17. closures: Closures / Anonymous Functions. Anonymous function fat-arrows and underscores.
-        "closures": re.compile(r"=>|(?<=\()\s*_\s*(?=[\),])|(?<=\W)_\s*(?=\W)"),
+        # #9332: one match per LINE that holds an anonymous-function arrow. Not counted: a `case ... =>` match arm (a line that
+        # starts with `case`; `{ case x =>` after a call is a pattern-matching function literal and still counts), the arrow
+        # of a function TYPE in a `def` header or a `name: A => B` parameter line, and `_` outside an argument slot.
+        "closures": re.compile(
+            r"(?m:^(?![ \t]*case\b)(?![ \t]*(?:(?:override|private|protected|final|implicit)[ \t]+)*(?:def\b[^=\n]*|type\b[^\n]*)=>)"
+            r"(?![ \t]*\w+[ \t]*:[^=\n]*=>)[^\n]*?=>)"
+            r"|(?m:^(?![ \t]*case\b)[^\n]*?(?<![\w.])_(?=\.\w|[ \t]+[-+*/%<>][ \t]|[ \t]*[,)]))"
+        ),
         # 18. globals: Global / Shared State. Singletons (objects) and JVM environment bindings.
         "globals": re.compile(
             r"\b(object\s+["
@@ -439,7 +446,15 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|delay|setTimeout|setInterval)\s*\("),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),
+        # #9332: operator position between value operands on one line. Not counted: `|` as a pattern alternative (a `case`
+        # line before its `if` guard, a trailing `|` continuing one), a `stripMargin` bar at a line start, `a|b` inside text,
+        # `~` as a binary parser combinator. A non-short-circuit `|` in a guard (`case x if a == 1 | b == 2 =>`) counts.
+        "bitwise_ops": re.compile(
+            r"[\w)\]][ \t]*(?:(?<!&)&(?!&)|\^|<<|>>>?)[ \t]*[\w(~]"
+            r"|(?m:^(?![ \t]*case\b)[^\n]*?[\w)\]][ \t]+(?<!\|)\|(?!\|)[ \t]+[\w(~])"
+            r"|(?m:^[ \t]*case\b[^\n]*?\bif\b[^\n]*?[\w)\]][ \t]+(?<!\|)\|(?!\|)[ \t]+[\w(~])"
+            r"|(?<![\w)\]])(?<![\w)\]][ \t])~[ \t]*[\w(]"
+        ),
         # 44. sync_locks (Resource Management & Stability) Coordinated threading.
         "sync_locks": re.compile(r"\b(synchronized|volatile|Semaphore|Mutex|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints) Immutability.

@@ -4139,15 +4139,15 @@
       "scala/SOURCES.md": 0.0
     },
     "scala/cobrix_scala": {
-      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 0.437,
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": -0.454,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 0.011,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0.915,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0.967,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": -0.189,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": -0.1,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0.086,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": -0.77,
       "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": -0.072,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0.348,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0.38,
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 1.666,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": -0.342,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": -0.489
@@ -4165,13 +4165,13 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": 0.0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 0.985,
-      "scala/kafka/KafkaApis.scala": -0.161,
+      "scala/kafka/Kafka.scala": 0.903,
+      "scala/kafka/KafkaApis.scala": -0.285,
       "scala/kafka/KafkaRaftManager.scala": 0.843,
-      "scala/kafka/LogManager.scala": 0.309,
-      "scala/kafka/Partition.scala": 1.119,
-      "scala/kafka/ReplicaManager.scala": 0.408,
-      "scala/kafka/SocketServer.scala": 0.976
+      "scala/kafka/LogManager.scala": 0.207,
+      "scala/kafka/Partition.scala": 0.2,
+      "scala/kafka/ReplicaManager.scala": 0.142,
+      "scala/kafka/SocketServer.scala": 0.852
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0

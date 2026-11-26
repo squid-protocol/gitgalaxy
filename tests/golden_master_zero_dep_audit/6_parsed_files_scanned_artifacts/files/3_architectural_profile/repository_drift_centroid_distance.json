@@ -4139,21 +4139,21 @@
       "scala/SOURCES.md": 0.0
     },
     "scala/cobrix_scala": {
-      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 7.539,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 12.588,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 18.439,
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 6.943,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 12.188,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 16.816,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6.773,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 5.752,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 6.564,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 7.141,
-      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 7.504,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 9.09,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 9.128,
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 7.428,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 8.793,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 8.233,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": 8.11,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": 3.716
     },
     "scala/gradle_scala": {
-      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": 7.091,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": 5.976,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": 5.392,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": 5.416,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": 6.255,
@@ -4165,13 +4165,13 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": 3.469
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 8.031,
-      "scala/kafka/KafkaApis.scala": 10.697,
-      "scala/kafka/KafkaRaftManager.scala": 7.217,
-      "scala/kafka/LogManager.scala": 8.301,
-      "scala/kafka/Partition.scala": 8.83,
-      "scala/kafka/ReplicaManager.scala": 9.795,
-      "scala/kafka/SocketServer.scala": 7.824
+      "scala/kafka/Kafka.scala": 6.658,
+      "scala/kafka/KafkaApis.scala": 10.411,
+      "scala/kafka/KafkaRaftManager.scala": 7.101,
+      "scala/kafka/LogManager.scala": 7.954,
+      "scala/kafka/Partition.scala": 8.462,
+      "scala/kafka/ReplicaManager.scala": 9.093,
+      "scala/kafka/SocketServer.scala": 7.405
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0

@@ -583,7 +583,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|System\.exit|GradleException)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(Thread\.sleep|sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # EXCLUDES `<<` and `>>` because Groovy heavily overloads `<<` for list/stream appending.

@@ -511,7 +511,7 @@ DEFINITION: dict[str, Any] = {
         # (`date("Y-m-d")`).
         # #8863: also the gm / mk / micro / hr clock functions, the calendar checks and the interval / timezone / period classes.
         "time_date_logic": re.compile(
-            r"\b(?:strtotime|DateTime(?:Immutable|Zone|Interval)?|DatePeriod|date_create(?:_immutable)?|date_(?:diff|add|sub|parse|format))\b(?![ \t]*[$&.])"
+            r"\b(?:strtotime|DateTime(?:Immutable|Zone)?|DateInterval|DatePeriod|date_create(?:_immutable)?|date_(?:diff|add|sub|parse|format))\b(?![ \t]*[$&.])"
             r"|(?<![>:$\w])(?:time|date|gmdate|mktime|gmmktime|microtime|hrtime|idate|getdate|localtime|checkdate|strftime|gmstrftime"
             r"|date_default_timezone_(?:get|set))\s*\("
         ),

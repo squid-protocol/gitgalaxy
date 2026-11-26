@@ -70,7 +70,7 @@ Per-language readings that differ from the shared sentence:
 | Ruby | `\|\|=` and `&&=` count under `short_circuit`; `rescue` / `ensure` are handlers, not branches (corollary 1) | aligned |
 | Kotlin, Swift | conjunction and disjunction nodes count under `short_circuit` | aligned |
 | Scala | a `case` clause under a `catch` is a handler, not a decision (corollary 1) | aligned |
-| C++ | `std::cout <<` / `std::cerr <<` / `clog <<` chains count as one `debug_prints` (and no `bitwise_ops`); `cin >>` as one `io`; a `<<` chain holding a string literal is a stream insertion, never `bitwise_ops`; `(Type)&x` (tree-sitter reads it as a binary `&`) is a cast, not `bitwise_ops`; member `.` / `->` calls, qualified socket verbs and `std::bind` are not `io` (#9335); `catch` is a handler, not a branch (corollary 1); no `closures` oracle | aligned |
+| C++ | `std::cout <<` / `std::cerr <<` / `clog <<` chains count as one `debug_prints` (and no `bitwise_ops`); `cin >>` as one `io`; a `<<` chain holding a string literal is a stream insertion, never `bitwise_ops`; `(Type)&x` (tree-sitter reads it as a binary `&`) is a cast, not `bitwise_ops`; member `.` / `->` calls, qualified socket verbs and `std::bind` are not `io` (#9335); an attribute on a local declaration (`[[maybe_unused]] auto x = ...;`) is a `decorators` hit, the contract's declaration the attribute precedes, while a standalone `[[fallthrough]];` statement is not (#9335); `catch` is a handler, not a branch (corollary 1); no `closures` oracle | aligned |
 | shell | `&&` / `\|\|` list chaining counts under `short_circuit` | aligned |
 
 The non-Python `branch` cells in `tests/family_validity_baseline.json` were measured before this realignment and there is no
@@ -82,9 +82,5 @@ Ruled 2026-11-24 (#8862, closed): `assert` is not an abort; `doc` is the structu
 
 1. Does `comprehensions` include generator expressions? The oracle counts them until ruled (the contract's "inline iteration form" may cover them; `lazy_evaluation` excludes them, which is a different family).
 2. Is `??` (and `??=`) a `short_circuit` operator in C# and PHP? Until ruled it counts under `branch`.
-Also pending, C++ `decorators` (#9335): is `[[maybe_unused]]` on a local variable declaration inside a function an attribute "on the function"? The
-  contract says an attribute attaches to the declaration it precedes, so the rule counts it; the oracle reads only attributes on the
-  function itself. Two functions on the pinned crucible; the cell stays red on the oracle side until ruled.
-
 Answered, no longer open: the `llm_api` absence entries (a rule only for python, javascript and typescript; every other
 language is a stated absence, #9275, `### llm_api stated absences` in `docs/unplanted_family_contracts.md`).

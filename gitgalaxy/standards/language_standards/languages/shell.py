@@ -620,7 +620,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # #9338: a process exit only -- `return N` is an error return, `kill` signals another process (high_risk_execution's).
         "panics_and_aborts": re.compile(_CMDPOS + r"exit" + _ENDW, re.M),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|read\s+-t)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # #9338: shift, and, or, xor, complement in arithmetic only -- `$(( ))`, `(( ))` and `let`; not `&&`, `||`, a pipe, a heredoc or `&`.

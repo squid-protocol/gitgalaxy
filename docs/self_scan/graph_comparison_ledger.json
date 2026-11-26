@@ -6556,6 +6556,38 @@
       "symbol_type": "import",
       "verdict": "Fast/Slow.groovy import java.lang.annotation.Target and EmbeddedSpecRunner explicitly imports org.junit.platform.engine.Filter (an explicit import beats the org.spockframework.util.* wildcard), so no edge to the project's Target.java/Filter.java exists. The engine edge is false."
     },
+    "haskell/call/apply/apply+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs",
+          "name": "escapeText -> replace",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 347
+          }
+        }
+      ],
+      "metric": "apply/apply+generic",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy missed it. Read pandoc_writers Muse.hs `escapeText`: `T.replace \"</verbatim>\" \"...\" s <> ...` is a real application of the qualified `T.replace`, with its arguments on the same line, inside an infix chain. Engine defect: a qualified call at the head of an infix operand missed."
+    },
     "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -6664,13 +6696,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 4,
@@ -6709,10 +6743,10 @@
         }
       ],
       "metric": "apply/qualified",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. Read both live examples in pandoc_writers ChunkedHTML.hs (`secInfoToContext`, `tocTreeToContext`): `Context $ M.fromList` followed by the list on the next line is a real application of the qualified `M.fromList`, applied through `$` after a line break. The engine's haskell capture drops the qualified function whose arguments start on the next line. Engine defect: qualified application with its arguments on the following line missed."
     },
     "haskell/call/apply/variable/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -6782,13 +6816,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 8,
@@ -6835,22 +6871,24 @@
         }
       ],
       "metric": "infix/-+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. Read the live examples in xmonad_core Core.hs and Main.hs: `let msg = unlines $` (line-final `$`), `putStr . unlines $`, `forever $ prehandle =<< ...` and `for Directories{..}` are real applications of `unlines`, `forever` and `for`, each with its argument on the next line or after `$`. The engine finds a call head only when the arguments follow on the same line. Engine defect: function applied through a line-final `$` (or to a record) missed."
     },
     "haskell/call/infix/-/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -6865,10 +6903,10 @@
         }
       ],
       "metric": "infix/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. Read the live examples (aeson bench BufferBuilder.hs `unsafeValueUtf8Builder $`, pandoc Shared.hs `drop (start - 1) $ cycle $`, ChunkedHTML.hs `... . runPure $`, Jira.hs `imageWithParams $`, Org.hs `T.replace \"\\160\" \" \" $`): each is a real function applied through a line-final `$`, with the argument on the next line. Same engine defect as the infix/-+generic shape: a head directly before a line-final `$` is dropped."
     },
     "haskell/call/inner-named-bind/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -6879,8 +6917,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T16:24:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -6903,10 +6941,10 @@
         }
       ],
       "metric": "inner-named-bind",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `extensionEnabled` and `walk` in Shared.hs `inlineListToIdentifier` sit inside the `where`-bound `unEmojify` guard clauses, so by C8 they belong to `unEmojify`, not the outer function; tree-sitter attributes them to the inner binding. GitGalaxy's outer-owner claim was wrong. No credit. Same engine gap as the validated haskell inner-named-function shape: `where`/`let` bindings are not separate owners."
     },
     "haskell/call/inner-named-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -6979,8 +7017,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T16:24:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 3,
@@ -7011,10 +7049,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<alternative",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 15 live examples (pandoc App.hs and Shared.hs, writers Jira/Muse/Org/Ipynb, xmonad Core/Main/Operations): every one is a constructor PATTERN in a case alternative (`Right (output, reports) -> ...`, `Just ('~', username) -> ...`, `Left (_ :: C.SomeException) -> ...`, `ZipOutput bs | guard`), never an application. C3 says a pattern is not a call. The harness already excludes constructor patterns from tree-sitter's side. No credit. Engine defect: a constructor pattern in a case alternative is reported as a callee."
     },
     "haskell/call/not-a-call-in-ts:apply<apply/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7025,8 +7063,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7041,10 +7079,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<apply",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 10 live examples (aeson tests PropUtils.hs, writers ChunkedHTML/DocBook/DokuWiki/Org, xmonad Main/Operations): constructor patterns in function clause heads, as-patterns and alternatives (`addMedia il@(Image _ _ (src,_))`, `blockToDocBook opts (Div (id',...) ...)`, `OrderedList (1,_,_) items ->`) and the argument values of a call on a continued line (`grabModeAsync grabModeSync none none`). None is an application of that name (C3: a pattern is not a call; C1: a value argument is not a call). No credit. Engine defect: clause-head and alternative patterns, and value arguments on a continuation line, reported as callees."
     },
     "haskell/call/not-a-call-in-ts:apply<boolean/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7055,8 +7093,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7079,10 +7117,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<boolean",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `| T.null pref = t` in Shared.hs `trimMath`/`stripBeginSpace` names `pref`, a variable bound in the enclosing equation and passed as `T.null`'s argument. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:apply<infix/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7093,8 +7131,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 4,
@@ -7133,10 +7171,40 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<infix",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the live example (Shared.hs `compactifyDL -> Para`): `((Para x:xs) : zs) | not (any isPara xs) ->` is a constructor pattern inside a list-cons pattern in a case alternative, not an application (C3). The five earlier examples (`formatCode -> go`, `stringify -> go`/`fixInlines`, `compactifyDL`) were read too: `go` and `fixInlines` are function values composed with `.` or passed as arguments (`concatMap go . groupBy ...`, `query go . walk fixInlines`), which is a reference (C1), not a call. No credit. Engine defect: constructor pattern reported as a callee; composed or passed function values reported as callees."
+    },
+    "haskell/call/not-a-call-in-ts:apply<list/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs",
+          "name": "pandocToNotebook -> Str",
+          "readings": {
+            "gitgalaxy": 74,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<list",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read pandoc_writers Ipynb.hs `pandocToNotebook`: `(Just (MetaInlines [Str \"4\"]), Just (MetaInlines [Str y])) ->` is a case-alternative pattern; `Str` is a constructor pattern inside a list pattern (C3). No credit."
     },
     "haskell/call/not-a-call-in-ts:apply<match/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7147,8 +7215,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 5,
@@ -7195,10 +7263,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<match",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `walk unEmoji`, `handleTaskListItem toMd`, `all isPlainItem`, `walk go` pass a function as an argument; `unEmoji`, `toMd`, `isPlainItem` and `go` are references (C1), and the call is to `walk`, `handleTaskListItem` and `all`. No credit. Engine defect: a function value passed as an argument is reported as a callee."
     },
     "haskell/call/not-a-call-in-ts:apply<parens/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7209,8 +7277,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7233,10 +7301,40 @@
         }
       ],
       "metric": "not-a-call-in-ts:apply<parens",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 6 live examples (aeson tests PropUtils.hs, writers Ipynb and LaTeX_Table): `(ISuccess v) -> ...`, `isUntaggedValueETI (String s)`, `Just (MetaMap m) -> ...`, `(RowSpan 1) -> x`, `(ColSpan 1) -> x` are constructor patterns in a clause head or case alternative, not applications (C3). The earlier examples (`blockToInlines -> ils`, `combine -> xs`) are pattern-bound variables. No credit. Engine defect: parenthesised constructor patterns reported as callees."
+    },
+    "haskell/call/not-a-call-in-ts:apply<signature/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/aeson_core/examples_src_Generic.hs",
+          "name": "main -> Coord",
+          "readings": {
+            "gitgalaxy": 31,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<signature",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read aeson examples Generic.hs `main`: `... :: Maybe Coord` names `Coord` in an inline type annotation. A type is not a call. No credit. Engine defect: a type in a `::` annotation reported as a callee."
     },
     "haskell/call/not-a-call-in-ts:as<parens/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7247,8 +7345,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7263,10 +7361,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:as<parens",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `fixInlines (q@Quoted{}) = deQuote q` in Shared.hs `stringify` names `q`, an as-pattern variable. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:as<patterns/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7277,8 +7375,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7293,10 +7391,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:as<patterns",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `go r@(p:rs) \"..\" = case p of` in Shared.hs `collapseFilePath` names `r`, an as-pattern variable. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:bind<do/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7307,8 +7405,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 4,
@@ -7347,10 +7445,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:bind<do",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 8 live examples (writers ChunkedHTML, xmonad Core/Main/Operations): `epochtime <- floor <$> getPOSIXTime`, `cs <- prep <$> ...`, `ws <- io $ scan dpy rootw`, `sc <- gets ...`, `pointerMode <- asks ...`, `isMouseFocused <- asks mouseFocused`, `more <- checkMaskEvent ...` name the variable on the left of the do-bind arrow, which is a binding. The one real action in the sample, `c <- ask`, is a bare nullary action read, not an application; tree-sitter does not call it either. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit. Engine defect: a do-bind target is reported as a callee."
     },
     "haskell/call/not-a-call-in-ts:bind<local_binds/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7361,8 +7459,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 6,
@@ -7409,10 +7507,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:bind<local_binds",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `let readerOptsMeta = ...`, `let missingPath = fail $ ...`, `let divattr = (ident, ...)` and `left = case viewl contents of` name the let/where-bound variable on the left of `=`. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:function<local_binds/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7423,8 +7521,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 3,
@@ -7455,10 +7553,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:function<local_binds",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `let isHeadingAttr (\"epub:type\",_) = False` and `getLevel (Header level _ _) = Min level` in Shared.hs `makeSectionsWithOffsets` are DEFINITIONS of local functions (the clause head), not applications. No credit. Engine gap: the local function being defined is reported as a callee of its enclosing unit."
     },
     "haskell/call/not-a-call-in-ts:infix<infix/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7469,8 +7567,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T16:24:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7485,10 +7583,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:infix<infix",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `trimMath = triml . T.reverse . stripBeginSpace . T.reverse` in Shared.hs: `stripBeginSpace` is an operand of the `.` composition, a function value (C1: reference). No credit."
     },
     "haskell/call/not-a-call-in-ts:infix<parens/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7499,8 +7597,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 8,
@@ -7547,10 +7645,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:infix<parens",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `filter (not . T.null)`, `T.dropWhile (not . isAlpha)` name `not` as a composition operand (reference, C1); `go (x:xs) = (x :) <$> go xs`, `emojisToAliases _ (a:_) = a` and `tabStop - ...` name a pattern-bound variable or formal. No call is named. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:patterns<function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7561,8 +7659,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7577,10 +7675,40 @@
         }
       ],
       "metric": "not-a-call-in-ts:patterns<function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 5 live examples (aeson tests PropUtils.hs, pandoc Shared.hs and LaTeX_Table.hs, xmonad Operations.hs): `roundTripNoEnc eq i =`, `splitTextByIndices ns = splitTextByRelIndices (zipWith (-) ns ...)`, `let inMultiRow x = case rowspan of`, `restart prog resume = do` name a formal parameter of the equation (`i`, `ns`, `x`, `resume`). a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit. Engine defect: a formal parameter is reported as a callee."
+    },
+    "haskell/call/not-a-call-in-ts:patterns<lambda/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Core.hs",
+          "name": "whenX -> b",
+          "readings": {
+            "gitgalaxy": 870,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:patterns<lambda",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read xmonad Core.hs `whenX a f = a >>= \\b -> when b f`: `b` is the formal parameter of the lambda, not a callee. A name bound by a pattern or formal is not a callee. No credit."
     },
     "haskell/call/not-a-call-in-ts:qualified<apply/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7591,8 +7719,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T16:24:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7607,10 +7735,40 @@
         }
       ],
       "metric": "not-a-call-in-ts:qualified<apply",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Read all 19 live examples (aeson Decoding.hs, pandoc Shared.hs, writers Jira/Muse, xmonad Main/Operations): `A.ISuccess x` and `W.RationalRect rx ry rw rh` and `C.SomeException _` are qualified constructor patterns in case alternatives or clause heads (C3); `map T.singleton [...]`, `map T.length`, `styled Jira.Strong xs`, `toRow Jira.HeaderCell hd`, `foldr W.delete winset` pass a qualified function or constructor as a value (C1). None is an application of that name. No credit. Engine defect: qualified constructor patterns and qualified function values passed as arguments reported as callees."
+    },
+    "haskell/call/not-a-call-in-ts:qualified<field_update/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Main.hs",
+          "name": "launch -> empty",
+          "readings": {
+            "gitgalaxy": 211,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:qualified<field_update",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read xmonad Main.hs `launch`: `, mapped = S.empty` sets a record field to the value `S.empty`, an unapplied constant (C1: a reference is not an invocation). No credit."
     },
     "haskell/call/not-a-call-in-ts:qualified<match/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7621,8 +7779,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7637,10 +7795,142 @@
         }
       ],
       "metric": "not-a-call-in-ts:qualified<match",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the live example: Shared.hs `extractSpaces`, `(Space :< _) -> B.space`: `B.space` is the `Inlines` value (a constant), returned unapplied; it is not a call. No credit."
+    },
+    "haskell/call/not-a-call-in-ts:qualified<record/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Operations.hs",
+          "name": "setLayout -> Screen",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Operations.hs",
+          "name": "setLayout -> StackSet",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:qualified<record",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read xmonad Operations.hs `setLayout`: `ss@W.StackSet{ W.current = c@W.Screen{ W.workspace = ws }} <- gets windowset` binds through qualified record PATTERNS on the left of a do-bind arrow. C3: a pattern is not a call. No credit. Engine defect: a qualified record pattern reported as a callee."
+    },
+    "haskell/call/not-a-call-in-ts:record<match/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs",
+          "name": "writeChunkedHTML -> Chunk",
+          "readings": {
+            "gitgalaxy": 62,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs",
+          "name": "writeOrg -> WriterState",
+          "readings": {
+            "gitgalaxy": 52,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Core.hs",
+          "name": "xmEnvDirs -> Directories",
+          "readings": {
+            "gitgalaxy": 533,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Main.hs",
+          "name": "launch -> XConf",
+          "readings": {
+            "gitgalaxy": 194,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Main.hs",
+          "name": "launch -> XState",
+          "readings": {
+            "gitgalaxy": 208,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:record<match",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy right. Read the live examples (pandoc_writers ChunkedHTML.hs `Chunk { chunkHeading = ... }`, Org.hs `WriterState { stNotes = [], ...}`, xmonad Core.hs `Directories{ dataDir = ... }`): each is a record CONSTRUCTION expression on the right of a `let`, i.e. a constructor application. C3: a constructor is a call. Tree-sitter parses the record body as a `record` node, not an application. Credit gitgalaxy."
+    },
+    "haskell/call/not-a-call-in-ts:record<parens/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-11-26T01:23:19Z",
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
+      "language": "haskell",
+      "last_reconciled_at": "2026-11-26T01:23:19Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/xmonad_core/src_XMonad_Main.hs",
+          "name": "handle -> KeyEvent",
+          "readings": {
+            "gitgalaxy": 287,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:record<parens",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": "GitGalaxy wrong. Read xmonad Main.hs `handle (KeyEvent {ev_event_type = t, ...})`: a record PATTERN in a function clause head (C3: a pattern is not a call). No credit. Engine defect: a record pattern in a clause head reported as a callee."
     },
     "haskell/call/not-a-call-in-ts:tuple<alternative/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7651,8 +7941,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7675,10 +7965,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<alternative",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `(y, _, _) | y >= 1601 ... -> Just day` in Shared.hs binds `y` in a tuple pattern of a case alternative. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:tuple<apply/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7689,8 +7979,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7713,10 +8003,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<apply",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the live example: Shared.hs `go (Header level (ident,classes,kvs) title':xs) = do` binds `kvs` in a tuple pattern of a clause head. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:tuple<as/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7727,8 +8017,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7743,10 +8033,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<as",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `go (Div divattr@(dident,dclasses,_) ...)` binds `dident` in a tuple pattern under an as-pattern. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:tuple<bind/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7757,8 +8047,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7781,10 +8071,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<bind",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the live example: Shared.hs `let (sectionContents, rest) = break (headerLtEq level) xs` binds `rest` in a tuple pattern of a let. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:tuple<infix/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7795,8 +8085,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 2,
@@ -7819,10 +8109,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<infix",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `((t,ds):ys) ->` and `(d,x):_` bind `t`, `d` in tuple patterns inside cons patterns. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:tuple<patterns/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7833,8 +8123,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 8,
@@ -7881,22 +8171,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple<patterns",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `\\(fp, mt, bs) ->` and `foldr (\\(k,v) kvs -> ...)` bind `fp`, `k` in tuple patterns of a lambda. a name bound by a pattern, a let/where binding or a do-bind arrow, or a function formal, is not a callee. Haskell application is juxtaposition, so the engine cannot tell `f x` from a bound `x` lexically. No credit."
     },
     "haskell/call/not-a-call-in-ts:view_pattern<parens/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25",
+      "investigated_by": "claude (churn worker, #9329)",
       "language": "haskell",
       "last_reconciled_at": "2026-11-11T12:07:23Z",
       "last_seen_count": 1,
@@ -7911,10 +8203,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:view_pattern<parens",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "At HEAD (fresh call_graph_accuracy run on the pinned language-crucible) this shape does not reproduce at all; the recorded examples were read against the source: `(checkPathSeperator -> Just True) -> \"..\":r` in Shared.hs `collapseFilePath` is a view pattern: the matcher applies `checkPathSeperator` to the scrutinee, so the call is real (as it is for `Right (trim -> path)` in xmonad). Tree-sitter models the view function as a plain variable inside the pattern, not an application. GitGalaxy was right."
     },
     "haskell/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [

@@ -1714,13 +1714,13 @@
         "Stateful Encapsulated Methods": 10
       },
       "c/cpython/dictobject.c": {
-        "Compute Cores": 21,
+        "Compute Cores": 20,
         "Defensive Guards": 17,
         "Encapsulated Accessors": 52,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 50,
+        "Many-Argument Workhorses": 52,
         "Parameter Forwarders": 35,
-        "Stateful Encapsulated Methods": 106
+        "Stateful Encapsulated Methods": 105
       },
       "c/cpython/frameobject.c": {
         "Compute Cores": 4,
@@ -1744,26 +1744,26 @@
         "Type Conversions": 3
       },
       "c/cpython/object.c": {
-        "Compute Cores": 35,
+        "Compute Cores": 34,
         "Defensive Guards": 9,
-        "Encapsulated Accessors": 14,
+        "Encapsulated Accessors": 13,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
-        "Many-Argument Workhorses": 14,
+        "Many-Argument Workhorses": 15,
         "Parameter Forwarders": 58,
-        "Stateful Encapsulated Methods": 13,
+        "Stateful Encapsulated Methods": 14,
         "Type Conversions": 2
       },
       "c/cpython/typeobject.c": {
         "C Struct Operations": 2,
-        "Compute Cores": 26,
+        "Compute Cores": 25,
         "Defensive Guards": 10,
         "Encapsulated Accessors": 53,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 51,
         "Parameter Forwarders": 40,
-        "Stateful Encapsulated Methods": 229,
+        "Stateful Encapsulated Methods": 230,
         "Type Conversions": 4
       }
     },
@@ -1882,11 +1882,11 @@
       "c/sqlite/README.md": {},
       "c/sqlite/lemon.c": {
         "C Struct Operations": 7,
-        "Compute Cores": 54,
+        "Compute Cores": 52,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 10,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 17,
+        "Many-Argument Workhorses": 19,
         "Parameter Forwarders": 14,
         "Stateful Encapsulated Methods": 14,
         "Type Conversions": 4

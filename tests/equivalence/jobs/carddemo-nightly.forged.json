@@ -35,6 +35,9 @@
   "unmodelled": {
     "CREASTMT": ["DELDEF01", "STEP030"]
   },
+  "final_outputs": [
+    {"case": "combtran-step10-idcams", "dd": "TRANVSAM", "job": "COMBTRAN", "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"}
+  ],
   "steps": [
     {"case": "carddemo-posttran", "job": "POSTTRAN", "jcl_steps": ["STEP15"]},
     {"case": "carddemo-intcalc", "job": "INTCALC", "jcl_steps": ["STEP15"]},

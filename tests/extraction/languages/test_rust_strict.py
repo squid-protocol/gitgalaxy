@@ -417,6 +417,9 @@ def test_rust_branch_deep_cases():
     assert not branch.search("let r#if = true;")
     assert not branch.search("'loop: {")  # The 'loop itself shouldn't trigger branch
     assert not branch.search("T: ?Sized")
+    # #8868: `?` is a conditional early return, a branch; a `?` in a string or a `?Sized` bound is not
+    assert branch.search("let v = read(path)?;")
+    assert not branch.search("fn f<T: ?Sized>(x: &T) {}")
 
 
 def test_rust_args_deep_cases():

@@ -35,6 +35,23 @@ def code_page_pair_refusal(opts: dict[str, str | None], key: str) -> str | None:
     return None
 
 
+def code_page_read_refusal(opts: dict[str, str | None], key: str, kind: str) -> str | None:
+    """#8059 (X38): the same identity assumption for WEB READ / WEB STARTBROWSE of FORMFIELD and QUERYPARM. FORMFIELD takes
+    the pair of `code_page_pair_refusal`; QUERYPARM (IBM lists HOSTCODEPAGE only) takes HOSTCODEPAGE('037') as a literal.
+    Anything else is refused by name. None when neither option is given or the operands are the identity ones."""
+    if kind == "FORMFIELD":
+        return code_page_pair_refusal(opts, key)
+    if "HOSTCODEPAGE" not in opts:
+        return None
+    given = (opts.get("HOSTCODEPAGE") or "").strip()
+    if given[:1] in "'\"" and given[-1:] == given[:1] and given[1:-1] == "037":
+        return None
+    return (
+        f"{key}: code-page conversion is not modelled except the literal HOSTCODEPAGE('037'): "
+        "the data is in the program's characters"
+    )
+
+
 def _quoted(v: str) -> str | None:
     """A COBOL alphanumeric literal's text ('' / \"\" doubled quote inside kept as one quote), None for a data name."""
     v = v.strip()
@@ -511,6 +528,8 @@ class WebCommands:
         r = g.tmpname("web")
         form, kind = key.split()[1], key.split()[2]
         ok = f"{ind}if ({r}.value() != null) {{"
+        if form in ("READ", "STARTBROWSE") and (why := code_page_read_refusal(opts, key, kind)) is not None:
+            raise CicsError(why)
         if form == "READ":
             # #8058: IBM WEB READ QUERYPARM(data-value) takes a constant; WEB READ FORMFIELD(data-area) does not
             name = self.value_text(req(kind)) if kind == "QUERYPARM" else text(kind)

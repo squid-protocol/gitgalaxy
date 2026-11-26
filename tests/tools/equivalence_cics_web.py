@@ -11,7 +11,7 @@ from typing import Any
 
 import equivalence_cics as ec
 
-from gitgalaxy.tools.cobol_to_java.det.cics_web import METHOD_WORDS, code_page_pair_refusal
+from gitgalaxy.tools.cobol_to_java.det.cics_web import METHOD_WORDS, code_page_pair_refusal, code_page_read_refusal
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
 
 _HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
@@ -460,6 +460,8 @@ def _web_forms(form: str, opts: dict[str, str | None], labels: list[str] | None)
     kind = next(k for k in _WEB_KIND if k in opts)
     key = f"WEB {form} {kind}"
     ec._check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
+    if form in ("READ", "STARTBROWSE") and (why := code_page_read_refusal(opts, key, kind)) is not None:
+        raise ec.Unsupported(why, [key])  # #8059 (X38): the identity code page only, as the translator
     item = f"MOVE {_WEB_KIND[kind]} TO GG-ITEM"
     if form == "ENDBROWSE":
         return [item] + ec._call("GGCWEBR", []) + ec._resp(opts, True, labels)

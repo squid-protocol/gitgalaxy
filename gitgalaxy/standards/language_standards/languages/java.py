@@ -591,9 +591,10 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(ObjectMapper|readValue|readTree|fromJson|ObjectInputStream|DocumentBuilder|SAXParser)\b"
         ),
-        # #8863: a bare `.matches(` is any predicate's method (`ClassNameFilter.MISSING.matches(...)`), not a regex site, so only the
-        # `Pattern` entry points count (`Matcher.find` is a class name and never read a matcher variable).
-        "regex_execution": re.compile(r"\bPattern\.(?:compile|matches|quote)\b"),
+        # #8863: `Pattern.compile` / `Pattern.matches` and a `.matches(` called on a variable or call result (`str.matches(re)`,
+        # `matcher.matches()`). A `.matches(` on a constant or type member (`ClassNameFilter.MISSING.matches(...)`) is a
+        # predicate, not a regex site; `Pattern.quote` only escapes text, and `Matcher.find` never named a matcher variable.
+        "regex_execution": re.compile(r"\bPattern\.(?:compile|matches)\b|(?:\b[a-z][" + ID_CONTINUE + r"]*|\))\.matches\("),
         "time_date_logic": re.compile(
             # #8863: a static clock / duration / formatter member, `new Date(` / `new SimpleDateFormat(`, and the tick counters, not a bare
             # `Duration` in a signature or a local declaration (`Duration timeout = cfg.getTimeout();` computes nothing).

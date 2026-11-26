@@ -322,7 +322,7 @@ SPECS: dict[str, Spec] = {
                 "SECONDS.sleep",
                 "MILLISECONDS.sleep",
             ),
-            "regex": ("Pattern.compile", "Pattern.matches", "Pattern.quote"),
+            "regex": ("Pattern.compile", "Pattern.matches"),
             "time": (
                 "System.currentTimeMillis",
                 "System.nanoTime",

@@ -76,6 +76,8 @@ def test_regex_counts_pattern_entry_points_only():
     assert _hits("regex_execution", 'Pattern p = Pattern.compile("a+");') == ["Pattern.compile"]
     assert _hits("regex_execution", 'Pattern.matches("a", s);') == ["Pattern.matches"]
     assert _hits("regex_execution", "if (ClassNameFilter.MISSING.matches(name, loader)) {}") == []
+    assert _hits("regex_execution", 'Pattern.quote("a.b");') == []
+    assert _hits("regex_execution", "if (name.matches(re)) {}") == ["name.matches("]
 
 
 @pytest.mark.parametrize(

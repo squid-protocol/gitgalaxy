@@ -344,6 +344,45 @@ def compare_final(spec: dict, outputs: Path | None, run: dict) -> list[dict]:
     return rows
 
 
+def compare_program_outputs(spec: dict, report: dict, outputs: Path | None, run: dict) -> list[dict]:
+    """#8886 slice 25: the datasets a program step leaves that no GDG catalogs (POSTTRAN's ACCTFILE / TCATBALF / DALYREJS,
+    INTCALC's ACCTFILE): per spec `program_outputs` entry `{case, dd, job, dataset}`, the bytes the COBOL chain's step wrote
+    (`outputs/<case>/<DD>`) against (a) the bytes the proven port left in that DD when the chain's Java side ran the step as
+    the generated job (`java_out` in the chain report, `ported`: re-compared here with the chain's file, not read off the
+    report's own `equal`) and (b) the file the javac Spring run left under the dataset's name, per mode. That run has no port
+    linked (no JPA stack), so its program steps write nothing and (b) differs, named, never rounded."""
+    steps = {s["case"]: s for s in report.get("steps", ())}
+    rows = []
+    for f in spec.get("program_outputs", ()):
+        want_file = outputs / f["case"] / f["dd"] if outputs else None
+        want = None
+        if want_file is not None and want_file.is_file():
+            data = want_file.read_bytes()
+            want = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        row: dict = {"case": f["case"], "job": f["job"], "dataset": f["dataset"], "chain": want, "modes": {}}
+        java = ((steps.get(f["case"]) or {}).get("java_out") or {}).get(f["dd"])
+        if java is not None and want is not None:
+            same = (java["size"], java["sha256"]) == (want["size"], want["sha256"])
+            row["ported"] = {"status": "equal" if same else "differs", "got": {k: java[k] for k in ("size", "sha256")}}
+        else:
+            why = "the chain exported no bytes" if want is None else "the chain's Java run left no bytes"
+            row["ported"] = {"status": "differs", "got": None, "issue": f"{f['case']}/{f['dd']}: {why}"}
+        for mode in ("strict", "skip"):
+            files = run.get("datasets_by_job", {}).get(mode, {}).get(f["job"], {})
+            got = files.get(f["dataset"])
+            if want is None:
+                issue = f"the chain exported no {f['case']}/{f['dd']}"
+            elif got is None:
+                issue = f"{f['job']} left no {f['dataset']} (the stubbed program step wrote nothing)"
+            elif (got["size"], got["sha256"]) != (want["size"], want["sha256"]):
+                issue = f"{got['size']} bytes {got['sha256'][:12]}, chain {want['size']} bytes {want['sha256'][:12]}"
+            else:
+                issue = None
+            row["modes"][mode] = {"status": "differs" if issue else "equal", "got": got, "issue": issue}
+        rows.append(row)
+    return rows
+
+
 def run_forged(
     forge,
     rc_by_step: dict[tuple[str, str], int | None],
@@ -590,7 +629,9 @@ def scan_and_run(
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
-            "datasets": compare_datasets(spec, report, run, chain) + compare_final(spec, outputs, run),
+            "datasets": compare_datasets(spec, report, run, chain)
+            + compare_final(spec, outputs, run)
+            + compare_program_outputs(spec, report, outputs, run),
             "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`
@@ -620,6 +661,8 @@ def render(res: dict, case_name: str) -> list[str]:
             out.append(
                 f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] ported (linked port): {p['status']}"
             )
+            if p.get("issue"):
+                out.append(f"    differs: {p['issue']}")
     for mode in ("strict", "skip"):
         n = sum(r["modes"][mode]["status"] == "equal" for r in res["rows"])
         out.append(
@@ -642,6 +685,11 @@ def differs(res: dict) -> list[str]:
         for m in ("strict", "skip")
         if d["modes"][m]["status"] != "equal"
     ]  # fmt: skip
+    out += [
+        f"dataset {d['dataset']} [{d['job']}] ported"
+        for d in res.get("datasets", ())
+        if d.get("ported", {}).get("status", "equal") != "equal"
+    ]  # a linked port's bytes that are not the chain's are never rounded away (#8886 slice 25)
     return out
 
 

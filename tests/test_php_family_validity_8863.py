@@ -113,3 +113,30 @@ def test_contract_forms_count(key, line):
 )
 def test_other_constructs_do_not_count(key, line):
     assert not _rule(key).search(line)
+
+
+def test_oracle_counts_a_php_parameter_attribute_as_a_decorator():
+    """The oracle reads `#[\\SensitiveParameter] $p` as an attribute on the declaration it precedes, like the method's own."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import sys
+    import textwrap
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
+    import family_oracle_ts as ts  # noqa: E402
+
+    src = textwrap.dedent(
+        """\
+        <?php
+        function one($u, #[\\SensitiveParameter] $p = '') { return $u; }
+        #[Pure]
+        function two(#[A] $a, #[B] $b) { return $a; }
+        function none($u) { $f = function (#[X] $y) { return $y; }; return $u; }
+        """
+    )
+    oracle = ts.get_oracle("php")
+    index = oracle.index(src)
+    got = {nm: oracle.count(n)[0].get("decorators", 0) for (nm, _ln), n in index.items()}
+    assert got["one"] == 1
+    assert got["two"] == 3
+    assert got["none"] == 0

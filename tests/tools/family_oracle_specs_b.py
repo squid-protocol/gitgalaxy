@@ -519,6 +519,10 @@ class BOracle(TreeSitterOracle):
                 "elsif",
                 "if",
                 "unless",
+                "if_modifier",
+                "unless_modifier",
+                "while_modifier",
+                "until_modifier",
             },
         }.get(self.lang, set())
 
@@ -734,7 +738,7 @@ class BOracle(TreeSitterOracle):
             n.parent is not None
             and n.parent.type == "binary"
             and _op(n.parent) == "<<"
-            and n.parent.child_by_field_name("left") is n
+            and n.parent.child_by_field_name("left") == n
         ):
             n = n.parent
         return n.parent is not None and n.parent.type in self.stmt_parents

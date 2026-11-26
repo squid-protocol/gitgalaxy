@@ -176,8 +176,18 @@ DEFINITION: dict[str, Any] = {
             r"\b(abort|exit|system|exec|spawn|fork|Process\.kill)\b|(?<!\$)`[^`\n]+`|IO\.popen|%x[\[({]"
         ),
         # 9. io (I/O & Network Boundaries)
+        # #9331 (family validity, cause: the rule counts another construct): the bare words `find|where|create|update|destroy`
+        # (any Enumerable#find, Hash#update, model `create`) and the bare class names `File` / `Dir` (File::SEPARATOR,
+        # File.join / basename / expand_path path-string work, File.exist? metadata) are not data movement. Count the operative
+        # calls: File/Dir/IO/FileUtils/Tempfile data calls, socket and HTTP classes, `URI.open`, a Kernel `open` / `gets`
+        # call, and `.read` / `.write` / `.open` / `.mkpath` / `.rmtree` on any receiver (Pathname, IO, File).
         "io": re.compile(
-            r"\b(File|Dir|IO|Net::HTTP|URI\.open|Socket|TCPSocket|FileUtils|ActiveRecord::Base|find|where|create|update|destroy)\b"
+            r"\bFile\.(?:read|write|open|binread|binwrite|readlines|foreach|delete|unlink|rename|new|copy_stream|symlink|chmod|truncate)\b"
+            r"|\bDir\.(?:glob|entries|children|each_child|mkdir|rmdir|foreach|\[)"
+            r"|\b(?:IO|FileUtils|Tempfile)\.[a-z_]"
+            r"|\bNet::HTTP\b|\bURI\.open\b|\b(?:TCP|UDP|UNIX)?Socket\b|\bTCPServer\b"
+            r"|\.(?:read|write|readlines|binread|binwrite|open|mkpath|rmtree|readpartial)\b"
+            r"|(?<![\w.:@$])(?<!def )(?:open|gets|readlines|readline)\b(?=\(|[ \t]+[\w\"'])"
         ),
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased defs) + explicit module functions.
@@ -399,7 +409,15 @@ DEFINITION: dict[str, Any] = {
             + r"]*logger)\.(?:debug|info|warn|error|fatal|unknown)\b"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
-        "debug_prints": re.compile(r"\b(puts|print|p|pp|warn)\b"),
+        # #9331 (family validity, cause: the rule counts another construct): bare `\bp\b` / `\bprint\b` / `\bwarn\b` matched a block
+        # parameter (`{ |p| ... }`), `p.name`, `logger.warn` (a framework call: telemetry's), a `def puts` override and a word in a
+        # string. Count the Kernel call form only: no receiver, not a `def`, and called with `(` or an argument. The console
+        # objects `$stdout` / `$stderr` / `STDOUT` / `STDERR` are the console themselves; any other receiver is a writer.
+        "debug_prints": re.compile(
+            r"(?<![\w.:@$|&])(?<!def )(?:puts|print|printf|putc|pp|p|warn)\b"
+            r"(?=\(|[ \t]+(?![=.,;)\]}|&?+*/<>%-]|:[ \t]|(?:if|unless|and|or|then|do|end|rescue|while|until)\b)\S)"
+            r"|\$std(?:out|err)\.(?:puts|print|printf|write)\b|\bSTD(?:OUT|ERR)\.(?:puts|print|printf|write)\b"
+        ),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(r"\b(Integer|Float|String|Array|Hash|Complex|Rational)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
@@ -411,8 +429,16 @@ DEFINITION: dict[str, Any] = {
         "panics_and_aborts": re.compile(r"\b(?:raise|fail|abort)\b|\bexit!"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\bsleep\b\s*[0-9.]+"),
-        # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"\^|(?<![=!])~"),
+        # #9331 (family validity, cause: the rule counts another construct): a bare `\^` matched the anchor of a regex literal
+        # (`/^foo/`, `[^a]`), and `~` the squiggly heredoc `<<~EOS`. Count an operator between operands: `^`, `&`, `|` with an
+        # operand before and a space after (so a block parameter `|x|`, `&block`, `&.`, `&&`, `||` are out), `<<` / `>>` shifts
+        # with a number operand or a `>>`, the op-assignments `^= &= |= <<= >>=`, and the unary complement `~x`.
+        "bitwise_ops": re.compile(
+            r"(?<=[\w)\]])[ \t]+[\^&|](?![&|=.:\w(\[@$])[ \t]+(?=[\w(\[@$:!-])"
+            r"|(?<![|&])[\^&|<>]{1,2}=(?!=)(?<=[ \t][\^&|]=)|(?<=[ \t])(?:<<|>>)=(?=[ \t])"
+            r"|\b\d[\w]*[ \t]*(?:<<|>>)(?![<>=~-])|(?<=[\w)\]])[ \t]+(?:<<|>>)[ \t]+\d|(?<=[\w)\]])[ \t]+>>[ \t]+(?=[\w(@$:])"
+            r"|(?<![\w=!<~\"'/\\:.-])~(?=[\w(@$])"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Monitor|Atomic["
@@ -449,8 +475,20 @@ DEFINITION: dict[str, Any] = {
             r"|\.valid_password\?\("
         ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|YAML\.load|Marshal\.load|Nokogiri::(?:XML|HTML))\b"),
-        "regex_execution": re.compile(r"\b(Regexp\.new)\b|\.(match|scan|gsub|sub)\b|=~"),
-        "time_date_logic": re.compile(r"\b(Time\.now|Date\.today|DateTime\.now|sleep)\b"),
+        # #9331: add the regex LITERAL (`/re/` after `(`, `[`, `,`, `=`, `~` or `when`/`if`/`unless`/`return`, where a `/` can only open a
+        # literal, never divide; `%r{}`), `!~`, and the `Regexp.compile` / `Regexp.union` constructors the contract names.
+        "regex_execution": re.compile(
+            r"\bRegexp\.(?:new|compile|union)\b|\.(?:match|scan|gsub|sub)\b|[=!]~"
+            r"|(?:[(\[,=~]|\b(?:when|if|unless|return))[ \t]*/(?![ \t=*/])[^/\n]+/[imxounse]*"
+            r"|%r(?=[{(\[<|!/])"
+        ),
+        # #9331: `sleep` is not a clock value (time_date_logic contract; thread_sleeps owns it). Count a call on the stdlib calendar
+        # classes (Time.now / at / parse / mktime, Date.today / parse, DateTime.*), the monotonic clock, Benchmark, and the
+        # formatting calls strftime / iso8601 / httpdate / rfc2822 / xmlschema.
+        "time_date_logic": re.compile(
+            r"\b(?:Time|Date|DateTime)\.[a-z_]|\bProcess\.clock_gettime\b|\bBenchmark\.[a-z_]"
+            r"|\.(?:strftime|iso8601|httpdate|rfc2822|xmlschema)\b"
+        ),
         # BUG FIX: `system\s*\(` ends on `(` and `%x\{` both starts and
         # ends on non-word characters (`%` / `{`) -- the shared \b
         # boundaries could never fire for either. Neither ever matched.

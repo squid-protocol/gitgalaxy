@@ -72,7 +72,7 @@ _RUBY_SIMPLE_CASES = [
     ("pointers", "FFI::Pointer.new(:int)", "FFI::Struct.new"),
     ("memory_alloc", "GC.start", "GC.stat"),
     ("telemetry", "Rails.logger.info('msg')", "Rails.logger.level"),
-    ("debug_prints", "puts 'debug'", "printf('%d', x)"),
+    ("debug_prints", "puts 'debug'", "format('%d', x)"),
     ("explicit_casts", "Integer(x)", "Integer === x"),
     ("panics_and_aborts", "raise 'error'", "failure_count += 1"),
     ("thread_sleeps", "sleep 5", "sleep(timeout)"),
@@ -85,7 +85,7 @@ _RUBY_SIMPLE_CASES = [
     ("test_skip", "skip 'reason'", "double_check_value = true"),
     ("serialization_parsing", "JSON.parse(str)", "JSON.generate(data)"),
     ("regex_execution", "Regexp.new(pattern)", "str.strip.downcase"),
-    ("time_date_logic", "Time.now", "Time.at(epoch)"),
+    ("time_date_logic", "Time.now", "timestamp = epoch"),
     ("ipc_rpc_bridges", "Open3.capture3('ls')", "system_status = check_health"),
 ]
 
@@ -260,24 +260,25 @@ def test_ruby_api_contract_2730():
     api = RUBY_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public :probe_globals'), 'public :name'
-    assert api.search('public_class_method :new'), 'public_class_method :name'
-    assert api.search('module_function :probe_io'), 'module_function (kept)'
+    assert api.search("public :probe_globals"), "public :name"
+    assert api.search("public_class_method :new"), "public_class_method :name"
+    assert api.search("module_function :probe_io"), "module_function (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('def probe_globals(env)'), 'top-level def is private on Object'
+    assert not api.search("def probe_globals(env)"), "top-level def is private on Object"
+
 
 def test_ruby_calls_out_strict():
     """Epic #3264 Phase 3: Ruby calls_out extraction and ignore tuning."""
     from _strict_harness import assert_redos_immune
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
+
     ruby = LANGUAGE_DEFINITIONS["ruby"]
     calls_out = ruby["rules"]["calls_out"]
-    
+
     assert calls_out.groups == 1
-    
+
     code = """
 def test_method()
     elsif (condition)
@@ -297,19 +298,19 @@ end
     extractor = StructuralExtractor("ruby", {"ruby": ruby})
     res = extractor.splice(code, "")
     calls = res["functions"][0]["calls_out_to"]
-    
+
     assert "probe_branch" in calls
     assert "probe_io" in calls
     assert "abort" in calls
     assert "spawn" in calls
     assert "describe" in calls
-    
+
     assert "elsif" not in calls
     assert "module_function" not in calls
     assert "attr_accessor" not in calls
     assert "raise" not in calls
     # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
     assert "puts" in calls
-    
+
     payload = "puts" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

@@ -731,7 +731,7 @@
 <rect x="1032" y="344" width="11" height="11" fill="#8a6d3b"><title>yaml / high_risk_execution: decoy test with &#x27;eval&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="1044" y="344" width="11" height="11" fill="#8a6d3b"><title>zig / high_risk_execution: decoy test with &#x27;@panic&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="365">io</text>
-<rect x="192" y="356" width="11" height="11" fill="#2f6aa8"><title>python / io: recall 0.88, precision 0.84 (72 oracle, 75 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="192" y="356" width="11" height="11" fill="#1f3b5c"><title>python / io: recall 0.88, precision 0.80 (72 oracle, 79 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="#1f3b5c"><title>csharp / io: recall 0.67, precision 0.55 (427 oracle, 514 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="216" y="356" width="11" height="11" fill="#a9d1ff"><title>go / io: recall 1.00, precision 0.98 (61 oracle, 62 family functions; language-crucible v1.9.0)</title></rect>
@@ -1218,7 +1218,7 @@
 <rect x="1056" y="452" width="11" height="11" fill="#8a6d3b"><title>zscript / ui_framework: decoy test with &#x27;OptionMenu&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="473">closures</text>
 <rect x="192" y="464" width="11" height="11" fill="#4f9be8"><title>python / closures: recall 1.00, precision 0.95 (18 oracle, 19 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="204" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / closures: recall 1.00, precision 0.43 (100 oracle, 234 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="204" y="464" width="11" height="11" fill="#a9d1ff"><title>csharp / closures: recall 1.00, precision 1.00 (100 oracle, 100 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="464" width="11" height="11" fill="#a9d1ff"><title>go / closures: recall 0.98, precision 0.99 (118 oracle, 117 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / closures: recall 0.42, precision 0.97 (67 oracle, 29 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="464" width="11" height="11" fill="#4f9be8"><title>php / closures: recall 0.95, precision 1.00 (102 oracle, 97 family functions; language-crucible v1.9.0)</title></rect>
@@ -1316,7 +1316,7 @@
 <rect x="1056" y="476" width="11" height="11" fill="#8a6d3b"><title>zscript / globals: decoy test with &#x27;playeringame&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="497">decorators</text>
 <rect x="192" y="488" width="11" height="11" fill="#4f9be8"><title>python / decorators: recall 1.00, precision 0.91 (1018 oracle, 1121 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="204" y="488" width="11" height="11" fill="#1f3b5c"><title>csharp / decorators: recall 0.93, precision 0.77 (14 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="204" y="488" width="11" height="11" fill="#4f9be8"><title>csharp / decorators: recall 0.95, precision 0.91 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>go / decorators: recall -, precision 0.00 (0 oracle, 19 family functions; prometheus (not pinned))</title></rect>
 <rect x="216" y="488" width="11" height="11" fill="url(#hatch)"/>
 <rect x="228" y="488" width="11" height="11" fill="#4f9be8"><title>kotlin / decorators: recall 0.99, precision 0.94 (158 oracle, 167 family functions; language-crucible v1.9.0)</title></rect>
@@ -2496,7 +2496,7 @@
 <rect x="1044" y="776" width="11" height="11" fill="#8a6d3b"><title>zig / thread_sleeps: decoy test with &#x27;std.time.sleep&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="797">bitwise_ops</text>
 <rect x="192" y="788" width="11" height="11" fill="#2f6aa8"><title>python / bitwise_ops: recall 0.84, precision 0.91 (75 oracle, 69 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="204" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / bitwise_ops: recall 0.17, precision 0.62 (30 oracle, 8 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="204" y="788" width="11" height="11" fill="#a9d1ff"><title>csharp / bitwise_ops: recall 1.00, precision 1.00 (30 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="788" width="11" height="11" fill="#a9d1ff"><title>go / bitwise_ops: recall 1.00, precision 1.00 (128 oracle, 128 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / bitwise_ops: recall 0.46, precision 1.00 (92 oracle, 42 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="url(#hatch)"/>

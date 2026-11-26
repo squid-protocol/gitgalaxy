@@ -1339,31 +1339,31 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": -0.98,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 1.312,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 0.413,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 0.341
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 1.141
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 0.876,
-      "csharp/roslyn/CSharpSyntaxTree.cs": -0.273,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 2.392,
-      "csharp/roslyn/LanguageParser.cs": 1.142,
+      "csharp/roslyn/CSharpCompilation.cs": 0.887,
+      "csharp/roslyn/CSharpSyntaxTree.cs": -0.076,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 0.531,
+      "csharp/roslyn/LanguageParser.cs": 1.172,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": -0.232,
-      "csharp/roslyn/Workspace.cs": -0.618
+      "csharp/roslyn/Workspace.cs": -0.608
     },
     "csharp/runtime_linq": {
       "csharp/runtime_linq/LICENSE.TXT": 0.0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": -0.886,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 0.922,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": -0.955,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 1.879,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": -1.014,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 2.039,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0.603,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": -0.873,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0.603,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 0.118,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": -0.793,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 0.601,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0.712,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": -0.822,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0.349,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 1.288,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 1.323,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0.08
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0.124
     },
     "css": {
       "css/SOURCES.md": 0.0

@@ -1,0 +1,14 @@
+{
+  "note": "Slice 1: the C repositories of the study. `sha` is null until pinned: the study's SHAs were in a scratch directory that no longer exists, so the first pinned run records HEAD in `config.pins` and a follow-up commits those SHAs. Licence is checked per repository when it is pinned (docs/research/third-party-material-policy.md); nothing from these repositories is committed. Clone each into <corpora>/<name>, outside this repository.",
+  "engine_sha_of_study": "981e9ec",
+  "repos": [
+    {"name": "curl", "url": "https://github.com/curl/curl", "set": "development", "sha": null},
+    {"name": "redis", "url": "https://github.com/redis/redis", "set": "development", "sha": null},
+    {"name": "nginx", "url": "https://github.com/nginx/nginx", "set": "development", "sha": null},
+    {"name": "openssl", "url": "https://github.com/openssl/openssl", "set": "development", "sha": null},
+    {"name": "libuv", "url": "https://github.com/libuv/libuv", "set": "fresh", "sha": null},
+    {"name": "libgit2", "url": "https://github.com/libgit2/libgit2", "set": "fresh", "sha": null},
+    {"name": "git", "url": "https://github.com/git/git", "set": "fresh", "sha": null},
+    {"name": "haproxy", "url": "https://github.com/haproxy/haproxy", "set": "fresh", "sha": null}
+  ]
+}

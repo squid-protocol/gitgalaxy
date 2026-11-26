@@ -1316,7 +1316,7 @@
 <text class="fam" x="24" y="497">decorators</text>
 <rect x="192" y="488" width="11" height="11" fill="#4f9be8"><title>python / decorators: recall 1.00, precision 0.91 (1018 oracle, 1121 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="488" width="11" height="11" fill="#4f9be8"><title>csharp / decorators: recall 0.95, precision 0.91 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="216" y="488" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>go / decorators: recall 0.00, precision - (151 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="216" y="488" width="11" height="11" fill="#a9d1ff"><title>go / decorators: recall 1.00, precision 1.00 (151 oracle, 151 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="228" y="488" width="11" height="11" fill="#4f9be8"><title>kotlin / decorators: recall 0.99, precision 0.94 (158 oracle, 167 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="#1f3b5c"><title>php / decorators: recall 1.00, precision 0.54 (43 oracle, 80 family functions; wordpress (not pinned))</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="url(#hatch)"/>
@@ -2973,7 +2973,7 @@
 <rect x="288" y="908" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>java / regex_execution: recall -, precision 0.00 (0 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="908" width="11" height="11" fill="#2f6aa8"><title>javascript / regex_execution: recall 0.94, precision 0.81 (36 oracle, 42 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="908" width="11" height="11" fill="#1f3b5c"><title>ruby / regex_execution: recall 0.67, precision 0.94 (24 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="324" y="908" width="11" height="11" fill="#3b3f4a"><title>rust / regex_execution: scored, but the oracle sees no instance in tokio (not pinned)</title></rect>
+<rect x="324" y="908" width="11" height="11" fill="#3b3f4a"><title>rust / regex_execution: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="324" y="908" width="11" height="11" fill="url(#dots)"/>
 <rect x="336" y="908" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>c / regex_execution: recall 1.00, precision 1.00 (1 oracle, 1 family functions; redis (not pinned))</title></rect>
 <rect x="336" y="908" width="11" height="11" fill="url(#hatch)"/>

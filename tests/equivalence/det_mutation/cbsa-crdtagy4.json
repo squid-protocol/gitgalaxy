@@ -5,18 +5,18 @@
  "case": "cbsa-crdtagy4",
  "entry": {
   "program": "CRDTAGY4",
-  "commit": "9157f4cf2402db58167c3f414cc03f2a9c0e4cb3",
+  "commit": "31a31c191ed1d18a641a01f061a42163d1090b02+uncommitted",
   "date": "2026-11-24",
   "mode": "fast+one-jvm",
   "seed": 0,
   "mutants": 1015,
   "out_of_scope": 36,
   "chosen": 1015,
-  "coverage": null,
+  "coverage": "proven on 13 scenarios, covering 7/7 paragraphs and 6/6 branches",
   "counts": {
-   "killed": 341,
+   "killed": 342,
    "timeout": 2,
-   "survived": 640,
+   "survived": 639,
    "stillborn": 32,
    "error": 0,
    "pending": 0
@@ -46,6 +46,7 @@
    "1184541e36",
    "1327457948",
    "13776dd468",
+   "139f621f58",
    "13ff77ec71",
    "147bb51ea5",
    "14af8d6ebf",
@@ -5242,14 +5243,6 @@
     "after": "AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(Cobol.commarea(f48_ABNDINFO_REC, 682), 0);"
    },
    {
-    "id": "139f621f58",
-    "op": "CON",
-    "file": "service/Crdtagy4Service.java",
-    "line": 494,
-    "before": "String lr3 = task.link(f47_WS_ABEND_PGM.strip(), ca4, 681, cw5.bytes);",
-    "after": "String lr3 = task.link(f47_WS_ABEND_PGM.strip(), ca4, 682, cw5.bytes);"
-   },
-   {
     "id": "0a785fde48",
     "op": "NEG",
     "file": "service/Crdtagy4Service.java",
@@ -5525,12 +5518,12 @@
   "inputs": {
    "port": "a06fef7c4fed32004efabedb5d60645d53d8dcd3b5d9e33a65b055bce37a630e",
    "runtime": "a149b0e5a5e35e391bcb11779f099703999b90ef7e3d59a5a2e67795947c56d2",
-   "generator": "f7bc4c1fa39e555cfce08516db11b2877761b57cc74fa78671a2d4212f334dc7",
+   "generator": "6c683db4fead4b691edeae4a95e427f539f699c765b12a1b47ece5549588c2b7",
    "case": "e761d041a1c82f271eccb713d348da243e501b363a6419a43773ba3d7e6e6c67",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "97c961c8e87758483cdb39a4cfccfb1c5a1f906c135c8f04acf88a25bc208ebb",
+   "harness": "980143b2552dff45422d0934810c0624f4e64d8d118781652bff4caa636742ce",
    "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
-   "survivors": "1f1c1b16e09c356c222826530559b71a8c78aa97b6a101038af0aee8d99273cd"
+   "survivors": "765f74b21dbcf6d473047f6d15ff0501bd66badeeb11285e75e185cd527ce1da"
   },
   "components": {
    "generator": {
@@ -5588,7 +5581,7 @@
     "generator:cobolrt/sql/DetSql.java": "0f1ad0d33d9ce5301ba16bfa1e0b3562d71dce1518af8932c3ea93d77bc89bf9",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "47f97c8bd7f494d5f38baeb1fd455f55fe04429f549217155ef79e9513f40193",
+    "generator:core": "cff4a70abe16854f7c11a69c402819e51a6f6ea3cabc89f430594ce020bd8223",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "d26fab1455283a28cfb0ae3799b2ad5df99a495dcbfa2108ba2075270cc5c548",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
@@ -5630,7 +5623,7 @@
     "generator:det/tso": "7e4c6c4847b0154df35b1e64082aef52cd46e867900b2ce987ed523cdac86502"
    },
    "harness": {
-    "harness:cics": "74a7732b752bf4af89a3f9f03b256fe6d82db35842dd4d0db5f344ca94e223a8",
+    "harness:cics": "d3f307ca313d00cf7b0157411cc4eb635b33dbf4babd555689db45899f0bebad",
     "harness:core": "a525628026a395a7ee91c55c3122528e6646e71b46a2ff9bc6dbbb45e923ed39"
    },
    "oracle": {

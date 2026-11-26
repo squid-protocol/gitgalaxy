@@ -2649,6 +2649,570 @@
    ]
   },
   {
+   "id": "f1e0a5065c",
+   "op": "NEG",
+   "line": 161,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "equivalent",
+   "reason": "line 161 (NEG) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "f5cf080af0",
+   "op": "ROR",
+   "line": 161,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "equivalent",
+   "reason": "line 161 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "9c96b85857",
+   "op": "DEL",
+   "line": 162,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "equivalent",
+   "reason": "line 162 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "12677dfb80",
+   "op": "CON",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 16, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 164 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "6b571222c3",
+   "op": "CON",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 1, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 164 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "7d59451990",
+   "op": "AOR",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base - 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 164 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "89fe7632ce",
+   "op": "CON",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 1, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 164 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "b0e7e116b1",
+   "op": "DEL",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "line 164 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "e28b235dfb",
+   "op": "ROR",
+   "line": 164,
+   "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "after": "Cobol.move(d.getAbndUtimeKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 164 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "1cd08714c0",
+   "op": "CON",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 5, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 165 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "4fbc2600e3",
+   "op": "AOR",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base - 8, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 165 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "5b9fc82ebb",
+   "op": "DEL",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "line 165 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "84acd4087b",
+   "op": "CON",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 9, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 165 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "a9c66a6ba4",
+   "op": "ROR",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 165 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "dc7940e5cb",
+   "op": "CON",
+   "line": 165,
+   "before": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAbndTasknoKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndTasknoKey().toString()), Field.zoned(s, base + 8, 4, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 165 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "12e33eda73",
+   "op": "AOR",
+   "line": 166,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base - 12, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 166 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "75631e1606",
+   "op": "CON",
+   "line": 166,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 9, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 166 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "ad75b5d376",
+   "op": "ROR",
+   "line": 166,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() != null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 166 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "dfc318dbf2",
+   "op": "CON",
+   "line": 166,
+   "before": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 12, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndApplid() == null ? \"\" : d.getAbndApplid(), Field.alphanumeric(s, base + 13, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 166 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "6219759ddf",
+   "op": "CON",
+   "line": 167,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 21, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 167 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "88026862d9",
+   "op": "CON",
+   "line": 167,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 5, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 167 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "bbbd8fc3a7",
+   "op": "AOR",
+   "line": 167,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base - 20, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 167 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "bf00f95ff3",
+   "op": "ROR",
+   "line": 167,
+   "before": "Cobol.move(d.getAbndTranid() == null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndTranid() != null ? \"\" : d.getAbndTranid(), Field.alphanumeric(s, base + 20, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 167 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "233cf6d95b",
+   "op": "CON",
+   "line": 168,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 11, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 168 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "71754bc5e2",
+   "op": "AOR",
+   "line": 168,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base - 24, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 168 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "787b9c50bb",
+   "op": "CON",
+   "line": 168,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 25, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 168 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "b879e2562a",
+   "op": "ROR",
+   "line": 168,
+   "before": "Cobol.move(d.getAbndDate() == null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "after": "Cobol.move(d.getAbndDate() != null ? \"\" : d.getAbndDate(), Field.alphanumeric(s, base + 24, 10, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 168 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "0ac0973b46",
+   "op": "ROR",
+   "line": 169,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() != null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 169 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "724f7cd9a4",
+   "op": "CON",
+   "line": 169,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 35, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 169 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "83a388cdd2",
+   "op": "CON",
+   "line": 169,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 9, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 169 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "ae3130ac77",
+   "op": "AOR",
+   "line": 169,
+   "before": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base + 34, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndTime() == null ? \"\" : d.getAbndTime(), Field.alphanumeric(s, base - 34, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 169 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "07c68b3bf7",
+   "op": "AOR",
+   "line": 170,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base - 42, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 170 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "0baeab2a10",
+   "op": "ROR",
+   "line": 170,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 170 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "b83fcdd468",
+   "op": "CON",
+   "line": 170,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 5, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 170 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "f0277c5539",
+   "op": "CON",
+   "line": 170,
+   "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+   "after": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 43, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 170 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "1c54a43439",
+   "op": "CON",
+   "line": 171,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 9, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 171 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "8794ee0809",
+   "op": "ROR",
+   "line": 171,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() != null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 171 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "986db693fd",
+   "op": "AOR",
+   "line": 171,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base - 46, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 171 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "be91f7d2e1",
+   "op": "CON",
+   "line": 171,
+   "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+   "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 47, 8, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 171 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "48177ebb9b",
+   "op": "CON",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 172 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "4a306ee1ef",
+   "op": "AOR",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base - 54, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 172 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "60f5822cd8",
+   "op": "CON",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 172 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "745da76b21",
+   "op": "CON",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 55, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 172 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "944e9b40f8",
+   "op": "ROR",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndRespcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 172 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "ae52ee0175",
+   "op": "DEL",
+   "line": 172,
+   "before": "Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndRespcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndRespcode().toString()), Field.zoned(s, base + 54, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "line 172 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "715aaf38e3",
+   "op": "ROR",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 173 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "7e79502214",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 173 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "db8b9c4788",
    "op": "NEG",
    "line": 173,
@@ -2666,6 +3230,30 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "dd2173690c",
+   "op": "DEL",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "line 173 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "de82e7ec8c",
+   "op": "AOR",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base - 63, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 173 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -2689,6 +3277,30 @@
    ]
   },
   {
+   "id": "ef0c076db6",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 64, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 173 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "efe26ef6b2",
+   "op": "CON",
+   "line": 173,
+   "before": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndResp2Code() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndResp2Code().toString()), Field.zoned(s, base + 63, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 173 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "3140ca7040",
    "op": "DEL",
    "line": 174,
@@ -2706,6 +3318,126 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "45f6915995",
+   "op": "CON",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 1, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 174 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "98792445fb",
+   "op": "AOR",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base - 72, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 174 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "b59f94e60a",
+   "op": "CON",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 9, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 174 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "c4637ba10d",
+   "op": "CON",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 73, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 174 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "e03b32f6c3",
+   "op": "DEL",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "/* Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS); */",
+   "verdict": "equivalent",
+   "reason": "line 174 (DEL) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "e6f07438cc",
+   "op": "ROR",
+   "line": 174,
+   "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "after": "Cobol.move(d.getAbndSqlcode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+   "verdict": "equivalent",
+   "reason": "line 174 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "1517feb7dd",
+   "op": "AOR",
+   "line": 175,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base - 81, 600, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 175 (AOR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "2e4c2f4560",
+   "op": "CON",
+   "line": 175,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 601, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 175 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "55c9f9f82c",
+   "op": "ROR",
+   "line": 175,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() != null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 175 (ROR) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "b6736e7748",
+   "op": "CON",
+   "line": 175,
+   "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+   "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);",
+   "verdict": "equivalent",
+   "reason": "line 175 (CON) is in in_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3009,6 +3741,66 @@
    ]
   },
   {
+   "id": "40b7077531",
+   "op": "AOR",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base - 0, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "line 179 (AOR) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "444fcfd733",
+   "op": "CON",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 1, 15, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "line 179 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "61a4d8ab9a",
+   "op": "DEL",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "/* d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue()); */",
+   "verdict": "equivalent",
+   "reason": "line 179 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "637e8b9dc0",
+   "op": "CON",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "line 179 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "d8a36516be",
+   "op": "CON",
+   "line": 179,
+   "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+   "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 1, true), CS).longValue());",
+   "verdict": "equivalent",
+   "reason": "line 179 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "dcd783d808",
    "op": "ROR",
    "line": 179,
@@ -3046,6 +3838,42 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0d21c6a979",
+   "op": "CON",
+   "line": 180,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 9, 4, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 180 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "19f7bbf683",
+   "op": "DEL",
+   "line": 180,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "line 180 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "4cd942dea2",
+   "op": "CON",
+   "line": 180,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 1, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 180 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3089,6 +3917,18 @@
    ]
   },
   {
+   "id": "e06631ea9a",
+   "op": "CON",
+   "line": 180,
+   "before": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 4, 0, false, false, false), CS).intValue());",
+   "after": "d.setAbndTasknoKey(Cobol.num(Field.zoned(s, base + 8, 5, 0, false, false, false), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 180 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "f3d087db5a",
    "op": "CON",
    "line": 180,
@@ -3106,6 +3946,18 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "1800aaa233",
+   "op": "CON",
+   "line": 181,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 13, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 181 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3129,6 +3981,18 @@
    ]
   },
   {
+   "id": "50ac8825d9",
+   "op": "CON",
+   "line": 181,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 181 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "65148c92db",
    "op": "CON",
    "line": 181,
@@ -3149,6 +4013,18 @@
    ]
   },
   {
+   "id": "9b8c27e523",
+   "op": "DEL",
+   "line": 181,
+   "before": "d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS));",
+   "after": "/* d.setAbndApplid(Cobol.text(Field.alphanumeric(s, base + 12, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 181 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "e5db822385",
    "op": "CON",
    "line": 181,
@@ -3166,6 +4042,30 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "14dddd74c0",
+   "op": "CON",
+   "line": 182,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 182 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "1dbf3e070b",
+   "op": "DEL",
+   "line": 182,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "/* d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 182 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3229,6 +4129,18 @@
    ]
   },
   {
+   "id": "e8fcb097dd",
+   "op": "CON",
+   "line": 182,
+   "before": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 20, 4, false), CS));",
+   "after": "d.setAbndTranid(Cobol.text(Field.alphanumeric(s, base + 21, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 182 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "0c0c487efe",
    "op": "CON",
    "line": 183,
@@ -3286,6 +4198,54 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "8bd281c4d4",
+   "op": "CON",
+   "line": 183,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 25, 10, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 183 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "d6c2017e70",
+   "op": "CON",
+   "line": 183,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 11, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 183 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "efe448a812",
+   "op": "DEL",
+   "line": 183,
+   "before": "d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS));",
+   "after": "/* d.setAbndDate(Cobol.text(Field.alphanumeric(s, base + 24, 10, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 183 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "11ad7b9cc7",
+   "op": "DEL",
+   "line": 184,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "/* d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 184 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3349,6 +4309,30 @@
    ]
   },
   {
+   "id": "6fa0a3ce32",
+   "op": "CON",
+   "line": 184,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 184 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "768dee3400",
+   "op": "CON",
+   "line": 184,
+   "before": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 34, 8, false), CS));",
+   "after": "d.setAbndTime(Cobol.text(Field.alphanumeric(s, base + 35, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 184 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "ccc5a4e5f6",
    "op": "CON",
    "line": 184,
@@ -3409,6 +4393,18 @@
    ]
   },
   {
+   "id": "49e2d3606d",
+   "op": "CON",
+   "line": 185,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 43, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 185 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "4a1e74f7d8",
    "op": "CON",
    "line": 185,
@@ -3446,6 +4442,30 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "5e32f58305",
+   "op": "CON",
+   "line": 185,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 5, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 185 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "5eb24b29ac",
+   "op": "DEL",
+   "line": 185,
+   "before": "d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS));",
+   "after": "/* d.setAbndCode(Cobol.text(Field.alphanumeric(s, base + 42, 4, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 185 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3509,6 +4529,18 @@
    ]
   },
   {
+   "id": "3107f2c71b",
+   "op": "CON",
+   "line": 186,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 47, 8, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 186 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "3ff5ffd731",
    "op": "CON",
    "line": 186,
@@ -3569,6 +4601,18 @@
    ]
   },
   {
+   "id": "6e961f5f9d",
+   "op": "DEL",
+   "line": 186,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "/* d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 186 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "9f150eb933",
    "op": "CON",
    "line": 186,
@@ -3586,6 +4630,18 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "acf9937bfa",
+   "op": "CON",
+   "line": 186,
+   "before": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 8, false), CS));",
+   "after": "d.setAbndProgram(Cobol.text(Field.alphanumeric(s, base + 46, 9, false), CS));",
+   "verdict": "equivalent",
+   "reason": "line 186 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3629,6 +4685,42 @@
    ]
   },
   {
+   "id": "abae30cd6d",
+   "op": "CON",
+   "line": 187,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 187 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "c0f79dd360",
+   "op": "DEL",
+   "line": 187,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "line 187 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "d89a29e0a9",
+   "op": "CON",
+   "line": 187,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 55, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 187 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
    "id": "e1ca4cd6e6",
    "op": "CON",
    "line": 187,
@@ -3646,6 +4738,126 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "ecea4fbba2",
+   "op": "CON",
+   "line": 187,
+   "before": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndRespcode(Cobol.num(Field.zoned(s, base + 54, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 187 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "069d4d17b0",
+   "op": "CON",
+   "line": 188,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 188 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "72b201f8a9",
+   "op": "DEL",
+   "line": 188,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "line 188 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "977b362df6",
+   "op": "CON",
+   "line": 188,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 64, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 188 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "9bf7efbeb6",
+   "op": "CON",
+   "line": 188,
+   "before": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndResp2Code(Cobol.num(Field.zoned(s, base + 63, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 188 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "053ad124ac",
+   "op": "CON",
+   "line": 189,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 1, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 189 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "8bd742c9c5",
+   "op": "CON",
+   "line": 189,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 9, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 189 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "d52af4e10c",
+   "op": "CON",
+   "line": 189,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 73, 8, 0, true, true, true), CS).intValue());",
+   "verdict": "equivalent",
+   "reason": "line 189 (CON) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "dd3f145d8f",
+   "op": "DEL",
+   "line": 189,
+   "before": "d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue());",
+   "after": "/* d.setAbndSqlcode(Cobol.num(Field.zoned(s, base + 72, 8, 0, true, true, true), CS).intValue()); */",
+   "verdict": "equivalent",
+   "reason": "line 189 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
+   ]
+  },
+  {
+   "id": "5f3ca2a547",
+   "op": "DEL",
+   "line": 190,
+   "before": "d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS));",
+   "after": "/* d.setAbndFreeform(Cobol.text(Field.alphanumeric(s, base + 81, 600, false), CS)); */",
+   "verdict": "equivalent",
+   "reason": "line 190 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {
@@ -3946,6 +5158,18 @@
     "atk-wr-disabled",
     "atk-wr-nospace",
     "atk-wr-notopen"
+   ]
+  },
+  {
+   "id": "0ef46c331f",
+   "op": "DEL",
+   "line": 195,
+   "before": "fill_AbndprocDfhcommarea(d, s, base);",
+   "after": "/* fill_AbndprocDfhcommarea(d, s, base); */",
+   "verdict": "equivalent",
+   "reason": "line 195 (DEL) is in out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC: the linked det port loads the caller's bytes over that view (task.linkArea() in runTask) and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so this statement's effect is never seen; the bytes are compared byte for byte (#7954)",
+   "tried": [
+    "atk-delay-i22"
    ]
   },
   {

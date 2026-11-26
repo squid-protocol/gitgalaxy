@@ -63,7 +63,8 @@ def test_the_java_side_denies_them_with_and_without_a_csd(tmp_path):
 
 def test_a_failed_link_of_the_callers_bytes_is_read_in_a_case_with_no_commarea(tmp_path):
     """The Java LINK event of an undefined program carries the caller's bytes (no DTO to map them to); a case with no
-    COMMAREA layout does not refuse them: a LINK is compared by its target, its RESP through the program's report."""
+    COMMAREA layout does not refuse them: a LINK is compared by its target, its length and bytes (#7954), its RESP through
+    the program's report."""
     (tmp_path / "undef.json").write_text(
         json.dumps([{"event": "LINK", "target": "CAGONE", "length": 100, "commarea": "wcHA", "resp": "PGMIDERR",
                      "resp2": 1, "area": "QUJD"}]),
@@ -73,4 +74,9 @@ def test_a_failed_link_of_the_callers_bytes_is_read_in_a_case_with_no_commarea(t
     assert [(e["event"], e["target"], e["resp"], e["resp2"]) for e in got["undef"]] == [
         ("LINK", "CAGONE", "PGMIDERR", 1)
     ]
-    assert ec._link_as_compared(got["undef"][0]) == {"event": "LINK", "program": "CAGONE"}
+    assert ec._link_as_compared(got["undef"][0]) == {
+        "event": "LINK",
+        "program": "CAGONE",
+        "length": 100,
+        "area": "QUJD",
+    }

@@ -68,3 +68,14 @@ def test_oracle_io_ignores_members_and_signals(body):
 def test_oracle_io_keeps_free_and_file_calls(body):
     n, _ = _oracle_counts("void f() {\n" + body + "\n}\n")
     assert n.get("io", 0) == 1, body
+
+
+def test_oracle_reads_attribute_on_a_local_declaration_as_a_decorator():
+    n, tokens = _oracle_counts("void f() {\n[[maybe_unused]] auto x = 1;\n}\n")
+    assert n.get("decorators") == 1
+    assert tokens["decorators"]["[[maybe_unused]]"] == 1
+
+
+def test_oracle_does_not_read_a_standalone_attribute_statement_as_a_decorator():
+    n, _ = _oracle_counts("void f(int a) {\nswitch (a) {\ncase 1:\n[[fallthrough]];\ndefault:;\n}\n}\n")
+    assert n.get("decorators", 0) == 0

@@ -199,11 +199,11 @@
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
     "n_family": 2,
-    "n_oracle": 0,
+    "n_oracle": 2,
     "pinned": true,
-    "precision": 0.0,
-    "recall": null,
-    "status": "over-counts"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "doc": {
     "corpus": "language-crucible v1.9.0",

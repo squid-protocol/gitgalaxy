@@ -1822,7 +1822,7 @@
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 0,
       "groovy/gradle/DefaultProject.java": 0,
-      "groovy/gradle/DefaultTask.java": 2
+      "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 0,
@@ -2364,7 +2364,7 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 2
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 3,
@@ -2373,8 +2373,8 @@
       "java/springboot/LICENSE.txt": 0,
       "java/springboot/OnClassCondition.java": 0,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
-      "java/springboot/SpringApplication.java": 11,
-      "java/springboot/WebMvcAutoConfiguration.java": 3
+      "java/springboot/SpringApplication.java": 5,
+      "java/springboot/WebMvcAutoConfiguration.java": 0
     },
     "javascript": {
       "javascript/SOURCES.md": 0

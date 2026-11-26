@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 0,
       "groovy/spock/SpecParser.java": 0,
-      "groovy/spock/SpecRewriter.java": 0,
+      "groovy/spock/SpecRewriter.java": 12,
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
@@ -2356,7 +2356,7 @@
       "java/SOURCES.md": 0
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 0
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 1
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": 0,

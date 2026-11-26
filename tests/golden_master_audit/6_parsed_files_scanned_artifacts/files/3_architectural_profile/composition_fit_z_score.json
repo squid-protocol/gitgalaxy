@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": -0.458,
       "groovy/spock/SpecParser.java": -0.696,
-      "groovy/spock/SpecRewriter.java": 0.436,
+      "groovy/spock/SpecRewriter.java": 0.581,
       "groovy/spock/SpockTransform.java": 0.241
     },
     "groovy/spock_core_groovy": {
@@ -2367,14 +2367,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.91
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.578,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.704,
       "java/springboot/Binder.java": 1.11,
       "java/springboot/JarLauncher.java": 3.007,
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": -0.151,
       "java/springboot/ServletWebServerApplicationContext.java": 0.908,
       "java/springboot/SpringApplication.java": 0.824,
-      "java/springboot/WebMvcAutoConfiguration.java": 1.541
+      "java/springboot/WebMvcAutoConfiguration.java": 1.352
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0

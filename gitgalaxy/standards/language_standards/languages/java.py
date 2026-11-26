@@ -594,7 +594,9 @@ DEFINITION: dict[str, Any] = {
         # #8863: `Pattern.compile` / `Pattern.matches` and a `.matches(` called on a variable or call result (`str.matches(re)`,
         # `matcher.matches()`). A `.matches(` on a constant or type member (`ClassNameFilter.MISSING.matches(...)`) is a
         # predicate, not a regex site; `Pattern.quote` only escapes text, and `Matcher.find` never named a matcher variable.
-        "regex_execution": re.compile(r"\bPattern\.(?:compile|matches)\b|(?:\b[a-z][" + ID_CONTINUE + r"]*|\))\.matches\("),
+        "regex_execution": re.compile(
+            r"\bPattern\.(?:compile|matches)\b|(?:\b[a-z][" + ID_CONTINUE + r"]*|\))\.matches\("
+        ),
         "time_date_logic": re.compile(
             # #8863: a static clock / duration / formatter member, `new Date(` / `new SimpleDateFormat(`, and the tick counters, not a bare
             # `Duration` in a signature or a local declaration (`Duration timeout = cfg.getTimeout();` computes nothing).

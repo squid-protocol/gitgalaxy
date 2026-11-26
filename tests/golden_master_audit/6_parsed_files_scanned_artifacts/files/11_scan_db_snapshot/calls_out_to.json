@@ -17971,7 +17971,9 @@
           "PyUnicode_Check",
           "_PyUnicode_CheckConsistency",
           "PyAnyDict_Check",
-          "_PyDict_CheckConsistency"
+          "_PyDict_CheckConsistency",
+          "Py_STRINGIFY",
+          "_PyObject_ASSERT_FAILED_MSG"
         ],
         "_PyObject_ClearFreeLists@923": [
           "clear_freelist"
@@ -18803,7 +18805,9 @@
           "is_readying",
           "lookup_tp_dict",
           "PyDict_Contains",
-          "_Py_ID"
+          "_Py_ID",
+          "Py_STRINGIFY",
+          "_PyObject_ASSERT_FAILED_MSG"
         ],
         "_PyType_ClearCache@1019": [
           "type_cache_clear",

@@ -937,6 +937,21 @@ WEB_RETRIEVE = Command(
 # HTTPHEADER, FORMFIELD, QUERYPARM) over the same stated `http_request`. FORMFIELD reads the name=value pairs of the
 # request body (an application/x-www-form-urlencoded form), QUERYPARM those of the query string, HTTPHEADER the headers.
 _CODEPAGE = Refusal("code-page conversion is not modelled: the data is in the program's characters", "X38")
+
+
+def _code_page_options(kind: str) -> dict[str, Arg]:
+    """#8059 (X38): the code-page options of a WEB READ / STARTBROWSE of FORMFIELD (CHARACTERSET and HOSTCODEPAGE) or
+    QUERYPARM (HOSTCODEPAGE only: IBM lists no CHARACTERSET for it). Only the identity pair is accepted, as on WEB SEND /
+    RECEIVE (#6876, `code_page_read_refusal`); the operand is checked by the translator, not here."""
+    return {"HOSTCODEPAGE": Arg("name"), **({"CHARACTERSET": Arg("name")} if kind == "FORMFIELD" else {})}
+
+
+def _code_page_refused(kind: str) -> dict[str, Refusal]:
+    """The code-page options of that form which stay refused: CLNTCODEPAGE (the upgrade-only twin of CHARACTERSET) and, for
+    QUERYPARM, CHARACTERSET (IBM lists none)."""
+    return {"CLNTCODEPAGE": _CODEPAGE, **({} if kind == "FORMFIELD" else {"CHARACTERSET": _CODEPAGE})}
+
+
 _DATA_FORM = (
     "data that is not plain escaped NAME=VALUE pairs joined by '&' (a pair without '=' or with an empty name, a ';' "
     "or '+' (IBM does not say what they mean), an escape that is not %XX, an escaped name, a byte outside the printable "
@@ -960,13 +975,12 @@ def _read_param(kind: str, topic: str) -> Command:
             "NAMELENGTH": Arg("value"),
             "VALUE": Arg("area_out"),
             "VALUELENGTH": Arg("area_inout", binary=True),
+            **_code_page_options(kind),
             **RESP_OPTIONS,
         },
         refused={
             "SET": Refusal("a value in CICS storage (SET) needs the pointer lane, which is not modelled", "X38"),
-            "HOSTCODEPAGE": _CODEPAGE,
-            "CHARACTERSET": _CODEPAGE,
-            "CLNTCODEPAGE": _CODEPAGE,
+            **_code_page_refused(kind),
         },
         default_refusal=Refusal(f"only {kind} / NAMELENGTH and VALUE / VALUELENGTH are modelled", "X38"),
         groups=(
@@ -1025,6 +1039,8 @@ def _browse(kind: str, form: str, topic: str) -> Command:
         options = {kind: Arg("area_in")} if named else {kind: Arg("flag")}
         if named:
             options["NAMELENGTH"] = Arg("value")
+        if named:
+            options.update(_code_page_options(kind))
         outcomes = [
             Outcome("NORMAL", 0, ""),
             Outcome("ILLOGIC", 10 if header else 5, f"A {kind} browse is already in progress"),
@@ -1081,7 +1097,7 @@ def _browse(kind: str, form: str, topic: str) -> Command:
         groups = ()
     refused = {"SESSTOKEN": Refusal("the client form (a response's headers) is not modelled", "X38")} if header else {}
     if not header and form == "STARTBROWSE":
-        refused = {"HOSTCODEPAGE": _CODEPAGE, "CHARACTERSET": _CODEPAGE, "CLNTCODEPAGE": _CODEPAGE}
+        refused = _code_page_refused(kind)
     refusals = [_NO_REQUEST_READ]
     key = f"WEB {form} {kind}"
     if form == "STARTBROWSE" and named:

@@ -75,7 +75,7 @@ _JS_SIMPLE_CASES = [
     ("time_date_logic", "Date.now();", "let now = true;"),
     ("ipc_rpc_bridges", "worker.postMessage(data);", "let posted = true;"),
     ("bitwise_ops", "const mask = flags << 2;", "const power = base ** exponent;"),
-    ("closures", "const add = (x) => { return x + 1; };", "const add = (x) => x + 1;"),
+    ("closures", "const add = (x) => { return x + 1; };", "const ok = a >= b ? a : b;"),
     ("cryptography", "import bcrypt from 'bcrypt';", "const hash = require('hash.js');"),
     (
         "dl_frameworks",

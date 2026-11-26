@@ -30,6 +30,11 @@ CASES = [
         ["a / b", "x = 6 / 3", "puts 'hello'"],
     ),
     (
+        "thread_sleeps",
+        ["sleep 5", "sleep(timeout)", "sleep delay", "sleep 0.5", "Kernel.sleep 1", "  sleep rand", "sleep @wait"],
+        ["def sleep(n)", "sleep_time = 3", "sleep = 1", "x = :sleep", "opts[sleep: 2]", "worker.sleep", "sleeper"],
+    ),
+    (
         "time_date_logic",
         [
             "Time.now",

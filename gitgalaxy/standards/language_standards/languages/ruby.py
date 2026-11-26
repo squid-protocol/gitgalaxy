@@ -428,7 +428,13 @@ DEFINITION: dict[str, Any] = {
         # to save it. Never matched.
         "panics_and_aborts": re.compile(r"\b(?:raise|fail|abort)\b|\bexit!"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\bsleep\b\s*[0-9.]+"),
+        # #9331 (family validity, cause: a missing form): Kernel#sleep is the pause whatever its argument, so `sleep(timeout)`,
+        # `sleep delay` and `Kernel.sleep 1` count, not only a numeric literal. A `def sleep`, `sleep = x`, a `:sleep` symbol,
+        # a `sleep:` key, `obj.sleep` and `sleep_time` are not the call.
+        "thread_sleeps": re.compile(
+            r"\bKernel\.sleep\b"
+            r"|(?<![\w.@$:])(?<!def[ \t])sleep(?:\(|[ \t]+(?![=:]|do\b)[\w\"'(@$:.\[-])"
+        ),
         # #9331 (family validity, cause: the rule counts another construct): a bare `\^` matched the anchor of a regex literal
         # (`/^foo/`, `[^a]`), and `~` the squiggly heredoc `<<~EOS`. Count an operator between operands: `^`, `&`, `|` with an
         # operand before and a space after (so a block parameter `|x|`, `&block`, `&.`, `&&`, `||` are out), `<<` / `>>` shifts

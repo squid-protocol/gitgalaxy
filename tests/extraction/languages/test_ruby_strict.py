@@ -75,7 +75,7 @@ _RUBY_SIMPLE_CASES = [
     ("debug_prints", "puts 'debug'", "format('%d', x)"),
     ("explicit_casts", "Integer(x)", "Integer === x"),
     ("panics_and_aborts", "raise 'error'", "failure_count += 1"),
-    ("thread_sleeps", "sleep 5", "sleep(timeout)"),
+    ("thread_sleeps", "sleep 5", "sleep_timeout = 5"),
     ("bitwise_ops", "a ^ b", "a =~ b"),
     ("sync_locks", "Mutex.new", "unlocked_state = true"),
     ("immutability_locks", "freeze", "unfrozen_value = compute"),

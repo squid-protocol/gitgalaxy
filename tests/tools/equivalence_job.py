@@ -342,10 +342,12 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             runs = ej.run_java_environments(case, corpus, sw / "java", sw / "cobol", [ej.environment("default")],
                                             port=port)  # fmt: skip
             run = api.compare_run(case, corpus, cobol, runs["default"])
+            ported = java_generations(step, gdg_created, runs["default"])
             report["steps"].append({"case": name, "program": case["program"], "fed": fed, "ok": run["ok"],
                                     "return_code": run["return_code"], "abend": run["abend"],
                                     "outputs": run["outputs"],
                                     **({"gdg_created": gdg_created} if gdg_created else {}),
+                                    **({"java_gdg": ported} if ported else {}),
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
@@ -382,6 +384,24 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {ran} of {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
+
+
+def java_generations(
+    step: dict[str, Any], created: dict[str, dict[str, Any]], java: dict[str, bytes]
+) -> dict[str, dict[str, Any]]:
+    """#8886 slice 22: for a step whose Java side ran as the forge's generated Spring Batch job (`forged_job`: the proven port
+    is the step's service), the generation that job wrote for each `gdg_out` base, set against the one the COBOL step
+    catalogued (`created`): base -> size and digest of the Java bytes, `equal` when both match. The bytes are the newest
+    generation the job's DD wrote under its DSN (equivalence_java.forged_job_parts), never the stub's and never rounded.
+    Empty for a step not run through a forged job, or one whose Java run left no such DD."""
+    if "forged_job" not in step:
+        return {}
+    got: dict[str, dict[str, Any]] = {}
+    for dd, base in step.get("gdg_out", {}).items():
+        if base in created and isinstance(java.get(dd), bytes):
+            d = _digest(java[dd])
+            got[base] = {**d, "equal": (d["size"], d["sha256"]) == (created[base]["size"], created[base]["sha256"])}
+    return got
 
 
 def _export_outputs(outputs: dict[str, dict[str, Any]], out: Path) -> bool:

@@ -12,7 +12,9 @@ The forge here is the REAL one for the estate: skeletons only for the estate's o
 here: "listed, not generated", `BatchForge.jobs[].kind == "utility"`, and the report says so per step).
 
 What is stood in, named in the result: a program step calls a stub service whose `runBatch` returns the chain's COBOL
-return code for that step (the proven ports are not linked: a later slice). A utility step the forge cannot run
+return code for that step (the proven ports are not linked into THIS javac build: it has no JPA stack; #8886 slice 22
+reads the generation the proven port wrote as the service of the same generated job from the chain's own run, a dataset
+row's `ported`, see `equivalence_job.java_generations`). A utility step the forge cannot run
 (`steps.utility`) FAILS the job as shipped (`strict`); with `gitgalaxy.batch.skip-unimplemented` it logs and returns 0
 (`skip`): both are run and reported, neither is a pass for the chain's answer.
 """
@@ -486,6 +488,13 @@ def compare_datasets(spec: dict, report: dict, run: dict, chain: Path | None = N
         for base, want in (st.get("gdg_created") or {}).items():
             job = case_job.get(st["case"])
             row: dict = {"case": st["case"], "job": job, "dataset": base, "chain": want, "modes": {}}
+            if ported := (st.get("java_gdg") or {}).get(base):
+                # #8886 slice 22: the generation the PROVEN PORT wrote as the step's service in the generated job (the
+                # chain's own Java run, `equivalence_job.java_generations`), beside the stubbed Spring rows below
+                row["ported"] = {
+                    "status": "equal" if ported["equal"] else "differs",
+                    "got": {k: ported[k] for k in ("size", "sha256")},
+                }
             for mode in ("strict", "skip"):
                 files = run.get("datasets_by_job", {}).get(mode, {}).get(job, {})
                 new = sorted(k for k in files if k.startswith(f"{base}(") and k not in seeded)
@@ -575,6 +584,10 @@ def render(res: dict, case_name: str) -> list[str]:
             out.append(f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] {mode}: {md['status']}")
             if md["issue"]:
                 out.append(f"    differs: {md['issue']}")
+        if p := d.get("ported"):
+            out.append(
+                f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] ported (linked port): {p['status']}"
+            )
     for mode in ("strict", "skip"):
         n = sum(r["modes"][mode]["status"] == "equal" for r in res["rows"])
         out.append(

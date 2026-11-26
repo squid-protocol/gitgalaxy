@@ -1172,7 +1172,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
       "cobol/gnucobol_internals/codegen.c": 3,
-      "cobol/gnucobol_internals/fileio.c": 3,
+      "cobol/gnucobol_internals/fileio.c": 5,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 0,
       "cobol/gnucobol_internals/scanner.l": 0,
@@ -4171,7 +4171,7 @@
       "scala/kafka/LogManager.scala": 0,
       "scala/kafka/Partition.scala": 0,
       "scala/kafka/ReplicaManager.scala": 0,
-      "scala/kafka/SocketServer.scala": 0
+      "scala/kafka/SocketServer.scala": 1
     },
     "scheme": {
       "scheme/SOURCES.md": 0

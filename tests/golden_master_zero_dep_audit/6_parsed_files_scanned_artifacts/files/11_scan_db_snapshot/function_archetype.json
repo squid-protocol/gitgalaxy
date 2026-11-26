@@ -37795,7 +37795,7 @@
         "restoreEnv@84": "Interface Declarations",
         "setEnv@124": "Compute Cores",
         "setKey@142": "Parameter Forwarders",
-        "tryLoad@721": "Compute Cores"
+        "tryLoad@721": "Parameter Forwarders"
       },
       "lua/freebsd-src/core.lua": {
         "composeLoaderCmd@42": "Parameter Forwarders",

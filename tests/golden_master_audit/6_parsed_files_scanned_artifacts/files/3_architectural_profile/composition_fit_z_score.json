@@ -2885,7 +2885,7 @@
       "lua/freebsd-src/COPYRIGHT": 0.0,
       "lua/freebsd-src/cli.lua": 1.931,
       "lua/freebsd-src/color.lua": 2.15,
-      "lua/freebsd-src/config.lua": 1.548,
+      "lua/freebsd-src/config.lua": 0.943,
       "lua/freebsd-src/core.lua": 2.365,
       "lua/freebsd-src/drawer.lua": 0.587,
       "lua/freebsd-src/gfx-beastie.lua": -0.171,

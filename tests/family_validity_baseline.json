@@ -1065,21 +1065,21 @@
     "corpus": "language-crucible v1.9.0",
     "functions": 623,
     "n_family": 459,
-    "n_oracle": 459,
+    "n_oracle": 454,
     "pinned": true,
-    "precision": 1.0,
+    "precision": 0.989,
     "recall": 1.0,
     "status": "ok"
    },
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 623,
-    "n_family": 52,
-    "n_oracle": 27,
+    "n_family": 21,
+    "n_oracle": 20,
     "pinned": true,
-    "precision": 0.519,
+    "precision": 0.952,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1124,12 +1124,12 @@
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 623,
-    "n_family": 7,
-    "n_oracle": 14,
+    "n_family": 8,
+    "n_oracle": 8,
     "pinned": true,
     "precision": 1.0,
-    "recall": 0.5,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
@@ -1144,12 +1144,12 @@
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
     "functions": 623,
-    "n_family": 64,
+    "n_family": 86,
     "n_oracle": 87,
     "pinned": true,
     "precision": 1.0,
-    "recall": 0.736,
-    "status": "misses"
+    "recall": 0.989,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",
@@ -1164,12 +1164,12 @@
    "thread_sleeps": {
     "corpus": "language-crucible v1.9.0",
     "functions": 623,
-    "n_family": 0,
+    "n_family": 3,
     "n_oracle": 3,
     "pinned": true,
-    "precision": null,
-    "recall": 0.0,
-    "status": "dead"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
@@ -1610,12 +1610,12 @@
    "doc": {
     "corpus": "language-crucible v1.9.0",
     "functions": 441,
-    "n_family": 221,
-    "n_oracle": 61,
+    "n_family": 103,
+    "n_oracle": 96,
     "pinned": true,
-    "precision": 0.018,
-    "recall": 0.066,
-    "status": "both"
+    "precision": 0.932,
+    "recall": 1.0,
+    "status": "ok"
    },
    "io": {
     "corpus": "language-crucible v1.9.0",

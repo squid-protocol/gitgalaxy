@@ -2885,7 +2885,7 @@
       "lua/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "lua/freebsd-src/cli.lua": "Parameter Forwarders Files",
       "lua/freebsd-src/color.lua": "Interface Declarations Files",
-      "lua/freebsd-src/config.lua": "Compute Cores Files",
+      "lua/freebsd-src/config.lua": "Large Core Modules (3)",
       "lua/freebsd-src/core.lua": "Interface Declarations Files",
       "lua/freebsd-src/drawer.lua": "Large Core Modules (3)",
       "lua/freebsd-src/gfx-beastie.lua": "Declarative / Non-Code",

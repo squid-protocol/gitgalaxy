@@ -15,4 +15,5 @@ description: "| Document | What it is |"
 | [doom-round4-rescan-5457.md](doom-round4-rescan-5457.md) | DOOM round-4 rescan at `b81b19f78` (2026-10-19, epic #5457) |
 | [doom-corpus-rescan-5460.md](doom-corpus-rescan-5460.md) | DOOM corpus rescan after the #5460 payload-guard fixes (2026-10-18) |
 | [outcome_label_pilot.md](outcome_label_pilot.md) | Pilot: do strictness and dynamism predict later fix commits? (#2720) |
+| [fix-ripple-preregistration.md](fix-ripple-preregistration.md) | Pre-registered hypotheses for the fix-history vs call-graph study; rerun with `tests/tools/fix_ripple_study.py` ([manifest](fix_ripple_manifest.json), #8958) |
 - [Third-party material policy](third-party-material-policy.md): how we use other parties' code, papers and artifacts.

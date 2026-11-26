@@ -540,6 +540,8 @@ DEFINITION: dict[str, Any] = {
             r"\b(std::fstream|std::ifstream|std::ofstream|std::filesystem|fopen|fread|fwrite|socket|recv|send|asio::|curl_easy_perform|std::cin)\b"
             # #8868 libc/POSIX transfer calls, call form only; member calls and longer names stay out.
             r"|(?<![.>\w])(?:fgets|fputs|fgetc|fputc|mmap|pread|pwrite|recvfrom|sendto|recvmsg|sendmsg)[ \t]{0,4}\("
+            # #9335 a capitalised class's static open (`FileAccess::open(`, `DirAccess::open(`): a file or directory handle.
+            r"|\b[A-Z]\w{2,40}::open[ \t]{0,4}\("
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the world. Explicit visibility and module exports.
@@ -656,7 +658,9 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"\[\[\s*[" + ID_START + r":][^\]]*\]\]"),
+        # #9335: `[[fallthrough]];` / `[[likely]];` stand alone as a statement and attach to no declaration; an
+        # attribute that precedes a declaration or statement is not followed by `;`.
+        "decorators": re.compile(r"\[\[\s*[" + ID_START + r":][^\]]*\]\](?![ \t]*;)"),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(r"\btemplate\s*<[^>]*>|\b(?:concept|requires)\b"),
         # 21. comprehensions (Iterators / Comprehensions)
@@ -795,13 +799,39 @@ DEFINITION: dict[str, Any] = {
             + r"]"
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
-        "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
+        # #9335: process-exit names count in call form (`exit(1)`, `std::abort()`), never as a bare identifier or a
+        # member call (godot's `bool exit = false;`, `while (!exit)`, `span.exit()`); `exit` takes no space before `(` so prose in a
+        # string (`"leaked at exit (run with"`) is not a call; `throw` and `std::terminate` stay keywords.
+        "panics_and_aborts": re.compile(
+            r"\bthrow\b|\bstd::terminate\b|(?<![.>\w])(?:(?:abort|_Exit|quick_exit|longjmp)[ \t]*\(|exit\()"
+        ),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # Admission of race conditions or lazy polling.
-        "thread_sleeps": re.compile(r"\b(sleep|delay|usleep|nanosleep|std::this_thread::sleep_for)\b"),
+        # #9335: call form, so `"--frame-delay"` and a `delay` variable are not sleeps; `Sleep` / `SleepEx` (Win32) and
+        # `thrd_sleep` are the same call under another spelling.
+        "thread_sleeps": re.compile(
+            r"(?<![.>\w])(?:sleep|usleep|nanosleep|Sleep|SleepEx|thrd_sleep|delay)[ \t]*\("
+            r"|\bsleep_(?:for|until)[ \t]*\("
+        ),
         # 43. bitwise_ops (Bitwise Operations)
-        # Low-level byte manipulation. CRITICAL: Removed bare `<<` and `>>` to prevent catastrophic false positives on `std::cout` and `std::cin` streams. Explicit bitwise assignments (`<<=`, `&=`) are retained as they are unambiguous.
-        "bitwise_ops": re.compile(r"\^|(?<![=!])~|<<=|>>=|&=|\|=|\^="),
+        # Low-level byte manipulation. A bare `<<` / `>>` is a stream insertion or a template close far more often than a
+        # shift, so (#9335) a shift counts only beside a numeric or ALL_CAPS operand with no string literal against the
+        # operator; `&` / `|` count only against a numeric mask or an ALL_CAPS flag (a bare `T &x` is a reference, `a | b`
+        # between lowercase names is not told from a lambda or a stream). `~` is a complement only after an operator, never a
+        # destructor name. `^` and the compound assignments are unambiguous.
+        "bitwise_ops": re.compile(
+            r"\^"
+            r"|(?:(?<![-:])[=(,&|^+*/%<>?!]|\breturn\b)[ \t]*~"
+            r"|<<=|>>=|&=|\|="
+            r"|\b\d[\w']{0,20}[ \t]*<<(?![=<])"
+            r"|<<(?![=<])[ \t]*(?:\d|[A-Z][A-Z0-9_]{2,}\b)"
+            r"|>>(?![=>])[ \t]*(?:\d|[A-Z][A-Z0-9_]{2,}\b)"
+            r"|[\w)\]][ \t]*&(?![&=])[ \t]*(?:\d|[A-Z][A-Z0-9_]{2,}\b)"
+            r"|\b[A-Z][A-Z0-9_]{2,}[ \t]*&(?![&=])[ \t]*[\w(]"
+            r"|\b(?:0[xX][0-9A-Fa-f]+|\d+)[ \t]*&(?![&=])"
+            r"|\b[A-Z][A-Z0-9_]{2,}[ \t]*(?<!\|)\|(?![|=])"
+            r"|(?<![|])\|(?![|=])[ \t]*(?:\w{1,40}::){0,3}[A-Z][A-Z0-9_]{2,}\b"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|std::lock_guard|std::scoped_lock|std::unique_lock|mtx_lock)\b",

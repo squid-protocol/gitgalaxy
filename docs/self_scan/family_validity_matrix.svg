@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 206 measured against a parser, 1,752 decoy test only, 978 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 205 measured against a parser, 1,753 decoy test only, 978 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -751,7 +751,7 @@
 <rect x="336" y="356" width="11" height="11" fill="url(#dots)"/>
 <rect x="348" y="356" width="11" height="11" fill="#1f3b5c"><title>lua / io: recall 0.50, precision 1.00 (14 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="356" width="11" height="11" fill="#1f3b5c"><title>shell / io: recall 0.83, precision 0.58 (236 oracle, 338 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="372" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>cpp / io: recall 0.08, precision 0.50 (12 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="356" width="11" height="11" fill="#2f6aa8" opacity="0.5"><title>cpp / io: recall 1.00, precision 0.83 (5 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="356" width="11" height="11" fill="#2f6aa8"><title>cobol / io: recall 1.00, precision 0.90 (712 oracle, 793 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="396" y="356" width="11" height="11" fill="#3d6a8c"><title>abap / io: decoy test with &#x27;SELECT&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="408" y="356" width="11" height="11" fill="#8a6d3b"><title>acs / io: decoy test with &#x27;GetCVar()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1332,7 +1332,7 @@
 <rect x="324" y="488" width="11" height="11" fill="url(#dots)"/>
 <rect x="336" y="488" width="11" height="11" fill="#4f9be8"><title>java / decorators: recall 0.96, precision 0.98 (474 oracle, 464 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="348" y="488" class="u"/>
-<rect x="372" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / decorators: recall -, precision 0.00 (0 oracle, 4 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / decorators: recall -, precision 0.00 (0 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="384" y="488" class="u"/>
 <rect x="396" y="488" width="11" height="11" fill="#8a6d3b"><title>abap / decorators: decoy test with &#x27;@deprecated&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="488" width="11" height="11" fill="#8a6d3b"><title>ada / decorators: decoy test with &#x27;pragma SPARK_Mode&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2380,7 +2380,8 @@
 <rect x="336" y="764" width="11" height="11" fill="#a9d1ff"><title>java / panics_and_aborts: recall 1.00, precision 1.00 (30 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="764" width="11" height="11" fill="#2f6aa8"><title>lua / panics_and_aborts: recall 1.00, precision 0.86 (30 oracle, 35 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="764" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>shell / panics_and_aborts: recall 1.00, precision 0.32 (58 oracle, 179 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="372" y="764" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / panics_and_aborts: recall -, precision 0.00 (0 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="764" width="11" height="11" fill="#3b3f4a"><title>cpp / panics_and_aborts: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
+<rect x="372" y="764" width="11" height="11" fill="url(#dots)"/>
 <rect x="384" y="764" width="11" height="11" fill="#8a6d3b"><title>cobol / panics_and_aborts: decoy test with &#x27;STOP RUN&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="764" width="11" height="11" fill="#8a6d3b"><title>abap / panics_and_aborts: decoy test with &#x27;RAISE EXCEPTION&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="408" y="764" width="11" height="11" fill="#8a6d3b"><title>acs / panics_and_aborts: decoy test with &#x27;terminate&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2451,7 +2452,7 @@
 <rect x="336" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>java / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="776" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>lua / thread_sleeps: recall 0.00, precision - (3 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="776" width="11" height="11" fill="#2f6aa8"><title>shell / thread_sleeps: recall 1.00, precision 0.83 (24 oracle, 29 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="372" y="776" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / thread_sleeps: recall 0.00, precision 0.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>cpp / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="776" width="11" height="11" fill="#8a6d3b"><title>cobol / thread_sleeps: decoy test with &#x27;EXEC CICS DELAY&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="776" width="11" height="11" fill="#8a6d3b"><title>abap / thread_sleeps: decoy test with &#x27;WAIT UP TO&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="408" y="776" width="11" height="11" fill="#8a6d3b"><title>acs / thread_sleeps: decoy test with &#x27;Delay()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2511,7 +2512,7 @@
 <rect x="336" y="788" width="11" height="11" fill="#a9d1ff"><title>java / bitwise_ops: recall 1.00, precision 1.00 (10 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="788" width="11" height="11" fill="#1f3b5c"><title>lua / bitwise_ops: recall 1.00, precision 0.52 (27 oracle, 52 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="788" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>shell / bitwise_ops: recall 0.00, precision - (2 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="372" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>cpp / bitwise_ops: recall 0.12, precision 0.50 (112 oracle, 26 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="788" width="11" height="11" fill="#2f6aa8"><title>cpp / bitwise_ops: recall 0.88, precision 0.91 (57 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="788" width="11" height="11" fill="#8a6d3b"><title>cobol / bitwise_ops: decoy test with &#x27;FUNCTION BIT-AND&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="788" width="11" height="11" fill="#8a6d3b"><title>abap / bitwise_ops: decoy test with &#x27;BIT-AND&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="408" y="788" width="11" height="11" fill="#8a6d3b"><title>acs / bitwise_ops: decoy test with &#x27;a &lt;&lt; 1&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

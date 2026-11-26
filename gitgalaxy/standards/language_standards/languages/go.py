@@ -258,8 +258,10 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         # GoDoc standard: comments immediately preceding a declaration.
         # #8863: gofmt puts a declaration's doc comment at column 0 (an unexported `// handlePanic ensures ...` too, so no
-        # capital-letter test); an indented comment is a statement note inside a body, and `//go:build` / `//nolint` (no
-        # space) are directives, not documentation.
+        # capital-letter test), and `//go:build` / `//nolint` (no space) are directives, not documentation. The regex alone
+        # would skip an indented statement note, but the comment stream the engine matches carries each comment without its
+        # indentation, so an indented `// note` and a file-header `//` line count as doc too (keyword-rosetta ledger
+        # go-doc-counts-every-line-comment, #9345).
         "doc": re.compile(r"^//[ \t]+\S", re.M),
         # 14. test (Testing & Assertions)
         "test": re.compile(

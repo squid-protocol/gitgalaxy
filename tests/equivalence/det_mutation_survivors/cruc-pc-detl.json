@@ -696,6 +696,186 @@
    ]
   },
   {
+   "id": "3fda0bf87e",
+   "op": "LIT",
+   "line": 221,
+   "before": "region.run(task, \"PCDETL\", this::runTask);",
+   "after": "region.run(task, \"XCDETL\", this::runTask);",
+   "verdict": "harness-gap",
+   "reason": "LIT at line 221: the program name passed to region.run in handleTransaction(String, Object), a REST facade method. The harness enters runTask directly, never handleTransaction, so the name is not read by any compared run.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "0077851d22",
+   "op": "COR",
+   "line": 226,
+   "before": "if (request instanceof byte[] && area != null) {",
+   "after": "if (request instanceof byte[] || area != null) {",
+   "verdict": "harness-gap",
+   "reason": "COR at line 226: && -> || in the same handleTransaction(..., area) guard; a REST caller passing only one of request-bytes or area would be refused. The harness never enters this method.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "17545fac02",
+   "op": "ROR",
+   "line": 226,
+   "before": "if (request instanceof byte[] && area != null) {",
+   "after": "if (request instanceof byte[] && area == null) {",
+   "verdict": "harness-gap",
+   "reason": "ROR at line 226: area != null -> area == null in the same guard; REST-only, the harness never calls handleTransaction(..., area).",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "e01e66c0cb",
+   "op": "NEG",
+   "line": 226,
+   "before": "if (request instanceof byte[] && area != null) {",
+   "after": "if (!(request instanceof byte[] && area != null)) {",
+   "verdict": "harness-gap",
+   "reason": "NEG at line 226: inverts the byte[]-plus-area guard of handleTransaction(transid, request, area). That REST facade entry is not called by the harness (it runs runTask with COMMAREA bytes), so the guard is never evaluated; a REST caller passing both would be refused or accepted wrongly. Not compared.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "5160511fc8",
+   "op": "LIT",
+   "line": 227,
+   "before": "throw new IllegalArgumentException(\"handleTransaction: the request is the COMMAREA as bytes (the region's EBCDIC) and the bytes beside it are in the port's page: pass one\");",
+   "after": "throw new IllegalArgumentException(\"XandleTransaction: the request is the COMMAREA as bytes (the region's EBCDIC) and the bytes beside it are in the port's page: pass one\");",
+   "verdict": "harness-gap",
+   "reason": "LIT at line 227: the text of the IllegalArgumentException thrown by the handleTransaction(..., area) guard; only a REST caller who passes both sees it, and the harness compares no exception text from that entry.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "b605f06aee",
+   "op": "LIT",
+   "line": 231,
+   "before": "region.run(task, \"PCDETL\", this::runTask);",
+   "after": "region.run(task, \"XCDETL\", this::runTask);",
+   "verdict": "harness-gap",
+   "reason": "LIT at line 231: the program name given to region.run in handleTransaction(..., area), a REST-only entry the harness never calls.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "3eb3f5d79d",
+   "op": "DEL",
+   "line": 232,
+   "before": "lastAnswerBytes = task.returnedBytes();",
+   "after": "/* lastAnswerBytes = task.returnedBytes(); */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 232: drops lastAnswerBytes, the facade helper the byte-carrying handleTransaction fills for a REST caller. The harness never calls that method, so nothing reads the helper.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "2aac488e48",
+   "op": "LIT",
+   "line": 245,
+   "before": "CicsTask task = region.linked(\"PCDETL\", request, area);",
+   "after": "CicsTask task = region.linked(\"XCDETL\", request, area);",
+   "verdict": "harness-gap",
+   "reason": "LIT at line 245: the program name given to region.linked in handleLink(request, area), a REST-only entry (the harness enters runTask).",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "29255f7231",
+   "op": "LIT",
+   "line": 246,
+   "before": "region.run(task, \"PCDETL\", this::runTask);",
+   "after": "region.run(task, \"XCDETL\", this::runTask);",
+   "verdict": "harness-gap",
+   "reason": "LIT at line 246: the program name given to region.run in handleLink(request, area), REST-only; not entered by the harness.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "39b7f8815e",
+   "op": "DEL",
+   "line": 248,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 248: drops lastLinkBytes, the helper handleLink(request, area) fills with the bytes the program left in the COMMAREA. The harness never calls that method, so the helper is never compared.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "e3e3d9cfb6",
+   "op": "ROR",
+   "line": 248,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "ROR at line 248: left != null -> left == null in the lastLinkBytes expression of handleLink(request, area); REST-only, not compared.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
+   "id": "e8cd6679df",
+   "op": "COR",
+   "line": 248,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "COR at line 248: && -> || in the lastLinkBytes expression of handleLink(request, area); a REST caller would see a different helper value. The harness never calls it.",
+   "tried": [
+    "calen-12-distinct",
+    "calen-9",
+    "pf3-with-context",
+    "ten-byte-binary-area"
+   ]
+  },
+  {
    "id": "a9d4e4c37f",
    "op": "CON",
    "line": 277,

@@ -137,7 +137,8 @@ SPECS: dict[str, Spec] = {
         {
             "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
-            "regex": ("regexp.",),
+            # #9343: `re.MatchString(s)` on a *regexp.Regexp value evaluates the expression too (contract: "a match ... call at its invocation")
+            "regex": ("regexp.", "MatchString"),
             # time_date_logic: a clock or calendar value, duration arithmetic, a formatting or timezone call. Timers
             # (time.After / Tick / NewTimer / NewTicker / AfterFunc) are timed waits: thread_sleeps' (#8868)
             "time": (
@@ -311,6 +312,9 @@ SPECS: dict[str, Spec] = {
                 "System.err.print",
                 "System.err.println",
                 "System.err.printf",
+                # #8863: the print contract names a "diagnostic stream ... trace call": a no-argument printStackTrace() writes the
+                # trace to System.err for a developer to read, the same as System.err.println.
+                "printStackTrace",
             ),
             "sleep": (
                 "Thread.sleep",
@@ -319,7 +323,7 @@ SPECS: dict[str, Spec] = {
                 "SECONDS.sleep",
                 "MILLISECONDS.sleep",
             ),
-            "regex": ("Pattern.compile", "Pattern.matches", "Pattern.quote"),
+            "regex": ("Pattern.compile", "Pattern.matches"),
             "time": (
                 "System.currentTimeMillis",
                 "System.nanoTime",

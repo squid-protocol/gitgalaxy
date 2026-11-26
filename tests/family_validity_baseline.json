@@ -706,12 +706,12 @@
    "closures": {
     "corpus": "language-crucible v1.9.0",
     "functions": 628,
-    "n_family": 239,
+    "n_family": 77,
     "n_oracle": 77,
     "pinned": true,
-    "precision": 0.31,
-    "recall": 0.961,
-    "status": "over-counts"
+    "precision": 0.922,
+    "recall": 0.922,
+    "status": "ok"
    },
    "debug_prints": {
     "corpus": "language-crucible v1.9.0",

@@ -462,12 +462,12 @@
    "decorators": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1314,
-    "n_family": 0,
+    "n_family": 151,
     "n_oracle": 151,
     "pinned": true,
-    "precision": null,
-    "recall": 0.0,
-    "status": "dead"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "doc": {
     "corpus": "language-crucible v1.9.0",

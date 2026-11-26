@@ -5977,9 +5977,10 @@
         "Parameter Forwarders": 1
       },
       "go/core/mgc.go": {
+        "Annotated & Test Methods": 1,
         "Compute Cores": 7,
         "I/O & Config Routines": 15,
-        "Interface Declarations": 4,
+        "Interface Declarations": 3,
         "Many-Argument Workhorses": 1,
         "State Mutators": 5,
         "Type Conversions": 3
@@ -5989,55 +5990,58 @@
         "State Mutators": 2
       },
       "go/core/proc.go": {
+        "Annotated & Test Methods": 38,
         "Callbacks & Closures": 3,
-        "Compute Cores": 31,
+        "Compute Cores": 28,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 59,
-        "Interface Declarations": 30,
+        "I/O & Config Routines": 53,
+        "Interface Declarations": 20,
         "Many-Argument Workhorses": 22,
-        "Parameter Forwarders": 9,
-        "State Mutators": 72,
-        "Type Conversions": 18
+        "Parameter Forwarders": 7,
+        "State Mutators": 57,
+        "Type Conversions": 16
       },
       "go/core/server.go": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 30,
+        "Compute Cores": 29,
         "Defensive Guards": 11,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 21,
         "Interface Declarations": 33,
         "Many-Argument Workhorses": 7,
         "Parameter Forwarders": 20,
-        "State Mutators": 28,
+        "State Mutators": 29,
         "Type Conversions": 7
       },
       "go/core/syscall_linux.go": {
+        "Annotated & Test Methods": 4,
         "Compute Cores": 2,
         "Defensive Guards": 6,
         "I/O & Config Routines": 1,
         "Interface Declarations": 9,
         "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 52,
-        "State Mutators": 6,
+        "Parameter Forwarders": 51,
+        "State Mutators": 3,
         "Type Conversions": 23
       },
       "go/core/value.go": {
+        "Annotated & Test Methods": 22,
         "Compute Cores": 37,
         "Generic / Templated Code": 9,
         "I/O & Config Routines": 14,
-        "Interface Declarations": 32,
+        "Interface Declarations": 31,
         "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 24,
-        "State Mutators": 42,
+        "State Mutators": 21,
         "Type Conversions": 25
       }
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": {
+        "Annotated & Test Methods": 6,
         "I/O & Config Routines": 6,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 2,
-        "Type Conversions": 7
+        "Parameter Forwarders": 1,
+        "Type Conversions": 4
       }
     },
     "go/kubernetes": {

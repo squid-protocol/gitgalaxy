@@ -38,11 +38,13 @@ def corpus_label() -> str:
     return f"language-crucible {_crucible_pin.PINNED_TAG}"
 
 
-ALIASES = {"bash"}  # an oracle spec registered under a second name for the same source files; the grid column is `shell`
+ALIASES = {
+    "bash"
+}  # an oracle spec registered under a second name for the same source files; the grid column is `shell`
 
 
 def languages() -> list[str]:
-    return ["python", "cobol", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
+    return ["python", "cobol", "jcl", *(lang for lang in family_oracle_ts.languages() if lang not in ALIASES)]
 
 
 def crucible_data(env: dict[str, str] | None = None) -> Path:

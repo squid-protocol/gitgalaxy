@@ -995,7 +995,7 @@
 <rect x="192" y="404" width="11" height="11" fill="#2f6aa8"><title>python / doc: recall 0.84, precision 1.00 (1151 oracle, 967 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="404" width="11" height="11" fill="#4f9be8"><title>csharp / doc: recall 1.00, precision 0.91 (266 oracle, 291 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="404" width="11" height="11" fill="#4f9be8"><title>go / doc: recall 0.95, precision 0.91 (719 oracle, 750 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="404" width="11" height="11" fill="#1f3b5c"><title>kotlin / doc: recall 1.00, precision 0.75 (30 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="228" y="404" width="11" height="11" fill="#a9d1ff"><title>kotlin / doc: recall 1.00, precision 1.00 (30 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="404" width="11" height="11" fill="#a9d1ff"><title>php / doc: recall 1.00, precision 1.00 (1621 oracle, 1623 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="404" width="11" height="11" fill="#4f9be8"><title>scala / doc: recall 1.00, precision 0.90 (141 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="264" y="404" width="11" height="11" fill="#2f6aa8"><title>typescript / doc: recall 0.99, precision 0.89 (661 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
@@ -1220,7 +1220,7 @@
 <rect x="192" y="464" width="11" height="11" fill="#4f9be8"><title>python / closures: recall 1.00, precision 0.95 (18 oracle, 19 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>csharp / closures: recall 1.00, precision 0.43 (100 oracle, 234 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="464" width="11" height="11" fill="#a9d1ff"><title>go / closures: recall 0.98, precision 0.99 (118 oracle, 117 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="464" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / closures: recall 0.42, precision 0.97 (67 oracle, 29 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="228" y="464" width="11" height="11" fill="#4f9be8"><title>kotlin / closures: recall 1.00, precision 0.97 (67 oracle, 69 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="464" width="11" height="11" fill="#4f9be8"><title>php / closures: recall 0.95, precision 1.00 (102 oracle, 97 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="464" width="11" height="11" fill="#4f9be8"><title>scala / closures: recall 0.97, precision 0.99 (278 oracle, 274 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="264" y="464" width="11" height="11" fill="#2f6aa8"><title>typescript / closures: recall 0.98, precision 0.83 (910 oracle, 1070 family functions; language-crucible v1.9.0)</title></rect>

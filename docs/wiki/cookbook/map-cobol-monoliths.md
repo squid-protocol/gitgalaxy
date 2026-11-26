@@ -1,5 +1,6 @@
 ---
-description: "Enterprise migrations from legacy IBM Mainframes to the cloud are notoriously dangerous. Decades of technical debt result in millions of lines of code..."
+title: "Map a COBOL Monolith Before You Migrate"
+description: "Find dead code, trace data flow and map dependencies across millions of lines of COBOL before a mainframe-to-cloud migration."
 ---
 # How to Map and Refactor Legacy COBOL Monoliths
 

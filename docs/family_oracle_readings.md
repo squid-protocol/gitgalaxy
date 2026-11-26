@@ -14,7 +14,7 @@ contracts (rows below). Scores are from the self-scan DB at this commit (29,706 
 
 | family | contract status | contract | Python oracle reading | verdict | note |
 |---|---|---|---|---|---|
-| `branch` | stated | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | decision points: if/elif arms, loops, conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3) | realigned | Boolean operators dropped from the oracle: they are `short_circuit`'s since #8939 (branch contract corollary 0). On the self-scan DB branch scores 1.00 / 0.80 (over-counts; the engine counts 16,503 functions' worth against the oracle's 13,159: cause not traced). |
+| `branch` | stated | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | decision points: if/elif arms, loops (a comprehension's `for` included), conditional expressions, comprehension filters (not boolean operators: those are short_circuit's, corollary 0; not except handlers, assert, return or break: corollaries 1 and 3) | realigned | Boolean operators dropped from the oracle: they are `short_circuit`'s since #8939 (branch contract corollary 0). The 0.80 precision the oracle first showed was the oracle's: it skipped a comprehension's `for`, a loop the engine and the contract count (traced 2026-11-25); counting each comprehension generator as a loop gives 1.00 / 0.98 on the self-scan DB (16,279 oracle functions, 16,566 engine). About 290 engine-only functions remain, not traced. |
 | `short_circuit` | declared | A boolean operator whose right operand is evaluated only when the left does not already decide the result: `&&`/`//`, `and`/`or`, `and then`/`or else`, and the shell's `&&`/`//` chaining | boolean operators whose right operand is evaluated only when the left does not decide: and, or | added | New oracle family, `and`/`or` operands. Self-scan DB: 1.00 / 0.96. |
 | `args` | stated | The parameters a callable declares | declared parameters | aligned | The oracle sentence restates the contract for Python. |
 | `closures` | declared | The syntax that opens an anonymous callable -- a lambda, arrow function, block literal or inline callback -- at the point it is defined | anonymous callables: lambdas (nested named functions are declarations, not closures) | aligned | Lambdas only; a nested def is a declaration (answers #8862 question 3). |
@@ -26,7 +26,7 @@ contracts (rows below). Scores are from the self-scan DB at this commit (29,706 
 | `serialization_parsing` | declared | A call that encodes to or decodes from a structured interchange format -- JSON, XML, YAML, CSV, protocol buffers, a marshal or unmarshal -- at its invocation | encodes to or decodes from a structured interchange format: json, yaml, csv, xml, pickle, marshal, protobuf calls | aligned | JSON, YAML, CSV, XML, pickle and marshal (answers #8862 question 1; the rule was fixed by #8882). |
 | `high_risk_execution` | stated | A SITE THAT HANDS CONTROL OUT OF THE PROGRAM'S OWN SEMANTICS -- it ends or halts the process, runs text or another program as code, loads or rewrites executable code at run time, destroys a whole store the program does not own, or steps outside the runtime's protections -- in the primitive's own invocation or statement form. | hands control out of the program's semantics: eval, exec, subprocess calls, os.system, process exit | aligned | The oracle sentence restates the contract for Python. |
 | `thread_sleeps` | declared | A call that blocks the current thread or schedules a forced delay -- a sleep, a timed wait, a timeout-driven deferral -- at its invocation | blocks the thread or forces a delay: sleep calls | aligned | The oracle sentence restates the contract for Python. |
-| `panics_and_aborts` | declared | A statement that ends the current execution context by raising or aborting -- a throw or raise, a panic, an unreachable marker, a fatal-error, revert or process-exit call -- in statement or call form | ends the execution context: raise statements and process-exit calls | open question | `raise` is counted. For other languages the open question is whether `assert` is an abort (C precision 0.48, #8868); the contract does not name it. |
+| `panics_and_aborts` | declared | A statement that ends the current execution context by raising or aborting -- a throw or raise, a panic, an unreachable marker, a fatal-error, revert or process-exit call -- in statement or call form | ends the execution context: raise statements and process-exit calls | aligned | `raise` and process exit count; `assert` is not an abort (owner ruling 2026-11-24, #8862): the engine counting it is the defect (#8868). |
 | `debug_prints` | declared | A site that writes text to the console or a diagnostic stream for a developer to read while the program runs -- a print, echo, dump or trace call -- in its own call or statement form; output addressed to a file or writer, and structured logging (telemetry), are not sites | ad-hoc debug output: print calls | aligned | A print call to the console; output addressed to a writer is excluded by the contract (answers the Go `Fprintf` row of #8868). |
 | `explicit_casts` | declared | A site that converts a value's type explicitly -- a cast expression, a conversion call or a cast keyword -- in cast form | explicit type conversion: int, str, float, bool, bytes, list, dict, set, tuple calls | aligned | The oracle sentence restates the contract for Python. |
 | `bitwise_ops` | declared | A bitwise operator applied between value operands -- shift, and, or, xor, or the unary complement -- in operator position | bitwise operators in operator position: << >> ^ & / ~ | aligned | The oracle sentence restates the contract for Python. |
@@ -37,17 +37,51 @@ contracts (rows below). Scores are from the self-scan DB at this commit (29,706 
 | `globals` | stated | A declaration of a binding with program lifetime -- file, module, class-static or process scope -- or a read or write of the process's ambient environment through its named handle | global / nonlocal statements and reads of os.environ, sys.argv, sys.path | aligned | The oracle sentence restates the contract for Python. |
 | `import` | stated | A statement or directive that binds an external unit -- a module, package, header, library, file, stage or base image -- into the current unit, in the language's own dependency form | import statements inside the function | aligned | The oracle sentence restates the contract for Python. |
 | `cleanup` | stated | A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form. | destroys state or releases a held resource: with blocks, try/finally, close/remove/unlink/rmtree calls, del | aligned | with, try/finally, del and close/remove calls match the contract wording; Python recall is low (0.15 on the self-scan DB): an engine gap (answers #8862 question 4). |
-| `doc` | declared | A comment block in the language's structured documentation form -- the form a documentation tool or IDE parses, such as a doc comment, a docstring or a tagged block -- read from the comment surface | has a docstring (structured documentation) | open question | Python docstrings count. Which structured form counts in a language without `/** */` is an owner question (#8868). |
+| `doc` | declared | A comment block in the language's structured documentation form -- the form a documentation tool or IDE parses, such as a doc comment, a docstring or a tagged block -- read from the comment surface | has a docstring (structured documentation) | aligned | Python docstrings count. Owner ruling 2026-11-24 (#8862): `doc` is the structured form each language's tools read; a language with none is N/A, not "any comment". |
 
-## Not yet realigned (tree-sitter oracles)
+## Non-Python oracles (tree-sitter)
 
-`family_oracle_ts.py` and the per-language specs (`family_oracle_specs_a.py`, `family_oracle_specs_b.py`, `family_oracle_cases.json`)
-still count `&&` / `||` (and `??`, `||=`) under `branch`. Until they move to `short_circuit`, the non-Python branch cells in
-`tests/family_validity_baseline.json` are measured against the pre-#8939 reading.
+`family_oracle_ts.py` holds one sentence per family for every language it scores (Go, Java, JavaScript, TypeScript, Rust, C, C++ and
+the per-language specs in `family_oracle_specs_a.py` / `family_oracle_specs_b.py`: C#, Kotlin, Swift, Scala, Ruby, PHP, Lua, shell).
+A language whose spec lists a family in `skip_families` has no oracle for it. Since #9256 these oracles count boolean operators under
+`short_circuit`, not `branch`, as the branch contract's corollary 0 says.
+
+| family | tree-sitter oracle reading | verdict | note |
+|---|---|---|---|
+| `branch` | decision points: if/else arms, loops, case/default arms, conditional expressions (not && and //: those are short_circuit's, corollary 0; not catch handlers, goto, return or break: contract corollaries 1 and 3) | realigned | Boolean operators moved to `short_circuit` (branch corollary 0, #8939) by the slice-1 change (#9256). Cells in `tests/family_validity_baseline.json` predate it (see below). |
+| `short_circuit` | boolean operators whose right operand is evaluated only when the left does not decide: && // and or | added | New tree-sitter family, as the Python oracle's since #9252: `&&`, `||`, `and`, `or`. |
+| `args` | declared parameters | aligned | Restates the stated contract (`args`): the parameters a callable declares. C++ also counts the implicit parameters `_extra_params` adds. |
+| `closures` | anonymous callables: function literals, lambdas, arrow functions, closures | aligned | Restates the contract's anonymous callable (lambda, arrow function, block literal). A named nested function is a declaration, not a closure. C++ skips the family (`skip_families`): no oracle. |
+| `decorators` | annotations, attributes or decorators on the function | aligned | Restates the contract: a metadata attribute attached to the declaration it precedes (annotation, attribute, decorator); the oracle reads those preceding the function node, comments skipped. |
+| `panics_and_aborts` | throw / panic / unreachable marker / process exit | aligned | Owner ruling 2026-11-24 (#8862): `assert` is not an abort, so the oracle omits it (C precision 0.48 is the engine counting it, #8868). If wanted it becomes its own family. |
+| `bitwise_ops` | bitwise operators in operator position: << >> ^ & / ~ (and the compound assignments) | aligned | Same operators as the contract (shift, and, or, xor, complement) in operator position; the compound assignments (`<<=`, `&=`) are the oracle's addition, the contract names the operators only. C++ re-reads `std::cout <<` / `cin >>` chains as a stream write or read, not a shift (`CppOracle`). |
+| `debug_prints` | ad-hoc debug output to the console | aligned | Since #9276 the C and C++ oracles count `fprintf` / `vfprintf` / `fputs` / `fputc` / `putc` only addressed to stdout or stderr, as the contract excludes a file or writer. Go's `Fprintf` is excluded (#8868). |
+| `thread_sleeps` | sleeps and timed waits | aligned | Sleep calls and timed waits match the contract's sleep, timed wait and timeout-driven deferral; the per-language callee lists are the author's reading, a second reading of the contract and not independent proof. |
+| `regex_execution` | evaluates or builds a regular expression | aligned | Evaluating or constructing a regular expression matches the contract's match, substitution, split operator or constructor/compile call. C++ adds the `std::regex` constructor (`_CTOR_REGEX`). |
+| `time_date_logic` | instantiates or computes with a clock or calendar value: now/time/date constructors, durations, formatting | aligned | Clock and calendar constructors, durations and formatting match the contract; callee lists per language are the author's reading. |
+| `io` | opens or reads/writes a file or a network connection | aligned | A file or network connection is a system outside the runtime, so the sentence restates the stated `io` contract for those; console output is `debug_prints`'s. C++ adds the `std::ifstream` / `ofstream` / `fstream` constructors and `cin >>`. |
+| `doc` | structured documentation directly above (/** */, ///, godoc) | aligned | Owner ruling 2026-11-24 (#8862): the structured form each language's tools read (`/** */`, `///`, godoc declaration comments); a language with none is N/A. The JS/TS engine rule counting any comment is an engine gap (#8868), not an oracle reading. |
+
+Per-language readings that differ from the shared sentence:
+
+| language | reading | verdict |
+|---|---|---|
+| C#, PHP | `??` and `??=` stay under `branch` (value-selection operators; the short_circuit contract does not name them) | open question (owner) |
+| Ruby | `\|\|=` and `&&=` count under `short_circuit`; `rescue` / `ensure` are handlers, not branches (corollary 1) | aligned |
+| Kotlin, Swift | conjunction and disjunction nodes count under `short_circuit` | aligned |
+| Scala | a `case` clause under a `catch` is a handler, not a decision (corollary 1) | aligned |
+| C++ | `std::cout <<` / `std::cerr <<` / `clog <<` chains count as one `debug_prints` (and no `bitwise_ops`); `cin >>` as one `io`; `catch` is a handler, not a branch (corollary 1); no `closures` oracle | aligned |
+| shell | `&&` / `\|\|` list chaining counts under `short_circuit` | aligned |
+
+The non-Python `branch` cells in `tests/family_validity_baseline.json` were measured before this realignment and there is no
+`short_circuit` cell yet: they are rescanned per corpus (`family_oracle.py --lang X --corpus NAME --update-baseline`), not here.
 
 ## Open owner questions
 
-1. Is `assert` an abort for `panics_and_aborts`? (#8868, C precision 0.48.)
-2. Which documentation form counts for `doc` in a language without `/** */`? (#8868.)
-3. Does `comprehensions` include generator expressions?
-4. `llm_api` has a rule only for python, javascript and typescript; an absence entry is owed per language with an SDK (`docs/unplanted_family_contracts.md`).
+Ruled 2026-11-24 (#8862, closed): `assert` is not an abort; `doc` is the structured form, N/A where a language has none.
+
+1. Does `comprehensions` include generator expressions? The oracle counts them until ruled (the contract's "inline iteration form" may cover them; `lazy_evaluation` excludes them, which is a different family).
+2. Is `??` (and `??=`) a `short_circuit` operator in C# and PHP? Until ruled it counts under `branch`.
+
+Answered, no longer open: the `llm_api` absence entries (a rule only for python, javascript and typescript; every other
+language is a stated absence, #9275, `### llm_api stated absences` in `docs/unplanted_family_contracts.md`).

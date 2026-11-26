@@ -871,9 +871,12 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 class _Definition:
     __slots__ = (
+        "arg0_kind",
         "arity",
+        "char_width",
         "dir",
         "ext_receiver",
+        "is_const",
         "kind",
         "line",
         "max_arity",
@@ -908,6 +911,9 @@ class _Definition:
         param_names: list[str] | None = None,
         return_type: str | None = None,
         ext_receiver: str | None = None,
+        is_const: bool = False,
+        char_width: str | None = None,
+        arg0_kind: str | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -932,6 +938,12 @@ class _Definition:
         self.return_type = return_type
         # Kotlin extension function receiver type (`fun ArrayType.descriptor(...)` -> `"ArrayType"`)
         self.ext_receiver = ext_receiver
+        # C++ `const`-qualified member function (`auto data() const -> const T*`)
+        self.is_const = is_const
+        # C++ narrow vs wide character parameter overload tag (`"narrow"` | `"wide"`)
+        self.char_width = char_width
+        # C++ first-parameter kind tag (`"str"` | `"non_str"` | `"compiled"`)
+        self.arg0_kind = arg0_kind
         # #8161 (P5): the counts a call may pass (C++ defaults widen the fewest; a variadic has no most)
         self.min_arity: int | None = arity
         self.max_arity: int | None = arity
@@ -1116,6 +1128,9 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                     if lang == "kotlin" and shape == EXTENSION_SHAPE
                     else None
                 ),
+                is_const=bool(func.get("is_const_method")) if lang == "cpp" else False,
+                char_width=func.get("cpp_char_width") if lang == "cpp" else None,
+                arg0_kind=func.get("cpp_arg0_kind") if lang == "cpp" else None,
             )
             definition.prop = bool(_PROPERTY_DECORATORS.intersection(func.get("decorated_by") or ()))
             rng = func.get("arity_range")
@@ -1154,14 +1169,17 @@ _CONSTRUCTOR_NAMES: dict[str, tuple[str, ...]] = {
 _CLASS_NAMED_CONSTRUCTOR_LANGS = frozenset({"java", "csharp", "cpp", "dart", "apex", "objective-c"})
 
 
-def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, lang: str) -> _Definition | None:
+def _constructor_of(
+    index: dict[tuple[str, str], "_Bucket"],
+    cls: _Definition,
+    lang: str,
+    imports: dict[str, set[str]] | None = None,
+) -> _Definition | None:
     """The constructor method of class definition `cls`, if the scan extracted one.
 
     One in the class's own file, else one beside it with the same stem (a C++
-    `foo.h` class, its `Foo::Foo` in `foo.cpp`). Owner keys are bare class
-    names, so a constructor anywhere else may belong to another class of the
-    same name and is never taken. None when the class has no constructor of
-    its own (an inherited or implicit one): the call keeps the class.
+    `foo.h` class, its `Foo::Foo` in `foo.cpp`), or in C++ a same-stem `.cc`/`.cpp`
+    implementation file that `#include`s the class's header (`include/fmt/os.h` -> `src/os.cc`).
     """
     leaf = _leaf(cls.name)[0]
     names = _CONSTRUCTOR_NAMES.get(lang) or ((leaf,) if lang in _CLASS_NAMED_CONSTRUCTOR_LANGS else ())
@@ -1178,6 +1196,10 @@ def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, l
         for d in defs:
             if d.dir == cls.dir and d.stem == cls.stem:
                 return d
+        if lang == "cpp" and imports:
+            for d in defs:
+                if d.stem == cls.stem and cls.path in imports.get(d.path, ()):
+                    return d
     return None
 
 
@@ -1235,6 +1257,10 @@ _NOT_A_TYPE = frozenset({"return", "typedef", "using", "delete", "goto", "case",
 _COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
 
+_CPP_WRAPPER_TYPES = frozenset({"unique_ptr", "shared_ptr", "weak_ptr", "optional", "expected"})
+_CPP_WRAPPER_ARG = re.compile(r"\s*<\s*(?:const\s+)?(?:typename\s+)?(" + _UQID + r")")
+
+
 def class_alias_names(texts: Any) -> frozenset[str]:
     """#6266: the names that alias a class the texts declare (`Base` of `typedef Private<P> Base;`), over C++ sources."""
     return class_alias_tables(("", t) for t in texts)[0]
@@ -1256,7 +1282,13 @@ def class_alias_tables_full(sources: Any) -> tuple[frozenset[str], dict[str, fro
             aliases.add(pair)
             by_path.setdefault(path, set()).add(pair)
         for m in _TYPE_ALIAS_DECL.finditer(clean):
-            type_aliases.add((m.group(2) or m.group(3), (m.group(1) or m.group(4)).rsplit("::", 1)[-1]))
+            alias_name = m.group(2) or m.group(3)
+            target = (m.group(1) or m.group(4)).rsplit("::", 1)[-1]
+            if target in _CPP_WRAPPER_TYPES and m.group(4):
+                wm = _CPP_WRAPPER_ARG.match(clean, m.end())
+                if wm is not None:
+                    target = wm.group(1).rsplit("::", 1)[-1]
+            type_aliases.add((alias_name, target))
         fields.update(
             m.group(2) for m in _FIELD_DECL.finditer(_ALIAS_DECL.sub(" ", clean)) if m.group(1) not in _NOT_A_TYPE
         )
@@ -2375,6 +2407,24 @@ def _apply_declared_arities(index: dict[tuple[str, str], "_Bucket"], parsed_file
                             d.min_arity = min(int(fewest), d.min_arity if d.min_arity is not None else int(fewest))
                             if most is None:
                                 d.max_arity = None
+        free_declared = f.get("free_func_arities") or {}
+        if free_declared and lang == "cpp":
+            hdr_path = str(f.get("path") or "")
+            hdr_stem = _stem(hdr_path)
+            for fname, ranges in free_declared.items():
+                bucket = index.get((group, _key(fname, lang)))
+                if bucket is None:
+                    continue
+                for d in bucket.defs:
+                    if d.kind != "function" or d.owner_key:
+                        continue
+                    if d.path != hdr_path and d.stem != hdr_stem:
+                        continue
+                    for fewest, most, count in ranges:
+                        if d.arity == count:
+                            d.min_arity = min(int(fewest), d.min_arity if d.min_arity is not None else int(fewest))
+                            if most is None:
+                                d.max_arity = None
 
 
 # #8161 (PR 5): C#'s keyword type names, a call qualifier that is always a library type (`char.IsWhiteSpace(c)`)
@@ -2549,6 +2599,7 @@ def _resolve_call_return_type(
     typed: dict[str, list[str]],
     typed_scope: dict[str, set[str]],
     static_memo: dict[tuple[int, str], _Bucket],
+    class_alias_targets: dict[str, str] | None = None,
 ) -> tuple[list[str], set[str] | None] | None:
     """Resolve a call expression or chain (`get_store()`, `svc.get_store()`) to `(return_lineage, scope_files)`."""
     if not expr:
@@ -2571,6 +2622,8 @@ def _resolve_call_return_type(
             if outer_files and _is_class(index, group, inner, lang):
                 return _lineage(inner, group, lang, parents), outer_files
             ret_raw = inner
+        if lang == "cpp" and class_alias_targets:
+            ret_raw = class_alias_targets.get(ret_raw, ret_raw)
         if not _is_class(index, group, ret_raw, lang):
             return None
         ret_lin = _lineage(ret_raw, group, lang, parents)
@@ -2602,7 +2655,7 @@ def _resolve_call_return_type(
     for idx, seg in enumerate(segments[1:], start=1):
         is_last = idx == len(segments) - 1
         if not seg.endswith("()") and not is_last:
-            if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
+            if idx == 1 and (first in _SELF_RECEIVERS or lang == "cpp") and f"{first}.{seg}" in typed:
                 cur_lineage = typed[f"{first}.{seg}"]
                 cur_scope = typed_scope.get(f"{first}.{seg}")
                 continue
@@ -2613,6 +2666,8 @@ def _resolve_call_return_type(
             hit = _step("<chain>", callee_name, {**typed, "<chain>": cur_lineage}, next_scope)
         elif idx == 1:
             hit = _step(first, callee_name, typed, typed_scope)
+            if hit is None and lang == "cpp":
+                hit = _step("", callee_name, typed, typed_scope)
         else:
             return None
         if hit is None:
@@ -2689,7 +2744,7 @@ def _resolve_call_return_name(
     for idx, seg in enumerate(segments[1:], start=1):
         is_last = idx == len(segments) - 1
         if not seg.endswith("()") and not is_last:
-            if idx == 1 and first in _SELF_RECEIVERS and f"{first}.{seg}" in typed:
+            if idx == 1 and (first in _SELF_RECEIVERS or lang == "cpp") and f"{first}.{seg}" in typed:
                 cur_lineage = typed[f"{first}.{seg}"]
                 cur_scope = typed_scope.get(f"{first}.{seg}")
                 continue
@@ -2741,6 +2796,20 @@ def resolve_calls(
     """
     index = _index(parsed_files)
     _apply_declared_arities(index, parsed_files)
+    cpp_class_fields: dict[str, dict[str, str]] = {}
+    for f in parsed_files:
+        if str(f.get("lang_id", "")).lower() != "cpp":
+            continue
+        for cls in f.get("classes", []) or []:
+            cname = str(cls.get("name") or "")
+            ftypes = cls.get("field_types") or {}
+            if cname and ftypes:
+                ckey = _key(_leaf(cname)[0], "cpp")
+                bucket_f = cpp_class_fields.setdefault(ckey, {})
+                for fname, ftype in ftypes.items():
+                    if ftype and fname not in bucket_f:
+                        resolved_ft = (class_alias_targets or {}).get(str(ftype), str(ftype))
+                        bucket_f[fname] = resolved_ft
     parents = _ancestry(parsed_files)
     # proximity depends only on the caller's directory, so the nearest pick for
     # a candidate set is shared by every caller in that directory
@@ -2855,6 +2924,12 @@ def resolve_calls(
             # knows. A name the function binds itself with no known class ("")
             # hides the module's type for it rather than inheriting it.
             receiver_types = {**module_types, **(func.get("calls_out_receiver_types") or {})}
+            if lang == "cpp" and cpp_class_fields and lineage:
+                # Out-of-line C++ methods in `.cc` files inherit member field types declared in the class header.
+                for cls_key in lineage:
+                    for fname, ftype in (cpp_class_fields.get(cls_key) or {}).items():
+                        if fname not in receiver_types:
+                            receiver_types[fname] = ftype
             if lang == "cpp" and class_alias_targets:
                 receiver_types = {q: class_alias_targets.get(str(c), c) if c else c for q, c in receiver_types.items()}
             typed = {
@@ -2867,6 +2942,26 @@ def resolve_calls(
                     else _is_class(index, group, str(c), lang)
                 )
             }
+            if lang == "cpp" and cpp_class_fields:
+                # 1-hop C++ struct field chains (`pipe.read_end.descriptor()`, `pipe.read_end.fdopen().get()`).
+                dotted_quals = {q for qs in qualifier_map.values() for q in qs if q and "." in q and q not in typed}
+                for chs in (func.get("calls_out_expr_chains") or {}).values():
+                    for ch in chs:
+                        parts_ch = ch.split(".")
+                        if len(parts_ch) >= 3 and not parts_ch[0].endswith("()") and not parts_ch[1].endswith("()"):
+                            dotted_quals.add(f"{parts_ch[0]}.{parts_ch[1]}")
+                for dq in dotted_quals:
+                    base_q, _, fld_q = dq.partition(".")
+                    if "." in fld_q:
+                        continue
+                    base_lin = typed.get(base_q)
+                    if not base_lin:
+                        continue
+                    for cls_key in base_lin:
+                        ft = (cpp_class_fields.get(cls_key) or {}).get(fld_q)
+                        if ft and _is_class(index, group, ft, lang):
+                            typed[dq] = _lineage(ft, group, lang, parents)
+                            break
             if lang == "kotlin" and "this" in typed:
                 lineage = list(dict.fromkeys((*lineage, *typed["this"])))
             typed_scope: dict[str, set[str]] = {}
@@ -2890,7 +2985,18 @@ def resolve_calls(
                 elif c and q not in typed and not _is_class(index, group, str(c), lang):
                     # Cross-function return type: `x = get_store()` where `get_store` has `return_type = "Store"`
                     ret_hit = _resolve_call_return_type(
-                        str(c), index, group, lang, caller, lineage, cache, parents, typed, typed_scope, static_memo
+                        str(c),
+                        index,
+                        group,
+                        lang,
+                        caller,
+                        lineage,
+                        cache,
+                        parents,
+                        typed,
+                        typed_scope,
+                        static_memo,
+                        class_alias_targets,
                     )
                     if ret_hit is not None:
                         typed[q], ret_scope = ret_hit
@@ -2910,6 +3016,7 @@ def resolve_calls(
                         typed,
                         typed_scope,
                         static_memo,
+                        class_alias_targets,
                     )
                     if ret_hit is not None:
                         typed[q], ret_scope = ret_hit
@@ -2922,6 +3029,15 @@ def resolve_calls(
                 # #8161 (X5): `plus2()` after `import { add as plus2 }` is looked up as `add`
                 looked_up = renames.get(callee, callee) if kind == "call" else callee
                 bucket = _visible_statics(index.get((group, _key(str(looked_up), lang))), caller, static_memo)
+                if (
+                    lang == "cpp"
+                    and kind in ("call", "ctor")
+                    and class_alias_targets
+                    and (bucket is None or (kind == "ctor" and not any(d.kind == "class" for d in bucket.defs)))
+                ):
+                    alias_target = class_alias_targets.get(str(looked_up))
+                    if alias_target:
+                        bucket = _visible_statics(index.get((group, _key(alias_target, lang))), caller, static_memo)
                 quals = {
                     "call": qualifier_map,
                     "decorator": decorator_map,
@@ -2947,6 +3063,7 @@ def resolve_calls(
                     _kind: str = kind,
                     _group: str = group,
                     _lang: str = lang,
+                    _receiver_types: dict[str, str] = receiver_types,
                 ) -> tuple[str, _Definition | None, str | None]:
                     if q == "<expr>" and _kind == "call" and _expr_chains.get(_callee):
                         best: tuple[str, _Definition | None, str | None] = ("none", None, q)
@@ -2963,6 +3080,7 @@ def resolve_calls(
                                 _typed,
                                 _typed_scope,
                                 static_memo,
+                                class_alias_targets,
                             )
                             if ch_hit is not None:
                                 ch_lineage, ch_scope = ch_hit
@@ -2982,6 +3100,31 @@ def resolve_calls(
                                     best = (st, d, "<expr>")
                         if best[1] is not None:
                             return best[0], best[1], best[2]
+                    if (
+                        _lang == "kotlin"
+                        and _kind == "call"
+                        and q
+                        and q != "<expr>"
+                        and q not in _typed
+                        and _bucket is not None
+                    ):
+                        ext_recv_t = str(_receiver_types.get(q) or "").rsplit(".", 1)[-1]
+                        if ext_recv_t:
+                            ext_defs = [
+                                d
+                                for d in _bucket.all.defs
+                                if d.shape == EXTENSION_SHAPE
+                                and d.ext_receiver == ext_recv_t
+                                and (d.path == _caller.path or d.path in _caller.imported or d.pkg == _caller.pkg)
+                            ]
+                            if ext_defs:
+                                same_f = [d for d in ext_defs if d.path == _caller.path]
+                                pick_ext = (
+                                    same_f[0]
+                                    if same_f
+                                    else (_nearest_of(ext_defs, _caller.parts) or min(ext_defs, key=lambda d: d.path))
+                                )
+                                return "typed", pick_ext, q
                     st, d = _resolve_one(_bucket, _caller, _lineage, q, cache, _typed, _typed_scope)
                     return st, d, q
 
@@ -3107,7 +3250,7 @@ def resolve_calls(
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.
-                    ctor = _constructor_of(index, dst, lang)
+                    ctor = _constructor_of(index, dst, lang, imports=imports)
                     if ctor is not None:
                         cls, dst = dst, ctor
                 if kind == "ctor" and (cls is None or dst is None):
@@ -3130,6 +3273,94 @@ def resolve_calls(
                         else None
                     )
                     overloads = _overloads(index, dst, group, lang, visible_paths=vis, src_path=src_path)
+                    if (
+                        len(overloads) > 1
+                        and lang == "cpp"
+                        and kind == "call"
+                        and dst.owner_key
+                        and any(d.is_const for d in overloads)
+                        and any(not d.is_const for d in overloads)
+                    ):
+                        const_recvs = set(func.get("const_receivers") or ())
+                        recv_key = used or "this"
+                        const_match: list[_Definition] = []
+                        if recv_key in const_recvs:
+                            const_match = [d for d in overloads if d.is_const]
+                        elif recv_key in typed or (recv_key == "this" and not func.get("is_const_method")):
+                            const_match = [d for d in overloads if not d.is_const]
+                        if const_match:
+                            overloads = const_match
+                            if len(overloads) == 1:
+                                targets = [(step, overloads[0])]
+                    if len(overloads) > 1 and lang == "cpp" and kind == "call":
+                        cpp_arities = [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
+                        if cpp_arities and all(any(d.fits(a) for d in overloads) for a in cpp_arities):
+                            arity_fits = [d for d in overloads if any(map(d.fits, cpp_arities))]
+                            if arity_fits:
+                                overloads = arity_fits
+                                if len(overloads) == 1:
+                                    targets = [
+                                        (
+                                            ("file" if overloads[0].path == src_path else "import")
+                                            if vis is not None
+                                            else step,
+                                            overloads[0],
+                                        )
+                                    ]
+                    if len(overloads) > 1 and lang == "cpp" and kind == "call":
+                        a0s = (func.get("calls_out_arg0_kinds") or {}).get(callee)
+                        if a0s and len(a0s) == 1:
+                            ak = a0s[0]
+                            if ak == "compiled_str" and any(d.arg0_kind == "compiled_str" for d in overloads):
+                                overloads = [d for d in overloads if d.arg0_kind == "compiled_str"]
+                                if len(overloads) == 1:
+                                    targets = [
+                                        (
+                                            ("file" if overloads[0].path == src_path else "import")
+                                            if vis is not None
+                                            else step,
+                                            overloads[0],
+                                        )
+                                    ]
+                            elif (
+                                ak == "str"
+                                and any(d.arg0_kind == "str" for d in overloads)
+                                and any(d.arg0_kind in ("non_str", "compiled_str", "compiled_fmt") for d in overloads)
+                            ):
+                                overloads = [d for d in overloads if d.arg0_kind == "str"]
+                                if len(overloads) == 1:
+                                    targets = [
+                                        (
+                                            ("file" if overloads[0].path == src_path else "import")
+                                            if vis is not None
+                                            else step,
+                                            overloads[0],
+                                        )
+                                    ]
+                    if len(overloads) > 1 and lang == "cpp" and kind == "call":
+                        cws = (func.get("calls_out_char_widths") or {}).get(callee)
+                        if cws and len(cws) == 1:
+                            cw = cws[0]
+                            excluded: tuple[str, ...] = ()
+                            if cw == "wchar" and any(d.char_width == "wchar" for d in overloads):
+                                excluded = ("narrow", "utf_wide")
+                            elif cw == "utf_wide" and any(d.char_width == "utf_wide" for d in overloads):
+                                excluded = ("narrow", "wchar")
+                            elif cw == "narrow" and any(d.char_width == "narrow" for d in overloads):
+                                excluded = ("wchar", "utf_wide")
+                            if excluded and any(d.char_width in excluded for d in overloads):
+                                narrowed = [d for d in overloads if d.char_width not in excluded]
+                                if narrowed:
+                                    overloads = narrowed
+                                    if len(overloads) == 1:
+                                        targets = [
+                                            (
+                                                ("file" if overloads[0].path == src_path else "import")
+                                                if vis is not None
+                                                else step,
+                                                overloads[0],
+                                            )
+                                        ]
                     if (
                         len(overloads) > 1
                         and lang == "kotlin"

@@ -170,3 +170,26 @@ def test_every_rule_survives_pathological_input():
     ]
     pairs = [(rule, p) for rule in [r for r in RULES.values() if hasattr(r, "finditer")] for p in payloads]
     assert_redos_immune_all(pairs)
+
+
+# #9200: crystal is enrolled in named class extraction, so its own class_start names every declaration,
+# keeping a namespaced path whole (the generic fallback read `HTTP::Client` as `HTTP` and had no `module`).
+NAMED_SRC = (
+    "module Doom\n"
+    "  abstract class Thing\n"
+    "  end\n"
+    "  class HTTP::Client < Base\n"
+    "  end\n"
+    "  struct Vec(T)\n"
+    "  end\n"
+    "  private enum Color\n"
+    "  end\n"
+    "end\n"
+    "# class Commented\n"
+    'x = "class InString"\n'
+)
+
+
+def test_named_classes_keep_the_namespaced_path_and_every_declaration_kind_9200():
+    names = [c["name"] for c in _splice(NAMED_SRC)["classes"]]
+    assert names == ["Doom", "Thing", "HTTP::Client", "Vec", "Color"]

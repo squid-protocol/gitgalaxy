@@ -8,7 +8,7 @@ import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
-LANGS = ("c", "go", "elixir")
+LANGS = ("c", "go", "elixir", "matlab", "objective-c")
 TAGS = ("[SPEC-123]", "[audit]", "[Spec 10.9.4]", "[audit: reviewed by QA]", "[spec]")
 NOT_TAGS = (
     "[SPECIAL___ENTER__] = {",
@@ -16,6 +16,8 @@ NOT_TAGS = (
     "{:when, _, [spec, guard]}",
     "[spec, return]",
     "[auditor]",
+    "specdata = [specdata;[real(tmp) imag(tmp)]];",
+    "[specs x]",
 )
 
 
@@ -29,3 +31,8 @@ def test_a_traceability_tag_still_counts(lang, text):
 @pytest.mark.parametrize("text", NOT_TAGS)
 def test_bracketed_code_is_not_a_tag(lang, text):
     assert not LANGUAGE_DEFINITIONS[lang]["rules"]["spec_exposure"].search(text)
+
+
+def test_objective_c_product_name_still_counts():
+    # a deliberate name alternation (design question in unplanted_family_contracts.md), not touched by the guard
+    assert LANGUAGE_DEFINITIONS["objective-c"]["rules"]["spec_exposure"].search("WorldWideWeb")

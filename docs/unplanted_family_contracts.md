@@ -46,18 +46,29 @@ those that carry a rule (the rest record `None`, a contract-level absence).
 | signal | language | what the rule counts | reads the sentence? |
 |---|---|---|---|
 | `dead_code` | assembly | `// MOV X1,` matched in the code stream (8 of 13 hits) | no: the sentence reads the comment surface |
-| `dead_code` | assembly, dockerfile, css | prose comments (`# add NUL terminator (again)`, `# from the ... repo`, `/*.run + * {`) | no: prose, not code |
+| `dead_code` | assembly, css | prose comments (`# add NUL terminator (again)`, `/*.run + * {`) | no: prose, not code; listed, not fixed |
+| `dead_code` | dockerfile | prose led by an instruction word (`# from the ... repo`, `# Copy the sources`, `#  run one of ...`, `# FROM statement is updated`) | no: prose -- fixed: the keyword is uppercase and takes an operand, `FROM` must end after `image [AS name]`; crucible hits 5 -> 1 (`tests/extraction/languages/test_dockerfile_dead_code_shape_8862.py`) |
 | `dead_code` | bms | `*FLDDEAD DFHMDF ...` a map label line | design question: a commented-out macro line, but the label is a name |
-| `spec_exposure` | c, go, elixir | `[SPECIAL___ENTER__] = {`, `[Spec=%v, ...]` in a log string, `[spec, return]` a list pattern, all in the code stream | no: not a comment tag -- fixed: the keyword must be a whole word not followed by `,` or `=`; crucible hits 4/1/3 -> 0 (`tests/extraction/test_spec_exposure_code_stream.py`). Every other language carries the same unguarded regex: not yet probed |
+| `spec_exposure` | c, go, elixir | `[SPECIAL___ENTER__] = {`, `[Spec=%v, ...]` in a log string, `[spec, return]` a list pattern, all in the code stream | no: not a comment tag -- fixed: the keyword must be a whole word not followed by `,` or `=`; crucible hits 4/1/3 -> 0 (`tests/extraction/test_spec_exposure_code_stream.py`). matlab (`[specdata;[real(tmp) imag(tmp)]]` in `runica.m`, 1 hit) and objective-c (`[spec ...]` is a message send) carry the same guard, crucible matlab 1 -> 0. Every other language carries the same unguarded regex with 0 measured hits (crucible and rosetta): listed, not yet guarded |
+| `spec_exposure` | objective-c | `WorldWideWeb` inside a `NXGetDefaultValue("WorldWideWeb", ...)` string (4 code-stream hits) | design question: a deliberate product-name alternation pinned by `test_language_standards_strict.py`, not a tag; left as is |
 | `spec_exposure` | agc_assembly | `Colossus` / `Comanche` in a `# Purpose:` line | no: a program name, not a traceability tag |
 | `spec_exposure` | embedded_python | `[Spec 10.9.4]` section citations in prose (241 hits) | partly: a bracketed spec reference, but a citation of a document, not a tag on code |
 | `reflection_metaprogramming` | c, cobol, db2_sql | `goto`, `EXEC SQL` / `EXEC CICS`, `GET DIAGNOSTICS` | no: control flow and embedded-SQL statements, not self-inspection |
-| `reflection_metaprogramming` | cpp, css, dart, dockerfile | `sizeof...` (a compile-time pack size), `calc(`, the word `reflect` in a string, `--mount=type=cache` | no |
-| `reflection_metaprogramming` | csharp, java, rust | `using ...Emit;` (a namespace import), a `ClassLoader` type name, `PhantomData` | no: a type or import, not a call that inspects or alters structure |
-| `reflection_metaprogramming` | python | `@property` / `@classmethod` (322 hits), a decorator (`decorators`) | no |
+| `reflection_metaprogramming` | cpp, css, dart, dockerfile | `sizeof...` (a compile-time pack size), `calc(`, the word `reflect` in a string, `--mount=type=cache` | no -- dart and dockerfile fixed: dart `reflect` needs `(`; dockerfile keeps only `ONBUILD`, not `--mount` / `--platform=` / `<<EOF` (`tests/extraction/test_reflection_build_flags_8862.py`); cpp `sizeof...` and css `calc(` left |
+| `reflection_metaprogramming` | csharp, java, rust | `using ...Emit;` (a namespace import), a `ClassLoader` type name, `PhantomData` | no: a type or import, not a call that inspects or alters structure -- fixed: csharp `System.Reflection` is not read after `using ` and bare `Emit` becomes `.Emit(`; java `ClassLoader` needs `.` (or `.getClassLoader(` / `.loadClass(` / `.defineClass(`); rust drops `PhantomData`; crucible hits csharp 9 -> 2, java 18 -> 9, rust 119 -> 63 (`tests/extraction/test_reflection_type_names_8862.py`). java `native` and csharp `DllImport` / `LibraryImport` (a foreign-function declaration) are the same question: listed, not changed |
+| `reflection_metaprogramming` | python, embedded_python | `@property` / `@classmethod` / `@staticmethod` (322 python hits), a declaration decorator (`decorators`') | no -- fixed: the three decorators are dropped from both rules; `getattr`, `setattr`, dunders, `inspect.` and `@micropython.viper` stay (`test_python_strict.py`, `test_embedded_python_strict.py`) |
 | `reflection_metaprogramming` | agc_assembly | `INDEX` (an address-modifier instruction) | design question: indirect addressing, not self-inspection |
-| `llm_api` | typescript | `@anthropic-ai/tokenizer` import | no: reading 2 |
-| `llm_api` | 76 languages | rule is `None` | design question: only python, javascript and typescript are covered; an absence ledger entry is owed per language that has an SDK |
+| `llm_api` | javascript, typescript | `@anthropic-ai/tokenizer` import | no: reading 2 -- fixed: `JS_LLM_API` excludes that exact package name (`@anthropic-ai/sdk` and every other scope member still fire); `tests/extraction/languages/test_llm_api_anchor_4137.py` |
+| `llm_api` | 76 languages | rule is `None` | stated absence, listed below: no rule is written until a language's provider-client import form is measured on a corpus |
+
+### `llm_api` stated absences (#8862)
+
+The rule is `None` (a stated absence, not a missed rule) for every language other than python, javascript and
+typescript; `test_every_llm_api_language_uses_an_anchored_pattern` pins that set. Languages with a published
+provider client, where a rule is a candidate once a corpus carries a positive: java, kotlin, go, csharp, ruby, php,
+rust, swift, dart, scala, elixir. Everything else (assembly and mainframe languages, markup, config, shell, query
+languages) has no hosted-LLM client form, so the absence is by morphology. The crucible holds no positive in any
+candidate language (12 hits, all python, javascript, typescript), so a rule written now would be unmeasured.
 
 `tests/family_validity_baseline.json` carries parser-oracle scores only for families with an oracle; none exists for
 these four (`dead_code` and `spec_exposure` have no parser oracle: they need planted positives and negatives).

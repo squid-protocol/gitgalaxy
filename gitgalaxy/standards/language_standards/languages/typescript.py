@@ -647,8 +647,15 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 9. io (I/O & Network Boundaries)
+        # #8868: same operative-form rule as javascript (bare `path`/`http`/`sql`/`database` are everyday words)
         "io": re.compile(
-            r"\b(fetch|axios|http|https|fs|path|database|sql|localStorage|sessionStorage|indexedDB|document\.cookie|XMLHttpRequest|child_process|fs/promises)\b"
+            # #2841 contract C1; #8863 (family validity): operative forms only. `path.join` / `path.dirname` are string
+            # arithmetic, not I/O (the oracle never counts them), and a bare `fs` word matched property and parameter
+            # names. The facilities fire as a call or member access; the bare node-fs read/write names fire as calls.
+            r"(?<![\w$])(?:fetch\s*\(|fs\.|axios\b|XMLHttpRequest\b|(?:localStorage|sessionStorage)\.|indexedDB\.|document\.cookie\b|child_process\b)"
+            r"|\bhttps?\.(?:get|request|createServer|Agent|globalAgent)\b"
+            r"|\brequire\(\s*['\"](?:https?|net|dgram|dns|tls|fs)['\"]\s*\)"
+            r"|(?<!function )\b(?:readFile|writeFile|createReadStream|createWriteStream)(?:Sync)?\s*\("
         ),
         # 10. api (Public Surface Area)
         # Captures explicit exports and public visibility.
@@ -759,7 +766,13 @@ DEFINITION: dict[str, Any] = {
             r'(?<!\w)<[A-Z][\w.]*(?=\s+[\w-]+\s*=|\s*/>)|</[A-Z][\w.]*\s*>|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition|Id)|props\.|this\.state|@Component|@Injectable|document\.(?:getElementById|querySelector)|["\']use\s+(?:client|server)["\']'
         ),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
+        # #8863: anonymous callables only -- every value arrow (single-parameter and expression-bodied too) and anonymous
+        # `function (`. A type-level `(a: A) => B` follows `:` `|` `&` `?` `<` and is skipped, as is the unit's own
+        # leading arrow (`(?!\A)`): the function being measured is not a closure inside itself.
+        "closures": re.compile(
+            r"(?!\A)(?:(?<![:|&?<]\s)(?<![:|&?<])\((?:[^()]|\([^()]*\))*\)|(?<![\w$.)])[\w$]+)[ \t]*=>"
+            r"|(?!\A)\bfunction\s*\*?\s*\("
+        ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
             # #2858 contract corollary 3: `self` and `global` are everyday
@@ -769,7 +782,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:window|document|navigator|globalThis)\.(?=[\w$])|\bprocess\.env\b|\bimport\.meta\.env\b"
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"@\w+(?:\([^)]*\))?"),
+        # #8863: a decorator opens a statement, a parameter or an argument list; `@` inside a word, a template literal or
+        # a doc tag is not one.
+        "decorators": re.compile(r"(?:^|[(,;{}])[ \t]*@[A-Za-z_$][\w$.]*(?:\([^)]*\))?", re.M),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(
             # #8010: bare `extends` (class/interface heritage) is not generic; only a conditional type
@@ -894,10 +909,19 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|process\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|Atomics\.wait)\b"),
+        # #8863: a call -- `delay` is also a parameter, a getter and a property name.
+        "thread_sleeps": re.compile(
+            r"(?<!get )(?<!set )(?<!function )\b(?:sleep|delay|setTimeout|setInterval|setImmediate)\s*\(|\bAtomics\.wait(?:Async)?\s*\("
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         # #8866: a ">>" closing a generic list is not a shift
-        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^|~"),
+        # #8863: `&` / `|` (and `&=` / `|=`) between value operands -- a type-level `A | B` / `A & B` is not a bitwise
+        # operator: `null` / `undefined` / primitive-type operands and two bare PascalCase names (a union of types) are skipped.
+        "bitwise_ops": re.compile(
+            r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^|~"
+            r"|(?:(?<![\w.$])(?!(?:[A-Z]\w*[a-z]\w*|[A-Z])[ \t]+[&|][ \t]+(?:[A-Z]\w*[a-z]\w*|[A-Z])(?![\w.(]))[\w$.]+|[)\]])[ \t]+[&|]=?"
+            r"(?=[ \t]+(?!(?:null|undefined|void|never|unknown|any|string|number|boolean|object|bigint|symbol|true|false)\b)[\w(~!$])"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomics\.lock|Atomics\.wait)\b",
@@ -964,7 +988,7 @@ DEFINITION: dict[str, Any] = {
             re.MULTILINE,
         ),
         "time_date_logic": re.compile(
-            r"\b(Date\.now|new\s+Date|setTimeout|setInterval|clearTimeout|clearInterval|performance\.now)\b"
+            r"\b(Date\.now|new\s+Date|performance\.now)\b"  # #8868: timers are thread_sleeps' timed waits, not clock values
         ),
         "ipc_rpc_bridges": re.compile(r"\b(postMessage|Worker|MessageChannel|child_process|worker_threads|cluster)\b"),
         # system_config_mutation (#3084): contract-level absence. runtime/app

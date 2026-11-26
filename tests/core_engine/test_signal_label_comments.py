@@ -185,10 +185,23 @@ def test_safety_comments_use_the_display_name():
 
 def test_safety_bypasses_comments_use_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["safety_bypasses"][1].split(" (")[0]
-    for stem in ("c", "python", "javascript", "java", "typescript", "cpp", "csharp", "rust"):
+    for stem in (
+        "c",
+        "python",
+        "javascript",
+        "java",
+        "typescript",
+        "cpp",
+        "csharp",
+        "rust",
+        "go",
+        "ruby",
+        "kotlin",
+        "php",
+    ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"safety_bypasses ({name}:" in text, stem
-        assert "Safety Bypasses / Unchecked Types" not in text, stem
+        assert "safety_neg (Safety Bypasses" not in text, stem
 
 
 def test_thread_sleeps_comments_use_the_display_name():

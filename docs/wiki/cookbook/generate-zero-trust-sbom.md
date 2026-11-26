@@ -1,5 +1,6 @@
 ---
-description: "In modern enterprise compliance (like SOC2 or Executive Order 14028), generating a Software Bill of Materials (SBOM) is mandatory. However, standard..."
+title: "How to Generate a Verified SBOM"
+description: "Step by step: generate an SBOM that proves every dependency exists on disk, and catches tampered node_modules or venvs that manifest-only tools miss."
 ---
 # How to Generate a Verified SBOM (Software Bill of Materials)
 

@@ -3,6 +3,25 @@
     "abap": {
       "abap/SOURCES.md": "Data / Markup / Trivial"
     },
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap": "Declarative / Non-Code",
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": "Large Core Modules",
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": "Large Core Modules",
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": "Large Core Modules (3)",
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": "Parameter Forwarders Files",
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": "Parameter Forwarders Files",
+      "abap/abap2xlsx/src_zcl_excel_font.clas.testclasses.abap": "Large Core Modules",
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": "Parameter Forwarders Files",
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": "Large Core Modules (3)",
+      "abap/abap2xlsx/src_zcl_excel_obsolete_func_wrap.clas.abap": "Large Core Modules (2)",
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": "Large Core Modules (3)",
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": "Parameter Forwarders Files",
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": "Large Core Modules",
+      "abap/abap2xlsx/src_zif_excel_book_protection.intf.abap": "Declarative / Non-Code",
+      "abap/abap2xlsx/src_zif_excel_sheet_printsettings.intf.abap": "Declarative / Non-Code",
+      "abap/abap2xlsx/test_cl_excel_test.clas.abap": "Compute Cores Files",
+      "abap/abap2xlsx/test_cl_excel_test.clas.testclasses.abap": "Interface Declarations Files"
+    },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": "Data / Markup / Trivial",
       "abap/abapGit/zabapgit.prog.abap": "Declarative / Non-Code",
@@ -12,6 +31,30 @@
       "abap/abapGit/zcl_abapgit_objects.clas.abap": "Large Core Modules (3)",
       "abap/abapGit/zcl_abapgit_persistence_db.clas.abap": "Large Core Modules (3)",
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Large Core Modules"
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": "Data / Markup / Trivial",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": "Data / Markup / Trivial",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": "Large Core Modules",
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": "Large Core Modules",
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": "Many-Argument Workhorses Files",
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": "Interface Declarations Files",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": "Many-Argument Workhorses Files",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": "Large Core Modules",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": "Many-Argument Workhorses Files",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": "Large Core Modules"
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": "Large Core Modules",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": "Large Core Modules (3)",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": "Large Core Modules (2)",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": "Large Core Modules",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": "Large Core Modules (3)",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": "Large Core Modules",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": "Large Core Modules (2)",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": "Large Core Modules",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff.clas.abap": "Many-Argument Workhorses Files",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": "Large Core Modules (3)"
     },
     "ada": {
       "ada/PROVENANCE.md": "Data / Markup / Trivial",
@@ -88,6 +131,34 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": "Large Core Modules",
       "agc_assembly/apollo-11/WAITLIST.agc": "Large Core Modules (3)"
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": "Large Core Modules (3)",
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": "Interface Declarations Files",
+      "agc_assembly/apollo-11_comanche055_cm/INTER-BANK_COMMUNICATION.agc": "Parameter Forwarders Files",
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": "Interface Declarations Files",
+      "agc_assembly/apollo-11_comanche055_cm/LICENSE.md": "Data / Markup / Trivial",
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": "Large Core Modules (3)",
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": "Large Core Modules (2)",
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": "Interface Declarations Files"
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": "Interface Declarations Files",
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": "Large Core Modules (3)",
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": "Parameter Forwarders Files",
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": "Interface Declarations Files",
+      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": "Data / Markup / Trivial",
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": "Large Core Modules (3)",
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": "Large Core Modules",
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": "Large Core Modules (3)",
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": "Interface Declarations Files",
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": "Interface Declarations Files"
+    },
     "apex": {
       "apex/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -100,6 +171,20 @@
       "apex/apex-recipes/SOQLRecipes_Tests.cls": "Large Core Modules",
       "apex/apex-recipes/project-scratch-def.json": "Data / Markup / Trivial",
       "apex/apex-recipes/sfdx-project.json": "Data / Markup / Trivial"
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": "Generic / Templated Code Files",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IDomainConstructor.cls": "Data / Markup / Trivial",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IObjects.cls": "Declarative / Non-Code",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjectSelector.cls": "Data / Markup / Trivial",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjects.cls": "Data / Markup / Trivial",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IServiceFactory.cls": "Data / Markup / Trivial",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Objects.cls": "Large Core Modules (3)",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": "Large Core Modules (3)",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": "Large Core Modules (3)",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": "Encapsulated Accessors Files",
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_StringBuilder.cls": "Large Core Modules (3)",
+      "apex/fflib_apex_common/sfdx-source_apex-common_test_classes_fflib_ObjectsTest.cls": "Large Core Modules (3)"
     },
     "assembly": {
       "assembly/SOURCES.md": "Data / Markup / Trivial"
@@ -126,7 +211,7 @@
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": "Large Core Modules",
-      "assembly/cosmopolitan/ape.S": "Large Core Modules (3)",
+      "assembly/cosmopolitan/ape.S": "Large Core Modules",
       "assembly/cosmopolitan/loader.c": "Large Core Modules (3)",
       "assembly/cosmopolitan/notice.inc": "Data / Markup / Trivial",
       "assembly/cosmopolitan/start.S": "Parameter Forwarders Files"
@@ -394,6 +479,29 @@
     "bms": {
       "bms/SOURCES.md": "Data / Markup / Trivial"
     },
+    "bms/carddemo_bms": {
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU01.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTLI.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTUP.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COACTUP.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COACTVW.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COADM01.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COBIL00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COCRDLI.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COCRDSL.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COCRDUP.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COMEN01.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_CORPT00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COSGN00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COTRN00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COTRN01.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COTRN02.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COUSR00.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COUSR01.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COUSR02.bms": "Large Core Modules",
+      "bms/carddemo_bms/app_bms_COUSR03.bms": "Large Core Modules"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Large Core Modules",
       "bms/cbsa/BNK1CAM.bms": "Large Core Modules",
@@ -405,6 +513,10 @@
       "bms/cbsa/BNK1TFM.bms": "Large Core Modules",
       "bms/cbsa/BNK1UAM.bms": "Large Core Modules",
       "bms/cbsa/PROVENANCE.md": "Data / Markup / Trivial"
+    },
+    "bms/dbb_mortgage_bms": {
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmlis.bms": "Large Core Modules",
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmort.bms": "Parameter Forwarders Files"
     },
     "bms/genapp": {
       "bms/genapp/ssmap.bms": "Large Core Modules"
@@ -969,7 +1081,7 @@
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": "Large Core Modules",
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": "Interface Declarations Files",
-      "cobol/cobol-check/src_main_cobol_MOCK.CBL": "Declarative / Non-Code",
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": "Large Core Modules",
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": "Interface Declarations Files",
       "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": "Interface Declarations Files",
@@ -1200,6 +1312,35 @@
     "csharp": {
       "csharp/SOURCES.md": "Data / Markup / Trivial"
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/LICENSE.txt": "Data / Markup / Trivial",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": "Encapsulated Accessors Files",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": "Declarative / Non-Code",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": "Encapsulated Accessors Files",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": "Encapsulated Accessors Files",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": "Encapsulated Accessors Files",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": "Large Core Modules",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": "Declarative / Non-Code",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": "Large Core Modules",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": "Large Core Modules (2)",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": "State Mutators Files",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": "Declarative / Non-Code",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": "State Mutators Files"
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": "Data / Markup / Trivial",
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": "State Mutators Files",
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": "Callbacks & Closures Files",
+      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": "Declarative / Non-Code",
+      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": "Declarative / Non-Code",
+      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": "Declarative / Non-Code",
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": "Interface Declarations Files",
+      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": "Declarative / Non-Code",
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "Encapsulated Accessors Files",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "Generic / Templated Code Files",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "State Mutators Files",
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "Callbacks & Closures Files"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "Large Core Modules (3)",
       "csharp/roslyn/CSharpSyntaxTree.cs": "Large Core Modules (3)",
@@ -1208,6 +1349,21 @@
       "csharp/roslyn/License.txt": "Data / Markup / Trivial",
       "csharp/roslyn/MethodCompiler.cs": "Large Core Modules (3)",
       "csharp/roslyn/Workspace.cs": "Encapsulated Accessors Files"
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/LICENSE.TXT": "Data / Markup / Trivial",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": "Generic / Templated Code Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "Large Core Modules (2)",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": "Generic / Templated Code Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": "Generic / Templated Code Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "Large Core Modules (3)",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "Encapsulated Accessors Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "Large Core Modules (3)",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": "Large Core Modules (2)",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": "Generic / Templated Code Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": "Large Core Modules (3)"
     },
     "css": {
       "css/SOURCES.md": "Data / Markup / Trivial"
@@ -1263,6 +1419,34 @@
     "dart": {
       "dart/SOURCES.md": "Data / Markup / Trivial"
     },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_analysis_rule_analysis_rule.dart": "Data / Markup / Trivial",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_diagnostic_diagnostic.dart": "Data / Markup / Trivial",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_context_builder.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_error_null_safe_api_verifier.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": "Large Core Modules (2)",
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart": "Encapsulated Accessors Files"
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_abstract_beats_arguments_test.dart": "Data / Markup / Trivial",
+      "dart/dart_sdk_language_tests/tests_language_class_modifiers_interface_interface_class_part_test.dart": "State Mutators Files",
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": "Callbacks & Closures Files",
+      "dart/dart_sdk_language_tests/tests_language_extension_methods_static_extension_import_test.dart": "State Mutators Files",
+      "dart/dart_sdk_language_tests/tests_language_identifier_built_in_identifier_test.dart": "Interface Declarations Files",
+      "dart/dart_sdk_language_tests/tests_language_invalid_returns_sync_invalid_return_00_test.dart": "Data / Markup / Trivial",
+      "dart/dart_sdk_language_tests/tests_language_mixin_legacy_illegal_constructor_test.dart": "State Mutators Files",
+      "dart/dart_sdk_language_tests/tests_language_nonfunction_type_aliases_generic_usage_null_test.dart": "Generic / Templated Code Files",
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": "Interface Declarations Files",
+      "dart/dart_sdk_language_tests/tests_language_regress_regress18713_legacy_test.dart": "Interface Declarations Files",
+      "dart/dart_sdk_language_tests/tests_language_setter_override_test.dart": "State Mutators Files",
+      "dart/dart_sdk_language_tests/tests_language_type_object_constant_type_literal_test.dart": "State Mutators Files"
+    },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": "Large Core Modules (2)",
       "dart/flutter/events.dart": "Large Core Modules (3)",
@@ -1274,6 +1458,14 @@
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "db2_sql/carddemo_ddl": {
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_AUTHFRDS.ddl": "Declarative / Non-Code",
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_XAUTHFRD.ddl": "Data / Markup / Trivial",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYCAT.ddl": "Data / Markup / Trivial",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYPE.ddl": "Data / Markup / Trivial",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYCAT.ddl": "Data / Markup / Trivial",
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYPE.ddl": "Data / Markup / Trivial"
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Large Core Modules (3)",
@@ -1291,12 +1483,12 @@
       "dockerfile/SOURCES.md": "Data / Markup / Trivial"
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/dockerfile/buildargs.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/builder.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/builder_unix.go": "Data / Markup / Trivial",
       "dockerfile/moby/builder/dockerfile/builder_windows.go": "Type Conversions Files",
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": "Large Core Modules (2)",
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/copy.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/copy_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/copy_unix.go": "Large Core Modules (3)",
@@ -1307,26 +1499,26 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "Compute Cores Files",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/evaluator.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/dockerfile/evaluator.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": "Parameter Forwarders Files",
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "State Mutators Files",
       "dockerfile/moby/builder/dockerfile/imageprobe.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals_linux.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/internals_test.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/dockerfile/internals_test.go": "Interface Declarations Files",
       "dockerfile/moby/builder/dockerfile/internals_windows.go": "Many-Argument Workhorses Files",
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "Large Core Modules",
       "dockerfile/moby/builder/dockerfile/metrics.go": "Large Core Modules",
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "Parameter Forwarders Files",
       "dockerfile/moby/builder/dockerfile/utils_test.go": "Large Core Modules (2)"
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/detect.go": "Large Core Modules (2)",
-      "dockerfile/moby/builder/remotecontext/detect_test.go": "Callbacks & Closures Files",
-      "dockerfile/moby/builder/remotecontext/filehash.go": "Large Core Modules (2)",
+      "dockerfile/moby/builder/remotecontext/detect_test.go": "Large Core Modules (3)",
+      "dockerfile/moby/builder/remotecontext/filehash.go": "State Mutators Files",
       "dockerfile/moby/builder/remotecontext/git.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/lazycontext.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/mimetype.go": "Large Core Modules (2)",
@@ -1341,16 +1533,16 @@
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": "State Mutators Files"
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": "Compute Cores Files",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": "Large Core Modules (2)",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": "Callbacks & Closures Files",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": "Compute Cores Files",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "Large Core Modules (2)",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": "Data / Markup / Trivial",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "Large Core Modules (2)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "Large Core Modules (3)",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": "State Mutators Files",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "Callbacks & Closures Files"
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "Interface Declarations Files"
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": "Compute Cores Files",
@@ -1462,6 +1654,34 @@
     "fortran": {
       "fortran/SOURCES.md": "Data / Markup / Trivial"
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": "Large Core Modules (2)",
+      "fortran/fpm_fortran/example_packages_auto_with_nondefault_main_app_non_default_name.f90": "Data / Markup / Trivial",
+      "fortran/fpm_fortran/example_packages_features_with_dependency_app_main.f90": "Interface Declarations Files",
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": "Large Core Modules (2)",
+      "fortran/fpm_fortran/example_packages_hello_world_app_main.f90": "Data / Markup / Trivial",
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": "Data / Markup / Trivial",
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": "Large Core Modules (2)",
+      "fortran/fpm_fortran/example_packages_preprocess_per_dependency_app_main.f90": "Data / Markup / Trivial",
+      "fortran/fpm_fortran/example_packages_submodule_tree_shake_src_parent_unused.f90": "Large Core Modules (2)",
+      "fortran/fpm_fortran/example_packages_with_examples_demo_prog.f90": "Data / Markup / Trivial",
+      "fortran/fpm_fortran/src_fpm_environment.f90": "Large Core Modules (2)",
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": "Large Core Modules (2)"
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/example_ansi_example_ansi_color.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_bitsets_example_bitsets_read_bitset.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_hashmaps_example_hashmaps_fnv_1_hasher.f90": "Large Core Modules (2)",
+      "fortran/stdlib_fortran/example_linalg_example_blas_gemv.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_linalg_example_is_symmetric.f90": "Interface Declarations Files",
+      "fortran/stdlib_fortran/example_linalg_example_state1.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_quadrature_example_simps_weights.f90": "Large Core Modules (2)",
+      "fortran/stdlib_fortran/example_specialmatrices_example_specialmatrices_dp_spmv.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_string_type_example_constructor_logical.f90": "Data / Markup / Trivial",
+      "fortran/stdlib_fortran/example_stringlist_type_example_stringlist_type_constructor.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/example_system_example_make_directory.f90": "Large Core Modules",
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": "Large Core Modules (2)"
+    },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": "Data / Markup / Trivial",
       "fortran/wrf/cleanCMake.sh": "Large Core Modules",
@@ -1478,6 +1698,19 @@
       "fortran/wrf/run_convert_e2c.ksh": "Declarative / Non-Code",
       "fortran/wrf/sourcetree.py": "Parameter Forwarders Files",
       "fortran/wrf/wrf_timeseries.F": "Many-Argument Workhorses Files"
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/LICENSE.txt": "Data / Markup / Trivial",
+      "fortran/wrf_physics/phys_ccpp_kind_types.F": "Declarative / Non-Code",
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_cam_mp_modal_aero_initialize_data_phys.F": "Large Core Modules",
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_diag_pld.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": "Large Core Modules (2)",
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": "Many-Argument Workhorses Files",
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": "Many-Argument Workhorses Files"
     },
     "fsharp": {
       "fsharp/SOURCES.md": "Data / Markup / Trivial"
@@ -1503,7 +1736,7 @@
       "fsharp/giraffe_web/ResponseCaching.fs": "Parameter Forwarders Files",
       "fsharp/giraffe_web/Routing.fs": "Callbacks & Closures Files",
       "fsharp/giraffe_web/ShortGuid.fs": "Callbacks & Closures Files",
-      "fsharp/giraffe_web/Streaming.fs": "Compute Cores Files",
+      "fsharp/giraffe_web/Streaming.fs": "Large Core Modules (3)",
       "fsharp/giraffe_web/Xml.fs": "Parameter Forwarders Files"
     },
     "go": {
@@ -1513,7 +1746,7 @@
       "go/core/PATENTS": "Data / Markup / Trivial",
       "go/core/main.go": "Large Core Modules (2)",
       "go/core/mgc.go": "Large Core Modules",
-      "go/core/mutex.go": "Callbacks & Closures Files",
+      "go/core/mutex.go": "State Mutators Files",
       "go/core/proc.go": "Large Core Modules (3)",
       "go/core/server.go": "Large Core Modules (3)",
       "go/core/syscall_linux.go": "Large Core Modules (3)",
@@ -1524,11 +1757,11 @@
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Large Core Modules (2)",
-      "go/kubernetes/generic.go": "Callbacks & Closures Files",
-      "go/kubernetes/kubelet.go": "Callbacks & Closures Files",
+      "go/kubernetes/generic.go": "Large Core Modules (3)",
+      "go/kubernetes/kubelet.go": "Large Core Modules (3)",
       "go/kubernetes/options.go": "Declarative / Non-Code",
-      "go/kubernetes/proxier.go": "Callbacks & Closures Files",
-      "go/kubernetes/replica_set.go": "Large Core Modules (2)",
+      "go/kubernetes/proxier.go": "Large Core Modules (3)",
+      "go/kubernetes/replica_set.go": "Large Core Modules (3)",
       "go/kubernetes/scheduler.go": "Callbacks & Closures Files"
     },
     "go/kubernetes_kubectl_tls": {
@@ -1806,7 +2039,7 @@
       "groovy/spock_smoke_specs/Blocks.groovy": "Interface Declarations Files",
       "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": "Large Core Modules",
       "groovy/spock_smoke_specs/CleanupBlocks.groovy": "Large Core Modules (3)",
-      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "Declarative / Non-Code",
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "Large Core Modules",
       "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": "Type Conversions Files",
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": "Interface Declarations Files",
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": "Interface Declarations Files",
@@ -1840,7 +2073,7 @@
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": "Interface Declarations Files",
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": "State Mutators Files",
       "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": "Callbacks & Closures Files",
-      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": "Large Core Modules (3)",
+      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": "Large Core Modules",
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": "State Mutators Files",
       "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": "Declarative / Non-Code",
       "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": "Declarative / Non-Code",
@@ -1890,6 +2123,20 @@
     "haskell": {
       "haskell/SOURCES.md": "Data / Markup / Trivial"
     },
+    "haskell/aeson_core": {
+      "haskell/aeson_core/benchmarks_bench_Auto_G_BigRecord.hs": "State Mutators Files",
+      "haskell/aeson_core/benchmarks_bench_Compare_BufferBuilder.hs": "Large Core Modules",
+      "haskell/aeson_core/benchmarks_bench_ReadFile.hs": "Compute Cores Files",
+      "haskell/aeson_core/examples_src_Generic.hs": "Interface Declarations Files",
+      "haskell/aeson_core/src_Data_Aeson_Decoding.hs": "Generic / Templated Code Files",
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString-2.hs": "State Mutators Files",
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString.hs": "State Mutators Files",
+      "haskell/aeson_core/src_Data_Aeson_Parser_Time.hs": "Parameter Forwarders Files",
+      "haskell/aeson_core/tests_DataFamilies_Instances.hs": "Declarative / Non-Code",
+      "haskell/aeson_core/tests_PropUtils.hs": "State Mutators Files",
+      "haskell/aeson_core/tests_Regression_Issue1198.hs": "Parameter Forwarders Files",
+      "haskell/aeson_core/tests_UnitTests_Hashable.hs": "Declarative / Non-Code"
+    },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": "Data / Markup / Trivial",
       "haskell/pandoc/App.hs": "Large Core Modules (3)",
@@ -1902,6 +2149,33 @@
       "haskell/pandoc/Pandoc.hs": "Declarative / Non-Code",
       "haskell/pandoc/Parsing.hs": "Declarative / Non-Code",
       "haskell/pandoc/Shared.hs": "State Mutators Files"
+    },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/COPYING.md": "Data / Markup / Trivial",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_AnnotatedTable.hs": "State Mutators Files",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs": "State Mutators Files",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DocBook.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DokuWiki.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Markdown_Table.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": "Large Core Modules (3)",
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": "Large Core Modules (3)"
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/Main.hs": "Data / Markup / Trivial",
+      "haskell/xmonad_core/src_XMonad.hs": "Declarative / Non-Code",
+      "haskell/xmonad_core/src_XMonad_Core.hs": "Large Core Modules (3)",
+      "haskell/xmonad_core/src_XMonad_Main.hs": "Large Core Modules (3)",
+      "haskell/xmonad_core/src_XMonad_Operations.hs": "Large Core Modules (3)",
+      "haskell/xmonad_core/tests_Instances.hs": "Parameter Forwarders Files",
+      "haskell/xmonad_core/tests_Properties_Delete.hs": "Declarative / Non-Code",
+      "haskell/xmonad_core/tests_Properties_Floating.hs": "Declarative / Non-Code",
+      "haskell/xmonad_core/tests_Properties_GreedyView.hs": "Callbacks & Closures Files",
+      "haskell/xmonad_core/tests_Properties_Layout_Full.hs": "Declarative / Non-Code",
+      "haskell/xmonad_core/tests_Properties_Screen.hs": "Declarative / Non-Code",
+      "haskell/xmonad_core/tests_Properties_Stack.hs": "State Mutators Files"
     },
     "hcl": {
       "hcl/SOURCES.md": "Data / Markup / Trivial"
@@ -1941,6 +2215,10 @@
     "hlasm": {
       "hlasm/PROVENANCE.md": "Data / Markup / Trivial",
       "hlasm/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "hlasm/carddemo_hlasm": {
+      "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": "Large Core Modules",
+      "hlasm/carddemo_hlasm/app_asm_MVSWAIT.asm": "Interface Declarations Files"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Data / Markup / Trivial",
@@ -2407,6 +2685,42 @@
       "kotlin/okhttp/OkHttp.kt": "Data / Markup / Trivial",
       "kotlin/okhttp/build.gradle.kts": "Declarative / Non-Code"
     },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/LICENSE.txt": "Data / Markup / Trivial",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_DeserializationStrategyConverter.kt": "Parameter Forwarders Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Factory.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_SerializationStrategyConverter.kt": "Parameter Forwarders Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": "Large Core Modules (3)",
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": "Large Core Modules (3)",
+      "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": "Data / Markup / Trivial",
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": "Interface Declarations Files",
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": "Declarative / Non-Code",
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": "Declarative / Non-Code",
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": "Generic / Templated Code Files",
+      "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": "Callbacks & Closures Files"
+    },
+    "kotlin/spring_boot_kotlin": {
+      "kotlin/spring_boot_kotlin/LICENSE.txt": "Data / Markup / Trivial",
+      "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": "Data / Markup / Trivial",
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": "Generic / Templated Code Files",
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": "Declarative / Non-Code",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": "Generic / Templated Code Files",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": "Declarative / Non-Code",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": "State Mutators Files",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": "Declarative / Non-Code",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": "Declarative / Non-Code",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": "State Mutators Files",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": "State Mutators Files",
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": "Generic / Templated Code Files",
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": "Data / Markup / Trivial",
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": "Encapsulated Accessors Files",
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": "Large Core Modules (3)"
+    },
     "livecode": {
       "livecode/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -2415,7 +2729,7 @@
       "livecode/livecode/_commandname.livecodescript": "Data / Markup / Trivial",
       "livecode/livecode/_log.livecodescript": "Parameter Forwarders Files",
       "livecode/livecode/accountsignupcardbehavior.livecodescript": "Large Core Modules",
-      "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": "Large Core Modules (3)",
+      "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": "Large Core Modules",
       "livecode/livecode/arithmetic-commands.livecodescript": "Encapsulated Accessors Files",
       "livecode/livecode/arithmetic.lcb": "Declarative / Non-Code",
       "livecode/livecode/array.lcb": "Declarative / Non-Code",
@@ -2657,12 +2971,61 @@
       "m4/gnucobol/COPYING": "Data / Markup / Trivial",
       "m4/gnucobol/configure.ac": "State Mutators Files"
     },
+    "m4/gnupg_m4": {
+      "m4/gnupg_m4/COPYING": "Data / Markup / Trivial",
+      "m4/gnupg_m4/gpg-error.m4": "Large Core Modules",
+      "m4/gnupg_m4/ksba.m4": "Many-Argument Workhorses Files",
+      "m4/gnupg_m4/ldap.m4": "Large Core Modules",
+      "m4/gnupg_m4/libassuan.m4": "State Mutators Files",
+      "m4/gnupg_m4/libgcrypt.m4": "Many-Argument Workhorses Files",
+      "m4/gnupg_m4/npth.m4": "Many-Argument Workhorses Files",
+      "m4/gnupg_m4/ntbtls.m4": "Many-Argument Workhorses Files",
+      "m4/gnupg_m4/readline.m4": "Large Core Modules",
+      "m4/gnupg_m4/socklen.m4": "Large Core Modules"
+    },
+    "m4/libffi_racket": {
+      "m4/libffi_racket/acinclude.m4": "State Mutators Files",
+      "m4/libffi_racket/configure.ac": "State Mutators Files"
+    },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_add_flags.m4": "Many-Argument Workhorses Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_attribute_syntax.m4": "Data / Markup / Trivial",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_c_typeof.m4": "Large Core Modules",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_cross_compile.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_csym.m4": "Data / Markup / Trivial",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_endian.m4": "Large Core Modules",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_flags.m4": "Data / Markup / Trivial",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_func.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_func_attribute.m4": "Compute Cores Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_have_func.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_flagvar.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_foreach.m4": "State Mutators Files",
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_libext.m4": "Large Core Modules",
+      "m4/nasm_autoconf_macros/configure.ac": "State Mutators Files"
+    },
     "makefile": {
       "makefile/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/ctl_BUILD.mk": "Declarative / Non-Code",
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": "Declarative / Non-Code",
+      "makefile/cosmopolitan_build_mk/net_BUILD.mk": "Data / Markup / Trivial",
+      "makefile/cosmopolitan_build_mk/test_BUILD.mk": "Declarative / Non-Code",
+      "makefile/cosmopolitan_build_mk/third_party_BUILD.mk": "Declarative / Non-Code",
+      "makefile/cosmopolitan_build_mk/tool_BUILD.mk": "Declarative / Non-Code"
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": "Data / Markup / Trivial",
       "makefile/freebsd/Makefile": "Large Core Modules"
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/docs_Makefile": "Data / Markup / Trivial",
+      "makefile/micropython_make/extmod_extmod.mk": "Declarative / Non-Code",
+      "makefile/micropython_make/py_dynruntime.mk": "State Mutators Files",
+      "makefile/micropython_make/py_mkenv.mk": "Large Core Modules (2)",
+      "makefile/micropython_make/py_mkrules.mk": "Large Core Modules",
+      "makefile/micropython_make/py_py.mk": "Large Core Modules"
     },
     "markdown": {
       "markdown/SOURCES.md": "Data / Markup / Trivial"
@@ -2685,6 +3048,34 @@
       "matlab/eeglab/pop_loadset.m": "Large Core Modules (2)",
       "matlab/eeglab/runica.m": "Large Core Modules (2)",
       "matlab/eeglab/supergui.m": "Many-Argument Workhorses Files"
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/COPYING": "Data / Markup / Trivial",
+      "matlab/fieldtrip_core/ft_analysispipeline.m": "Large Core Modules (2)",
+      "matlab/fieldtrip_core/ft_annotate.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_anonymizedata.m": "Large Core Modules (3)",
+      "matlab/fieldtrip_core/ft_appenddata.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_appendfreq.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_appendlayout.m": "Compute Cores Files",
+      "matlab/fieldtrip_core/ft_appendsens.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_appendsource.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_appendspike.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_core/ft_appendtimelock.m": "Many-Argument Workhorses Files"
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/COPYING": "Data / Markup / Trivial",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": "Large Core Modules",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": "Large Core Modules (3)",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": "Many-Argument Workhorses Files",
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": "Large Core Modules (2)",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": "Data / Markup / Trivial",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": "Large Core Modules (2)",
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": "Many-Argument Workhorses Files"
     },
     "mlir": {
       "mlir/SOURCES.md": "Data / Markup / Trivial"
@@ -2735,6 +3126,15 @@
     "nix": {
       "nix/SOURCES.md": "Data / Markup / Trivial"
     },
+    "nix/angular_nix": {
+      "nix/angular_nix/adev_src_content_tutorials_deferrable-views_common_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_first-app_common_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_homepage_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_learn-angular_common_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_playground_common_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_signal-forms_common_idx_dev.nix": "Declarative / Non-Code",
+      "nix/angular_nix/adev_src_content_tutorials_signals_common_idx_dev.nix": "Declarative / Non-Code"
+    },
     "nix/bun": {
       "nix/bun/LICENSE.md": "Data / Markup / Trivial",
       "nix/bun/flake.nix": "Declarative / Non-Code",
@@ -2748,6 +3148,44 @@
     },
     "objective-c": {
       "objective-c/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": "Type Conversions Files",
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": "Type Conversions Files",
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": "Type Conversions Files",
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": "Type Conversions Files",
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": "Type Conversions Files",
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": "Type Conversions Files",
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": "Large Core Modules (3)"
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/LICENSE.txt": "Data / Markup / Trivial",
+      "objective-c/godot_ios/device_metrics.mm": "Large Core Modules",
+      "objective-c/godot_ios/display_layer_ios.mm": "Large Core Modules",
+      "objective-c/godot_ios/display_server_ios.mm": "Large Core Modules (3)",
+      "objective-c/godot_ios/godot_view_ios.mm": "Compute Cores Files",
+      "objective-c/godot_ios/main_ios.mm": "Large Core Modules",
+      "objective-c/godot_ios/os_ios.mm": "Declarative / Non-Code"
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_AppDelegate.m": "Data / Markup / Trivial",
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": "Large Core Modules",
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_main.m": "Data / Markup / Trivial",
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": "Compute Cores Files",
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": "Large Core Modules (3)",
+      "objective-c/tensorflow_lite_objc/sources_TFLDelegate.m": "Data / Markup / Trivial",
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": "Type Conversions Files",
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": "Type Conversions Files",
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreterOptions.m": "Type Conversions Files",
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": "Type Conversions Files"
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": "Large Core Modules (3)",
@@ -2925,6 +3363,21 @@
       "pli/dsf_cics_admin/R0010426.pli": "Compute Cores Files",
       "pli/dsf_cics_admin/R0010427.pli": "Large Core Modules",
       "pli/dsf_cics_admin/R001TK62.pli": "Large Core Modules"
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/LICENSE.md": "Data / Markup / Trivial",
+      "pli/dsf_pli_more/src_A0010301.pli": "Many-Argument Workhorses Files",
+      "pli/dsf_pli_more/src_GML_R0011121.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_GML_R0014155.pli": "Compute Cores Files",
+      "pli/dsf_pli_more/src_GML_R0015314.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_GML_R0019056.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_GML_R001N522.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_GML_R001U821.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_R0011203.pli": "Compute Cores Files",
+      "pli/dsf_pli_more/src_R0014153.pli": "Many-Argument Workhorses Files",
+      "pli/dsf_pli_more/src_R0015308.pli": "Large Core Modules",
+      "pli/dsf_pli_more/src_R0019934.pli": "Compute Cores Files",
+      "pli/dsf_pli_more/src_R001N802.pli": "Large Core Modules"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "Data / Markup / Trivial",
@@ -3202,7 +3655,7 @@
       "python/fastapi/tests/test_default_response_class_router.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_dependencies_utils.py": "Data / Markup / Trivial",
       "python/fastapi/tests/test_dependency_after_yield_raise.py": "Large Core Modules (2)",
-      "python/fastapi/tests/test_dependency_after_yield_streaming.py": "Large Core Modules (3)",
+      "python/fastapi/tests/test_dependency_after_yield_streaming.py": "Generic / Templated Code Files",
       "python/fastapi/tests/test_dependency_after_yield_websockets.py": "Generic / Templated Code Files",
       "python/fastapi/tests/test_dependency_cache.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_dependency_class.py": "Generic / Templated Code Files",
@@ -3264,7 +3717,7 @@
       "python/fastapi/tests/test_openapi_servers.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_operations_signatures.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_optional_file_list.py": "Large Core Modules (2)",
-      "python/fastapi/tests/test_orjson_response_class.py": "Interface Declarations Files",
+      "python/fastapi/tests/test_orjson_response_class.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_param_class.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_param_in_path_and_dependency.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_param_include_in_schema.py": "Large Core Modules (2)",
@@ -3373,7 +3826,7 @@
       "python/fastapi/tests/test_validation_error_context.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_vibe.py": "Declarative / Non-Code",
       "python/fastapi/tests/test_webhooks_security.py": "Large Core Modules",
-      "python/fastapi/tests/test_wrapped_method_forward_reference.py": "Interface Declarations Files",
+      "python/fastapi/tests/test_wrapped_method_forward_reference.py": "Large Core Modules",
       "python/fastapi/tests/test_ws_dependencies.py": "Large Core Modules (2)",
       "python/fastapi/tests/test_ws_router.py": "Large Core Modules (2)",
       "python/fastapi/tests/utils.py": "Interface Declarations Files"
@@ -3386,10 +3839,10 @@
       "python/homeassistant_ble_integrations/LICENSE.md": "Data / Markup / Trivial",
       "python/homeassistant_ble_integrations/aranet___init__.py": "Generic / Templated Code Files",
       "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "Encapsulated Accessors Files",
-      "python/homeassistant_ble_integrations/utils.py": "Generic / Templated Code Files"
+      "python/homeassistant_ble_integrations/utils.py": "Large Core Modules (2)"
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Many-Argument Workhorses Files",
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "Large Core Modules (2)",
       "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "Many-Argument Workhorses Files",
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "Generic / Templated Code Files"
     },
@@ -3501,6 +3954,32 @@
       "rexx/PROVENANCE.md": "Data / Markup / Trivial",
       "rexx/SOURCES.md": "Data / Markup / Trivial"
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzabout.rexx": "Data / Markup / Trivial",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": "Many-Argument Workhorses Files",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": "Large Core Modules (3)",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzconf.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": "Large Core Modules",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": "Compute Cores Files",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": "Declarative / Non-Code",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": "Compute Cores Files"
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": "Declarative / Non-Code",
+      "rexx/genapp_rexx/base_exec_mac1.rexx": "Declarative / Non-Code"
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/COPYRIGHT": "Data / Markup / Trivial",
       "rexx/hercules_390_hyperion/sample.rexx": "Declarative / Non-Code"
@@ -3538,6 +4017,21 @@
     "ruby": {
       "ruby/SOURCES.md": "Data / Markup / Trivial"
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/LICENSE.txt": "Data / Markup / Trivial",
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": "Large Core Modules (2)",
+      "ruby/homebrew_ruby/Library_Homebrew_cmd_casks.rb": "Declarative / Non-Code",
+      "ruby/homebrew_ruby/Library_Homebrew_extend_object_duplicable.rb": "Interface Declarations Files",
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": "Parameter Forwarders Files",
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": "Parameter Forwarders Files",
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": "Interface Declarations Files",
+      "ruby/homebrew_ruby/Library_Homebrew_test_dev-cmd_which-update_spec.rb": "Data / Markup / Trivial",
+      "ruby/homebrew_ruby/Library_Homebrew_test_rubocops_components_order_spec.rb": "Declarative / Non-Code",
+      "ruby/homebrew_ruby/Library_Homebrew_test_support_fixtures_cask_Casks_missing-name.rb": "Data / Markup / Trivial",
+      "ruby/homebrew_ruby/Library_Homebrew_test_unpack_strategy_cvs_spec.rb": "Declarative / Non-Code",
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": "Parameter Forwarders Files",
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": "Interface Declarations Files"
+    },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": "Data / Markup / Trivial",
       "ruby/rails/Rakefile": "Large Core Modules (3)",
@@ -3551,6 +4045,20 @@
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/MIT-LICENSE": "Data / Markup / Trivial",
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "Callbacks & Closures Files"
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": "Declarative / Non-Code",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common.rb": "Declarative / Non-Code",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_has_context.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_prints_page.rb": "Type Conversions Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": "Compute Cores Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_edge_features.rb": "Parameter Forwarders Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": "Callbacks & Closures Files",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": "Interface Declarations Files"
     },
     "rust": {
       "rust/SOURCES.md": "Data / Markup / Trivial"
@@ -3609,13 +4117,13 @@
       "rust/tokio/builder.rs": "Generic / Templated Code Files",
       "rust/tokio/config.rs": "Declarative / Non-Code",
       "rust/tokio/fuzz.rs": "Data / Markup / Trivial",
-      "rust/tokio/interval.rs": "Parameter Forwarders Files",
+      "rust/tokio/interval.rs": "Large Core Modules (3)",
       "rust/tokio/lib.rs": "Encapsulated Accessors Files",
       "rust/tokio/maybe_done.rs": "Generic / Templated Code Files",
-      "rust/tokio/tests.rs": "Large Core Modules (3)",
+      "rust/tokio/tests.rs": "Callbacks & Closures Files",
       "rust/tokio/tokio_mpsc_bounded.rs": "Generic / Templated Code Files",
       "rust/tokio/tokio_named_pipe.rs": "Generic / Templated Code Files",
-      "rust/tokio/tokio_udp.rs": "Large Core Modules (3)"
+      "rust/tokio/tokio_udp.rs": "State Mutators Files"
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": "Encapsulated Accessors Files"
@@ -3629,6 +4137,32 @@
     },
     "scala": {
       "scala/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": "Generic / Templated Code Files",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": "Large Core Modules (3)",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Callbacks & Closures Files",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": "Many-Argument Workhorses Files",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": "Declarative / Non-Code",
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": "Declarative / Non-Code",
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": "Generic / Templated Code Files",
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": "Compute Cores Files",
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": "Generic / Templated Code Files",
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": "Declarative / Non-Code",
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": "Declarative / Non-Code",
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": "Declarative / Non-Code"
+    },
+    "scala/gradle_scala": {
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": "Interface Declarations Files",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_quickstart_kotlin_src_main_scala_org_gradle_sample_Named.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_scala3_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": "Declarative / Non-Code",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zincDependency_kotlin_src_main_scala_Hello.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zinc_kotlin_src_main_scala_org_gradle_sample_Person.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/platforms_jvm_scala_src_integTest_resources_org_gradle_scala_compile_IncrementalScalaCompileIntegrationTest_recompilesSourceWhenPropertiesChange_src_main_scala_PersonImpl.scala": "Data / Markup / Trivial",
+      "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": "Data / Markup / Trivial"
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": "Large Core Modules (3)",
@@ -3650,6 +4184,19 @@
       "scheme/racket/io.ss": "Large Core Modules",
       "scheme/racket/schemify.rkt": "Large Core Modules (3)",
       "scheme/racket/thread.rkt": "Large Core Modules"
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/LICENSE.txt": "Data / Markup / Trivial",
+      "scheme/racket_scheme/pkgs_compiler-test_tests_compiler_embed_embed-me12-rd.ss": "State Mutators Files",
+      "scheme/racket_scheme/racket_src_ChezScheme_examples_macro.ss": "Declarative / Non-Code",
+      "scheme/racket_scheme/racket_src_ChezScheme_nanopass_nanopass_meta-parser.ss": "Large Core Modules",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": "Declarative / Non-Code",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": "Declarative / Non-Code",
+      "scheme/racket_scheme/racket_src_ChezScheme_s_target-fixnum.ss": "Declarative / Non-Code",
+      "scheme/racket_scheme/racket_src_cs_demo_expander.ss": "Large Core Modules",
+      "scheme/racket_scheme/racket_src_cs_main_eval-all.ss": "Callbacks & Closures Files",
+      "scheme/racket_scheme/racket_src_cs_rumble_check.ss": "Many-Argument Workhorses Files",
+      "scheme/racket_scheme/racket_src_cs_rumble_keyword.ss": "Declarative / Non-Code"
     },
     "shell": {
       "shell/SOURCES.md": "Data / Markup / Trivial"
@@ -3964,6 +4511,32 @@
       "solidity/openzeppelin/ReentrancyGuard.sol": "Encapsulated Accessors Files",
       "solidity/openzeppelin/StorageSlot.sol": "Encapsulated Accessors Files"
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": "Parameter Forwarders Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_utils_ERC1155Holder.sol": "Parameter Forwarders Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC1363.sol": "Parameter Forwarders Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC20Pausable.sol": "Encapsulated Accessors Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_IERC20Metadata.sol": "Data / Markup / Trivial",
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": "Parameter Forwarders Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Burnable.sol": "Type Conversions Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Royalty.sol": "Parameter Forwarders Files",
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_IERC721Metadata.sol": "Data / Markup / Trivial",
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": "Encapsulated Accessors Files"
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/LICENSE.txt": "Data / Markup / Trivial",
+      "solidity/solady_utils/src_Milady.sol": "Declarative / Non-Code",
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_auth_OwnableRoles.sol": "Large Core Modules (2)",
+      "solidity/solady_utils/src_utils_Base58.sol": "Compute Cores Files",
+      "solidity/solady_utils/src_utils_ECDSA.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_Initializable.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_LibRLP.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_MetadataReaderLib.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_SafeCastLib.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": "Encapsulated Accessors Files",
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": "State Mutators Files"
+    },
     "sql": {
       "sql/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -4103,6 +4676,64 @@
       "swift/alamofire/Response.swift": "Generic / Templated Code Files",
       "swift/alamofire/Session.swift": "Large Core Modules (3)"
     },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": "Interface Declarations Files",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": "Large Core Modules (2)",
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": "Large Core Modules (2)",
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": "Compute Cores Files",
+      "swift/ghostty_macos/macos_Sources_Features_Terminal_ErrorView.swift": "Declarative / Non-Code",
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": "Declarative / Non-Code",
+      "swift/ghostty_macos/macos_Sources_Ghostty_GhosttyDelegate.swift": "Data / Markup / Trivial",
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": "Interface Declarations Files",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_Duration_Extension.swift": "Data / Markup / Trivial",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": "Parameter Forwarders Files",
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": "Large Core Modules (2)",
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": "Large Core Modules (2)"
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/LICENSE.txt": "Data / Markup / Trivial",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": "Compute Cores Files",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": "Encapsulated Accessors Files",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": "Large Core Modules (3)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": "Parameter Forwarders Files",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": "Large Core Modules (2)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": "Large Core Modules (3)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": "Many-Argument Workhorses Files",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": "Type Conversions Files",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": "Large Core Modules (2)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": "Large Core Modules (3)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": "Large Core Modules (2)",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": "Large Core Modules (2)"
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/LICENSE.txt": "Data / Markup / Trivial",
+      "swift/swift_nio_core/Sources_NIOCore_ByteBuffer-conversions.swift": "Declarative / Non-Code",
+      "swift/swift_nio_core/Sources_NIOCore_FileRegion.swift": "Large Core Modules (2)",
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": "Large Core Modules (2)",
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": "Large Core Modules (3)",
+      "swift/swift_nio_core/Sources_NIOFoundationCompat_Exports.swift": "Data / Markup / Trivial",
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": "Large Core Modules (2)",
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": "Large Core Modules (3)",
+      "swift/swift_nio_core/Sources_NIOPosix_NIOPosixSendableMetatype.swift": "Data / Markup / Trivial",
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": "Declarative / Non-Code",
+      "swift/swift_nio_core/Sources_NIOWebSocket_NIOWebSocketClientUpgrader.swift": "Large Core Modules (3)",
+      "swift/swift_nio_core/Sources_NIO_Exports.swift": "Data / Markup / Trivial",
+      "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": "Parameter Forwarders Files"
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": "Large Core Modules (3)",
+      "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": "Data / Markup / Trivial",
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": "Large Core Modules (2)",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": "Large Core Modules (3)",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "Declarative / Non-Code",
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": "Large Core Modules (2)",
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": "Generic / Templated Code Files",
+      "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": "Parameter Forwarders Files",
+      "swift/vapor_sources/Sources_Vapor_Utilities_AnyResponse.swift": "Generic / Templated Code Files",
+      "swift/vapor_sources/Sources_Vapor_Utilities_OptionalType.swift": "Large Core Modules (2)",
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": "Generic / Templated Code Files",
+      "swift/vapor_sources/Sources_Vapor__Deprecations.swift": "Data / Markup / Trivial"
+    },
     "tabular": {
       "tabular/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -4134,7 +4765,7 @@
       "tcl/macports_port_api/portclean.tcl": "Large Core Modules (2)",
       "tcl/macports_port_api/portdeactivate.tcl": "Large Core Modules (2)",
       "tcl/macports_port_api/portdepends.tcl": "Compute Cores Files",
-      "tcl/macports_port_api/portdestroot.tcl": "Large Core Modules (3)",
+      "tcl/macports_port_api/portdestroot.tcl": "Large Core Modules (2)",
       "tcl/macports_port_api/portdistcheck.tcl": "Compute Cores Files",
       "tcl/macports_port_api/portdistfiles.tcl": "Large Core Modules (2)",
       "tcl/macports_port_api/portextract.tcl": "Compute Cores Files",
@@ -4327,6 +4958,37 @@
       "yacc/freebsd/config.y": "Large Core Modules",
       "yacc/freebsd/jailparse.y": "State Mutators Files"
     },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/COPYRIGHT": "Data / Markup / Trivial",
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": "State Mutators Files",
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": "Declarative / Non-Code",
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": "State Mutators Files",
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": "Interface Declarations Files",
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": "Large Core Modules (3)",
+      "yacc/freebsd_yacc_lex/sbin_hastd_token.l": "Declarative / Non-Code",
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": "Large Core Modules (3)",
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": "Declarative / Non-Code",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": "Declarative / Non-Code",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": "Large Core Modules",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": "Compute Cores Files",
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": "Declarative / Non-Code"
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/COPYING": "Data / Markup / Trivial",
+      "yacc/gnucobol_cobc/cobc_pplex.l": "Large Core Modules",
+      "yacc/gnucobol_cobc/cobc_ppparse.y": "State Mutators Files",
+      "yacc/gnucobol_cobc/cobc_scanner.l": "Large Core Modules"
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": "Generic / Templated Code Files",
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": "Generic / Templated Code Files",
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": "State Mutators Files"
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/LICENSE.md": "Data / Markup / Trivial",
+      "yacc/sqlite_lemon/ext_fts5_fts5parse.y": "Type Conversions Files",
+      "yacc/sqlite_lemon/test_lemon-test01.y": "State Mutators Files"
+    },
     "yaml": {
       "yaml/SOURCES.md": "Data / Markup / Trivial"
     },
@@ -4399,7 +5061,7 @@
     "zig/bun": {
       "zig/bun/LICENSE.md": "Data / Markup / Trivial",
       "zig/bun/MimallocArena.zig": "Large Core Modules (3)",
-      "zig/bun/Parser.zig": "Large Core Modules (3)",
+      "zig/bun/Parser.zig": "Large Core Modules (2)",
       "zig/bun/comptime_string_map.zig": "Large Core Modules (3)",
       "zig/bun/napi.zig": "State Mutators Files"
     },
@@ -4414,7 +5076,7 @@
       "zig/mach/win32.zig": "Type Conversions Files"
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": "Large Core Modules (3)",
+      "zig/tigerbeetle/aof.zig": "Large Core Modules (2)",
       "zig/tigerbeetle/build.zig": "Large Core Modules (3)",
       "zig/tigerbeetle/build_multiversion.zig": "Large Core Modules (2)",
       "zig/tigerbeetle/cluster.zig": "Large Core Modules (3)",

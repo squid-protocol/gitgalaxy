@@ -1,9 +1,28 @@
 {
   "groups": {
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": "4 instances",
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": "3 instances",
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": "3 instances",
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": "3 instances",
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": "1 instances",
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": "5 instances"
+    },
     "abap/abapGit": {
       "abap/abapGit/zcl_abapgit_ajson.clas.abap": "8 instances",
       "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": "8 instances",
       "abap/abapGit/zcl_abapgit_objects.clas.abap": "7 instances"
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": "2 instances",
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": "2 instances",
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": "3 instances"
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": "4 instances",
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": "1 instances",
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": "2 instances",
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": "8 instances"
     },
     "ada/alire": {
       "ada/alire/alire-directories.adb": "1 instances",
@@ -18,6 +37,9 @@
       "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": "1 instances",
       "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": "4 instances",
       "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": "2 instances"
+    },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": "9 instances"
     },
     "c/doom": {
       "c/doom/d_main.c": "2 instances",
@@ -37,12 +59,22 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "4 instances",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "8 instances"
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/src_fpm_environment.f90": "4 instances"
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": "1 instances"
+    },
     "fortran/wrf": {
       "fortran/wrf/module_configure.F": "3 instances",
       "fortran/wrf/module_domain.F": "46 instances",
       "fortran/wrf/module_initialize_real.F": "13 instances",
       "fortran/wrf/module_physics_init.F": "4 instances",
       "fortran/wrf/wrf_timeseries.F": "12 instances"
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": "2 instances",
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": "1 instances"
     },
     "go/core": {
       "go/core/server.go": "5 instances"
@@ -66,6 +98,10 @@
       "lua/cosmopolitan/nextvar.lua": "4 instances",
       "lua/cosmopolitan/sort.lua": "1 instances",
       "lua/cosmopolitan/tracegc.lua": "3 instances"
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/ft_anonymizedata.m": "1 instances",
+      "matlab/fieldtrip_core/ft_appendsource.m": "2 instances"
     },
     "nim/nim_stdlib": {
       "nim/nim_stdlib/asyncfile.nim": "4 instances",
@@ -126,6 +162,12 @@
     "yacc/freebsd": {
       "yacc/freebsd/config.y": "20 instances",
       "yacc/freebsd/jailparse.y": "6 instances"
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": "3 instances",
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": "41 instances",
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": "4 instances",
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": "15 instances"
     },
     "zig/bun": {
       "zig/bun/MimallocArena.zig": "1 instances",

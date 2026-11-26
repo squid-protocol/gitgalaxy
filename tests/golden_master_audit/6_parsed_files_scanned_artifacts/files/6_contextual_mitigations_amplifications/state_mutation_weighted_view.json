@@ -1,5 +1,16 @@
 {
   "groups": {
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": 104,
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": 20,
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": 130,
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": 9,
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": 174,
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": 78,
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": 67,
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": 42,
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": 113
+    },
     "abap/abapGit": {
       "abap/abapGit/zcl_abapgit_ajson.clas.abap": 251,
       "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": 215,
@@ -7,6 +18,23 @@
       "abap/abapGit/zcl_abapgit_objects.clas.abap": 306,
       "abap/abapGit/zcl_abapgit_persistence_db.clas.abap": 37,
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": 23
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": 215,
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": 29,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": 109,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": 35
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": 90,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": 148,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": 58,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": 20,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": 83,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": 189,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": 6,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": 56,
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": 276
     },
     "ada/alire": {
       "ada/alire/alire-conditional_trees.adb": 7,
@@ -48,10 +76,40 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 20,
       "agc_assembly/apollo-11/WAITLIST.agc": 98
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": 113,
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": 285,
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": 189,
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": 71,
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": 59,
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": 261,
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": 135,
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": 34,
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": 166
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": 352,
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": 64,
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": 76,
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": 113,
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": 13,
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": 99,
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": 319,
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": 23,
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": 305,
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": 64,
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": 73
+    },
     "apex/apex-recipes": {
       "apex/apex-recipes/QueueableRecipes.cls": 6,
       "apex/apex-recipes/SOQLRecipes.cls": 9,
       "apex/apex-recipes/SOQLRecipes_Tests.cls": 51
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": 22,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": 58,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": 49,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": 50
     },
     "assembly/bootos": {
       "assembly/bootos/counter.asm": 6,
@@ -493,12 +551,53 @@
       "crystal/kemal_framework/kemal_filter_handler.cr": 71,
       "crystal/kemal_framework/kemal_handler.cr": 19
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 80,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": 3,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": 30,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": 11,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 63,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 4,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": 16,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": 22,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": 32,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": 3
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 3,
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 4
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 521,
       "csharp/roslyn/CSharpSyntaxTree.cs": 76,
       "csharp/roslyn/LanguageParser.cs": 2555,
       "csharp/roslyn/MethodCompiler.cs": 391,
       "csharp/roslyn/Workspace.cs": 102
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": 6,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 12,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": 6,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 8,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 183,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 175,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 13,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 35,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 14,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 113
+    },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": 10,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": 128,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": 24,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": 3,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": 17,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": 3,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": 12
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": 39,
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": 12
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 518,
@@ -583,6 +682,16 @@
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": 18,
       "erlang/ranch_socket_pool/ranch_server.erl": 46
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": 19,
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": 3,
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": 3,
+      "fortran/fpm_fortran/src_fpm_environment.f90": 198,
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": 15
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": 172
+    },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": 41,
       "fortran/wrf/configure_reader.py": 307,
@@ -594,6 +703,16 @@
       "fortran/wrf/module_sf_noahdrv.F": 2680,
       "fortran/wrf/sourcetree.py": 179,
       "fortran/wrf/wrf_timeseries.F": 759
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": 830,
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": 665,
+      "fortran/wrf_physics/phys_module_diag_pld.F": 131,
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": 172,
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": 16,
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": 270,
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": 818,
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": 36
     },
     "fsharp/giraffe_web": {
       "fsharp/giraffe_web/FormatExpressions.fs": 13,
@@ -708,6 +827,17 @@
       "groovy/spring_boot_gradle/cli_spring-boot-cli_build.gradle": 20,
       "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": 13
     },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": 4,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": 8,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": 15,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": 45,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": 5
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/src_XMonad_Main.hs": 10,
+      "haskell/xmonad_core/src_XMonad_Operations.hs": 9
+    },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 6,
       "hlasm/zecs/ZECSNC.asm": 3
@@ -812,6 +942,9 @@
       "kotlin/okhttp/Dispatcher.kt": 35,
       "kotlin/okhttp/OkHttp.android.kt": 3,
       "kotlin/okhttp/build.gradle.kts": 47
+    },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": 3
     },
     "livecode/livecode": {
       "livecode/livecode/accountsignupcardbehavior.livecodescript": 13,
@@ -934,6 +1067,18 @@
       "lua/redis/strict.lua": 15,
       "lua/redis/trace-calls.lua": 12
     },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": 6
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": 6
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/extmod_extmod.mk": 170,
+      "makefile/micropython_make/py_dynruntime.mk": 76,
+      "makefile/micropython_make/py_mkrules.mk": 33,
+      "makefile/micropython_make/py_py.mk": 39
+    },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": 124,
       "matlab/eeglab/eeglab.m": 1139,
@@ -941,6 +1086,32 @@
       "matlab/eeglab/pop_loadset.m": 260,
       "matlab/eeglab/runica.m": 1073,
       "matlab/eeglab/supergui.m": 336
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/ft_analysispipeline.m": 557,
+      "matlab/fieldtrip_core/ft_annotate.m": 11,
+      "matlab/fieldtrip_core/ft_anonymizedata.m": 211,
+      "matlab/fieldtrip_core/ft_appenddata.m": 213,
+      "matlab/fieldtrip_core/ft_appendfreq.m": 67,
+      "matlab/fieldtrip_core/ft_appendlayout.m": 273,
+      "matlab/fieldtrip_core/ft_appendsens.m": 226,
+      "matlab/fieldtrip_core/ft_appendsource.m": 222,
+      "matlab/fieldtrip_core/ft_appendspike.m": 82,
+      "matlab/fieldtrip_core/ft_appendtimelock.m": 71
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": 108,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": 570,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": 114,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": 348,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": 160,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": 219,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": 123,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": 15,
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": 86,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": 9,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": 84,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": 70
     },
     "nim/nim_stdlib": {
       "nim/nim_stdlib/algorithm.nim": 114,
@@ -965,6 +1136,37 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 3
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": 37,
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": 39,
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": 57,
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": 302,
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": 164,
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": 222,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": 55,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": 85,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": 50,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": 9,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": 42,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": 27,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": 6,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": 9,
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": 22
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/display_layer_ios.mm": 25,
+      "objective-c/godot_ios/display_server_ios.mm": 7,
+      "objective-c/godot_ios/godot_view_ios.mm": 24,
+      "objective-c/godot_ios/main_ios.mm": 4
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": 45,
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": 3,
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": 36,
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": 4,
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": 46,
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": 33
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 54,
@@ -1070,6 +1272,17 @@
       "pli/dsf_cics_admin/R0010425.pli": 46,
       "pli/dsf_cics_admin/R0010426.pli": 24,
       "pli/dsf_cics_admin/R001TK62.pli": 53
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": 144,
+      "pli/dsf_pli_more/src_GML_R0011121.pli": 16,
+      "pli/dsf_pli_more/src_GML_R0014155.pli": 3,
+      "pli/dsf_pli_more/src_GML_R001N522.pli": 86,
+      "pli/dsf_pli_more/src_GML_R001U821.pli": 110,
+      "pli/dsf_pli_more/src_R0011203.pli": 128,
+      "pli/dsf_pli_more/src_R0014153.pli": 122,
+      "pli/dsf_pli_more/src_R0015308.pli": 73,
+      "pli/dsf_pli_more/src_R0019934.pli": 26
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": 73,
@@ -1311,6 +1524,30 @@
       "r/rlang_package/cnd.R": 18,
       "r/rlang_package/deparse.R": 69
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": 109,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": 297,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": 466,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": 18,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": 126,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": 91,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": 443,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": 72,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": 118,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": 24,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": 7,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": 63,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": 83,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": 14,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": 8,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": 448,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": 67,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": 708
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": 72,
+      "rexx/genapp_rexx/base_exec_mac1.rexx": 6
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/sample.rexx": 12
     },
@@ -1341,6 +1578,12 @@
       "rexx/ibm_z_zos/wjssmfr.rexx": 453,
       "rexx/ibm_z_zos/wjsst92.rexx": 350
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": 10,
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": 28,
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": 25,
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": 15
+    },
     "ruby/rails": {
       "ruby/rails/Rakefile": 77,
       "ruby/rails/base.rb": 30,
@@ -1351,6 +1594,12 @@
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 66
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": 22,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": 6,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": 10,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": 43
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 52,
@@ -1395,6 +1644,13 @@
       "rust/wasmtime/wasmtime_isle_parser.rs": 69,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 392
     },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 81,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6,
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 14,
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 3,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 3
+    },
     "scala/kafka": {
       "scala/kafka/KafkaApis.scala": 314,
       "scala/kafka/LogManager.scala": 98,
@@ -1409,6 +1665,10 @@
       "scheme/racket/io.ss": 315,
       "scheme/racket/schemify.rkt": 9,
       "scheme/racket/thread.rkt": 17
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": 4,
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": 7
     },
     "shell/ansible": {
       "shell/ansible/aggregate-coverage.sh": 5,
@@ -1587,6 +1847,16 @@
       "solidity/openzeppelin/ERC2771Forwarder.sol": 9,
       "solidity/openzeppelin/Governor.sol": 20
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": 18,
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": 13,
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": 12
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": 3,
+      "solidity/solady_utils/src_utils_LibRLP.sol": 8,
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": 8
+    },
     "sql/baseline": {
       "sql/baseline/schema.php": 343
     },
@@ -1598,6 +1868,43 @@
       "swift/alamofire/ParameterEncoder.swift": 18,
       "swift/alamofire/Request.swift": 146,
       "swift/alamofire/Session.swift": 43
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": 24,
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": 14,
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": 6,
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": 12,
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": 6,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": 3,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": 3,
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": 13
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": 43,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": 28,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": 48,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": 8,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": 18,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": 83,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": 61,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": 6,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": 4,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": 17,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": 3
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": 12,
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": 95,
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": 6,
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": 18
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": 36,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": 96,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": 7,
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": 37,
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": 4,
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": 6
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": 152,
@@ -1686,6 +1993,32 @@
     "yacc/freebsd": {
       "yacc/freebsd/config.y": 110,
       "yacc/freebsd/jailparse.y": 115
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": 180,
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": 24,
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": 22,
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": 37,
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": 205,
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": 801,
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": 94,
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": 7,
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": 160,
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": 73,
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": 36
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/cobc_pplex.l": 1022,
+      "yacc/gnucobol_cobc/cobc_ppparse.y": 801,
+      "yacc/gnucobol_cobc/cobc_scanner.l": 1092
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": 22,
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": 17,
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": 628
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/test_lemon-test01.y": 11
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": 4,

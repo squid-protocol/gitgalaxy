@@ -3,6 +3,25 @@
     "abap": {
       "abap/SOURCES.md": 0
     },
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_alv.clas.locals_def.abap": 0,
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": 0,
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_font.clas.testclasses.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_obsolete_func_wrap.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": 0,
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": 0,
+      "abap/abap2xlsx/src_zif_excel_book_protection.intf.abap": 0,
+      "abap/abap2xlsx/src_zif_excel_sheet_printsettings.intf.abap": 0,
+      "abap/abap2xlsx/test_cl_excel_test.clas.abap": 0,
+      "abap/abap2xlsx/test_cl_excel_test.clas.testclasses.abap": 0
+    },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": 0,
       "abap/abapGit/zabapgit.prog.abap": 0,
@@ -12,6 +31,30 @@
       "abap/abapGit/zcl_abapgit_objects.clas.abap": 0,
       "abap/abapGit/zcl_abapgit_persistence_db.clas.abap": 0,
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": 0
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": 0,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": 0,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": 0,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": 0,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": 0
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": 0,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": 0,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": 0,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": 0,
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": 0,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": 0,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": 0,
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": 0,
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff.clas.abap": 0,
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": 0
     },
     "ada": {
       "ada/PROVENANCE.md": 0,
@@ -88,6 +131,34 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 0,
       "agc_assembly/apollo-11/WAITLIST.agc": 0
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/INTER-BANK_COMMUNICATION.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/LICENSE.md": 0,
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": 0,
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": 0
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": 0,
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": 0,
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": 0
+    },
     "apex": {
       "apex/SOURCES.md": 0
     },
@@ -100,6 +171,20 @@
       "apex/apex-recipes/SOQLRecipes_Tests.cls": 0,
       "apex/apex-recipes/project-scratch-def.json": 0,
       "apex/apex-recipes/sfdx-project.json": 0
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IDomainConstructor.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IObjects.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjectSelector.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_ISObjects.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_IServiceFactory.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Objects.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_StringBuilder.cls": 0,
+      "apex/fflib_apex_common/sfdx-source_apex-common_test_classes_fflib_ObjectsTest.cls": 0
     },
     "assembly": {
       "assembly/SOURCES.md": 0
@@ -394,6 +479,29 @@
     "bms": {
       "bms/SOURCES.md": 0
     },
+    "bms/carddemo_bms": {
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU00.bms": 0,
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU01.bms": 0,
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTLI.bms": 0,
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTUP.bms": 0,
+      "bms/carddemo_bms/app_bms_COACTUP.bms": 0,
+      "bms/carddemo_bms/app_bms_COACTVW.bms": 0,
+      "bms/carddemo_bms/app_bms_COADM01.bms": 0,
+      "bms/carddemo_bms/app_bms_COBIL00.bms": 0,
+      "bms/carddemo_bms/app_bms_COCRDLI.bms": 0,
+      "bms/carddemo_bms/app_bms_COCRDSL.bms": 0,
+      "bms/carddemo_bms/app_bms_COCRDUP.bms": 0,
+      "bms/carddemo_bms/app_bms_COMEN01.bms": 0,
+      "bms/carddemo_bms/app_bms_CORPT00.bms": 0,
+      "bms/carddemo_bms/app_bms_COSGN00.bms": 0,
+      "bms/carddemo_bms/app_bms_COTRN00.bms": 0,
+      "bms/carddemo_bms/app_bms_COTRN01.bms": 0,
+      "bms/carddemo_bms/app_bms_COTRN02.bms": 0,
+      "bms/carddemo_bms/app_bms_COUSR00.bms": 0,
+      "bms/carddemo_bms/app_bms_COUSR01.bms": 0,
+      "bms/carddemo_bms/app_bms_COUSR02.bms": 0,
+      "bms/carddemo_bms/app_bms_COUSR03.bms": 0
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": 0,
       "bms/cbsa/BNK1CAM.bms": 0,
@@ -405,6 +513,10 @@
       "bms/cbsa/BNK1TFM.bms": 0,
       "bms/cbsa/BNK1UAM.bms": 0,
       "bms/cbsa/PROVENANCE.md": 0
+    },
+    "bms/dbb_mortgage_bms": {
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmlis.bms": 0,
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmort.bms": 0
     },
     "bms/genapp": {
       "bms/genapp/ssmap.bms": 0
@@ -1200,6 +1312,35 @@
     "csharp": {
       "csharp/SOURCES.md": 0
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/LICENSE.txt": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": 1,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": 0,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": 0
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": 0,
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": 0,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 6,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": 0,
+      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": 0,
+      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": 0,
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": 0,
+      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": 0,
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 1,
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 1,
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 4
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 63,
       "csharp/roslyn/CSharpSyntaxTree.cs": 17,
@@ -1208,6 +1349,21 @@
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 15,
       "csharp/roslyn/Workspace.cs": 115
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/LICENSE.TXT": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 1,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 5,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": 12,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 6,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 22,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 12,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 11,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 1,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 18
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1263,6 +1419,34 @@
     "dart": {
       "dart/SOURCES.md": 0
     },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_analysis_rule_analysis_rule.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_diagnostic_diagnostic.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_context_builder.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": 7,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": 6,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_error_null_safe_api_verifier.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": 1,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": 0,
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart": 2
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_abstract_beats_arguments_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_class_modifiers_interface_interface_class_part_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": 4,
+      "dart/dart_sdk_language_tests/tests_language_extension_methods_static_extension_import_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_identifier_built_in_identifier_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_invalid_returns_sync_invalid_return_00_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_mixin_legacy_illegal_constructor_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_nonfunction_type_aliases_generic_usage_null_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_regress_regress18713_legacy_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_setter_override_test.dart": 0,
+      "dart/dart_sdk_language_tests/tests_language_type_object_constant_type_literal_test.dart": 0
+    },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 60,
       "dart/flutter/events.dart": 0,
@@ -1274,6 +1458,14 @@
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 0
+    },
+    "db2_sql/carddemo_ddl": {
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_AUTHFRDS.ddl": 0,
+      "db2_sql/carddemo_ddl/app_app-authorization-ims-db2-mq_ddl_XAUTHFRD.ddl": 0,
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYCAT.ddl": 0,
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_TRNTYPE.ddl": 0,
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYCAT.ddl": 0,
+      "db2_sql/carddemo_ddl/app_app-transaction-type-db2_ddl_XTRNTYPE.ddl": 0
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": 0,
@@ -1291,44 +1483,44 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 12,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 0,
       "dockerfile/moby/builder/dockerfile/builder.go": 2,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 6,
-      "dockerfile/moby/builder/dockerfile/copy.go": 12,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 2,
+      "dockerfile/moby/builder/dockerfile/copy.go": 5,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 1,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 2,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 19,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 0,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": 11,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": 2,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 3,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 8,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 1,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 1,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": 5,
-      "dockerfile/moby/builder/dockerfile/internals.go": 11,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": 1,
+      "dockerfile/moby/builder/dockerfile/internals.go": 7,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 2,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 2,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 8,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 1,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
       "dockerfile/moby/builder/dockerfile/metrics.go": 0,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 14,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 0,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 5,
-      "dockerfile/moby/builder/remotecontext/detect.go": 1,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 4,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 1,
+      "dockerfile/moby/builder/remotecontext/archive.go": 1,
+      "dockerfile/moby/builder/remotecontext/detect.go": 0,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 0,
       "dockerfile/moby/builder/remotecontext/git.go": 1,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 4,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
       "dockerfile/moby/builder/remotecontext/remote.go": 0,
@@ -1337,20 +1529,20 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": 0
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 6,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 2,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 6
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 14,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 10,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 1,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 2
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 0,
@@ -1462,6 +1654,34 @@
     "fortran": {
       "fortran/SOURCES.md": 0
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": 0,
+      "fortran/fpm_fortran/example_packages_auto_with_nondefault_main_app_non_default_name.f90": 0,
+      "fortran/fpm_fortran/example_packages_features_with_dependency_app_main.f90": 0,
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": 0,
+      "fortran/fpm_fortran/example_packages_hello_world_app_main.f90": 0,
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": 0,
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": 0,
+      "fortran/fpm_fortran/example_packages_preprocess_per_dependency_app_main.f90": 0,
+      "fortran/fpm_fortran/example_packages_submodule_tree_shake_src_parent_unused.f90": 0,
+      "fortran/fpm_fortran/example_packages_with_examples_demo_prog.f90": 0,
+      "fortran/fpm_fortran/src_fpm_environment.f90": 0,
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": 0
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/example_ansi_example_ansi_color.f90": 0,
+      "fortran/stdlib_fortran/example_bitsets_example_bitsets_read_bitset.f90": 0,
+      "fortran/stdlib_fortran/example_hashmaps_example_hashmaps_fnv_1_hasher.f90": 0,
+      "fortran/stdlib_fortran/example_linalg_example_blas_gemv.f90": 0,
+      "fortran/stdlib_fortran/example_linalg_example_is_symmetric.f90": 0,
+      "fortran/stdlib_fortran/example_linalg_example_state1.f90": 0,
+      "fortran/stdlib_fortran/example_quadrature_example_simps_weights.f90": 0,
+      "fortran/stdlib_fortran/example_specialmatrices_example_specialmatrices_dp_spmv.f90": 0,
+      "fortran/stdlib_fortran/example_string_type_example_constructor_logical.f90": 0,
+      "fortran/stdlib_fortran/example_stringlist_type_example_stringlist_type_constructor.f90": 0,
+      "fortran/stdlib_fortran/example_system_example_make_directory.f90": 0,
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": 0
+    },
     "fortran/wrf": {
       "fortran/wrf/LICENSE.txt": 0,
       "fortran/wrf/cleanCMake.sh": 0,
@@ -1478,6 +1698,19 @@
       "fortran/wrf/run_convert_e2c.ksh": 0,
       "fortran/wrf/sourcetree.py": 1,
       "fortran/wrf/wrf_timeseries.F": 0
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/LICENSE.txt": 0,
+      "fortran/wrf_physics/phys_ccpp_kind_types.F": 0,
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": 0,
+      "fortran/wrf_physics/phys_module_cam_mp_modal_aero_initialize_data_phys.F": 0,
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": 0,
+      "fortran/wrf_physics/phys_module_diag_pld.F": 0,
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": 0,
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": 0,
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": 0,
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": 0,
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": 0
     },
     "fsharp": {
       "fsharp/SOURCES.md": 0
@@ -1511,25 +1744,25 @@
     },
     "go/core": {
       "go/core/PATENTS": 0,
-      "go/core/main.go": 1,
-      "go/core/mgc.go": 23,
-      "go/core/mutex.go": 3,
-      "go/core/proc.go": 82,
-      "go/core/server.go": 133,
-      "go/core/syscall_linux.go": 14,
-      "go/core/value.go": 101
+      "go/core/main.go": 0,
+      "go/core/mgc.go": 20,
+      "go/core/mutex.go": 0,
+      "go/core/proc.go": 36,
+      "go/core/server.go": 16,
+      "go/core/syscall_linux.go": 0,
+      "go/core/value.go": 1
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 0
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 37,
-      "go/kubernetes/generic.go": 18,
-      "go/kubernetes/kubelet.go": 11,
+      "go/kubernetes/csi_plugin.go": 11,
+      "go/kubernetes/generic.go": 2,
+      "go/kubernetes/kubelet.go": 5,
       "go/kubernetes/options.go": 0,
-      "go/kubernetes/proxier.go": 22,
-      "go/kubernetes/replica_set.go": 29,
-      "go/kubernetes/scheduler.go": 21
+      "go/kubernetes/proxier.go": 3,
+      "go/kubernetes/replica_set.go": 15,
+      "go/kubernetes/scheduler.go": 15
     },
     "go/kubernetes_kubectl_tls": {
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 1
@@ -1890,6 +2123,20 @@
     "haskell": {
       "haskell/SOURCES.md": 0
     },
+    "haskell/aeson_core": {
+      "haskell/aeson_core/benchmarks_bench_Auto_G_BigRecord.hs": 0,
+      "haskell/aeson_core/benchmarks_bench_Compare_BufferBuilder.hs": 0,
+      "haskell/aeson_core/benchmarks_bench_ReadFile.hs": 2,
+      "haskell/aeson_core/examples_src_Generic.hs": 0,
+      "haskell/aeson_core/src_Data_Aeson_Decoding.hs": 12,
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString-2.hs": 2,
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString.hs": 2,
+      "haskell/aeson_core/src_Data_Aeson_Parser_Time.hs": 0,
+      "haskell/aeson_core/tests_DataFamilies_Instances.hs": 0,
+      "haskell/aeson_core/tests_PropUtils.hs": 0,
+      "haskell/aeson_core/tests_Regression_Issue1198.hs": 1,
+      "haskell/aeson_core/tests_UnitTests_Hashable.hs": 0
+    },
     "haskell/pandoc": {
       "haskell/pandoc/AUTHORS.md": 0,
       "haskell/pandoc/App.hs": 5,
@@ -1902,6 +2149,33 @@
       "haskell/pandoc/Pandoc.hs": 0,
       "haskell/pandoc/Parsing.hs": 0,
       "haskell/pandoc/Shared.hs": 10
+    },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/COPYING.md": 0,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_AnnotatedTable.hs": 0,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs": 1,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DocBook.hs": 5,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DokuWiki.hs": 8,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": 0,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": 6,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": 10,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Markdown_Table.hs": 1,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": 41,
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": 16
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/Main.hs": 0,
+      "haskell/xmonad_core/src_XMonad.hs": 0,
+      "haskell/xmonad_core/src_XMonad_Core.hs": 20,
+      "haskell/xmonad_core/src_XMonad_Main.hs": 14,
+      "haskell/xmonad_core/src_XMonad_Operations.hs": 62,
+      "haskell/xmonad_core/tests_Instances.hs": 2,
+      "haskell/xmonad_core/tests_Properties_Delete.hs": 2,
+      "haskell/xmonad_core/tests_Properties_Floating.hs": 0,
+      "haskell/xmonad_core/tests_Properties_GreedyView.hs": 2,
+      "haskell/xmonad_core/tests_Properties_Layout_Full.hs": 0,
+      "haskell/xmonad_core/tests_Properties_Screen.hs": 4,
+      "haskell/xmonad_core/tests_Properties_Stack.hs": 0
     },
     "hcl": {
       "hcl/SOURCES.md": 0
@@ -1941,6 +2215,10 @@
     "hlasm": {
       "hlasm/PROVENANCE.md": 0,
       "hlasm/SOURCES.md": 0
+    },
+    "hlasm/carddemo_hlasm": {
+      "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": 0,
+      "hlasm/carddemo_hlasm/app_asm_MVSWAIT.asm": 0
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 0,
@@ -2407,6 +2685,42 @@
       "kotlin/okhttp/OkHttp.kt": 0,
       "kotlin/okhttp/build.gradle.kts": 0
     },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/LICENSE.txt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_DeserializationStrategyConverter.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Factory.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_SerializationStrategyConverter.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": 2,
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": 4,
+      "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": 1
+    },
+    "kotlin/spring_boot_kotlin": {
+      "kotlin/spring_boot_kotlin/LICENSE.txt": 0,
+      "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": 1,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": 0,
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": 0,
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": 0,
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": 21
+    },
     "livecode": {
       "livecode/SOURCES.md": 0
     },
@@ -2657,12 +2971,61 @@
       "m4/gnucobol/COPYING": 0,
       "m4/gnucobol/configure.ac": 0
     },
+    "m4/gnupg_m4": {
+      "m4/gnupg_m4/COPYING": 0,
+      "m4/gnupg_m4/gpg-error.m4": 0,
+      "m4/gnupg_m4/ksba.m4": 0,
+      "m4/gnupg_m4/ldap.m4": 0,
+      "m4/gnupg_m4/libassuan.m4": 0,
+      "m4/gnupg_m4/libgcrypt.m4": 0,
+      "m4/gnupg_m4/npth.m4": 0,
+      "m4/gnupg_m4/ntbtls.m4": 0,
+      "m4/gnupg_m4/readline.m4": 0,
+      "m4/gnupg_m4/socklen.m4": 0
+    },
+    "m4/libffi_racket": {
+      "m4/libffi_racket/acinclude.m4": 0,
+      "m4/libffi_racket/configure.ac": 0
+    },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_add_flags.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_attribute_syntax.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_c_typeof.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_cross_compile.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_csym.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_endian.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_flags.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_func.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_func_attribute.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_have_func.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_flagvar.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_foreach.m4": 0,
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_libext.m4": 0,
+      "m4/nasm_autoconf_macros/configure.ac": 0
+    },
     "makefile": {
       "makefile/SOURCES.md": 0
+    },
+    "makefile/cosmopolitan_build_mk": {
+      "makefile/cosmopolitan_build_mk/ctl_BUILD.mk": 0,
+      "makefile/cosmopolitan_build_mk/examples_BUILD.mk": 0,
+      "makefile/cosmopolitan_build_mk/net_BUILD.mk": 0,
+      "makefile/cosmopolitan_build_mk/test_BUILD.mk": 0,
+      "makefile/cosmopolitan_build_mk/third_party_BUILD.mk": 0,
+      "makefile/cosmopolitan_build_mk/tool_BUILD.mk": 0
     },
     "makefile/freebsd": {
       "makefile/freebsd/COPYRIGHT": 0,
       "makefile/freebsd/Makefile": 0
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/docs_Makefile": 0,
+      "makefile/micropython_make/extmod_extmod.mk": 0,
+      "makefile/micropython_make/py_dynruntime.mk": 0,
+      "makefile/micropython_make/py_mkenv.mk": 0,
+      "makefile/micropython_make/py_mkrules.mk": 0,
+      "makefile/micropython_make/py_py.mk": 0
     },
     "markdown": {
       "markdown/SOURCES.md": 0
@@ -2685,6 +3048,34 @@
       "matlab/eeglab/pop_loadset.m": 0,
       "matlab/eeglab/runica.m": 0,
       "matlab/eeglab/supergui.m": 0
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/COPYING": 0,
+      "matlab/fieldtrip_core/ft_analysispipeline.m": 0,
+      "matlab/fieldtrip_core/ft_annotate.m": 0,
+      "matlab/fieldtrip_core/ft_anonymizedata.m": 0,
+      "matlab/fieldtrip_core/ft_appenddata.m": 0,
+      "matlab/fieldtrip_core/ft_appendfreq.m": 0,
+      "matlab/fieldtrip_core/ft_appendlayout.m": 0,
+      "matlab/fieldtrip_core/ft_appendsens.m": 0,
+      "matlab/fieldtrip_core/ft_appendsource.m": 0,
+      "matlab/fieldtrip_core/ft_appendspike.m": 0,
+      "matlab/fieldtrip_core/ft_appendtimelock.m": 0
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/COPYING": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": 13,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": 0,
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": 0,
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": 0,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": 0,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": 0,
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": 0
     },
     "mlir": {
       "mlir/SOURCES.md": 0
@@ -2735,6 +3126,15 @@
     "nix": {
       "nix/SOURCES.md": 0
     },
+    "nix/angular_nix": {
+      "nix/angular_nix/adev_src_content_tutorials_deferrable-views_common_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_first-app_common_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_homepage_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_learn-angular_common_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_playground_common_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_signal-forms_common_idx_dev.nix": 0,
+      "nix/angular_nix/adev_src_content_tutorials_signals_common_idx_dev.nix": 0
+    },
     "nix/bun": {
       "nix/bun/LICENSE.md": 0,
       "nix/bun/flake.nix": 0,
@@ -2748,6 +3148,44 @@
     },
     "objective-c": {
       "objective-c/SOURCES.md": 0
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": 3,
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": 1,
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": 0,
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": 4,
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": 0,
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": 2,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": 0,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": 3,
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": 0,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": 0,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": 4,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": 2,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": 0,
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": 0,
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": 1
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/LICENSE.txt": 0,
+      "objective-c/godot_ios/device_metrics.mm": 0,
+      "objective-c/godot_ios/display_layer_ios.mm": 0,
+      "objective-c/godot_ios/display_server_ios.mm": 0,
+      "objective-c/godot_ios/godot_view_ios.mm": 0,
+      "objective-c/godot_ios/main_ios.mm": 0,
+      "objective-c/godot_ios/os_ios.mm": 0
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_AppDelegate.m": 0,
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": 0,
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_main.m": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLDelegate.m": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreterOptions.m": 0,
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": 0
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 0,
@@ -2925,6 +3363,21 @@
       "pli/dsf_cics_admin/R0010426.pli": 0,
       "pli/dsf_cics_admin/R0010427.pli": 0,
       "pli/dsf_cics_admin/R001TK62.pli": 0
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/LICENSE.md": 0,
+      "pli/dsf_pli_more/src_A0010301.pli": 0,
+      "pli/dsf_pli_more/src_GML_R0011121.pli": 0,
+      "pli/dsf_pli_more/src_GML_R0014155.pli": 0,
+      "pli/dsf_pli_more/src_GML_R0015314.pli": 0,
+      "pli/dsf_pli_more/src_GML_R0019056.pli": 0,
+      "pli/dsf_pli_more/src_GML_R001N522.pli": 0,
+      "pli/dsf_pli_more/src_GML_R001U821.pli": 0,
+      "pli/dsf_pli_more/src_R0011203.pli": 0,
+      "pli/dsf_pli_more/src_R0014153.pli": 0,
+      "pli/dsf_pli_more/src_R0015308.pli": 0,
+      "pli/dsf_pli_more/src_R0019934.pli": 0,
+      "pli/dsf_pli_more/src_R001N802.pli": 0
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": 0,
@@ -3501,6 +3954,32 @@
       "rexx/PROVENANCE.md": 0,
       "rexx/SOURCES.md": 0
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzabout.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzadd.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcnvrt.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcomit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcommp.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzconf.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzencod.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgetpr.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzgit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzhilit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzmain.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzprefs.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzstart.rexx": 0,
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": 0
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": 0,
+      "rexx/genapp_rexx/base_exec_mac1.rexx": 0
+    },
     "rexx/hercules_390_hyperion": {
       "rexx/hercules_390_hyperion/COPYRIGHT": 0,
       "rexx/hercules_390_hyperion/sample.rexx": 0
@@ -3538,6 +4017,21 @@
     "ruby": {
       "ruby/SOURCES.md": 0
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/LICENSE.txt": 0,
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": 0,
+      "ruby/homebrew_ruby/Library_Homebrew_cmd_casks.rb": 1,
+      "ruby/homebrew_ruby/Library_Homebrew_extend_object_duplicable.rb": 0,
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": 1,
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": 19,
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": 153,
+      "ruby/homebrew_ruby/Library_Homebrew_test_dev-cmd_which-update_spec.rb": 1,
+      "ruby/homebrew_ruby/Library_Homebrew_test_rubocops_components_order_spec.rb": 182,
+      "ruby/homebrew_ruby/Library_Homebrew_test_support_fixtures_cask_Casks_missing-name.rb": 1,
+      "ruby/homebrew_ruby/Library_Homebrew_test_unpack_strategy_cvs_spec.rb": 3,
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": 0,
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": 1
+    },
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 13,
@@ -3552,19 +4046,33 @@
       "ruby/rails_http_token_auth/MIT-LICENSE": 0,
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": 29
     },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": 4,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_has_context.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_prints_page.rb": 1,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": 2,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": 1,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_edge_features.rb": 0,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": 1,
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": 2
+    },
     "rust": {
       "rust/SOURCES.md": 0
     },
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
-      "rust/bevy/bevy_ecs_macros.rs": 8,
-      "rust/bevy/bevy_ecs_query.rs": 4,
-      "rust/bevy/bevy_ecs_table.rs": 4,
-      "rust/bevy/bevy_ecs_world.rs": 27,
-      "rust/bevy/bevy_reflect_path.rs": 0,
+      "rust/bevy/bevy_ecs_macros.rs": 29,
+      "rust/bevy/bevy_ecs_query.rs": 14,
+      "rust/bevy/bevy_ecs_table.rs": 13,
+      "rust/bevy/bevy_ecs_world.rs": 55,
+      "rust/bevy/bevy_reflect_path.rs": 3,
       "rust/bevy/bevy_render_phase.rs": 0,
-      "rust/bevy/bevy_schedule_graph.rs": 1
+      "rust/bevy/bevy_schedule_graph.rs": 3
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 0,
@@ -3577,19 +4085,19 @@
       "rust/holylang/compile.rs": 0,
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
-      "rust/holylang/parser.rs": 3,
-      "rust/holylang/semantic.rs": 5,
-      "rust/holylang/transpiler.rs": 1
+      "rust/holylang/parser.rs": 18,
+      "rust/holylang/semantic.rs": 12,
+      "rust/holylang/transpiler.rs": 9
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
-      "rust/serde/serde_core_de_impls.rs": 0,
+      "rust/serde/serde_core_de_impls.rs": 11,
       "rust/serde/serde_core_de_mod.rs": 0,
       "rust/serde/serde_core_macros.rs": 0,
-      "rust/serde/serde_derive_de.rs": 5,
-      "rust/serde/serde_internals_ast.rs": 1,
-      "rust/serde/serde_internals_attr.rs": 6,
+      "rust/serde/serde_derive_de.rs": 16,
+      "rust/serde/serde_internals_ast.rs": 4,
+      "rust/serde/serde_internals_attr.rs": 13,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
@@ -3606,29 +4114,55 @@
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
       "rust/tokio/blocking.rs": 0,
-      "rust/tokio/builder.rs": 0,
+      "rust/tokio/builder.rs": 4,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 0,
+      "rust/tokio/interval.rs": 4,
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
-      "rust/tokio/tests.rs": 17,
-      "rust/tokio/tokio_mpsc_bounded.rs": 2,
-      "rust/tokio/tokio_named_pipe.rs": 2,
-      "rust/tokio/tokio_udp.rs": 11
+      "rust/tokio/tests.rs": 58,
+      "rust/tokio/tokio_mpsc_bounded.rs": 6,
+      "rust/tokio/tokio_named_pipe.rs": 15,
+      "rust/tokio/tokio_udp.rs": 36
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 0
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
-      "rust/wasmtime/wasmtime_instance.rs": 1,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 0,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 1,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 1
+      "rust/wasmtime/wasmtime_instance.rs": 9,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 7,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 22,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 89
     },
     "scala": {
       "scala/SOURCES.md": 0
+    },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 4,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 18,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 34,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 3,
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 1,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 1,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 3,
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": 14,
+      "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": 7
+    },
+    "scala/gradle_scala": {
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": 1,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_quickstart_kotlin_src_main_scala_org_gradle_sample_Named.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_scala3_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zincDependency_kotlin_src_main_scala_Hello.scala": 0,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zinc_kotlin_src_main_scala_org_gradle_sample_Person.scala": 0,
+      "scala/gradle_scala/platforms_jvm_scala_src_integTest_resources_org_gradle_scala_compile_IncrementalScalaCompileIntegrationTest_recompilesSourceWhenPropertiesChange_src_main_scala_PersonImpl.scala": 0,
+      "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": 0
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 8,
@@ -3650,6 +4184,19 @@
       "scheme/racket/io.ss": 455,
       "scheme/racket/schemify.rkt": 25,
       "scheme/racket/thread.rkt": 45
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/LICENSE.txt": 0,
+      "scheme/racket_scheme/pkgs_compiler-test_tests_compiler_embed_embed-me12-rd.ss": 1,
+      "scheme/racket_scheme/racket_src_ChezScheme_examples_macro.ss": 2,
+      "scheme/racket_scheme/racket_src_ChezScheme_nanopass_nanopass_meta-parser.ss": 43,
+      "scheme/racket_scheme/racket_src_ChezScheme_s_back.ss": 23,
+      "scheme/racket_scheme/racket_src_ChezScheme_s_foreign.ss": 6,
+      "scheme/racket_scheme/racket_src_ChezScheme_s_target-fixnum.ss": 5,
+      "scheme/racket_scheme/racket_src_cs_demo_expander.ss": 8,
+      "scheme/racket_scheme/racket_src_cs_main_eval-all.ss": 5,
+      "scheme/racket_scheme/racket_src_cs_rumble_check.ss": 4,
+      "scheme/racket_scheme/racket_src_cs_rumble_keyword.ss": 0
     },
     "shell": {
       "shell/SOURCES.md": 0
@@ -3964,6 +4511,32 @@
       "solidity/openzeppelin/ReentrancyGuard.sol": 0,
       "solidity/openzeppelin/StorageSlot.sol": 0
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_utils_ERC1155Holder.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC1363.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC20Pausable.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_IERC20Metadata.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Burnable.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Royalty.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_IERC721Metadata.sol": 0,
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": 0
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/LICENSE.txt": 0,
+      "solidity/solady_utils/src_Milady.sol": 0,
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": 0,
+      "solidity/solady_utils/src_auth_OwnableRoles.sol": 0,
+      "solidity/solady_utils/src_utils_Base58.sol": 0,
+      "solidity/solady_utils/src_utils_ECDSA.sol": 0,
+      "solidity/solady_utils/src_utils_Initializable.sol": 0,
+      "solidity/solady_utils/src_utils_LibRLP.sol": 0,
+      "solidity/solady_utils/src_utils_MetadataReaderLib.sol": 0,
+      "solidity/solady_utils/src_utils_SafeCastLib.sol": 0,
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": 0,
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": 0
+    },
     "sql": {
       "sql/SOURCES.md": 0
     },
@@ -4098,10 +4671,68 @@
       "swift/alamofire/AFError.swift": 0,
       "swift/alamofire/Alamofire.podspec": 1,
       "swift/alamofire/Package.swift": 0,
-      "swift/alamofire/ParameterEncoder.swift": 0,
-      "swift/alamofire/Request.swift": 24,
-      "swift/alamofire/Response.swift": 1,
-      "swift/alamofire/Session.swift": 4
+      "swift/alamofire/ParameterEncoder.swift": 2,
+      "swift/alamofire/Request.swift": 42,
+      "swift/alamofire/Response.swift": 5,
+      "swift/alamofire/Session.swift": 8
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": 8,
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Features_Terminal_ErrorView.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": 2,
+      "swift/ghostty_macos/macos_Sources_Ghostty_GhosttyDelegate.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": 1,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_Duration_Extension.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": 0,
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": 0
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/LICENSE.txt": 0,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": 12,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": 6,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": 22,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": 0,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": 0,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": 5,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": 3,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": 0,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": 1,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": 5,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": 3,
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": 5
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/LICENSE.txt": 0,
+      "swift/swift_nio_core/Sources_NIOCore_ByteBuffer-conversions.swift": 0,
+      "swift/swift_nio_core/Sources_NIOCore_FileRegion.swift": 0,
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": 0,
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": 15,
+      "swift/swift_nio_core/Sources_NIOFoundationCompat_Exports.swift": 0,
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": 3,
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": 0,
+      "swift/swift_nio_core/Sources_NIOPosix_NIOPosixSendableMetatype.swift": 0,
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": 0,
+      "swift/swift_nio_core/Sources_NIOWebSocket_NIOWebSocketClientUpgrader.swift": 0,
+      "swift/swift_nio_core/Sources_NIO_Exports.swift": 0,
+      "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": 0
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": 22,
+      "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": 0,
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": 6,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": 6,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": 2,
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": 5,
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": 3,
+      "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": 0,
+      "swift/vapor_sources/Sources_Vapor_Utilities_AnyResponse.swift": 0,
+      "swift/vapor_sources/Sources_Vapor_Utilities_OptionalType.swift": 2,
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": 0,
+      "swift/vapor_sources/Sources_Vapor__Deprecations.swift": 0
     },
     "tabular": {
       "tabular/SOURCES.md": 0
@@ -4208,7 +4839,7 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0,
       "typescript/assemblyscript/ast.ts": 0,
-      "typescript/assemblyscript/builtins.ts": 0,
+      "typescript/assemblyscript/builtins.ts": 4,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
       "typescript/assemblyscript/parser.ts": 0
@@ -4218,18 +4849,18 @@
     },
     "typescript/excalibur_math": {
       "typescript/excalibur_math/LICENSE.md": 0,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 1,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 2,
       "typescript/excalibur_math/math_ray.ts": 0
     },
     "typescript/excalidraw_text_wrapping": {
-      "typescript/excalidraw_text_wrapping/textWrapping.ts": 39
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": 32
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 19,
+      "typescript/fp-ts/Either.ts": 152,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 15,
+      "typescript/fp-ts/TaskEither.ts": 199,
       "typescript/fp-ts/package.json": 0,
-      "typescript/fp-ts/pipeable.ts": 2
+      "typescript/fp-ts/pipeable.ts": 873
     },
     "typescript/nx_util_ai": {
       "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0,
@@ -4244,34 +4875,34 @@
       "typescript/playwright/SECURITY.md": 0,
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
-      "typescript/playwright/bidiConnection.ts": 5,
-      "typescript/playwright/connection.ts": 4,
-      "typescript/playwright/crConnection.ts": 4,
-      "typescript/playwright/dispatcher.ts": 3,
-      "typescript/playwright/frames.ts": 73,
+      "typescript/playwright/bidiConnection.ts": 10,
+      "typescript/playwright/connection.ts": 6,
+      "typescript/playwright/crConnection.ts": 7,
+      "typescript/playwright/dispatcher.ts": 7,
+      "typescript/playwright/frames.ts": 108,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
-      "typescript/typescript_compiler/binder.ts": 8,
-      "typescript/typescript_compiler/checker.ts": 319,
-      "typescript/typescript_compiler/emitter.ts": 22,
+      "typescript/typescript_compiler/binder.ts": 15,
+      "typescript/typescript_compiler/checker.ts": 806,
+      "typescript/typescript_compiler/emitter.ts": 26,
       "typescript/typescript_compiler/package.json": 0,
-      "typescript/typescript_compiler/parser.ts": 61,
-      "typescript/typescript_compiler/types.ts": 9
+      "typescript/typescript_compiler/parser.ts": 71,
+      "typescript/typescript_compiler/types.ts": 18
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 143,
-      "typescript/vscode/codeEditorWidget.ts": 46,
+      "typescript/vscode/async.ts": 139,
+      "typescript/vscode/codeEditorWidget.ts": 51,
       "typescript/vscode/eslint.config.js": 0,
-      "typescript/vscode/extHost.api.impl.ts": 91,
-      "typescript/vscode/gulpfile.vscode.ts": 37,
-      "typescript/vscode/instantiationService.ts": 4,
-      "typescript/vscode/ipc.ts": 30,
-      "typescript/vscode/lifecycle.ts": 12,
+      "typescript/vscode/extHost.api.impl.ts": 23,
+      "typescript/vscode/gulpfile.vscode.ts": 46,
+      "typescript/vscode/instantiationService.ts": 8,
+      "typescript/vscode/ipc.ts": 39,
+      "typescript/vscode/lifecycle.ts": 18,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 3
+      "typescript/vscode/vscode.d.ts": 5
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,
@@ -4326,6 +4957,37 @@
       "yacc/freebsd/COPYRIGHT": 0,
       "yacc/freebsd/config.y": 0,
       "yacc/freebsd/jailparse.y": 0
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/COPYRIGHT": 0,
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": 0,
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_token.l": 0,
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": 0,
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": 0,
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": 0,
+      "yacc/freebsd_yacc_lex/sbin_hastd_token.l": 0,
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": 0,
+      "yacc/freebsd_yacc_lex/sbin_setkey_token.l": 0,
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acplex.l": 0,
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": 0,
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": 0,
+      "yacc/freebsd_yacc_lex/usr.bin_m4_tokenizer.l": 0
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/COPYING": 0,
+      "yacc/gnucobol_cobc/cobc_pplex.l": 0,
+      "yacc/gnucobol_cobc/cobc_ppparse.y": 0,
+      "yacc/gnucobol_cobc/cobc_scanner.l": 0
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": 0,
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": 0,
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": 0
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/LICENSE.md": 0,
+      "yacc/sqlite_lemon/ext_fts5_fts5parse.y": 0,
+      "yacc/sqlite_lemon/test_lemon-test01.y": 0
     },
     "yaml": {
       "yaml/SOURCES.md": 0

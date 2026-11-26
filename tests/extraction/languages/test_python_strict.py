@@ -204,6 +204,21 @@ def test_python_comprehensions_was_fixed_from_a_javascript_copy_paste():
     )
 
 
+@pytest.mark.parametrize(
+    "call",
+    [
+        "User.objects.filter(active=True)",
+        "df.map(fn)",
+        "pd.Series.reduce(add)",
+        "items.flatMap(f)",
+        "qs.exclude(x=1).filter(y=2)",
+    ],
+)
+def test_python_comprehensions_ignores_every_js_idiom_method_call(call):
+    """Whole class of the old JS-idiom bug: no `.method(` call is a comprehension."""
+    assert not PY_RULES["comprehensions"].search(call)
+
+
 def test_python_comprehensions_redos_immunity():
     pattern = PY_RULES["comprehensions"]
     assert_redos_immune(pattern, "(" * 40000, timeout_sec=3.0)
@@ -484,9 +499,16 @@ def test_python_bitwise_ops_ignores_type_union_and_comparison(src):
     assert not PY_RULES["bitwise_ops"].search(src)
 
 
-def test_python_bitwise_ops_string_content_still_counts_documented():
-    """Documented behaviour (#2535, #8866): no string shielding for structural signals."""
-    assert PY_RULES["bitwise_ops"].search('re.compile(r"^a~b<<")')
+def test_python_bitwise_ops_operator_after_a_quote_is_skipped_documented():
+    """Documented behaviour (#8863, which narrowed #2535 / #8866's "no string shielding").
+
+    On a line that can hold a value expression the operator counts only BEFORE the first quote character: `&` / `^` / `<<` inside a
+    string literal, a C-code template or a URL query is text, not an operator. The cost is stated in the rule: an operator after a
+    string on the same line is missed, and there is still no per-family string shield. Operators before the quote still count."""
+    rule = PY_RULES["bitwise_ops"]
+    assert not rule.search('re.compile(r"^a~b<<")'), "an operator inside a string literal is text"
+    assert rule.search('mask = flags & 0xFF  # 0x"ff"'), "an operator before the first quote still counts"
+    assert rule.search("mask = flags & 0xFF"), "a plain bitwise expression counts"
 
 
 # #8865: every subprocess entry point that spawns a process counts as high_risk_execution;
@@ -688,3 +710,16 @@ def test_python_time_date_logic_matches_clocks(code):
 )
 def test_python_time_date_logic_ignores_non_clock_names(code):
     assert not PY_RULES["time_date_logic"].search(code), code
+
+
+@pytest.mark.parametrize("decorator", ["@staticmethod", "@classmethod", "@property"])
+def test_python_declaration_decorators_are_not_reflection(decorator):
+    """#8862: a declaration decorator is `decorators`' site, not run-time inspection."""
+    code = f"class C:\n    {decorator}\n    def m(self):\n        return 1\n"
+    assert not PY_RULES["reflection_metaprogramming"].search(code)
+    assert PY_RULES["decorators"].search(code)
+
+
+@pytest.mark.parametrize("code", ["getattr(o, 'a')", "setattr(o, 'a', 1)", "inspect.signature(f)", "o.__dict__"])
+def test_python_reflection_calls_still_count(code):
+    assert PY_RULES["reflection_metaprogramming"].search(code)

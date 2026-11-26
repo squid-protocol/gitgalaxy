@@ -34,6 +34,9 @@ on:
       - "tests/import_graph_corpus.json"
       - "tests/call_graph_resolution*_baseline.json"
       - "tests/tools/graph_coverage_chart.py"
+      - "tests/tools/family_validity_chart.py"
+      - "tests/family_validity_baseline.json"
+      - "gitgalaxy/standards/signal_contracts.py"
   workflow_dispatch:  # also how the first publish seeds `generated`
 
 permissions:
@@ -151,7 +154,8 @@ jobs:
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch \
-            docs/self_scan/graph_coverage_history.csv
+            docs/self_scan/graph_coverage_history.csv \
+            docs/self_scan/family_validity_history.csv
 
       - name: Regenerate the graph coverage chart and history
         if: needs.plan.outputs.run != 'false'
@@ -159,6 +163,14 @@ jobs:
           cd gitgalaxy
           python tests/tools/graph_coverage_chart.py --write --history docs/self_scan/graph_coverage_history.csv \
             --summary "$GITHUB_STEP_SUMMARY"
+
+      # #8863: the keyword-family grid (a pure function of its baseline and the engine registry); the history
+      # only gains a snapshot when a per-language number moved.
+      - name: Regenerate the keyword-family validity charts and history
+        if: needs.plan.outputs.run != 'false'
+        run: |
+          cd gitgalaxy
+          python tests/tools/family_validity_chart.py --write --history docs/self_scan/family_validity_history.csv
 
       # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
       # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
@@ -170,4 +182,7 @@ jobs:
             --message "graph-comparison-history as of main $GITHUB_SHA" \
             docs/self_scan/graph_comparison_ledger.json \
             docs/self_scan/graph_coverage_chart.svg \
-            docs/self_scan/graph_coverage_history.csv
+            docs/self_scan/graph_coverage_history.csv \
+            docs/self_scan/family_validity_chart.svg \
+            docs/self_scan/family_validity_matrix.svg \
+            docs/self_scan/family_validity_history.csv

@@ -1,5 +1,6 @@
 ---
-description: "Building a multi-language static analysis engine is notoriously difficult. Every programming language operates on its own unique physical laws. C..."
+title: "DOOM Ports Compared: How Code Drifts Across Languages"
+description: "How far DOOM's structure drifts when it is ported to other languages, measured by GitGalaxy's engine."
 ---
 # Tracking the Genetic Drift of DOOM: A GitGalaxy Stress Test
 

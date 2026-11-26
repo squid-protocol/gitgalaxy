@@ -30,18 +30,6 @@
         }
       ]
     },
-    "c/cpython": {
-      "c/cpython/object.c": [
-        {
-          "Call Sites": 2,
-          "Calling Files": 2,
-          "Kind": "function",
-          "Name": "PyObject_HashNotImplemented",
-          "Rule": "panics_and_aborts",
-          "Via": "primitive"
-        }
-      ]
-    },
     "c/doom": {
       "c/doom/i_system.c": [
         {
@@ -125,24 +113,24 @@
     "fortran/wrf": {
       "fortran/wrf/module_initialize_real.F": [
         {
-          "Call Sites": 165,
-          "Calling Files": 6,
+          "Call Sites": 177,
+          "Calling Files": 9,
           "Kind": "function",
           "Name": "wrf_error_fatal",
           "Rule": "debug_prints",
           "Via": "primitive"
         },
         {
-          "Call Sites": 112,
-          "Calling Files": 5,
+          "Call Sites": 120,
+          "Calling Files": 6,
           "Kind": "function",
           "Name": "wrf_message",
           "Rule": "debug_prints",
           "Via": "primitive"
         },
         {
-          "Call Sites": 165,
-          "Calling Files": 6,
+          "Call Sites": 177,
+          "Calling Files": 9,
           "Kind": "function",
           "Name": "wrf_error_fatal",
           "Rule": "panics_and_aborts",
@@ -223,11 +211,35 @@
     "lua/redis": {
       "lua/redis/printf.lua": [
         {
-          "Call Sites": 133,
-          "Calling Files": 14,
+          "Call Sites": 138,
+          "Calling Files": 16,
           "Kind": "function",
           "Name": "printf",
           "Rule": "debug_prints",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "AFImageWithDataAtScale",
+          "Rule": "memory_alloc",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "TFLQuantizationParamsFromCTensor",
+          "Rule": "memory_alloc",
           "Via": "primitive"
         }
       ]
@@ -264,6 +276,18 @@
           "Kind": "function",
           "Name": "raise_value_error",
           "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "load_old_version",
+          "Rule": "debug_prints",
           "Via": "primitive"
         }
       ]

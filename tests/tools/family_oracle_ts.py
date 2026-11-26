@@ -137,7 +137,23 @@ SPECS: dict[str, Spec] = {
             "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
             "regex": ("regexp.",),
-            "time": ("time.",),
+            # time_date_logic: a clock or calendar value, duration arithmetic, a formatting or timezone call. Timers
+            # (time.After / Tick / NewTimer / NewTicker / AfterFunc) are timed waits: thread_sleeps' (#8868)
+            "time": (
+                "time.Now",
+                "time.Since",
+                "time.Until",
+                "time.Unix",
+                "time.UnixMilli",
+                "time.UnixMicro",
+                "time.Date",
+                "time.Parse",
+                "time.ParseDuration",
+                "time.ParseInLocation",
+                "time.Duration",
+                "time.LoadLocation",
+                "time.FixedZone",
+            ),
             "io": (
                 "os.Open",
                 "os.Create",
@@ -158,6 +174,10 @@ SPECS: dict[str, Spec] = {
                 "http.Post",
                 "filepath.Walk",
                 "filepath.WalkDir",
+                "io.Copy",
+                "io.ReadAll",
+                "io.ReadFull",
+                "io.WriteString",
             ),
             "bailout": ("panic", "os.Exit", "log.Fatal", "log.Fatalf", "log.Fatalln", "log.Panic", "log.Panicf"),
         },
@@ -210,7 +230,7 @@ SPECS: dict[str, Spec] = {
                 "unimplemented!",
                 "process::exit",
                 "std::process::exit",
-                "exit",
+                # no bare "exit": `span.exit()` / `guard.exit()` method calls are not a process exit (#8868)
             ),
         },
     ),
@@ -374,11 +394,10 @@ SPECS: dict[str, Spec] = {
                 "fopen",
                 "fread",
                 "fwrite",
-                "fclose",
+                # no fclose / close: closing a handle is cleanup's (contract), as the C rule says (#8868)
                 "open",
                 "read",
                 "write",
-                "close",
                 "socket",
                 "send",
                 "recv",
@@ -493,6 +512,21 @@ def _callee(node) -> str:
     return "".join(full.split())
 
 
+# C stdio writers that take the stream as their first argument (the last, for fputs/fputc/putc's second): output addressed to a
+# file or writer is not a debug print (debug_prints contract), so only a console stream counts.
+_STREAM_PRINTS = frozenset({"fprintf", "vfprintf", "fputs", "fputc", "putc"})
+_CONSOLE_STREAMS = frozenset({"stdout", "stderr"})
+
+
+def _to_console(call) -> bool:
+    """True when a stream-addressed call (`fprintf(stderr, ...)`, `fputs("x", stdout)`) writes to stdout or stderr."""
+    args = call.child_by_field_name("arguments")
+    if args is None:
+        return False
+    parts = [c for c in args.children if c.is_named]
+    return any(_text(a).strip() in _CONSOLE_STREAMS for a in parts)
+
+
 def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
     """The pattern `full` matches: a prefix ending in `.` or `::`, `Name.` forms, the exact callee, or the last segment of a bare name."""
     last = full.replace("::", ".").split(".")[-1]
@@ -556,6 +590,9 @@ def _decorators(node) -> list[str]:
             out.extend(_text(m).split("(")[0] for m in c.children if m.type in ("marker_annotation", "annotation"))
         elif c.type == "decorator":
             out.append(_text(c).split("(")[0])
+        elif c.type == "formal_parameters":  # #8863: a TS parameter decorator (`@Inject() x`) sits inside the parameter
+            for p in c.children:
+                out.extend(_text(d).split("(")[0] for d in p.children if d.type == "decorator")
     prev = node.prev_named_sibling
     while prev is not None and (prev.type in ("attribute_item", "decorator") or "comment" in prev.type):
         if prev.type in ("attribute_item", "decorator"):
@@ -566,6 +603,15 @@ def _decorators(node) -> list[str]:
 
 def _documented(spec: Spec, node) -> bool:
     """A doc comment directly above, in the language's structured style: `/** */` (C, Java, JS, TS), `///` / `//!` / `/** */` (Rust), any comment (Go: godoc)."""
+    if spec.ts_name == "typescript":
+        # #8863: the doc sits above `export function f` / `export const f = () =>`, the wrapper's sibling, not the function's
+        while node.parent is not None and node.parent.type in (
+            "export_statement",
+            "lexical_declaration",
+            "variable_declaration",
+            "variable_declarator",
+        ):
+            node = node.parent
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling
@@ -642,7 +688,10 @@ class TreeSitterOracle:
                     add("short_circuit", op)
                 if op in ("<<", ">>", "^", "&^", "&", "|"):
                     add("bitwise", op)
-            elif t == "unary_expression" and _text(node.child_by_field_name("operator")) == "~":
+            elif t == "unary_expression" and _text(node.child_by_field_name("operator")) in (
+                "~",
+                "^",  # Go's unary complement (`^uint32(0)`); no other oracle language has a unary `^`
+            ):
                 add("bitwise", "~")
             elif "assignment" in t and _text(node.child_by_field_name("operator")) in (
                 "<<=",
@@ -663,7 +712,7 @@ class TreeSitterOracle:
                 full = _callee(node)
                 for key, pats in spec.calls.items():
                     hit = _matches(full, pats)
-                    if hit:
+                    if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
         n["args"] = _params(spec, fn)
         deco = _decorators(fn)

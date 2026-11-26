@@ -477,7 +477,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|process\.exit)\b"),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
-        "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|Atomics\.wait)\b"),
+        "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|setImmediate|Atomics\.wait)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
@@ -535,7 +535,7 @@ DEFINITION: dict[str, Any] = {
             re.MULTILINE,
         ),
         "time_date_logic": re.compile(
-            r"\b(Date\.now|new\s+Date|setTimeout|setInterval|clearTimeout|clearInterval|performance\.now)\b"
+            r"\b(Date\.now|new\s+Date|performance\.now)\b"  # #8868: timers are thread_sleeps' timed waits, not clock values
         ),
         "ipc_rpc_bridges": re.compile(r"\b(postMessage|Worker|MessageChannel|child_process|worker_threads|cluster)\b"),
         # system_config_mutation (#3084): contract-level absence. runtime/app

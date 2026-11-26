@@ -167,7 +167,12 @@ OWNERS: tuple[tuple[str, str], ...] = (
         "#8111 (engine: the clone holds a file of that name and the resolver drew no edge; never a clone defect, #8113)",
     ),
     (
-        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect|z/OS client web toolkit) product$",
+        r"^missing copybook: z/OS client web toolkit product$",
+        "#7709 (product copybook frontier, refused by name: IBM does not publish the HWT copybook layout; owner ruling"
+        " 2026-11-23, #8412: no stand-in is built, revisit only if an estate needs HWT and IBM's layout becomes available)",
+    ),
+    (
+        r"^missing copybook: (ISPF|Sockets|DFSORT|COBOL compiler|z/OS Connect) product$",
         "#7709 (product copybook frontier: no runtime modelled; IBM's copybooks are never shipped)",
     ),
     (r"^missing copybook", "unowned (copybook family)"),

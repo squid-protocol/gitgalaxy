@@ -42,9 +42,14 @@ from gitgalaxy.core.java_arg_types import site_arg_types as java_site_arg_types
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
-from gitgalaxy.core.receiver_types import TYPED_LANGS, file_field_types
+from gitgalaxy.core.receiver_types import TYPED_LANGS, cpp_const_receivers, file_field_types
 from gitgalaxy.core.receiver_types import receiver_types as receiver_types_of
-from gitgalaxy.core.return_types import extract_call_assigns, extract_expr_chain, extract_return_type
+from gitgalaxy.core.return_types import (
+    extract_call_assigns,
+    extract_expr_chain,
+    extract_return_type,
+    extract_whole_call_chain,
+)
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -153,6 +158,8 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
     _end_line: int
     # #8161 (P5): C++ member declarations with defaults / variadics -> [fewest, most or None, parameter count]
     method_arities: dict[str, list[list[int | None]]]
+    # C++ per-class member field types (propagated from headers to out-of-line `.cc` methods and `a.b.m()` chains)
+    field_types: dict[str, str]
 
 
 # #2908 Phase 2, D3: the header-anchor window for `is_documented`. A
@@ -231,6 +238,12 @@ class FunctionNode(TypedDict, total=False):
     # statistics (functions_found, and every average taken over it) can leave out
     # the entries that are not functions.
     is_synthetic_slice: bool
+    is_const_method: bool
+    const_receivers: list[str]
+    cpp_char_width: str
+    calls_out_char_widths: dict[str, list[str]]
+    cpp_arg0_kind: str
+    calls_out_arg0_kinds: dict[str, list[str]]
     # A synthetic bucket that exists only to carry calls (Python's module-level
     # `__global_context__`): no weight, never part of a file's structural mass.
     calls_only: bool
@@ -755,6 +768,8 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # stayed permanently empty (0/19 real classes) despite cobol's own regex working.
         "cobol",
         "cpp",
+        # #9200: crystal's class_start captures the whole namespaced name (`HTTP::Client`).
+        "crystal",
         "csharp",
         # #2511: db2_sql's class_start extracts CREATE TABLE / VIEW / TABLESPACE
         # names (schema-qualified, optionally double-quoted -- the quote pair is
@@ -1437,6 +1452,21 @@ _CPP_DECL_TAIL = re.compile(
 )
 
 
+_CPP_WCHAR_PARAM = re.compile(r"\b(?:wchar_t|wformat_string|wstring|wstring_view)\b")
+_CPP_UTF_WIDE_PARAM = re.compile(r"\b(?:char16_t|char32_t|u16string|u32string)\b")
+_CPP_NON_WCHAR_ENABLE = re.compile(r"!\s*std::is_same\s*<\s*\w+\s*,\s*wchar_t\s*>")
+_CPP_NARROW_PARAM = re.compile(r"\b(?:char|string_view|format_string|string|cstring_view)\b")
+_CPP_WCHAR_LIT = re.compile(r'(?<![\w])L["\']')
+_CPP_UTF_WIDE_LIT = re.compile(r'(?<![\w])(?:u|U|u8)["\']')
+_CPP_ARG0_NON_STR = re.compile(r"\b(?:locale_ref|locale|FILE|ostream|basic_ostream|text_style|OutputIt|buffer)\b")
+_CPP_ARG0_STR = re.compile(
+    r"\b(?:format_string|wformat_string|basic_format_string|string_view|wstring_view|basic_string_view|cstring_view|char|wchar_t|string|wstring)\b"
+)
+_CPP_ARG0_COMPILED_STR = re.compile(r"\bis_compiled_string\b")
+_CPP_ARG0_COMPILED_FMT = re.compile(r"\b(?:is_compiled_format|CompiledFormat)\b")
+_CPP_STR_LIT_START = re.compile(r'^(?:L|u8|u|U)?(?:R"[^(\s]{0,16}\([^)]*\)"|"(?:[^"\\\n]|\\.)*")(?!_[A-Za-z_])')
+
+
 def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
     """#8161 (P5): a class body's member declarations (`void emit(int a, int b = 0);`) that take a default or a
     variadic -> [fewest, most (None: any), parameter count] per declaration. An out-of-line definition repeats no
@@ -1462,6 +1492,42 @@ def _cpp_declared_arities(body: str) -> dict[str, list[list[int | None]]]:
         fewest, most, count = _cpp_arity_range(params)
         if most is None or fewest < most:
             ranges = out.setdefault(m.group("n"), [])
+            if [fewest, most, count] not in ranges:
+                ranges.append([fewest, most, count])
+    return out
+
+
+def _cpp_free_declared_arities(
+    stream: str,
+    exclude_spans: list[tuple[int, int]],
+) -> dict[str, list[list[int | None]]]:
+    """Extract C++ free-function header declarations with default arguments or variadics
+    (e.g. `auto open_buffered_file(FILE** fp = nullptr) -> buffered_file;`) outside class and function bodies."""
+    if "=" not in stream and "..." not in stream:
+        return {}
+    flat = list(stream)
+    n = len(flat)
+    for start, end in exclude_spans:
+        lo = max(0, start)
+        hi = min(n, end)
+        for k in range(lo, hi):
+            if flat[k] != "\n":
+                flat[k] = " "
+    text = "".join(flat)
+    out: dict[str, list[list[int | None]]] = {}
+    for m in _CPP_MEMBER_DECL.finditer(text):
+        name = m.group("n")
+        if name.startswith("~") or name in _C_STATEMENT_WORDS:
+            continue
+        end = _match_paren_end(text, m.end() - 1)
+        if end < 0 or not _CPP_DECL_TAIL.match(text, end + 1):
+            continue
+        params = text[m.end() : end]
+        if "=" not in params and "..." not in params:
+            continue
+        fewest, most, count = _cpp_arity_range(params)
+        if most is None or fewest < most:
+            ranges = out.setdefault(name, [])
             if [fewest, most, count] not in ranges:
                 ranges.append([fewest, most, count])
     return out
@@ -1497,6 +1563,127 @@ def _php_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
 
 
 _KT_IDENT = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*")
+
+
+def _cpp_class_parents(stream: str, header_start: int, body_end: int) -> list[str]:
+    """Extract C++ base class leaf names from `class/struct Name [final] : [public|private|protected] [virtual] ns::Base<T>, ... {`.
+
+    Skips `std::` bases (e.g. `std::true_type`, `std::runtime_error`) so stdlib inheritance does not pollute
+    repository class lineages.
+    """
+    limit = min(len(stream), body_end, header_start + 3000)
+    # Find the single `:` introducing the base-clause (ignoring `::` scope operators and `<...>` args)
+    i = header_start
+    angle = paren = 0
+    colon = -1
+    open_at = -1
+    while i < limit:
+        ch = stream[i]
+        if ch == "<":
+            angle += 1
+        elif ch == ">" and angle > 0:
+            angle -= 1
+        elif ch == "(":
+            paren += 1
+        elif ch == ")" and paren > 0:
+            paren -= 1
+        elif angle == 0 and paren == 0:
+            if ch == ":":
+                if i + 1 < limit and stream[i + 1] == ":":
+                    i += 2
+                    continue
+                if colon < 0:
+                    colon = i
+            elif ch == "{":
+                open_at = i
+                break
+            elif ch == ";":
+                return []
+        i += 1
+    if colon < 0 or open_at < 0 or open_at <= colon + 1:
+        return []
+    clause = stream[colon + 1 : open_at]
+    # Split top-level commas outside `<...>` and `(...)`
+    parts: list[str] = []
+    cur: list[str] = []
+    depth = 0
+    for ch in clause:
+        if ch in "<(":
+            depth += 1
+        elif ch in ">)" and depth > 0:
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    parts.append("".join(cur))
+    parents: list[str] = []
+    for raw in parts:
+        # Strip template arguments and access/virtual specifiers
+        s = raw.strip()
+        if not s:
+            continue
+        # Remove balanced `<...>` suffix
+        lt = s.find("<")
+        if lt > 0:
+            s = s[:lt].strip()
+        tokens = [t for t in s.split() if t not in ("public", "private", "protected", "virtual")]
+        if not tokens:
+            continue
+        base_expr = tokens[-1]
+        if base_expr.startswith(("std::", "::std::")):
+            continue
+        leaf = base_expr.rsplit("::", 1)[-1].strip()
+        if leaf and (leaf[0].isalpha() or leaf[0] == "_") and leaf not in parents:
+            parents.append(leaf)
+    return parents
+
+
+_KT_APPLY_OPEN = re.compile(r"\??\.[ \t\r\n]{0,40}apply[ \t]*\{|\bwith[ \t]*\((?P<w>[^()\n]{1,120})\)[ \t]*\{")
+
+
+def _kotlin_apply_spans(text: str) -> list[tuple[int, int, str, str | None]]:
+    """Find Kotlin `.apply { ... }` and `with(x) { ... }` receiver blocks in `text`.
+
+    Returns `[(brace_open, brace_close, qualifier, expr_chain), ...]` so bare calls inside a builder DSL
+    (`FileSpec.builder(p, n).apply { addFunction(...) }`) can resolve against the `.apply` receiver.
+    """
+    if "apply" not in text and "with" not in text:
+        return []
+    closes: dict[int, int] = {}
+    stack: list[int] = []
+    for k, ch in enumerate(text):
+        if ch == "{":
+            stack.append(k)
+        elif ch == "}" and stack:
+            closes[stack.pop()] = k + 1
+    spans: list[tuple[int, int, str, str | None]] = []
+    for m in _KT_APPLY_OPEN.finditer(text):
+        brace = m.end() - 1
+        end = closes.get(brace, -1)
+        if end <= brace:
+            continue
+        w = m.group("w")
+        if w is not None:
+            ws = w.strip()
+            if re.fullmatch(r"[A-Za-z_]\w{0,127}", ws):
+                spans.append((brace, end, ws, None))
+            else:
+                chain = extract_whole_call_chain(ws)
+                if chain:
+                    spans.append((brace, end, "<expr>", chain))
+        else:
+            # `.apply {` or `?.apply {`
+            dot_after = m.start() + (2 if text[m.start()] == "?" else 1)
+            chain = extract_expr_chain(text, dot_after, (".",))
+            if chain:
+                spans.append((brace, end, "<expr>", chain))
+            else:
+                q = _call_qualifier(text, dot_after, (".",))
+                if q and q != "<expr>" and "." not in q:
+                    spans.append((brace, end, q, None))
+    return spans
 
 
 def _kotlin_class_parents(stream: str, name_end: int, body_end: int) -> list[str]:
@@ -4649,6 +4836,10 @@ class StructuralExtractor:
                     classes[-1]["inheritance"] = _php_class_parents(class_safe_stream, match.end(), end_idx)
                 elif self.primary_lang_id == "kotlin" and not inheritance and name != "Anonymous_Class":
                     classes[-1]["inheritance"] = _kotlin_class_parents(class_safe_stream, match.end(), end_idx)
+                elif self.primary_lang_id == "cpp" and name != "Anonymous_Class":
+                    cpp_parents = _cpp_class_parents(class_safe_stream, match.start(), end_idx)
+                    if cpp_parents:
+                        classes[-1]["inheritance"] = cpp_parents
 
             # #8161 (R1): Rust methods live in `impl` blocks, which are no class rows: (start line, end line,
             # owner) of each, so a method there is owned by its type (`impl Tr for X` -> X) like a class's
@@ -4745,9 +4936,15 @@ class StructuralExtractor:
                 if self.primary_lang_id == "cpp" and id(cls) in class_body_spans:
                     # #8161 (P5): member declarations with defaults / variadics, for out-of-line definitions
                     span = class_body_spans[id(cls)]
-                    declared = _cpp_declared_arities(class_safe_stream[span[0] : span[1]])
+                    cls_body = class_safe_stream[span[0] : span[1]]
+                    declared = _cpp_declared_arities(cls_body)
                     if declared:
                         cls["method_arities"] = declared
+                    cls_fields = file_field_types("cpp", cls_body)
+                    if cls_fields:
+                        known_fields = {k: v for k, v in cls_fields.items() if v}
+                        if known_fields:
+                            cls["field_types"] = known_fields
 
                 # State Entanglement: Density of state mutations (flux) inside the class methods
                 total_flux = sum(m.get("hit_vector", {}).get("state_mutation", 0) for m in class_methods)
@@ -5122,10 +5319,20 @@ class StructuralExtractor:
             # Calculate total file footprint, preferring the unshielded raw text if available
             file_token_mass = get_token_mass(raw_content if raw_content else code_stream)
 
+            cpp_free_arities: dict[str, list[list[int | None]]] = {}
+            if self.primary_lang_id == "cpp" and class_safe_stream:
+                exclude_spans: list[tuple[int, int]] = list(class_body_spans.values())
+                for fn in functions:
+                    s_i, e_i = fn.get("start_idx"), fn.get("end_idx")
+                    if isinstance(s_i, int) and isinstance(e_i, int) and e_i > s_i:
+                        exclude_spans.append((s_i, e_i))
+                cpp_free_arities = _cpp_free_declared_arities(class_safe_stream, exclude_spans)
+
             result_payload = {
                 "equations": equations,
                 "classes": classes,
                 "functions": functions,
+                **({"free_func_arities": cpp_free_arities} if cpp_free_arities else {}),
                 "logic_density": logic_density,
                 "sum_fxn_impact": sum_fxn_impact,
                 "total_control_flow_ratio": total_control_flow_ratio,
@@ -12569,6 +12776,8 @@ class StructuralExtractor:
         # #3835: argument counts per callee, where overloads are chosen by them
         arities_seen: dict[str, list[int]] = {}
         track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
+        char_widths_seen: dict[str, list[str]] = {}
+        arg0_kinds_seen: dict[str, list[str]] = {}
         receiver_text: str | None = None
         typing_text: str | None = None
         raw_calls: list[str] = []
@@ -12624,6 +12833,7 @@ class StructuralExtractor:
                     else 0
                 )
                 init_span: tuple[int, int] | None = None
+                kt_apply_spans = _kotlin_apply_spans(safe_block) if self.primary_lang_id == "kotlin" else []
                 default_spans: list[tuple[int, int]] | None = None
                 for m in invocation_pattern.finditer(safe_block):
                     # #5639: a message send's groups are (receiver, selector); a C call's is group 1
@@ -12727,13 +12937,50 @@ class StructuralExtractor:
                             seen_chains = expr_chains_seen.setdefault(callee, [])
                             if chain not in seen_chains:
                                 seen_chains.append(chain)
+                    elif kt_apply_spans and not qualifier and not own_header_call:
+                        enclosing_apply = [s for s in kt_apply_spans if s[0] < callee_pos < s[1]]
+                        if enclosing_apply:
+                            _, _, a_qual, a_chain = max(enclosing_apply, key=lambda s: s[0])
+                            if a_qual not in seen:
+                                seen.append(a_qual)
+                            if a_chain:
+                                seen_chains = expr_chains_seen.setdefault(callee, [])
+                                if a_chain not in seen_chains:
+                                    seen_chains.append(a_chain)
                     if track_arities and not own_header_call:
-                        arity = _call_arity(safe_block, callee_pos + call_len if arity_at is None else arity_at)
+                        arity_open = callee_pos + call_len if arity_at is None else arity_at
+                        arity = _call_arity(safe_block, arity_open)
                         if self.primary_lang_id == "kotlin":
                             # #8161 (PR 5): a trailing lambda is one more argument (`f(a) { .. }`, `f { .. }`)
                             arity = _kotlin_trailing_lambda_arity(safe_block, callee_pos + call_len, arity)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
+                        if (
+                            self.primary_lang_id == "cpp"
+                            and arity_open < len(safe_block)
+                            and safe_block[arity_open] == "("
+                        ):
+                            arg_end = _match_paren_end(safe_block, arity_open)
+                            if arg_end > arity_open:
+                                raw_args = safe_block[arity_open + 1 : arg_end]
+                                if _CPP_WCHAR_LIT.search(raw_args):
+                                    cw = "wchar"
+                                elif _CPP_UTF_WIDE_LIT.search(raw_args):
+                                    cw = "utf_wide"
+                                elif '"' in raw_args:
+                                    cw = "narrow"
+                                else:
+                                    cw = ""
+                                if cw and cw not in char_widths_seen.setdefault(callee, []):
+                                    char_widths_seen[callee].append(cw)
+                                a0 = raw_args.lstrip()
+                                ak = (
+                                    "compiled_str"
+                                    if a0.startswith("FMT_COMPILE(")
+                                    else ("str" if _CPP_STR_LIT_START.match(a0) else "other")
+                                )
+                                if ak not in arg0_kinds_seen.setdefault(callee, []):
+                                    arg0_kinds_seen[callee].append(ak)
             else:
                 # #3393: a language whose calls can name the callee as a quoted
                 # literal (COBOL `CALL 'SUBPROG'`) declares the verb that
@@ -12824,6 +13071,19 @@ class StructuralExtractor:
                 raw_calls.append(c)
                 if qualifiers_seen:
                     qualifiers_seen.setdefault(c, [INIT_LIST_QUALIFIER] if c in entries else [""])
+            if self.primary_lang_id == "cpp" and (char_widths_seen or arg0_kinds_seen):
+                for macro, cws in list(char_widths_seen.items()):
+                    if macro in _C_REPO_MACRO_CALLS:
+                        for c in _macro_expansion_callees([macro], _C_REPO_MACRO_CALLS):
+                            for cw in cws:
+                                if cw not in char_widths_seen.setdefault(c, []):
+                                    char_widths_seen[c].append(cw)
+                for macro, aks in list(arg0_kinds_seen.items()):
+                    if macro in _C_REPO_MACRO_CALLS:
+                        for c in _macro_expansion_callees([macro], _C_REPO_MACRO_CALLS):
+                            for ak in aks:
+                                if ak not in arg0_kinds_seen.setdefault(c, []):
+                                    arg0_kinds_seen[c].append(ak)
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile. A case-insensitive language
@@ -12887,9 +13147,21 @@ class StructuralExtractor:
             transfers = list(dict.fromkeys(t for t in transfer_pattern.findall(shielded) if t != name))
 
         receiver_types: dict[str, str] = {}
+        cpp_const_method = False
+        cpp_const_recvs: list[str] = []
+        cpp_char_width = ""
+        cpp_arg0_kind = ""
         kt_scope_text: str | None = None
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
+            if self.primary_lang_id == "cpp":
+                # Also type the base of 1-hop dotted C++ receivers (`pipe.read_end` -> `pipe`) and chains.
+                receivers |= {q.partition(".")[0] for q in receivers if "." in q}
+                for chs in expr_chains_seen.values():
+                    for ch in chs:
+                        base_seg = ch.split(".", 1)[0]
+                        if base_seg and not base_seg.endswith("()"):
+                            receivers.add(base_seg)
             if receivers and self.primary_lang_id == "java":
                 receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
             elif receivers and self.primary_lang_id in TYPED_LANGS:
@@ -12910,6 +13182,59 @@ class StructuralExtractor:
                 )
             elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
+            if self.primary_lang_id == "cpp":
+                hdr_end = receiver_text.find("{")
+                if hdr_end > 0:
+                    hdr = receiver_text[:hdr_end]
+                    rp = hdr.rfind(")")
+                    if rp > 0 and re.search(r"\bconst\b", hdr[rp + 1 :].split("->", 1)[0]):
+                        cpp_const_method = True
+                    # Match backwards from `rp` to the function's own `(`, skipping earlier
+                    # `FMT_ENABLE_IF(...)` / macro parens in the template header.
+                    lp = -1
+                    if rp > 0:
+                        pdepth = 0
+                        for k in range(rp, -1, -1):
+                            if hdr[k] == ")":
+                                pdepth += 1
+                            elif hdr[k] == "(":
+                                pdepth -= 1
+                                if pdepth == 0:
+                                    lp = k
+                                    break
+                    if lp >= 0 and rp > lp:
+                        param_slice = hdr[lp + 1 : rp]
+                        if _CPP_NON_WCHAR_ENABLE.search(hdr) or _CPP_UTF_WIDE_PARAM.search(param_slice):
+                            cpp_char_width = "utf_wide"
+                        elif _CPP_WCHAR_PARAM.search(param_slice):
+                            cpp_char_width = "wchar"
+                        elif _CPP_NARROW_PARAM.search(param_slice):
+                            cpp_char_width = "narrow"
+                        if _CPP_ARG0_COMPILED_STR.search(hdr):
+                            cpp_arg0_kind = "compiled_str"
+                        elif _CPP_ARG0_COMPILED_FMT.search(hdr):
+                            cpp_arg0_kind = "compiled_fmt"
+                        else:
+                            # First top-level parameter (before any comma at depth 0)
+                            p0_end = len(param_slice)
+                            pdepth = 0
+                            for pi, pch in enumerate(param_slice):
+                                if pch in "(<[":
+                                    pdepth += 1
+                                elif pch in ")>]":
+                                    pdepth = max(0, pdepth - 1)
+                                elif pch == "," and pdepth == 0:
+                                    p0_end = pi
+                                    break
+                            p0 = param_slice[:p0_end]
+                            if _CPP_ARG0_NON_STR.search(p0):
+                                cpp_arg0_kind = "non_str"
+                            elif _CPP_ARG0_STR.search(p0):
+                                cpp_arg0_kind = "str"
+                if receivers:
+                    cpp_const_recvs = cpp_const_receivers(typing_text or receiver_text, receivers)
+                if cpp_const_method and "this" not in cpp_const_recvs:
+                    cpp_const_recvs.append("this")
 
         references: list[tuple[str, str]] = []
         property_reads: list[str] = []
@@ -12989,6 +13314,22 @@ class StructuralExtractor:
         }
         if ctor_forms:
             sat["ctor_forms"] = ctor_forms
+        if cpp_const_method:
+            sat["is_const_method"] = True
+        if cpp_const_recvs:
+            sat["const_receivers"] = cpp_const_recvs
+        if cpp_char_width:
+            sat["cpp_char_width"] = cpp_char_width
+        if cpp_arg0_kind:
+            sat["cpp_arg0_kind"] = cpp_arg0_kind
+        if char_widths_seen:
+            filtered_cw = {c: char_widths_seen[c] for c in calls_out if c in char_widths_seen}
+            if filtered_cw:
+                sat["calls_out_char_widths"] = filtered_cw
+        if arg0_kinds_seen:
+            filtered_a0 = {c: arg0_kinds_seen[c] for c in calls_out if c in arg0_kinds_seen}
+            if filtered_a0:
+                sat["calls_out_arg0_kinds"] = filtered_a0
         if param_names_list:
             sat["param_names"] = param_names_list
         if expr_chains_seen:

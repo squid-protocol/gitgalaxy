@@ -39,6 +39,11 @@
       "embedded_python/meow_turtle/app.py": "1 instances",
       "embedded_python/meow_turtle/boot.py": "2 instances"
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": "1 instances",
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": "1 instances",
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": "2 instances"
+    },
     "fortran/wrf": {
       "fortran/wrf/module_physics_init.F": "2 instances"
     },
@@ -52,6 +57,9 @@
     },
     "haskell/pandoc": {
       "haskell/pandoc/App.hs": "1 instances"
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/src_XMonad_Main.hs": "1 instances"
     },
     "javascript/react": {
       "javascript/react/build.js": "2 instances"
@@ -178,6 +186,14 @@
     "python/numpy": {
       "python/numpy/crackfortran.py": "8 instances"
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzedit.rexx": "1 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzinit.rexx": "1 instances",
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": "1 instances"
+    },
+    "rexx/genapp_rexx": {
+      "rexx/genapp_rexx/base_exec_cust1.rexx": "5 instances"
+    },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/cmpsc.rexx": "2 instances",
       "rexx/hercules_hyperion/hcommand.rexx": "2 instances",
@@ -190,6 +206,9 @@
       "rexx/ibm_z_zos/jobwait.rexx": "5 instances",
       "rexx/ibm_z_zos/rangelks2.rexx": "1 instances",
       "rexx/ibm_z_zos/wjscrck.rexx": "2 instances"
+    },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": "23 instances"
     },
     "ruby/rails": {
       "ruby/rails/Rakefile": "1 instances"
@@ -235,9 +254,19 @@
     "solidity/openzeppelin": {
       "solidity/openzeppelin/Proxy.sol": "1 instances"
     },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": "2 instances"
+    },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": "1 instances",
       "swift/alamofire/Session.swift": "2 instances"
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": "1 instances",
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": "1 instances"
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": "1 instances"
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/portbump.tcl": "2 instances",

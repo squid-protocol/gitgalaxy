@@ -6,12 +6,39 @@
       "cpp/NVDA/core.py": "Enum, wx.App, wx.Timer",
       "cpp/NVDA/espeak.py": "SynthDriver"
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": "PSCmdlet, ValidateArgumentsAttribute, ArgumentTransformationAttribute",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": "PSBreakpointUpdaterCommandBase",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": "FrontEndCommandBase",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": "FrontEndCommandBase",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": "PSCmdlet",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": "PSCmdlet",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": "Cmdlet",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": "PSCmdlet",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": "WebResponseObject",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_FormObjectCollection.cs": "Collection<FormObject>",
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": "System"
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": "Control",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "Element",
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "Element"
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "Compilation, IEqualityComparer<, IEquatable<ImportInfo>",
       "csharp/roslyn/CSharpSyntaxTree.cs": "SyntaxTree",
       "csharp/roslyn/LanguageParser.cs": "SyntaxParser, IDisposable, byte",
       "csharp/roslyn/MethodCompiler.cs": "CSharpSymbolVisitor<TypeCompilationState, object>, BoundTreeRewriterWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator, BoundTreeWalkerWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator",
       "csharp/roslyn/Workspace.cs": "IDisposable"
+    },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "Iterator<TResult>",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "IMinMaxCalc<T> where T",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "Iterator<TElement>, IOrderedEnumerable<TElement>, OrderedIterator<TElement>, CachingComparer<TElement>",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "IList<TResult>, IReadOnlyList<TResult>",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": "Iterator<TResult>",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": "Iterator<TSource>",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": "Iterator<TSource>, IList<TSource>, IReadOnlyList<TSource>, Iterator<TSource>"
     },
     "fortran/wrf": {
       "fortran/wrf/configure_reader.py": "object",
@@ -194,6 +221,12 @@
       "python/twisted/reflect.py": "Exception, ValueError, InvalidName",
       "python/twisted/transport.py": "Tuple[_DigestMod, bytes, bytes, int], protocol.Protocol, SSHTransportBase"
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": "AbstractCommand",
+      "ruby/homebrew_ruby/Library_Homebrew_cmd_casks.rb": "AbstractCommand",
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": "FormulaCop",
+      "ruby/homebrew_ruby/Library_Homebrew_test_rubocops_components_order_spec.rb": "Formula"
+    },
     "ruby/rails": {
       "ruby/rails/base.rb": "StandardError",
       "ruby/rails/blob.rb": "ActiveStorage::Record",
@@ -202,6 +235,12 @@
     },
     "ruby/rails_http_token_auth": {
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "ActionController::TestCase, ActionController::Base"
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": "InterceptedItem",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": "WebDriver::Options",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": "InputDevice, Interactions::TypingInteraction",
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": "WebDriver::Driver"
     },
     "shell/brew": {
       "shell/brew/brew.rb": "Homebrew::Bundle::PackageType, Hash",

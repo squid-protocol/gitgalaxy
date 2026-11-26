@@ -13,6 +13,23 @@
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": "2 instances",
       "agc_assembly/apollo-11/WAITLIST.agc": "1 instances"
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": "5 instances",
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": "5 instances",
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": "1 instances",
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": "2 instances",
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": "1 instances",
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": "3 instances"
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": "1 instances",
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": "1 instances",
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": "1 instances",
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": "2 instances",
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": "1 instances",
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": "4 instances",
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": "9 instances"
+    },
     "apex/apex-recipes": {
       "apex/apex-recipes/QueueableRecipes.cls": "1 instances"
     },
@@ -48,6 +65,12 @@
       "csharp/roslyn/CSharpSyntaxTree.cs": "2 instances",
       "csharp/roslyn/MethodCompiler.cs": "5 instances"
     },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": "7 instances"
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": "29 instances"
+    },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": "11 instances",
       "dart/flutter/framework.dart": "5 instances"
@@ -71,6 +94,9 @@
     "erlang/ranch_socket_pool": {
       "erlang/ranch_socket_pool/ranch_conns_sup.erl": "5 instances",
       "erlang/ranch_socket_pool/ranch_server.erl": "3 instances"
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": "46 instances"
     },
     "fsharp/giraffe_web": {
       "fsharp/giraffe_web/Core.fs": "1 instances",
@@ -167,6 +193,21 @@
       "nim/nim_stdlib/asyncmacro.nim": "4 instances",
       "nim/nim_stdlib/asyncnet.nim": "5 instances",
       "nim/nim_stdlib/concurrency_atomics.nim": "2 instances"
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": "2 instances",
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": "2 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": "5 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": "2 instances",
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": "6 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": "2 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": "6 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": "7 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": "2 instances",
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": "2 instances"
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": "4 instances"
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": "1 instances"
@@ -277,6 +318,18 @@
     "swift/alamofire": {
       "swift/alamofire/Request.swift": "15 instances",
       "swift/alamofire/Session.swift": "6 instances"
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_Features_Update_UpdatePill.swift": "3 instances"
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": "1 instances",
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": "6 instances"
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": "6 instances",
+      "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": "1 instances",
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": "3 instances"
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/portlint.tcl": "1 instances"

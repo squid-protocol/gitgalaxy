@@ -7484,6 +7484,155 @@
         }
       ]
     },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": [
+        {
+          "Form": "literal",
+          "Line": 176,
+          "Operand": "KONTROLL_ACF2",
+          "Target": "KONTROLL_ACF2",
+          "Verb": "CALL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 215,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 343,
+          "Operand": "R0010426",
+          "Target": "R0010426",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 464,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_pli_more/src_GML_R0015314.pli": [
+        {
+          "Form": "literal",
+          "Line": 48,
+          "Operand": "P010_SKRIV_TRANHIST",
+          "Target": "P010_SKRIV_TRANHIST",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 85,
+          "Operand": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Target": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/dsf_pli_more/src_GML_R0019056.pli": [
+        {
+          "Form": "literal",
+          "Line": 28,
+          "Operand": "SKRIV_STØNADSBREV",
+          "Target": "SKRIV_STØNADSBREV",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 38,
+          "Operand": "SUBSTITUTE_TEKST",
+          "Target": "SUBSTITUTE_TEKST",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/dsf_pli_more/src_GML_R001N522.pli": [
+        {
+          "Form": "literal",
+          "Line": 351,
+          "Operand": "RULL_FORVENTET",
+          "Target": "RULL_FORVENTET",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 357,
+          "Operand": "RULL_FAI",
+          "Target": "RULL_FAI",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/dsf_pli_more/src_GML_R001U821.pli": [
+        {
+          "Form": "literal",
+          "Line": 267,
+          "Operand": "KONTROLL_AJOURFØR_AVDØD_YP_EE",
+          "Target": "KONTROLL_AJOURFØR_AVDØD_YP_EE",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0011203.pli": [
+        {
+          "COMMAREA": "FNR_REG",
+          "Form": "literal",
+          "Line": 90,
+          "Operand": "R0019906",
+          "Target": "R0019906",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 118,
+          "Operand": "ATK_TILGANG_KONTROLL",
+          "Target": "ATK_TILGANG_KONTROLL",
+          "Verb": "CALL"
+        },
+        {
+          "COMMAREA": "FNR_REG",
+          "Form": "literal",
+          "Line": 172,
+          "Operand": "R0019906",
+          "Target": "R0019906",
+          "Verb": "LINK"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0014153.pli": [
+        {
+          "Form": "literal",
+          "Line": 146,
+          "Operand": "PLUKK_UT_BESTE_POENG",
+          "Target": "PLUKK_UT_BESTE_POENG",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0015308.pli": [
+        {
+          "Form": "literal",
+          "Line": 44,
+          "Operand": "P010_SKRIV_TRANHIST",
+          "Target": "P010_SKRIV_TRANHIST",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 116,
+          "Operand": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Target": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 139,
+          "Operand": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Target": "P020_SKRIV_BARN_AV_TRANHIST",
+          "Verb": "CALL"
+        }
+      ]
+    },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": [
         {

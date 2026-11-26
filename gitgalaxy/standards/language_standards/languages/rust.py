@@ -300,7 +300,9 @@ DEFINITION: dict[str, Any] = {
         "branch": re.compile(
             r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)"
         ),
-        "short_circuit": re.compile(r"&&|\|\|"),
+        # #8868: `||` after `(`, `,`, `=` or `move` is a no-argument closure and `&&T` / `|&&x|` are reference forms, not
+        # booleans: an operator counts when an operand ends right before it.
+        "short_circuit": re.compile(r"(?:\b(?!move\b)\w+|[)\]?\"'])\s*(?:&&|\|\|)"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of functions and closures. Bounded to prevent ReDoS on complex types.
         "args": re.compile(
@@ -401,7 +403,9 @@ DEFINITION: dict[str, Any] = {
         "io": re.compile(
             # #8868: named-type opens and the bare io::stdin/stdout/stderr handles
             r"\b(std::fs|File::|std::net|tokio::net|tokio::fs|reqwest|std::io|hyper::|sqlx::|diesel::|sea_orm::"
-            r"|OpenOptions::|TcpListener::|TcpStream::|UdpSocket::|UnixStream::|UnixListener::|io::(?:stdin|stdout|stderr))\b"
+            r"|OpenOptions::|TcpListener::|TcpStream::|UdpSocket::|UnixStream::|UnixListener::|io::(?:stdin|stdout|stderr)"
+            # `use std::fs;` then `fs::read(..)`: the std::fs token only matches the full path
+            r"|(?<![\w:])fs::(?:read|write|read_to_string|read_dir|create_dir(?:_all)?|remove_(?:file|dir|dir_all)|copy|rename|metadata))\b"
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the outside world.
@@ -469,7 +473,11 @@ DEFINITION: dict[str, Any] = {
         # macros -- ever matched.
         "ui_framework": re.compile(r"\b(?:yew::|dioxus::|iced::|slint|leptos::|tauri::)\b|html!|rsx!|view!"),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"\|[^|]*\|[ \t]*\{"),
+        # #8868: also `|x| x + 1` and `move |x| ..`. A closure opens where an expression starts (after `(`, `,`, `=`, `:`, `{`, `;`,
+        # `=>`, `move`, `return`), so a bit-or between operands (`a | b | c`) is not one.
+        "closures": re.compile(
+            r"(?:(?<=[(,=:{;>])|\b(?<=move)|\b(?<=return))[ \t\n]*(?:\|[^|\n]{0,160}\||\|\|)(?=[ \t]*[{\w(\[&*!-])"
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX: `lazy_static!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`
@@ -499,13 +507,11 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(ndarray::|nalgebra::|num::|f32|f64|std::simd)\b"),
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto)
-        # Metaprogramming and memory transmutation.
+        # Metaprogramming and memory transmutation. `PhantomData` is a type marker, not a site (#8862).
         # BUG FIX: `macro_rules!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`
         # in real usage (`macro_rules! foo { ... }`), never a word char.
-        "reflection_metaprogramming": re.compile(
-            r"macro_rules!|\b(?:std::mem::transmute|Pin::|PhantomData|UnsafeCell)\b"
-        ),
+        "reflection_metaprogramming": re.compile(r"macro_rules!|\b(?:std::mem::transmute|Pin::|UnsafeCell)\b"),
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"\b(?:pub[ \t]+)?use\s+[^;]+;", re.M),
         "_dependency_capture": re.compile(

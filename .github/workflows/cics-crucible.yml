@@ -231,6 +231,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: cics-crucible-shard-${{ matrix.shard }}
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's (det-sweep.yml)
           path: ${{ runner.temp }}/cics_crucible
           if-no-files-found: ignore
 

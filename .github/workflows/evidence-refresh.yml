@@ -478,6 +478,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: db2-part-${{ strategy.job-index }}
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's (det-sweep.yml)
           path: ${{ runner.temp }}/db2-out
           if-no-files-found: ignore
           retention-days: 3
@@ -757,6 +758,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-sweep-shard-${{ strategy.job-index }}
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's (det-sweep.yml)
           path: ${{ runner.temp }}/sweep/sweep.json
           if-no-files-found: ignore
           retention-days: 3
@@ -950,6 +952,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-records-${{ strategy.job-index }}
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's (det-sweep.yml)
           path: ${{ runner.temp }}/records-out
           if-no-files-found: ignore
           retention-days: 3
@@ -1152,6 +1155,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: refresh-detmut-${{ matrix.shard }}
+          overwrite: true  # #8215: a rerun's result replaces the failed attempt's (det-sweep.yml)
           path: ${{ runner.temp }}/detmut-out
           if-no-files-found: ignore
           retention-days: 3

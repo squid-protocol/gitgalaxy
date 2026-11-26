@@ -2717,8 +2717,8 @@
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": 0,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": 0,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": 0,
-      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": 1,
-      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": 1,
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": 0,
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": 0,
       "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": 0
     },
     "livecode": {

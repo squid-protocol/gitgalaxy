@@ -942,12 +942,12 @@
    "bitwise_ops": {
     "corpus": "okhttp",
     "functions": 7035,
-    "n_family": 42,
+    "n_family": 92,
     "n_oracle": 92,
     "pinned": false,
     "precision": 1.0,
-    "recall": 0.457,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1002,32 +1002,32 @@
    "io": {
     "corpus": "okhttp",
     "functions": 7035,
-    "n_family": 172,
+    "n_family": 115,
     "n_oracle": 115,
     "pinned": false,
-    "precision": 0.14,
-    "recall": 0.209,
-    "status": "both"
+    "precision": 0.948,
+    "recall": 0.948,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "okhttp",
     "functions": 7035,
-    "n_family": 1180,
+    "n_family": 614,
     "n_oracle": 606,
     "pinned": false,
-    "precision": 0.368,
-    "recall": 0.716,
-    "status": "both"
+    "precision": 0.98,
+    "recall": 0.993,
+    "status": "ok"
    },
    "regex_execution": {
     "corpus": "okhttp",
     "functions": 7035,
-    "n_family": 111,
+    "n_family": 68,
     "n_oracle": 62,
     "pinned": false,
-    "precision": 0.55,
-    "recall": 0.984,
-    "status": "over-counts"
+    "precision": 0.912,
+    "recall": 1.0,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",
@@ -1052,12 +1052,12 @@
    "time_date_logic": {
     "corpus": "okhttp",
     "functions": 7035,
-    "n_family": 22,
+    "n_family": 184,
     "n_oracle": 184,
     "pinned": false,
     "precision": 1.0,
-    "recall": 0.12,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    }
   },
   "lua": {
@@ -1956,12 +1956,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 0,
+    "n_family": 2,
     "n_oracle": 2,
     "pinned": true,
-    "precision": null,
-    "recall": 0.0,
-    "status": "dead"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1976,32 +1976,32 @@
    "debug_prints": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 287,
+    "n_family": 206,
     "n_oracle": 196,
     "pinned": true,
-    "precision": 0.683,
-    "recall": 1.0,
-    "status": "over-counts"
+    "precision": 0.937,
+    "recall": 0.985,
+    "status": "ok"
    },
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 338,
+    "n_family": 245,
     "n_oracle": 236,
     "pinned": true,
-    "precision": 0.58,
-    "recall": 0.831,
-    "status": "over-counts"
+    "precision": 0.918,
+    "recall": 0.953,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 179,
+    "n_family": 58,
     "n_oracle": 58,
     "pinned": true,
-    "precision": 0.324,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
@@ -2036,12 +2036,12 @@
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 46,
+    "n_family": 12,
     "n_oracle": 12,
     "pinned": true,
-    "precision": 0.261,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    }
   },
   "swift": {

@@ -24,6 +24,22 @@ _WRAPPER = (
     _PREFIX + r"(?:(?:time|exec|nohup|nice|sudo)[ \t]+(?:-[^\s]*[ \t]+){0,4}|trap[ \t]+(?=[^\s]+[ \t]+[A-Z0-9]))?"
 )
 
+# #9338: command position -- the start of a line or what follows `; & | ( { ` then do else`, optionally behind an
+# assignment/redirect prefix and a command-running wrapper. A bare word in an argument, a prose line or a variable
+# name is not a command; only the command a family names counts (`date` in `echo date` and `read x` are not clocks).
+_CMDPOS = (
+    r"(?:(?<!\\\n)^|[;&|({`)]|\b(?:then|do|else)\b)[ \t]*"  # a `^` after a `\` continuation is an argument line
+    + _PREFIX
+    + r"(?:(?:sudo|command|builtin|nohup|env|nice|exec|xargs)[ \t]+(?:-[^\s]*[ \t]+){0,4})?"
+    + r"(?:/?[\w.-]{1,40}/){0,6}"  # `/bin/date`
+)
+# The same without `(` and the backtick: an `echo` opening a `$(...)` or backtick capture is data flow, not console output.
+_CMDPOS_NO_CAPTURE = _CMDPOS.replace("{`)]", "{)]").replace("|({)]", "|{)]")
+# A word that ends at a command's name: not `echo-foo`, `date=1`, `time.sleep` or `exit_code`.
+_ENDW = r"(?![\w=.-])"
+# An `echo` is console output unless piped on (`| tr`) or written to a real file (`> f`; `>&2`, `2>f`, /dev/std* stay console).
+_NOT_DATA_FLOW = r"(?![^\n;&|]*\|(?!\|))" + r"(?![^\n;&|]*(?<![2&])>>?[ \t]*(?!&|/dev/(?:null|std|fd|tty)|\s)\S)"
+
 _HEREDOC_OPEN = re.compile(r"<<-?[ \t]*(?P<q>['\"]?)(?P<tag>[A-Za-z_][A-Za-z0-9_]{0,63})(?P=q)[^\n]*\n")
 
 
@@ -383,7 +399,16 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io (I/O & Network Boundaries)
         # Redirections, pipes, and network clients.
-        "io": re.compile(r">|>>|<|\|(?:&)?|\b(curl|wget|nc|ssh|scp|ftp|rsync|cat|tail|grep|find|xargs|jq)\b"),
+        # #9338: a redirect to or from a real file (not `>&2`, `2>f`, /dev/std*, a heredoc `<<`, a here-string, `<(` / `>(`) and a
+        # command whose job is moving file or network data, at command position. A pipe and a `>` / `<` comparison move no data.
+        "io": re.compile(
+            r"(?<![<>&2])(?:>>?|<)(?![<>&(=])[ \t]*(?!/dev/(?:null|std|fd|tty)|\s)[^\s;&|)<>]"
+            + r"|"
+            + _CMDPOS
+            + r"(?:cat|cp|mv|mkdir|touch|ln|tee|dd|curl|wget|scp|rsync|nc|ncat|read|mapfile|readarray|mktemp)"
+            + _ENDW,
+            re.M,
+        ),
         # 10. api (Public Surface Area)
         # Exported variables and identifiers modifying the global environment.
         # BUG FIX #2730 (api contract): the way a shell script makes a
@@ -588,15 +613,21 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:logger|syslog|log_info|log_err|log_warn|log_debug)\b|>\s*/dev/(?:stderr|console)"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
-        "debug_prints": re.compile(r"\b(echo|printf|print|read)\b"),
+        # #9338: `read` is input, not a print; an echo piped on, redirected to a file or captured in `$(...)` is data flow.
+        "debug_prints": re.compile(_CMDPOS_NO_CAPTURE + r"(?:echo|printf|print)" + _ENDW + _NOT_DATA_FLOW, re.M),
         # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": None,
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
-        "panics_and_aborts": re.compile(r"\b(exit|kill|abort|halt|return\s+[1-9][0-9]*)\b"),
+        # #9338: a process exit only -- `return N` is an error return, `kill` signals another process (high_risk_execution's).
+        "panics_and_aborts": re.compile(_CMDPOS + r"exit" + _ENDW, re.M),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|read\s+-t)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": None,
+        # #9338: shift, and, or, xor, complement in arithmetic only -- `$(( ))`, `(( ))` and `let`; not `&&`, `||`, a pipe, a heredoc or `&`.
+        "bitwise_ops": re.compile(
+            r"\(\((?:(?!\)\))[^\n]){0,200}?(?:<<|>>|\^|~|(?<!&)&(?!&)|(?<!\|)\|(?!\|))"
+            + r"|\blet[ \t]+[^\n;]{0,200}?(?:<<|>>|\^|~|(?<!&)&(?!&)|(?<!\|)\|(?!\|))"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(flock|mkdir|mkfifo|lockfile|sem)\b"),
         # 45. immutability_locks (Immutability Constraints)
@@ -650,7 +681,11 @@ DEFINITION: dict[str, Any] = {
         # single most common real-world form of `date` (`date +%Y-%m-%d`)
         # never matched at all. The `\s+` was redundant anyway -- `\b`
         # alone already prevents partial-word matches like "update".
-        "time_date_logic": re.compile(r"\b(date|sleep|uptime|times)\b"),
+        # #9338: a clock or calendar read at command position, or a clock variable; `sleep` is thread_sleeps', not time.
+        "time_date_logic": re.compile(
+            _CMDPOS + r"(?:date|time|hwclock|uptime|cal)" + _ENDW + r"|\$\{?(?:EPOCHSECONDS|EPOCHREALTIME|SECONDS)\b",
+            re.M,
+        ),
         "ipc_rpc_bridges": re.compile(r"\b(curl|wget|nc|netcat|ssh|scp|xargs|socat)\b"),
         # system_config_mutation (#3084): contract-level absence. deferred, see
         # 3084: sysctl -w/systemctl enable measured 4/256 crucible files, one

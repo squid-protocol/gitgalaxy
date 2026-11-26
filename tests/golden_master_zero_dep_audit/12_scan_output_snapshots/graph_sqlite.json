@@ -8088,7 +8088,7 @@
       "typescript/playwright/frames.ts": "26c8ab6aac4c",
       "typescript/playwright/protocol.ts": "5400b35a82e6",
       "typescript/typescript_compiler/binder.ts": "a37c64219235",
-      "typescript/typescript_compiler/checker.ts": "5d6dceb147fb",
+      "typescript/typescript_compiler/checker.ts": "478cfb111378",
       "typescript/typescript_compiler/emitter.ts": "c83e188f7d4b",
       "typescript/typescript_compiler/parser.ts": "939d052a2542",
       "typescript/typescript_compiler/types.ts": "c81c04e86bfa",
@@ -14012,7 +14012,7 @@
     },
     "Row Counts": {
       "Artifacts": 4216,
-      "DNA Hits": 56199,
+      "DNA Hits": 56198,
       "Directory Groups": 447,
       "Functions": 66971,
       "Inbound Dependencies": 974,

@@ -400,8 +400,8 @@
 <rect x="498" y="380" width="40" height="18" fill="#1f3b5c"/>
 <text class="num" x="518.0" y="393">63</text>
 <text class="side" x="501" y="388">P</text>
-<rect x="540" y="380" width="40" height="18" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.6"/>
-<text class="num" x="560.0" y="393">31</text>
+<rect x="540" y="380" width="40" height="18" fill="#4f9be8"/>
+<text class="num" x="560.0" y="393">92</text>
 <text class="side" x="543" y="388">P</text>
 <rect x="582" y="380" width="40" height="18" fill="#4f9be8"/>
 <text class="num" x="602.0" y="393">95</text>

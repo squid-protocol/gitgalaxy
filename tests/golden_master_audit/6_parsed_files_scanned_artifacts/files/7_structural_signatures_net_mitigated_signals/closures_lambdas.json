@@ -1825,7 +1825,7 @@
       "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 5,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 7,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 6,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 2,
@@ -2274,7 +2274,7 @@
       "html/cesium_sandcastle/HelloWorld.html": 0,
       "html/cesium_sandcastle/LICENSE.md": 0,
       "html/cesium_sandcastle/bucket.html": 0,
-      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 2
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 1
     },
     "html/cpython_jinja": {
       "html/cpython_jinja/LICENSE.txt": 0,
@@ -2296,7 +2296,7 @@
       "html/jquery_test_fixtures/name.html": 0,
       "html/jquery_test_fixtures/qunit-fixture.html": 0,
       "html/jquery_test_fixtures/table.html": 2,
-      "html/jquery_test_fixtures/trusted-html.html": 3
+      "html/jquery_test_fixtures/trusted-html.html": 2
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": 0,
@@ -2341,8 +2341,8 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": 0,
       "html/vscode_webviews/build_builtin_index.html": 0,
-      "html/vscode_webviews/github_auth_media_index.html": 1,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 6,
+      "html/vscode_webviews/github_auth_media_index.html": 2,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 7,
       "html/vscode_webviews/webview_pre_index.html": 0,
       "html/vscode_webviews/workbench.html": 0
     },
@@ -2380,7 +2380,7 @@
       "javascript/SOURCES.md": 0
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 3,
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 0,
       "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
@@ -2388,16 +2388,16 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 17,
+      "javascript/jquery/ajax.js": 5,
       "javascript/jquery/buildFragment.js": 0,
-      "javascript/jquery/core.js": 32,
-      "javascript/jquery/css.js": 10,
-      "javascript/jquery/deferred.js": 20,
-      "javascript/jquery/event.js": 33,
+      "javascript/jquery/core.js": 4,
+      "javascript/jquery/css.js": 4,
+      "javascript/jquery/deferred.js": 9,
+      "javascript/jquery/event.js": 6,
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 3,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 4,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 11,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 3,
@@ -2408,22 +2408,22 @@
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
       "javascript/react/ReactFiberBeginWork.js": 0,
-      "javascript/react/ReactFiberWorkLoop.js": 16,
-      "javascript/react/ReactFlightServer.js": 47,
+      "javascript/react/ReactFiberWorkLoop.js": 22,
+      "javascript/react/ReactFlightServer.js": 61,
       "javascript/react/ReactSymbols.js": 1,
-      "javascript/react/build.js": 6
+      "javascript/react/build.js": 12
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 1
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0,
-      "javascript/threejs/Editor.js": 41,
-      "javascript/threejs/GLTFLoader.js": 86,
+      "javascript/threejs/Editor.js": 4,
+      "javascript/threejs/GLTFLoader.js": 81,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
-      "javascript/threejs/WebGLProgram.js": 4,
-      "javascript/threejs/WebGLRenderer.js": 54
+      "javascript/threejs/WebGLProgram.js": 1,
+      "javascript/threejs/WebGLRenderer.js": 6
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -4895,7 +4895,7 @@
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 139,
       "typescript/vscode/codeEditorWidget.ts": 51,
-      "typescript/vscode/eslint.config.js": 0,
+      "typescript/vscode/eslint.config.js": 1,
       "typescript/vscode/extHost.api.impl.ts": 23,
       "typescript/vscode/gulpfile.vscode.ts": 46,
       "typescript/vscode/instantiationService.ts": 8,

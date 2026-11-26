@@ -1825,7 +1825,7 @@
       "groovy/gradle/DefaultTask.java": 0.097
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 1.283,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 1.614,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": -0.002,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 0.369,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 0.287,
@@ -2380,7 +2380,7 @@
       "javascript/SOURCES.md": 0.0
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 0.552,
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 0.583,
       "javascript/cesium_particle_emitters/LICENSE.md": 0.0
     },
     "javascript/javascript_algorithms_bits": {
@@ -2388,12 +2388,12 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 0.394,
+      "javascript/jquery/ajax.js": -0.309,
       "javascript/jquery/buildFragment.js": -0.97,
-      "javascript/jquery/core.js": 0.428,
-      "javascript/jquery/css.js": 0.745,
-      "javascript/jquery/deferred.js": 1.031,
-      "javascript/jquery/event.js": 0.986,
+      "javascript/jquery/core.js": -0.235,
+      "javascript/jquery/css.js": 0.826,
+      "javascript/jquery/deferred.js": -0.459,
+      "javascript/jquery/event.js": -0.545,
       "javascript/jquery/tokenize.js": -1.06
     },
     "javascript/node_tls_security_tests": {
@@ -2409,21 +2409,21 @@
       "javascript/react/BabelPlugin.ts": 1.451,
       "javascript/react/ReactFiberBeginWork.js": 0.566,
       "javascript/react/ReactFiberWorkLoop.js": -0.113,
-      "javascript/react/ReactFlightServer.js": -0.263,
+      "javascript/react/ReactFlightServer.js": -0.402,
       "javascript/react/ReactSymbols.js": 1.943,
-      "javascript/react/build.js": -0.228
+      "javascript/react/build.js": -0.335
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 2.986
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0.179,
-      "javascript/threejs/Editor.js": -0.214,
-      "javascript/threejs/GLTFLoader.js": -0.489,
+      "javascript/threejs/Editor.js": 1.3,
+      "javascript/threejs/GLTFLoader.js": -0.324,
       "javascript/threejs/Matrix4.js": 1.101,
       "javascript/threejs/Nodes.js": 0.823,
-      "javascript/threejs/WebGLProgram.js": -0.667,
-      "javascript/threejs/WebGLRenderer.js": 0.554
+      "javascript/threejs/WebGLProgram.js": -0.332,
+      "javascript/threejs/WebGLRenderer.js": 0.262
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0

@@ -8695,15 +8695,15 @@
       },
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": {
         "Annotated & Test Methods": 4,
-        "C Struct Operations": 1,
-        "Generic / Templated Code": 1,
-        "Parameter Forwarders": 1
+        "Callbacks & Closures": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 1
       },
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": {
         "Annotated & Test Methods": 4,
-        "C Struct Operations": 1,
-        "Generic / Templated Code": 1,
-        "Parameter Forwarders": 1
+        "Callbacks & Closures": 1,
+        "Encapsulated Accessors": 1,
+        "Generic / Templated Code": 1
       },
       "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": {
         "Generic / Templated Code": 1
@@ -8725,7 +8725,8 @@
         "Annotated & Test Methods": 1
       },
       "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": {
-        "Annotated & Test Methods": 24,
+        "Annotated & Test Methods": 22,
+        "Callbacks & Closures": 2,
         "Generic / Templated Code": 5,
         "Interface Declarations": 1,
         "Parameter Forwarders": 2
@@ -8753,7 +8754,8 @@
         "Annotated & Test Methods": 1
       },
       "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": {
-        "Generic / Templated Code": 3,
+        "Callbacks & Closures": 1,
+        "Generic / Templated Code": 2,
         "Parameter Forwarders": 1
       },
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": {

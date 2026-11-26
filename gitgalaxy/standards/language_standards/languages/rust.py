@@ -300,7 +300,9 @@ DEFINITION: dict[str, Any] = {
         "branch": re.compile(
             r"(?<!r#)(?<!')\b(if|else|match|for|while|loop|break|continue)\b|(?<=[a-zA-Z0-9_)\]}])\?(?!Sized\b)"
         ),
-        "short_circuit": re.compile(r"&&|\|\|"),
+        # #8868: `||` after `(`, `,`, `=` or `move` is a no-argument closure and `&&T` / `|&&x|` are reference forms, not
+        # booleans: an operator counts when an operand ends right before it.
+        "short_circuit": re.compile(r"(?:\b(?!move\b)\w+|[)\]?\"'])\s*(?:&&|\|\|)"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of functions and closures. Bounded to prevent ReDoS on complex types.
         "args": re.compile(
@@ -400,8 +402,13 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             # #8868: named-type opens and the bare io::stdin/stdout/stderr handles
-            r"\b(std::fs|File::|std::net|tokio::net|tokio::fs|reqwest|std::io|hyper::|sqlx::|diesel::|sea_orm::"
-            r"|OpenOptions::|TcpListener::|TcpStream::|UdpSocket::|UnixStream::|UnixListener::|io::(?:stdin|stdout|stderr))\b"
+            # #9340: `std::io::Error` / `ErrorKind` / `Result` / `IoSlice` and the address types (`std::net::SocketAddr`, `IpAddr`, `Shutdown`) name a
+            # value that crosses no boundary: they are not an operation that moves data.
+            r"\b(std::fs|File::|std::net(?!::(?:SocketAddr|IpAddr|Ipv[46]Addr|AddrParseError|Shutdown)\b)|tokio::net"
+            r"|tokio::fs|reqwest|std::io(?!::(?:Error|ErrorKind|Result|IoSlice|IoSliceMut)\b)|hyper::|sqlx::|diesel::|sea_orm::"
+            r"|OpenOptions::|TcpListener::|TcpStream::|UdpSocket::|UnixStream::|UnixListener::|UnixDatagram::|io::(?:stdin|stdout|stderr)"
+            # `use std::fs;` then `fs::read(..)`: the std::fs token only matches the full path
+            r"|(?<![\w:])fs::(?:read|write|read_to_string|read_dir|create_dir(?:_all)?|remove_(?:file|dir|dir_all)|copy|rename|metadata))\b"
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the outside world.
@@ -469,7 +476,11 @@ DEFINITION: dict[str, Any] = {
         # macros -- ever matched.
         "ui_framework": re.compile(r"\b(?:yew::|dioxus::|iced::|slint|leptos::|tauri::)\b|html!|rsx!|view!"),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"\|[^|]*\|[ \t]*\{"),
+        # #8868: also `|x| x + 1` and `move |x| ..`. A closure opens where an expression starts (after `(`, `,`, `=`, `:`, `{`, `;`,
+        # `=>`, `move`, `return`), so a bit-or between operands (`a | b | c`) is not one.
+        "closures": re.compile(
+            r"(?:(?<=[(,=:{;>])|\b(?<=move)|\b(?<=return))[ \t\n]*(?:\|[^|\n]{0,160}\||\|\|)(?=[ \t]*[{\w(\[&*!-])"
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX: `lazy_static!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`
@@ -632,9 +643,17 @@ DEFINITION: dict[str, Any] = {
             r"\b(std::thread::sleep|thread::sleep|time::sleep|Duration::from)\b|(?<![.\w])(?<!fn )sleep[ \t]*\("
         ),
         # 43. bitwise_ops (Bitwise Operations)
-        # Low-level byte manipulation. CRITICAL: Removed the pipe '|' (used for closures `|x| x+1` and patterns), ampersand '&' (used for references), and exclamation '!' (used for macros and logical NOT).
-        # #8866: a ">>" closing a generic list is not a shift
-        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^"),
+        # #9340: binary `&` and `|` count in operator position only (the contract), as does `&=` / `|=`. An operand is a
+        # non-keyword word, `)` or `]`; a keyword before `&` (`return &x`, `in &v`, `mut`, `as`) is a reference, never an
+        # operand. rustfmt writes a closure's closing pipe with no space before it (`|x| x`) and a binary `|` with spaces,
+        # so a space before the `|` keeps closure parameters out; a `>>` right after `)` or `]` closes a generic (`Poll<Result<()>>`), a shift has a space before it; a `|` with a `=>` later on the line is an or-pattern.
+        "bitwise_ops": re.compile(
+            r"<<|(?:(?<=\s)>>|(?<=\w)>>(?=\w))|\^|&=|\|="
+            r"|\b(?!(?:return|in|match|if|else|while|mut|move|let|for|as|dyn|impl|where|await|break|ref)\b)\w+[ \t]*&(?![&=])"
+            r"|[)\]][ \t]*&(?![&=])[ \t]"
+            r"|(?:\b(?!(?:return|in|match|if|else|while|mut|move|let|for|as|dyn|impl|where|await|break|ref)\b)\w+|[)\]])"
+            r"[ \t]+\|(?![|=])[ \t](?![^\n]*=>)"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Mutex|RwLock|lock|barrier|atomic|Semaphore)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)

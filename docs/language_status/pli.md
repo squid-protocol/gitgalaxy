@@ -281,7 +281,7 @@ caveats. For PL/I:
 | fact | how it is extracted | verification |
 |---|---|---|
 | program call sites: EXEC CICS LINK / XCTL / RETURN / START TRANSID, and CALLs that leave the compilation unit | `core/pli_calls.py` (#3491); the resolver indexes a PL/I program by member name and outermost procedure, and drops calls into included members' own procedures | sample_verified: 8,012 facts on navikt/DSF, 2 on zopeneditor-sample |
-| field-level data moves (assignments, including BY NAME) | `core/pli_data_moves.py` (#3491) | sample_verified: 1,560 facts (DSF), 97 (zopeneditor-sample) |
+| field-level data moves (assignments, including BY NAME; a user function declared in the same file via ENTRY / RETURNS is a call whose argument items are the sources, an undeclared `F(...)` stays a data item, #9230) | `core/pli_data_moves.py` (#3491) | sample_verified: 1,560 facts (DSF), 97 (zopeneditor-sample) |
 | units of work and handlers: ON / REVERT / SIGNAL, plus CICS SYNCPOINT / HANDLE / ABEND | `core/pli_on_units.py` + `core/uow_handlers.py` | sample_verified: 1,761 facts (DSF) |
 | DECLARE structures (record layouts) | `_pli_records` (#3250) | draft: 113 facts (zopeneditor-sample) |
 | CICS file / queue / map / container operations, task control | the COBOL walkers over a sequence-field-blanked stream, with `;` as the terminator | sample_verified: 3,251 / 167 facts (DSF). The key reads PL/I too (#3577); 34 sampled files, 363 facts, 0 disagreements |

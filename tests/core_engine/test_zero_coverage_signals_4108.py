@@ -135,3 +135,42 @@ def test_disguised_executable_fires_the_audit_label(mismatch_signatures, name):
     else:
         assert mismatch_signatures.get(name, {}).get(MISMATCH, 0) == 0
     assert mismatch_signatures["main.py"][MISMATCH] == 0
+
+
+# --- Docs signals: the issue's "Hyperlinked Literature References on a markdown corpus" suspicion ---
+# Step 3 of #4108 found no broken detection: every zero that is not a removed-detector placeholder
+# is a corpus gap, and the Docs signals fire on a plain markdown file (this guards that).
+DOC_MD = (
+    "# Title\n\nSee [paper](https://arxiv.org/abs/1234.5678).\n\n"
+    "```mermaid\ngraph TD\n A-->B\n```\n\n```plantuml\n@startuml\nA->B\n@enduml\n```\n\n"
+    "```python\nprint(1)\n```\n\n## References\n\n[1] Smith, J. 2020. A paper.\n"
+)
+
+
+@pytest.fixture(scope="module")
+def markdown_signatures(tmp_path_factory):
+    root = tmp_path_factory.mktemp("planted_md") / "repo"
+    root.mkdir()
+    (root / "doc.md").write_text(DOC_MD, encoding="utf-8")
+    out = tmp_path_factory.mktemp("out_md")
+    env = dict(os.environ, GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER", GITGALAXY_DISABLE_GIT_HISTORY="1")
+    env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(REPO_ROOT), env.get("PYTHONPATH", "")]))
+    subprocess.run(  # noqa: S603
+        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(root), "--audit-only", "--output", str(out / "o")],
+        check=True,
+        env=env,
+        capture_output=True,
+        cwd=str(out),
+        timeout=120,
+    )
+    audit = json.loads(next((out / "o").glob("*_galaxy_audit.json")).read_text(encoding="utf-8"))
+    for group in audit["6. Parsed Files (Scanned Artifacts)"].values():
+        for path, rec in group["Files"].items():
+            if Path(path).name == "doc.md":
+                return rec[SIGS]
+    raise AssertionError("doc.md was not parsed")
+
+
+@pytest.mark.parametrize("label", ["Docs: Diagrams", "Docs: Links", "Docs: Code Examples", "Docs: Section Headers"])
+def test_docs_signals_fire_on_markdown(markdown_signatures, label):
+    assert markdown_signatures[label] > 0

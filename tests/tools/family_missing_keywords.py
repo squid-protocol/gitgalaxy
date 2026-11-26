@@ -62,6 +62,7 @@ def mine(results: dict[str, dict], top: int = DEFAULT_TOP, min_functions: int = 
     for lang in sorted(results):
         for fam in results[lang].get("families", []):
             tokens = [(str(t), int(c)) for t, c in fam.get("missed_tokens") or []]
+            fns = fam.get("missed_token_functions") or {}
             missed = missed_functions(fam)
             if missed <= 0 and not tokens:
                 continue
@@ -77,7 +78,12 @@ def mine(results: dict[str, dict], top: int = DEFAULT_TOP, min_functions: int = 
                 "missed": missed,
                 "thin": thin,
                 "tokens": [
-                    {"token": t, "count": c, "per_fn": round(c / missed, 2) if missed else None}
+                    {
+                        "token": t,
+                        "count": c,
+                        "per_fn": round(c / missed, 2) if missed else None,
+                        **({"functions": fns[t]} if t in fns else {}),
+                    }
                     for t, c in tokens[:top]
                 ],
             }
@@ -106,11 +112,16 @@ def mine(results: dict[str, dict], top: int = DEFAULT_TOP, min_functions: int = 
     return {"cells": cells, "shared": {f: rows for f, rows in shared.items() if rows}}
 
 
+def _cell(text: str) -> str:
+    """A token inside a markdown table cell: `|` (bitwise or, `||`) would end the cell."""
+    return text.replace("|", "\\|")
+
+
 def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
     out = ["# Missing-keyword mining per family and language (#8863, report only)", ""]
     out.append(
         "Tokens the parser oracle saw in functions where the family read 0: candidate additions, each to be timed on "
-        "keyword-rosetta and language-crucible before merging. Counts are occurrences, not distinct functions."
+        "keyword-rosetta and language-crucible before merging. Count is occurrences; functions is the distinct missed functions holding the token."
     )
     if skipped:
         out += ["", "Languages with no oracle (skipped): " + ", ".join(sorted(skipped)) + "."]
@@ -124,8 +135,10 @@ def render_markdown(mined: dict, skipped: list[str] | None = None) -> str:
         )
         if c.get("capped"):
             out.append("(the saved result was capped at 5 tokens: rerun with a larger --top)")
-        out += ["", "| token | count | per fn |", "|---|---|---|"]
-        out += [f"| `{t['token']}` | {t['count']} | {t['per_fn']} |" for t in c["tokens"]]
+        out += ["", "| token | count | functions | per fn |", "|---|---|---|---|"]
+        out += [
+            f"| `{_cell(t['token'])}` | {t['count']} | {t.get('functions', '-')} | {t['per_fn']} |" for t in c["tokens"]
+        ]
         out.append("")
     if not ranked:
         out.append("None.")
@@ -166,12 +179,17 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--scan", action="append", default=[], metavar="LANG:DB:SRC")
     ap.add_argument("--result", action="append", default=[], metavar="LANG:FILE")
+    ap.add_argument("--sweep", action="store_true", help="mine every oracle language on the pinned language-crucible")
+    ap.add_argument(
+        "--db", type=Path, default=None, help="with --sweep: a finished scan of <crucible>/data (default: scan it now)"
+    )
+    ap.add_argument("--out", type=Path, default=None, help="write the markdown report here instead of stdout")
     ap.add_argument("--top", type=int, default=DEFAULT_TOP, help="tokens kept per cell (and asked of --scan)")
     ap.add_argument("--min-functions", type=int, default=DEFAULT_MIN_FUNCTIONS)
     ap.add_argument("--json", type=Path, default=None, help="also write the machine-readable result here")
     args = ap.parse_args(argv)
-    if not args.scan and not args.result:
-        print("give at least one --scan LANG:DB:SRC or --result LANG:FILE: nothing was checked", file=sys.stderr)
+    if not args.scan and not args.result and not args.sweep:
+        print("give --sweep, --scan LANG:DB:SRC or --result LANG:FILE: nothing was checked", file=sys.stderr)
         return 2
     if args.top < 1:
         print("--top must be at least 1", file=sys.stderr)
@@ -197,11 +215,32 @@ def main(argv: list[str] | None = None) -> int:
             except Exception as exc:
                 print(f"{lang}: could not score {db}: {exc}", file=sys.stderr)
                 return 2
+    if args.sweep:
+        import tempfile
+
+        import family_oracle
+        import family_oracle_sweep as fos
+
+        try:
+            data = fos.crucible_data()
+            db = args.db or fos.scan(data, Path(tempfile.mkdtemp(prefix="family-mining-")))
+            for lang in fos.languages():
+                try:
+                    results[lang] = family_oracle.score(db, data, lang, top=args.top)
+                except SystemExit:
+                    skipped.append(lang)
+        except SystemExit as exc:
+            print(exc, file=sys.stderr)
+            return 2
     if not results:
         print("no language had an oracle: nothing was checked", file=sys.stderr)
         return 2
     mined = mine(results, args.top, args.min_functions)
-    sys.stdout.write(render_markdown(mined, skipped))
+    report = render_markdown(mined, skipped)
+    if args.out:
+        args.out.write_text(report, encoding="utf-8")
+    else:
+        sys.stdout.write(report)
     if args.json:
         args.json.write_text(json.dumps(mined, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0

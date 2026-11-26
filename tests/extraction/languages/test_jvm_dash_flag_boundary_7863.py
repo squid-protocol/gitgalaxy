@@ -18,7 +18,7 @@ SCALA_RULES = LANGUAGE_DEFINITIONS["scala"]["rules"]
         "boolean ok = f().matches(re);",  # after a paren
         "boolean ok = a\n    .matches(re);",  # after whitespace
         "Pattern.compile(re);",
-        "m.find();Matcher.find(x)",
+        "Pattern.matches(re, s);",  # Matcher.find alone no longer counts (#8863)
     ],
 )
 def test_java_regex_execution_matches(line):

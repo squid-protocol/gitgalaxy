@@ -169,7 +169,7 @@ _JAVA_SIMPLE_CASES = [
     ("test", "@Test\npublic void testFoo() {}", "public void testFoo() {}"),
     ("test_skip", "@Disabled", "@Deprecated"),
     ("thread_sleeps", "Thread.sleep(1000);", "Thread.currentThread();"),
-    ("time_date_logic", "LocalDate.now();", "OffsetDateTime odt = OffsetDateTime.now();"),
+    ("time_date_logic", "LocalDate.now();", "Duration timeout = cfg.getTimeout();"),
     ("time_date_logic", "long t0 = System.nanoTime();", "long nanoTimeout = 5;"),
     ("time_date_logic", "TimeUnit.SECONDS.sleep(1);", "long unit = timeUnitCount;"),
     ("ui_framework", "JFrame frame = new JFrame();", "JTable table = new JTable();"),
@@ -290,7 +290,7 @@ def test_java_test_vs_regex_execution_no_false_collision():
     java's `test` signature only matches `@Test`-style annotations,
     `assert*(`, or `verify`/`expect`/`given`/`when` calls -- never a
     bare `.test(`-style method, so it doesn't collide with
-    `regex_execution`'s `Pattern.compile`/`Matcher.find`/`.matches(`.
+    `regex_execution`'s `Pattern.compile`/`.matches(`.
     """
     test_pattern = JAVA_RULES["test"]
     regex_pattern = JAVA_RULES["regex_execution"]

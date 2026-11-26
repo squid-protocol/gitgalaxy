@@ -289,7 +289,7 @@ DEFINITION: dict[str, Any] = {
         # "error" is always a method-call chain, never the standalone
         # builtin, so excluded via a negative lookbehind.
         "panics_and_aborts": re.compile(r"\b(?:throw|rethrow|MException|throwAsCaller)\b|(?<!\.)\berror\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\bpause[ \t]*\("),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\b(?:bitand|bitor|bitxor|bitcmp|bitshift|bitset|bitget)\b"),

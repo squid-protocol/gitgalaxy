@@ -1875,9 +1875,11 @@ def draft_pli_calls(repo: Path) -> dict[str, dict[str, Any]]:
 # cics_constant. SUBSTR(A, ...) / UNSPEC(A) / ... as a target is A, target_refmod.
 # A statement starting with a keyword is an assignment only when `=` follows its
 # first word; the action is read after labels, IF ... THEN, ELSE, OTHERWISE,
-# WHEN(...) and an ON condition (`ON ENDFILE(F) EOF = '1'B;`). A call to a user
-# function reads as an array element (its name the source): only a built-in is
-# known to be a function. DSF is too large to key in full (~108k rows): `pli_moves` keys a
+# WHEN(...) and an ON condition (`ON ENDFILE(F) EOF = '1'B;`). A user function
+# declared in the same file (ENTRY / RETURNS in a DECLARE, or a PROC / ENTRY label with
+# RETURNS) is a call like a built-in: its arguments are scanned, its name is no source
+# (#9230). An undeclared name followed by `(` reads as an array element (its name the
+# source): declarations in an %INCLUDE are not resolved. DSF is too large to key in full (~108k rows): `pli_moves` keys a
 # seeded sample of its PL/I files (every PL/I file of a smaller corpus).
 _PLI_MV_KEYWORDS = set(
     "IF DO DCL DECLARE CALL RETURN GO GOTO END SELECT WHEN OTHERWISE ON REVERT SIGNAL OPEN CLOSE READ WRITE "
@@ -1920,7 +1922,44 @@ def _pli_ref(stmt: list, i: int) -> tuple[str | None, int]:
     return ".".join(parts), j
 
 
-def _pli_mv_sources(expr: list) -> list[tuple[str, str]]:
+def _pli_declared_functions(stream: list) -> set[str]:
+    """Names this file declares as functions (#9230): a DECLARE item (or a `(A, B)` factored
+    list) carrying ENTRY or RETURNS, and a PROC / ENTRY label statement carrying RETURNS."""
+    names: set[str] = set()
+    for whole in _pli_statements(stream):
+        words = {t[1] for t in whole if t[0] == "word"}
+        if not words & {"ENTRY", "RETURNS"}:
+            continue
+        i = 0
+        while i + 1 < len(whole) and whole[i][0] == "word" and whole[i + 1][1] == ":":
+            if "RETURNS" in words and words & {"PROC", "PROCEDURE", "ENTRY"}:
+                names.add(whole[i][1])
+            i += 2
+        if i >= len(whole) or whole[i][1] not in ("DCL", "DECLARE"):
+            continue
+        item: list = []
+        depth = 0
+        for t in [*whole[i + 1 :], (None, ",", 0)]:
+            if t[1] == "," and depth == 0:
+                while item and _pli_is_number(item[0]):
+                    item = item[1:]
+                if item and item[0][1] == "(":
+                    end = _pli_group(item, 0)
+                    heads, rest = [x[1] for x in item[1 : end - 1] if x[0] == "word"], item[end:]
+                elif item and item[0][0] == "word":
+                    heads, rest = [item[0][1]], item[1:]
+                else:
+                    heads, rest = [], []
+                if any(x[0] == "word" and x[1] in ("ENTRY", "RETURNS") for x in rest):
+                    names.update(heads)
+                item = []
+                continue
+            depth += {"(": 1, ")": -1}.get(t[1], 0)
+            item.append(t)
+    return names
+
+
+def _pli_mv_sources(expr: list, functions: frozenset[str] | set[str] = frozenset()) -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     i = 0
     while i < len(expr):
@@ -1936,7 +1975,7 @@ def _pli_mv_sources(expr: list) -> list[tuple[str, str]]:
             end = _pli_group(expr, i + 1)
             item = (tok[1] + "(" + "".join(t[1] for t in expr[i + 2 : end - 1]) + ")", "cics_constant")
             i = end
-        elif nxt == "(" and tok[1] in _PLI_BUILTINS:
+        elif nxt == "(" and (tok[1] in _PLI_BUILTINS or tok[1] in functions):
             i += 1
             continue
         else:
@@ -1947,14 +1986,14 @@ def _pli_mv_sources(expr: list) -> list[tuple[str, str]]:
     return out
 
 
-def _pli_mv_single(expr: list) -> tuple[str, str] | None:
+def _pli_mv_single(expr: list, functions: frozenset[str] | set[str] = frozenset()) -> tuple[str, str] | None:
     body = expr[1:] if expr and expr[0][1] in ("-", "+") else expr
     # A literal: one string, or one number (`1`, `1.5` = word . word).
     if len(body) == 1 and (body[0][0] == "string" or _pli_is_number(body[0])):
         return "".join(t[1] for t in expr), "literal"
     if len(body) == 3 and _pli_is_number(body[0]) and body[1][1] == "." and _pli_is_number(body[2]):
         return "".join(t[1] for t in expr), "literal"
-    if body and body[0][0] == "word" and body[0][1] in _PLI_BUILTINS:
+    if body and body[0][0] == "word" and (body[0][1] in _PLI_BUILTINS or body[0][1] in functions):
         if len(body) == 1 or (body[1][1] == "(" and _pli_group(body, 1) == len(body)):
             return body[0][1], "function"
     return None
@@ -1990,7 +2029,9 @@ def _pli_action_start(stmt: list) -> int:
 def pli_move_rows(text: str) -> list[dict[str, Any]]:
     """Every PL/I assignment's data-move rows, this tool's own reading (see above)."""
     rows: list[dict[str, Any]] = []
-    for whole in _pli_statements(_pli_token_stream(_pli_source_lines(text))):
+    stream = _pli_token_stream(_pli_source_lines(text))
+    functions = _pli_declared_functions(stream)
+    for whole in _pli_statements(stream):
         stmt = whole[_pli_action_start(whole) :]
         if not stmt or stmt[0][0] != "word" or _pli_is_number(stmt[0]):
             continue
@@ -2026,11 +2067,11 @@ def pli_move_rows(text: str) -> list[dict[str, Any]]:
             if expr[j][1] == "," and expr[j + 1][1] == "BY" and expr[j + 2][1] == "NAME":
                 expr, corr = expr[:j], True
                 break
-        sources = _pli_mv_sources(expr)
+        sources = _pli_mv_sources(expr, functions)
         for target, partial in targets:
             srcs = ([(target, "item")] if compound else []) + [x for x in sources if not (compound and x[0] == target)]
             if not srcs:
-                single = _pli_mv_single(expr)
+                single = _pli_mv_single(expr, functions)
                 srcs = [single] if single else []
             for src, kind in srcs:
                 rows.append({"verb": "ASSIGN", "source": src, "kind": kind, "target": target, "corr": corr,

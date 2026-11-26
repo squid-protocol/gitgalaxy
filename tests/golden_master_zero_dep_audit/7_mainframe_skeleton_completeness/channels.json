@@ -43,33 +43,33 @@
     "program calls": {
       "Gaps": {
         "dynamic target": 11,
-        "missing program": 189,
+        "missing program": 204,
         "non-COBOL program not linked": 0
       },
-      "Ratio": "65.3%",
-      "Resolved": 376,
+      "Ratio": "63.7%",
+      "Resolved": 378,
       "System Names (Not Gaps)": 220,
-      "Total": 576
+      "Total": 593
     },
     "screens": {
       "Gaps": {
         "dynamic map name": 0,
-        "missing BMS source": 85
+        "missing BMS source": 66
       },
-      "Ratio": "50.9%",
-      "Resolved": 88,
+      "Ratio": "65.5%",
+      "Resolved": 125,
       "System Names (Not Gaps)": 0,
-      "Total": 173
+      "Total": 191
     },
     "transactions": {
       "Gaps": {
-        "CICS program no transaction reaches": 15,
+        "CICS program no transaction reaches": 16,
         "transaction to a missing program": 8
       },
-      "Ratio": "86.3%",
+      "Ratio": "85.8%",
       "Resolved": 145,
       "System Names (Not Gaps)": 15,
-      "Total": 168
+      "Total": 169
     }
   }
 }

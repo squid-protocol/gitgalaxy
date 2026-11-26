@@ -579,8 +579,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 23. reflection_metaprogramming (Metaprogramming: macros, reflection, goto). Reflection, Native Bridges, and code generation markers.
+        # #8862: `reflect` counts only as a call (`reflect(x)`), not the word in a string or comment.
         "reflection_metaprogramming": re.compile(
-            r'\b(MethodChannel|EventChannel|dart:mirrors|reflect|reflectClass|noSuchMethod|dart:js_interop)\b|part\s+[\'"][^\'"]+\.(?:g|freezed)\.dart[\'"]',
+            r'\b(MethodChannel|EventChannel|dart:mirrors|reflectClass|noSuchMethod|dart:js_interop)\b|\breflect\s*\(|part\s+[\'"][^\'"]+\.(?:g|freezed)\.dart[\'"]',
             re.I,
         ),
         # 24. import: Dependency Inclusions. Dependency resolution and library partitions.

@@ -1,12 +1,12 @@
 {
-  "args_comparable": 133,
-  "args_exact_match": 130,
+  "args_comparable": 225,
+  "args_exact_match": 218,
   "corpus_path": "language-crucible/data/ruby",
-  "extra_classes": 0,
-  "extra_functions": 0,
-  "files_scanned": 8,
-  "found_classes": 20,
-  "found_functions": 133,
-  "real_classes": 20,
-  "real_functions": 135
+  "extra_classes": 1,
+  "extra_functions": 1,
+  "files_scanned": 32,
+  "found_classes": 87,
+  "found_functions": 225,
+  "real_classes": 87,
+  "real_functions": 229
 }

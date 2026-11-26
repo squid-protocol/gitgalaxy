@@ -350,6 +350,8 @@ DEFINITION: dict[str, Any] = {
         # 38. telemetry (Structured Logging / Telemetry)
         "telemetry": re.compile(
             r"\b(logging|logger|ulogging|syslog)\.(?:info|error|warn|warning|debug|trace|critical|exception)\b"
+            # #8863: `import lib.logging as log` / `self._log.warn(..)` receivers
+            r"|\b_?log\.(?:info|error|warn|warning|debug|trace|critical|exception)\b"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
         "debug_prints": re.compile(r"\b(print|input)\s*\("),
@@ -357,12 +359,14 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(int|str|float|list|dict|set|tuple|bool|bytes|cast)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(raise|quit|exit|sys\.exit|abort)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(time\.sleep|asyncio\.sleep|Thread\.join)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)|(?<!\|)\|(?!\|)|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(Lock|RLock|Semaphore|Event|Condition|allocate_lock)\b"),
+        "sync_locks": re.compile(
+            r"\b(?:Lock|RLock|Semaphore|Event|Condition|allocate_lock)[ \t]*\("
+        ),  # #8863: the constructor call, not the word in a log line
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)

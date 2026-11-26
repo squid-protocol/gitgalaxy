@@ -76,6 +76,15 @@ def _counts(src: str) -> dict:
             0,
         ),  # handlers and assert are not decisions
         ("def f():\n    '''doc'''\n    return 1", "doc", 1),
+        # #8863 python cells: async is concurrency, `|=` is bitwise, a nested def's `A | B` return is a type
+        ("async def f():\n    pass", "threads", 1),
+        ("def f():\n    await_me = 1\n    return asyncio.gather(a, b)", "threads", 1),
+        ("def f(m):\n    m |= 4", "bitwise", 1),
+        ("def f():\n    def g() -> int | str: ...\n    return g", "bitwise", 0),
+        ("def f(x):\n    return x.split()", "time", 0),
+        ("def f(d):\n    return d.isoformat()", "time", 1),
+        ("def f(c):\n    c.release(code)", "locks", 0),
+        ("def f(c):\n    c.release()", "locks", 1),
     ],
 )
 def test_oracle_reads_one_construct(src, key, want):

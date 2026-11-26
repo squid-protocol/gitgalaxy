@@ -350,12 +350,12 @@
    "io": {
     "corpus": "jellyfin",
     "functions": 6535,
-    "n_family": 514,
+    "n_family": 429,
     "n_oracle": 427,
     "pinned": false,
-    "precision": 0.553,
-    "recall": 0.665,
-    "status": "both"
+    "precision": 0.995,
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
@@ -370,12 +370,12 @@
    "regex_execution": {
     "corpus": "jellyfin",
     "functions": 6535,
-    "n_family": 7,
+    "n_family": 18,
     "n_oracle": 18,
     "pinned": false,
     "precision": 1.0,
-    "recall": 0.389,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",
@@ -400,12 +400,12 @@
    "time_date_logic": {
     "corpus": "jellyfin",
     "functions": 6535,
-    "n_family": 273,
+    "n_family": 342,
     "n_oracle": 318,
     "pinned": false,
-    "precision": 0.912,
-    "recall": 0.783,
-    "status": "misses"
+    "precision": 0.93,
+    "recall": 1.0,
+    "status": "ok"
    }
   },
   "go": {

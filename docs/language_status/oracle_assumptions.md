@@ -4414,6 +4414,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-read-formfiel
   included, in the order stated, and after a start name runs to the end; a start that raises a condition starts no browse; ENDFILE's RESP2 is 0;
   a LENGERR RESP2 1 READNEXT reads nothing and the browse stays; the three browses and a READ are independent of each other; a start name is
   matched exactly (READ is the only form IBM words as without case). An empty body / query string is "no forms data" (INVREQ RESP2 13).
+- **ASSUMED extension of #6876 (#8059).** WEB READ and WEB STARTBROWSE of FORMFIELD accept CHARACTERSET('iso-8859-1') with HOSTCODEPAGE('037'), both
+  literals, as a no-op (the data is in the program's characters, as X37); QUERYPARM (IBM lists HOSTCODEPAGE only) accepts HOSTCODEPAGE('037') alone. Any
+  other value, a data-area operand, a half pair on FORMFIELD, or CLNTCODEPAGE is refused by name on both translators. Residual risk: on z/OS the
+  conversion would change non-invariant bytes; the oracle is GnuCOBOL plus our stub, not z/OS. Burned use: GTWQRY, GTWFRM (ghost-tasks gt-web-query-form).
 - **REFUSED (IBM silent), by name.** Two pairs of a name on a READ or a named start (IBM's READ QUERYPARM page names the case open, and the browse is its
   answer); a start name that matches only without case; a body whose media type is not application/x-www-form-urlencoded (IBM's LENGERR RESP2 153 /
   154 do not say how a form type is told; a multipart form, charset parameter or text/plain body); data outside the plain form -- a pair without

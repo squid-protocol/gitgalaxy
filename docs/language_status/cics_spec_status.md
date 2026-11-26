@@ -122,15 +122,15 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | WEB READ HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB WRITE HTTPHEADER | full | yes (8 options) | yes | X38 | http_request | 2 (1 / 1) | — |
 | WEB RETRIEVE | full | yes (4 options) | yes | X41 | http_request | 0 | — |
-| WEB READ FORMFIELD | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
-| WEB READ QUERYPARM | full | yes (7 options, 4 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READ FORMFIELD | full | yes (9 options, 2 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB READ QUERYPARM | full | yes (8 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB STARTBROWSE HTTPHEADER | full | yes (4 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READNEXT HTTPHEADER | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB ENDBROWSE HTTPHEADER | full | yes (4 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
-| WEB STARTBROWSE FORMFIELD | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB STARTBROWSE FORMFIELD | full | yes (7 options, 1 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READNEXT FORMFIELD | full | yes (7 options) | yes | X38 | http_request | 0 | — |
 | WEB ENDBROWSE FORMFIELD | full | yes (4 options) | yes | X38 | http_request | 0 | — |
-| WEB STARTBROWSE QUERYPARM | full | yes (5 options, 3 refused by name) | yes | X38 | http_request | 0 | — |
+| WEB STARTBROWSE QUERYPARM | full | yes (6 options, 2 refused by name) | yes | X38 | http_request | 0 | — |
 | WEB READNEXT QUERYPARM | full | yes (7 options) | yes | X38 | http_request | 0 | — |
 | WEB ENDBROWSE QUERYPARM | full | yes (4 options) | yes | X38 | http_request | 0 | — |
 

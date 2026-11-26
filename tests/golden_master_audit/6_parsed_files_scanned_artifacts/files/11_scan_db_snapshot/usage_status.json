@@ -1,5 +1,138 @@
 {
   "groups": {
+    "abap/abap2xlsx": {
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_converter_result_wd.clas.abap": {
+        "create_wt_fcat@48": 0,
+        "create_wt_filt@81": 0,
+        "create_wt_sort@110": 0,
+        "get_columns_info@139": 0,
+        "get_fields_info@161": 0,
+        "zif_excel_converter~can_convert_object@193": 0,
+        "zif_excel_converter~create_fieldcatalog@206": 0,
+        "zif_excel_converter~get_supported_class@189": 0
+      },
+      "abap/abap2xlsx/src_not_cloud_zcl_excel_ole.clas.locals_imp.abap": {
+        "constructor@9": 1,
+        "get_alv_attributes@100": 1,
+        "i_oi_error~flush_error@23": 1,
+        "i_oi_error~get_message@80": 1,
+        "i_oi_error~raise_message@66": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel.clas.abap": {
+        "add_new_autofilter@192": 0,
+        "add_new_comment@198": 0,
+        "add_new_drawing@205": 0,
+        "add_new_range@223": 0,
+        "add_new_style@230": 0,
+        "add_new_worksheet@253": 0,
+        "add_static_styles@266": 0,
+        "constructor@286": 0,
+        "delete_worksheet@320": 0,
+        "delete_worksheet_by_index@340": 0,
+        "delete_worksheet_by_name@355": 0,
+        "fill_template@370": 0,
+        "get_active_sheet_index@392": 0,
+        "get_active_worksheet@397": 0,
+        "get_autofilters_reference@404": 0,
+        "get_default_style@411": 0,
+        "get_drawings_iterator@416": 0,
+        "get_next_table_id@429": 0,
+        "get_ranges_iterator@448": 0,
+        "get_static_cellstyle_guid@455": 0,
+        "get_style_from_guid@483": 0,
+        "get_style_index_in_styles@500": 0,
+        "get_style_to_guid@526": 0,
+        "get_styles_iterator@476": 0,
+        "get_theme@543": 0,
+        "get_worksheet_by_index@569": 0,
+        "get_worksheet_by_name@580": 0,
+        "get_worksheets_iterator@548": 0,
+        "get_worksheets_name@555": 0,
+        "get_worksheets_size@562": 0,
+        "set_active_sheet_index@600": 0,
+        "set_active_sheet_index_by_name@618": 0,
+        "set_default_style@640": 0,
+        "set_theme@645": 0,
+        "stylemapping_dynamic_style@650": 0,
+        "zif_excel_book_properties~initialize@662": 0,
+        "zif_excel_book_protection~initialize@677": 0,
+        "zif_excel_book_vba_project~set_codename@687": 1,
+        "zif_excel_book_vba_project~set_codename_pr@692": 1,
+        "zif_excel_book_vba_project~set_vbaproject@697": 1
+      },
+      "abap/abap2xlsx/src_zcl_excel_collection.clas.abap": {
+        "add@43": 0,
+        "clear@48": 0,
+        "get@53": 0,
+        "get_iterator@58": 0,
+        "is_empty@65": 0,
+        "remove@70": 0,
+        "size@81": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_columns.clas.abap": {
+        "add@53": 0,
+        "clear@65": 0,
+        "constructor@71": 0,
+        "get@78": 0,
+        "get_iterator@88": 0,
+        "is_empty@93": 0,
+        "remove@98": 0,
+        "size@104": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_font.clas.testclasses.abap": {
+        "calculate@10": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_graph_line.clas.abap": {
+        "create_ax@105": 0,
+        "set_show_cat_name@253": 0,
+        "set_show_legend_key@258": 0,
+        "set_show_percent@263": 0,
+        "set_show_ser_name@268": 0,
+        "set_show_values@273": 0,
+        "set_varycolor@278": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_legacy_palette.clas.abap": {
+        "constructor@45": 0,
+        "get_color@123": 0,
+        "get_colors@134": 0,
+        "is_modified@139": 0,
+        "set_color@144": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_obsolete_func_wrap.clas.abap": {
+        "guid_create@19": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_reader_huge_file.clas.abap": {
+        "fill_cell_from_attributes@112": 0,
+        "get_cell_coord@134": 0,
+        "get_shared_string@147": 0,
+        "get_style@163": 0,
+        "get_sxml_reader@188": 0,
+        "load_shared_strings@198": 0,
+        "load_worksheet@216": 0,
+        "put_cell_to_worksheet@234": 0,
+        "read_shared_strings@249": 0,
+        "read_worksheet_data@274": 0,
+        "skip_to@315": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_style.clas.abap": {
+        "constructor@39": 0,
+        "get_guid@99": 0
+      },
+      "abap/abap2xlsx/src_zcl_excel_writer_xlsm.clas.abap": {
+        "add_further_data_to_zip@37": 0,
+        "create@48": 0,
+        "create_content_types@241": 0,
+        "create_xl_relationships@318": 0,
+        "create_xl_sheet@391": 0,
+        "create_xl_workbook@441": 0
+      },
+      "abap/abap2xlsx/test_cl_excel_test.clas.abap": {
+        "run@9": 0
+      },
+      "abap/abap2xlsx/test_cl_excel_test.clas.testclasses.abap": {
+        "test@7": 0
+      }
+    },
     "abap/abapGit": {
       "abap/abapGit/zcl_abapgit_ajson.clas.abap": {
         "constructor@140": 0,
@@ -136,6 +269,274 @@
         "zif_abapgit_xml_output~add_xml@85": 1,
         "zif_abapgit_xml_output~render@97": 1,
         "zif_abapgit_xml_output~set_raw@130": 1
+      }
+    },
+    "abap/abapgit_objects_core": {
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": {
+        "z_abapgit_serialize_package@1": 1
+      },
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": {
+        "z_abapgit_serialize_parallel@1": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": {
+        "get_ddls_dependencies@57": 0,
+        "resolve@71": 0,
+        "resolve_ddic@211": 0,
+        "resolve_packages@366": 0
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": {
+        "constructor@27": 0,
+        "g4ba_after_srvb@249": 0,
+        "given_tadir@173": 0,
+        "given_tadir@289": 0,
+        "resolve_single@144": 0,
+        "set_sub_packages@60": 0,
+        "sush_after_g4ba@269": 0,
+        "then_korrnum_should_be@209": 0,
+        "then_should_be_deleted_before@299": 0,
+        "when_packages_are_resolved@191": 0,
+        "zif_abapgit_sap_package~are_changes_recorded_in_tr_req@66": 1,
+        "zif_abapgit_sap_package~check_object_type@45": 1,
+        "zif_abapgit_sap_package~create@70": 1,
+        "zif_abapgit_sap_package~create_child@74": 1,
+        "zif_abapgit_sap_package~create_local@78": 1,
+        "zif_abapgit_sap_package~exists@86": 1,
+        "zif_abapgit_sap_package~get@82": 1,
+        "zif_abapgit_sap_package~get_default_transport_layer@102": 1,
+        "zif_abapgit_sap_package~get_transport_type@90": 1,
+        "zif_abapgit_sap_package~list_subpackages@49": 1,
+        "zif_abapgit_sap_package~list_superpackages@94": 1,
+        "zif_abapgit_sap_package~read_description@37": 1,
+        "zif_abapgit_sap_package~read_parent@98": 1,
+        "zif_abapgit_sap_package~read_responsible@41": 1,
+        "zif_abapgit_sap_package~update_tree@106": 1,
+        "zif_abapgit_sap_package~validate_name@33": 1
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": {
+        "filter_files_to_deserialize@43": 0,
+        "get_results@137": 0,
+        "map_results_to_items@152": 0,
+        "prioritize_deser@167": 0
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": {
+        "check@446": 0,
+        "clas_before_pinf@378": 0,
+        "ddls_before_dcls@410": 0,
+        "enho_before_enhc@282": 0,
+        "enhs_before_ensc@266": 0,
+        "ensc_before_enho@274": 0,
+        "filter_duplicates@43": 0,
+        "filter_duplicates_changes_01@123": 0,
+        "filter_duplicates_changes_02@149": 0,
+        "filter_duplicates_deleted@175": 0,
+        "filter_duplicates_init_objtype@110": 0,
+        "filter_duplicates_lstate@82": 0,
+        "filter_duplicates_match@96": 0,
+        "filter_duplicates_rstate@57": 0,
+        "given@422": 0,
+        "given_result@187": 0,
+        "iarp_before_iatu@354": 0,
+        "iasp_before_iarp@346": 0,
+        "iobj_before_odso@338": 0,
+        "otgr_before_char@314": 0,
+        "pinf_before_devc@322": 0,
+        "prog_before_iaxu@362": 0,
+        "setup@261": 0,
+        "setup@37": 0,
+        "sprx_before_clas@290": 0,
+        "sprx_before_intf@298": 0,
+        "sprx_before_tabl@306": 0,
+        "tobj_before_scp1@330": 0,
+        "webi_before_sprx@370": 0,
+        "when_deser_is_priorized@433": 0,
+        "when_filter_is_applied@208": 0,
+        "xslt_before_clas@386": 0,
+        "xslt_before_prog@402": 0
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": {
+        "detect_obj_definition@128": 0,
+        "file_to_object@136": 0,
+        "get_lang_and_ext@187": 0,
+        "i18n_file_to_object@222": 0,
+        "is_obj_definition_file@247": 0,
+        "map_filename_to_object@271": 0,
+        "map_object_to_filename@301": 0,
+        "name_escape@330": 0,
+        "name_unescape@346": 0,
+        "object_to_file@352": 0,
+        "object_to_i18n_file@408": 0
+      },
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": {
+        "dot_abapgit@54": 0,
+        "file_to_object@93": 0,
+        "file_to_object_package@513": 0,
+        "i18n_file_to_object@409": 0,
+        "i18n_file_to_object_is_initial@388": 0,
+        "is_obj_def_file@73": 0,
+        "object_to_file@299": 0,
+        "object_to_file_package@552": 0,
+        "object_to_i18n_file@463": 0,
+        "object_to_i18n_file_bcp47@493": 0,
+        "setup@42": 0,
+        "zif_abapgit_persist_settings~modify@10": 1,
+        "zif_abapgit_persist_settings~read@14": 1
+      }
+    },
+    "abap/abapgit_ui_pages": {
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": {
+        "ask_user_for_check_variant@79": 0,
+        "constructor@90": 0,
+        "create@107": 0,
+        "determine_check_variant@124": 0,
+        "has_inspection_errors@139": 0,
+        "is_stage_allowed@147": 0,
+        "run_code_inspector@155": 0,
+        "status@172": 0,
+        "zif_abapgit_gui_event_handler~on_event@189": 1,
+        "zif_abapgit_gui_hotkeys~get_hotkey_actions@259": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@283": 1,
+        "zif_abapgit_gui_page_title~get_page_title@330": 1,
+        "zif_abapgit_gui_renderable~render@335": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_codi_base.clas.abap": {
+        "apply_filter_kind@131": 0,
+        "apply_sorting@147": 0,
+        "build_base_menu@167": 0,
+        "build_nav_link@176": 0,
+        "convert_result_to_view@186": 0,
+        "explain_include@221": 0,
+        "handle_navigation@265": 0,
+        "jump@293": 0,
+        "on_event@365": 0,
+        "render_ci_report@394": 0,
+        "render_detail@419": 0,
+        "render_head@467": 0,
+        "render_limit_warning@478": 0,
+        "render_stat@486": 0,
+        "render_stats@504": 0,
+        "zif_abapgit_html_table~get_row_attrs@561": 1,
+        "zif_abapgit_html_table~render_cell@580": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_runit.clas.abap": {
+        "build_tadir@74": 0,
+        "constructor@92": 0,
+        "create@106": 0,
+        "get_text_for_method@131": 0,
+        "run@192": 0,
+        "zif_abapgit_gui_event_handler~on_event@237": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@249": 1,
+        "zif_abapgit_gui_renderable~render@265": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_syntax.clas.abap": {
+        "constructor@47": 0,
+        "create@54": 0,
+        "run_syntax_check@67": 0,
+        "zif_abapgit_gui_event_handler~on_event@85": 1,
+        "zif_abapgit_gui_hotkeys~get_hotkey_actions@100": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@114": 1,
+        "zif_abapgit_gui_page_title~get_page_title@125": 1,
+        "zif_abapgit_gui_renderable~render@130": 1
+      },
+      "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_whereused.clas.abap": {
+        "constructor@73": 0,
+        "create@91": 0,
+        "init_table_component@105": 0,
+        "render_filter_help_hint@156": 0,
+        "render_header@175": 0,
+        "run_where_used@192": 0,
+        "zif_abapgit_gui_event_handler~on_event@199": 1,
+        "zif_abapgit_gui_hotkeys~get_hotkey_actions@222": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@227": 0,
+        "zif_abapgit_gui_page_title~get_page_title@266": 1,
+        "zif_abapgit_gui_renderable~render@271": 1,
+        "zif_abapgit_html_table~get_row_attrs@295": 1,
+        "zif_abapgit_html_table~render_cell@299": 1
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.abap": {
+        "constructor@124": 0,
+        "create@130": 0,
+        "do_backup_db@145": 0,
+        "do_delete_entry@214": 0,
+        "do_restore_db@244": 0,
+        "explain_content@344": 0,
+        "explain_content_background@407": 0,
+        "explain_content_repo@438": 0,
+        "explain_content_repo_cs@482": 0,
+        "explain_content_repo_data@502": 0,
+        "register_stylesheet@510": 0,
+        "render_stats@526": 0,
+        "render_table@558": 0,
+        "zif_abapgit_gui_event_handler~on_event@576": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@633": 1,
+        "zif_abapgit_gui_renderable~render@650": 1,
+        "zif_abapgit_html_table~get_row_attrs@673": 1,
+        "zif_abapgit_html_table~render_cell@677": 1
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db.clas.locals_imp.abap": {
+        "close@58": 0,
+        "create@36": 0,
+        "render@50": 0
+      },
+      "abap/abapgit_ui_pages/db_zcl_abapgit_gui_page_db_entry.clas.abap": {
+        "build_toolbar@98": 0,
+        "constructor@121": 0,
+        "create@131": 0,
+        "dbcontent_decode@148": 0,
+        "do_update@161": 0,
+        "register_stylesheet@175": 0,
+        "render_edit@191": 0,
+        "render_entry_tag@209": 0,
+        "render_header@220": 0,
+        "render_view@230": 0,
+        "zif_abapgit_gui_event_handler~on_event@264": 1,
+        "zif_abapgit_gui_page_title~get_page_title@278": 1,
+        "zif_abapgit_gui_renderable~render@289": 1
+      },
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff.clas.abap": {
+        "create@28": 0
+      },
+      "abap/abapgit_ui_pages/diff_zcl_abapgit_gui_page_diff_base.clas.abap": {
+        "add_filter_sub_menu@265": 0,
+        "add_jump_sub_menu@338": 0,
+        "add_menu_begin@363": 0,
+        "add_menu_end@384": 0,
+        "add_view_sub_menu@397": 0,
+        "append_diff@435": 0,
+        "calculate_diff@534": 0,
+        "constructor@600": 0,
+        "get_files_and_status@631": 0,
+        "get_normalized_fname_with_path@671": 0,
+        "get_page_layout@680": 0,
+        "get_sci_result@695": 0,
+        "has_diffs@702": 0,
+        "is_binary@712": 0,
+        "is_file_requested@727": 0,
+        "is_refresh@742": 0,
+        "modify_files_before_diff_calc@750": 0,
+        "normalize_filename@769": 0,
+        "normalize_path@779": 0,
+        "refresh@789": 0,
+        "refresh_full@814": 0,
+        "refresh_local@819": 0,
+        "refresh_local_object@824": 0,
+        "render_beacon@848": 0,
+        "render_beacon_begin_of_row@888": 0,
+        "render_diff@895": 0,
+        "render_diff_head@930": 0,
+        "render_diff_head_after_state@1016": 0,
+        "render_line_no_diffs@1117": 0,
+        "render_line_split@1137": 0,
+        "render_line_split_row@1204": 0,
+        "render_line_unified@1217": 0,
+        "render_lines@1038": 0,
+        "render_scripts@1271": 0,
+        "render_table_head@1302": 0,
+        "render_table_head_non_unified@1330": 0,
+        "render_table_head_unified@1342": 0,
+        "zif_abapgit_gui_event_handler~on_event@1352": 1,
+        "zif_abapgit_gui_hotkeys~get_hotkey_actions@1413": 1,
+        "zif_abapgit_gui_menu_provider~get_menu@1442": 1,
+        "zif_abapgit_gui_renderable~render@1454": 1
       }
     },
     "ada/alire": {
@@ -2013,6 +2414,791 @@
         "WTLST5@288": 0
       }
     },
+    "agc_assembly/apollo-11_comanche055_cm": {
+      "agc_assembly/apollo-11_comanche055_cm/CONIC_SUBROUTINES.agc": {
+        "BADR2@1701": 0,
+        "BADX@771": 0,
+        "BIGTIME@1540": 0,
+        "CHECKCTR@1010": 0,
+        "CMNTOVFL@782": 1,
+        "COMMNOUT@1124": 0,
+        "COMMONLM@1530": 0,
+        "DELOK@998": 0,
+        "DXCOMP@679": 0,
+        "FIRSTIME@975": 0,
+        "INFINAPO@1746": 0,
+        "INITV@1583": 0,
+        "INVRSEQN@1328": 0,
+        "KEPCONVG@794": 0,
+        "KEPLOOP@690": 0,
+        "LOLIM@1579": 0,
+        "MAXCOGA@1442": 0,
+        "MINCOGA@1456": 0,
+        "MODNGDEL@968": 0,
+        "MODPSDEL@1003": 0,
+        "NDXCHNGE@734": 0,
+        "NEGP@1522": 0,
+        "NEWDEL@1000": 0,
+        "NEWDELX@751": 0,
+        "NEWSTATE@1019": 0,
+        "PDXCHNGE@764": 0,
+        "POLYCOEF@1259": 0,
+        "POSDEL@987": 0,
+        "POSDELX@741": 0,
+        "STORBNDS@667": 0,
+        "STOREMAX@634": 0,
+        "STOREMIN@676": 0,
+        "SUFFCHEK@1550": 0,
+        "TARGETV@1612": 0,
+        "TIMEOVFL@778": 0,
+        "TRUE360X@1365": 0,
+        "UPLIM@1439": 0
+      },
+      "agc_assembly/apollo-11_comanche055_cm/FRESH_START_AND_RESTART.agc": {
+        "AGAINMM@880": 1,
+        "BUTTONS@310": 0,
+        "CANTR00@871": 0,
+        "CANV37@907": 0,
+        "CHECKTAB@879": 0,
+        "DOFSTART@169": 0,
+        "DSPOFF@587": 1,
+        "ELRSKIP@340": 0,
+        "ENDRSTRT@261": 0,
+        "ENEMA@393": 0,
+        "GOGOPROG@997": 0,
+        "GOMOD@994": 0,
+        "GOP00FIX@724": 0,
+        "GOPROG3@410": 0,
+        "GOPROG@290": 1,
+        "GOTOPOOH@713": 0,
+        "GROUPKIL@985": 1,
+        "INITSUB@1097": 0,
+        "ISITP00@863": 0,
+        "ISSERVON@895": 0,
+        "KILL20@1019": 0,
+        "LIGHTSET@482": 0,
+        "NOCOARSE@378": 0,
+        "NONAVKEY@500": 0,
+        "NOUVEAU@1044": 0,
+        "NXTRST@444": 0,
+        "P00FIZZ@1015": 0,
+        "P00KLEAN@268": 0,
+        "PACTIVE@451": 0,
+        "PCLOOP@411": 1,
+        "PINACT@457": 0,
+        "POOH@953": 1,
+        "PTBAD@467": 0,
+        "R00TOP00@835": 0,
+        "RAKE@1115": 0,
+        "RENDN00@1005": 0,
+        "RENDV00@1000": 0,
+        "REV37@1027": 0,
+        "ROC@913": 1,
+        "SETMAXER@1112": 0,
+        "SEUDOP00@977": 0,
+        "SKIPSIM@154": 0,
+        "SLAP1@145": 1,
+        "STARTSB2@515": 0,
+        "STARTSIM@149": 1,
+        "STARTSUB@504": 0,
+        "STARTSW@148": 1,
+        "STATQUO@1033": 0,
+        "T5IDLOC@632": 0,
+        "V37@815": 0,
+        "V37BAD@874": 0,
+        "V37KLEAN@274": 0,
+        "V37NONO@1056": 0,
+        "V37XEQ@1060": 0,
+        "V37XEQC@1088": 1,
+        "V5LOOP1@1154": 1,
+        "V5LOOP2@1189": 1,
+        "V5OUT1@1177": 0,
+        "V5OUT2@1205": 0,
+        "VAC5STOR@1150": 0
+      },
+      "agc_assembly/apollo-11_comanche055_cm/IMU_MODE_SWITCHING_ROUTINES.agc": {
+        "8192AUG@628": 0,
+        "AOTSTALL@796": 0,
+        "AUG2@649": 0,
+        "AUG3@619": 0,
+        "BADEND@721": 0,
+        "CAGETEST@696": 0,
+        "CAGETSTJ@708": 0,
+        "CAGETSTQ@702": 0,
+        "CHKCORS@210": 0,
+        "COARS1@151": 1,
+        "COARS2@175": 0,
+        "COARS@145": 0,
+        "COARSERR@226": 0,
+        "COMNEG@238": 0,
+        "COMPOS@187": 0,
+        "COMZERO@247": 0,
+        "CORSCHK2@222": 0,
+        "ENDIMU@685": 0,
+        "ENDMODE@745": 0,
+        "GMERGE@572": 0,
+        "GOMANUR@844": 1,
+        "GOODEND@725": 0,
+        "GSELECT@526": 0,
+        "GWAKE2@440": 0,
+        "GWAKE@481": 1,
+        "GYROAGRE@452": 1,
+        "GYROBUSY@475": 0,
+        "GYROEXIT@608": 0,
+        "IFAILOK@345": 0,
+        "IMUBAD@693": 0,
+        "IMUCOARS@134": 1,
+        "IMUFINE@316": 0,
+        "IMUFINED@341": 0,
+        "IMUGOOD@691": 1,
+        "IMUPULSE@428": 1,
+        "IMUSTALL@805": 1,
+        "IMUZERO2@107": 0,
+        "IMUZERO3@117": 1,
+        "IMUZERO@59": 1,
+        "IMUZEROA@70": 0,
+        "LASTSEG@600": 0,
+        "LONGGYRO@613": 0,
+        "MAJ-@660": 0,
+        "MG2@815": 0,
+        "MIN-@656": 0,
+        "MODABORT@830": 0,
+        "MODEEXIT@104": 0,
+        "MODEGOOD@819": 0,
+        "MODESLP@825": 0,
+        "NEXTCDU@194": 0,
+        "NOATTOFF@378": 0,
+        "NORESET@521": 1,
+        "P06@954": 0,
+        "PFAILOK2@358": 0,
+        "PFAILOK@364": 1,
+        "PIPFREE2@400": 0,
+        "PIPFREE@405": 1,
+        "PIPUSE1@392": 1,
+        "PIPUSE@387": 1,
+        "POSTAND@1033": 0,
+        "POSTCOM@1057": 0,
+        "PRESTAND@957": 1,
+        "R02BOTH@905": 1,
+        "R02ZERO@921": 0,
+        "RADSTALL@799": 1,
+        "REGSLEEP@478": 0,
+        "RNDREFDR@297": 0,
+        "SCALPREP@1005": 0,
+        "SENDPULS@252": 0,
+        "SETCOARS@265": 0,
+        "STALL@807": 0,
+        "STRTGYR2@502": 0,
+        "STRTGYRO@496": 0,
+        "ZEROICDU@42": 0
+      },
+      "agc_assembly/apollo-11_comanche055_cm/INTER-BANK_COMMUNICATION.agc": {
+        "BANKCALL@41": 1,
+        "BANKJUMP@70": 1,
+        "IBNKCALL@107": 1,
+        "ISWCALL@113": 1,
+        "ISWRETRN@121": 1,
+        "MAKECADR@79": 1,
+        "POSTJUMP@64": 1,
+        "PRIO12@74": 1,
+        "SUPDACAL@84": 1,
+        "SUPERSW@176": 1,
+        "SWCALL@48": 1,
+        "SWRETURN@56": 1,
+        "USPRCADR@131": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/KALCMANU_STEERING.agc": {
+        "2NDRETRN@125": 0,
+        "CONTMANU@169": 0,
+        "ENDMANU@208": 1,
+        "ENDROLL@205": 1,
+        "HIGHGAIN@148": 0,
+        "INCRDCDU@69": 0,
+        "LOADCDUD@259": 1,
+        "LOADYZ@261": 0,
+        "MANUCALL@177": 0,
+        "MANUOFF@121": 0,
+        "MANUSTAL@99": 1,
+        "MANUSTOP@201": 0,
+        "NEWANGL@47": 1,
+        "NEWDELHI@44": 0,
+        "STOPRATE@220": 0,
+        "STOPYZ@231": 0,
+        "TIMECHK@107": 0,
+        "TMANUCHK@94": 1,
+        "UPDTCALL@188": 0,
+        "ZEROERROR@248": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/ORBITAL_INTEGRATION.agc": {
+        "CALLRECT@524": 0,
+        "COMTERM@352": 0,
+        "COSPHIE@485": 0,
+        "DIFEQCOM@763": 0,
+        "DOSWITCH@577": 0,
+        "MINIRECT@632": 1,
+        "NEXTCOL@708": 0,
+        "RELOADSV@759": 0
+      },
+      "agc_assembly/apollo-11_comanche055_cm/RCS-CSM_DIGITAL_AUTOPILOT.agc": {
+        "ADOTLOOP@227": 1,
+        "DACLOOP@491": 1,
+        "DACNDLS@368": 0,
+        "DCDUINCR@314": 1,
+        "DELOOP@315": 1,
+        "DRHOLOOP@159": 1,
+        "FDAIDSP1@373": 1,
+        "FDAIDSP2@912": 0,
+        "FDAITOTL@927": 0,
+        "FREECHK@127": 1,
+        "FREEFUNC@828": 0,
+        "FRESHDAP@547": 0,
+        "GETAKS@937": 0,
+        "IMUAOK@604": 0,
+        "KALUPDT@897": 0,
+        "KMATRIX@258": 0,
+        "KRESUME1@375": 0,
+        "KRESUME2@908": 1,
+        "MERUPDAT@795": 0,
+        "NEEDLE11@459": 1,
+        "NEEDLER1@448": 0,
+        "NEEDLER2@475": 0,
+        "NEEDLER@438": 0,
+        "NEEDLES3@484": 0,
+        "NEEDLES@490": 1,
+        "NOCHANGE@710": 0,
+        "NOHIAUTO@675": 0,
+        "RATEFILT@141": 0,
+        "RCSATT@56": 0,
+        "RCSSWIT@610": 0,
+        "REDAP@551": 0,
+        "REDORCS@42": 1,
+        "REINIT@521": 0,
+        "SETT5@109": 0,
+        "SETWBODY@755": 0,
+        "SPNDXCHK@802": 0,
+        "STICKCHK@881": 0,
+        "T5PHASE2@661": 0,
+        "T6PROGM@845": 0,
+        "TENTHSEK@269": 0,
+        "WRTN17@969": 0,
+        "WRTN22@932": 1,
+        "ZEROER@780": 1,
+        "ZEROJET@631": 0,
+        "ZEROT5@558": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/REENTRY_CONTROL.agc": {
+        "BACK2@1164": 1,
+        "BACK@1140": 1,
+        "CONT1@900": 0,
+        "CONT3@909": 0,
+        "CONTINU2@946": 0,
+        "D0EQ@434": 0,
+        "DCONSTD@1014": 0,
+        "FOREHUNT@852": 0,
+        "GETDHOOK@609": 0,
+        "GETDLEWD@737": 1,
+        "GETETA@334": 0,
+        "GLIMITER@1238": 0,
+        "GONEGLAD@1230": 0,
+        "GOPOSLAD@1260": 0,
+        "HAVDNRNG@1213": 0,
+        "HUNTEST1@540": 0,
+        "HUNTEST3@633": 0,
+        "HUNTEST@493": 0,
+        "INITRL1@478": 0,
+        "KATEST@471": 0,
+        "KEP2@1098": 0,
+        "L353@1287": 0,
+        "L355@1299": 0,
+        "L357@1351": 0,
+        "LEWDOVFL@785": 0,
+        "LEWDPTR@790": 0,
+        "NEXT1@990": 0,
+        "NODISKY@1319": 0,
+        "NOLDCALC@318": 0,
+        "OVERNOUT@1310": 1,
+        "PRE-HUNT@845": 1,
+        "PREDICT3@1130": 0,
+        "REFAZE10@161": 1,
+        "SCALEPOP@156": 0,
+        "SERVNOUT@1322": 0,
+        "SETMIND@372": 0,
+        "SUBETA2@364": 0,
+        "SUBETA@357": 0,
+        "THETDONE@290": 0,
+        "UPCNTRL3@966": 0,
+        "UPCONTRL@873": 1,
+        "V1LEAD@530": 0,
+        "VLTEST@893": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/SERVICE_ROUTINES.agc": {
+        "B5OFF@254": 1,
+        "COMFLAG@107": 0,
+        "DEBIT@120": 0,
+        "DELAYJOB@156": 1,
+        "DELLOOP@160": 1,
+        "DOWNENT2@58": 1,
+        "DOWNFLAG@114": 1,
+        "GENTRAN@231": 1,
+        "OK2DELAY@172": 0,
+        "REQ@272": 0,
+        "TCGETCAD@182": 0,
+        "TRFAILOF@263": 1,
+        "TRFAILON@275": 1,
+        "UPENT2@40": 1,
+        "UPFLAG@102": 1,
+        "WAKER@189": 1
+      },
+      "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": {
+        "33OPTMON@1065": 1,
+        "C33JMP@1029": 0,
+        "C33TEST@522": 0,
+        "CAGESUB1@1002": 0,
+        "CAGESUB2@1006": 0,
+        "CAGESUB@995": 0,
+        "CANCOARS@1190": 0,
+        "CANZOPT@1139": 0,
+        "CDRVE@85": 1,
+        "CMDSETUP@1407": 0,
+        "COARSLOK@1126": 0,
+        "CONTDRVE@1324": 0,
+        "CSCDES@1177": 0,
+        "CSCTOMAN@1184": 0,
+        "CSCTOZOP@1180": 1,
+        "DELOPCMD@1450": 0,
+        "DNTMFAST@922": 0,
+        "DSPLAY@120": 0,
+        "DSPOUT@133": 0,
+        "DSPOUTSB@100": 0,
+        "DSPSCAN@106": 0,
+        "ENDTNON2@427": 0,
+        "ENDTNON@408": 0,
+        "ENDZOPT@1222": 0,
+        "GETOPCMD@1353": 0,
+        "GLAMPTST@642": 0,
+        "GLINVERT@634": 0,
+        "GLOCKCHK@593": 0,
+        "GLOCKMON@587": 0,
+        "HANG20@140": 0,
+        "IFAILJMP@1022": 0,
+        "IMUCAGE@772": 0,
+        "IMUMON@278": 0,
+        "IMUOP2@849": 0,
+        "IMUOP@827": 0,
+        "INITZOPT@1248": 0,
+        "ISSUP@442": 1,
+        "ISSWOFF@976": 1,
+        "ISSWON@986": 0,
+        "ISSZERO@477": 0,
+        "ITURNON2@744": 0,
+        "ITURNON@720": 0,
+        "LAMPTEST@1035": 0,
+        "MANTOCSC@1162": 0,
+        "MANTOMAN@1158": 0,
+        "MANUDES@1148": 0,
+        "NEGOPCMD@1444": 0,
+        "NEXTOPT@1432": 0,
+        "NODSPOUT@196": 0,
+        "NODSPY@221": 0,
+        "NOGIMRUN@616": 0,
+        "NORMT4@48": 0,
+        "NXTFL33@558": 0,
+        "NXTIBT@546": 0,
+        "NXTIFAIL@311": 0,
+        "NXTIFBIT@299": 0,
+        "OCDUFTST@1256": 0,
+        "OPFAILOF@1282": 0,
+        "OPFAILON@1267": 1,
+        "OPONLY@463": 0,
+        "OPT2@1349": 0,
+        "OPTDRIVE@1307": 0,
+        "OPTMON@1057": 0,
+        "OPTTEST@191": 0,
+        "OPTZERO@1200": 0,
+        "OZONE@1321": 0,
+        "PIPFAIL@877": 0,
+        "POSOPCMD@1427": 0,
+        "PROCEEDE@156": 1,
+        "PROCESSW@1092": 1,
+        "PROCTNON@381": 0,
+        "QUIKDSP@202": 0,
+        "QUIKOFF@236": 0,
+        "QUIKRUPT@211": 0,
+        "RETNON@405": 0,
+        "SENDOCMD@1454": 0,
+        "SETBIT@1459": 0,
+        "SETCNT@1203": 0,
+        "SETDESMD@1204": 0,
+        "SETGLOCK@620": 0,
+        "SETISSW@964": 0,
+        "SETOFF@1270": 0,
+        "SETSAMP@1090": 0,
+        "SETTIME4@145": 0,
+        "SETZOEND@1208": 0,
+        "STORCMD@1366": 0,
+        "SYNCT4@224": 1,
+        "T4JUMP@179": 0,
+        "T4RUPT@38": 0,
+        "TEMPOK@682": 0,
+        "TLIM@670": 0,
+        "TNONTEST@364": 0,
+        "TRUNCMD@1416": 0,
+        "UNZ2@433": 0,
+        "UPTMFAST@929": 0,
+        "ZEROPCDU@1241": 0,
+        "ZOPALARM@1110": 1,
+        "ZOPFIN1@1128": 0,
+        "ZOPFIN2@1134": 0,
+        "ZOPFIN3@1135": 0,
+        "ZOPTDES@1097": 0,
+        "ZTOCSC@1119": 0,
+        "ZTOMAN@1107": 0
+      }
+    },
+    "agc_assembly/apollo-11_luminary099_lm": {
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": {
+        "ACCHERE@743": 0,
+        "ACCTHERE@776": 0,
+        "BIGAOS@678": 1,
+        "BIGIQ@223": 0,
+        "BOTHAXES@659": 0,
+        "COMMEQS@200": 0,
+        "DBFUN@843": 0,
+        "DBONE@700": 0,
+        "DOACCFUN@975": 0,
+        "DOCKED@471": 0,
+        "DOCKTEST@350": 0,
+        "DOPAXIS@627": 0,
+        "DOWNGTS@949": 0,
+        "DPSFLITE@151": 0,
+        "DRFDB@917": 0,
+        "DVOVSUB@376": 0,
+        "FAIL-@832": 0,
+        "FIXMIN@986": 0,
+        "FRSTZERO@327": 0,
+        "GETAOSUV@603": 1,
+        "GOODEPS1@212": 0,
+        "GOODEPS2@233": 0,
+        "GOODNEG@399": 0,
+        "INVERT@942": 0,
+        "JACCUV@243": 0,
+        "LOOP3@313": 0,
+        "MAKEMAX@408": 0,
+        "MASSFIX@143": 0,
+        "MAXPLUS@414": 0,
+        "NETNEG@981": 0,
+        "NOAOS@766": 0,
+        "NOTMUCH@745": 0,
+        "SKIPDB1@706": 0,
+        "SKIPDB2@770": 0,
+        "SOMEAOS@758": 1,
+        "SPSCONT@299": 0,
+        "SPSLOOP1@472": 0,
+        "SPSLOOP2@488": 1,
+        "STACCDOT@331": 0,
+        "STCTR@172": 1,
+        "STMIN-@817": 0,
+        "STORV@878": 0,
+        "UAXIS@656": 1,
+        "ZACCDOT@330": 0,
+        "ZEROPLUS@393": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": {
+        "ASCTERM3@373": 0,
+        "ATMAG@38": 1,
+        "CHECKALT@380": 0,
+        "CONST@262": 0,
+        "CUTOFF1@530": 0,
+        "CUTOFF2@545": 0,
+        "CUTOFF@517": 0,
+        "ENGOFF1@501": 0,
+        "NO-ATP@316": 0,
+        "NORATES@205": 0,
+        "PROK@247": 0,
+        "RATES@211": 0,
+        "T2TEST@179": 0,
+        "TERMASC@555": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": {
+        "CHECKMAX@512": 0,
+        "COFMAXGO@566": 1,
+        "COMP12@578": 0,
+        "DCMTOCDU@961": 1,
+        "KALCMAN3@429": 1,
+        "METHOD1@604": 0,
+        "METHOD2@584": 1,
+        "METHOD3@625": 0,
+        "NOGO@1013": 0,
+        "OKPHI@999": 0,
+        "OKTHETA@983": 0,
+        "OKU12@616": 0,
+        "OKU21@596": 0,
+        "OKU31@637": 0,
+        "READCDUK@730": 0,
+        "U1POS@610": 0,
+        "U2POS@590": 0,
+        "U3POS@631": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": {
+        "ALTDSPLY@247": 0,
+        "CHECKUP@83": 0,
+        "CHEKBITS@41": 0,
+        "CHEKMORE@57": 0,
+        "DACLOOP@444": 1,
+        "DAPIDLER@68": 0,
+        "DSPLYTOT@275": 0,
+        "JUMPDSP@201": 0,
+        "MOREIDLE@171": 0,
+        "NEEDLE11@407": 1,
+        "NEEDLER2@423": 0,
+        "NEEDLER@396": 0,
+        "NEEDLES3@431": 0,
+        "NEEDLES@443": 0,
+        "OVERSUB2@481": 0,
+        "RETNMORE@488": 0,
+        "SETTIME5@164": 0,
+        "SHUTDOWN@177": 0,
+        "STARTDAP@91": 1
+      },
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": {
+        "P31@104": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": {
+        "LOOPRATE@60": 0,
+        "RATELOOP@37": 0,
+        "ROTORQUE@84": 0,
+        "SMALLTJU@76": 0,
+        "STORTORK@70": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": {
+        "ABORTON@520": 0,
+        "ALTOUT@92": 0,
+        "ALTROUT@49": 1,
+        "ARCOMP@56": 1,
+        "CHKLASTY@365": 0,
+        "DATAOUT@86": 0,
+        "DISINDAT@146": 0,
+        "DISPRSET@508": 0,
+        "INTLZE@179": 0,
+        "LANDISP@37": 1,
+        "LASTNEGY@405": 0,
+        "LASTOK@380": 0,
+        "LASTPOSY@391": 0,
+        "LATFWDV@313": 1,
+        "LATVNEG@450": 0,
+        "LATVPOS@445": 0,
+        "LVLIMITS@419": 0,
+        "LVMINLM@476": 0,
+        "NEGLMLV@457": 0,
+        "NEGVMAXY@411": 0,
+        "NEWDATA@137": 0,
+        "OLDDATA@119": 0,
+        "POSVMAXY@398": 0,
+        "SPEEDRUN@188": 0,
+        "VMONITOR@346": 0,
+        "ZDATA2@117": 0,
+        "ZERODATA@502": 0,
+        "ZEROLSTY@480": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": {
+        "1STOTWOS@100": 0,
+        "ABORTYZ@496": 0,
+        "ALTERYZ@505": 0,
+        "ALTSYST@886": 0,
+        "BACKP@139": 1,
+        "CALCPERR@904": 0,
+        "CHECKP@567": 0,
+        "CHKRTIMR@412": 0,
+        "CHKVISFZ@470": 0,
+        "DECQTIMR@427": 0,
+        "DECRTIMR@429": 0,
+        "DETENTCK@611": 0,
+        "DIVIDER@125": 0,
+        "DKALT@895": 0,
+        "FIREP@553": 1,
+        "HEADTJET@943": 0,
+        "JETSOFF@897": 0,
+        "JUSTOUT@683": 0,
+        "LAST@788": 0,
+        "LMONLY@258": 0,
+        "MANMODE@536": 0,
+        "OVERSUB@130": 0,
+        "P-RATE@280": 1,
+        "PAXFILT@387": 0,
+        "PAXIS@43": 1,
+        "PEGI@767": 0,
+        "PJETSLEC@836": 0,
+        "PRETIMCK@409": 0,
+        "PURGENCY@923": 0,
+        "Q-RATE@310": 0,
+        "QRAXIS@1043": 0,
+        "R-RATE@342": 0,
+        "RATEDAMP@717": 0,
+        "RATEDONE@662": 0,
+        "RATERROR@725": 0,
+        "RHCMOVED@721": 0,
+        "RUTH@639": 0,
+        "SELECTP@975": 0,
+        "SELECTYZ@991": 0,
+        "SKIPPAXS@452": 0,
+        "SMALPDIF@279": 0,
+        "SUBDIVDE@105": 0,
+        "SUPERJOB@408": 0,
+        "TRYUORV@481": 0,
+        "TSNEXTP@515": 0,
+        "TURNOFFQ@432": 0,
+        "TURNOFFR@441": 0,
+        "WORKTIME@366": 0,
+        "XMIN@574": 0,
+        "ZEROENBL@706": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": {
+        "COMMINIT@200": 0,
+        "NEWLOAD@111": 0,
+        "P12INIT@179": 0,
+        "P12LM@35": 0,
+        "P12LMB@79": 0,
+        "P12RET@147": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": {
+        "35KCHK@924": 0,
+        "ALTCHK@887": 0,
+        "AVEGOUT@141": 0,
+        "AVERTRN@378": 1,
+        "AVGEND@350": 0,
+        "BIBIBIAS@49": 1,
+        "CALCGRV1@966": 0,
+        "CHKTEMX@620": 0,
+        "CONTSERV@777": 0,
+        "COPYCYC1@786": 0,
+        "COPYCYC@492": 0,
+        "COPYCYCL@241": 0,
+        "DECCNTR@317": 0,
+        "DODELVZ@569": 0,
+        "DVCNTSET@271": 1,
+        "DVMON@262": 1,
+        "ENDLRH@1559": 1,
+        "ENDLRV@1512": 0,
+        "GETABVAL@187": 0,
+        "GNUFAZE5@154": 0,
+        "GNURVST@1396": 0,
+        "GNUTFAZ5@149": 0,
+        "GOREADAX@72": 0,
+        "GOSERV@239": 1,
+        "GRP2OFF@684": 0,
+        "HBAD@1562": 0,
+        "HFAIL@1421": 0,
+        "HIGATASK@702": 0,
+        "HIGATCHK@750": 0,
+        "HIGATJOB@1621": 0,
+        "HITEST@733": 0,
+        "HSTILBAD@1571": 0,
+        "LOTHRUST@300": 0,
+        "LRHJOB@1533": 0,
+        "LRHTASK@664": 1,
+        "LRPOSALM@775": 0,
+        "LRVJOB@1471": 0,
+        "MAKEACCS@138": 0,
+        "MASSMON@199": 1,
+        "MOONSPOT@219": 0,
+        "NODVMON1@291": 0,
+        "NODVMON2@295": 0,
+        "NOLITE@1451": 0,
+        "NOR29NOW@810": 0,
+        "NOREASON@1164": 0,
+        "NORLITE@1433": 0,
+        "NORMLIZ1@484": 0,
+        "NORMLIZ2@488": 0,
+        "NORMLIZE@453": 0,
+        "OCT10002@214": 0,
+        "PIPASR@542": 0,
+        "PIPSDONE@92": 0,
+        "POS1CHK@769": 0,
+        "POS2CHK@738": 1,
+        "POSALARM@1636": 0,
+        "POSGOOD@1627": 0,
+        "POSUPDAT@1110": 1,
+        "PREREAD@42": 1,
+        "QUIKFAZ5@1412": 0,
+        "R29NODES@805": 0,
+        "RDGIMS@1585": 0,
+        "READACCS@79": 0,
+        "READV@1389": 0,
+        "REPIP1@559": 0,
+        "REPIP3@566": 0,
+        "REPIP4@571": 0,
+        "REREADAC@594": 1,
+        "RUPDATED@1204": 1,
+        "SERVEXIT@441": 0,
+        "SERVICER@175": 0,
+        "SERVIDLE@389": 1,
+        "SERVOUT@328": 0,
+        "SETPOS1@1655": 1,
+        "SETPOS2@1675": 0,
+        "SETPOS@1676": 0,
+        "TMPTOSPT@644": 0,
+        "UPDATCHK@1101": 0,
+        "USEGTS@286": 1,
+        "USEJETS@325": 0,
+        "USEVF@1343": 0,
+        "VALTCHK@1375": 0,
+        "VBAD@1518": 0,
+        "VELUPDAT@1212": 1,
+        "VFAIL@1438": 0,
+        "VMEASCHK@1206": 0,
+        "VSTILBAD@1519": 0,
+        "VUPDAT@1310": 0,
+        "VUPDATED@1372": 1,
+        "WSTOR@1348": 0,
+        "XORCHK@914": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": {
+        "AFDUMP@42": 1,
+        "DOIT@124": 0,
+        "DOPIF@114": 0,
+        "FCOMPSET@90": 0,
+        "FLATOUT1@100": 0,
+        "FLATOUT2@102": 0,
+        "FLATOUT@191": 1,
+        "FWCOMP@159": 0,
+        "LOWFCOLD@94": 0,
+        "MASSMULT@202": 0,
+        "THDUMP@187": 1,
+        "THROTTLE@37": 1,
+        "WHATOUT@192": 1,
+        "WHERETO@67": 0
+      },
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": {
+        "CHKMINTJ@412": 0,
+        "COASTTJ@224": 0,
+        "ERRTEST@150": 1,
+        "FORMULA1@294": 0,
+        "FORMULA2@305": 0,
+        "FORMULA3@403": 0,
+        "FULLTIME@273": 0,
+        "JETSON@206": 1,
+        "MAXJETS@159": 0,
+        "NEGEDOT@101": 0,
+        "RETURNTJ@277": 0,
+        "RUFLAW12@438": 0,
+        "RUFLAW1@431": 0,
+        "RUFLAW2@463": 0,
+        "RUFLAW3@471": 0,
+        "RUFSETUP@490": 0,
+        "SCALEDOT@141": 0,
+        "SCALEE@122": 0,
+        "SENSTEST@163": 0,
+        "SETSENSE@109": 0,
+        "SMALRATE@453": 0,
+        "TJCALC@166": 0,
+        "TJETLAW@84": 1,
+        "Z123COMP@321": 0,
+        "ZONE1@360": 0,
+        "ZONE3@354": 0,
+        "ZONE4@199": 0,
+        "ZONE5@230": 0
+      }
+    },
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": {
         "testGetFieldValue@64": 1,
@@ -2059,6 +3245,205 @@
         "testSimplegetRecordsPositive@61": 1,
         "testgetDetailsFromBothParentRecordsPositive@468": 1,
         "testgetSumOfOpportunityRecordsPositive@497": 1
+      }
+    },
+    "apex/fflib_apex_common": {
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Application.cls": {
+        "DomainFactory@301": 0,
+        "DomainFactory@312": 0,
+        "DomainFactory@329": 0,
+        "SelectorFactory@189": 0,
+        "SelectorFactory@198": 0,
+        "ServiceFactory@134": 0,
+        "ServiceFactory@144": 0,
+        "UnitOfWorkFactory@45": 0,
+        "UnitOfWorkFactory@52": 0,
+        "getConstructorTypeByObject@441": 0,
+        "newInstance@107": 0,
+        "newInstance@158": 0,
+        "newInstance@210": 0,
+        "newInstance@345": 0,
+        "newInstance@359": 0,
+        "newInstance@368": 0,
+        "newInstance@411": 0,
+        "newInstance@62": 0,
+        "newInstance@75": 0,
+        "newInstance@91": 0,
+        "return@385": 0,
+        "selectById@233": 0,
+        "selectByRelationship@261": 1,
+        "setMock@115": 0,
+        "setMock@171": 0,
+        "setMock@273": 0,
+        "setMock@280": 0,
+        "setMock@422": 0,
+        "setMock@429": 0,
+        "setMock@435": 0
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_Objects.cls": {
+        "contains@48": 0,
+        "containsAll@53": 0,
+        "containsAll@60": 0,
+        "containsNot@71": 0,
+        "containsNot@76": 0,
+        "containsNot@83": 0,
+        "fflib_Objects@33": 0,
+        "getObjects@43": 0,
+        "getType@38": 1,
+        "isEmpty@94": 0,
+        "isNotEmpty@99": 1,
+        "setObjects@109": 1,
+        "size@104": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectDescribe.cls": {
+        "FieldsMap@323": 0,
+        "GlobalDescribeMap@343": 0,
+        "NamespacedAttributeMap@251": 0,
+        "NamespacedAttributeMap@257": 0,
+        "containsKey@281": 0,
+        "containsKey@284": 0,
+        "fflib_SObjectDescribe@77": 0,
+        "flushCache@232": 1,
+        "get@328": 0,
+        "get@331": 0,
+        "get@348": 0,
+        "get@351": 0,
+        "getDescribe@140": 0,
+        "getDescribe@188": 0,
+        "getDescribe@201": 0,
+        "getDescribe@209": 0,
+        "getDescribe@217": 0,
+        "getField@102": 0,
+        "getField@94": 0,
+        "getFieldSetsMap@153": 1,
+        "getFields@150": 1,
+        "getFieldsMap@147": 1,
+        "getGlobalDescribe@227": 0,
+        "getNameField@124": 1,
+        "getObject@263": 0,
+        "getObject@269": 0,
+        "getRawGlobalDescribe@224": 1,
+        "getSObjectType@88": 0,
+        "keySet@300": 0,
+        "keySet@303": 0,
+        "return@335": 0,
+        "return@355": 0,
+        "size@293": 1,
+        "values@334": 0,
+        "values@354": 0
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjectSelector.cls": {
+        "addQueryFactorySubselect@443": 0,
+        "addQueryFactorySubselect@451": 0,
+        "addQueryFactorySubselect@466": 0,
+        "addQueryFactorySubselect@474": 0,
+        "assertIsAccessible@357": 0,
+        "buildQuerySObjectById@483": 0,
+        "configureQueryFactory@491": 0,
+        "configureQueryFactoryFields@428": 1,
+        "enforceFLS@202": 0,
+        "fflib_SObjectSelector@107": 0,
+        "fflib_SObjectSelector@114": 0,
+        "fflib_SObjectSelector@119": 0,
+        "fflib_SObjectSelector@130": 0,
+        "fflib_SObjectSelector@144": 0,
+        "fflib_SObjectSelector@149": 0,
+        "getDataAccess@269": 1,
+        "getFieldListBuilder@279": 0,
+        "getFieldListString@302": 1,
+        "getOrderBy@171": 0,
+        "getRelatedFieldListString@313": 1,
+        "getSObjectFieldSetList@162": 0,
+        "getSObjectName@321": 1,
+        "getSObjectType2@368": 0,
+        "ignoreCRUD@221": 0,
+        "includeFieldSetFields@211": 0,
+        "isEnforcingCRUD@264": 1,
+        "isEnforcingFLS@256": 1,
+        "isIncludeFieldSetFields@248": 1,
+        "newQueryFactory@385": 0,
+        "newQueryFactory@393": 0,
+        "newQueryFactory@402": 0,
+        "newQueryFactory@412": 0,
+        "queryLocatorById@347": 1,
+        "sObjectType@377": 0,
+        "selectSObjectsById@334": 1,
+        "setDataAccess@233": 1,
+        "setFieldListBuilder@292": 1,
+        "unsortedSelectFields@227": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_SObjects.cls": {
+        "ErrorFactory@392": 0,
+        "FieldError@443": 0,
+        "ObjectError@453": 0,
+        "addError@82": 0,
+        "addError@96": 0,
+        "clearAll@430": 1,
+        "clearField@109": 1,
+        "clearFields@119": 0,
+        "error@139": 0,
+        "error@153": 0,
+        "error@394": 0,
+        "error@399": 0,
+        "error@409": 0,
+        "error@414": 0,
+        "fflib_SObjects@46": 0,
+        "fflib_SObjects@51": 0,
+        "getAll@425": 1,
+        "getFieldValues@195": 1,
+        "getIdFieldValues@163": 1,
+        "getRecordIds@62": 1,
+        "getRecords@57": 0,
+        "getRecordsByFieldValue@212": 1,
+        "getRecordsByFieldValues@214": 0,
+        "getRecordsByFieldValues@223": 0,
+        "getRecordsWithAllBlankFieldValues@274": 1,
+        "getRecordsWithAllNotBlankFieldValues@332": 1,
+        "getRecordsWithBlankFieldValues@241": 0,
+        "getRecordsWithBlankFieldValues@243": 0,
+        "getRecordsWithBlankFieldValues@253": 0,
+        "getRecordsWithNotBlankFieldValues@298": 0,
+        "getRecordsWithNotBlankFieldValues@300": 0,
+        "getRecordsWithNotBlankFieldValues@310": 0,
+        "getSObjectType@72": 0,
+        "getStringFieldValues@179": 1,
+        "getType@67": 1,
+        "setFieldValue@357": 1,
+        "setFieldValueByMap@370": 1
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_main_classes_fflib_StringBuilder.cls": {
+        "CommaDelimitedListBuilder@86": 0,
+        "CommaDelimitedListBuilder@88": 0,
+        "FieldListBuilder@120": 0,
+        "FieldListBuilder@125": 0,
+        "MultiCurrencyFieldListBuilder@143": 0,
+        "MultiCurrencyFieldListBuilder@148": 0,
+        "add@52": 0,
+        "add@60": 0,
+        "fflib_StringBuilder@39": 0,
+        "fflib_StringBuilder@44": 0,
+        "getStringValue@103": 0,
+        "getStringValue@73": 0,
+        "setDelimiter@98": 1,
+        "setItemPrefix@93": 0,
+        "toString@109": 0,
+        "toString@65": 0,
+        "toString@75": 0
+      },
+      "apex/fflib_apex_common/sfdx-source_apex-common_test_classes_fflib_ObjectsTest.cls": {
+        "DataTransferObject@193": 0,
+        "Domain@178": 0,
+        "generateDataTransferObjects@166": 0,
+        "generateDomain@161": 0,
+        "getType@183": 0,
+        "itShouldContainAllTheObjects@127": 1,
+        "itShouldContainTheObject@53": 1,
+        "itShouldGetTheObjectType@154": 1,
+        "itShouldHaveAnEmptyDomain@112": 1,
+        "itShouldNotBeAnEmptyDomain@119": 1,
+        "itShouldNotContainTheObject@71": 1,
+        "itShouldNotContainTheObjects@82": 1,
+        "itShouldReturnTheCorrectType@35": 1
       }
     },
     "assembly/blst_generated_asm": {
@@ -3909,6 +5294,71 @@
         "build@113": 0
       }
     },
+    "bms/carddemo_bms": {
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU00.bms": {
+        "COPAU0A@26": 0
+      },
+      "bms/carddemo_bms/app_app-authorization-ims-db2-mq_bms_COPAU01.bms": {
+        "COPAU1A@26": 0
+      },
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTLI.bms": {
+        "CTRTLIA@25": 0
+      },
+      "bms/carddemo_bms/app_app-transaction-type-db2_bms_COTRTUP.bms": {
+        "CTRTUPA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COACTUP.bms": {
+        "CACTUPA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COACTVW.bms": {
+        "CACTVWA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COADM01.bms": {
+        "COADM1A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COBIL00.bms": {
+        "COBIL0A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COCRDLI.bms": {
+        "CCRDLIA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COCRDSL.bms": {
+        "CCRDSLA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COCRDUP.bms": {
+        "CCRDUPA@25": 0
+      },
+      "bms/carddemo_bms/app_bms_COMEN01.bms": {
+        "COMEN1A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_CORPT00.bms": {
+        "CORPT0A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COSGN00.bms": {
+        "COSGN0A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COTRN00.bms": {
+        "COTRN0A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COTRN01.bms": {
+        "COTRN1A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COTRN02.bms": {
+        "COTRN2A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COUSR00.bms": {
+        "COUSR0A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COUSR01.bms": {
+        "COUSR1A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COUSR02.bms": {
+        "COUSR2A@26": 0
+      },
+      "bms/carddemo_bms/app_bms_COUSR03.bms": {
+        "COUSR3A@26": 0
+      }
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": {
         "BNK1ACC@26": 0
@@ -3936,6 +5386,14 @@
       },
       "bms/cbsa/BNK1UAM.bms": {
         "BNK1UA@24": 0
+      }
+    },
+    "bms/dbb_mortgage_bms": {
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmlis.bms": {
+        "EPSMLIS@5": 0
+      },
+      "bms/dbb_mortgage_bms/zBuilder_MortgageApplication_bms_epsmort.bms": {
+        "EPMENU@6": 0
       }
     },
     "bms/genapp": {
@@ -20689,6 +22147,122 @@
         "MSGS@17": 0
       }
     },
+    "csharp/powershell_commands_utility": {
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": {
+        "AddMemberToTarget@456": 0,
+        "EnsureValue1AndValue2AreNotBothNull@195": 0,
+        "EnsureValue1HasBeenSpecified@220": 0,
+        "EnsureValue1IsNotNull@204": 0,
+        "EnsureValue2HasNotBeenSpecified@235": 0,
+        "EnsureValue2IsNotNull@212": 0,
+        "GetAliasProperty@243": 0,
+        "GetCodeMethod@259": 0,
+        "GetCodeProperty@268": 0,
+        "GetMemberSet@288": 0,
+        "GetNoteProperty@301": 0,
+        "GetParameterType@190": 0,
+        "GetPropertySet@308": 0,
+        "GetScriptMethod@318": 0,
+        "GetScriptProperty@327": 0,
+        "HasBeenSpecified@25": 0,
+        "NewError@535": 0,
+        "ProcessNotePropertyMultiMemberSet@491": 0,
+        "ProcessRecord@350": 1,
+        "Transform@590": 1,
+        "UpdateTypeNames@522": 0,
+        "Validate@561": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": {
+        "ProcessBreakpoint@31": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": {
+        "BeginProcessing@174": 1,
+        "CleanUp@293": 0,
+        "Convert@15": 1,
+        "EndProcessing@257": 1,
+        "InstantiateLineOutputInterface@199": 0,
+        "InternalDispose@287": 1,
+        "OutFileCommand@31": 0,
+        "ProcessRecord@240": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": {
+        "BeginProcessing@75": 1,
+        "EndProcessing@148": 1,
+        "InstantiateLineOutputInterface@90": 0,
+        "OnWriteLine@117": 0,
+        "OutStringCommand@67": 0,
+        "ProcessRecord@139": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": {
+        "ProcessRecord@18": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": {
+        "GetFilePath@253": 0,
+        "GetScript@358": 0,
+        "ProcessRecord@131": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": {
+        "EndProcessing@20": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": {
+        "ProcessRecord@67": 1
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": {
+        "ShowCommandParameterInfo@23": 0,
+        "ShowCommandParameterInfo@48": 0
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": {
+        "BasicHtmlWebResponseObject@32": 0,
+        "BasicHtmlWebResponseObject@42": 0,
+        "CreateHtmlObject@172": 0,
+        "InitializeContent@154": 0,
+        "InitializeRawContent@184": 0,
+        "ParseAttributes@191": 0
+      },
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": {
+        "Dispose@54": 0,
+        "PSHostTraceListener@28": 0,
+        "Write@77": 1,
+        "WriteLine@98": 1
+      }
+    },
+    "csharp/powertoys_common": {
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": {
+        "OnApplyTemplate@59": 1,
+        "OnIsLabelPlacementChanged@64": 0,
+        "ShortcutWithTextLabelControl@54": 0
+      },
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": {
+        "GetBestThumbnail@89": 1,
+        "GetThumbnails@24": 0,
+        "ReadAndDecompressData@103": 0
+      },
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": {
+        "IsGreaterThanWindows11_21H2@21": 1,
+        "IsWindows10@11": 1,
+        "IsWindows11@16": 1
+      },
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": {
+        "GetVersionFromAssembly@36": 0
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": {
+        "ComboBox@14": 0,
+        "Select@23": 1,
+        "SelectTxt@32": 1
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": {
+        "HoldShiftToDrag@42": 0,
+        "KeyDownAndDrag@29": 1,
+        "Tab@18": 0
+      },
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": {
+        "GetModulePath@137": 1,
+        "GetModuleWindowName@161": 1,
+        "GetPowerToysInstallPath@114": 0,
+        "GetWindowsApplicationDriverUrl@159": 1,
+        "ModuleConfigData@94": 0
+      }
+    },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": {
         "AbstractSymbolSearcher@5054": 0,
@@ -21667,6 +23241,216 @@
         "Workspace@70": 0
       }
     },
+    "csharp/runtime_linq": {
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": {
+        "AggregateBy@27": 0,
+        "AggregateBy@71": 0,
+        "AggregateByIterator@103": 0,
+        "AggregateByIterator@135": 0,
+        "PopulateDictionary@117": 0,
+        "PopulateDictionary@149": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": {
+        "Cast@12": 1,
+        "CastIterator@36": 0,
+        "Clone@50": 1,
+        "Dispose@76": 0,
+        "MoveNext@52": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": {
+        "BuildCountDictionary@54": 0,
+        "CountBy@20": 1,
+        "CountByIterator@39": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": {
+        "Contains@20": 1,
+        "GetCount@16": 1,
+        "ToArray@12": 1,
+        "ToList@14": 1,
+        "TryGetFirst@18": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": {
+        "GetCount@18": 2,
+        "GetCount@30": 2,
+        "GetCount@42": 2,
+        "GetCount@54": 2,
+        "ToArray@12": 0,
+        "ToArray@24": 0,
+        "ToArray@36": 0,
+        "ToArray@48": 0,
+        "ToList@15": 0,
+        "ToList@27": 0,
+        "ToList@39": 0,
+        "ToList@51": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": {
+        "Contains@70": 1,
+        "GetCount@30": 1,
+        "Skip@37": 1,
+        "Take@44": 1,
+        "ToArray@16": 1,
+        "ToList@22": 1,
+        "TryGetElementAt@52": 1,
+        "TryGetFirst@61": 0,
+        "TryGetLast@68": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": {
+        "Compare@18": 0,
+        "Compare@19": 0,
+        "Compare@20": 0,
+        "Compare@21": 0,
+        "Max@12": 0,
+        "Max@14": 0,
+        "Max@216": 0,
+        "Max@24": 0,
+        "Max@26": 0,
+        "Max@264": 0,
+        "Max@299": 0,
+        "Max@313": 0,
+        "Max@516": 0,
+        "Max@518": 0,
+        "Max@520": 0,
+        "Max@522": 0,
+        "Max@621": 0,
+        "Max@623": 0,
+        "Max@625": 0,
+        "Max@627": 0,
+        "Max@728": 0,
+        "Max@760": 0,
+        "Max@800": 0,
+        "Max@88": 0,
+        "Max@90": 0,
+        "Max@92": 0,
+        "Max@94": 0,
+        "MaxBy@407": 0,
+        "MaxBy@421": 0,
+        "MaxFloat@164": 0,
+        "MaxFloat@629": 0,
+        "MaxFloat@671": 0,
+        "MaxFloat@96": 0,
+        "MaxInteger@28": 0,
+        "MaxInteger@524": 0,
+        "MaxInteger@556": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": {
+        "CachingComparer@264": 0,
+        "CachingComparerWithChild@293": 0,
+        "Clone@183": 0,
+        "Clone@91": 0,
+        "Compare@252": 0,
+        "Compare@271": 0,
+        "Compare@299": 0,
+        "CompareAnyKeys@335": 0,
+        "CompareAnyKeys@422": 0,
+        "CompareAnyKeys_DefaultComparer_NoNext_Ascending@444": 0,
+        "CompareAnyKeys_DefaultComparer_NoNext_Descending@460": 0,
+        "CompareKeys@476": 0,
+        "ComputeKeys@333": 0,
+        "ComputeKeys@397": 0,
+        "ComputeMap@337": 0,
+        "Dispose@157": 0,
+        "Dispose@228": 0,
+        "ElementAt@360": 1,
+        "EnumerableSorter@389": 0,
+        "GetComparer@113": 0,
+        "GetComparer@185": 0,
+        "GetComparer@25": 0,
+        "GetEnumerableSorter@190": 0,
+        "GetEnumerableSorter@23": 0,
+        "GetEnumerableSorter@93": 0,
+        "IEnumerable.GetEnumerator@27": 1,
+        "ImplicitlyStableOrderedIterator@171": 0,
+        "Min@378": 0,
+        "Min@644": 0,
+        "MoveNext@121": 0,
+        "MoveNext@193": 0,
+        "OrderedIterator@16": 0,
+        "OrderedIterator@73": 0,
+        "PartialQuickSort@372": 0,
+        "PartialQuickSort@505": 0,
+        "QuickSelect@376": 0,
+        "QuickSelect@574": 0,
+        "QuickSort@368": 0,
+        "QuickSort@478": 0,
+        "SetElement@254": 0,
+        "SetElement@283": 0,
+        "SetElement@317": 0,
+        "Sort@234": 0,
+        "Sort@346": 0,
+        "Sort@353": 0,
+        "SortedMap@18": 0,
+        "SortedMap@20": 0,
+        "TryGetLast@32": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": {
+        "Contains@84": 0,
+        "CopyTo@92": 1,
+        "GetCount@32": 1,
+        "IndexOf@90": 1,
+        "Skip@36": 1,
+        "Take@48": 1,
+        "ToArray@13": 1,
+        "ToList@24": 1,
+        "TryGetElementAt@60": 1,
+        "TryGetFirst@72": 1,
+        "TryGetLast@78": 1
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": {
+        "Clone@162": 1,
+        "Dispose@167": 0,
+        "MoveNext@184": 1,
+        "SelectMany@11": 0,
+        "SelectMany@110": 0,
+        "SelectMany@31": 0,
+        "SelectMany@68": 0,
+        "SelectManyIterator@135": 0,
+        "SelectManyIterator@51": 0,
+        "SelectManyIterator@93": 0,
+        "SelectManySingleSelectorIterator@153": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": {
+        "Clone@42": 1,
+        "Dispose@78": 0,
+        "MoveNext@44": 1,
+        "Shuffle@16": 0,
+        "ShuffleIterator@36": 0
+      },
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": {
+        "Clone@252": 0,
+        "Clone@32": 0,
+        "Contains@165": 1,
+        "CopyTo@144": 0,
+        "Dispose@255": 0,
+        "Fill@147": 0,
+        "GetAdjustedCount@106": 0,
+        "GetCount@116": 0,
+        "GetCount@266": 0,
+        "IEnumerableSkipTakeIterator@229": 0,
+        "IListSkipTakeIterator@22": 0,
+        "IndexOf@167": 0,
+        "MoveNext@295": 0,
+        "MoveNext@35": 0,
+        "Select@52": 1,
+        "Skip@344": 0,
+        "Skip@55": 0,
+        "SkipAndCount@548": 0,
+        "SkipAndCount@554": 0,
+        "SkipBefore@546": 0,
+        "SkipBeforeFirst@544": 0,
+        "Take@370": 0,
+        "Take@61": 0,
+        "ToArray@118": 0,
+        "ToArray@488": 0,
+        "ToList@131": 0,
+        "ToList@516": 0,
+        "TryGetElementAt@398": 0,
+        "TryGetElementAt@67": 0,
+        "TryGetFirst@422": 0,
+        "TryGetFirst@79": 0,
+        "TryGetLast@444": 0,
+        "TryGetLast@91": 0
+      }
+    },
     "css/bootstrap_dist": {
       "css/bootstrap_dist/bootstrap-grid.css": {
         "media@1734": 0,
@@ -21873,6 +23657,240 @@
       },
       "css/threejs_app_ui/examples_main.css": {
         "media@48": 0
+      }
+    },
+    "dart/dart_sdk_analyzer": {
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_context_builder.dart": {
+        "locateEmbedderYamlFor@16": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_analysis_status.dart": {
+        "AnalysisStatus._@11": 1,
+        "AnalysisStatusIdle._@22": 0,
+        "AnalysisStatusWorking._@38": 0,
+        "AnalysisStatusWorkingStatistics@90": 0,
+        "StatusSupport@153": 0,
+        "async@132": 0,
+        "currentStatus@157": 1,
+        "isIdle@13": 1,
+        "isWorking@15": 0,
+        "isWorking@24": 0,
+        "isWorking@40": 0,
+        "notify@139": 1,
+        "toString@27": 0,
+        "toString@43": 0,
+        "transitionToIdle@161": 1,
+        "transitionToWorking@174": 1,
+        "waitForIdle@191": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_element_replacement_visitor.dart": {
+        "LinkingTypeVisitor@27": 1,
+        "ReplacementVisitor@28": 0,
+        "_typeArguments@559": 0,
+        "changeVariance@30": 0,
+        "createFunctionType@32": 0,
+        "createFunctionTypeBuilder@56": 0,
+        "createInterfaceType@77": 0,
+        "createNamedTypeBuilder@97": 0,
+        "createNeverType@115": 0,
+        "createPromotedTypeParameterType@126": 0,
+        "createTypeParameterType@144": 0,
+        "visitDynamicType@159": 1,
+        "visitFunctionType@164": 1,
+        "visitFunctionTypeBuilder@272": 1,
+        "visitInterfaceType@359": 1,
+        "visitInvalidType@392": 1,
+        "visitNamedTypeBuilder@397": 1,
+        "visitNeverType@417": 1,
+        "visitNullability@424": 0,
+        "visitParameterKind@428": 0,
+        "visitRecordType@432": 1,
+        "visitRecordTypeBuilder@492": 1,
+        "visitType@210": 0,
+        "visitType@316": 0,
+        "visitTypeArgument@519": 0,
+        "visitTypeParameterBound@526": 0,
+        "visitTypeParameterType@530": 1,
+        "visitUnknownInferredType@549": 1,
+        "visitVoidType@554": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_dart_resolver_function_expression_resolver.dart": {
+        "FunctionExpressionResolver@21": 0,
+        "_inferFormalParameters@94": 0,
+        "_matchTypeParameters@164": 0,
+        "_resolve2@189": 0,
+        "_shouldUpdateReturnType@199": 0,
+        "_typeSystem@24": 0,
+        "inferType@102": 0,
+        "resolve@26": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_diagnostic_diagnostic_factory.dart": {
+        "DiagnosticFactory@32": 0,
+        "duplicateAssignmentPatternVariable@36": 1,
+        "duplicateDefinition@58": 1,
+        "duplicateDefinitionForNodes@84": 1,
+        "duplicateFieldDefinitionInLiteral@105": 1,
+        "duplicateFieldDefinitionInType@131": 1,
+        "duplicatePatternField@154": 1,
+        "duplicateRestElementInPattern@180": 1,
+        "equalElementsInConstSet@200": 1,
+        "equalKeysInConstMap@220": 1,
+        "equalKeysInMapPattern@240": 1,
+        "incompatibleLint@258": 1,
+        "incompatibleLintFiles@289": 1,
+        "incompatibleLintIncluded@321": 1,
+        "invalidOverride@356": 1,
+        "referencedBeforeDeclaration@406": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_error_null_safe_api_verifier.dart": {
+        "NullSafeApiVerifier@25": 0,
+        "_checkTypes@66": 0,
+        "instanceCreation@29": 1,
+        "methodInvocation@48": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_generated_sdk.dart": {
+        "DartSdkManager@80": 0,
+        "SdkDescription@145": 0,
+        "SdkLibraryImpl@271": 0,
+        "allowedExperimentsJson@32": 1,
+        "anySdk@84": 1,
+        "debugInfo@117": 1,
+        "documented@274": 0,
+        "fromFileUri@53": 1,
+        "getLibrary@129": 1,
+        "getSdk@98": 1,
+        "getSdkLibrary@57": 1,
+        "hashCode@147": 1,
+        "isDocumented@227": 0,
+        "isDocumented@278": 0,
+        "isImplementation@230": 0,
+        "isImplementation@281": 0,
+        "isInternal@234": 0,
+        "isInternal@284": 0,
+        "languageVersion@38": 1,
+        "librariesMap@191": 1,
+        "mapDartUri@61": 1,
+        "operator==@152": 1,
+        "path@238": 0,
+        "pathToUri@65": 1,
+        "sdkDescriptors@93": 1,
+        "sdkLibraries@110": 0,
+        "sdkLibraries@41": 0,
+        "sdkVersion@45": 1,
+        "setLibrary@132": 0,
+        "shortName@242": 0,
+        "size@137": 1,
+        "toString@160": 1,
+        "uris@114": 0,
+        "uris@49": 0,
+        "visitMapLiteralEntry@193": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_pubspec_validators_workspace_validator.dart": {
+        "_globBasePath@37": 0,
+        "_isGlobPattern@48": 0,
+        "_validateDirectoryPath@56": 0,
+        "workspaceValidator@13": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_summary2_super_constructor_resolver.dart": {
+        "SuperConstructorResolver@14": 0,
+        "_constructor@29": 0,
+        "handleInitializers@46": 0,
+        "perform@16": 1
+      },
+      "dart/dart_sdk_analyzer/pkg_analyzer_lib_src_utilities_dot_shorthands.dart": {
+        "_TypeParameterVisitor@145": 0,
+        "_findTypeParametersForFormalParameter@128": 0,
+        "_findTypeParametersForType@136": 0,
+        "hasDependentDotShorthand@19": 1,
+        "isDotShorthand@123": 0,
+        "visitTypeParameterType@147": 1
+      }
+    },
+    "dart/dart_sdk_language_tests": {
+      "dart/dart_sdk_language_tests/tests_language_abstract_beats_arguments_test.dart": {
+        "A@11": 0,
+        "main@14": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_class_modifiers_interface_interface_class_part_test.dart": {
+        "main@15": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_control_flow_collections_for_await_test.dart": {
+        "main@12": 1,
+        "testList@14": 0,
+        "testList@20": 0,
+        "testMap@15": 0,
+        "testMap@45": 0,
+        "testSet@16": 0,
+        "testSet@78": 0
+      },
+      "dart/dart_sdk_language_tests/tests_language_extension_methods_static_extension_import_test.dart": {
+        "main@10": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_identifier_built_in_identifier_test.dart": {
+        "check@77": 0,
+        "factory@42": 0,
+        "get@72": 0,
+        "get@87": 0,
+        "get@88": 0,
+        "main@107": 1,
+        "operator=@101": 1,
+        "operator@95": 0,
+        "set@103": 0,
+        "set@104": 0,
+        "set@68": 0,
+        "static@60": 0,
+        "static@74": 0,
+        "static@90": 0,
+        "testMain@12": 0
+      },
+      "dart/dart_sdk_language_tests/tests_language_invalid_returns_sync_invalid_return_00_test.dart": {
+        "main@17": 1,
+        "test@10": 0
+      },
+      "dart/dart_sdk_language_tests/tests_language_mixin_legacy_illegal_constructor_test.dart": {
+        "M0.named@9": 1,
+        "M0@8": 0,
+        "M1@13": 0,
+        "M2.named@17": 1,
+        "main@90": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_nonfunction_type_aliases_generic_usage_null_test.dart": {
+        "C.name1@30": 1,
+        "C.name2@31": 1,
+        "C@29": 0,
+        "foo@46": 0,
+        "foo@49": 0,
+        "g@34": 0,
+        "g@35": 0,
+        "m1@36": 1,
+        "m2@37": 1,
+        "main@53": 1,
+        "noSuchMethod@42": 1,
+        "operator+@33": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_patterns_exhaustiveness_null_type_test.dart": {
+        "Unknown_Block@11": 2,
+        "Unknown_Block@18": 2,
+        "Unknown_Block@24": 2,
+        "Unknown_Block@32": 1,
+        "Unknown_Block@45": 2,
+        "test@8": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_regress_regress18713_legacy_test.dart": {
+        "dyn@21": 0,
+        "getSType@16": 0,
+        "getTType@11": 0,
+        "main@25": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_setter_override_test.dart": {
+        "foo@17": 0,
+        "foo@18": 0,
+        "foo@19": 0,
+        "foo@24": 0,
+        "main@29": 1
+      },
+      "dart/dart_sdk_language_tests/tests_language_type_object_constant_type_literal_test.dart": {
+        "m@8": 0,
+        "main@16": 1
       }
     },
     "dart/flutter": {
@@ -26073,6 +28091,124 @@
         "terminate@297": 0
       }
     },
+    "fortran/fpm_fortran": {
+      "fortran/fpm_fortran/app_main.f90": {
+        "get_working_dir@119": 1,
+        "handle_error@110": 0,
+        "has_manifest@103": 0,
+        "main@1": 0
+      },
+      "fortran/fpm_fortran/example_packages_auto_with_nondefault_main_app_non_default_name.f90": {
+        "main@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_features_with_dependency_app_main.f90": {
+        "features_with_dependency_demo@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_hello_complex_tests_greet_greet_test.f90": {
+        "greet_test@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_hello_world_app_main.f90": {
+        "hello_world@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_many_targets_app_run2.f90": {
+        "run2@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_metapackage_netcdf_app_main.f90": {
+        "metapackage_netcdf@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_preprocess_per_dependency_app_main.f90": {
+        "hello_fpm@1": 1
+      },
+      "fortran/fpm_fortran/example_packages_submodule_tree_shake_src_parent_unused.f90": {
+        "unused_sub@6": 1
+      },
+      "fortran/fpm_fortran/example_packages_with_examples_demo_prog.f90": {
+        "demo@1": 1
+      },
+      "fortran/fpm_fortran/src_fpm_environment.f90": {
+        "OS_NAME@76": 0,
+        "build_threads@307": 0,
+        "c_setenv@459": 1,
+        "c_unsetenv@502": 1,
+        "delete_env@492": 0,
+        "f2cs@523": 0,
+        "get_command_arguments_quoted@315": 0,
+        "get_env@264": 0,
+        "get_os_type@131": 0,
+        "has_openmp@300": 0,
+        "library_filename@42": 0,
+        "match_os_type@95": 0,
+        "os_is_unix@251": 0,
+        "separator@350": 0,
+        "set_env@442": 0,
+        "validate_os_name@112": 0
+      },
+      "fortran/fpm_fortran/src_fpm_manifest_fortran.f90": {
+        "check@94": 0,
+        "default_fortran_config@36": 0,
+        "dump_to_toml@150": 0,
+        "fortran_is_same@125": 0,
+        "load_from_toml@171": 0,
+        "new_fortran_config@46": 0
+      }
+    },
+    "fortran/stdlib_fortran": {
+      "fortran/stdlib_fortran/example_ansi_example_ansi_color.f90": {
+        "example_ansi_color@1": 1
+      },
+      "fortran/stdlib_fortran/example_bitsets_example_bitsets_read_bitset.f90": {
+        "example_read_bitset@1": 1
+      },
+      "fortran/stdlib_fortran/example_hashmaps_example_hashmaps_fnv_1_hasher.f90": {
+        "example_fnv_1_hasher@1": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_blas_gemv.f90": {
+        "example_gemv@1": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_is_symmetric.f90": {
+        "example_is_symmetric@1": 1
+      },
+      "fortran/stdlib_fortran/example_linalg_example_state1.f90": {
+        "example_state1@1": 1
+      },
+      "fortran/stdlib_fortran/example_quadrature_example_simps_weights.f90": {
+        "example_simps_weights@1": 1
+      },
+      "fortran/stdlib_fortran/example_specialmatrices_example_specialmatrices_dp_spmv.f90": {
+        "example_tridiagonal_matrix@1": 1
+      },
+      "fortran/stdlib_fortran/example_string_type_example_constructor_logical.f90": {
+        "example_constructor_logical@1": 1
+      },
+      "fortran/stdlib_fortran/example_stringlist_type_example_stringlist_type_constructor.f90": {
+        "example_constructor@1": 1
+      },
+      "fortran/stdlib_fortran/example_system_example_make_directory.f90": {
+        "example_make_directory@2": 1
+      },
+      "fortran/stdlib_fortran/src_system_stdlib_load_library.f90": {
+        "c_loadlib_close@114": 0,
+        "c_loadlib_data@104": 0,
+        "c_loadlib_open@84": 0,
+        "c_loadlib_symbol@94": 0,
+        "candidate_names@412": 0,
+        "from_c_buffer@489": 0,
+        "has_separator@479": 0,
+        "is_separator@452": 0,
+        "last_separator@463": 0,
+        "lib_close@315": 0,
+        "lib_data@279": 0,
+        "lib_filename@355": 0,
+        "lib_has_symbol@297": 0,
+        "lib_is_loaded@345": 0,
+        "lib_open@197": 0,
+        "lib_symbol@261": 0,
+        "library_filename@159": 0,
+        "load_library@139": 0,
+        "lookup@374": 0,
+        "shared_library_suffix@178": 0
+      }
+    },
     "fortran/wrf": {
       "fortran/wrf/cleanCMake.sh": {
         "help@5": 0
@@ -26273,6 +28409,67 @@
         "calc_ts@327": 1,
         "calc_ts_locations@12": 1,
         "write_ts@640": 0
+      }
+    },
+    "fortran/wrf_physics": {
+      "fortran/wrf_physics/phys_module_bl_qnsepbl.F": {
+        "DIFCOF@973": 0,
+        "MIXLEN@665": 0,
+        "PRODQ2@886": 0,
+        "QNSEPBL@142": 1,
+        "QNSEPBLINIT@1326": 1,
+        "VDIFH@1147": 0,
+        "VDIFQ@1066": 0,
+        "VDIFV@1245": 0
+      },
+      "fortran/wrf_physics/phys_module_cam_mp_modal_aero_initialize_data_phys.F": {
+        "modal_aero_initialize_phys@13": 0
+      },
+      "fortran/wrf_physics/phys_module_cu_camzm_driver.F": {
+        "camzm_driver@46": 0,
+        "get_tpert@873": 0,
+        "zm_conv_init@764": 0,
+        "zm_conv_tend_2@1028": 0
+      },
+      "fortran/wrf_physics/phys_module_diag_pld.F": {
+        "diag_pld_stub@4": 1,
+        "pld@14": 1
+      },
+      "fortran/wrf_physics/phys_module_firebrand_spotting_mpi.F": {
+        "fs_mpi_checkreceive@517": 0,
+        "fs_mpi_init@375": 0,
+        "fs_mpi_nothing2send@490": 0,
+        "fs_mpi_recv@546": 0,
+        "fs_mpi_recvbuff1_int@238": 0,
+        "fs_mpi_recvbuff1_real@207": 0,
+        "fs_mpi_recvbuffsize@177": 0,
+        "fs_mpi_recvfrompatch_int@154": 0,
+        "fs_mpi_recvfrompatch_real@130": 0,
+        "fs_mpi_send2neighbors@270": 0,
+        "fs_mpi_sendbuff1_int@730": 0,
+        "fs_mpi_sendbuff1_real@705": 0,
+        "fs_mpi_sendbuff_int@651": 0,
+        "fs_mpi_sendbuff_real@625": 0,
+        "fs_mpi_sendbuffsize@676": 0,
+        "get_local_ijk@758": 0
+      },
+      "fortran/wrf_physics/phys_module_ltng_cpmpr92z.F": {
+        "ltng_cpmpr92z@18": 1
+      },
+      "fortran/wrf_physics/phys_module_ra_clWRF_support.F": {
+        "interpolate_CAMgases@362": 0,
+        "interpolate_lin@420": 1,
+        "orig_val@447": 0,
+        "read_CAMgases@100": 0,
+        "valid_years@291": 0
+      },
+      "fortran/wrf_physics/phys_module_sf_myjsfc.F": {
+        "MYJSFC@66": 1,
+        "MYJSFCINIT@1059": 1,
+        "SFCDIF@361": 0
+      },
+      "fortran/wrf_physics/phys_module_sf_sfcdiags.F": {
+        "SFCDIAGS@7": 1
       }
     },
     "fsharp/giraffe_web": {
@@ -29035,6 +31232,84 @@
         "optional@42": 0
       }
     },
+    "haskell/aeson_core": {
+      "haskell/aeson_core/benchmarks_bench_Auto_G_BigRecord.hs": {
+        "rnf@19": 1
+      },
+      "haskell/aeson_core/benchmarks_bench_Compare_BufferBuilder.hs": {
+        "toJson@19": 0,
+        "toJson@22": 0,
+        "toJson@27": 0,
+        "toJson@31": 0,
+        "toJson@36": 0,
+        "toJson@53": 0
+      },
+      "haskell/aeson_core/benchmarks_bench_ReadFile.hs": {
+        "loop@26": 1
+      },
+      "haskell/aeson_core/examples_src_Generic.hs": {
+        "main@29": 1
+      },
+      "haskell/aeson_core/src_Data_Aeson_Decoding.hs": {
+        "decode@70": 1,
+        "decodeStrict@40": 1,
+        "decodeStrictText@104": 1,
+        "eitherDecode@78": 1,
+        "eitherDecodeStrict@48": 1,
+        "eitherDecodeStrictText@114": 1,
+        "throwDecode@88": 1,
+        "throwDecodeStrict@56": 1,
+        "throwDecodeStrictText@124": 1
+      },
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString-2.hs": {
+        "liftSBS@60": 1,
+        "mkBS@39": 0,
+        "unsafePackLenLiteral@76": 0,
+        "withBS@47": 0
+      },
+      "haskell/aeson_core/src_Data_Aeson_Internal_ByteString.hs": {
+        "liftSBS@60": 1,
+        "mkBS@39": 0,
+        "unsafePackLenLiteral@76": 0,
+        "withBS@47": 0
+      },
+      "haskell/aeson_core/src_Data_Aeson_Parser_Time.hs": {
+        "run@21": 0
+      },
+      "haskell/aeson_core/tests_PropUtils.hs": {
+        "checkValue@200": 0,
+        "encodeDouble@50": 1,
+        "encodeInteger@57": 1,
+        "is2ElemArray@207": 1,
+        "isEmptyArray'@244": 0,
+        "isEmptyArray@241": 0,
+        "isNullaryTaggedObject@218": 1,
+        "isObjectWithSingleField@228": 0,
+        "isString@203": 0,
+        "isTaggedObject'@224": 0,
+        "isTaggedObject@221": 0,
+        "isUntaggedValueETI@233": 1,
+        "modifyFailureProp@131": 1,
+        "parserCatchErrorProp@148": 1,
+        "parserThrowErrorProp@139": 1,
+        "roundTripDecEnc@85": 0,
+        "roundTripEnc@78": 0,
+        "roundTripEq@110": 0,
+        "roundTripKey@121": 1,
+        "roundTripNoEnc@92": 0,
+        "roundTripOmit@99": 0,
+        "roundtripReadShow@117": 1,
+        "sameAs1@172": 1,
+        "sameAs1Agree@183": 1,
+        "sameAs@165": 1,
+        "toFromJSON@126": 1,
+        "toParseJSON1@67": 1,
+        "toParseJSON@60": 0
+      },
+      "haskell/aeson_core/tests_Regression_Issue1198.hs": {
+        "viaReadP@16": 0
+      }
+    },
     "haskell/pandoc": {
       "haskell/pandoc/App.hs": {
         "adjustMetadata@417": 0,
@@ -29070,7 +31345,7 @@
         "getExtensions@438": 0,
         "getExtensions@63": 0,
         "getExtensions@80": 0,
-        "isEnabled@441": 1,
+        "isEnabled@441": 0,
         "parseJSON@118": 0,
         "parseJSON@163": 0,
         "parseJSON@183": 0,
@@ -29190,6 +31465,469 @@
         "unEmojify@472": 0,
         "unTableBody@818": 0,
         "uniqueIdent@599": 1
+      }
+    },
+    "haskell/pandoc_writers": {
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_AnnotatedTable.hs": {
+        "annotateBodySection@189": 0,
+        "annotateHeaderSection'@181": 0,
+        "annotateHeaderSection@175": 0,
+        "annotateRowSection@208": 0,
+        "annotateTable@148": 0,
+        "annotateTableBody@163": 0,
+        "annotateTableFoot@171": 0,
+        "annotateTableHead@159": 0,
+        "fromBodyRow@299": 0,
+        "fromCell@303": 0,
+        "fromHeaderRow@296": 0,
+        "fromTable@271": 1,
+        "fromTableBody@289": 0,
+        "fromTableFoot@293": 0,
+        "fromTableHead@286": 0,
+        "getColSpan@246": 0,
+        "getDim@247": 0,
+        "go@263": 0,
+        "normalizeBodySection'@196": 0,
+        "query@312": 0,
+        "query@317": 0,
+        "query@322": 0,
+        "setW@248": 0,
+        "splitCellHang@256": 0,
+        "toTable@125": 1,
+        "walkM@310": 0,
+        "walkM@315": 0,
+        "walkM@320": 0
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_ChunkedHTML.hs": {
+        "addContextVars@156": 0,
+        "addMedia@112": 0,
+        "buildTOC@123": 0,
+        "chunkToEntry@126": 0,
+        "formatHeading@171": 0,
+        "navlinks@168": 0,
+        "secInfoToContext@146": 0,
+        "toMediaEntry@54": 0,
+        "tocTreeToContext@139": 0,
+        "writeChunkedHTML@49": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DocBook.hs": {
+        "alignmentToString@347": 0,
+        "authorToDocBook@66": 0,
+        "blockToDocBook@174": 0,
+        "blocksToDocBook@126": 0,
+        "deflistItemToDocBook@143": 0,
+        "deflistItemsToDocBook@136": 0,
+        "enrichRole@480": 0,
+        "fixNS'@419": 0,
+        "getStartLvl@50": 0,
+        "go@169": 0,
+        "handleDivBody@228": 0,
+        "idAndRole@472": 0,
+        "idName@61": 0,
+        "imageToDocBook@164": 0,
+        "inlineToDocBook@373": 0,
+        "inlinesToDocBook@369": 0,
+        "isLang@259": 0,
+        "isMathML@468": 0,
+        "isSectionAttr@487": 0,
+        "langsFrom@260": 0,
+        "listItemToDocBook@159": 0,
+        "listItemsToDocBook@154": 0,
+        "percent@304": 0,
+        "plainToPara@130": 0,
+        "removeAttr@418": 0,
+        "tableItemToDocBook@361": 0,
+        "tableRowToDocBook@354": 0,
+        "writeDocBook4@90": 1,
+        "writeDocBook5@94": 1,
+        "writeDocBook@99": 0
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_DokuWiki.hs": {
+        "backSlashLineBreaks@311": 0,
+        "blockListToDokuWiki@340": 0,
+        "blockToDokuWiki@98": 0,
+        "checkPct@475": 0,
+        "consolidateRawBlocks@351": 0,
+        "definitionListItemToDokuWiki@260": 0,
+        "escape@315": 0,
+        "escapeString@92": 0,
+        "go@477": 0,
+        "imageDims@471": 0,
+        "inlineListToDokuWiki@358": 0,
+        "inlineToDokuWiki@364": 0,
+        "isPlainOrPara@300": 0,
+        "isSimpleList@292": 0,
+        "isSimpleListItem@283": 0,
+        "listItemToDokuWiki@220": 0,
+        "mkcell@328": 0,
+        "orderedListItemToDokuWiki@242": 0,
+        "padTo@171": 0,
+        "pandocToDokuWiki@76": 0,
+        "renderRow@181": 0,
+        "runDokuWiki@72": 0,
+        "tableItemToDokuWiki@322": 0,
+        "vcat@306": 0,
+        "writeDokuWiki@68": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Ipynb.hs": {
+        "addAttachment@93": 0,
+        "blockToOutput@212": 0,
+        "blockWriter@64": 0,
+        "consolidateAdjacentRawBlocks@273": 0,
+        "extractCells@105": 0,
+        "extractData@236": 0,
+        "go@241": 0,
+        "inlineWriter@65": 0,
+        "isCodeOrDiv@189": 0,
+        "isValidUUID@208": 0,
+        "isValidUUIDChar@210": 0,
+        "pairsToJSONMeta@264": 0,
+        "pandocToNotebook@59": 0,
+        "uuidFrom@199": 0,
+        "writeIpynb@45": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Jira.hs": {
+        "addAnchor@140": 0,
+        "blockListToJira@81": 0,
+        "convertDefItem@153": 0,
+        "dropTilde@285": 0,
+        "escapeSpecialChars@246": 0,
+        "imageToJira@251": 0,
+        "imageWithParams@255": 0,
+        "inlineListToJira@84": 0,
+        "mathInlines@294": 0,
+        "mathToJira@289": 0,
+        "pandocToJira@65": 0,
+        "quotedToJira@299": 0,
+        "rawBlockToJira@184": 0,
+        "registerNotes@321": 0,
+        "runDefaultConverter@57": 0,
+        "singleton@236": 0,
+        "spanToJira@310": 0,
+        "styled@239": 0,
+        "toJiraBlocks@87": 0,
+        "toJiraCode@129": 0,
+        "toJiraDefinitionList@149": 0,
+        "toJiraHeader@175": 0,
+        "toJiraInlines@205": 0,
+        "toJiraItems@126": 0,
+        "toJiraLink@266": 0,
+        "toJiraPanel@160": 0,
+        "toJiraRaw@194": 0,
+        "toLinkType@278": 0,
+        "toRow@119": 0,
+        "writeJira@37": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_LaTeX_Table.hs": {
+        "alignCommand@173": 0,
+        "bodyRowCells@268": 0,
+        "bodyRows@273": 0,
+        "captionToLaTeX@193": 0,
+        "cellToLaTeX@309": 0,
+        "colAlign@180": 0,
+        "colCount@219": 0,
+        "colDescriptors@142": 0,
+        "displayMathToInline@305": 0,
+        "fillRow@240": 0,
+        "fixLineBreaks'@293": 0,
+        "fixLineBreaks@290": 0,
+        "footRows@284": 0,
+        "go@243": 0,
+        "hasLineBreak@334": 0,
+        "headRows@279": 0,
+        "headToLaTeX@212": 0,
+        "headerRowCells@264": 0,
+        "inMinipage@423": 0,
+        "inMultiColumn@358": 0,
+        "inMultiRow@376": 0,
+        "isEmptyFoot@259": 0,
+        "isEmptyHead@255": 0,
+        "isLineBreak@135": 0,
+        "isSimpleCell@126": 0,
+        "makeUnnumbered@101": 0,
+        "mkEmptyCell@249": 0,
+        "multicolumnDescriptor@388": 0,
+        "removeNote@63": 0,
+        "rowToLaTeX@227": 0,
+        "tableToLaTeX@43": 1,
+        "toColDescriptor@162": 0,
+        "toRelWidth@170": 0,
+        "tohbox@300": 0
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Markdown_Table.hs": {
+        "alignHeader@95": 0,
+        "blockFor@46": 0,
+        "pandocTable@84": 1,
+        "pipeTable@29": 1,
+        "relWidth@110": 0,
+        "toborder@67": 0,
+        "torow@63": 0
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Muse.hs": {
+        "blockListToMuse@182": 0,
+        "blockToMuse@191": 0,
+        "blockToMuseWithNotes@321": 0,
+        "blocksToDoc@279": 0,
+        "bulletListItemToMuse@232": 0,
+        "catWithBlankLines@129": 0,
+        "conditionalEscapeText@396": 0,
+        "containsNotes@362": 0,
+        "definitionListItemToMuse@242": 0,
+        "descriptionToMuse@249": 0,
+        "emphasis@569": 0,
+        "endsWithSpace@468": 0,
+        "escapeLink@680": 0,
+        "escapeText@344": 0,
+        "evalMuse@84": 0,
+        "fixNotes@456": 0,
+        "fixOrEscape@489": 0,
+        "fixOrEscapeStr@492": 0,
+        "flatBlockListToMuse@141": 0,
+        "hdrToMuse@327": 0,
+        "hpipeBlocks@168": 0,
+        "inlineListStartsWithAlnum@510": 0,
+        "inlineListToMuse'@561": 0,
+        "inlineListToMuse@549": 0,
+        "inlineToMuse@578": 0,
+        "isHorizontalRule@480": 0,
+        "makeRow@170": 0,
+        "normalizeInlineList@429": 0,
+        "normalizeStyle@150": 0,
+        "noteToMuse@306": 0,
+        "notesToMuse@297": 0,
+        "offset'@247": 0,
+        "orderedListItemToMuse@223": 0,
+        "p@364": 0,
+        "pandocToMuse@106": 0,
+        "preprocessInlineList@406": 0,
+        "q@368": 0,
+        "r@372": 0,
+        "removeKeyValues@422": 0,
+        "renderInlineList@519": 0,
+        "replaceNewlines@351": 0,
+        "replaceSmallCaps@418": 0,
+        "s@374": 0,
+        "shouldEscapeText@380": 0,
+        "simpleTable@156": 0,
+        "startsWithMarker@355": 0,
+        "startsWithSpace@462": 0,
+        "stringEndsWithSpace@486": 0,
+        "stringStartsWithSpace@483": 0,
+        "urlEscapeBrackets@475": 0,
+        "writeMuse@88": 1
+      },
+      "haskell/pandoc_writers/src_Text_Pandoc_Writers_Org.hs": {
+        "attrHtml@442": 0,
+        "blockListToOrg@457": 0,
+        "blockToOrg@131": 0,
+        "border@251": 0,
+        "bulletListItemToOrg@292": 0,
+        "definitionListItemToOrg@341": 0,
+        "divBlockType@378": 0,
+        "divToOrg@405": 0,
+        "escChar@122": 0,
+        "escapeString@116": 0,
+        "escape_line@217": 0,
+        "expand@106": 0,
+        "fixMarkers@469": 0,
+        "hpipeBlocks@242": 0,
+        "inlineListToOrg@463": 0,
+        "inlineToOrg@484": 0,
+        "isAdmonition@396": 0,
+        "isFilePath@601": 0,
+        "isGreaterBlockClass@390": 0,
+        "isRawFormat@126": 0,
+        "isUrl@604": 0,
+        "kvToOrgProperty@363": 0,
+        "noteToOrg@97": 0,
+        "notesToOrg@92": 0,
+        "orderedListItemToOrg@308": 0,
+        "orgPath@593": 0,
+        "pandocLangToOrg@612": 0,
+        "pandocToOrg@58": 0,
+        "prettifyStanza@159": 0,
+        "propertiesDrawer@352": 0,
+        "renderCiteItem@526": 0,
+        "replaceSpecialStrings@104": 0,
+        "shouldFix@476": 0,
+        "splitStanza@153": 0,
+        "tagName@173": 0,
+        "taskListItemToOrg@333": 0,
+        "toOrg@336": 0,
+        "writeOrg@50": 1
+      }
+    },
+    "haskell/xmonad_core": {
+      "haskell/xmonad_core/Main.hs": {
+        "main@19": 1
+      },
+      "haskell/xmonad_core/src_XMonad_Core.hs": {
+        "Unknown_Block@794": 1,
+        "allFiles@689": 0,
+        "andCopyFromResultDir@750": 0,
+        "catchAny@757": 0,
+        "catchIO@432": 1,
+        "catchX@195": 0,
+        "checkCompileWarnings@801": 0,
+        "cmd1@795": 1,
+        "compile@710": 0,
+        "compileFailed@816": 0,
+        "copyBinary@721": 0,
+        "copyBinaryFrom@769": 0,
+        "copyFromResultDir@760": 0,
+        "description@345": 0,
+        "description@353": 0,
+        "detectCompile@603": 0,
+        "doLayout@309": 0,
+        "doLayout@350": 0,
+        "emptyLayout@320": 0,
+        "emptyLayout@351": 0,
+        "extensionType@406": 1,
+        "findM@754": 0,
+        "fromMessage@374": 1,
+        "getAtom@237": 0,
+        "getDirectories@527": 1,
+        "getModTime@706": 0,
+        "handleMessage@333": 0,
+        "handleMessage@352": 0,
+        "ifM@423": 0,
+        "io@427": 0,
+        "isCabalFile@665": 0,
+        "isExecutable@674": 0,
+        "isRoot@233": 1,
+        "libTs@681": 0,
+        "listCabalFiles@662": 0,
+        "listFiles@670": 0,
+        "maybe@537": 0,
+        "mkProc@788": 0,
+        "pureLayout@316": 0,
+        "pureMessage@339": 0,
+        "readProc@778": 0,
+        "readsLayout@256": 1,
+        "recompile@848": 0,
+        "runLayout@290": 0,
+        "runLayout@349": 0,
+        "runOnWorkspaces@475": 1,
+        "runProc@773": 0,
+        "runQuery@182": 1,
+        "runX@190": 0,
+        "shouldCompile@679": 0,
+        "spawn@439": 1,
+        "spawnPID@443": 0,
+        "trace@874": 0,
+        "trim@895": 0,
+        "userCode@207": 0,
+        "userCodeDef@212": 1,
+        "whenJust@865": 0,
+        "whenX@869": 1,
+        "withDisplay@219": 0,
+        "withWindowAttributes@227": 1,
+        "withWindowSet@223": 1,
+        "xdgDirs@552": 0,
+        "xfork@447": 0,
+        "xmDirs@541": 0,
+        "xmEnvDirs@531": 0,
+        "xmessage@463": 0
+      },
+      "haskell/xmonad_core/src_XMonad_Main.hs": {
+        "buildLaunch@118": 0,
+        "forever@254": 0,
+        "grab@452": 0,
+        "grab@459": 0,
+        "handle@284": 0,
+        "handleWithHook@269": 0,
+        "launch'@67": 0,
+        "launch@154": 0,
+        "mpred@320": 0,
+        "ok@434": 0,
+        "prehandle@259": 0,
+        "scan@428": 0,
+        "skip@443": 0,
+        "traverse_@453": 0,
+        "usage@89": 0,
+        "xmonad@62": 0
+      },
+      "haskell/xmonad_core/src_XMonad_Operations.hs": {
+        "adjust@116": 0,
+        "applyAspectHint@884": 0,
+        "applyMaxSizeHint@897": 0,
+        "applyResizeIncHint@892": 0,
+        "applySizeHints'@875": 0,
+        "applySizeHints@863": 0,
+        "applySizeHintsContents@870": 0,
+        "broadcastMessage@516": 0,
+        "cleanMask@629": 1,
+        "clearEvents@319": 0,
+        "containedIn@341": 0,
+        "event_time@437": 0,
+        "f@118": 0,
+        "fallback@274": 0,
+        "fi@755": 0,
+        "float@773": 0,
+        "floatLocation@719": 0,
+        "focus@397": 1,
+        "getCleanedScreenInfo@356": 0,
+        "hide@278": 0,
+        "initColor@639": 1,
+        "io@710": 0,
+        "isClient@618": 0,
+        "isFixedSizeOrTransient@93": 0,
+        "keysymToKeycodes@470": 0,
+        "killWindow@138": 0,
+        "manage@107": 1,
+        "maybeRead@697": 0,
+        "maybeShow@656": 1,
+        "mkAdjust@851": 1,
+        "mkGrabs@458": 1,
+        "modifyWindowSet@233": 0,
+        "motion@808": 0,
+        "mouseDrag@787": 1,
+        "mouseDragCursor@792": 0,
+        "mouseMoveWindow@813": 1,
+        "mouseResizeWindow@829": 1,
+        "nubScreens@351": 0,
+        "pointScreen@759": 0,
+        "pointWithin@766": 0,
+        "pure@472": 0,
+        "readStateFile@669": 1,
+        "readStrict@701": 0,
+        "replace@567": 0,
+        "restart@707": 1,
+        "reveal@292": 0,
+        "scale@257": 0,
+        "scaleRationalRect@254": 0,
+        "screenWorkspace@603": 1,
+        "sendMessage@505": 1,
+        "sendMessageWithNoRefresh@529": 0,
+        "sendReplace@559": 1,
+        "sendRestart@547": 1,
+        "setButtonGrab@376": 0,
+        "setFocusX@411": 0,
+        "setInitialProperties@299": 0,
+        "setLayout@540": 1,
+        "setPixelSolid@635": 0,
+        "setWMState@260": 0,
+        "setWindowBorderWithFallback@267": 0,
+        "tileWindow@328": 0,
+        "tmap@867": 0,
+        "unmanage@129": 1,
+        "updateLayout@535": 0,
+        "windowBracket@238": 0,
+        "windowBracket_@250": 0,
+        "windows@158": 0,
+        "withFocused@607": 0,
+        "withUnfocused@611": 1
+      },
+      "haskell/xmonad_core/tests_Instances.hs": {
+        "arbitraryTag@115": 1,
+        "arbitraryWindow@135": 1
+      },
+      "haskell/xmonad_core/tests_Properties_GreedyView.hs": {
+        "workspaces@31": 0
+      },
+      "haskell/xmonad_core/tests_Properties_Stack.hs": {
+        "format@76": 0,
+        "traverse@71": 0
       }
     },
     "hcl/terraform_aws_vpc": {
@@ -29961,6 +32699,14 @@
         "output@86": 0,
         "output@91": 0,
         "output@96": 0
+      }
+    },
+    "hlasm/carddemo_hlasm": {
+      "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": {
+        "COBDATFT@17": 1
+      },
+      "hlasm/carddemo_hlasm/app_asm_MVSWAIT.asm": {
+        "MVSWAIT@17": 1
       }
     },
     "hlasm/che4z_hlasm": {
@@ -33093,6 +35839,288 @@
         "initialize@33": 1
       }
     },
+    "kotlin/retrofit_kotlin": {
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_DeserializationStrategyConverter.kt": {
+        "convert@11": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Factory.kt": {
+        "asConverterFactory@49": 0,
+        "asConverterFactory@61": 0,
+        "requestBodyConverter@30": 1,
+        "responseBodyConverter@20": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_SerializationStrategyConverter.kt": {
+        "convert@13": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": {
+        "fromResponseBody@17": 0,
+        "fromResponseBody@25": 0,
+        "fromResponseBody@37": 0,
+        "serializer@22": 0,
+        "toRequestBody@18": 0,
+        "toRequestBody@30": 0,
+        "toRequestBody@42": 0
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": {
+        "deserialize@32": 0,
+        "deserialize@48": 0,
+        "serialize@33": 0,
+        "serialize@54": 0,
+        "setUp@39": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": {
+        "deserialize@25": 0,
+        "deserialize@41": 0,
+        "serialize@26": 0,
+        "serialize@47": 0,
+        "setUp@32": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": {
+        "deserialize@33": 0,
+        "deserialize@45": 0,
+        "deserialize@73": 0,
+        "serialize@36": 0,
+        "serialize@50": 0,
+        "serialize@80": 0,
+        "setUp@63": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": {
+        "deserialize@33": 0,
+        "deserialize@45": 0,
+        "deserialize@73": 0,
+        "serialize@36": 0,
+        "serialize@50": 0,
+        "serialize@80": 0,
+        "setUp@63": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": {
+        "create@18": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": {
+        "before@44": 1,
+        "body@31": 0,
+        "body@52": 0,
+        "body@70": 0,
+        "bodyFailure@84": 1,
+        "failure@104": 0,
+        "failure@33": 0,
+        "failure@56": 0,
+        "response@126": 0,
+        "response@35": 0,
+        "response@61": 0,
+        "responseFailure@140": 1,
+        "responseWildcard@160": 0,
+        "responseWildcard@37": 0,
+        "responseWildcard@66": 0
+      },
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": {
+        "getSupportedAnnotationTypes@30": 1,
+        "getSupportedSourceVersion@29": 1,
+        "process@41": 1,
+        "recursiveParameterizedTypesTo@86": 0
+      },
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": {
+        "allHttpMethods@26": 1,
+        "kotlinSuspend@125": 1,
+        "nesting@84": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": {
+        "reifiedCreate@28": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": {
+        "adapt@289": 1,
+        "body404@86": 1,
+        "body@47": 0,
+        "body@73": 0,
+        "bodyFailure@103": 1,
+        "bodyNullable@140": 0,
+        "bodyNullable@50": 0,
+        "bodyThrowsOnNull@119": 1,
+        "bodyWithCallType@69": 0,
+        "cancelationWorks@233": 1,
+        "checkedExceptionsAreNotSynchronouslyThrownForBody@321": 1,
+        "checkedExceptionsAreNotSynchronouslyThrownForResponse@347": 1,
+        "dispatch@395": 1,
+        "doesNotUseCallbackExecutor@260": 1,
+        "enqueue@291": 0,
+        "get@276": 0,
+        "headUnit@212": 0,
+        "headUnit@59": 0,
+        "isDispatchNeeded@394": 1,
+        "onResponse@293": 1,
+        "params@219": 0,
+        "params@62": 0,
+        "rejectCallReturnTypeWhenUsingSuspend@373": 1,
+        "response404@169": 1,
+        "response@155": 0,
+        "response@53": 0,
+        "responseFailure@182": 1,
+        "responseType@288": 1,
+        "unit@198": 0,
+        "unit@56": 0,
+        "unitNullableBody@205": 1,
+        "usesCallAdapterForCall@274": 1
+      },
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": {
+        "await@31": 0,
+        "await@65": 0,
+        "await@87": 0,
+        "awaitResponse@92": 1,
+        "create@29": 1,
+        "onFailure@101": 2,
+        "onFailure@57": 2,
+        "onFailure@79": 0,
+        "onResponse@36": 0,
+        "onResponse@71": 0,
+        "onResponse@97": 0,
+        "suspendAndThrow@118": 1
+      },
+      "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": {
+        "intercept@72": 1,
+        "main@30": 1,
+        "one@55": 0,
+        "two@58": 0
+      }
+    },
+    "kotlin/spring_boot_kotlin": {
+      "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": {
+        "main@20": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": {
+        "main@25": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": {
+        "fun@30": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": {
+        "fromApplication@57": 1,
+        "runApplication@33": 0,
+        "runApplication@45": 0,
+        "with@77": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": {
+        "anotherExampleBean@105": 1,
+        "exampleBean@95": 1,
+        "fun@35": 0,
+        "fun@41": 0,
+        "fun@51": 0,
+        "fun@59": 0,
+        "fun@71": 0,
+        "fun@77": 0,
+        "fun@85": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": {
+        "constructor@63": 0,
+        "constructor@65": 0,
+        "fun@36": 0,
+        "fun@45": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": {
+        "cleanUp@41": 1,
+        "fun@46": 0,
+        "fun@56": 0,
+        "fun@64": 0,
+        "fun@72": 0,
+        "fun@82": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": {
+        "fun@32": 1
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": {
+        "constructor@239": 2,
+        "constructor@244": 0,
+        "constructor@246": 2,
+        "fun@103": 0,
+        "fun@112": 0,
+        "fun@127": 0,
+        "fun@140": 0,
+        "fun@153": 0,
+        "fun@161": 0,
+        "fun@172": 0,
+        "fun@185": 0,
+        "fun@197": 0,
+        "fun@205": 0,
+        "fun@213": 0,
+        "fun@33": 0,
+        "fun@50": 0,
+        "fun@67": 0,
+        "fun@84": 0,
+        "fun@94": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": {
+        "constructor@152": 2,
+        "constructor@158": 0,
+        "constructor@165": 0,
+        "constructor@170": 0,
+        "constructor@179": 2,
+        "constructor@186": 2,
+        "constructor@192": 2,
+        "constructor@199": 0,
+        "constructor@206": 2,
+        "constructor@212": 0,
+        "constructor@214": 2,
+        "constructor@220": 0,
+        "constructor@222": 2,
+        "constructor@229": 0,
+        "constructor@232": 2,
+        "constructor@240": 2,
+        "fun@104": 0,
+        "fun@111": 0,
+        "fun@118": 0,
+        "fun@125": 0,
+        "fun@133": 0,
+        "fun@141": 0,
+        "fun@34": 0,
+        "fun@40": 0,
+        "fun@46": 0,
+        "fun@53": 0,
+        "fun@60": 0,
+        "fun@67": 0,
+        "fun@74": 0,
+        "fun@81": 0,
+        "fun@88": 0,
+        "fun@96": 0
+      },
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": {
+        "main@25": 1
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": {
+        "find@27": 1,
+        "getId@49": 1,
+        "persistAndGetId@38": 1
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": {
+        "bindEntityManager@87": 0,
+        "fun@58": 0,
+        "fun@67": 0,
+        "fun@78": 0,
+        "setup@53": 1
+      },
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": {
+        "customJsonBean@78": 1,
+        "customKotlinSerializationJson@313": 1,
+        "deserializeAlternativeNames@246": 1,
+        "deserializeCoerceInputValues@174": 1,
+        "deserializeComments@270": 1,
+        "deserializeEnumsCaseInsensitive@235": 1,
+        "deserializeFromString@69": 1,
+        "deserializeIgnoreUnknownKeys@141": 1,
+        "deserializeLenient@129": 1,
+        "deserializeTrailingComma@258": 1,
+        "serializeClassDiscriminator@211": 1,
+        "serializeClassDiscriminatorNone@223": 1,
+        "serializeDefaults@152": 1,
+        "serializeExplicitNullsFalse@163": 1,
+        "serializeKebabCase@101": 1,
+        "serializePrettyPrint@112": 1,
+        "serializeSnakeCase@90": 1,
+        "serializeSpecialFloatingPointValues@200": 1,
+        "serializeStructuredMapKeys@185": 1,
+        "serializeToString@60": 1,
+        "shouldNotSupplyJsonBean@51": 1,
+        "shouldSupplyJsonBean@44": 1
+      }
+    },
     "livecode/livecode": {
       "livecode/livecode/_clipboard_private_setter.livecodescript": {
         "startup@19": 1
@@ -35055,9 +38083,141 @@
         "AC_PROG_F77@658": 1
       }
     },
+    "m4/gnupg_m4": {
+      "m4/gnupg_m4/gpg-error.m4": {
+        "AM_PATH_GPG_ERROR@154": 1,
+        "_AM_PATH_GPGRT_CONFIG@62": 0,
+        "_AM_PATH_POSSIBLE_GPG_ERROR_CONFIG@19": 0
+      },
+      "m4/gnupg_m4/ksba.m4": {
+        "AM_PATH_KSBA@109": 1,
+        "_AM_PATH_GPGRT_CONFIG@19": 0
+      },
+      "m4/gnupg_m4/ldap.m4": {
+        "GNUPG_CHECK_LDAP@13": 1
+      },
+      "m4/gnupg_m4/libassuan.m4": {
+        "AM_CHECK_LIBASSUAN@232": 1,
+        "AM_PATH_LIBASSUAN@248": 1,
+        "_AM_PATH_GPGRT_CONFIG@19": 0,
+        "_AM_PATH_LIBASSUAN_COMMON@103": 0
+      },
+      "m4/gnupg_m4/libgcrypt.m4": {
+        "AM_PATH_LIBGCRYPT@116": 1,
+        "_AM_PATH_GPGRT_CONFIG@21": 0
+      },
+      "m4/gnupg_m4/npth.m4": {
+        "AM_PATH_NPTH@52": 1,
+        "_AM_PATH_NPTH_CONFIG@14": 0
+      },
+      "m4/gnupg_m4/ntbtls.m4": {
+        "AM_PATH_NTBTLS@26": 1
+      },
+      "m4/gnupg_m4/readline.m4": {
+        "GNUPG_CHECK_READLINE@14": 1
+      },
+      "m4/gnupg_m4/socklen.m4": {
+        "gl_CHECK_SOCKET_HEADERS@67": 0,
+        "gl_SOCKET_HEADERS@51": 0,
+        "gl_TYPE_SOCKLEN_T@15": 1
+      }
+    },
+    "m4/libffi_racket": {
+      "m4/libffi_racket/acinclude.m4": {
+        "AC_FUNC_MMAP_BLACKLIST@3": 1,
+        "LIBFFI_CHECK_LINKER_FEATURES@149": 0,
+        "LIBFFI_ENABLE@105": 0,
+        "LIBFFI_ENABLE_SYMVERS@251": 1,
+        "_g_help@107": 0,
+        "_g_switch@106": 0
+      },
+      "m4/libffi_racket/configure.ac": {
+        "_AC_ARG_VAR_PRECIOUS@29": 0
+      }
+    },
+    "m4/nasm_autoconf_macros": {
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_add_flags.m4": {
+        "PA_ADD_FLAGS@8": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_arg_bool.m4": {
+        "PA_ARG_BOOL@10": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_attribute_syntax.m4": {
+        "PA_ATTRIBUTE_SYNTAX@9": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_c_typeof.m4": {
+        "PA_C_TYPEOF@7": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_cross_compile.m4": {
+        "PA_CROSS_COMPILE@15": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_csym.m4": {
+        "PA_CSYM@9": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_endian.m4": {
+        "PA_ENDIAN@6": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_flags.m4": {
+        "PA_FIND_FLAGS@8": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_find_func.m4": {
+        "PA_FIND_FUNC@14": 1,
+        "_PA_FIND_FUNC@7": 0
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_func_attribute.m4": {
+        "PA_FUNC_ATTRIBUTE@91": 1,
+        "_PA_FUNC_ATTRIBUTE@15": 1,
+        "_PA_FUNC_PTR_ATTRIBUTE@48": 1,
+        "_pa_fam@17": 2,
+        "_pa_fam@50": 2,
+        "_pa_mac@19": 0,
+        "_pa_mac@52": 0,
+        "_pa_suf@18": 2,
+        "_pa_suf@51": 2
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_have_func.m4": {
+        "PA_HAVE_FUNC@15": 1,
+        "_PA_HAVE_FUNC_INCLUDE@9": 0
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_flagvar.m4": {
+        "PA_LANG_FLAGVAR@7": 1,
+        "PA_LANG_HAVE_FLAGVAR_LIST@19": 1
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_lang_foreach.m4": {
+        "PA_LANG_FOREACH@16": 1,
+        "_PA_LANG_FOREACH@7": 0
+      },
+      "m4/nasm_autoconf_macros/autoconf_m4_pa_libext.m4": {
+        "PA_LIBEXT@6": 1
+      },
+      "m4/nasm_autoconf_macros/configure.ac": {
+        "VERSION@4": 0
+      }
+    },
     "makefile/freebsd": {
       "makefile/freebsd/Makefile": {
         ".PATH@4": 1
+      }
+    },
+    "makefile/micropython_make": {
+      "makefile/micropython_make/py_dynruntime.mk": {
+        "all@208": 0,
+        "clean@210": 0
+      },
+      "makefile/micropython_make/py_mkenv.mk": {
+        "all@56": 0
+      },
+      "makefile/micropython_make/py_mkrules.mk": {
+        "all@244": 0,
+        "clean-prog@259": 0,
+        "clean@258": 0,
+        "clean@291": 0,
+        "print-cfg@295": 0,
+        "print-def@301": 1,
+        "submodules@271": 0
+      },
+      "makefile/micropython_make/py_py.mk": {
+        "FORCE@232": 0
       }
     },
     "matlab/eeglab": {
@@ -35095,6 +38255,120 @@
         "getcoord@541": 0,
         "getcoordold@567": 1,
         "supergui@103": 0
+      }
+    },
+    "matlab/fieldtrip_core": {
+      "matlab/fieldtrip_core/ft_analysispipeline.m": {
+        "button@331": 0,
+        "escapestruct@808": 0,
+        "ft_analysispipeline@1": 1,
+        "getnode@286": 0,
+        "getvalue@308": 0,
+        "makelabel@469": 0,
+        "myfileparts@319": 0,
+        "pipeline2dotfile@607": 0,
+        "pipeline2htmlfile@649": 0,
+        "pipeline2matlabfigure@353": 0,
+        "pipeline2matlabscript@558": 0,
+        "pipeline2provfile@726": 0,
+        "walktree@243": 0
+      },
+      "matlab/fieldtrip_core/ft_annotate.m": {
+        "ft_annotate@1": 1
+      },
+      "matlab/fieldtrip_core/ft_anonymizedata.m": {
+        "ft_anonymizedata@1": 1,
+        "getparent@256": 0,
+        "keyboard_cb@272": 0,
+        "redraw_cb@264": 0,
+        "resize_cb@343": 0,
+        "sort_cb@319": 0
+      },
+      "matlab/fieldtrip_core/ft_appenddata.m": {
+        "ft_appenddata@1": 1
+      },
+      "matlab/fieldtrip_core/ft_appendfreq.m": {
+        "ft_appendfreq@1": 1
+      },
+      "matlab/fieldtrip_core/ft_appendlayout.m": {
+        "ft_appendlayout@1": 1,
+        "scalelayout@288": 0,
+        "shiftlayout@273": 0
+      },
+      "matlab/fieldtrip_core/ft_appendsens.m": {
+        "ft_appendsens@1": 1
+      },
+      "matlab/fieldtrip_core/ft_appendsource.m": {
+        "ft_appendsource@1": 1
+      },
+      "matlab/fieldtrip_core/ft_appendspike.m": {
+        "ft_appendspike@1": 1
+      },
+      "matlab/fieldtrip_core/ft_appendtimelock.m": {
+        "ft_appendtimelock@1": 1
+      }
+    },
+    "matlab/fieldtrip_plotting_utils": {
+      "matlab/fieldtrip_plotting_utils/plotting_ft_colormap.m": {
+        "ft_colormap@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_cloud.m": {
+        "ft_plot_cloud@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_headshape.m": {
+        "ft_plot_headshape@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_mesh_interactive.m": {
+        "add_tf_plot@420": 0,
+        "add_time_plot@333": 0,
+        "button_down@373": 0,
+        "button_down@477": 0,
+        "button_up@380": 0,
+        "button_up@486": 0,
+        "cb_plot_timecourse@255": 0,
+        "fire_tfpoint_change@546": 0,
+        "fire_timepoint_change@529": 0,
+        "frq_to_ind@574": 0,
+        "ft_plot_mesh_interactive@46": 0,
+        "init_surface_click_event@250": 0,
+        "init_surface_plots@133": 0,
+        "mouse_dragged@388": 0,
+        "mouse_dragged@495": 0,
+        "rot_ended@185": 0,
+        "rotfilter@196": 0,
+        "set_clim@206": 0,
+        "show@120": 1,
+        "tim_to_ind@566": 0,
+        "window_closed@402": 0,
+        "window_closed@511": 0
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_patch.m": {
+        "ft_plot_patch@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_plot_topo3d.m": {
+        "ft_plot_topo3d@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_channel.m": {
+        "ft_select_channel@1": 1,
+        "select_channel_multiple@181": 0,
+        "select_channel_single@123": 0
+      },
+      "matlab/fieldtrip_plotting_utils/plotting_ft_select_voxel.m": {
+        "ft_select_voxel@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_dccnpath.m": {
+        "dccnpath@1": 1,
+        "isemptydir@232": 0
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_cfg2keyval.m": {
+        "ft_cfg2keyval@1": 1
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_checkopt.m": {
+        "ft_checkopt@1": 1,
+        "printcell@164": 0
+      },
+      "matlab/fieldtrip_plotting_utils/utilities_ft_datatype_comp.m": {
+        "ft_datatype_comp@1": 1
       }
     },
     "nim/nim_stdlib": {
@@ -36068,6 +39342,568 @@
     "nix/ghostty": {
       "nix/ghostty/build.zig": {
         "build@19": 0
+      }
+    },
+    "objective-c/afnetworking": {
+      "objective-c/afnetworking/AFNetworking_AFHTTPSessionManager.m": {
+        "DELETE@238": 1,
+        "GET@120": 1,
+        "HEAD@142": 1,
+        "PATCH@225": 1,
+        "POST@159": 0,
+        "POST@173": 0,
+        "PUT@212": 1,
+        "copyWithZone@348": 1,
+        "dataTaskWithHTTPMethod@252": 0,
+        "description@297": 1,
+        "encodeWithCoder@332": 1,
+        "init@54": 1,
+        "initWithBaseURL@58": 0,
+        "initWithBaseURL@66": 0,
+        "initWithCoder@307": 1,
+        "initWithSessionConfiguration@62": 0,
+        "manager@50": 0,
+        "setRequestSerializer@89": 1,
+        "setResponseSerializer@95": 1,
+        "setSecurityPolicy@103": 1,
+        "supportsSecureCoding@303": 1
+      },
+      "objective-c/afnetworking/AFNetworking_AFNetworkReachabilityManager.m": {
+        "AFNetworkReachabilityCallback@95": 0,
+        "AFNetworkReachabilityReleaseCallback@104": 0,
+        "AFNetworkReachabilityRetainCallback@100": 0,
+        "AFNetworkReachabilityStatusForFlags@51": 0,
+        "AFPostReachabilityStatusChange@82": 0,
+        "AFStringFromNetworkReachabilityStatus@37": 0,
+        "dealloc@183": 1,
+        "init@175": 0,
+        "initWithReachability@163": 0,
+        "isReachable@193": 0,
+        "isReachableViaWWAN@197": 0,
+        "isReachableViaWiFi@201": 0,
+        "keyPathsForValuesAffectingValueForKey@260": 1,
+        "localizedNetworkReachabilityStatusString@248": 1,
+        "manager@147": 0,
+        "managerForAddress@138": 0,
+        "managerForDomain@128": 1,
+        "setReachabilityStatusChangeBlock@254": 1,
+        "sharedManager@118": 1,
+        "startMonitoring@207": 1,
+        "stopMonitoring@238": 0
+      },
+      "objective-c/afnetworking/AFNetworking_AFSecurityPolicy.m": {
+        "AFCertificateTrustChainForServerTrust@100": 0,
+        "AFPublicKeyForCertificate@51": 0,
+        "AFPublicKeyTrustChainForServerTrust@112": 0,
+        "AFSecKeyGetData@27": 0,
+        "AFSecKeyIsEqualToKey@43": 0,
+        "AFServerTrustIsValid@86": 0,
+        "certificatesInBundle@156": 0,
+        "copyWithZone@331": 1,
+        "defaultPolicy@168": 1,
+        "encodeWithCoder@322": 1,
+        "evaluateServerTrust@220": 1,
+        "init@189": 0,
+        "initWithCoder@307": 1,
+        "keyPathsForValuesAffectingPinnedPublicKeys@297": 1,
+        "policyWithPinningMode@175": 0,
+        "policyWithPinningMode@180": 0,
+        "setPinnedCertificates@200": 0,
+        "supportsSecureCoding@303": 1
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m": {
+        "AFContentTypeForPathExtension@611": 0,
+        "AFCreateMultipartFormBoundary@593": 0,
+        "AFHTTPRequestSerializerObservedKeyPaths@174": 0,
+        "AFMultipartFormEncapsulationBoundary@603": 0,
+        "AFMultipartFormFinalBoundary@607": 0,
+        "AFMultipartFormInitialBoundary@599": 0,
+        "AFPercentEscapedStringFromString@47": 0,
+        "AFQueryStringFromParameters@119": 0,
+        "AFQueryStringPairsFromDictionary@128": 0,
+        "AFQueryStringPairsFromKeyAndValue@132": 0,
+        "HTTPRequestHeaders@305": 0,
+        "URLEncodedStringValue@104": 0,
+        "URLEncodedStringValue@87": 0,
+        "_scheduleInCFRunLoop@984": 1,
+        "_setCFClientFlags@992": 1,
+        "_unscheduleFromCFRunLoop@988": 1,
+        "appendHTTPBodyPart@651": 0,
+        "appendHTTPBodyPart@885": 0,
+        "appendPartWithFileData@771": 1,
+        "appendPartWithFileURL@686": 0,
+        "appendPartWithFileURL@699": 0,
+        "appendPartWithFormData@787": 0,
+        "appendPartWithHeaders@798": 0,
+        "appendPartWithInputStream@746": 1,
+        "automaticallyNotifiesObserversForKey@529": 1,
+        "clearAuthorizationHeader@337": 1,
+        "close@951": 0,
+        "contentLength@1081": 0,
+        "contentLength@973": 0,
+        "copyWithZone@1000": 0,
+        "copyWithZone@1206": 0,
+        "copyWithZone@1302": 0,
+        "copyWithZone@1389": 0,
+        "copyWithZone@578": 0,
+        "dealloc@1048": 0,
+        "dealloc@254": 0,
+        "encodeWithCoder@1294": 0,
+        "encodeWithCoder@1380": 0,
+        "encodeWithCoder@569": 0,
+        "getBuffer@928": 1,
+        "hasBytesAvailable@1098": 0,
+        "hasBytesAvailable@934": 0,
+        "init@1037": 0,
+        "init@200": 0,
+        "initWithCoder@1283": 0,
+        "initWithCoder@1368": 0,
+        "initWithCoder@557": 0,
+        "initWithField@85": 0,
+        "initWithField@92": 0,
+        "initWithStringEncoding@649": 0,
+        "initWithStringEncoding@860": 0,
+        "initWithURLRequest@166": 0,
+        "initWithURLRequest@665": 0,
+        "inputStream@1055": 0,
+        "isEmpty@889": 0,
+        "multipartFormRequestWithMethod@380": 1,
+        "observeValueForKeyPath@537": 1,
+        "open@940": 0,
+        "propertyForKey@955": 1,
+        "read@1119": 0,
+        "read@638": 0,
+        "read@895": 0,
+        "readData@1030": 0,
+        "readData@1157": 0,
+        "removeFromRunLoop@969": 1,
+        "requestByFinalizingMultipartFormData@169": 0,
+        "requestByFinalizingMultipartFormData@820": 0,
+        "requestBySerializingRequest@1238": 0,
+        "requestBySerializingRequest@1331": 0,
+        "requestBySerializingRequest@473": 0,
+        "requestWithMethod@356": 0,
+        "requestWithMultipartFormRequest@417": 1,
+        "scheduleInRunLoop@965": 0,
+        "serializer@1224": 0,
+        "serializer@1315": 0,
+        "serializer@196": 0,
+        "serializerWithFormat@1319": 0,
+        "serializerWithWritingOptions@1228": 0,
+        "setAllowsCellularAccess@267": 1,
+        "setAuthorizationHeaderFieldWithUsername@329": 1,
+        "setCachePolicy@273": 1,
+        "setHTTPShouldHandleCookies@279": 1,
+        "setHTTPShouldUsePipelining@285": 1,
+        "setInitialAndFinalBoundaries@650": 0,
+        "setInitialAndFinalBoundaries@873": 0,
+        "setNetworkServiceType@291": 1,
+        "setProperty@959": 1,
+        "setQueryStringSerializationWithBlock@350": 1,
+        "setQueryStringSerializationWithStyle@345": 1,
+        "setRequest@681": 1,
+        "setTimeoutInterval@297": 1,
+        "setValue@313": 0,
+        "stringForHeaders@1071": 0,
+        "supportsSecureCoding@553": 1,
+        "throttleBandwidthWithPacketSize@813": 1,
+        "transitionToNextPhase@1029": 0,
+        "transitionToNextPhase@1173": 0,
+        "valueForHTTPHeaderField@321": 0
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLResponseSerialization.m": {
+        "AFErrorOrUnderlyingErrorHasCodeInDomain@53": 0,
+        "AFErrorWithUnderlyingError@38": 0,
+        "AFImageWithDataAtScale@559": 0,
+        "AFInflatedImageFromResponseWithDataAtScale@568": 0,
+        "AFJSONObjectByRemovingKeysWithNullValues@63": 0,
+        "af_safeImageWithData@537": 0,
+        "af_safeImageWithData@544": 0,
+        "compoundSerializerWithResponseSerializers@771": 1,
+        "copyWithZone@197": 0,
+        "copyWithZone@299": 0,
+        "copyWithZone@422": 0,
+        "copyWithZone@520": 0,
+        "copyWithZone@750": 0,
+        "copyWithZone@829": 0,
+        "encodeWithCoder@190": 0,
+        "encodeWithCoder@290": 0,
+        "encodeWithCoder@414": 0,
+        "encodeWithCoder@511": 0,
+        "encodeWithCoder@739": 0,
+        "encodeWithCoder@821": 0,
+        "init@222": 0,
+        "init@319": 2,
+        "init@364": 2,
+        "init@451": 0,
+        "init@664": 0,
+        "init@96": 0,
+        "initWithCoder@178": 0,
+        "initWithCoder@278": 0,
+        "initWithCoder@403": 0,
+        "initWithCoder@499": 0,
+        "initWithCoder@719": 0,
+        "initWithCoder@809": 0,
+        "responseObjectForResponse@163": 0,
+        "responseObjectForResponse@235": 0,
+        "responseObjectForResponse@332": 0,
+        "responseObjectForResponse@377": 0,
+        "responseObjectForResponse@464": 0,
+        "responseObjectForResponse@685": 0,
+        "responseObjectForResponse@780": 0,
+        "serializer@211": 0,
+        "serializer@313": 0,
+        "serializer@353": 0,
+        "serializer@437": 0,
+        "serializer@92": 0,
+        "serializerWithFormat@441": 0,
+        "serializerWithReadingOptions@215": 0,
+        "serializerWithXMLDocumentOptions@357": 0,
+        "supportsSecureCoding@174": 2,
+        "supportsSecureCoding@274": 2,
+        "supportsSecureCoding@495": 2,
+        "supportsSecureCoding@715": 2,
+        "supportsSecureCoding@805": 2,
+        "validateResponse@110": 0
+      },
+      "objective-c/afnetworking/AFNetworking_AFURLSessionManager.m": {
+        "URLSession@1034": 0,
+        "URLSession@1051": 0,
+        "URLSession@1077": 0,
+        "URLSession@1096": 0,
+        "URLSession@1114": 0,
+        "URLSession@1130": 0,
+        "URLSession@1145": 0,
+        "URLSession@1158": 0,
+        "URLSession@1186": 0,
+        "URLSession@1212": 0,
+        "URLSession@1230": 0,
+        "URLSession@173": 0,
+        "URLSession@250": 0,
+        "URLSession@259": 0,
+        "URLSession@269": 0,
+        "URLSession@280": 0,
+        "URLSession@289": 0,
+        "URLSession@297": 0,
+        "URLSession@919": 0,
+        "URLSession@929": 0,
+        "URLSession@945": 0,
+        "URLSession@962": 0,
+        "URLSessionDidFinishEventsForBackgroundURLSession@1175": 0,
+        "addDelegateForDataTask@596": 0,
+        "addDelegateForDownloadTask@627": 0,
+        "addDelegateForUploadTask@612": 0,
+        "addNotificationObserverForTask@720": 0,
+        "af_addMethod@336": 0,
+        "af_resume@425": 0,
+        "af_suspend@435": 0,
+        "af_swizzleSelector@330": 0,
+        "copyWithZone@1270": 1,
+        "dataTaskWithRequest@732": 1,
+        "dataTasks@686": 0,
+        "dealloc@149": 0,
+        "dealloc@526": 0,
+        "delegateForTask@573": 0,
+        "description@894": 1,
+        "downloadProgressForTask@816": 1,
+        "downloadTaskWithRequest@787": 1,
+        "downloadTaskWithResumeData@799": 1,
+        "downloadTasks@694": 0,
+        "encodeWithCoder@1264": 1,
+        "init@477": 0,
+        "initWithCoder@1253": 1,
+        "initWithSessionConfiguration@481": 0,
+        "initWithTask@108": 0,
+        "initWithTask@91": 0,
+        "invalidateSessionCancelingTasks@700": 1,
+        "load@349": 1,
+        "observeValueForKeyPath@156": 1,
+        "removeDelegateForTask@649": 0,
+        "removeNotificationObserverForTask@725": 0,
+        "respondsToSelector@898": 0,
+        "serverTrustErrorForServerTrust@1009": 0,
+        "session@532": 0,
+        "setDataTaskDidBecomeDownloadTaskBlock@866": 1,
+        "setDataTaskDidReceiveDataBlock@870": 1,
+        "setDataTaskDidReceiveResponseBlock@862": 1,
+        "setDataTaskWillCacheResponseBlock@874": 1,
+        "setDelegate@584": 0,
+        "setDidFinishEventsForBackgroundURLSessionBlock@831": 1,
+        "setDownloadTaskDidFinishDownloadingBlock@880": 1,
+        "setDownloadTaskDidResumeBlock@888": 1,
+        "setDownloadTaskDidWriteDataBlock@884": 1,
+        "setResponseSerializer@713": 1,
+        "setSessionDidBecomeInvalidBlock@822": 1,
+        "setSessionDidReceiveAuthenticationChallengeBlock@826": 1,
+        "setTaskDidCompleteBlock@850": 1,
+        "setTaskDidFinishCollectingMetricsBlock@855": 1,
+        "setTaskDidSendBodyDataBlock@846": 1,
+        "setTaskNeedNewBodyStreamBlock@838": 1,
+        "setTaskWillPerformHTTPRedirectionBlock@842": 1,
+        "state@420": 0,
+        "supportsSecureCoding@1249": 1,
+        "swizzleResumeAndSuspendMethodForClass@407": 0,
+        "taskDescriptionForSessionTasks@545": 0,
+        "taskDidResume@549": 0,
+        "taskDidSuspend@560": 0,
+        "tasks@682": 0,
+        "tasksForKeyPath@660": 0,
+        "uploadProgressForTask@812": 1,
+        "uploadTaskWithRequest@746": 0,
+        "uploadTaskWithRequest@762": 0,
+        "uploadTaskWithStreamedRequest@774": 1,
+        "uploadTasks@690": 0,
+        "url_session_manager_completion_group@35": 0,
+        "url_session_manager_processing_queue@25": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFAutoPurgingImageCache.m": {
+        "accessImage@54": 0,
+        "addImage@110": 0,
+        "addImage@179": 0,
+        "dealloc@98": 1,
+        "description@59": 1,
+        "imageCacheKeyFromURLRequest@191": 0,
+        "imageWithIdentifier@170": 0,
+        "imageforRequest@187": 1,
+        "init@75": 0,
+        "initWithImage@40": 0,
+        "initWithMemoryCapacity@79": 0,
+        "memoryUsage@102": 1,
+        "removeAllImages@158": 0,
+        "removeImageWithIdentifier@145": 0,
+        "removeImageforRequest@183": 1,
+        "shouldCacheImage@199": 1
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFImageDownloader.m": {
+        "addResponseHandler@74": 0,
+        "cancelTaskForImageDownloadReceipt@319": 1,
+        "defaultInstance@188": 1,
+        "defaultURLCache@111": 0,
+        "defaultURLSessionConfiguration@132": 0,
+        "dequeueMergedTask@400": 0,
+        "description@48": 1,
+        "downloadImageForURLRequest@197": 0,
+        "downloadImageForURLRequest@203": 0,
+        "enqueueMergedTask@389": 0,
+        "init@148": 0,
+        "initWithReceiptID@86": 0,
+        "initWithSessionConfiguration@153": 0,
+        "initWithSessionManager@163": 0,
+        "initWithURLIdentifier@64": 0,
+        "initWithUUID@37": 0,
+        "isActiveRequestCountBelowMaximumLimit@407": 0,
+        "removeMergedTaskWithURLIdentifier@356": 0,
+        "removeResponseHandler@78": 0,
+        "safelyDecrementActiveTaskCount@362": 0,
+        "safelyGetMergedTask@411": 0,
+        "safelyRemoveMergedTaskWithURLIdentifier@347": 0,
+        "safelyStartNextTaskIfNecessary@370": 0,
+        "startMergedTask@384": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_AFNetworkActivityIndicatorManager.m": {
+        "AFNetworkRequestFromNotification@37": 0,
+        "NS_ENUM@27": 1,
+        "activationDelayTimerFired@211": 0,
+        "cancelActivationDelayTimer@229": 0,
+        "cancelCompletionDelayTimer@233": 0,
+        "completionDelayTimerFired@225": 0,
+        "dealloc@86": 1,
+        "decrementActivityCount@133": 0,
+        "incrementActivityCount@124": 0,
+        "init@71": 0,
+        "isNetworkActivityOccurring@104": 0,
+        "networkRequestDidFinish@148": 0,
+        "networkRequestDidStart@142": 0,
+        "setCurrentState@155": 0,
+        "setEnabled@93": 1,
+        "setNetworkActivityIndicatorVisible@110": 0,
+        "setNetworkingActivityActionWithBlock@100": 1,
+        "sharedManager@61": 1,
+        "startActivationDelayTimer@205": 0,
+        "startCompletionDelayTimer@219": 0,
+        "updateCurrentStateForNetworkActivityChange@180": 0,
+        "updateCurrentStateForNetworkActivityChange@56": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIActivityIndicatorView_AFNetworking.m": {
+        "af_notificationObserver@39": 0,
+        "af_startAnimating@90": 0,
+        "af_stopAnimating@96": 0,
+        "dealloc@104": 1,
+        "initWithActivityIndicatorView@31": 0,
+        "initWithActivityIndicatorView@56": 0,
+        "setAnimatingWithStateOfTask@33": 0,
+        "setAnimatingWithStateOfTask@48": 0,
+        "setAnimatingWithStateOfTask@65": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIButton_AFNetworking.m": {
+        "af_backgroundImageDownloadReceiptForState@88": 0,
+        "af_backgroundImageDownloadReceiptKeyForState@74": 0,
+        "af_imageDownloadReceiptForState@57": 0,
+        "af_imageDownloadReceiptKeyForState@43": 0,
+        "af_setBackgroundImageDownloadReceipt@92": 0,
+        "af_setImageDownloadReceipt@61": 0,
+        "cancelBackgroundImageDownloadTaskForState@281": 0,
+        "cancelImageDownloadTaskForState@273": 0,
+        "isActiveBackgroundTaskURLEqualToURLRequest@294": 0,
+        "isActiveTaskURLEqualToURLRequest@289": 0,
+        "setBackgroundImageForState@194": 0,
+        "setBackgroundImageForState@200": 0,
+        "setBackgroundImageForState@210": 0,
+        "setImageForState@115": 0,
+        "setImageForState@121": 0,
+        "setImageForState@131": 0,
+        "setSharedImageDownloader@109": 1,
+        "sharedImageDownloader@104": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIImageView_AFNetworking.m": {
+        "af_activeImageDownloadReceipt@36": 0,
+        "af_setActiveImageDownloadReceipt@40": 0,
+        "cancelImageDownloadTask@142": 0,
+        "clearActiveDownloadInformation@149": 0,
+        "isActiveTaskURLEqualToURLRequest@153": 0,
+        "setImageWithURL@60": 0,
+        "setImageWithURL@64": 0,
+        "setImageWithURLRequest@73": 0,
+        "setSharedImageDownloader@54": 1,
+        "sharedImageDownloader@50": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIProgressView_AFNetworking.m": {
+        "af_downloadProgressAnimated@45": 0,
+        "af_setDownloadProgressAnimated@49": 0,
+        "af_setUploadProgressAnimated@41": 0,
+        "af_uploadProgressAnimated@37": 0,
+        "observeValueForKeyPath@83": 1,
+        "setProgressWithDownloadProgressOfTask@68": 1,
+        "setProgressWithUploadProgressOfTask@55": 1
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_UIRefreshControl_AFNetworking.m": {
+        "af_beginRefreshing@89": 0,
+        "af_endRefreshing@95": 0,
+        "af_notificationObserver@40": 0,
+        "dealloc@103": 1,
+        "initWithActivityRefreshControl@32": 0,
+        "initWithActivityRefreshControl@57": 0,
+        "setRefreshingWithStateOfTask@34": 0,
+        "setRefreshingWithStateOfTask@49": 0,
+        "setRefreshingWithStateOfTask@66": 0
+      },
+      "objective-c/afnetworking/UIKit_AFNetworking_WKWebView_AFNetworking.m": {
+        "af_URLSessionTask@38": 0,
+        "af_setURLSessionTask@42": 0,
+        "loadRequest@107": 0,
+        "loadRequest@84": 0,
+        "responseSerializer@68": 0,
+        "sessionManager@52": 0,
+        "setResponseSerializer@78": 1,
+        "setSessionManager@64": 1
+      }
+    },
+    "objective-c/godot_ios": {
+      "objective-c/godot_ios/device_metrics.mm": {
+        "dpiList@35": 0
+      },
+      "objective-c/godot_ios/display_layer_ios.mm": {
+        "createFramebuffer@149": 0,
+        "dealloc@139": 0,
+        "destroyFramebuffer@180": 0,
+        "initializeDisplayLayer@53": 0,
+        "initializeDisplayLayer@85": 0,
+        "layoutDisplayLayer@115": 0,
+        "layoutDisplayLayer@63": 0,
+        "startRenderDisplayLayer@121": 0,
+        "startRenderDisplayLayer@66": 0,
+        "stopRenderDisplayLayer@127": 0,
+        "stopRenderDisplayLayer@69": 0
+      },
+      "objective-c/godot_ios/display_server_ios.mm": {
+        "DisplayServerIOS@42": 0,
+        "_screen_current_edr_headroom@138": 0,
+        "_screen_hdr_is_supported@124": 0,
+        "_screen_potential_edr_headroom@131": 0,
+        "create_func@51": 0,
+        "get_name@59": 0,
+        "get_singleton@38": 0,
+        "register_ios_driver@55": 0,
+        "screen_get_dpi@63": 0,
+        "screen_get_refresh_rate@104": 0,
+        "screen_get_scale@116": 0,
+        "~DisplayServerIOS@48": 0
+      },
+      "objective-c/godot_ios/godot_view_ios.mm": {
+        "GDTViewCreate@88": 0,
+        "initializeRenderingForDriver@48": 0
+      },
+      "objective-c/godot_ios/main_ios.mm": {
+        "apple_embedded_finish@76": 1,
+        "apple_embedded_main@44": 1
+      },
+      "objective-c/godot_ios/os_ios.mm": {
+        "OS_IOS@41": 0,
+        "get_name@48": 0,
+        "get_singleton@37": 0,
+        "~OS_IOS@46": 0
+      }
+    },
+    "objective-c/tensorflow_lite_objc": {
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_ViewController.m": {
+        "TLTSafeDispatchOnMain@23": 0,
+        "currentModelPath@139": 0,
+        "initialize@89": 1,
+        "invokeAdd@175": 0,
+        "invokeAddQuantized@245": 0,
+        "invokeInterpreter@123": 1,
+        "invokeMultiAdd@328": 0,
+        "loadModel@145": 0,
+        "modelChanged@113": 1,
+        "updateResultsText@415": 0,
+        "viewDidLoad@101": 1
+      },
+      "objective-c/tensorflow_lite_objc/apps_TestApp_TestApp_main.m": {
+        "main@18": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLCommonUtil.mm": {
+        "TFLQuantizationParamsFromCTensor@74": 1,
+        "TFLTensorDataTypeFromCTensor@26": 1,
+        "TFLTensorNameFromCTensor@68": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLCoreMLDelegate.m": {
+        "dealloc@47": 1,
+        "init@27": 0,
+        "init@53": 0,
+        "initWithOptions@58": 0
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLErrorUtil.m": {
+        "saveInterpreterErrorWithCode@26": 1,
+        "setError@32": 0
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreter.mm": {
+        "TFLInterpreterErrorReporter@48": 0,
+        "allocateTensorsWithError@258": 1,
+        "cTensorOfType@383": 0,
+        "copyData@284": 1,
+        "dataFromTensor@323": 1,
+        "dealloc@68": 1,
+        "initWithModelPath@75": 0,
+        "initWithModelPath@82": 0,
+        "initWithModelPath@88": 0,
+        "inputTensorAtIndex@202": 1,
+        "invokeWithError@191": 1,
+        "isValidTensorIndex@441": 0,
+        "outputTensorAtIndex@210": 1,
+        "resizeInputTensorAtIndex@218": 1,
+        "shapeOfTensor@345": 1,
+        "signatureKeys@173": 0,
+        "signatureRunnerWithKey@268": 1,
+        "tensorOfType@410": 0
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLInterpreterOptions.m": {
+        "init@23": 1
+      },
+      "objective-c/tensorflow_lite_objc/sources_TFLMetalDelegate.m": {
+        "dealloc@46": 1,
+        "init@29": 0,
+        "init@52": 0,
+        "initWithOptions@57": 0
       }
     },
     "objective-c/worldwideweb": {
@@ -39249,6 +43085,49 @@
       },
       "pli/dsf_cics_admin/R001TK62.pli": {
         "R001T62@32": 1
+      }
+    },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": {
+        "R00103@6": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0011121.pli": {
+        "OPPRETT_STATUS_BP_BARN@24": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0014155.pli": {
+        "FAI_GRENSER_FRAVIK@20": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0015314.pli": {
+        "P140_SKRIV_E1_TRANS@17": 1
+      },
+      "pli/dsf_pli_more/src_GML_R0019056.pli": {
+        "BESTEMME_E_TEKST@17": 1
+      },
+      "pli/dsf_pli_more/src_GML_R001N522.pli": {
+        "AJOURFØR_B02_MED_A1TRANS@40": 1
+      },
+      "pli/dsf_pli_more/src_GML_R001U821.pli": {
+        "OPPRETT_STATUS_EE_SØKER@17": 1
+      },
+      "pli/dsf_pli_more/src_R0011203.pli": {
+        "KONTROLL_FT_SØKER@36": 1
+      },
+      "pli/dsf_pli_more/src_R0014153.pli": {
+        "BEREGN_SPT_OPT_PÅ@27": 1
+      },
+      "pli/dsf_pli_more/src_R0015308.pli": {
+        "P080_SKRIV_EP_TRANS@12": 1
+      },
+      "pli/dsf_pli_more/src_R0019934.pli": {
+        "OPPHØR_KOBLING_TO_PERSONER@15": 1
+      },
+      "pli/dsf_pli_more/src_R001N802.pli": {
+        "BLANK_E3Y_MELDNR@210": 1,
+        "BLANK_E3_MELDNR@118": 1,
+        "BLANK_E3_SPES_AVDØDE@100": 1,
+        "BLANK_E3_SPES_SØKER@74": 1,
+        "BLANK_E3_SØKER@34": 1,
+        "BLANK_Y3_ETTERL@183": 1
       }
     },
     "pli/zopeneditor_sample": {
@@ -44873,6 +48752,39 @@
         "while_deparse@269": 0
       }
     },
+    "rexx/dbb_mortgage_rexx": {
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzbranc.rexx": {
+        "GetBrCMD@395": 0
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzcmd.rexx": {
+        "BuildDYN@109": 1,
+        "DispPanel@140": 1,
+        "Fit2Line@162": 0,
+        "GenShadowLine@487": 0,
+        "ProcessColorCode@554": 0,
+        "ReadASCII@154": 1,
+        "ReadOutput@301": 0,
+        "Scroll@188": 1,
+        "runShell@73": 0,
+        "setsize@178": 1
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzdbbub.rexx": {
+        "GetPMCMD@488": 0,
+        "getDeps@517": 0,
+        "getMetaData@598": 0,
+        "startDaemon@633": 1
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzrepos.rexx": {
+        "GetCMD@623": 0
+      },
+      "rexx/dbb_mortgage_rexx/IDE_GitISPFClient_sbgzexec_bgzuslst.rexx": {
+        "DISPUSS@65": 0,
+        "GetLSinf@816": 0,
+        "GetUDCMD@899": 0,
+        "Getuss@623": 0,
+        "XLATBITS@879": 1
+      }
+    },
     "rexx/hercules_hyperion": {
       "rexx/hercules_hyperion/cmpsc.rexx": {
         "defsym_filename@579": 0,
@@ -45028,6 +48940,58 @@
         "todcvt@351": 0
       }
     },
+    "ruby/homebrew_ruby": {
+      "ruby/homebrew_ruby/Library_Homebrew_abstract_command.rb": {
+        "cmd_args@59": 1,
+        "command@42": 1,
+        "command_name@32": 0,
+        "dev_cmd?@45": 1,
+        "initialize@69": 1,
+        "parser@51": 0,
+        "ruby_cmd?@48": 1,
+        "run@77": 2,
+        "run@84": 2
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_extend_object_duplicable.rb": {
+        "duplicable?@34": 0,
+        "duplicable?@45": 2,
+        "duplicable?@56": 2,
+        "duplicable?@68": 2
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_language_java.rb": {
+        "find_openjdk_formula@10": 0,
+        "java_home@39": 0,
+        "java_home_env@63": 1,
+        "java_home_shell@44": 0,
+        "overridable_java_home_env@80": 1
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_rubocops_text.rb": {
+        "audit_formula@14": 1,
+        "path_starts_with?@172": 0,
+        "path_starts_with_bin?@178": 1
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_test_cask_dsl_spec.rb": {
+        "caveats@294": 0
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_base64-0.3.0_lib_base64.rb": {
+        "decode64@247": 1,
+        "encode64@222": 1,
+        "strict_decode64@309": 0,
+        "strict_encode64@282": 0,
+        "urlsafe_decode64@369": 1,
+        "urlsafe_encode64@343": 1
+      },
+      "ruby/homebrew_ruby/Library_Homebrew_vendor_bundle_ruby_4.0.0_gems_concurrent-ruby-1.3.6_lib_concurrent-ruby_concurrent_utility_native_extension_loader.rb": {
+        "allow_c_extensions?@11": 1,
+        "c_extensions_loaded?@15": 0,
+        "java_extensions_loaded?@50": 0,
+        "load_error_path@38": 0,
+        "load_native_extensions@19": 0,
+        "set_c_extensions_loaded@46": 0,
+        "set_java_extensions_loaded@54": 0,
+        "try_load_c_extension@58": 0
+      }
+    },
     "ruby/rails": {
       "ruby/rails/base.rb": {
         "_find_action_name@256": 0,
@@ -45175,6 +49139,87 @@
         "sample_request@228": 0,
         "sample_request_without_token_key@239": 0,
         "show@19": 0
+      }
+    },
+    "ruby/selenium_ruby": {
+      "ruby/selenium_ruby/rb_lib_selenium_devtools.rb": {
+        "load_old_version@47": 0,
+        "load_older_version@36": 0,
+        "load_version@25": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_bidi_network_intercepted_response.rb": {
+        "body=@90": 1,
+        "continue@44": 1,
+        "cookies=@86": 1,
+        "cookies@82": 0,
+        "credentials@70": 0,
+        "headers=@78": 1,
+        "headers@74": 0,
+        "initialize@35": 1,
+        "provide_response@57": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_chromium_options.rb": {
+        "add_argument@143": 1,
+        "add_emulation@181": 1,
+        "add_encoded_extension@129": 1,
+        "add_extension@100": 1,
+        "add_preference@158": 1,
+        "binary_path@222": 0,
+        "camelize?@237": 1,
+        "enable_android@197": 1,
+        "encode_extension@226": 0,
+        "extensions=@115": 1,
+        "initialize@70": 1,
+        "process_browser_options@206": 1,
+        "validate_extension@230": 0
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_has_context.rb": {
+        "context=@32": 1,
+        "context@36": 0
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_driver_extensions_prints_page.rb": {
+        "print_page@50": 0,
+        "save_print_page@35": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_interactions_key_input.rb": {
+        "create_key_down@37": 1,
+        "create_key_up@41": 1,
+        "initialize@32": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_keys.rb": {
+        "encode@133": 1,
+        "encode_key@141": 0,
+        "self@123": 0
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_common_virtual_authenticator_virtual_authenticator.rb": {
+        "add_credential@37": 1,
+        "credentials@42": 1,
+        "initialize@30": 1,
+        "remove!@62": 1,
+        "remove_all_credentials@54": 1,
+        "remove_credential@49": 1,
+        "user_verified=@58": 1,
+        "valid?@67": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_edge_features.rb": {
+        "command_list@38": 0,
+        "commands@42": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_ie_driver.rb": {
+        "browser@40": 1,
+        "initialize@34": 1
+      },
+      "ruby/selenium_ruby/rb_lib_selenium_webdriver_remote_http_common.rb": {
+        "call@53": 1,
+        "close@48": 1,
+        "common_headers@76": 0,
+        "create_response@126": 1,
+        "encode_string_to_utf8@111": 0,
+        "ensure_utf8_encoding@96": 0,
+        "quit_errors@44": 1,
+        "request@92": 0,
+        "server_url@86": 0,
+        "user_agent@37": 0
       }
     },
     "rust/bevy": {
@@ -47408,6 +51453,68 @@
         "zext8@2109": 1
       }
     },
+    "scala/cobrix_scala": {
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": {
+        "create@135": 0,
+        "foreach@146": 1,
+        "toSeq@142": 0
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": {
+        "decodeAsciiBigDecimal@421": 1,
+        "decodeAsciiBigNumber@383": 1,
+        "decodeAsciiInt@307": 1,
+        "decodeAsciiLong@343": 1,
+        "decodeAsciiNumber@221": 0,
+        "decodeAsciiString@70": 1,
+        "decodeEbcdicBigDecimal@402": 1,
+        "decodeEbcdicBigNumber@363": 1,
+        "decodeEbcdicInt@289": 1,
+        "decodeEbcdicLong@325": 1,
+        "decodeEbcdicNumber@148": 0,
+        "decodeEbcdicString@45": 1,
+        "decodeOverpunchedSign@231": 0,
+        "decodeRaw@131": 1,
+        "decodeUtf16String@104": 1
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": {
+        "getCodePageByClass@99": 1,
+        "getCodePageByName@60": 1,
+        "supportsEncoding@52": 1
+      },
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": {
+        "processStreamInPlace@39": 1,
+        "processStreamToRdw@83": 1
+      },
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": {
+        "getUseCase@203": 0
+      },
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": {
+        "main@49": 1
+      },
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": {
+        "create@25": 1,
+        "foreach@29": 1,
+        "toSeq@27": 1
+      }
+    },
+    "scala/gradle_scala": {
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": {
+        "main@4": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": {
+        "person@8": 1,
+        "personCreationShouldSuccessfullyCreatePerson@6": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": {
+        "getName@4": 1
+      },
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_zinc_kotlin_src_main_scala_org_gradle_sample_Person.scala": {
+        "importedList@6": 1
+      },
+      "scala/gradle_scala/platforms_jvm_scala_src_integTest_resources_org_gradle_scala_compile_IncrementalScalaCompileIntegrationTest_recompilesSourceWhenPropertiesChange_src_main_scala_PersonImpl.scala": {
+        "getName@2": 1
+      }
+    },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": {
         "buildServer@64": 0,
@@ -48589,6 +52696,33 @@
         "thread-engine-block@182": 0,
         "thread-receive@1218": 0,
         "thread-try-receive@1245": 0
+      }
+    },
+    "scheme/racket_scheme": {
+      "scheme/racket_scheme/pkgs_compiler-test_tests_compiler_embed_embed-me12-rd.ss": {
+        "read-syntax@14": 0,
+        "read@5": 0
+      },
+      "scheme/racket_scheme/racket_src_ChezScheme_nanopass_nanopass_meta-parser.ss": {
+        "lookup-meta-parser@25": 0,
+        "make-meta-parser@19": 1,
+        "make-nonterm-clause@77": 1,
+        "make-ntspec-meta-parser-assoc@14": 0,
+        "rhs-in-context-quasiquote@254": 1,
+        "s0@199": 0,
+        "s1@206": 0,
+        "s4@242": 0
+      },
+      "scheme/racket_scheme/racket_src_cs_demo_expander.ss": {
+        "show@7": 0
+      },
+      "scheme/racket_scheme/racket_src_cs_main_eval-all.ss": {
+        "eval-all@2": 1
+      },
+      "scheme/racket_scheme/racket_src_cs_rumble_check.ss": {
+        "check-integer@66": 1,
+        "check-range@51": 1,
+        "check-space@45": 1
       }
     },
     "shell/ansible": {
@@ -49999,6 +54133,313 @@
         "getUint256Slot@93": 0
       }
     },
+    "solidity/openzeppelin_tokens": {
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_extensions_ERC1155Supply.sol": {
+        "_update@50": 1,
+        "exists@45": 1,
+        "totalSupply@31": 0,
+        "totalSupply@38": 0
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC1155_utils_ERC1155Holder.sol": {
+        "onERC1155BatchReceived@33": 1,
+        "onERC1155Received@23": 1,
+        "supportsInterface@19": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC1363.sol": {
+        "approveAndCall@120": 0,
+        "approveAndCall@128": 0,
+        "supportsInterface@43": 1,
+        "transferAndCall@59": 0,
+        "transferAndCall@67": 0,
+        "transferFromAndCall@87": 0,
+        "transferFromAndCall@95": 0
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_ERC20Pausable.sol": {
+        "_update@30": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC20_extensions_IERC20Metadata.sol": {
+        "decimals@25": 1,
+        "name@15": 1,
+        "symbol@20": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC6909_ERC6909.sol": {
+        "_approve@170": 0,
+        "_burn@123": 1,
+        "_mint@89": 1,
+        "_setOperator@194": 0,
+        "_spendAllowance@213": 0,
+        "_transfer@105": 0,
+        "_update@137": 0,
+        "allowance@39": 0,
+        "approve@49": 1,
+        "balanceOf@34": 1,
+        "isOperator@44": 0,
+        "setOperator@55": 1,
+        "supportsInterface@29": 1,
+        "transfer@61": 1,
+        "transferFrom@67": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Burnable.sol": {
+        "burn@21": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_ERC721Royalty.sol": {
+        "supportsInterface@23": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_ERC721_extensions_IERC721Metadata.sol": {
+        "name@16": 1,
+        "symbol@21": 1,
+        "tokenURI@26": 1
+      },
+      "solidity/openzeppelin_tokens/contracts_token_common_ERC2981.sol": {
+        "_deleteDefaultRoyalty@108": 1,
+        "_feeDenominator@80": 0,
+        "_resetTokenRoyalty@136": 1,
+        "_setDefaultRoyalty@92": 1,
+        "_setTokenRoyalty@120": 1,
+        "royaltyInfo@57": 1,
+        "supportsInterface@52": 1
+      }
+    },
+    "solidity/solady_utils": {
+      "solidity/solady_utils/src_accounts_LibEIP7702.sol": {
+        "changeProxyAdmin@181": 1,
+        "delegationAndImplementationOf@71": 1,
+        "delegationOf@59": 0,
+        "deployProxy@132": 1,
+        "deployProxyDeterministic@148": 1,
+        "implementationOf@91": 1,
+        "isEIP7702Proxy@104": 0,
+        "proxyAdmin@166": 1,
+        "proxyInitCode@119": 0,
+        "requestProxyDelegationInitialization@232": 1,
+        "upgradeProxy@195": 1,
+        "upgradeProxyDelegation@218": 1
+      },
+      "solidity/solady_utils/src_auth_OwnableRoles.sol": {
+        "_checkOwnerOrRoles@116": 0,
+        "_checkRoles@98": 0,
+        "_checkRolesOrOwner@138": 0,
+        "_grantRoles@87": 0,
+        "_ordinalsFromRoles@176": 1,
+        "_removeRoles@93": 0,
+        "_rolesFromOrdinals@161": 1,
+        "_setRoles@49": 1,
+        "_updateRoles@64": 0,
+        "grantRoles@207": 1,
+        "hasAllRoles@245": 1,
+        "hasAnyRole@240": 1,
+        "onlyOwnerOrRoles@261": 1,
+        "onlyRoles@254": 1,
+        "onlyRolesOrOwner@268": 1,
+        "renounceRoles@219": 1,
+        "revokeRoles@213": 1,
+        "rolesOf@228": 0
+      },
+      "solidity/solady_utils/src_utils_Base58.sol": {
+        "decode@116": 1,
+        "decodeWord@177": 1,
+        "encode@20": 1,
+        "encodeWord@84": 1
+      },
+      "solidity/solady_utils/src_utils_ECDSA.sol": {
+        "canonicalHash@336": 0,
+        "canonicalHash@403": 0,
+        "canonicalHash@417": 0,
+        "canonicalHashCalldata@368": 1,
+        "emptySignature@437": 1,
+        "recover@116": 0,
+        "recover@137": 0,
+        "recover@51": 0,
+        "recoverCalldata@81": 1,
+        "toEthSignedMessageHash@286": 0,
+        "toEthSignedMessageHash@300": 0,
+        "tryRecover@171": 0,
+        "tryRecover@236": 0,
+        "tryRecover@258": 0,
+        "tryRecoverCalldata@203": 1
+      },
+      "solidity/solady_utils/src_utils_Initializable.sol": {
+        "_checkInitializing@141": 0,
+        "_disableInitializers@159": 1,
+        "_getInitializedVersion@180": 1,
+        "_initializableSlot@57": 0,
+        "_isInitializing@189": 1,
+        "constructor@46": 1,
+        "initializer@71": 1,
+        "onlyInitializing@135": 1,
+        "reinitializer@107": 1
+      },
+      "solidity/solady_utils/src_utils_LibRLP.sol": {
+        "_updateTail@382": 0,
+        "computeAddress@46": 1,
+        "encode@187": 0,
+        "encode@289": 0,
+        "encode@316": 0,
+        "encode@329": 0,
+        "encode@340": 0,
+        "encodeAddress@206": 0,
+        "encodeBytes@211": 0,
+        "encodeList@239": 0,
+        "encodeUint@190": 0,
+        "p@101": 0,
+        "p@104": 0,
+        "p@109": 0,
+        "p@114": 0,
+        "p@119": 0,
+        "p@124": 0,
+        "p@129": 0,
+        "p@147": 0,
+        "p@157": 0,
+        "p@167": 0,
+        "p@177": 0
+      },
+      "solidity/solady_utils/src_utils_MetadataReaderLib.sol": {
+        "_ptr@207": 0,
+        "_ptr@217": 0,
+        "_string@139": 0,
+        "_uint@189": 0,
+        "min@146": 0,
+        "readDecimals@111": 0,
+        "readDecimals@116": 0,
+        "readName@35": 0,
+        "readName@40": 0,
+        "readName@45": 0,
+        "readString@74": 0,
+        "readString@80": 0,
+        "readString@90": 0,
+        "readSymbol@54": 0,
+        "readSymbol@59": 0,
+        "readSymbol@64": 0,
+        "readUint@121": 0,
+        "readUint@126": 0
+      },
+      "solidity/solady_utils/src_utils_SafeCastLib.sol": {
+        "_revertOverflow@664": 0,
+        "toInt104@307": 0,
+        "toInt104@535": 0,
+        "toInt112@315": 0,
+        "toInt112@541": 0,
+        "toInt120@323": 0,
+        "toInt120@547": 0,
+        "toInt128@331": 0,
+        "toInt128@553": 0,
+        "toInt136@339": 0,
+        "toInt136@559": 0,
+        "toInt144@347": 0,
+        "toInt144@565": 0,
+        "toInt152@355": 0,
+        "toInt152@571": 0,
+        "toInt160@363": 0,
+        "toInt160@577": 0,
+        "toInt168@371": 0,
+        "toInt168@583": 0,
+        "toInt16@219": 0,
+        "toInt16@469": 0,
+        "toInt176@379": 0,
+        "toInt176@589": 0,
+        "toInt184@387": 0,
+        "toInt184@595": 0,
+        "toInt192@395": 0,
+        "toInt192@601": 0,
+        "toInt200@403": 0,
+        "toInt200@607": 0,
+        "toInt208@411": 0,
+        "toInt208@613": 0,
+        "toInt216@419": 0,
+        "toInt216@619": 0,
+        "toInt224@427": 0,
+        "toInt224@625": 0,
+        "toInt232@435": 0,
+        "toInt232@631": 0,
+        "toInt240@443": 0,
+        "toInt240@637": 0,
+        "toInt248@451": 0,
+        "toInt248@643": 0,
+        "toInt24@227": 0,
+        "toInt24@475": 0,
+        "toInt256@649": 1,
+        "toInt32@235": 0,
+        "toInt32@481": 0,
+        "toInt40@243": 0,
+        "toInt40@487": 0,
+        "toInt48@251": 0,
+        "toInt48@493": 0,
+        "toInt56@259": 0,
+        "toInt56@499": 0,
+        "toInt64@267": 0,
+        "toInt64@505": 0,
+        "toInt72@275": 0,
+        "toInt72@511": 0,
+        "toInt80@283": 0,
+        "toInt80@517": 0,
+        "toInt88@291": 0,
+        "toInt88@523": 0,
+        "toInt8@211": 0,
+        "toInt8@463": 0,
+        "toInt96@299": 0,
+        "toInt96@529": 0,
+        "toUint104@93": 1,
+        "toUint112@99": 1,
+        "toUint120@105": 1,
+        "toUint128@111": 1,
+        "toUint136@117": 1,
+        "toUint144@123": 1,
+        "toUint152@129": 1,
+        "toUint160@135": 1,
+        "toUint168@141": 1,
+        "toUint16@27": 1,
+        "toUint176@147": 1,
+        "toUint184@153": 1,
+        "toUint192@159": 1,
+        "toUint200@165": 1,
+        "toUint208@171": 1,
+        "toUint216@177": 1,
+        "toUint224@183": 1,
+        "toUint232@189": 1,
+        "toUint240@195": 1,
+        "toUint248@201": 1,
+        "toUint24@33": 1,
+        "toUint256@655": 1,
+        "toUint32@39": 1,
+        "toUint40@45": 1,
+        "toUint48@51": 1,
+        "toUint56@57": 1,
+        "toUint64@63": 1,
+        "toUint72@69": 1,
+        "toUint80@75": 1,
+        "toUint88@81": 1,
+        "toUint8@21": 1,
+        "toUint96@87": 1
+      },
+      "solidity/solady_utils/src_utils_clz_LibRLP.sol": {
+        "_updateTail@373": 0,
+        "computeAddress@46": 1,
+        "encode@187": 0,
+        "encode@284": 0,
+        "encode@307": 0,
+        "encode@320": 0,
+        "encode@331": 0,
+        "encodeAddress@201": 0,
+        "encodeBytes@206": 0,
+        "encodeList@234": 0,
+        "encodeUint@190": 0,
+        "p@101": 0,
+        "p@104": 0,
+        "p@109": 0,
+        "p@114": 0,
+        "p@119": 0,
+        "p@124": 0,
+        "p@129": 0,
+        "p@147": 0,
+        "p@157": 0,
+        "p@167": 0,
+        "p@177": 0
+      },
+      "solidity/solady_utils/src_utils_ext_zksync_ERC1967Proxy.sol": {
+        "constructor@36": 1,
+        "fallback@47": 1
+      }
+    },
     "sql/baseline": {
       "sql/baseline/schema.php": {
         "install_network@980": 0,
@@ -50169,6 +54610,313 @@
         "webSocketRequest@530": 0,
         "webSocketRequest@561": 0,
         "withAllRequests@247": 0
+      }
+    },
+    "swift/ghostty_macos": {
+      "swift/ghostty_macos/macos_Sources_App_iOS_iOSApp.swift": {
+        "init@8": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptInputTextCommand.swift": {
+        "performDefaultImplementation@11": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_AppleScript_ScriptWindow.swift": {
+        "controller@136": 0,
+        "handleActivateWindow@178": 1,
+        "handleCloseWindow@194": 1,
+        "init@32": 0,
+        "stableID@239": 0,
+        "stableID@252": 0,
+        "stableID@257": 0,
+        "tabIndex@112": 1,
+        "tabIsSelected@118": 1,
+        "valueInTabs@82": 1,
+        "valueInTerminals@101": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Features_QuickTerminal_QuickTerminalSpaceBehavior.swift": {
+        "init?@8": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": {
+        "<@18": 0,
+        "==@22": 0
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": {
+        "setImageIfDesired@5": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": {
+        "temporaryFile@11": 1,
+        "truncate@2": 1
+      },
+      "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": {
+        "restore@31": 1,
+        "save@9": 1
+      }
+    },
+    "swift/swift_argument_parser": {
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_BashCompletionsGenerator.swift": {
+        "valueCompletion@330": 0
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Completions_ZshCompletionsGenerator.swift": {
+        "argumentActionAndSetupScript@187": 0,
+        "variableName@233": 0,
+        "zshEscapeForSingleQuotedDescribeCompletion@276": 0,
+        "zshEscapeForSingleQuotedOptionSpec@282": 0
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ArgumentSet.swift": {
+        "append@44": 1,
+        "counter@185": 1,
+        "errorForMissingValue@274": 0,
+        "first@227": 0,
+        "firstPositional@233": 1,
+        "flag@136": 0,
+        "flag@73": 0,
+        "init@260": 0,
+        "init@34": 0,
+        "init@36": 0,
+        "init@40": 0,
+        "next@566": 0,
+        "parse@624": 1,
+        "parseOptionalUnaryValue@474": 0,
+        "parsePositionalValues@529": 0,
+        "parseValue@293": 0,
+        "positional@239": 0,
+        "setInitialValues@211": 0,
+        "subscript@64": 1,
+        "updateFlag@103": 0
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_InputOrigin.swift": {
+        "<@117": 1,
+        "forEach@105": 1,
+        "formUnion@101": 1,
+        "init@73": 0,
+        "init@77": 0,
+        "init@81": 0,
+        "init@85": 0,
+        "insert@89": 0,
+        "inserting@94": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Parsing_ParsedValues.swift": {
+        "element@55": 0,
+        "set@37": 0,
+        "set@42": 0,
+        "update@59": 0,
+        "update@73": 0
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_DumpHelpGenerator.swift": {
+        "allArguments@33": 0,
+        "init?@137": 0,
+        "init?@191": 0,
+        "init?@96": 0,
+        "init@157": 0,
+        "init@17": 0,
+        "init@178": 0,
+        "init@21": 0,
+        "init@46": 0,
+        "init@58": 0,
+        "rendered@25": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Usage_MessageInfo.swift": {
+        "fullText@160": 1,
+        "init@17": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Foundation.swift": {
+        "describe@19": 1,
+        "encode@37": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_SequenceExtensions.swift": {
+        "uniquing@15": 1,
+        "uniquingAdjacentElements@25": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Utilities_Tree.swift": {
+        "==@34": 0,
+        "addChild@27": 0,
+        "firstChild@83": 0,
+        "firstChild@87": 0,
+        "hash@38": 1,
+        "init@21": 0,
+        "init@94": 0,
+        "path@46": 0,
+        "path@79": 0
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_NonsenseFlagsValidator.swift": {
+        "validate@35": 1
+      },
+      "swift/swift_argument_parser/Sources_ArgumentParser_Validators_UniqueNamesValidator.swift": {
+        "validate@30": 1
+      }
+    },
+    "swift/swift_nio_core": {
+      "swift/swift_nio_core/Sources_NIOCore_ByteBuffer-conversions.swift": {
+        "init@23": 0,
+        "init@42": 0,
+        "init@65": 0
+      },
+      "swift/swift_nio_core/Sources_NIOCore_FileRegion.swift": {
+        "==@113": 1,
+        "init@101": 0,
+        "init@75": 0,
+        "moveReaderIndex@89": 1
+      },
+      "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": {
+        "_decodeLoop@253": 0,
+        "_postDecodeCheck@345": 0,
+        "_withNonCoWBuffer@236": 0,
+        "append@226": 0,
+        "decode@58": 0,
+        "decodeLast@53": 0,
+        "decodeLast@67": 0,
+        "decodeNext@314": 1,
+        "decodeOnce@271": 2,
+        "decodeOnce@330": 2,
+        "finishProcessing@393": 1,
+        "init@219": 1,
+        "process@378": 1
+      },
+      "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": {
+        "activeThreadPool@456": 0,
+        "clearSource@167": 0,
+        "didReadBytes@484": 0,
+        "didReadNextChunk@261": 0,
+        "didTerminate@309": 1,
+        "done@514": 0,
+        "fileReadingState@465": 0,
+        "init@139": 0,
+        "init@360": 0,
+        "init@40": 0,
+        "init@73": 0,
+        "makeAsyncIterator@66": 1,
+        "makeFileChunksStream@101": 0,
+        "next@77": 1,
+        "pauseProducing@505": 0,
+        "performedProduceMore@421": 0,
+        "produceMore@179": 0,
+        "readNextChunk@235": 0,
+        "requestedProduceMore@377": 0,
+        "setSource@154": 0,
+        "updateRangeWithReadBytes@529": 0
+      },
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": {
+        "channelRead@27": 1,
+        "write@45": 1
+      },
+      "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": {
+        "buffer@112": 0,
+        "init@28": 1,
+        "run@82": 1,
+        "runWithCoWs@92": 0,
+        "runWithoutCoWs@99": 0,
+        "setUp@68": 1,
+        "tearDown@78": 1,
+        "write@138": 0
+      },
+      "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": {
+        "asyncDo@31": 1
+      },
+      "swift/swift_nio_core/Sources_NIOWebSocket_NIOWebSocketClientUpgrader.swift": {
+        "_addCustom@159": 0,
+        "_shouldAllowUpgrade@166": 0,
+        "_upgrade@184": 0,
+        "addCustom@113": 0,
+        "addCustom@58": 0,
+        "init@43": 0,
+        "init@99": 0,
+        "randomRequestKey@136": 0,
+        "randomRequestKey@151": 0,
+        "shouldAllowUpgrade@117": 2,
+        "shouldAllowUpgrade@62": 2,
+        "upgrade@121": 0,
+        "upgrade@66": 0
+      },
+      "swift/swift_nio_core/Sources__NIOFileSystem_ByteCount.swift": {
+        "<@153": 0,
+        "Unknown_Block@143": 1,
+        "Unknown_Block@147": 1,
+        "bytes@22": 0,
+        "gibibytes@100": 1,
+        "gigabytes@61": 1,
+        "kibibytes@74": 1,
+        "kilobytes@35": 1,
+        "mebibytes@87": 1,
+        "megabytes@48": 1,
+        "multipliedSaturating@108": 0
+      }
+    },
+    "swift/vapor_sources": {
+      "swift/vapor_sources/Sources_Vapor_Application.swift": {
+        "asyncBoot@261": 0,
+        "asyncShutdown@308": 0,
+        "boot@247": 1,
+        "execute@203": 0,
+        "init@126": 0,
+        "init@138": 0,
+        "init@54": 0,
+        "init@77": 0,
+        "insertOrReturn@350": 0,
+        "lock@82": 1,
+        "make@169": 0,
+        "make@173": 0,
+        "run@187": 0,
+        "shutdown@279": 0,
+        "start@221": 0,
+        "startup@232": 0,
+        "use@58": 0
+      },
+      "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": {
+        "connect@101": 0,
+        "connect@122": 0,
+        "connect@81": 0,
+        "webSocket@10": 0,
+        "webSocket@46": 0,
+        "webSocket@66": 0
+      },
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": {
+        "init?@51": 1,
+        "init@160": 0,
+        "init@184": 0,
+        "init@238": 0,
+        "init@242": 0,
+        "init@251": 0,
+        "serialize@191": 0,
+        "subscript@287": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": {
+        "extract@93": 0,
+        "init@10": 0,
+        "init@17": 0,
+        "respond@23": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": {
+        "decodeRequest@25": 1,
+        "decodeRequest@29": 0,
+        "encodeResponse@13": 0,
+        "encodeResponse@50": 0,
+        "encodeResponse@67": 0,
+        "encodeResponse@74": 0,
+        "encodeResponse@82": 0,
+        "encodeResponse@90": 0
+      },
+      "swift/vapor_sources/Sources_Vapor_Services_Req_Service.swift": {
+        "init@4": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Utilities_AnyResponse.swift": {
+        "encodeResponse@47": 1,
+        "init@43": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Utilities_OptionalType.swift": {
+        "??@29": 1,
+        "makeOptionalType@47": 1,
+        "makeOptionalType@65": 0,
+        "unwrap@13": 1
+      },
+      "swift/vapor_sources/Sources_Vapor_Validation_Validators_Count.swift": {
+        "count@13": 0,
+        "count@18": 0,
+        "count@23": 0,
+        "count@27": 0,
+        "count@3": 0,
+        "count@8": 0
+      },
+      "swift/vapor_sources/Sources_Vapor__Deprecations.swift": {
+        "init@4": 1
       }
     },
     "tcl/macports_port_api": {
@@ -59260,6 +64008,403 @@
         "param@123": 0,
         "string@187": 0,
         "value@170": 0
+      }
+    },
+    "yacc/freebsd_yacc_lex": {
+      "yacc/freebsd_yacc_lex/lib_libipsec_policy_parse.y": {
+        "addresses@182": 0,
+        "level@171": 0,
+        "mode@167": 0,
+        "policy_spec@113": 1,
+        "protocol@163": 0,
+        "rule@146": 0,
+        "rules@133": 0
+      },
+      "yacc/freebsd_yacc_lex/sbin_devd_parse.y": {
+        "action@148": 0,
+        "attach_block@101": 0,
+        "config@67": 0,
+        "config_file@57": 1,
+        "config_list@62": 0,
+        "detach_block@107": 0,
+        "directory_option@89": 0,
+        "match@136": 0,
+        "match_or_action@131": 0,
+        "match_or_action_list@125": 0,
+        "nomatch_block@113": 0,
+        "notify_block@119": 0,
+        "option@83": 0,
+        "option_block@75": 0,
+        "options@79": 0,
+        "pid_file_option@93": 0,
+        "set_option@97": 0
+      },
+      "yacc/freebsd_yacc_lex/sbin_devd_token.l": {
+        "out@83": 0
+      },
+      "yacc/freebsd_yacc_lex/sbin_hastd_parse.y": {
+        "boolean@375": 0,
+        "checksum_statement@257": 0,
+        "checksum_type@273": 0,
+        "compression_statement@281": 0,
+        "compression_type@297": 0,
+        "control_statement@138": 0,
+        "exec_statement@325": 0,
+        "listen_statement@198": 0,
+        "local_statement@612": 0,
+        "metaflush_statement@353": 0,
+        "name_statement@581": 0,
+        "node_entries@405": 0,
+        "node_entry@410": 0,
+        "node_start@387": 0,
+        "node_statement@381": 0,
+        "pidfile_statement@168": 0,
+        "remote_statement@686": 0,
+        "remote_str@703": 0,
+        "replication_statement@232": 0,
+        "replication_type@249": 0,
+        "resource_entries@556": 0,
+        "resource_entry@561": 0,
+        "resource_node_entries@669": 0,
+        "resource_node_entry@674": 0,
+        "resource_node_start@649": 0,
+        "resource_node_statement@643": 0,
+        "resource_start@500": 0,
+        "resource_statement@418": 0,
+        "source_statement@709": 0,
+        "statement@114": 0,
+        "statements@109": 1,
+        "timeout_statement@305": 0
+      },
+      "yacc/freebsd_yacc_lex/sbin_setkey_parse.y": {
+        "add_command@164": 0,
+        "ah_spec@305": 0,
+        "algorithm_spec@294": 0,
+        "auth_alg@441": 0,
+        "command@149": 0,
+        "commands@140": 1,
+        "delete_command@176": 0,
+        "deleteall_command@195": 0,
+        "dump_command@232": 0,
+        "enc_alg@329": 0,
+        "esp_spec@300": 0,
+        "extension@513": 0,
+        "extension_spec@508": 0,
+        "flush_command@222": 0,
+        "get_command@207": 0,
+        "ipaddr@697": 0,
+        "ipaddropt@672": 0,
+        "ipaddropts@659": 0,
+        "ipcomp_spec@309": 0,
+        "key_string@474": 0,
+        "policy_requests@808": 0,
+        "policy_spec@792": 0,
+        "portstr@713": 0,
+        "prefix@708": 0,
+        "protocol_spec@241": 0,
+        "spd_hwif@664": 0,
+        "spdadd_command@559": 0,
+        "spddelete_command@601": 0,
+        "spddump_command@639": 0,
+        "spdflush_command@649": 0,
+        "spi@272": 0,
+        "upper_misc_spec@775": 0,
+        "upper_spec@749": 0
+      },
+      "yacc/freebsd_yacc_lex/usr.bin_ar_acpyacc.y": {
+        "addlib_cmd@163": 0,
+        "addmod_cmd@168": 0,
+        "ar_script@120": 0,
+        "begin@116": 1,
+        "clear_cmd@172": 0,
+        "cmd@144": 0,
+        "cmd_list@135": 0,
+        "create_cmd@176": 0,
+        "delete_cmd@180": 0,
+        "directory_cmd@184": 0,
+        "empty_cmd@218": 0,
+        "end_cmd@190": 0,
+        "extract_cmd@194": 0,
+        "invalid_cmd@222": 0,
+        "list_cmd@198": 0,
+        "mod_list@125": 0,
+        "open_cmd@202": 0,
+        "rawcmd@140": 0,
+        "replace_cmd@206": 0,
+        "save_cmd@210": 0,
+        "separator@130": 0,
+        "verbose_cmd@214": 0
+      },
+      "yacc/freebsd_yacc_lex/usr.bin_m4_parser.y": {
+        "expr@45": 0,
+        "top@43": 1
+      }
+    },
+    "yacc/gnucobol_cobc": {
+      "yacc/gnucobol_cobc/cobc_pplex.l": {
+        "err_handling@1131": 0,
+        "start@1389": 1
+      },
+      "yacc/gnucobol_cobc/cobc_ppparse.y": {
+        "_also@1449": 0,
+        "_as@1471": 0,
+        "_dot@1035": 0,
+        "_format@1472": 0,
+        "_is@1473": 0,
+        "_last@1460": 0,
+        "_not@1438": 0,
+        "_override@1427": 0,
+        "_printing@1474": 0,
+        "_than@1475": 0,
+        "_to@1476": 0,
+        "alnum_equality@888": 0,
+        "alnum_equality_list@880": 0,
+        "alnum_list@869": 0,
+        "call_choice@1077": 0,
+        "call_directive@1072": 0,
+        "condition_clause@1177": 0,
+        "control_option@1026": 0,
+        "control_options@1021": 0,
+        "copy_in@1253": 0,
+        "copy_replacing@1273": 0,
+        "copy_source@1232": 0,
+        "copy_statement@1224": 0,
+        "copy_suppress@1269": 0,
+        "define_directive@938": 0,
+        "directive@671": 0,
+        "ec_list@1055": 0,
+        "format_type@916": 0,
+        "identifier@1369": 0,
+        "if_directive@1099": 0,
+        "in_or_of@1264": 0,
+        "lead_trail@1414": 0,
+        "leap_second_directive@1039": 0,
+        "listing_directive@1009": 0,
+        "listing_statement@1016": 0,
+        "object_id@1150": 0,
+        "on_or_off@1060": 0,
+        "replace_statement@1284": 0,
+        "replacing_list@1295": 0,
+        "set_choice@713": 0,
+        "set_directive@708": 0,
+        "set_options@896": 0,
+        "source_directive@907": 0,
+        "statement@660": 0,
+        "statement_list@656": 1,
+        "subscripts@1402": 0,
+        "text_dst@1325": 0,
+        "text_partial_dst@1347": 0,
+        "text_partial_src@1340": 0,
+        "text_src@1314": 0,
+        "token_list@1358": 0,
+        "turn_directive@1048": 0,
+        "variable_or_literal@1145": 0,
+        "with_loc@1067": 0
+      },
+      "yacc/gnucobol_cobc/cobc_scanner.l": {
+        "error@1468": 0,
+        "error@1511": 0,
+        "error@1590": 0,
+        "error@1682": 0,
+        "error@1758": 0,
+        "freevar@2223": 0
+      }
+    },
+    "yacc/prometheus_goyacc": {
+      "yacc/prometheus_goyacc/model_textparse_openmetricslex.l": {
+        "c@28": 1
+      },
+      "yacc/prometheus_goyacc/model_textparse_promlex.l": {
+        "c@42": 1
+      },
+      "yacc/prometheus_goyacc/promql_parser_generated_parser.y": {
+        "Args@468": 1,
+        "Duration@1049": 0,
+        "End@471": 0,
+        "EndPos@1153": 2,
+        "EndPos@1161": 0,
+        "EndPos@1171": 2,
+        "EndPos@1183": 2,
+        "EndPos@1193": 2,
+        "EndPos@1203": 2,
+        "EndPos@1207": 2,
+        "EndPos@1319": 2,
+        "EndPos@1327": 0,
+        "EndPos@1335": 2,
+        "EndPos@599": 0,
+        "EndPos@622": 0,
+        "EndPos@636": 0,
+        "Expr@617": 2,
+        "Expr@633": 2,
+        "Func@467": 1,
+        "Grouping@273": 0,
+        "Grouping@279": 0,
+        "LHS@1194": 2,
+        "LHS@1208": 0,
+        "LHS@1336": 2,
+        "LabelMatchers@685": 2,
+        "LabelMatchers@702": 2,
+        "LabelMatchers@709": 2,
+        "LabelMatchers@716": 2,
+        "Name@684": 0,
+        "Op@1151": 2,
+        "Op@1159": 2,
+        "Op@1167": 2,
+        "Op@1169": 2,
+        "Op@1179": 2,
+        "Op@1181": 2,
+        "Op@1191": 2,
+        "Op@1201": 2,
+        "Op@1205": 0,
+        "Op@1219": 2,
+        "Op@1260": 2,
+        "Op@1317": 2,
+        "Op@1325": 2,
+        "Op@1333": 2,
+        "Pos@1103": 0,
+        "PosRange@1035": 0,
+        "PosRange@1048": 0,
+        "PosRange@1094": 0,
+        "PosRange@469": 0,
+        "PosRange@686": 0,
+        "PosRange@703": 0,
+        "PosRange@710": 0,
+        "PosRange@717": 0,
+        "RHS@1168": 2,
+        "RHS@1180": 2,
+        "RHS@1195": 0,
+        "RHS@1204": 2,
+        "RHS@1209": 0,
+        "RHS@1220": 0,
+        "RHS@1261": 0,
+        "RHS@1337": 0,
+        "Range@597": 2,
+        "Range@618": 2,
+        "Range@634": 2,
+        "RangeExpr@598": 2,
+        "RangeExpr@619": 2,
+        "RangeExpr@635": 2,
+        "ReturnBool@322": 1,
+        "Start@470": 0,
+        "StartPos@1152": 2,
+        "StartPos@1160": 2,
+        "StartPos@1170": 2,
+        "StartPos@1173": 0,
+        "StartPos@1182": 2,
+        "StartPos@1185": 0,
+        "StartPos@1192": 2,
+        "StartPos@1202": 0,
+        "StartPos@1206": 2,
+        "StartPos@1221": 0,
+        "StartPos@1262": 0,
+        "StartPos@1318": 2,
+        "StartPos@1326": 2,
+        "StartPos@1334": 2,
+        "Step@620": 1,
+        "StepExpr@621": 1,
+        "Typ@1102": 0,
+        "Val@1034": 0,
+        "Val@1047": 0,
+        "Val@1093": 0,
+        "Val@1104": 0,
+        "VectorMatching@316": 0,
+        "VectorMatching@321": 0,
+        "VectorSelector@596": 0,
+        "Without@280": 1,
+        "aggregate_expr@256": 0,
+        "aggregate_modifier@269": 0,
+        "aggregate_op@1018": 0,
+        "anchored_expr@539": 0,
+        "at_modifier_preprocessors@567": 0,
+        "bin_modifier@312": 0,
+        "binary_expr@290": 0,
+        "bool_modifier@314": 0,
+        "bucket_set@991": 0,
+        "bucket_set_list@1001": 0,
+        "counter_reset_hint@1012": 0,
+        "de@1215": 0,
+        "duration_expr@1232": 0,
+        "errRange@586": 1,
+        "expr@234": 0,
+        "fill@361": 0,
+        "fill@369": 0,
+        "fill@376": 0,
+        "fill_left@383": 0,
+        "fill_left@392": 0,
+        "fill_modifiers@356": 0,
+        "fill_right@384": 0,
+        "fill_right@391": 0,
+        "fill_value@438": 0,
+        "function_call@457": 0,
+        "function_call_args@483": 0,
+        "function_call_body@477": 0,
+        "group_modifiers@340": 0,
+        "grouping_label@418": 0,
+        "grouping_label_list@409": 0,
+        "grouping_labels@398": 0,
+        "histogram_desc_item@933": 0,
+        "histogram_desc_map@919": 0,
+        "histogram_series_value@898": 0,
+        "int@1086": 0,
+        "label_match_list@722": 0,
+        "label_matcher@736": 0,
+        "label_matchers@699": 0,
+        "label_set@765": 0,
+        "label_set_item@784": 0,
+        "label_set_list@775": 0,
+        "labels@810": 0,
+        "m@909": 0,
+        "m@914": 0,
+        "match_op@1025": 0,
+        "matrix_selector@573": 0,
+        "maybe_grouping_labels@1113": 0,
+        "maybe_label@1021": 0,
+        "metric@756": 0,
+        "metric_identifier@763": 0,
+        "min_max@1230": 0,
+        "nl@1126": 0,
+        "nl@1136": 0,
+        "nl@1234": 0,
+        "nl@444": 0,
+        "number@1054": 0,
+        "number_duration_literal@1031": 0,
+        "offset_duration_expr@1124": 0,
+        "offset_expr@521": 0,
+        "on_or_ignoring@327": 0,
+        "paren_duration_expr@1343": 0,
+        "paren_expr@498": 0,
+        "positive_duration_expr@506": 0,
+        "series_description@807": 0,
+        "series_item@826": 0,
+        "series_value@887": 0,
+        "series_values@816": 0,
+        "signed_number@1070": 0,
+        "signed_or_unsigned_number@1074": 0,
+        "smoothed_expr@544": 0,
+        "start@219": 0,
+        "step_invariant_expr@553": 0,
+        "string_identifier@1099": 0,
+        "string_literal@1090": 0,
+        "subquery_expr@604": 0,
+        "sv@863": 1,
+        "uint@1076": 0,
+        "unary_expr@653": 0,
+        "unary_op@1023": 0,
+        "unquoted@426": 1,
+        "values@811": 0,
+        "vector_selector@673": 0,
+        "vs@675": 0,
+        "vs@683": 0,
+        "vs@693": 0
+      }
+    },
+    "yacc/sqlite_lemon": {
+      "yacc/sqlite_lemon/ext_fts5_fts5parse.y": {
+        "input@82": 1
+      },
+      "yacc/sqlite_lemon/test_lemon-test01.y": {
+        "all@19": 0,
+        "all@20": 0
       }
     },
     "yaml/black_action": {

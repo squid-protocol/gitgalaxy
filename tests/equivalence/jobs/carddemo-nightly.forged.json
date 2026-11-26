@@ -35,6 +35,15 @@
   "unmodelled": {
     "CREASTMT": ["DELDEF01", "STEP030"]
   },
+  "final_outputs": [
+    {"case": "combtran-step10-idcams", "dd": "TRANVSAM", "job": "COMBTRAN", "dataset": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"}
+  ],
+  "program_outputs": [
+    {"case": "carddemo-posttran", "dd": "DALYREJS", "job": "POSTTRAN", "dataset": "AWS.M2.CARDDEMO.DALYREJS"},
+    {"case": "carddemo-posttran", "dd": "ACCTFILE", "job": "POSTTRAN", "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"},
+    {"case": "carddemo-posttran", "dd": "TCATBALF", "job": "POSTTRAN", "dataset": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS"},
+    {"case": "carddemo-intcalc", "dd": "ACCTFILE", "job": "INTCALC", "dataset": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"}
+  ],
   "steps": [
     {"case": "carddemo-posttran", "job": "POSTTRAN", "jcl_steps": ["STEP15"]},
     {"case": "carddemo-intcalc", "job": "INTCALC", "jcl_steps": ["STEP15"]},

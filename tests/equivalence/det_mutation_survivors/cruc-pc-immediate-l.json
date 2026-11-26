@@ -447,6 +447,227 @@
    ]
   },
   {
+   "id": "4bcef40590",
+   "op": "ROR",
+   "line": 97,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "harness-gap",
+   "reason": "ROR at line 97: `d != null` flips the same DTO null guard as bd223f5b23; same entry (handleLink with a DTO) no harness input calls. Behaviour differs for a REST caller (live DTO skipped, null DTO dereferenced); not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "bd223f5b23",
+   "op": "NEG",
+   "line": 97,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "harness-gap",
+   "reason": "NEG at line 97: inverts the null guard of in_PcimmlDfhcommarea, the copy of a typed PcimmlDfhcommarea DTO into the COMMAREA storage. That method runs only when task.commarea(Object.class) is a DTO, i.e. through the public handleLink(PcimmlDfhcommarea) REST entry (line 166). The equivalence harness enters runTask with COMMAREA bytes only (ca is a byte[]), so the guard is never evaluated. Real behaviour (a null DTO would be dereferenced, a live one skipped) is not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "0bcea7480f",
+   "op": "DEL",
+   "line": 98,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 98: removes the early return for a null DTO in in_PcimmlDfhcommarea. A null DTO then throws NullPointerException at the getCaStage call; only handleLink(null) gets there and the harness passes bytes or null COMMAREA through the byte[] path.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "86dfc2609e",
+   "op": "CON",
+   "line": 100,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 1, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 100: moves CA-STAGE one byte right (offset base+1) when a DTO is loaded. Only the DTO entry runs this; the harness never passes a DTO, so the shifted copy is not observed.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "8ba17132d9",
+   "op": "AOR",
+   "line": 100,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base - 0, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "AOR at line 100: `base - 0` equals `base + 0`; base is the constant 0 at every call site (lines 166-167, 111), so the mutant is textually different but the storage offset is identical. Same offset on every input.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "b3eeceeca9",
+   "op": "ROR",
+   "line": 100,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() != null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "ROR at line 100: the CA-STAGE null test is flipped, so a non-null DTO stage is replaced by \"\" (or a null one dereferenced) when the DTO is loaded. DTO-only path (handleLink with a PcimmlDfhcommarea); the harness feeds bytes.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "ed1c638c63",
+   "op": "CON",
+   "line": 100,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 100: widens the CA-STAGE move to 2 bytes when a DTO is loaded, overwriting the first byte of CA-TEXT. DTO entry only; entered by no harness input (bytes only).",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "1af526f89c",
+   "op": "CON",
+   "line": 101,
+   "before": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 7, false), CS);",
+   "after": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 101: CA-TEXT copy widened to 8 bytes, running one past the 8-byte COMMAREA, when a DTO is loaded. DTO entry only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "2022a0ae26",
+   "op": "ROR",
+   "line": 101,
+   "before": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 7, false), CS);",
+   "after": "Cobol.move(d.getCaText() != null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 7, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "ROR at line 101: the CA-TEXT null test is flipped when a DTO is loaded (non-null text replaced by \"\"). DTO entry only; harness never calls handleLink(PcimmlDfhcommarea).",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "61920f7f99",
+   "op": "CON",
+   "line": 101,
+   "before": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 7, false), CS);",
+   "after": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 2, 7, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 101: CA-TEXT copied to offset base+2 instead of +1 when a DTO is loaded. DTO entry only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "440f58a512",
+   "op": "CON",
+   "line": 105,
+   "before": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
+   "after": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 1, 1, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "CON at line 105: CA-STAGE is read back from byte 1 instead of 0 into the returned DTO. DTO return value only; the harness does not compare it.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "44e74f87d4",
+   "op": "CON",
+   "line": 105,
+   "before": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
+   "after": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "CON at line 105: CA-STAGE read back over 2 bytes into the returned DTO. DTO return value only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "aa4762f6ae",
+   "op": "AOR",
+   "line": 105,
+   "before": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
+   "after": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
+   "verdict": "equivalent",
+   "reason": "AOR at line 105: `base - 0` equals `base + 0` (base is the constant 0 at each call site): identical offset, so no input changes the result on any entry.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "bfcd2e026e",
+   "op": "DEL",
+   "line": 105,
+   "before": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
+   "after": "/* d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 105: fill_PcimmlDfhcommarea no longer writes CA-STAGE back to the DTO. fill_ runs from caBack (line 167) and out_ (line 111) on the DTO entry, which returns the DTO to a REST caller; the harness compares bytes, never the returned DTO.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "0422940f12",
+   "op": "CON",
+   "line": 106,
+   "before": "d.setCaText(Cobol.text(Field.alphanumeric(s, base + 1, 7, false), CS));",
+   "after": "d.setCaText(Cobol.text(Field.alphanumeric(s, base + 1, 8, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "CON at line 106: CA-TEXT read back over 8 bytes into the DTO. DTO return value only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "8830195830",
+   "op": "CON",
+   "line": 106,
+   "before": "d.setCaText(Cobol.text(Field.alphanumeric(s, base + 1, 7, false), CS));",
+   "after": "d.setCaText(Cobol.text(Field.alphanumeric(s, base + 2, 7, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "CON at line 106: CA-TEXT read back from byte 2 of the COMMAREA into the DTO. DTO return value only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "bb6b5f5e9f",
+   "op": "DEL",
+   "line": 106,
+   "before": "d.setCaText(Cobol.text(Field.alphanumeric(s, base + 1, 7, false), CS));",
+   "after": "/* d.setCaText(Cobol.text(Field.alphanumeric(s, base + 1, 7, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 106: CA-TEXT is not written back to the returned DTO. DTO return value only; the harness compares bytes.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
    "id": "55215c0929",
    "op": "DEL",
    "line": 126,
@@ -699,6 +920,45 @@
    ]
   },
   {
+   "id": "8e7c08f67e",
+   "op": "DEL",
+   "line": 166,
+   "before": "in_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 166: the DTO is not loaded into COMMAREA storage on the DTO entry, so the program would run on initial storage. Reached only via handleLink(PcimmlDfhcommarea); not by harness bytes.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "f3d2761833",
+   "op": "CON",
+   "line": 166,
+   "before": "in_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "in_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 166: DTO loaded at base 1 instead of 0 on the DTO entry (shifted by a byte). DTO entry only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "0a26ede235",
+   "op": "DEL",
+   "line": 167,
+   "before": "caBack = () -> fill_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "harness-gap",
+   "reason": "DEL at line 167: the DTO is not refreshed from COMMAREA storage at the end of the task, so the REST caller would see the unchanged request. The returned DTO is never compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
    "id": "494d7ec675",
    "op": "DEL",
    "line": 167,
@@ -708,6 +968,32 @@
    "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
    "tried": [
     "never-populated"
+   ]
+  },
+  {
+   "id": "70ac3e690c",
+   "op": "CON",
+   "line": 167,
+   "before": "caBack = () -> fill_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_PcimmlDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 167: the end-of-task refresh of the DTO reads from base 1. Returned DTO only; not compared.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
+   ]
+  },
+  {
+   "id": "1253aaf9e3",
+   "op": "CON",
+   "line": 168,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "harness-gap",
+   "reason": "CON at line 168: EIBCALEN for a DTO entry is 9 instead of the layout length 8, so a REST-entered program sees a one-byte longer COMMAREA. DTO entry only; the harness sets EIBCALEN from byte lengths (line 174), which this line does not touch.",
+   "tried": [
+    "dto-ca-8-ff",
+    "dto-ca-9-text"
    ]
   },
   {

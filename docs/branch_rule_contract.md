@@ -93,6 +93,8 @@ accepted undercount.
 or bare `/.../` regex literal, is not code, so `(?:a|b)` and `"dbi:mysql:host"` count nothing. A ternary counts once, at
 its `?`; a `:` is never a decision. Pins: `tests/extraction/languages/test_perl_branch_literals_8908.py`.
 
+**Rust's `?` (#8868).** The try operator is a conditional early return (Ok continues, Err leaves; it desugars to a `match`), so it is a decision and counts; corollary 3 excludes only unconditional transfers. A `?Sized` bound and a `?` in a literal do not count. The Rust oracle reads `try_expression` as a branch.
+
 **Java's `:` and `?`.** A ternary is one decision, counted at its `?` (the
 "value-selection" dual below; java also counted its `:`, so every ternary read
 2). A `:` is never a decision in java: the ternary's own, a `case`/`default`

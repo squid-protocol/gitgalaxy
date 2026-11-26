@@ -275,7 +275,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": None,
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(POODOO|BAILOUT|TC\s+ALARM|ABORT)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(TC\s+JOBSLEEP|VARDELAY)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\b(MASK|AD|SU|MULT|DV)\b", re.I),

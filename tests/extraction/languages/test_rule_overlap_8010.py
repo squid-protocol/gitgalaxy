@@ -41,13 +41,15 @@ def test_python_swallowed_exception_is_one_bypass_site(lang, text):
 def test_php_exit_and_die_are_aborts_not_prints():
     assert _hits("php", "debug_prints", "exit(1); die('x');") == []
     assert _hits("php", "panics_and_aborts", "exit(1); die('x');") == ["exit", "die"]
-    assert _hits("php", "debug_prints", "echo $x; var_dump($y);") == ["echo", "var_dump"]
+    assert _hits("php", "debug_prints", "echo $x; var_dump($y);") == ["echo", "var_dump("]
 
 
 def test_csharp_arrow_is_a_closure_not_a_structural_boundary():
     for text in ("x => x + 1", "int Get() => 1;"):
         assert _hits("csharp", "structural_boundaries", text) == []
-        assert _hits("csharp", "closures", text) == ["=>"]
+    # #8863: closures count anonymous callables only; an expression-bodied member is not one.
+    assert _hits("csharp", "closures", "x => x + 1") == ["x =>"]
+    assert _hits("csharp", "closures", "int Get() => 1;") == []
     assert _hits("csharp", "structural_boundaries", "return x; class A {}") == ["return", "class"]
 
 

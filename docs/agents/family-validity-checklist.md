@@ -18,7 +18,11 @@ recipes, and the checklist a PR carries. Contracts are the definitions (`gitgala
 | `doc` | the structured documentation form each language's tools read; a language with none is N/A, not "any comment" |
 | string literals | shielding keywords inside strings is extended one family at a time, each timed (#2535); `branch` already has it |
 
-Still open (file a question on the epic, do not guess): Rust `?` as a branch; Go struct tags as `decorators`.
+Rust `?` counts as a `branch` (#8868): it is a conditional early return, so the contract's unconditional-transfer exclusion does not apply; the Rust oracle reads `try_expression` (crucible: precision 0.76 -> 0.99, no engine change).
+
+Nothing from #8868 is still open as a question; Go struct tags as `decorators` was settled in #9363.
+
+Go `decorators` counts the `//go:` pragma line(s) directly above a `func` (a blank line detaches; a doc comment between does not), read from the raw lines in `detector._go_leading_pragmas` because the unit starts at `func` (#9343: crucible 0 / 151 -> 151 / 151). Go `regex_execution`'s oracle reads `re.MatchString` method calls as well as `regexp.` calls (prometheus, re-measured 2026-11-26 on the current engine: recall 0.93, precision 1.00 over 7,935 functions, baseline row updated, #9343; the pinned Go crucible has no regexp use, so that cell stays hatched).
 
 ## What a red cell usually is (check in this order)
 | Symptom | Usual cause | Real examples |

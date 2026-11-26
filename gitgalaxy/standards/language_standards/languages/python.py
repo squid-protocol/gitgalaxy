@@ -293,6 +293,11 @@ DEFINITION: dict[str, Any] = {
         # (`Path(p).read_text()`, `.glob(`) count without the word `pathlib` being present.
         "io": re.compile(
             r"\bopen[ \t]*\("
+            # #9311 / io contract C1: the builtin `open` and the I/O module names referenced BARE (`reader = open`,
+            # `plug = socket`, the rosetta plant) fire; attribute access (`self.socket`), a name being assigned or
+            # keyworded (`socket = s`, `open=True`), a string and an import line do not.
+            r"|(?<![.\w'\"])(?<!import )(?<!from )(?:open|requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)"
+            r"(?![\w.('\"\[]|[ \t]*[=:,](?!=))"
             r"|(?<![.\w])(?:requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\.\w+[ \t]*\("
             r"|\bos\.(?:walk|listdir|scandir|remove|unlink|rename|replace|makedirs|mkdir|rmdir|removedirs|open|read|write)\b"
             r"|\bsys\.(?:stdin|stdout|stderr)\b"
@@ -401,7 +406,10 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(
             r"\[[^\]]{0,500}\b" + _COMP_FOR + r"[^\]]{0,500}\]|\{[^}]{0,500}\b" + _COMP_FOR + r"[^}]{0,500}\}"
             r"|\([^)]{0,500}\b" + _COMP_FOR + r"[^)]{0,500}\)"
-            r"|\b(?:map|filter|reduce|starmap)[ \t]*\("
+            # #8863: the functional builtins, as BARE names (`map(f, xs)`) or the two qualified forms people write
+            # (`functools.reduce(`, `itertools.starmap(`). Not a method of something else: `qs.filter(` /
+            # `df.map(` are ORM / library calls (test_python_comprehensions_was_fixed_from_a_javascript_copy_paste).
+            r"|(?<![.\w])(?:map|filter|reduce|starmap)[ \t]*\(|\b(?:functools\.reduce|itertools\.starmap)[ \t]*\("
         ),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
         # hardware_bridge / cryptography (#4238): anchored on the top-level package, see
@@ -495,7 +503,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(int|str|float|list|dict|set|tuple|bool|bytes|cast)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(raise|quit|exit|sys\.exit|abort)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(?:time\.sleep|asyncio\.sleep|anyio\.sleep|Thread\.join)\b|\bsleep[ \t]*\("),
         # 43. bitwise_ops (Bitwise Operations)
         # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /

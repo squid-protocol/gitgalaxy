@@ -305,7 +305,28 @@ DEFINITION: dict[str, Any] = {
         ),
         # 17. closures (Closures / Anonymous Functions)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix ReDoS.
-        "closures": re.compile(r"\{[ \t\n]*[" + ID_START + r"][" + ID_CONTINUE + r" \t\n:<>,.?]{0,150}?->"),
+        # #9330: a lambda opens at its `{` whether or not it names a parameter. Three forms, one alternation:
+        #   1. `{ x ->` / `{ a, b ->` (explicit parameters). A `when` branch (`{ is T ->`, `{ else ->`) is not a lambda.
+        #   2. a trailing lambda handed to a bare callee: `runBlocking {`, `.also {`, `lazy {`, `run<T> {`.
+        #   3. a trailing lambda after a call's argument list: `synchronized(this) {`, `check(ok) {`, `with(x) {`.
+        #   Forms 2 and 3 apply only on a line that is not a declaration or control-flow header: no `class`, `interface`,
+        #   `object`, `if`, `for`, `while`, `when`, `catch`, `try`, `else`, `init`, `constructor` ...; no `fun` whose `{` is its
+        #   own body (a `fun f() = run {` keeps its lambda); and not a `)` / `:` line (the tail of a multi-line header).
+        # Every quantifier is bounded, so a long line stays linear.
+        "closures": re.compile(
+            r"\{[ \t\n]*(?!(?:is|in|else)[ \t\n])[" + ID_START + r"][" + ID_CONTINUE + r" \t\n:<>,.?]{0,150}?->"
+            r"|^(?![ \t]*[):])"
+            r"(?![^\n]{0,300}?\b(?:class|interface|object|enum|init|constructor|catch|when|if|for|while|else|do|try|finally|get|set)\b)"
+            r"(?![^\n]{0,300}?\bfun\b[^=\n{]{0,300}\{)"
+            r"[^\n{}]{0,300}?(?:(?<!["
+            + ID_CONTINUE
+            + r":,<>?])["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]{0,100}(?:<[^<>\n{}]{0,100}>)?|\))[ \t]*\{",
+            re.MULTILINE,
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX (#2673): The single indented `val` alternative couldn't tell a
         # `companion object { const val LIMIT = 5 }` (a real global) from a
@@ -430,7 +451,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|raise|exitProcess|return|panic)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(delay|Thread\.sleep|yield)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|\b(?:shl|shr|ushr|xor)\b"),

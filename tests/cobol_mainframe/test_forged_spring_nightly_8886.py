@@ -216,11 +216,16 @@ def test_the_jobs_final_datasets_are_set_against_what_the_chain_catalogued(res):
     why: the Spring jobs run on seeded fixtures (BKUP 100 records, SYSTRAN/BKUP for COMBTRAN 50), not the bytes the
     chain's earlier steps wrote (BKUP 264 records, COMBINED 314), and INTCALC's program step is a stub that writes no
     SYSTRAN. None is rounded to equal; slice 18 seeds a run from the chain's own bytes where the chain exports them (below)."""
-    rows = {d["dataset"]: d for d in res["datasets"]}
+    prog = {(f["case"], f["dataset"]) for f in SPEC.get("program_outputs", ())}  # slice 25's rows: own test file
+    rows = {d["dataset"]: d for d in res["datasets"] if (d["case"], d["dataset"]) not in prog}
     assert set(rows) == {
         "AWS.M2.CARDDEMO.SYSTRAN", "AWS.M2.CARDDEMO.TRANSACT.BKUP", "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
     }  # fmt: skip
     for mode in ("strict", "skip"):
+        # #8886 slice 24: this run was given no chain outputs, so the KSDS row cannot be set against the chain's bytes
+        ksds = rows["AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"]["modes"][mode]
+        assert ksds["status"] == "differs" and "exported no" in ksds["issue"]
         assert rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["status"] == "differs"
         assert "wrote no new generation" in rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["issue"]
         bkup = rows["AWS.M2.CARDDEMO.TRANSACT.BKUP"]["modes"][mode]

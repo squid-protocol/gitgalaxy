@@ -157,10 +157,12 @@ DEFINITION: dict[str, Any] = {
         # #8868: the filesystem calls the io contract names (os.OpenFile, WriteFile, ReadDir, the
         # mkdir / remove / rename / stat family, ioutil, filepath.Walk) were missed: `os.Open` had no
         # boundary-safe form for `os.OpenFile`.
+        # #8863: an operation, not a mention: `io.Reader` / `*bufio.Writer` as a type and the `net/http` / `database/sql` import
+        # path (a string) moved no data (go io 0.60 precision on the pinned crucible); a call or constructor still counts.
         "io": re.compile(
             r"\b(os\.(?:Open(?:File)?|Create|ReadFile|WriteFile|ReadDir|Mkdir(?:All)?|Remove(?:All)?|Rename|Stat|Lstat)"
             r"|ioutil\.|filepath\.Walk(?:Dir)?"
-            r"|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\."
+            r"|io\.(?:Copy|ReadAll|ReadFull|WriteString)\b|bufio\.New\w{0,20}|grpc\.|sqlx\.|pgx\."
             # #8868: network calls the contract names (a connection or request leaves the runtime)
             r"|http\.(?:Get|Post|PostForm|Head|ListenAndServe(?:TLS)?)|net\.(?:Listen|Dial)(?:Timeout|TCP|UDP)?)\b"
         ),
@@ -255,7 +257,12 @@ DEFINITION: dict[str, Any] = {
         ),
         # 13. doc (Structured Documentation)
         # GoDoc standard: comments immediately preceding a declaration.
-        "doc": re.compile(r"^[ \t]*//\s+[A-Z][" + ID_CONTINUE + r"]+\s+.*|^[ \t]*//\s*Package\s+", re.M),
+        # #8863: gofmt puts a declaration's doc comment at column 0 (an unexported `// handlePanic ensures ...` too, so no
+        # capital-letter test), and `//go:build` / `//nolint` (no space) are directives, not documentation. The regex alone
+        # would skip an indented statement note, but the comment stream the engine matches carries each comment without its
+        # indentation, so an indented `// note` and a file-header `//` line count as doc too (keyword-rosetta ledger
+        # go-doc-counts-every-line-comment, #9345).
+        "doc": re.compile(r"^//[ \t]+\S", re.M),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"\b(?:Test|Benchmark|Fuzz)["
@@ -354,6 +361,7 @@ DEFINITION: dict[str, Any] = {
         "_line_gates": ("state_mutation",),
         # 19. decorators (Decorators / Annotations)
         # Go lacks @decorators; uses Struct Tags and Build Tags.
+        # The `//go:` pragma line above a func is outside the unit text: detector._go_leading_pragmas adds it (#9343).
         "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),
         # 20. generics (Generics / Type Parameters)
         # BUG FIX: `~[a-zA-Z_]\w*` (the Go 1.18+ approximation-element
@@ -513,7 +521,13 @@ DEFINITION: dict[str, Any] = {
             r"\b(time\.Sleep|time\.After|time\.AfterFunc|time\.Tick|time\.NewTimer|time\.NewTicker|runtime\.Gosched)\b"
         ),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|\^|&\^"),
+        # #8863: `&` / `|` (and `&=` / `|=`) in operator position: an operand on both sides, spaced (`a & b`) or tight (`a&b`).
+        # A unary `&x` / `return &T{}` has no operand before it, and `&&` / `||` are short_circuit's.
+        "bitwise_ops": re.compile(
+            r"<<|>>|\^|&\^"
+            r"|(?<=[\w)\]])[ \t]+[&|](?![&|^])=?[ \t]+(?=[\w(])"
+            r"|(?<=[\w)\]])[&|](?![&|^=])(?=[\w(])"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Mutex|RWMutex|Lock|Unlock|RLock|RUnlock|atomic\.|sync\.Map|sync\.Pool)\b"),
         # 45. immutability_locks (Immutability Constraints)
@@ -595,9 +609,10 @@ DEFINITION: dict[str, Any] = {
         # #8868: the contract names a now/time/date constructor, duration arithmetic, a
         # formatting or timezone call: add time.Date / Unix / Until / ParseDuration / LoadLocation.
         # #8868: time.Sleep is a timed wait (thread_sleeps), not a clock or calendar value
+        # #8863: `time.Duration(n)` is duration arithmetic; `d time.Duration` (a field or parameter type) is a mention.
         "time_date_logic": re.compile(
-            r"\b(?:time\.Parse|time\.ParseDuration|time\.Duration|time\.Since|time\.Until"
-            r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)"
+            r"\b(?:time\.Parse|time\.ParseDuration|time\.Since|time\.Until"
+            r"|time\.Date|time\.Unix|time\.UnixMilli|time\.LoadLocation)\b|time\.Now\(\)|time\.Duration\("
         ),
         "ipc_rpc_bridges": re.compile(r"\b(net/rpc|grpc\.Dial|grpc\.NewServer|exec\.Command|syscall)\b"),
         # system_config_mutation (#3084): contract-level absence. no dedicated

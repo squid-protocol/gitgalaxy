@@ -401,8 +401,12 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit)\b"
         ),
         # 9. io (I/O & Network Boundaries)
+        # #8863: `Path.` (GetFileName / Combine / GetExtension) is string arithmetic on a path, not data crossing the runtime
+        # boundary, so it no longer counts; the stream / socket / file-info types and the HttpClient / Stream async verbs do.
         "io": re.compile(
-            r"\b(File|Directory|Stream|HttpClient|Path|SqlConnection|SqlCommand|DbContext|DbSet|HttpRequest|HttpResponse)\b\.|\[Table\("
+            r"\b(File|Directory|Stream|HttpClient|SqlConnection|SqlCommand|DbContext|DbSet|HttpRequest|HttpResponse)\b\.|\[Table\("
+            r"|\bnew\s+(?:FileStream|StreamReader|StreamWriter|BinaryReader|BinaryWriter|FileInfo|DirectoryInfo|TcpClient|TcpListener|UdpClient|Socket)\b"
+            r"|\.(?:Get|Post|Put|Delete|Send|GetStream|GetString|GetByteArray|Read|Write|CopyTo)Async\("
         ),
         # 10. api (Public Surface Area)
         # Public exposure surface. Explicit visibility + Controller mapping.
@@ -514,7 +518,15 @@ DEFINITION: dict[str, Any] = {
             r"\b(ControllerBase|IActionResult|Binding|ObservableCollection|DependencyProperty|ComponentBase|RenderFragment|MonoBehaviour)\b"
         ),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"=>|delegate[ \t]*\{"),
+        # #8863: an anonymous callable only -- a lambda `x =>` / `(a, b) =>` (optionally `async` / `static`) or an anonymous method
+        # `delegate {` / `delegate (...) {`. An expression-bodied member (`int F(int a) => a;`, `int P => 1;`), an accessor
+        # (`get =>`) and a switch-expression arm (`"a" =>`, `Foo f =>`) are not closures: the arrow must follow `(`, `,`, `=`, `:`,
+        # `?`, `=>` or a keyword, never a member header's name or a type.
+        "closures": re.compile(
+            r"delegate[ \t]*(?:\{|\([^()\n]{0,200}\)[ \t]*\{)"
+            r"|(?:[(,=:?]|\b(?:async|static|return)\b|=>|(?m:^)(?![ \t]*(?:_|null|true|false|default|get|set|init|add|remove)\b))[ \t]*"
+            r"(?:(?:async|static)[ \t]+){0,2}(?:@?[" + ID_CONTINUE + r"]+|\([^()\n]{0,200}\))[ \t]*=>"
+        ),
         # 18. globals (Global / Shared State)
         # BUG FIX (Rule 9): the `public static ... = ` alternative ends
         # in `=` (non-word) but shared a trailing `\b` with word-ending
@@ -537,7 +549,14 @@ DEFINITION: dict[str, Any] = {
             + r"]+[ \t]*[=;]|\[ThreadStatic\]"
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"^[ \t]*\[[" + ID_START + r"][^\]]*\]", re.M),
+        # #8863: a collection-initializer / indexer key `[Key] = value` is not an attribute (the `]` is followed by `=`).
+        # A parameter attribute (`[NotNullWhen(true)] out T x`) counts: it attaches to the parameter it precedes.
+        "decorators": re.compile(
+            r"^[ \t]*\[[" + ID_START + r"][^\]\n]*\](?![ \t]*=)"
+            # a parameter attribute inside a parameter list: `([NotNullWhen(true)] out T x)`
+            r"|[(,][ \t]*\[[" + ID_START + r"][^\]\n]{0,80}\][ \t]+[" + ID_START + r"]",
+            re.M,
+        ),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(r"<\s*[A-Z][^>]*>|\bwhere\s+[" + ID_CONTINUE + r"]+\s*:"),
         # 21. comprehensions (Iterators / Comprehensions)
@@ -659,7 +678,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: throw/abort/FailFast/Environment.Exit)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire (`task.Wait();` -- the next
         # char is always `;`, a newline, or another `.method`, never a
@@ -668,7 +687,12 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation. Safely maps to C# bitwise operators without overlapping language-specific pipelines.
         # #8866: a ">>" closing a generic list is not a shift
-        "bitwise_ops": re.compile(r"<<|(?:(?<=[\s)\]])>>|(?<=\w)>>(?=\w))|\^|~"),
+        # #8863: `&` / `|` (and `&=` / `|=`) between value operands (`&&` / `||` and a unary address-of are not); a `^` that
+        # is an index-from-end (`xs[^1]`, `[..^2]`) is not xor; a `>>` after `)` closes a tuple generic (`List<(int, int)>>`).
+        "bitwise_ops": re.compile(
+            r"<<|(?:(?<=[\s\]])>>|(?<=\w)>>(?=\w))|(?<![\[.(,])\^|~"
+            r"|(?:[" + ID_CONTINUE + r".]|[)\]])[ \t]+[&|]=?(?![&|=])(?=\s)"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|Monitor|Semaphore|Interlocked|SpinLock|ReaderWriterLockSlim)\b",
@@ -716,9 +740,15 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(JsonSerializer\.Deserialize|JsonConvert\.DeserializeObject|XmlSerializer|BinaryFormatter)\b"
         ),
-        "regex_execution": re.compile(r"\b(Regex\.Match(?:es)?|Regex\.Replace|Regex\.IsMatch|new\s+Regex)\b"),
+        # #8863: the split / count / enumerate forms, and an instance `regex.IsMatch(` / `.EnumerateMatches(` call.
+        "regex_execution": re.compile(
+            r"\bRegex\.(?:Match(?:es)?|Replace|IsMatch|Split|Count|EnumerateMatches)\b|\bnew\s+Regex\b|\.(?:IsMatch|EnumerateMatches)\("
+        ),
+        # #8863: any `DateTime.` / `Stopwatch.` / `TimeZoneInfo.` / `DateOnly.` / `TimeOnly.` static member (Today, Parse, MinValue,
+        # GetTimestamp ...), `new DateTime(` / `new Stopwatch(`, and the tick counters -- not a bare type name in a signature.
         "time_date_logic": re.compile(
-            r"\b(DateTime\.Now|DateTime\.UtcNow|DateTimeOffset|TimeSpan|Stopwatch\.StartNew)\b"
+            r"\b(?:DateTime|Stopwatch|TimeZoneInfo|DateOnly|TimeOnly)\.[A-Za-z]|\bnew\s+(?:DateTime|Stopwatch|DateOnly|TimeOnly)\b"
+            r"|\bEnvironment\.TickCount(?:64)?\b|\b(?:DateTimeOffset|TimeSpan)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(Process\.Start|NamedPipeServerStream|ChannelFactory|GrpcChannel)\b"),
         # system_config_mutation (#3084): contract-level absence. deferred, see

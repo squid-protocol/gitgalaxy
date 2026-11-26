@@ -385,7 +385,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting execution or rollback.
         "panics_and_aborts": re.compile(r"\b(throw|Database\.rollback|purgeOldAsyncJobs)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Apex has no native sleep/delay).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) (Apex has no native sleep/delay).
         "thread_sleeps": None,
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),

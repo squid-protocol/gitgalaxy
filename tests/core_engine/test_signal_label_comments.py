@@ -219,6 +219,10 @@ def test_thread_sleeps_comments_use_the_display_name():
         "sqlite",
         "csharp",
         "m4",
+        "abap",
+        "assembly",
+        "css",
+        "apex",
     ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"thread_sleeps ({name}:" in text, stem

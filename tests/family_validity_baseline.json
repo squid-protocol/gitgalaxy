@@ -1956,12 +1956,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 0,
+    "n_family": 2,
     "n_oracle": 2,
     "pinned": true,
-    "precision": null,
-    "recall": 0.0,
-    "status": "dead"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1976,32 +1976,32 @@
    "debug_prints": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 287,
+    "n_family": 206,
     "n_oracle": 196,
     "pinned": true,
-    "precision": 0.683,
-    "recall": 1.0,
-    "status": "over-counts"
+    "precision": 0.937,
+    "recall": 0.985,
+    "status": "ok"
    },
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 338,
+    "n_family": 245,
     "n_oracle": 236,
     "pinned": true,
-    "precision": 0.58,
-    "recall": 0.831,
-    "status": "over-counts"
+    "precision": 0.918,
+    "recall": 0.953,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 179,
+    "n_family": 58,
     "n_oracle": 58,
     "pinned": true,
-    "precision": 0.324,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
@@ -2036,12 +2036,12 @@
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
     "functions": 816,
-    "n_family": 46,
+    "n_family": 12,
     "n_oracle": 12,
     "pinned": true,
-    "precision": 0.261,
+    "precision": 1.0,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    }
   },
   "swift": {

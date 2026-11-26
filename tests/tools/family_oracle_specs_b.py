@@ -618,7 +618,18 @@ class BOracle(TreeSitterOracle):
         return best
 
     def _documented(self, fn) -> bool:
-        com = _contiguous_comments(fn)
+        anchor = fn
+        if self.lang == "ruby":
+            # #9331: YARD and Sorbet attach the comment above a `sig { ... }` / `sig do ... end` to the method under it
+            prev = fn.prev_sibling
+            while (
+                prev is not None
+                and prev.type == "call"
+                and _text(prev).lstrip().startswith("sig")
+                and (prev.end_point[0] >= anchor.start_point[0] - 1)
+            ):
+                anchor, prev = prev, prev.prev_sibling
+        com = _contiguous_comments(anchor)
         if not com:
             return False
         if self.lang == "php":

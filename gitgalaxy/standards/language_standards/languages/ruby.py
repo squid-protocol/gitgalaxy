@@ -260,9 +260,12 @@ DEFINITION: dict[str, Any] = {
             )
         ),
         # 13. doc (Structured Documentation)
-        # Captures YARD tags, Sorbet signatures, RDoc blocks/modifiers, and standard documentation headers.
+        # Captures YARD tags, RDoc blocks/modifiers, and standard documentation headers.
+        # #9331 (family validity, cause: the rule counts another construct): a Sorbet `sig { ... }` is code, not the comment
+        # surface the doc contract reads, and nearly every method in a typed codebase has one: it no longer counts. `:nodoc:` asks
+        # RDoc to leave the item OUT of the documentation, so it is the opposite of documented and no longer counts either.
         "doc": re.compile(
-            r"^[ \t]*#\s*@(?:param|return|api|yield|raise|see|abstract|deprecated|note|example)|^[ \t]*sig[ \t]*\{|^=begin\s+(?:rdoc|pod)\b|^[ \t]*#\s*(?::nodoc:|:yields:|:args:|:return:)|^[ \t]*#\s*(?:Description|Usage|Example|Summary):\s+",
+            r"^[ \t]*#\s*@(?:param|return|api|yield|raise|see|abstract|deprecated|note|example)|^=begin\s+(?:rdoc|pod)\b|^[ \t]*#\s*(?::yields:|:args:|:return:)|^[ \t]*#\s*(?:Description|Usage|Example|Summary):\s+",
             re.M | re.I,
         ),
         # 14. test (Testing & Assertions)

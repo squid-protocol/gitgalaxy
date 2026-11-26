@@ -3391,15 +3391,14 @@
     "program": "cases/ghost-tasks/gt-web-query-form/src/GTWFRM.cbl",
     "row": {
      "holes": [
-      "line 72: EXEC EXEC CICS: WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 85: EXEC EXEC CICS: WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 98: EXEC EXEC CICS: WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 106: EXEC EXEC CICS: WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 121: EXEC EXEC CICS: WEB STARTBROWSE FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)"
+      "line 72: EXEC EXEC CICS: not a data area: 'k' (a data-area argument must be a COBOL data name, source defect, #7959)",
+      "line 85: EXEC EXEC CICS: not a data area: 'NAME' (a data-area argument must be a COBOL data name, source defect, #7959)",
+      "line 98: EXEC EXEC CICS: not a data area: 'zz' (a data-area argument must be a COBOL data name, source defect, #7959)",
+      "line 106: EXEC EXEC CICS: not a data area: 'name' (a data-area argument must be a COBOL data name, source defect, #7959)"
      ],
      "kind": "cics",
      "statements": 44,
-     "translated": 39
+     "translated": 40
     },
     "source_read": false
    },
@@ -3409,16 +3408,10 @@
     "facts": {},
     "program": "cases/ghost-tasks/gt-web-query-form/src/GTWQRY.cbl",
     "row": {
-     "holes": [
-      "line 72: EXEC EXEC CICS: WEB READ QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 84: EXEC EXEC CICS: WEB READ QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 96: EXEC EXEC CICS: WEB READ QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 103: EXEC EXEC CICS: WEB READ QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-      "line 117: EXEC EXEC CICS: WEB STARTBROWSE QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)"
-     ],
+     "holes": [],
      "kind": "cics",
      "statements": 44,
-     "translated": 39
+     "translated": 44
     },
     "source_read": false
    },
@@ -3884,10 +3877,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
+   "sha": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "translator": {
     "files": 189,
-    "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+    "sha256": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
    }
   },
   "sweeps": {}
@@ -22442,20 +22435,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 102,
+    "accounted": 110,
     "chosen": 287,
     "current": true,
-    "det_port": "raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 57 of 159 survivors unaccounted",
+    "det_port": "raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 49 of 159 survivors unaccounted",
     "killed": 122,
     "l5": false,
     "mutants": 287,
     "score": 0.4342,
     "stale_inputs": [],
     "survived": 159,
-    "unaccounted": 57
+    "unaccounted": 49
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 57 of 159 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 43% (122/281 caught; 287 of 287 mutants, seed 0); 49 of 159 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -33821,6 +33814,207 @@
     ]
    },
    "oracle_backing": [],
+   "program": "cases/ghost-tasks/gt-web-query-form/src/GTWQRY.cbl",
+   "residual": {
+    "assumed_or_differs_named": [],
+    "branch_outcomes_unrun": null,
+    "commands": 0,
+    "commands_backed": 0,
+    "commands_not_backed": [],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": null,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 44,
+    "translated": 44,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [],
+    "reach": "not measured",
+    "source_read": false
+   },
+   "coverage": {
+    "branch_net_pct": null,
+    "branch_pct": null,
+    "branches": null,
+    "branches_net": null,
+    "current": true,
+    "infeasible_netted": [],
+    "infeasible_refuted": [],
+    "infeasible_stated": [],
+    "paragraph_pct": null,
+    "paragraphs": null,
+    "source": null,
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [],
+    "chosen": null
+   },
+   "level": "L1",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "an equivalence case that runs it"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": null
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.packages",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "none"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [],
    "program": "cases/ghost-tasks/gt-web-receive-set/src/GTWRSET.cbl",
    "residual": {
     "assumed_or_differs_named": [],
@@ -34695,7 +34889,7 @@
     "score": null
    },
    "next": [
-    "translated whole (5 holes left)"
+    "translated whole (4 holes left)"
    ],
    "options": {
     "assumed": 6,
@@ -34840,7 +35034,7 @@
     "commands_backed": 0,
     "commands_not_backed": [],
     "facts_unstated": 0,
-    "holes": 5,
+    "holes": 4,
     "paragraphs_unrun": null,
     "refused": null
    },
@@ -34849,225 +35043,19 @@
    "survey_stale": false,
    "translation": {
     "gap_classes": [
-     "EXEC CICS WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE",
-     "EXEC CICS WEB STARTBROWSE FORMFIELD CHARACTERSET HOSTCODEPAGE"
+     "EXEC CICS not a data area: '\u2026'"
     ],
-    "hole_count": 5,
+    "hole_count": 4,
     "holes": [
-     "EXEC EXEC CICS: WEB READ FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-     "EXEC EXEC CICS: WEB STARTBROWSE FORMFIELD CHARACTERSET HOSTCODEPAGE: option not modelled (CHARACTERSET: code-page conversion is not modelled: the data is in the program's characters; HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)"
+     "EXEC EXEC CICS: not a data area: 'NAME' (a data-area argument must be a COBOL data name, source defect, #7959)",
+     "EXEC EXEC CICS: not a data area: 'k' (a data-area argument must be a COBOL data name, source defect, #7959)",
+     "EXEC EXEC CICS: not a data area: 'name' (a data-area argument must be a COBOL data name, source defect, #7959)",
+     "EXEC EXEC CICS: not a data area: 'zz' (a data-area argument must be a COBOL data name, source defect, #7959)"
     ],
     "refused": null,
     "source_defects": [],
     "statements": 44,
-    "translated": 39,
-    "whole": false
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [],
-    "reach": "not measured",
-    "source_read": false
-   },
-   "coverage": {
-    "branch_net_pct": null,
-    "branch_pct": null,
-    "branches": null,
-    "branches_net": null,
-    "current": true,
-    "infeasible_netted": [],
-    "infeasible_refuted": [],
-    "infeasible_stated": [],
-    "paragraph_pct": null,
-    "paragraphs": null,
-    "source": null,
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [],
-    "chosen": null
-   },
-   "level": "L0",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "translated whole (5 holes left)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": null
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.packages",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "none"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [],
-   "program": "cases/ghost-tasks/gt-web-query-form/src/GTWQRY.cbl",
-   "residual": {
-    "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": null,
-    "commands": 0,
-    "commands_backed": 0,
-    "commands_not_backed": [],
-    "facts_unstated": 0,
-    "holes": 5,
-    "paragraphs_unrun": null,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [
-     "EXEC CICS WEB READ QUERYPARM HOSTCODEPAGE",
-     "EXEC CICS WEB STARTBROWSE QUERYPARM HOSTCODEPAGE"
-    ],
-    "hole_count": 5,
-    "holes": [
-     "EXEC EXEC CICS: WEB READ QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)",
-     "EXEC EXEC CICS: WEB STARTBROWSE QUERYPARM HOSTCODEPAGE: option not modelled (HOSTCODEPAGE: code-page conversion is not modelled: the data is in the program's characters)"
-    ],
-    "refused": null,
-    "source_defects": [],
-    "statements": 44,
-    "translated": 39,
+    "translated": 40,
     "whole": false
    }
   },
@@ -35691,8 +35679,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
+   "python tests/tools/cics_census.py survey --baseline --sha 7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cruc-ca-address-commarea,cruc-ca-address-commarea-callee,cruc-ca-address-cwa,cruc-ca-address-cwa-callee,cruc-ca-address-eib-commarea,cruc-ca-address-eib-commarea-callee,cruc-ca-address-twa-callee,cruc-ca-address-twa-tctua,cruc-ca-bll-cells,cruc-ca-channel-browse,cruc-ca-channel-browse-err,cruc-ca-channel-containers,cruc-ca-channel-containers-callee,cruc-ca-channel-errors,cruc-ca-channel-xctl-target,cruc-ca-container-bit,cruc-ca-container-byteoffset,cruc-ca-container-byteoffset-past-end,cruc-ca-container-ccsid,cruc-ca-get-container-set,cruc-ca-get-container-set-errors,cruc-ca-getmain-pointer,cruc-ca-getmain-pointer-zero,cruc-ca-link-lengths,cruc-ca-link-lengths-callee,cruc-ca-load-set,cruc-ca-load-set-caldtg,cruc-ca-load-set-pgmiderr,cruc-ca-receive-retrieve-callee,cruc-ca-receive-retrieve-set,cruc-ca-xctl-versions,cruc-ca-xctl-versions-front,cruc-gt-asab,cruc-gt-asnt,cruc-gt-assign-startcode,cruc-gt-chld,cruc-gt-http-inbound,cruc-gt-post-wait-event,cruc-gt-read,cruc-gt-rtrn,cruc-gt-send-text-terminal,cruc-gt-show,cruc-gt-start-options,cruc-gt-start-retrieve,cruc-gt-stxs,cruc-gt-terminal-coalesce,cruc-gt-unext,cruc-gt-urimap-browse,cruc-gt-web-client,cruc-gt-web-parse-url,cruc-gt-web-server-receive,cruc-gt-web-server-send,cruc-gt-work,cruc-hc-abend-link,cruc-hc-abend-link-sub,cruc-hc-counter-increment-wrap,cruc-hc-counter-shared-namespace,cruc-hc-dcounters,cruc-hc-deedit-uctranst,cruc-hc-eoc-error,cruc-hc-file-read-set,cruc-hc-file-unlock,cruc-hc-handle-aid,cruc-hc-ignore-error,cruc-hc-inquire-deleteq,cruc-hc-map-not-in-mapset,cruc-hc-named-counters,cruc-hc-perform-range,cruc-hc-readq-td,cruc-hc-resp-options,cruc-hc-terminal-eoc,cruc-hc-terminal-receive,cruc-hx-attr-bytes,cruc-hx-attr-linked,cruc-hx-extended-cursor,cruc-hx-extended-linked,cruc-pc-aid-menu,cruc-pc-confirm,cruc-pc-detl,cruc-pc-immediate-a,cruc-pc-immediate-l,cruc-pc-immediate-s,cruc-pc-return-channel,cruc-pc-return-channel-b,cruc-pc-return-channel-l,cruc-pc-return-immediate-b,cruc-pc-wizard",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -35713,21 +35701,21 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
+   "sha": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "translator": {
     "files": 189,
-    "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+    "sha256": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
    }
   },
-  "translator_commit": "7390aab211e2da340f756df2eb26c8b941885453",
+  "translator_commit": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
   "cics_programs": 0,
   "det_equal": 85,
   "histogram": {
-   "L0": 6,
-   "L1": 48,
+   "L0": 5,
+   "L1": 49,
    "L2": 0,
    "L3": 0,
    "L4": 84,
@@ -35749,19 +35737,19 @@
    "L4": 0,
    "L5": 0
   },
-  "holes": 20,
+  "holes": 14,
   "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 139,
   "records_current": 0,
   "refused_whole": 0,
   "source_unread": 139,
-  "translated_whole": 133,
+  "translated_whole": 134,
   "with_case": 85,
   "with_record": 0
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+  "fingerprint": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
  }
 }

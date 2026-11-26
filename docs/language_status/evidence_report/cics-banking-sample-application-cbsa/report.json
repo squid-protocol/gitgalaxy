@@ -3672,10 +3672,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
+   "sha": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "translator": {
     "files": 189,
-    "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+    "sha256": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
    }
   },
   "sweeps": {}
@@ -4470,7 +4470,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
+       "oracle_image": "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -4582,7 +4582,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
+      "oracle_image": "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -5841,7 +5841,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
+       "oracle_image": "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -16619,20 +16619,20 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 79,
+    "accounted": 80,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 45% (65/146 caught; 150 of 1015 mutants, seed 0); 2 of 81 survivors unaccounted",
+    "det_port": "raw 45% (65/146 caught; 150 of 1015 mutants, seed 0); 1 of 81 survivors unaccounted",
     "killed": 65,
     "l5": false,
     "mutants": 1015,
     "score": 0.4452,
     "stale_inputs": [],
     "survived": 81,
-    "unaccounted": 2
+    "unaccounted": 1
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (65/146 caught; 150 of 1015 mutants, seed 0); 2 of 81 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 45% (65/146 caught; 150 of 1015 mutants, seed 0); 1 of 81 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -21644,7 +21644,7 @@
        "fault_runs": 12,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
+       "oracle_image": "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f",
        "oracle_matches_pin": true,
        "records_compared": 73,
        "records_equal": 73,
@@ -21705,7 +21705,7 @@
       "fault_runs": 12,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
+      "oracle_image": "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f",
       "oracle_matches_pin": true,
       "records_compared": 73,
       "records_equal": 73,
@@ -24280,8 +24280,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7390aab211e2da340f756df2eb26c8b941885453",
+   "python tests/tools/cics_census.py survey --baseline --sha 7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-count,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-beyond,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (41) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -24298,21 +24298,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:1a463c5da65d31d1cf99b2762d4a1d1091534a08c5855600160c069df7056b86",
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:6613f2dc3b995e3b2d9084f2afc3d4579571c2d0d46b6773bb3450ffbee8d07f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7390aab211e2da340f756df2eb26c8b941885453",
+   "sha": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
    "translator": {
     "files": 189,
-    "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+    "sha256": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
    }
   },
-  "translator_commit": "7390aab211e2da340f756df2eb26c8b941885453",
+  "translator_commit": "7d7c932dd64f3419fa0a39f922cb140f8bd4942d",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24355,6 +24355,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
+  "fingerprint": "99670b225912e2a1390e6225a79fe8de8b08c381e5a468b0983a2673190a9496"
  }
 }

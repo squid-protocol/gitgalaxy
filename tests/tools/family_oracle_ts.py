@@ -583,7 +583,7 @@ def _params(spec: Spec, node) -> int:
     return n
 
 
-def _decorators(node) -> list[str]:
+def _decorators(node, go: bool = False) -> list[str]:
     out: list[str] = []
     for c in node.children:
         if c.type == "modifiers":  # Java: annotations sit inside the modifiers
@@ -597,7 +597,20 @@ def _decorators(node) -> list[str]:
     while prev is not None and (prev.type in ("attribute_item", "decorator") or "comment" in prev.type):
         if prev.type in ("attribute_item", "decorator"):
             out.append(_text(prev).split("(")[0])
+        elif go and node.type != "func_literal" and _text(prev).startswith("//go:"):
+            out.append(_text(prev).split()[0])  # #8868: a Go pragma line (`//go:noinline`) above the function
+        below = prev
         prev = prev.prev_named_sibling
+        if go and prev is not None and prev.end_point[0] + 1 < below.start_point[0]:
+            break  # a blank line detaches the lines above (a file-level `//go:build` is not the function's)
+    if go:
+        # #8868: Go's attribute syntax on a declaration is the field tag: a tagged field of a type declared in the function
+        stack = list(node.children)
+        while stack:
+            n = stack.pop()
+            if n.type == "field_declaration" and n.child_by_field_name("tag") is not None:
+                out.append("struct-tag")
+            stack.extend(n.children)
     return out
 
 
@@ -726,7 +739,7 @@ class TreeSitterOracle:
                     if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
         n["args"] = _params(spec, fn)
-        deco = _decorators(fn)
+        deco = _decorators(fn, spec.ts_name == "go")
         if deco:
             n["decorators"] = len(deco)
             for d in deco:

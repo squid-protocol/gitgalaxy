@@ -1339,12 +1339,12 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "file_cluster_16",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "file_cluster_0",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "file_cluster_15",
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "file_cluster_13"
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "file_cluster_0"
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "file_cluster_4",
       "csharp/roslyn/CSharpSyntaxTree.cs": "file_cluster_12",
-      "csharp/roslyn/DiagnosticAnalyzer.cs": "file_cluster_0",
+      "csharp/roslyn/DiagnosticAnalyzer.cs": "file_cluster_11",
       "csharp/roslyn/LanguageParser.cs": "file_cluster_6",
       "csharp/roslyn/License.txt": "Static: Literature & Documentation",
       "csharp/roslyn/MethodCompiler.cs": "file_cluster_6",

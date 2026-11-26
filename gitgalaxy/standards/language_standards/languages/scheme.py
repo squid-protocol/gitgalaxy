@@ -460,7 +460,7 @@ DEFINITION: dict[str, Any] = {
             r"(?<![^ \t\n\r(\[])(error|abort|exit|emergency-exit|raise|raise-exception|throw"
             r"|raise-(?:user|argument|arguments|result|range|type|syntax)-error)(?![^ \t)\]\n\r])"
         ),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"(?<![^ \t\n\r(\[])(sleep|usleep|thread-sleep!)(?![^ \t)\]\n\r])"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(

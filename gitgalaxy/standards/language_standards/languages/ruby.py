@@ -409,7 +409,7 @@ DEFINITION: dict[str, Any] = {
         # its own bare `exit` alternative), there's no bare `exit` here
         # to save it. Never matched.
         "panics_and_aborts": re.compile(r"\b(?:raise|fail|abort)\b|\bexit!"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\bsleep\b\s*[0-9.]+"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\^|(?<![=!])~"),

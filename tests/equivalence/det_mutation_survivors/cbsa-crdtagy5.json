@@ -1572,8 +1572,11 @@
    "line": 493,
    "before": "AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(Cobol.commarea(f48_ABNDINFO_REC, 681), 0);",
    "after": "AbndprocDfhcommarea ca4 = out_AbndprocDfhcommarea(Cobol.commarea(f48_ABNDINFO_REC, 682), 0);",
-   "verdict": "harness-gap",
-   "reason": "LINK commarea length: the oracle compares the LINK event by program name only, not its commarea length or contents"
+   "verdict": "equivalent",
+   "reason": "line 493 (CON) builds out_AbndprocDfhcommarea, the DTO view of the ABNDINFO-REC area given to LINK ABNDPROC, with length 682 instead of 681: the LINK itself passes the explicit 681 and the caller's bytes (cw5.bytes), the linked det port loads those bytes over the view and the caller takes the bytes back (task.linkAreaBack skips the DTO copy), so the view's length is never seen; the harness now compares the LINK commarea length and bytes (#9172) and a scenario that reaches the LINK (delay-invreq-link-bytes) left it alive (#7954)",
+   "tried": [
+    "delay-invreq-link-bytes"
+   ]
   },
   {
    "id": "a56a1178e5",

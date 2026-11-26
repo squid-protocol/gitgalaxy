@@ -388,6 +388,81 @@
    ]
   },
   {
+   "id": "7c3ccb5852",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "case-gap",
+   "reason": "EIBCALEN is read once, in `IF EIBCALEN = 0` (PCDETL.cbl line 22): the shifted or widened width 5 geometry still reads zero for a zero length and nonzero otherwise on every input tried (no-COMMAREA runs under 6 AIDs and 3 terminals; 1, 3, 10, 19 and 300-byte areas); an input that puts a nonzero byte at the offset-shifted read of a zero EIBCALEN was not found, so a case-gap, not equivalent",
+   "tried": [
+    "calen-1-pf12",
+    "calen-300-hex",
+    "ctx-no-terminal",
+    "ctx-term-t001",
+    "ctx-term-zzzz",
+    "no-ca-dfhclear",
+    "no-ca-dfhpa1",
+    "no-ca-dfhpf1",
+    "no-ca-dfhpf12",
+    "no-ca-dfhpf24",
+    "no-ca-dfhpf3",
+    "noctx-no-terminal",
+    "noctx-term-t001",
+    "noctx-term-zzzz"
+   ]
+  },
+  {
+   "id": "a3aa749503",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "case-gap",
+   "reason": "EIBCALEN is read once, in `IF EIBCALEN = 0` (PCDETL.cbl line 22): the shifted or widened scale 1 geometry still reads zero for a zero length and nonzero otherwise on every input tried (no-COMMAREA runs under 6 AIDs and 3 terminals; 1, 3, 10, 19 and 300-byte areas); an input that puts a nonzero byte at the offset-shifted read of a zero EIBCALEN was not found, so a case-gap, not equivalent",
+   "tried": [
+    "calen-1-pf12",
+    "calen-300-hex",
+    "ctx-no-terminal",
+    "ctx-term-t001",
+    "ctx-term-zzzz",
+    "no-ca-dfhclear",
+    "no-ca-dfhpa1",
+    "no-ca-dfhpf1",
+    "no-ca-dfhpf12",
+    "no-ca-dfhpf24",
+    "no-ca-dfhpf3",
+    "noctx-no-terminal",
+    "noctx-term-t001",
+    "noctx-term-zzzz"
+   ]
+  },
+  {
+   "id": "f8ad536b75",
+   "op": "CON",
+   "line": 85,
+   "before": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f72_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
+   "verdict": "case-gap",
+   "reason": "EIBCALEN is read once, in `IF EIBCALEN = 0` (PCDETL.cbl line 22): the shifted or widened offset 25 geometry still reads zero for a zero length and nonzero otherwise on every input tried (no-COMMAREA runs under 6 AIDs and 3 terminals; 1, 3, 10, 19 and 300-byte areas); an input that puts a nonzero byte at the offset-shifted read of a zero EIBCALEN was not found, so a case-gap, not equivalent",
+   "tried": [
+    "calen-1-pf12",
+    "calen-300-hex",
+    "ctx-no-terminal",
+    "ctx-term-t001",
+    "ctx-term-zzzz",
+    "no-ca-dfhclear",
+    "no-ca-dfhpa1",
+    "no-ca-dfhpf1",
+    "no-ca-dfhpf12",
+    "no-ca-dfhpf24",
+    "no-ca-dfhpf3",
+    "noctx-no-terminal",
+    "noctx-term-t001",
+    "noctx-term-zzzz"
+   ]
+  },
+  {
    "id": "18adcfac7f",
    "op": "CON",
    "line": 86,
@@ -505,6 +580,56 @@
    "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
    "tried": [
     "inert-image"
+   ]
+  },
+  {
+   "id": "3d8cc47b74",
+   "op": "ROR",
+   "line": 155,
+   "before": "Cobol.move(task.termid() == null ? \"\" : task.termid(), f69_EIBTRMID, CS);",
+   "after": "Cobol.move(task.termid() != null ? \"\" : task.termid(), f69_EIBTRMID, CS);",
+   "verdict": "harness-gap",
+   "reason": "the flipped null test changes what is stored into EIBTRMID (empty for a real terminal, a null move for none); PCDETL reads no EIB item but EIBCALEN, so only a compare of the EIB block would show it. Tried terminals PC12, AB, T001, ZZZZ and none: the screen, COMMAREA and abend are identical, and the harness compares none of the EIB items",
+   "tried": [
+    "calen-1-pf12",
+    "calen-300-hex",
+    "ctx-no-terminal",
+    "ctx-term-t001",
+    "ctx-term-zzzz",
+    "no-ca-dfhclear",
+    "no-ca-dfhpa1",
+    "no-ca-dfhpf1",
+    "no-ca-dfhpf12",
+    "no-ca-dfhpf24",
+    "no-ca-dfhpf3",
+    "noctx-no-terminal",
+    "noctx-term-t001",
+    "noctx-term-zzzz"
+   ]
+  },
+  {
+   "id": "cd8ad32bf2",
+   "op": "DEL",
+   "line": 156,
+   "before": "Cobol.store(f68_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f68_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "harness-gap",
+   "reason": "the deleted store leaves EIBTASKN zero instead of the task number; PCDETL reads no EIB item but EIBCALEN, so only a compare of the EIB block would show it. Tried 6 AIDs, 4 terminals and 5 COMMAREA lengths: the screen, COMMAREA and abend are identical, and the harness compares none of the EIB items",
+   "tried": [
+    "calen-1-pf12",
+    "calen-300-hex",
+    "ctx-no-terminal",
+    "ctx-term-t001",
+    "ctx-term-zzzz",
+    "no-ca-dfhclear",
+    "no-ca-dfhpa1",
+    "no-ca-dfhpf1",
+    "no-ca-dfhpf12",
+    "no-ca-dfhpf24",
+    "no-ca-dfhpf3",
+    "noctx-no-terminal",
+    "noctx-term-t001",
+    "noctx-term-zzzz"
    ]
   },
   {

@@ -40,6 +40,7 @@ from gitgalaxy.core.java_arg_types import name_sites as java_name_sites
 from gitgalaxy.core.java_arg_types import param_types as java_param_types
 from gitgalaxy.core.java_arg_types import site_arg_types as java_site_arg_types
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
+from gitgalaxy.core.pli_calls import blank_sequence_fields
 from gitgalaxy.core.preproc_toggles import toggle_condition_value
 from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.receiver_types import TYPED_LANGS, cpp_const_receivers, file_field_types
@@ -7669,7 +7670,10 @@ class StructuralExtractor:
             m = end_re.search(sandbox, header_end)
             if m:
                 return m.end()
-        return len(sandbox)
+        # No labelled END (a procedure closed by a bare `END;`, or one run into the next header): the unit ends at its
+        # last line that holds anything, not at the lines that carry only a columns 73-80 sequence number (DSF).
+        kept = len(blank_sequence_fields(sandbox).rstrip())
+        return max(kept, header_end)
 
     def _slice_by_labels(
         self,

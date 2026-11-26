@@ -122,7 +122,7 @@ _SHELL_SIMPLE_CASES = [
     # --- PHASE 5 ---
     ("telemetry", "logger 'message'", "true"),
     ("debug_prints", "echo 'debug info'", "true"),
-    ("panics_and_aborts", "abort", "echo done"),
+    ("panics_and_aborts", "exit 1", "return 1"),
     ("thread_sleeps", "sleep 5", "date"),
     ("sync_locks", "flock /tmp/lock", "echo lock"),
     ("immutability_locks", "readonly CONST=1", "local CONST=1"),
@@ -472,7 +472,8 @@ def test_shell_time_date_logic_flag_and_format_trailing_boundary_regression():
     pattern = SHELL_RULES["time_date_logic"]
     assert pattern.search("date +%Y-%m-%d"), "'date +FORMAT' form still didn't match"
     assert pattern.search("date -u"), "'date -u' flag form still didn't match"
-    assert pattern.search("sleep 5"), "bare sleep form regressed"
+    # #9338: a sleep is not a clock value (thread_sleeps owns it), so the old `sleep` alternative is gone.
+    assert not pattern.search("sleep 5"), "sleep is thread_sleeps', not time_date_logic"
     assert not pattern.search("updated_at=1"), "'update'-shaped word incorrectly matched"
 
 
@@ -544,9 +545,9 @@ def test_shell_ambiguity_sweep_shared_literals_are_not_bugs():
     - `safety` <-> `cleanup` on `trap '...' EXIT`: an EXIT trap is
       simultaneously defensive programming (guaranteed cleanup on exit) AND
       a resource-cleanup/teardown construct -- both are correct.
-    - `high_risk_execution` <-> `panics_and_aborts` on `kill`: sending a
-      signal is genuinely both a high-risk system call AND a
-      forceful-execution-interrupt construct.
+    - `high_risk_execution` <-> `panics_and_aborts` on `kill` was retired by
+      #9338: `kill` signals another process, it does not end this shell, so
+      only `exit` is an abort (a high-risk call stays high_risk_execution's).
     """
     structural_boundaries = SHELL_RULES["structural_boundaries"]
     encapsulation = SHELL_RULES["encapsulation"]
@@ -578,7 +579,7 @@ def test_shell_ambiguity_sweep_shared_literals_are_not_bugs():
 
     kill_call = "kill -HUP $pid"
     assert high_risk_execution.search(kill_call)
-    assert panics_and_aborts.search(kill_call)
+    assert not panics_and_aborts.search(kill_call)
 
 
 def test_shell_api_contract_2730():

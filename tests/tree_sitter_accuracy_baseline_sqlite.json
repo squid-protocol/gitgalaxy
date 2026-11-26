@@ -1,0 +1,12 @@
+{
+  "args_comparable": 0,
+  "args_exact_match": 0,
+  "corpus_path": "language-crucible/data/sqlite",
+  "extra_classes": 4,
+  "extra_functions": 0,
+  "files_scanned": 73,
+  "found_classes": 181,
+  "found_functions": 0,
+  "real_classes": 181,
+  "real_functions": 0
+}

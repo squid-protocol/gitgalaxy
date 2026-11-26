@@ -735,7 +735,7 @@
 <rect x="204" y="356" width="11" height="11" fill="#a9d1ff"><title>csharp / io: recall 1.00, precision 0.99 (427 oracle, 429 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="216" y="356" width="11" height="11" fill="#a9d1ff"><title>go / io: recall 1.00, precision 0.98 (61 oracle, 62 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / io: recall 0.21, precision 0.14 (115 oracle, 172 family functions; okhttp (not pinned))</title></rect>
+<rect x="228" y="356" width="11" height="11" fill="#4f9be8"><title>kotlin / io: recall 0.95, precision 0.95 (115 oracle, 115 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="356" width="11" height="11" fill="#a9d1ff"><title>php / io: recall 1.00, precision 1.00 (18 oracle, 18 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="356" width="11" height="11" fill="#2f6aa8"><title>scala / io: recall 1.00, precision 0.89 (62 oracle, 70 family functions; kafka (not pinned))</title></rect>
@@ -750,7 +750,7 @@
 <rect x="336" y="356" width="11" height="11" fill="#3b3f4a"><title>java / io: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="336" y="356" width="11" height="11" fill="url(#dots)"/>
 <rect x="348" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>lua / io: recall 1.00, precision 1.00 (8 oracle, 8 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="360" y="356" width="11" height="11" fill="#1f3b5c"><title>shell / io: recall 0.83, precision 0.58 (236 oracle, 338 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="360" y="356" width="11" height="11" fill="#4f9be8"><title>shell / io: recall 0.95, precision 0.92 (236 oracle, 245 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="356" width="11" height="11" fill="#2f6aa8" opacity="0.5"><title>cpp / io: recall 1.00, precision 0.83 (5 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="356" width="11" height="11" fill="#a9d1ff"><title>jcl / io: recall 1.00, precision 1.00 (210 oracle, 210 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="396" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>hlasm / io: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
@@ -2265,7 +2265,7 @@
 <rect x="336" y="740" width="11" height="11" fill="#1f3b5c"><title>java / debug_prints: recall 1.00, precision 0.65 (20 oracle, 31 family functions; retrofit (not pinned))</title></rect>
 <rect x="336" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="348" y="740" width="11" height="11" fill="#4f9be8"><title>lua / debug_prints: recall 0.96, precision 0.94 (51 oracle, 52 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="360" y="740" width="11" height="11" fill="#1f3b5c"><title>shell / debug_prints: recall 1.00, precision 0.68 (196 oracle, 287 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="360" y="740" width="11" height="11" fill="#4f9be8"><title>shell / debug_prints: recall 0.98, precision 0.94 (196 oracle, 206 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="740" width="11" height="11" fill="#3b3f4a"><title>cpp / debug_prints: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="372" y="740" width="11" height="11" fill="url(#dots)"/>
 <rect x="396" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>hlasm / debug_prints: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
@@ -2367,7 +2367,7 @@
 <rect x="192" y="764" width="11" height="11" fill="#2f6aa8"><title>python / panics_and_aborts: recall 1.00, precision 0.90 (286 oracle, 318 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="764" width="11" height="11" fill="#a9d1ff"><title>csharp / panics_and_aborts: recall 1.00, precision 1.00 (75 oracle, 75 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="764" width="11" height="11" fill="#4f9be8"><title>go / panics_and_aborts: recall 0.98, precision 0.99 (96 oracle, 95 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="764" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / panics_and_aborts: recall 0.72, precision 0.37 (606 oracle, 1180 family functions; okhttp (not pinned))</title></rect>
+<rect x="228" y="764" width="11" height="11" fill="#a9d1ff"><title>kotlin / panics_and_aborts: recall 0.99, precision 0.98 (606 oracle, 614 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="764" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="764" width="11" height="11" fill="#4f9be8"><title>php / panics_and_aborts: recall 1.00, precision 0.98 (142 oracle, 145 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="764" width="11" height="11" fill="#4f9be8"><title>scala / panics_and_aborts: recall 1.00, precision 0.95 (55 oracle, 58 family functions; language-crucible v1.9.0)</title></rect>
@@ -2379,7 +2379,7 @@
 <rect x="324" y="764" width="11" height="11" fill="#4f9be8"><title>c / panics_and_aborts: recall 0.97, precision 1.00 (29 oracle, 28 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="764" width="11" height="11" fill="#a9d1ff"><title>java / panics_and_aborts: recall 1.00, precision 1.00 (30 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="764" width="11" height="11" fill="#2f6aa8"><title>lua / panics_and_aborts: recall 1.00, precision 0.86 (30 oracle, 35 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="360" y="764" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>shell / panics_and_aborts: recall 1.00, precision 0.32 (58 oracle, 179 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="360" y="764" width="11" height="11" fill="#a9d1ff"><title>shell / panics_and_aborts: recall 1.00, precision 1.00 (58 oracle, 58 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="764" width="11" height="11" fill="#3b3f4a"><title>cpp / panics_and_aborts: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="372" y="764" width="11" height="11" fill="url(#dots)"/>
 <rect x="396" y="764" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>hlasm / panics_and_aborts: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
@@ -2497,7 +2497,7 @@
 <rect x="192" y="788" width="11" height="11" fill="#2f6aa8"><title>python / bitwise_ops: recall 0.84, precision 0.91 (75 oracle, 69 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="204" y="788" width="11" height="11" fill="#a9d1ff"><title>csharp / bitwise_ops: recall 1.00, precision 1.00 (30 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="216" y="788" width="11" height="11" fill="#a9d1ff"><title>go / bitwise_ops: recall 1.00, precision 1.00 (128 oracle, 128 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="788" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / bitwise_ops: recall 0.46, precision 1.00 (92 oracle, 42 family functions; okhttp (not pinned))</title></rect>
+<rect x="228" y="788" width="11" height="11" fill="#a9d1ff"><title>kotlin / bitwise_ops: recall 1.00, precision 1.00 (92 oracle, 92 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="788" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="788" width="11" height="11" fill="#2f6aa8"><title>php / bitwise_ops: recall 1.00, precision 0.89 (24 oracle, 27 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="788" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>scala / bitwise_ops: recall 1.00, precision 1.00 (4 oracle, 4 family functions; language-crucible v1.9.0)</title></rect>
@@ -2511,7 +2511,7 @@
 <rect x="324" y="788" width="11" height="11" fill="#4f9be8"><title>c / bitwise_ops: recall 0.99, precision 0.96 (414 oracle, 423 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="788" width="11" height="11" fill="#a9d1ff"><title>java / bitwise_ops: recall 1.00, precision 1.00 (10 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="788" width="11" height="11" fill="#4f9be8"><title>lua / bitwise_ops: recall 1.00, precision 0.95 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="360" y="788" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>shell / bitwise_ops: recall 0.00, precision - (2 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="360" y="788" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>shell / bitwise_ops: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="788" width="11" height="11" fill="#2f6aa8"><title>cpp / bitwise_ops: recall 0.88, precision 0.91 (57 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="396" y="788" class="u"/>
 <rect x="408" y="788" width="11" height="11" fill="#8a6d3b"><title>cobol / bitwise_ops: decoy test with &#x27;FUNCTION BIT-AND&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2963,7 +2963,7 @@
 <rect x="204" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="216" y="908" width="11" height="11" fill="#4f9be8"><title>go / regex_execution: recall 0.93, precision 1.00 (44 oracle, 41 family functions; prometheus (not pinned))</title></rect>
 <rect x="216" y="908" width="11" height="11" fill="url(#hatch)"/>
-<rect x="228" y="908" width="11" height="11" fill="#1f3b5c"><title>kotlin / regex_execution: recall 0.98, precision 0.55 (62 oracle, 111 family functions; okhttp (not pinned))</title></rect>
+<rect x="228" y="908" width="11" height="11" fill="#4f9be8"><title>kotlin / regex_execution: recall 1.00, precision 0.91 (62 oracle, 68 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="908" width="11" height="11" fill="#a9d1ff"><title>php / regex_execution: recall 0.98, precision 1.00 (116 oracle, 114 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="908" width="11" height="11" fill="#a9d1ff"><title>scala / regex_execution: recall 1.00, precision 1.00 (14 oracle, 14 family functions; kafka (not pinned))</title></rect>
@@ -3015,7 +3015,7 @@
 <rect x="204" y="920" width="11" height="11" fill="#4f9be8"><title>csharp / time_date_logic: recall 1.00, precision 0.93 (318 oracle, 342 family functions; jellyfin (not pinned))</title></rect>
 <rect x="204" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="216" y="920" width="11" height="11" fill="#a9d1ff"><title>go / time_date_logic: recall 1.00, precision 1.00 (12 oracle, 12 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="228" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / time_date_logic: recall 0.12, precision 1.00 (184 oracle, 22 family functions; okhttp (not pinned))</title></rect>
+<rect x="228" y="920" width="11" height="11" fill="#a9d1ff"><title>kotlin / time_date_logic: recall 1.00, precision 1.00 (184 oracle, 184 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="920" width="11" height="11" fill="#4f9be8"><title>php / time_date_logic: recall 1.00, precision 0.92 (24 oracle, 26 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="252" y="920" width="11" height="11" fill="#4f9be8"><title>scala / time_date_logic: recall 1.00, precision 0.97 (128 oracle, 132 family functions; kafka (not pinned))</title></rect>
@@ -3031,7 +3031,7 @@
 <rect x="336" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>java / time_date_logic: recall 0.38, precision 1.00 (16 oracle, 6 family functions; retrofit (not pinned))</title></rect>
 <rect x="336" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="348" y="920" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>lua / time_date_logic: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="360" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>shell / time_date_logic: recall 1.00, precision 0.26 (12 oracle, 46 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="360" y="920" width="11" height="11" fill="#a9d1ff"><title>shell / time_date_logic: recall 1.00, precision 1.00 (12 oracle, 12 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="920" width="11" height="11" fill="#3b3f4a"><title>cpp / time_date_logic: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="372" y="920" width="11" height="11" fill="url(#dots)"/>
 <rect x="396" y="920" width="11" height="11" fill="#566074"><title>hlasm / time_date_logic: decoy test with &#x27;TIME&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>

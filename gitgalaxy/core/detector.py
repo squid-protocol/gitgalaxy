@@ -177,7 +177,7 @@ _DOC_ANCHOR_BODY_LINES = 2
 # #9330: languages whose doc comment documents the declaration directly below it: between the comment's last line and the
 # unit's header only blank lines, annotations and line comments may sit. The 5-line window above otherwise credits a class's
 # or a property's KDoc to the first function after it.
-_DOC_ADJACENT_LANGS = ("kotlin",)
+_DOC_ADJACENT_LANGS = ("kotlin", "ruby")
 
 # The below-header docstring-position family: exactly the languages
 # `_extract_documentation_tether`'s "Harvest Below" branch scans (detector.py,
@@ -5429,6 +5429,8 @@ class StructuralExtractor:
                             self._only_header_trivia_between(doc_positional_end_lines[i], start_line)
                             for i in range(hi - 1, lo - 1, -1)
                         )
+                if not is_documented and start_line > 0 and self.primary_lang_id == "ruby":
+                    is_documented = self._ruby_rdoc_block_above(start_line)
                 if not is_documented and start_line > 0:
                     is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
 
@@ -5932,10 +5934,59 @@ class StructuralExtractor:
         """#9330: True when every line strictly between a doc comment's last line and a unit's first line is blank, an
         annotation (`@Foo`, `@Foo(`, a `)` closing one), a `//` comment or an import / package line (a file-header
         doc), so the comment documents that unit."""
+        if self.primary_lang_id == "ruby":
+            return self._ruby_only_sig_between(doc_end_line, start_line)
         for text in self.raw_content_lines[doc_end_line : max(start_line - 1, doc_end_line)]:
             s = text.strip()
             if s and not s.startswith(("@", "//", ")", "import ", "package ")):
                 return False
+        return True
+
+    _RUBY_MAGIC_COMMENT = re.compile(r"#\s*(?:rubocop:|typed:|frozen_string_literal|encoding:|sorbet:|:nodoc:)")
+
+    def _ruby_rdoc_block_above(self, start_line: int) -> bool:
+        """#9331: RDoc (and YARD) document a `def` with the plain `#` comment block directly above it, past a Sorbet `sig`. A
+        block of only magic or linter comments (`# typed:`, `# rubocop:`, `# :nodoc:`) is not documentation, and a blank
+        line detaches it."""
+        raw = self.raw_content_lines
+        j = start_line - 2  # 0-based index of the line above the def
+        if 0 <= j < len(raw) and raw[j].strip() in ("end", "}"):
+            for k in range(j - 1, max(-1, j - 12), -1):  # a `sig do ... end` / multi-line `sig { ... }` block
+                t = raw[k].strip()
+                if t.startswith("sig") and t[3:4] in (" ", "{", "("):
+                    j = k - 1
+                    break
+        elif 0 <= j < len(raw) and raw[j].strip().startswith("sig") and raw[j].strip()[3:4] in (" ", "{", "("):
+            j -= 1
+        while 0 <= j < len(raw):
+            t = raw[j].strip()
+            if not t.startswith("#"):
+                return False
+            if not self._RUBY_MAGIC_COMMENT.match(t):
+                return True
+            j -= 1
+        return False
+
+    def _ruby_only_sig_between(self, doc_end_line: int, start_line: int) -> bool:
+        """#9331: True when the lines between a Ruby doc comment and the `def` are only comments and a Sorbet `sig`
+        (one line, `sig { ... }`, or a `sig do ... end` block): YARD and Sorbet attach the comment above a `sig` to the method. A blank
+        line detaches the comment (the oracle's reading too)."""
+        in_sig = False
+        for text in self.raw_content_lines[doc_end_line : max(start_line - 1, doc_end_line)]:
+            s = text.strip()
+            if in_sig:
+                if s in ("end", "}") or s.startswith(("end ", "} ")):
+                    in_sig = False
+                continue
+            if s.startswith("#"):
+                continue
+            if s.startswith("sig") and (s[3:4] in ("", " ", "{", "(")):
+                rest = s[3:].strip()
+                in_sig = (rest.startswith("do") and not rest.endswith("end")) or (
+                    rest.startswith("{") and rest.count("{") > rest.count("}")
+                )
+                continue
+            return False
         return True
 
     def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:

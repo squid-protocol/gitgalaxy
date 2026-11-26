@@ -519,6 +519,10 @@ class BOracle(TreeSitterOracle):
                 "elsif",
                 "if",
                 "unless",
+                "if_modifier",
+                "unless_modifier",
+                "while_modifier",
+                "until_modifier",
             },
         }.get(self.lang, set())
 
@@ -614,7 +618,18 @@ class BOracle(TreeSitterOracle):
         return best
 
     def _documented(self, fn) -> bool:
-        com = _contiguous_comments(fn)
+        anchor = fn
+        if self.lang == "ruby":
+            # #9331: YARD and Sorbet attach the comment above a `sig { ... }` / `sig do ... end` to the method under it
+            prev = fn.prev_sibling
+            while (
+                prev is not None
+                and prev.type == "call"
+                and _text(prev).lstrip().startswith("sig")
+                and (prev.end_point[0] >= anchor.start_point[0] - 1)
+            ):
+                anchor, prev = prev, prev.prev_sibling
+        com = _contiguous_comments(anchor)
         if not com:
             return False
         if self.lang == "php":
@@ -734,7 +749,7 @@ class BOracle(TreeSitterOracle):
             n.parent is not None
             and n.parent.type == "binary"
             and _op(n.parent) == "<<"
-            and n.parent.child_by_field_name("left") is n
+            and n.parent.child_by_field_name("left") == n
         ):
             n = n.parent
         return n.parent is not None and n.parent.type in self.stmt_parents

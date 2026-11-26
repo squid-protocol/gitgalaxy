@@ -4113,7 +4113,7 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
-      "rust/tokio/blocking.rs": 7.257,
+      "rust/tokio/blocking.rs": 7.197,
       "rust/tokio/builder.rs": 6.402,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,

@@ -6667,10 +6667,10 @@
         "Annotated & Test Methods": 10,
         "Compute Cores": 2,
         "Defensive Guards": 4,
-        "Encapsulated Accessors": 16,
+        "Encapsulated Accessors": 14,
         "Interface Declarations": 2,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 22
+        "Stateful Encapsulated Methods": 24
       },
       "groovy/spock/SpockTransform.java": {
         "Annotated & Test Methods": 1,
@@ -7563,9 +7563,8 @@
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
-        "Callbacks & Closures": 1,
         "Encapsulated Accessors": 20,
-        "Generic / Templated Code": 6,
+        "Generic / Templated Code": 7,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 2
@@ -7615,11 +7614,11 @@
       },
       "java/springboot/WebMvcAutoConfiguration.java": {
         "Annotated & Test Methods": 21,
-        "Callbacks & Closures": 5,
+        "Callbacks & Closures": 3,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 10,
         "Generic / Templated Code": 3,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 3,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 7
       }

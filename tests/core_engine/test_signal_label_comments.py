@@ -206,7 +206,20 @@ def test_safety_bypasses_comments_use_the_display_name():
 
 def test_thread_sleeps_comments_use_the_display_name():
     name = SIGNAL_DISPLAY_NAMES["thread_sleeps"][1].split(" (")[0]
-    for stem in ("c", "cpp", "python", "javascript", "kotlin", "tcl", "dockerfile", "agc_assembly"):
+    for stem in (
+        "c",
+        "cpp",
+        "python",
+        "javascript",
+        "kotlin",
+        "tcl",
+        "dockerfile",
+        "agc_assembly",
+        "cobol",
+        "sqlite",
+        "csharp",
+        "m4",
+    ):
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"thread_sleeps ({name}:" in text, stem
         assert "Thread Blocking / Synchronous Pauses" not in text, stem

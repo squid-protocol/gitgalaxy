@@ -659,7 +659,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: throw/abort/FailFast/Environment.Exit)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # BUG FIX: `Wait\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire (`task.Wait();` -- the next
         # char is always `;`, a newline, or another `.method`, never a

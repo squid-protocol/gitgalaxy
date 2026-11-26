@@ -174,6 +174,11 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
 _DOC_ANCHOR_LINES_ABOVE = 5
 _DOC_ANCHOR_BODY_LINES = 2
 
+# #9330: languages whose doc comment documents the declaration directly below it: between the comment's last line and the
+# unit's header only blank lines, annotations and line comments may sit. The 5-line window above otherwise credits a class's
+# or a property's KDoc to the first function after it.
+_DOC_ADJACENT_LANGS = ("kotlin",)
+
 # The below-header docstring-position family: exactly the languages
 # `_extract_documentation_tether`'s "Harvest Below" branch scans (detector.py,
 # near its `lang_id in (...)` check). Duplicated as a module constant here
@@ -5204,6 +5209,12 @@ class StructuralExtractor:
                     lo = bisect.bisect_left(doc_positional_end_lines, anchor_lo)
                     hi = bisect.bisect_right(doc_positional_end_lines, anchor_hi)
                     is_documented = hi > lo
+                    if is_documented and self.primary_lang_id in _DOC_ADJACENT_LANGS:
+                        # #9330: the doc must sit directly on the unit, not on a class or property above it.
+                        is_documented = any(
+                            self._only_header_trivia_between(doc_positional_end_lines[i], start_line)
+                            for i in range(hi - 1, lo - 1, -1)
+                        )
                 if not is_documented and start_line > 0:
                     is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
 
@@ -5702,6 +5713,16 @@ class StructuralExtractor:
             return False
         dense = re.sub(r"\s", "", prose)
         return bool(dense) and sum(c.isalnum() for c in dense) / len(dense) >= _HEADER_COMMENT_MIN_ALNUM_SHARE
+
+    def _only_header_trivia_between(self, doc_end_line: int, start_line: int) -> bool:
+        """#9330: True when every line strictly between a doc comment's last line and a unit's first line is blank, an
+        annotation (`@Foo`, `@Foo(`, a `)` closing one), a `//` comment or an import / package line (a file-header
+        doc), so the comment documents that unit."""
+        for text in self.raw_content_lines[doc_end_line : max(start_line - 1, doc_end_line)]:
+            s = text.strip()
+            if s and not s.startswith(("@", "//", ")", "import ", "package ")):
+                return False
+        return True
 
     def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:
         """Did the docstring-position family's own below-header STRING/BLOCK

@@ -117,3 +117,71 @@ def test_doc_belongs_to_the_declaration_directly_below():
 def test_file_header_doc_above_an_import_still_documents():
     src = "/** @param a probe */\n// note\nimport a.b\n\nfun entry(a: Int): Int {\n    return a\n}\n"
     assert _docs(src)["entry"] is True
+
+
+# ---- the five okhttp-measured cells (exploratory; the pinned crucible has no cases for them) ----
+
+
+def _rule_fires(family: str, src: str) -> bool:
+    return bool(
+        LANGUAGE_DEFINITIONS["kotlin"]["rules"][family].search(_PRISM.split_streams(src, "kotlin")["code_stream"])
+    )
+
+
+_FAMILY_CASES = {
+    "time_date_logic": (
+        [
+            "val t = System.nanoTime()",
+            "val d = Duration.ofSeconds(1)",
+            "val m = unit.toMillis(5)",
+            "val w = 5.seconds",
+            "val c = Calendar.getInstance()",
+            "val f = SimpleDateFormat(p)",
+            "measureTimeMillis { go() }",
+        ],
+        ["val s = Thread.currentThread()", "val timeout = 5", "val d = DateUtils.x()", "val n = nanoTimeLabel"],
+    ),
+    "io": (
+        [
+            "val f = File(path)",
+            "val s = url.openStream()",
+            "val r = socket.inputStream",
+            "file.appendText(x)",
+            "val l = readLine()",
+            "Files.readAllBytes(p)",
+        ],
+        [
+            "fun f(file: File): Int",
+            "import java.io.File",
+            "val c: HttpURLConnection? = null",
+            "val s = x.inputStreamName",
+        ],
+    ),
+    "panics_and_aborts": (
+        ["throw IllegalStateException()", 'TODO("later")', 'error("bad")', "exitProcess(1)", "System.exit(2)"],
+        ["return null", "return -1", 'log.error("x")', "val e = errorCount", "assertEquals(a, b)"],
+    ),
+    "bitwise_ops": (
+        ["val a = x and 0xff", "val b = x or y", "val c = x shl 8", "val d = x.inv()", "val e = a xor b"],
+        ["val a = Foo(and = 1)", "// a or b\nval x = 1", "val c = x && y"],
+    ),
+    "regex_execution": (
+        [
+            "val r = Regex(p)",
+            "val r = s.toRegex()",
+            "val m = Pattern.compile(p)",
+            "val m = r.matchEntire(s)",
+            "val m = p.matcher(s)",
+        ],
+        ["val m = xs.find { it > 1 }", "val ok = s.matches(p)", "val r = RegexUtils.compile(p)"],
+    ),
+}
+
+
+@pytest.mark.parametrize("family", sorted(_FAMILY_CASES))
+def test_okhttp_family_rules_count_the_named_construct(family):
+    yes, no = _FAMILY_CASES[family]
+    for src in yes:
+        assert _rule_fires(family, src), (family, src)
+    for src in no:
+        assert not _rule_fires(family, src), (family, src)

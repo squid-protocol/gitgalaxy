@@ -908,7 +908,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\bas\s+[A-Z]\w*|<\s*[A-Z]\w*\s*>\s*[a-zA-Z_]"),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|process\.exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # #8863: a call -- `delay` is also a parameter, a getter and a property name.
         "thread_sleeps": re.compile(
             r"(?<!get )(?<!set )(?<!function )\b(?:sleep|delay|setTimeout|setInterval|setImmediate)\s*\(|\bAtomics\.wait(?:Async)?\s*\("

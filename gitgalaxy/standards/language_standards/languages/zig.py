@@ -271,7 +271,7 @@ DEFINITION: dict[str, Any] = {
         # #2898: `return` removed -- an unconditional transfer is structural_boundaries'
         # (7538 crucible hits, none of them a panic/abort).
         "panics_and_aborts": re.compile(r"\bunreachable\b|@panic"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) (Forced waits/sleep).
         "thread_sleeps": re.compile(r"\b(std\.time\.sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         # #2898: binary `&`/`|` require the zig-fmt spacing (` a & b `) so the prefix

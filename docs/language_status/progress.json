@@ -1,5 +1,5 @@
 {
- "commit": "c72d64787",
+ "commit": "7390aab21",
  "components": {
   "capabilities": {
    "groups": [
@@ -658,7 +658,7 @@
      "closed": 3,
      "closed_caught": 1008,
      "closed_survived": 780,
-     "equivalent": 2635,
+     "equivalent": 2737,
      "l5": 3,
      "measured": 12,
      "mutants": 8407,
@@ -744,7 +744,7 @@
     "closed": 5,
     "closed_caught": 1213,
     "closed_survived": 858,
-    "equivalent": 7023,
+    "equivalent": 7125,
     "l5": 5,
     "measured": 64,
     "mutants": 59197,
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-26T19:27:08Z",
+  "as_of": "2026-11-26T19:51:15Z",
   "core": {
    "closed": 264,
    "open": 13,

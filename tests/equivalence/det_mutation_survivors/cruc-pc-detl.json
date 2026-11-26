@@ -1444,6 +1444,34 @@
    ]
   },
   {
+   "id": "bcb27a94d6",
+   "op": "DEL",
+   "line": 345,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
+   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f93_EIBRESP after the no-context SEND TEXT is only stored into: the port branches on planned2[0], not on EIBRESP, and no read EIB item shares its bytes (eib-resp-unread); the same three SEND TEXT faults left it alive",
+   "tried": [
+    "sendtext-invreq-resp2-200",
+    "sendtext-lengerr-pf3",
+    "sendtext-tsioerr-clear"
+   ]
+  },
+  {
+   "id": "2d77208678",
+   "op": "DEL",
+   "line": 346,
+   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 after the no-context SEND TEXT is only stored into: the port reads the answer from planned2 and no read EIB item shares its bytes (eib-resp-unread); three SEND TEXT faults (INVREQ RESP2 200, TSIOERR with CLEAR, LENGERR with PF3) left it alive",
+   "tried": [
+    "sendtext-invreq-resp2-200",
+    "sendtext-lengerr-pf3",
+    "sendtext-tsioerr-clear"
+   ]
+  },
+  {
    "id": "a70500adff",
    "op": "ROR",
    "line": 349,
@@ -1480,18 +1508,6 @@
    ]
   },
   {
-   "id": "bcb27a94d6",
-   "op": "DEL",
-   "line": 364,
-   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
-   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
    "id": "bdfa3383e8",
    "op": "CON",
    "line": 364,
@@ -1504,15 +1520,31 @@
    ]
   },
   {
-   "id": "2d77208678",
+   "id": "ba9cc21f34",
    "op": "DEL",
-   "line": 365,
-   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
-   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */",
+   "line": 382,
+   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
+   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
    "verdict": "equivalent",
-   "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "reason": "f93_EIBRESP after the context-arm SEND MAP is only stored into: the port branches on planned6[0], not on EIBRESP (eib-resp-unread); the same three SEND MAP faults left it alive",
    "tried": [
-    "eib-resp-unread"
+    "sendmap-invmpsz-resp2-visits-0",
+    "sendmap-invreq-resp2-200-visits-9",
+    "sendmap-tsioerr-enter-visits-5"
+   ]
+  },
+  {
+   "id": "3876939ed6",
+   "op": "DEL",
+   "line": 383,
+   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
+   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 after the context-arm SEND MAP is only stored into: the port reads planned6[1] and the RETURN that follows never reads EIB items (eib-resp-unread); three SEND MAP faults (INVREQ RESP2 200 with PF3, INVMPSZ with CLEAR on an empty context, TSIOERR with a populated context) left it alive",
+   "tried": [
+    "sendmap-invmpsz-resp2-visits-0",
+    "sendmap-invreq-resp2-200-visits-9",
+    "sendmap-tsioerr-enter-visits-5"
    ]
   },
   {
@@ -1564,18 +1596,6 @@
    ]
   },
   {
-   "id": "ba9cc21f34",
-   "op": "DEL",
-   "line": 401,
-   "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
-   "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
    "id": "dc4f7e9792",
    "op": "CON",
    "line": 401,
@@ -1583,18 +1603,6 @@
    "after": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);",
    "verdict": "equivalent",
    "reason": "f93_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
-   "tried": [
-    "eib-resp-unread"
-   ]
-  },
-  {
-   "id": "3876939ed6",
-   "op": "DEL",
-   "line": 402,
-   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
-   "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
    ]

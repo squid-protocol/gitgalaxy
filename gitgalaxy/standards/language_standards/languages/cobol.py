@@ -828,7 +828,7 @@ DEFINITION: dict[str, Any] = {
         "panics_and_aborts": re.compile(
             r"\b(?:STOP\s+RUN|EXIT\s+PROGRAM|GOBACK|EXEC\s+CICS\s+ABEND)\b|CALL\s+'CEE3ABD'", re.I
         ),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay).
         # #2990: SUSPEND yields the task to CICS (a forced pause); also concurrency's.
         "thread_sleeps": re.compile(r"\bEXEC\s+CICS\s+(?:DELAY|SUSPEND)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations) (Modern intrinsic bitwise).

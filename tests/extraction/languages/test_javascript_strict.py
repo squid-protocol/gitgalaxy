@@ -75,7 +75,7 @@ _JS_SIMPLE_CASES = [
     ("time_date_logic", "Date.now();", "let now = true;"),
     ("ipc_rpc_bridges", "worker.postMessage(data);", "let posted = true;"),
     ("bitwise_ops", "const mask = flags << 2;", "const power = base ** exponent;"),
-    ("closures", "const add = (x) => { return x + 1; };", "const add = (x) => x + 1;"),
+    ("closures", "const add = (x) => { return x + 1; };", "const ok = a >= b ? a : b;"),
     ("cryptography", "import bcrypt from 'bcrypt';", "const hash = require('hash.js');"),
     (
         "dl_frameworks",
@@ -220,6 +220,47 @@ def test_javascript_bitwise_ops_and_closures_do_not_collide():
 
     assert closures.search("const f = (x) => { return x; };")
     assert not closures.search("x = a << 2;"), "closures false-positived on a bitwise shift"
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "const m = a & b;",
+        "const m = flags&mask;",
+        "const o = a | b;",
+        "const n = x|0;",
+        "result |= bit << i;",
+        "mask &= ~Flag;",
+        "x ^= y;",
+        "const h = (a ^ b) >>> 0;",
+        "n >>= 1;",
+        "flags = (flags & ~Placement) | Hydrating;",
+    ],
+)
+def test_javascript_bitwise_ops_counts_operators_in_operator_position_9342(line):
+    """The contract: a shift, and, or, xor or complement between value operands, compound assignments included."""
+    assert JS_RULES["bitwise_ops"].search(line)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "if (a && b) {}",
+        "const v = a || b;",
+        "x = a ? b : c;",
+        "const f = (x) => x + 1;",
+        "const r = /^fbjs\\//.test(s);",
+        "const r = /[^a-z]+$/;",
+        "const r = /^((?!chrome|android).)*safari/i;",
+        "const r = /[<<]/v;",
+        "const r = /\\.jpe?g($|\\?)/i;",
+        "const r = /(foo|bar)/;",
+        "const r = /[\\w&&[^a-z_]]/v;",
+    ],
+)
+def test_javascript_bitwise_ops_skips_logical_operators_and_regex_literals_9342(line):
+    """`&&`, `||`, a regex anchor, negated class, `[<<]` and an `a|b` alternation are not bitwise operators."""
+    assert not JS_RULES["bitwise_ops"].search(line)
 
 
 def test_javascript_standard_block_redos_immunity_for_deeply_nested_jsdoc_generics():

@@ -503,7 +503,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable exceptions.
         "panics_and_aborts": re.compile(r"(?i)\b(?:stop|error[ \t]+stop|call[ \t]+(?:exit|abort))\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # Forcing threads to sleep.
         "thread_sleeps": re.compile(r"(?i)\bcall[ \t]+(?:sleep|usleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)

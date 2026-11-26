@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 from _timing import assert_cpu_below
 
+from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
@@ -54,7 +55,8 @@ _GO_SIMPLE_CASES = [
     ("debug_prints", 'fmt.Println("debug")', 'fmt.Sprintf("debug")'),
     ("decorators", "//go:build linux", "// go to sleep"),
     ("dependency_injection", "wire.Build(NewFoo)", "wire.NewFoo()"),
-    ("doc", "// Foo does something useful.", "// foo does something useful"),
+    # #8863: a godoc comment is any column-0 `// text` line (unexported declarations too); a directive has no space
+    ("doc", "// Foo does something useful.", "//nolint:errcheck"),
     ("encapsulation", "var foo = 5", "var Foo = 5"),
     ("events", "bus.Publish(event)", "bus.Published = true"),
     ("explicit_casts", "int(x)", "intVar := 5"),
@@ -485,3 +487,32 @@ def test_go_unknown_scope_filter_name_is_ignored_not_zeroed():
     defs["go"]["rules"]["_scope_filters"] = {"globals": "no-such-filter"}
     counts, *_ = StructuralExtractor("go", defs).coding_analysis([("go", "var top = 1\n", 0)])
     assert counts["globals"] >= 1
+
+
+def test_go_doc_counts_every_line_comment_stream_has_no_indentation_9345():
+    """#9345: the comment stream drops indentation, so an indented body comment and a file-header line count as doc.
+
+    keyword-rosetta's go manifest (ledger `go-doc-counts-every-line-comment`) bakes these counts in; a change that makes
+    doc column-aware must re-bless that corpus in the same breath.
+    """
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    src = "// header line\npackage main\n\nfunc probe(x int) int {\n    // HACK: indented note\n    return x\n}\n"
+    streams = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(src, "go")
+    eqs = StructuralExtractor("go", LANGUAGE_DEFINITIONS).splice(streams["code_stream"], streams["comment_stream"])[
+        "equations"
+    ]
+    assert eqs["doc"] == 2
+
+
+def test_go_doc_directive_without_space_is_not_doc_9345():
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    src = "//go:build linux\npackage main\n\n//nolint:errcheck\nfunc probe() {}\n"
+    streams = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(src, "go")
+    eqs = StructuralExtractor("go", LANGUAGE_DEFINITIONS).splice(streams["code_stream"], streams["comment_stream"])[
+        "equations"
+    ]
+    assert eqs["doc"] == 0

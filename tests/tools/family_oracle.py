@@ -95,6 +95,14 @@ _CLOCKS = frozenset(
         "localtime",
         "gmtime",
         "timezone",
+        # #8863: formatting / conversion calls the time_date_logic contract names, not any call on a `time` / `datetime` base
+        "isoformat",
+        "fromisoformat",
+        "mktime",
+        "ctime",
+        "asctime",
+        "timegm",
+        "thread_time",
     }
 )
 _DANGER_CALLS = frozenset({"eval", "exec", "system", "popen", "Popen", "unsafe_load", "_exit", "abort", "exit"})
@@ -102,9 +110,21 @@ _SUBPROCESS_CALLS = frozenset({"call", "run", "Popen", "check_output", "check_ca
 _LOG_METHODS = frozenset({"debug", "info", "warning", "warn", "error", "exception", "critical", "log"})
 _LOG_OBJECTS = frozenset({"logger", "logging", "log", "_log", "_logger", "LOG"})
 _THREAD_NAMES = frozenset(
-    {"Thread", "Pool", "Process", "ThreadPoolExecutor", "ProcessPoolExecutor", "Queue", "submit", "imap", "apply_async"}
+    {
+        "Thread",
+        "Pool",
+        "Process",
+        "ThreadPoolExecutor",
+        "ProcessPoolExecutor",
+        "Queue",
+        "submit",
+        "imap",
+        "apply_async",
+        "create_task",  # #8863: the concurrency contract names async / await tasks
+        "gather",
+    }
 )
-_LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release"})
+_LOCK_NAMES = frozenset({"Lock", "RLock", "Semaphore", "BoundedSemaphore", "acquire", "release", "allocate_lock"})
 _SERIAL_BASES = frozenset({"json", "yaml", "pickle", "marshal", "csv", "toml", "tomllib", "ET", "etree", "plistlib"})
 _SERIAL_CALLS = frozenset(
     {
@@ -267,7 +287,7 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("io", name)
     if base == "re" or name in _REGEX_METHODS:
         c.add("regex", name)
-    if name in _CLOCKS or base in ("time", "datetime"):
+    if name in _CLOCKS:
         c.add("time", name)
     if (base in _SERIAL_BASES and name in _SERIAL_CALLS) or name in (
         "literal_eval",
@@ -282,7 +302,9 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
     if name in ("close", "remove", "unlink", "rmtree", "rmdir", "removedirs"):
         c.add("cleanup", name)
     if (
-        name in _DANGER_CALLS
+        (
+            name in _DANGER_CALLS and (name not in ("system", "abort") or base == "os")
+        )  # `platform.system()` / `ota.abort()` are not (#8863)
         or (base == "subprocess" and name in _SUBPROCESS_CALLS)
         or (base == "os" and name.startswith(("exec", "spawn")))
     ):
@@ -299,7 +321,12 @@ def _count_call(call: ast.Call, c: _Counts) -> None:
         c.add("telemetry", name)
     if name in _THREAD_NAMES or base in ("threading", "multiprocessing"):
         c.add("threads", name)
-    if name in _LOCK_NAMES:
+    # #8863: `x.release(code)` / `x.acquire(var)` with arguments is another API (a Cython temp release), not a lock
+    if (
+        name in _LOCK_NAMES
+        and not (name == "release" and (call.args or call.keywords))
+        and (name != "acquire" or all(isinstance(a, ast.Constant) for a in call.args))
+    ):
         c.add("locks", name)
     if isinstance(call.func, ast.Name) and name in _CASTS:
         c.add("cast", name)
@@ -313,8 +340,8 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
     )  # `str | None` in a type annotation is a type union, not a bitwise operator on values
     for node in ast.walk(fn):
         ann = getattr(node, "annotation", None) if isinstance(node, (ast.arg, ast.AnnAssign)) else None
-        if node is fn:
-            ann = fn.returns
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            ann = node.returns  # a nested def's return annotation too (#8863)
         if ann is not None:
             annotation_nodes.update(id(x) for x in ast.walk(ann))
     for node in ast.walk(fn):
@@ -358,10 +385,12 @@ def python_oracle(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> _Counts:
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             c.add("imports")
         if id(node) not in annotation_nodes and (
-            (isinstance(node, ast.BinOp) and isinstance(node.op, _BITWISE_OPS))
+            (isinstance(node, (ast.BinOp, ast.AugAssign)) and isinstance(node.op, _BITWISE_OPS))  # `m |= x` too (#8863)
             or (isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Invert))
         ):
             c.add("bitwise", type(node.op).__name__)
+        if isinstance(node, (ast.AsyncFunctionDef, ast.Await, ast.AsyncFor, ast.AsyncWith)):
+            c.add("threads", type(node).__name__)  # #8863: async / await is the concurrency family's
         if isinstance(node, ast.Call):
             _count_call(node, c)
     a = fn.args
@@ -404,12 +433,20 @@ def get_oracle(lang: str):
         import family_oracle_cobol
 
         return family_oracle_cobol.get_oracle()
+    if lang == "jcl":  # the job-flow statement reader (an EXEC step is the function)
+        import family_oracle_jcl
+
+        return family_oracle_jcl.get_oracle()
+    if lang == "hlasm":  # the translator's assembler statement reader (a CSECT or macro is the function)
+        import family_oracle_hlasm
+
+        return family_oracle_hlasm.get_oracle()
     import family_oracle_ts
 
     oracle = family_oracle_ts.get_oracle(lang)
     if oracle is None:
         raise SystemExit(
-            f"no oracle for language {lang!r} yet (available: python, cobol, {', '.join(family_oracle_ts.languages())}); see #8863"
+            f"no oracle for language {lang!r} yet (available: python, cobol, jcl, hlasm, {', '.join(family_oracle_ts.languages())}); see #8863"
         )
     return oracle
 
@@ -500,6 +537,7 @@ def score(
     fam_vals: dict[str, list[float]] = {f.column: [] for f in fams}
     orc_vals: dict[str, list[float]] = {f.column: [] for f in fams}
     missed: dict[str, collections.Counter[str]] = {f.column: collections.Counter() for f in fams}
+    missed_fns: dict[str, collections.Counter[str]] = {f.column: collections.Counter() for f in fams}
     matched = unmatched = 0
     exts = oracle.exts
     for row in rows:
@@ -525,7 +563,9 @@ def score(
             fam_vals[fam.column].append(float(v))
             orc_vals[fam.column].append(float(o))
             if o > 0 and not v > 0:
-                missed[fam.column].update(tokens.get(fam.oracle, {}))
+                seen = tokens.get(fam.oracle, {})
+                missed[fam.column].update(seen)
+                missed_fns[fam.column].update(set(seen))  # distinct functions: one per token per function
     out = []
     for fam in fams:
         fv, ov = fam_vals[fam.column], orc_vals[fam.column]
@@ -534,20 +574,21 @@ def score(
         both = sum(1 for x, y in zip(fv, ov, strict=True) if x > 0 and y > 0)
         recall = both / n_o if n_o else None
         precision = both / n_f if n_f else None
-        out.append(
-            {
-                "family": fam.column,
-                "rule": fam.rule,
-                "definition": fam.sentence,
-                "oracle_functions": n_o,
-                "family_functions": n_f,
-                "recall": None if recall is None else round(recall, 3),
-                "precision": None if precision is None else round(precision, 3),
-                "rho": None if (r := spearman(fv, ov)) is None else round(r, 3),
-                "status": status(n_o, n_f, recall, precision, recall_bar=recall_bar, precision_bar=precision_bar),
-                "missed_tokens": missed[fam.column].most_common(top),
-            }
-        )
+        row = {
+            "family": fam.column,
+            "rule": fam.rule,
+            "definition": fam.sentence,
+            "oracle_functions": n_o,
+            "family_functions": n_f,
+            "recall": None if recall is None else round(recall, 3),
+            "precision": None if precision is None else round(precision, 3),
+            "rho": None if (r := spearman(fv, ov)) is None else round(r, 3),
+            "status": status(n_o, n_f, recall, precision, recall_bar=recall_bar, precision_bar=precision_bar),
+            "missed_tokens": missed[fam.column].most_common(top),
+        }
+        if missed_fns[fam.column]:  # added only when non-empty: an always-present empty key breaks equality tests
+            row["missed_token_functions"] = {t: missed_fns[fam.column][t] for t, _ in row["missed_tokens"]}
+        out.append(row)
     return {"language": lang, "matched": matched, "unmatched": unmatched, "families": out}
 
 

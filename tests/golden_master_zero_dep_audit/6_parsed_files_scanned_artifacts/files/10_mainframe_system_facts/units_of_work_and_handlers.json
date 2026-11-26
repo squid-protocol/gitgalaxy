@@ -7587,6 +7587,34 @@
         }
       ]
     },
+    "pli/dsf_pli_more": {
+      "pli/dsf_pli_more/src_A0010301.pli": [
+        {
+          "Attributes": null,
+          "Condition": "ERROR",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 124,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "FEILBEH",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_pli_more/src_R0011203.pli": [
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 105,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ]
+    },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": [
         {

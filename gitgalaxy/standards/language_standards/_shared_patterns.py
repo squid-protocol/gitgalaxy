@@ -429,9 +429,12 @@ _PERL_ARG = (
     r"|[a-z_][a-z0-9_]*[ \t]*\()"
 )
 _PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
+# #6433: quote-like and repetition operators take a parenthesised operand: `m(..)`, `s(a)(b)`, `tr(a)(b)`,
+# `y(a)(b)`, `"-" x ($n - 1)`. Operators, never calls (the `->` form is a method and stays).
+_PERL_OP_WORD = rf"(?:m|s|tr|y|x)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(
     r"(?:(?<=->)(?:SUPER::)?"
-    rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
+    rf"|(?<![$@%{ID_CONTINUE}>-])(?!{_PERL_OP_WORD})(?={_PERL_NAME}[ \t]*\()"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=(?:print|printf|say)(?![{ID_CONTINUE}])[ \t]+(?:[A-Z][A-Z0-9_]*|\{{[^{{}}\n]{{0,100}}\}})[ \t]+[a-z0-9$\"'@])"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"

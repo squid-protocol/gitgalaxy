@@ -87,8 +87,8 @@ _DOCKERFILE_SIMPLE_CASES = [
     ("scientific", "FROM nvidia/cuda:12.0-base", "FROM python:3.12"),
     (
         "reflection_metaprogramming",
+        "ONBUILD RUN pip install -r requirements.txt",
         "RUN --mount=type=cache,target=/root/.cache pip install -r requirements.txt",
-        "RUN pip install -r requirements.txt",
     ),
     ("import", "FROM golang:1.22 AS builder", "RUN go build ."),
     ("ownership", "MAINTAINER Jane Doe <jane@example.com>", "LABEL version=1.0"),
@@ -180,8 +180,7 @@ def test_dockerfile_lexical_family_no_block_terminator_state_to_confuse():
     comment delimiters at all), none of its structural regexes track
     open/close block-comment state -- every keyword-presence rule matches
     via flat line-anchored scanning, not depth-tracking. Docker's one real
-    multi-line construct is BuildKit's `<<EOF ... EOF` heredoc (mapped to
-    `reflection_metaprogramming`); since the engine performs no
+    multi-line construct is BuildKit's `<<EOF ... EOF` heredoc; since the engine performs no
     special-casing of heredoc bodies either, a stray instruction-shaped
     line or a bare `EOF` closing token inside one is scanned exactly the
     same as anywhere else in the file -- there is no block-state tracker

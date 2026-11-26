@@ -162,6 +162,7 @@ _WRAPPERS = frozenset(
         "shared_ptr",
         "weak_ptr",
         "optional",
+        "expected",
         "Nullable",
     }
 )
@@ -536,6 +537,24 @@ def extract_expr_chain(text: str, pos: int, separators: tuple[str, ...], max_seg
             k = p
             while k > 0 and text[k - 1] in " \t\r\n" and p - k < 40:
                 k -= 1
+            if k > 0 and text[k - 1] == ">":
+                # Skip C++ template arguments before `(` (`fmt::scan<std::string>(...) -> value()`)
+                tdepth = 0
+                tp = k - 1
+                tlimit = max(0, k - 200)
+                while tp >= tlimit:
+                    tch = text[tp]
+                    if tch == ">":
+                        tdepth += 1
+                    elif tch == "<":
+                        tdepth -= 1
+                        if tdepth == 0:
+                            break
+                    tp -= 1
+                if tdepth == 0:
+                    k = tp
+                    while k > 0 and text[k - 1] in " \t\r\n" and tp - k < 40:
+                        k -= 1
         start = k
         while start > 0 and k - start < 128 and (text[start - 1].isalnum() or text[start - 1] in "_$"):
             start -= 1

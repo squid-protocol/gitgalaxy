@@ -12,17 +12,23 @@ The forge here is the REAL one for the estate: skeletons only for the estate's o
 here: "listed, not generated", `BatchForge.jobs[].kind == "utility"`, and the report says so per step).
 
 What is stood in, named in the result: a program step calls a stub service whose `runBatch` returns the chain's COBOL
-return code for that step (the proven ports are not linked: a later slice). A utility step the forge cannot run
+return code for that step (the proven ports are not linked into THIS javac build: it has no JPA stack; #8886 slice 22
+reads the generation the proven port wrote as the service of the same generated job from the chain's own run, a dataset
+row's `ported`, see `equivalence_job.java_generations`). A utility step the forge cannot run
 (`steps.utility`) FAILS the job as shipped (`strict`); with `gitgalaxy.batch.skip-unimplemented` it logs and returns 0
 (`skip`): both are run and reported, neither is a pass for the chain's answer.
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
+import json
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -199,7 +205,17 @@ def chain_generations(chain: Path | None, dsn: str) -> list[Path]:
     return sorted(p for p in (chain / dsn).iterdir() if p.is_file()) if chain and (chain / dsn).is_dir() else []
 
 
-def seed_datasets(datasets: dict[str, dict], root: Path, chain: Path | None = None) -> None:
+def chain_fed(outputs: Path | None, d: dict) -> Path | None:
+    """The file the chain's step output a dataset is fed from (`chain_feed`: {case, dd}), None when the spec names none or the
+    chain did not export it."""
+    f = d.get("chain_feed")
+    p = outputs / f["case"] / f["dd"] if outputs and f else None
+    return p if p is not None and p.is_file() else None
+
+
+def seed_datasets(
+    datasets: dict[str, dict], root: Path, chain: Path | None = None, outputs: Path | None = None
+) -> None:
     """Write each seeded input dataset as the file the DatasetResolver finds under `root` (DSN = file name): the seed's
     lines as `lrecl`-byte fixed records with no line ending, the form a RECFM=F(B) dataset has.
 
@@ -207,7 +223,12 @@ def seed_datasets(datasets: dict[str, dict], root: Path, chain: Path | None = No
     and under their own numbers, so (0) is the generation the COBOL step read; the fixture seed is the fallback."""
     for dsn, d in datasets.items():
         gens = chain_generations(chain, dsn) if d.get("gdg") else []
-        if gens:
+        fed = chain_fed(outputs, d)
+        if fed is not None and not d.get("gdg"):  # #8886 slice 21: the bytes the chain's earlier step left this dataset
+            if fed.stat().st_size % d["lrecl"]:
+                raise ValueError(f"{fed}: not whole records of {d['lrecl']} bytes")
+            shutil.copyfile(fed, root / dsn)
+        elif gens:
             (root / dsn).mkdir(parents=True, exist_ok=True)
             for g in gens:
                 if g.stat().st_size % d["lrecl"]:
@@ -295,6 +316,81 @@ def _service_class(key: str) -> str:
     return java_class_base(key) + "Service"
 
 
+def compare_final(spec: dict, outputs: Path | None, run: dict) -> list[dict]:
+    """The datasets a step leaves that no GDG catalogs (a KSDS after REPRO): per spec `final_outputs` entry
+    `{case, dd, job, dataset}`, the bytes the COBOL chain's step wrote to that DD (`outputs/<case>/<DD>`) against the
+    file the forged job left under the dataset's name, per mode. Same row shape as `compare_datasets`, so `render` and
+    `differs` carry it: no chain output, or no file from the job, is `differs` and says so."""
+    rows = []
+    for f in spec.get("final_outputs", ()):
+        want_file = outputs / f["case"] / f["dd"] if outputs else None
+        want = None
+        if want_file is not None and want_file.is_file():
+            data = want_file.read_bytes()
+            want = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        row: dict = {"case": f["case"], "job": f["job"], "dataset": f["dataset"], "chain": want, "modes": {}}
+        for mode in ("strict", "skip"):
+            got = run.get("datasets_by_job", {}).get(mode, {}).get(f["job"], {}).get(f["dataset"])
+            if want is None:
+                issue = f"the chain exported no {f['case']}/{f['dd']}"
+            elif got is None:
+                issue = f"{f['job']} left no {f['dataset']}"
+            elif (got["size"], got["sha256"]) != (want["size"], want["sha256"]):
+                issue = f"{got['size']} bytes {got['sha256'][:12]}, chain {want['size']} bytes {want['sha256'][:12]}"
+            else:
+                issue = None
+            row["modes"][mode] = {"status": "differs" if issue else "equal", "got": got, "issue": issue}
+        rows.append(row)
+    return rows
+
+
+def compare_program_outputs(spec: dict, report: dict, outputs: Path | None, run: dict) -> list[dict]:
+    """#8886 slice 25: the datasets a program step leaves that no GDG catalogs (POSTTRAN's ACCTFILE / TCATBALF / DALYREJS,
+    INTCALC's ACCTFILE): per spec `program_outputs` entry `{case, dd, job, dataset}`, the bytes the COBOL chain's step wrote
+    (`outputs/<case>/<DD>`) against (a) the bytes the proven port left in that DD when the chain's Java side ran the step as
+    the generated job (`java_out` in the chain report, `ported`: re-compared here with the chain's file, not read off the
+    report's own `equal`) and (b) the file the javac Spring run left under the dataset's name, per mode. That run has no port
+    linked (no JPA stack), so its program steps write nothing and (b) differs, named, never rounded."""
+    steps = {s["case"]: s for s in report.get("steps", ())}
+    rows = []
+    for f in spec.get("program_outputs", ()):
+        want_file = outputs / f["case"] / f["dd"] if outputs else None
+        want = None
+        if want_file is not None and want_file.is_file():
+            data = want_file.read_bytes()
+            want = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        row: dict = {"case": f["case"], "job": f["job"], "dataset": f["dataset"], "chain": want, "modes": {}}
+        java = ((steps.get(f["case"]) or {}).get("java_out") or {}).get(f["dd"])
+        if java is not None and want is not None:
+            same = (java["size"], java["sha256"]) == (want["size"], want["sha256"])
+            row["ported"] = {"status": "equal" if same else "differs", "got": {k: java[k] for k in ("size", "sha256")}}
+            if not same and java.get("filler_differs"):
+                # every field equal, only FILLER bytes apart (diff_records counts a FILLER apart: IBM's INITIALIZE leaves one
+                # untouched, so the bytes are the runtime's leftover): stated by name with its count, never "equal"
+                row["ported"] = {
+                    **row["ported"],
+                    "status": "equal-outside-filler",
+                    "filler_records": java["filler_differs"],
+                }
+        else:
+            why = "the chain exported no bytes" if want is None else "the chain's Java run left no bytes"
+            row["ported"] = {"status": "differs", "got": None, "issue": f"{f['case']}/{f['dd']}: {why}"}
+        for mode in ("strict", "skip"):
+            files = run.get("datasets_by_job", {}).get(mode, {}).get(f["job"], {})
+            got = files.get(f["dataset"])
+            if want is None:
+                issue = f"the chain exported no {f['case']}/{f['dd']}"
+            elif got is None:
+                issue = f"{f['job']} left no {f['dataset']} (the stubbed program step wrote nothing)"
+            elif (got["size"], got["sha256"]) != (want["size"], want["sha256"]):
+                issue = f"{got['size']} bytes {got['sha256'][:12]}, chain {want['size']} bytes {want['sha256'][:12]}"
+            else:
+                issue = None
+            row["modes"][mode] = {"status": "differs" if issue else "equal", "got": got, "issue": issue}
+        rows.append(row)
+    return rows
+
+
 def run_forged(
     forge,
     rc_by_step: dict[tuple[str, str], int | None],
@@ -302,6 +398,7 @@ def run_forged(
     work: Path,
     seeds: dict | None = None,
     chain: Path | None = None,
+    outputs: Path | None = None,
 ) -> dict | None:
     """Compile the forge's generated sources and run every generated job, strict and skip-unimplemented.
 
@@ -363,7 +460,7 @@ def run_forged(
         ) in configs:  # one JVM and a freshly seeded directory per job: each job is its own case (#8886 slice 8)
             ds = datasets / mode / config.rsplit(".", 1)[-1]
             ds.mkdir(parents=True)
-            seed_datasets(seeds or {}, ds, chain)
+            seed_datasets(seeds or {}, ds, chain, outputs)
             seeded = _listing(ds)
             cmd = ["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", *(f"-Dgg.rc.{c}={v}" for c, v in rcs.items()),
                    "-cp", f"{classes}:{cp}", f"{PKG}.SpringDrive", str(ds), skip, config]  # fmt: skip
@@ -470,6 +567,13 @@ def compare_datasets(spec: dict, report: dict, run: dict, chain: Path | None = N
         for base, want in (st.get("gdg_created") or {}).items():
             job = case_job.get(st["case"])
             row: dict = {"case": st["case"], "job": job, "dataset": base, "chain": want, "modes": {}}
+            if ported := (st.get("java_gdg") or {}).get(base):
+                # #8886 slice 22: the generation the PROVEN PORT wrote as the step's service in the generated job (the
+                # chain's own Java run, `equivalence_job.java_generations`), beside the stubbed Spring rows below
+                row["ported"] = {
+                    "status": "equal" if ported["equal"] else "differs",
+                    "got": {k: ported[k] for k in ("size", "sha256")},
+                }
             for mode in ("strict", "skip"):
                 files = run.get("datasets_by_job", {}).get(mode, {}).get(job, {})
                 new = sorted(k for k in files if k.startswith(f"{base}(") and k not in seeded)
@@ -490,7 +594,13 @@ def compare_datasets(spec: dict, report: dict, run: dict, chain: Path | None = N
 
 
 def scan_and_run(
-    spec: dict, case: dict, report: dict, corpus: Path, chain_rcs, chain: Path | None = None
+    spec: dict,
+    case: dict,
+    report: dict,
+    corpus: Path,
+    chain_rcs,
+    chain: Path | None = None,
+    outputs: Path | None = None,
 ) -> dict | None:
     """The whole slice-2 run for one job case; None when Spring or a JDK is missing. `chain` is the directory the COBOL
     chain exported its generations to (`report["generations_dir"]`): the Spring jobs read those bytes."""
@@ -521,13 +631,15 @@ def scan_and_run(
         ran = {s["case"] for s in case["steps"]} - set((report.get("ibm_stop") or {}).get("not_reached") or [])
         # a program step's stub returns the RC of the case step that covers it
         rc_by_step = {(m["job"], j): rcs.get(m["case"]) for m in spec["steps"] for j in m["jcl_steps"]}
-        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"), chain)
+        run = run_forged(forge, rc_by_step, work / "datasets", work / "build", spec.get("datasets"), chain, outputs)
         if run is None:
             return None
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
-            "datasets": compare_datasets(spec, report, run, chain),
+            "datasets": compare_datasets(spec, report, run, chain)
+            + compare_final(spec, outputs, run)
+            + compare_program_outputs(spec, report, outputs, run),
             "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`
@@ -553,9 +665,106 @@ def render(res: dict, case_name: str) -> list[str]:
             out.append(f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] {mode}: {md['status']}")
             if md["issue"]:
                 out.append(f"    differs: {md['issue']}")
+        if p := d.get("ported"):
+            out.append(
+                f"{case_name} dataset {d['dataset']} [{d['job']}, step {d['case']}] ported (linked port): {p['status']}"
+            )
+            if p.get("issue"):
+                out.append(f"    differs: {p['issue']}")
+            if p.get("filler_records"):
+                out.append(f"    every field equal; FILLER bytes differ in {p['filler_records']} records (not a field)")
     for mode in ("strict", "skip"):
         n = sum(r["modes"][mode]["status"] == "equal" for r in res["rows"])
         out.append(
             f"{case_name}: executed Spring jobs equal to the chain over {n} of {len(res['rows'])} steps ({mode})"
         )
     return out
+
+
+def differs(res: dict) -> list[str]:
+    """Every row and dataset of a run that is not equal to the chain, in either mode: the lines a run must not round away."""
+    out = [
+        f"step {r['case']} [{r['job']}] {m}"
+        for r in res["rows"]
+        for m in ("strict", "skip")
+        if r["modes"][m]["status"] != "equal"
+    ]
+    out += [
+        f"dataset {d['dataset']} [{d['job']}] {m}"
+        for d in res.get("datasets", ())
+        for m in ("strict", "skip")
+        if d["modes"][m]["status"] != "equal"
+    ]  # fmt: skip
+    out += [
+        f"dataset {d['dataset']} [{d['job']}] ported"
+        for d in res.get("datasets", ())
+        if d.get("ported", {}).get("status", "equal") != "equal"
+    ]  # a linked port's bytes that are not the chain's are never rounded away (#8886 slice 25)
+    return out
+
+
+def run_chain(case_name: str, keep: Path) -> Path:
+    """Run the COBOL chain of a job case (`equivalence.py run CASE --keep DIR`) and return its report.json. A chain that is
+    not proven still writes its report (the Spring run is compared with what the chain did, step by step), so only a missing
+    report is an error."""
+    subprocess.run(
+        [sys.executable, str(Path(__file__).with_name("equivalence.py")), "run", case_name, "--keep", str(keep)],
+        check=False,
+    )
+    report = keep / "report.json"
+    if not report.is_file():
+        raise SystemExit(f"{case_name}: the chain wrote no report.json under {keep}")
+    return report
+
+
+def main(argv: list[str] | None = None) -> int:
+    """One command: the generated Spring Batch jobs of a job case, executed, set against the COBOL chain's report.
+    Exit 1 when any step or dataset differs in either mode (the stubbed program rows included: never rounded)."""
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--spec", required=True, type=Path, help="tests/equivalence/jobs/<case>.forged.json")
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("--report", type=Path, help="the report.json of an `equivalence.py run <case>`")
+    src.add_argument("--run-chain", type=Path, metavar="DIR", help="run the COBOL chain first, keeping it in DIR")
+    ap.add_argument(
+        "--corpus", type=Path, help="the corpus root (default: the spec's corpus under GITGALAXY_MAINFRAME_CORPORA)"
+    )
+    ap.add_argument("--json", type=Path, help="write the rows and datasets here")
+    a = ap.parse_args(argv)
+    repo = Path(__file__).resolve().parents[2]
+    spec = json.loads(a.spec.read_text(encoding="utf-8"))
+    case = json.loads((repo / "tests/equivalence/jobs" / f"{spec['case']}.json").read_text(encoding="utf-8"))
+    report_path = a.report or run_chain(spec["case"], a.run_chain)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    corpus = (
+        a.corpus or Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", repo / ".mainframe_corpora")) / spec["corpus"]
+    )
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import equivalence_forged_job as efj
+
+    res = scan_and_run(
+        spec,
+        case,
+        report,
+        corpus,
+        efj.chain_rcs,
+        Path(report["generations_dir"]) if report.get("generations_dir") else None,
+        Path(report["outputs_dir"]) if report.get("outputs_dir") else None,
+    )
+    if res is None:
+        print("no Spring Batch jars or JDK: nothing was run", file=sys.stderr)
+        return 2
+    print("\n".join(render(res, spec["case"])))
+    bad = differs(res)
+    print(
+        f"{spec['case']}: {len(bad)} step/dataset results differ from the chain"
+        + (f": {'; '.join(bad)}" if bad else "")
+    )
+    if a.json:
+        a.json.write_text(
+            json.dumps({k: res[k] for k in ("rows", "datasets", "jobs")}, indent=2, default=str), encoding="utf-8"
+        )
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

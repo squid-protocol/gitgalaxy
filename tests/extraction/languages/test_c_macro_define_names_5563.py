@@ -222,3 +222,15 @@ def test_c_macro_body_functions_wrapper():
         det._C_REPO_MACRO_ARGS = saved_args
         det._C_REPO_MACRO_BODY_FUNCS = saved_bf
         det._C_REPO_MACRO_SIG_TEMPLATES = saved_st
+
+
+def test_local_macro_override_skips_conditional_compilation_variants():
+    # `#ifdef DEBUG #define CHECK(..) if (..) { I_Error(..); } #else #define CHECK(..) #endif`: the compiled variant is
+    # unknown, so the file-local override must not claim the statement variant's callee (prboom-plus/dsda-doom p_pspr.c).
+    cond = (
+        "#ifdef DEBUG\n#define CHECK(a, b) \\\n  if (!a) { I_Error(b); return; }\n#else\n#define CHECK(a, b)\n#endif\n"
+        'void run(int p) {\n    CHECK(p, "x");\n}\n'
+    )
+    assert det.c_local_stmt_macro_body_calls(cond) == {}
+    plain = "#define CHECK(a, b) \\\n  if (!a) { I_Error(b); return; }\n"
+    assert det.c_local_stmt_macro_body_calls(plain)["CHECK"][0] == frozenset({"I_Error"})

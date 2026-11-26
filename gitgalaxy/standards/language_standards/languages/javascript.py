@@ -363,7 +363,15 @@ DEFINITION: dict[str, Any] = {
             r'<[A-Z]\w+|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition)|props\.|this\.state|document\.(?:getElementById|querySelector|addEventListener)|["\']use\s+(?:client|server)["\']'
         ),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
+        # #8868: anonymous callables only -- every value arrow (single-parameter and expression-bodied too) and
+        # `function (`. A unit's slice starts at its own name, so `name = function (` / `name: function (` /
+        # `x.y = function (` is the unit's OWN header, not a closure inside itself: a `function` straight after
+        # `=` or `:` is skipped (jquery `ajaxSetup: function(` scored 0.31 precision). A callback argument,
+        # `return function` and an IIFE are the closures.
+        "closures": re.compile(
+            r"(?:\((?:[^()]|\([^()]*\))*\)|(?<![\w$.)])[\w$]+)[ \t]*=>"
+            r"|(?<![=:])(?<![=:][ \t])(?<![=:][ \t]async[ \t])\bfunction\s*\*?\s*\("
+        ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
             # #2858 contract corollary 3: `self` and `global` are everyday
@@ -476,10 +484,19 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(Number|String|Boolean|BigInt|Symbol|Array\.from)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|process\.exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
-        "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|Atomics\.wait)\b"),
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
+        "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|setImmediate|Atomics\.wait)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),
+        # #9342: a bitwise operator in operator position (the contract): binary `&` and `|` count, as do their compound forms
+        # (`&=` `|=` `^=` `<<=` `>>=`); a regex literal's `^` anchor, `[^x]` class, `[<<]` or `a|b` alternation is not one.
+        # An operand is a word, `$`, `)` or `]`. `|` needs a space after it or a digit (`x|0`): `/a|b/` is an alternation.
+        "bitwise_ops": re.compile(
+            r"(?<!\[)<<|(?<!\[)>>>?"
+            r"|(?<=[\w$)\]])[ \t]*\^"
+            r"|(?<=[\w$)\]])[ \t]*&(?!&)"
+            r"|(?<=[\w$)\]])[ \t]*\|=|(?<=[\w$)\]])[ \t]+\|(?![|=])[ \t]|(?<=[\w$)\]])\|(?=\d)"
+            r"|(?<=[\s(=,&|^?:!{};+-])~"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomics\.lock|Atomics\.wait)\b",
@@ -535,7 +552,7 @@ DEFINITION: dict[str, Any] = {
             re.MULTILINE,
         ),
         "time_date_logic": re.compile(
-            r"\b(Date\.now|new\s+Date|setTimeout|setInterval|clearTimeout|clearInterval|performance\.now)\b"
+            r"\b(Date\.now|new\s+Date|performance\.now)\b"  # #8868: timers are thread_sleeps' timed waits, not clock values
         ),
         "ipc_rpc_bridges": re.compile(r"\b(postMessage|Worker|MessageChannel|child_process|worker_threads|cluster)\b"),
         # system_config_mutation (#3084): contract-level absence. runtime/app

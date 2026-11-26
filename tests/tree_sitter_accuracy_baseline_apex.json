@@ -1,12 +1,12 @@
 {
-  "args_comparable": 38,
-  "args_exact_match": 38,
+  "args_comparable": 178,
+  "args_exact_match": 176,
   "corpus_path": "language-crucible/data/apex",
-  "extra_classes": 0,
-  "extra_functions": 0,
-  "files_scanned": 4,
-  "found_classes": 4,
-  "found_functions": 38,
-  "real_classes": 4,
-  "real_functions": 38
+  "extra_classes": 6,
+  "extra_functions": 43,
+  "files_scanned": 16,
+  "found_classes": 32,
+  "found_functions": 178,
+  "real_classes": 32,
+  "real_functions": 196
 }

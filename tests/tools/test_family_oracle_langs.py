@@ -113,3 +113,37 @@ def test_c_stream_writers_count_as_debug_prints_only_on_the_console(lang):
     """
     assert _count(lang, src, "f", "print") == 0
     assert _count(lang, src, "g", "print") == 4
+
+
+@needs_ts
+@pytest.mark.parametrize(
+    ("src", "want"),
+    [
+        ("package p\n\n//go:noinline\nfunc f() {}\n", 1),
+        ("package p\n\n// a plain comment\nfunc f() {}\n", 0),
+        ("package p\n\nfunc f() {}\n", 0),
+        ("package p\n\n//go:build linux\n\n//go:nosplit\n//go:noinline\nfunc f() {}\n", 2),
+        ('package p\n\nfunc f() {\n\ttype T struct {\n\t\tA int `json:"a"`\n\t\tB int\n\t}\n}\n', 1),
+        ("package p\n\nfunc f() {\n\ttype T struct {\n\t\tA int\n\t}\n}\n", 0),
+    ],
+    ids=["pragma", "plain-comment", "none", "pragmas-not-file-build", "struct-tag", "untagged-field"],
+)
+def test_go_decorators_are_pragmas_above_and_struct_tags_inside(src, want):
+    """#8868: Go's attribute syntax on a declaration is a `//go:` pragma line directly above it or a tagged field; a plain comment is neither."""
+    assert _count("go", src, "f", "decorators") == want
+
+
+@needs_ts
+@pytest.mark.parametrize(
+    ("src", "want"),
+    [
+        ("fn f() { let s = assert_ok!(TcpListener::bind(a).await); }", 1),
+        ('fn f() { let m = format!("{:?}", OpenOptions::new().mode(1)); }', 1),
+        ("fn f() { let s = TcpStream::connect(a); }", 1),
+        ('fn f() { let m = format!("{}", helper::go(1)); }', 0),
+        ("fn f() { let s = assert_ok!(srv.accept().await); }", 0),
+    ],
+)
+def test_rust_io_reads_type_path_calls_inside_a_macro_argument_9340(src, want):
+    """A macro's arguments are a token tree to the grammar; the call inside `assert_ok!(..)` still opens the socket."""
+    assert _count("rust", src, "f", "io") == want

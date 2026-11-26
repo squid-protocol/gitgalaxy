@@ -27,6 +27,12 @@
 # in part: target A with `target_refmod`. A source is never marked refmod: an
 # argument of SUBSTR(...) is an item like any other.
 #
+# A user function (#9230): `X = F(Y);` reads F as a call, and Y is the source, when F is
+# declared a function in the same file (`DCL F ENTRY ...`, `DCL F ... RETURNS(...)`, or a
+# `F: PROC ... RETURNS(...)` label). Like a built-in, F is no source. A name whose
+# declaration is elsewhere (an %INCLUDE, another file) is not resolved: it keeps the
+# convention that a name followed by `(` is a subscripted data item, so F -> X.
+#
 # PL/I reserves no words, so a statement beginning IF / DO / CALL / ... is only an
 # assignment when `=` follows that first word directly (`IF = 1;` is legal). A
 # statement is scanned after its labels and after THEN / ELSE / OTHERWISE / WHEN(...) /
@@ -275,7 +281,58 @@ def _reference(toks: list, i: int) -> tuple[str | None, int]:
     return ".".join(parts), j
 
 
-def _sources(toks: list) -> list[tuple[str, str]]:
+def _declared_functions(toks: list) -> frozenset[str]:
+    """Names this file declares as functions: ENTRY / RETURNS declarations and
+    PROCEDURE / ENTRY labels carrying RETURNS (#9230)."""
+    names: set[str] = set()
+    stmt: list = []
+    for tok in [*toks, ("op", ";", 0)]:
+        if tok[1] != ";":
+            stmt.append(tok)
+            continue
+        words = {t[1] for t in stmt if t[0] == "word"}
+        if "RETURNS" in words or "ENTRY" in words:
+            i = 0
+            while i + 1 < len(stmt) and stmt[i][0] == "word" and stmt[i + 1][1] == ":":
+                if words & {"PROC", "PROCEDURE", "ENTRY"} and "RETURNS" in words:
+                    names.add(stmt[i][1])
+                i += 2
+            if i < len(stmt) and stmt[i][1] in ("DCL", "DECLARE"):
+                names |= _declared_in(stmt[i + 1 :])
+        stmt = []
+    return frozenset(names)
+
+
+def _declared_in(body: list) -> set[str]:
+    """Function names in one DECLARE body: comma-separated items, `(A, B)` factored names."""
+    out: set[str] = set()
+    items: list = [[]]
+    depth = 0
+    for t in body:
+        depth += {"(": 1, ")": -1}.get(t[1], 0)
+        if t[1] == "," and depth == 0:
+            items.append([])
+        else:
+            items[-1].append(t)
+    for item in items:
+        while item and item[0][0] == "number":
+            item = item[1:]
+        if not item:
+            continue
+        if item[0][1] == "(":
+            end = _group_end(item, 0)
+            names = [t[1] for t in item[1 : end - 1] if t[0] == "word"]
+            rest = item[end:]
+        elif item[0][0] == "word":
+            names, rest = [item[0][1]], item[1:]
+        else:
+            continue
+        if any(t[0] == "word" and t[1] in ("ENTRY", "RETURNS") for t in rest):
+            out.update(names)
+    return out
+
+
+def _sources(toks: list, functions: frozenset[str] = frozenset()) -> list[tuple[str, str]]:
     """(text, kind) of every data item of an expression, in order, each once."""
     out: list[tuple[str, str]] = []
     i = 0
@@ -287,8 +344,8 @@ def _sources(toks: list) -> list[tuple[str, str]]:
                 end = _group_end(toks, i + 1)
                 item = (text + "(" + "".join(t[1] for t in toks[i + 2 : end - 1]) + ")", "cics_constant")
                 i = end
-            elif nxt == "(" and text in BUILTINS:
-                i += 1  # the built-in is no source; its arguments are scanned next
+            elif nxt == "(" and (text in BUILTINS or text in functions):
+                i += 1  # the built-in or declared function is no source; its arguments are scanned next
                 continue
             else:
                 name, i = _reference(toks, i)
@@ -300,13 +357,13 @@ def _sources(toks: list) -> list[tuple[str, str]]:
     return out
 
 
-def _single_value(toks: list) -> tuple[str, str] | None:
+def _single_value(toks: list, functions: frozenset[str] = frozenset()) -> tuple[str, str] | None:
     """An item-free expression's one row: a (signed) literal, or a lone built-in call."""
     body = toks[1:] if toks and toks[0][1] in ("-", "+") else toks
     if len(body) == 1 and body[0][0] in ("string", "number"):
         return "".join(t[1] for t in toks), "literal"
     lone_call = len(body) == 1 or (len(body) > 1 and body[1][1] == "(" and _group_end(body, 1) == len(body))
-    if body and body[0][0] == "word" and body[0][1] in BUILTINS and lone_call:
+    if body and body[0][0] == "word" and (body[0][1] in BUILTINS or body[0][1] in functions) and lone_call:
         return body[0][1], "function"
     return None
 
@@ -353,18 +410,19 @@ def pli_data_moves(code_stream: str) -> list[dict[str, Any]]:
     text = blank_sequence_fields(code_stream)
     newlines = [i for i, ch in enumerate(text) if ch == "\n"]
     toks = _tokens(text)
+    functions = _declared_functions(toks)
     rows: list[dict[str, Any]] = []
     stmt: list = []
     for tok in [*toks, ("op", ";", len(text))]:
         if tok[1] != ";" and len(stmt) < _STATEMENT_LIMIT:
             stmt.append(tok)
             continue
-        rows.extend(_assignment_rows(stmt[_clause_start(stmt) :], newlines))
+        rows.extend(_assignment_rows(stmt[_clause_start(stmt) :], newlines, functions))
         stmt = []
     return rows
 
 
-def _assignment_rows(stmt: list, newlines: list[int]) -> list[dict[str, Any]]:
+def _assignment_rows(stmt: list, newlines: list[int], functions: frozenset[str] = frozenset()) -> list[dict[str, Any]]:
     if not stmt or stmt[0][0] != "word":
         return []
     if stmt[0][1] in _KEYWORDS and not (len(stmt) > 1 and stmt[1][1] == "="):
@@ -401,12 +459,12 @@ def _assignment_rows(stmt: list, newlines: list[int]) -> list[dict[str, Any]]:
             expr, by_name = expr[:j], True
             break
     line = bisect.bisect_left(newlines, stmt[0][2]) + 1
-    sources = _sources(expr)
+    sources = _sources(expr, functions)
     rows = []
     for target, partial in targets:
         srcs = ([(target, "item")] if compound else []) + [s for s in sources if not (compound and s[0] == target)]
         if not srcs:
-            single = _single_value(expr)
+            single = _single_value(expr, functions)
             srcs = [single] if single else []
         for src, kind in srcs:
             rows.append({"verb": "ASSIGN", "source": src, "source_kind": kind, "target": target,

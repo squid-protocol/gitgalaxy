@@ -5,8 +5,8 @@
  "case": "cruc-pc-return-immediate-b",
  "entry": {
   "program": "PCIMMB",
-  "commit": "c11273603d44bd319de08bbf88c2dd0a9c15fa38+uncommitted",
-  "date": "2026-11-24",
+  "commit": "f5b77c8b7d5f55504bea9abfff9bf87e88f41976",
+  "date": "2026-11-25",
   "mode": "fast+one-jvm",
   "seed": 0,
   "mutants": 233,
@@ -1089,16 +1089,16 @@
   "inputs": {
    "port": "f2f87473c51cdc1239e909cc41aa7dc68073c410a5da91d62adf2d88a126234a",
    "runtime": "03164a88d8a5e92bf7e5706f443973a448338e510c1a6bef6a62ff5659ec2af6",
-   "generator": "e4a06d335ce3f67151349040301ffd9f02a5e3657c0e1eca2066d30eaf8b9c89",
+   "generator": "2fe3b8d13f2e347fd75ff0a9a3472e3ec2e808e6f4672e4944d4bbd1490ff7ab",
    "case": "67e41c18b7392db26f3428fd9b6a29ab7a65064ec28c436bdd8979ef8efbd320",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "97c961c8e87758483cdb39a4cfccfb1c5a1f906c135c8f04acf88a25bc208ebb",
+   "harness": "53c30276818bfee1f5697311d9efcd60c98952083aabf8df5c9bb60c5849df26",
    "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
-   "survivors": "c3d1217c34b290455afca77197162809ff260fa02850004faa6f27ad05e7490f"
+   "survivors": "f2a56dd7a6bae8821cc444561c1060568f874211f3218775aee67edfbd445a84"
   },
   "components": {
    "generator": {
-    "generator:core": "29846bb158e5266da9cb7ff74c7bfc4d19c7ae9b64f4481fb1f886137a62f690",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
@@ -1123,8 +1123,8 @@
     "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc"
    },
    "harness": {
-    "harness:cics": "74a7732b752bf4af89a3f9f03b256fe6d82db35842dd4d0db5f344ca94e223a8",
-    "harness:core": "a525628026a395a7ee91c55c3122528e6646e71b46a2ff9bc6dbbb45e923ed39"
+    "harness:cics": "3adf9bd7755a7d5b215a0c3bdc74de8596820bd7ad414bd39d2f99a174844f05",
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381"
    },
    "oracle": {
     "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",

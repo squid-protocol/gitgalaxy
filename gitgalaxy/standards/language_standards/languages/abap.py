@@ -293,7 +293,7 @@ DEFINITION: dict[str, Any] = {
             r'\b(RAISE\s+EXCEPTION|MESSAGE\s+[^\n;]+\s+TYPE\s+[\'"][EX][\'"]|LEAVE\s+PROGRAM)\b',
             re.I,
         ),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Thread sleep.
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) Thread sleep.
         "thread_sleeps": re.compile(r"\bWAIT\s+UP\s+TO\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\b(BIT-AND|BIT-OR|BIT-XOR|BIT-NOT)\b", re.I),

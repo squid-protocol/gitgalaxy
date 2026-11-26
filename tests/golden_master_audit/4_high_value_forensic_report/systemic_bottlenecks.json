@@ -8,14 +8,8 @@
       {
         "btw": 0.0001,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 0.004,
+        "score": 0.003,
         "state_mutation": 32.0709
-      },
-      {
-        "btw": 0.0001,
-        "path": "python/fastapi/fastapi/__init__.py",
-        "score": 0.002,
-        "state_mutation": 16.7982
       },
       {
         "btw": 0.0,
@@ -24,80 +18,86 @@
         "state_mutation": 99.5611
       },
       {
-        "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/internals.go",
+        "btw": 0.0001,
+        "path": "python/fastapi/fastapi/__init__.py",
         "score": 0.001,
-        "state_mutation": 99.6514
+        "state_mutation": 16.7982
       },
       {
         "btw": 0.0,
-        "path": "abap/abapGit/zabapgit.prog.abap",
-        "score": 0.0,
-        "state_mutation": 0.0
+        "path": "crystal/crystal_stdlib_http/common.cr",
+        "score": 0.001,
+        "state_mutation": 100.0
+      },
+      {
+        "btw": 0.0,
+        "path": "objective-c/afnetworking/AFNetworking_AFURLRequestSerialization.m",
+        "score": 0.001,
+        "state_mutation": 99.986
       }
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0517,
+        "close": 0.0448,
         "err": 55.1295,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 2.848
+        "score": 2.472
       },
       {
-        "close": 0.0544,
+        "close": 0.0472,
         "err": 50.5714,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 2.749
+        "score": 2.386
       },
       {
-        "close": 0.0283,
+        "close": 0.0246,
         "err": 80.0,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.265
+        "score": 1.966
       },
       {
-        "close": 0.0304,
+        "close": 0.0264,
         "err": 70.5405,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 2.143
+        "score": 1.86
       },
       {
-        "close": 0.037,
+        "close": 0.0321,
         "err": 54.2286,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "score": 2.006
+        "score": 1.741
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 11.716,
-        "score": 1171.6
+        "pr": 10.28,
+        "score": 1028.0
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 9.534,
-        "score": 924.509
+        "pr": 8.317,
+        "score": 806.497
       },
       {
         "doc": 100.0,
         "path": "rust/tokio/lib.rs",
-        "pr": 5.764,
-        "score": 576.4
+        "pr": 5.076,
+        "score": 507.6
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.743,
-        "score": 574.3
+        "pr": 5.011,
+        "score": 501.1
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.422,
-        "score": 542.2
+        "pr": 4.73,
+        "score": 473.0
       }
     ]
   }

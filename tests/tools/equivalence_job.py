@@ -342,10 +342,14 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
             runs = ej.run_java_environments(case, corpus, sw / "java", sw / "cobol", [ej.environment("default")],
                                             port=port)  # fmt: skip
             run = api.compare_run(case, corpus, cobol, runs["default"])
+            ported = java_generations(step, gdg_created, runs["default"])
+            java_out = java_outputs(step, case, cobol, runs["default"], run["outputs"])
             report["steps"].append({"case": name, "program": case["program"], "fed": fed, "ok": run["ok"],
                                     "return_code": run["return_code"], "abend": run["abend"],
                                     "outputs": run["outputs"],
                                     **({"gdg_created": gdg_created} if gdg_created else {}),
+                                    **({"java_gdg": ported} if ported else {}),
+                                    **({"java_out": java_out} if java_out else {}),
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
@@ -364,6 +368,10 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     work.mkdir(parents=True, exist_ok=True)
     if _export_generations(catalog, work / "generations"):  # #8886 slice 18: the Spring harness seeds from these bytes
         report["generations_dir"] = str(work / "generations")
+    if _export_outputs(
+        outputs, work / "outputs"
+    ):  # #8886 slice 21: a dataset a step's output fed (the KSDS) seeds Spring
+        report["outputs_dir"] = str(work / "outputs")
     (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
     for s in report["steps"]:
         if s.get("model_only"):
@@ -378,6 +386,68 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
     print(f"{job['name']}: {'proven' if report['proven'] else 'NOT proven'} over {ran} of {len(job['steps'])} steps")
     print(f"report: {work / 'report.json'}")
     return 0 if report["proven"] or cobol_only else 1
+
+
+def java_generations(
+    step: dict[str, Any], created: dict[str, dict[str, Any]], java: dict[str, bytes]
+) -> dict[str, dict[str, Any]]:
+    """#8886 slice 22: for a step whose Java side ran as the forge's generated Spring Batch job (`forged_job`: the proven port
+    is the step's service), the generation that job wrote for each `gdg_out` base, set against the one the COBOL step
+    catalogued (`created`): base -> size and digest of the Java bytes, `equal` when both match. The bytes are the newest
+    generation the job's DD wrote under its DSN (equivalence_java.forged_job_parts), never the stub's and never rounded.
+    Empty for a step not run through a forged job, or one whose Java run left no such DD."""
+    if "forged_job" not in step:
+        return {}
+    got: dict[str, dict[str, Any]] = {}
+    for dd, base in step.get("gdg_out", {}).items():
+        if base in created and isinstance(java.get(dd), bytes):
+            d = _digest(java[dd])
+            got[base] = {**d, "equal": (d["size"], d["sha256"]) == (created[base]["size"], created[base]["sha256"])}
+    return got
+
+
+def java_outputs(
+    step: dict[str, Any],
+    case: dict[str, Any],
+    cobol: dict[str, bytes],
+    java: dict[str, bytes],
+    compared: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """#8886 slice 25: for a step run through a forged job, the bytes the linked port left in each compared DD (`compare`
+    in the case's datasets: the program-step datasets, a KSDS or a sequential file, that no GDG catalogs), set against
+    the COBOL bytes of the same DD: DD -> size and digest of the Java bytes, `equal` when both match exactly. Empty for a
+    step not run through a forged job; a DD either side left no bytes for is left out (never an equal).
+    #8886 slice 26: a DD whose bytes differ but whose layout comparison (`compared`, the step's `outputs`) holds every record
+    equal with only FILLER bytes apart carries `filler_differs` (the record count): never `equal`, never a difference of a field."""
+    if "forged_job" not in step:
+        return {}
+    got: dict[str, dict[str, Any]] = {}
+    for dd, ds in case.get("datasets", {}).items():
+        if ds.get("compare") and isinstance(java.get(dd), bytes) and isinstance(cobol.get(dd), bytes):
+            d = _digest(java[dd])
+            got[dd] = {**d, "equal": java[dd] == cobol[dd]}
+            c = (compared or {}).get(dd) or {}
+            if (
+                not got[dd]["equal"]
+                and c.get("filler_differs")
+                and not c.get("diffs")
+                and c.get("equal") == c.get("records")
+            ):
+                got[dd]["filler_differs"] = c["filler_differs"]
+    return got
+
+
+def _export_outputs(outputs: dict[str, dict[str, Any]], out: Path) -> bool:
+    """Write each step's COBOL output as bytes (`<out>/<step case>/<DD>`, whole fixed records, no line ending): the bytes a
+    later step was fed. True when any was written."""
+    wrote = False
+    for case, dds in outputs.items():
+        for dd, data in dds.items():
+            if isinstance(data, bytes):
+                (out / case).mkdir(parents=True, exist_ok=True)
+                (out / case / dd).write_bytes(data)
+                wrote = True
+    return wrote
 
 
 def _export_generations(catalog: gdg.Catalog, out: Path) -> bool:

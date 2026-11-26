@@ -216,11 +216,16 @@ def test_the_jobs_final_datasets_are_set_against_what_the_chain_catalogued(res):
     why: the Spring jobs run on seeded fixtures (BKUP 100 records, SYSTRAN/BKUP for COMBTRAN 50), not the bytes the
     chain's earlier steps wrote (BKUP 264 records, COMBINED 314), and INTCALC's program step is a stub that writes no
     SYSTRAN. None is rounded to equal; slice 18 seeds a run from the chain's own bytes where the chain exports them (below)."""
-    rows = {d["dataset"]: d for d in res["datasets"]}
+    prog = {(f["case"], f["dataset"]) for f in SPEC.get("program_outputs", ())}  # slice 25's rows: own test file
+    rows = {d["dataset"]: d for d in res["datasets"] if (d["case"], d["dataset"]) not in prog}
     assert set(rows) == {
         "AWS.M2.CARDDEMO.SYSTRAN", "AWS.M2.CARDDEMO.TRANSACT.BKUP", "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+        "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
     }  # fmt: skip
     for mode in ("strict", "skip"):
+        # #8886 slice 24: this run was given no chain outputs, so the KSDS row cannot be set against the chain's bytes
+        ksds = rows["AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"]["modes"][mode]
+        assert ksds["status"] == "differs" and "exported no" in ksds["issue"]
         assert rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["status"] == "differs"
         assert "wrote no new generation" in rows["AWS.M2.CARDDEMO.SYSTRAN"]["modes"][mode]["issue"]
         bkup = rows["AWS.M2.CARDDEMO.TRANSACT.BKUP"]["modes"][mode]
@@ -316,3 +321,42 @@ def test_combtran_reads_the_chains_newest_generation_when_the_chain_exports_one(
         assert "AWS.M2.CARDDEMO.TRANSACT.BKUP(G0001V00)" in ds
     bkup = next(d for d in out["datasets"] if d["dataset"] == "AWS.M2.CARDDEMO.TRANSACT.BKUP")
     assert bkup["modes"]["strict"]["generation"] == "AWS.M2.CARDDEMO.TRANSACT.BKUP(G0003V00)"  # TRANBKP's, not a seed
+
+
+def test_the_chain_exports_each_steps_output_bytes_and_a_dataset_is_seeded_from_the_one_that_fed_it(tmp_path):
+    """#8886 slice 21: a dataset the chain fed from a step's output (TRANBKP's KSDS holds POSTTRAN's TRANFILE) is seeded with
+    those bytes (spec `chain_feed`), not the fixture; without the export it keeps the fixture."""
+    import equivalence_job as ej
+
+    assert ej._export_outputs({"s": {"DD": b"abcd", "ABEND": "x"}}, tmp_path / "o")
+    assert (tmp_path / "o" / "s" / "DD").read_bytes() == b"abcd" and not (tmp_path / "o" / "s" / "ABEND").exists()
+    assert not ej._export_outputs({}, tmp_path / "none")
+    fixture = tmp_path / "fx.txt"
+    fixture.write_bytes(b"zzzz\n")
+    ds = {"K": {"lrecl": 4, "seed": str(fixture), "chain_feed": {"case": "s", "dd": "DD"}}}
+    root = tmp_path / "root"
+    root.mkdir()
+    efs.seed_datasets(ds, root, None, tmp_path / "o")
+    assert (root / "K").read_bytes() == b"abcd"
+    again = tmp_path / "again"
+    again.mkdir()
+    efs.seed_datasets(ds, again, None, tmp_path / "missing")
+    assert (again / "K").read_bytes() == b"zzzz"
+    (tmp_path / "o" / "s" / "DD").write_bytes(b"abcde")
+    with pytest.raises(ValueError, match="whole records"):
+        efs.seed_datasets(ds, tmp_path / "bad", None, tmp_path / "o")
+
+
+def test_tranbkp_copies_the_ksds_the_chain_fed_it(tmp_path):
+    """#8886 slice 21, end to end: with POSTTRAN's TRANFILE output exported (here 12 of the fixture's records) TRANBKP's
+    REPRO writes BKUP(+1) of those 12 records, as the chain's does of its 264 (the pinned nightly's digest equals the chain's
+    when the chain is run: `equivalence.py run carddemo-nightly`, then the Spring harness over its report)."""
+    recs = [r for r in (REPO / "tests/equivalence/carddemo-sort-creastmt/sortin.txt").read_bytes().split(b"\n") if r]
+    out_dir = tmp_path / "outputs" / "carddemo-posttran"
+    out_dir.mkdir(parents=True)
+    (out_dir / "TRANFILE").write_bytes(b"".join(recs[:12]))
+    out = efs.scan_and_run(SPEC, CASE, REPORT, CORPUS, efj.chain_rcs, None, tmp_path / "outputs")
+    assert out is not None
+    for mode in ("strict", "skip"):
+        ds = out["raw"]["datasets_by_job"][mode]["TRANBKP"]
+        assert ds["AWS.M2.CARDDEMO.TRANSACT.BKUP(G0002V00)"]["size"] == 12 * 350

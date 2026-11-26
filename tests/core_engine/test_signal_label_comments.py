@@ -258,3 +258,18 @@ def test_language_how_to_names_thread_sleeps_by_its_display_name():
     text = doc.read_text(encoding="utf-8")
     assert "Thread Blocking / Synchronous Pauses" not in text
     assert "thread_sleeps (Sleeps & Timed Waits)" in text
+
+
+def test_language_how_to_names_the_remaining_example_rules_by_display_name():
+    doc = LANGS.parents[2] / "standards" / "how_to_add_a_language.md"
+    text = doc.read_text(encoding="utf-8")
+    for key in ("dead_code", "reflection_metaprogramming", "debug_prints", "encapsulation"):
+        name = SIGNAL_DISPLAY_NAMES[key][1].split(" (")[0]
+        assert f"# {key} ({name}):" in text, key
+    for stale in (
+        "Commented Logic / Deprecated Trails",
+        "Cognitive Load / Metaprogramming Density",
+        "Debug Artifacts / Unstructured Outputs",
+        "Encapsulation / Access Modifiers",
+    ):
+        assert stale not in text, stale

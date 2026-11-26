@@ -21,10 +21,14 @@ row's `ported`, see `equivalence_job.java_generations`). A utility step the forg
 
 from __future__ import annotations
 
+import argparse
 import hashlib
+import json
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -594,3 +598,87 @@ def render(res: dict, case_name: str) -> list[str]:
             f"{case_name}: executed Spring jobs equal to the chain over {n} of {len(res['rows'])} steps ({mode})"
         )
     return out
+
+
+def differs(res: dict) -> list[str]:
+    """Every row and dataset of a run that is not equal to the chain, in either mode: the lines a run must not round away."""
+    out = [
+        f"step {r['case']} [{r['job']}] {m}"
+        for r in res["rows"]
+        for m in ("strict", "skip")
+        if r["modes"][m]["status"] != "equal"
+    ]
+    out += [
+        f"dataset {d['dataset']} [{d['job']}] {m}"
+        for d in res.get("datasets", ())
+        for m in ("strict", "skip")
+        if d["modes"][m]["status"] != "equal"
+    ]  # fmt: skip
+    return out
+
+
+def run_chain(case_name: str, keep: Path) -> Path:
+    """Run the COBOL chain of a job case (`equivalence.py run CASE --keep DIR`) and return its report.json. A chain that is
+    not proven still writes its report (the Spring run is compared with what the chain did, step by step), so only a missing
+    report is an error."""
+    subprocess.run(
+        [sys.executable, str(Path(__file__).with_name("equivalence.py")), "run", case_name, "--keep", str(keep)],
+        check=False,
+    )
+    report = keep / "report.json"
+    if not report.is_file():
+        raise SystemExit(f"{case_name}: the chain wrote no report.json under {keep}")
+    return report
+
+
+def main(argv: list[str] | None = None) -> int:
+    """One command: the generated Spring Batch jobs of a job case, executed, set against the COBOL chain's report.
+    Exit 1 when any step or dataset differs in either mode (the stubbed program rows included: never rounded)."""
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--spec", required=True, type=Path, help="tests/equivalence/jobs/<case>.forged.json")
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("--report", type=Path, help="the report.json of an `equivalence.py run <case>`")
+    src.add_argument("--run-chain", type=Path, metavar="DIR", help="run the COBOL chain first, keeping it in DIR")
+    ap.add_argument(
+        "--corpus", type=Path, help="the corpus root (default: the spec's corpus under GITGALAXY_MAINFRAME_CORPORA)"
+    )
+    ap.add_argument("--json", type=Path, help="write the rows and datasets here")
+    a = ap.parse_args(argv)
+    repo = Path(__file__).resolve().parents[2]
+    spec = json.loads(a.spec.read_text(encoding="utf-8"))
+    case = json.loads((repo / "tests/equivalence/jobs" / f"{spec['case']}.json").read_text(encoding="utf-8"))
+    report_path = a.report or run_chain(spec["case"], a.run_chain)
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    corpus = (
+        a.corpus or Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", repo / ".mainframe_corpora")) / spec["corpus"]
+    )
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import equivalence_forged_job as efj
+
+    res = scan_and_run(
+        spec,
+        case,
+        report,
+        corpus,
+        efj.chain_rcs,
+        Path(report["generations_dir"]) if report.get("generations_dir") else None,
+        Path(report["outputs_dir"]) if report.get("outputs_dir") else None,
+    )
+    if res is None:
+        print("no Spring Batch jars or JDK: nothing was run", file=sys.stderr)
+        return 2
+    print("\n".join(render(res, spec["case"])))
+    bad = differs(res)
+    print(
+        f"{spec['case']}: {len(bad)} step/dataset results differ from the chain"
+        + (f": {'; '.join(bad)}" if bad else "")
+    )
+    if a.json:
+        a.json.write_text(
+            json.dumps({k: res[k] for k in ("rows", "datasets", "jobs")}, indent=2, default=str), encoding="utf-8"
+        )
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

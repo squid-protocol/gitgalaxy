@@ -4139,13 +4139,13 @@
       "scala/SOURCES.md": 0
     },
     "scala/cobrix_scala": {
-      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 42,
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 1,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 3,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0,
-      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 10,
+      "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 0,
       "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 0,
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0,
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 0,
@@ -4166,12 +4166,12 @@
     },
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 0,
-      "scala/kafka/KafkaApis.scala": 6,
+      "scala/kafka/KafkaApis.scala": 2,
       "scala/kafka/KafkaRaftManager.scala": 0,
       "scala/kafka/LogManager.scala": 0,
-      "scala/kafka/Partition.scala": 2,
-      "scala/kafka/ReplicaManager.scala": 27,
-      "scala/kafka/SocketServer.scala": 5
+      "scala/kafka/Partition.scala": 0,
+      "scala/kafka/ReplicaManager.scala": 0,
+      "scala/kafka/SocketServer.scala": 0
     },
     "scheme": {
       "scheme/SOURCES.md": 0

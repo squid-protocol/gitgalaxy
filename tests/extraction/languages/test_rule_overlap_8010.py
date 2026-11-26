@@ -47,7 +47,9 @@ def test_php_exit_and_die_are_aborts_not_prints():
 def test_csharp_arrow_is_a_closure_not_a_structural_boundary():
     for text in ("x => x + 1", "int Get() => 1;"):
         assert _hits("csharp", "structural_boundaries", text) == []
-        assert _hits("csharp", "closures", text) == ["=>"]
+    # #8863: closures count anonymous callables only; an expression-bodied member is not one.
+    assert _hits("csharp", "closures", "x => x + 1") == ["x =>"]
+    assert _hits("csharp", "closures", "int Get() => 1;") == []
     assert _hits("csharp", "structural_boundaries", "return x; class A {}") == ["return", "class"]
 
 

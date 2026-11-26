@@ -4415,29 +4415,29 @@
         "State Mutators": 2
       },
       "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": {
-        "Annotated & Test Methods": 1,
-        "Callbacks & Closures": 2,
         "Compute Cores": 1,
+        "I/O & Config Routines": 1,
+        "State Mutators": 2,
         "Stateful Encapsulated Methods": 1
       }
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": {
-        "Callbacks & Closures": 2,
         "Compute Cores": 8,
-        "Defensive Guards": 20,
+        "Defensive Guards": 19,
         "Encapsulated Accessors": 73,
         "Generic / Templated Code": 17,
         "I/O & Config Routines": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 16,
         "Parameter Forwarders": 7,
-        "State Mutators": 5,
-        "Stateful Encapsulated Methods": 72,
-        "Type Conversions": 7
+        "State Mutators": 6,
+        "Stateful Encapsulated Methods": 73,
+        "Type Conversions": 8
       },
       "csharp/roslyn/CSharpSyntaxTree.cs": {
-        "Callbacks & Closures": 5,
+        "Annotated & Test Methods": 1,
+        "Callbacks & Closures": 1,
         "Compute Cores": 2,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 13,
@@ -4445,27 +4445,26 @@
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 3,
-        "State Mutators": 5,
+        "State Mutators": 8,
         "Stateful Encapsulated Methods": 11,
         "Type Conversions": 1
       },
       "csharp/roslyn/DiagnosticAnalyzer.cs": {
-        "Callbacks & Closures": 1,
         "Interface Declarations": 1,
         "Parameter Forwarders": 1,
-        "State Mutators": 1
+        "State Mutators": 2
       },
       "csharp/roslyn/LanguageParser.cs": {
-        "Callbacks & Closures": 21,
+        "Callbacks & Closures": 15,
         "Compute Cores": 37,
-        "Defensive Guards": 13,
-        "Encapsulated Accessors": 140,
+        "Defensive Guards": 14,
+        "Encapsulated Accessors": 138,
         "Generic / Templated Code": 12,
-        "I/O & Config Routines": 46,
+        "I/O & Config Routines": 48,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 45,
-        "State Mutators": 3,
-        "Stateful Encapsulated Methods": 150
+        "State Mutators": 6,
+        "Stateful Encapsulated Methods": 152
       },
       "csharp/roslyn/License.txt": {},
       "csharp/roslyn/MethodCompiler.cs": {
@@ -4478,12 +4477,12 @@
         "Stateful Encapsulated Methods": 15
       },
       "csharp/roslyn/Workspace.cs": {
-        "Callbacks & Closures": 6,
         "Compute Cores": 6,
         "Encapsulated Accessors": 94,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 4,
+        "State Mutators": 6,
         "Stateful Encapsulated Methods": 34
       }
     },
@@ -4503,43 +4502,40 @@
         "Stateful Encapsulated Methods": 2
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": {
-        "Callbacks & Closures": 2,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 2
+        "Generic / Templated Code": 3,
+        "State Mutators": 1
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": {
-        "Callbacks & Closures": 2,
-        "Generic / Templated Code": 10
+        "Generic / Templated Code": 12
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": {
-        "Callbacks & Closures": 4,
         "Generic / Templated Code": 3,
-        "State Mutators": 2
+        "State Mutators": 6
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": {
-        "Callbacks & Closures": 9,
         "Compute Cores": 3,
         "Defensive Guards": 3,
         "Generic / Templated Code": 13,
         "Many-Argument Workhorses": 4,
+        "State Mutators": 9,
         "Stateful Encapsulated Methods": 4
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": {
-        "Callbacks & Closures": 1,
         "Compute Cores": 1,
         "Encapsulated Accessors": 24,
         "Generic / Templated Code": 3,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 2,
-        "State Mutators": 2,
+        "State Mutators": 3,
         "Stateful Encapsulated Methods": 13
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": {
-        "Callbacks & Closures": 3,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Defensive Guards": 1,
         "Generic / Templated Code": 4,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 2,
+        "State Mutators": 2
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": {
         "Defensive Guards": 2,
@@ -4555,13 +4551,13 @@
         "State Mutators": 1
       },
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": {
-        "Callbacks & Closures": 3,
         "Compute Cores": 5,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 5,
         "Generic / Templated Code": 8,
         "I/O & Config Routines": 4,
         "Interface Declarations": 1,
+        "State Mutators": 3,
         "Stateful Encapsulated Methods": 4
       }
     },

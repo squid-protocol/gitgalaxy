@@ -1319,8 +1319,8 @@
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": 0,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 10,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 2,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 3,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": 0,
@@ -1339,7 +1339,7 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 0,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 4
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 3
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 2,
@@ -4140,9 +4140,9 @@
     },
     "scala/cobrix_scala": {
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 0,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 1,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 1,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 0,
@@ -4167,11 +4167,11 @@
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 0,
       "scala/kafka/KafkaApis.scala": 0,
-      "scala/kafka/KafkaRaftManager.scala": 1,
-      "scala/kafka/LogManager.scala": 2,
+      "scala/kafka/KafkaRaftManager.scala": 4,
+      "scala/kafka/LogManager.scala": 3,
       "scala/kafka/Partition.scala": 0,
-      "scala/kafka/ReplicaManager.scala": 1,
-      "scala/kafka/SocketServer.scala": 0
+      "scala/kafka/ReplicaManager.scala": 3,
+      "scala/kafka/SocketServer.scala": 6
     },
     "scheme": {
       "scheme/SOURCES.md": 0

@@ -640,6 +640,38 @@
    ]
   },
   {
+   "id": "7feaa80e84",
+   "op": "CON",
+   "line": 194,
+   "before": "perform(0, 0);",
+   "after": "perform(0, 1);",
+   "verdict": "equivalent",
+   "reason": "perform(0, 1) changes only the `thru` that perform() stores in performThru and compares to i after run(i) returns; MAIN-PARA never returns normally (every path ends in a RETURN that throws Goback, and the `GOTO | to` return needs a HANDLE label the program lacks), so `thru` is never read; eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "6129a8c734",
+   "op": "DEL",
+   "line": 209,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "the deleted caBack.run() is guarded by !task.ended(); both RETURN paths end the task, so it is false there, and on an abend path caBack would copy back bytes the program never stored (PCDETL only reads DFHCOMMAREA), so the COMMAREA is the same either way; eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
    "id": "8ab028bca2",
    "op": "LIT",
    "line": 217,
@@ -673,6 +705,22 @@
    "reason": "the PERFORM stack never holds more than 2 entries, so a capacity of 65 is never filled (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bb320cb330",
+   "op": "CON",
+   "line": 278,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth starts at 1 instead of 0: it only indexes performThru, whose entries are read in the code after run(i) returns, and MAIN-PARA never returns normally (it ends in a RETURN that throws Goback), so no entry is read; eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
    ]
   },
   {
@@ -733,6 +781,118 @@
    "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 2 (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bb7cde6ef8",
+   "op": "AOR",
+   "line": 299,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "performThru[performDepth--] stores `thru` in slot 0 as the original does and leaves performDepth at -1 until the finally block resets it to `mine`; nothing reads performDepth or the slot while MAIN-PARA runs (no nested PERFORM, MAIN-PARA never returns normally); eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "7b6584e064",
+   "op": "ROR",
+   "line": 304,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "unreachable",
+   "reason": "`jumped` is computed from run(i)'s return value, and MAIN-PARA never returns normally (both RETURNs throw Goback; the `GOTO | to` returns need a HANDLE label, absent from the program), so this line is not reached by any input; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "bedd298876",
+   "op": "CON",
+   "line": 304,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "unreachable",
+   "reason": "the GOTO-bit test runs on run(i)'s return value, and MAIN-PARA ends in a RETURN that throws Goback on every path (the only `return GOTO | to` needs a HANDLE label the program lacks), so the line is never reached; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "bd2dccbcac",
+   "op": "NEG",
+   "line": 306,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "unreachable",
+   "reason": "the `if (!jumped)` test follows run(i) returning, which MAIN-PARA never does: the EIBCALEN = 0 branch and the map branch both end in RETURN, which throws Goback; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "45a5bf3e52",
+   "op": "ROR",
+   "line": 307,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "unreachable",
+   "reason": "the `i != thru` form of the paragraph-end test sits after run(0) returns, and run(0) always ends in the Goback thrown by EXEC CICS RETURN, so no input gets there; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "9c9cda9096",
+   "op": "NEG",
+   "line": 307,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "unreachable",
+   "reason": "`i == thru` is evaluated only after run(0) returns normally; MAIN-PARA throws Goback at its RETURN on every path, so the comparison is never reached; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
+   "id": "64801b7631",
+   "op": "DEL",
+   "line": 308,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "the deleted `return` is the paragraph-end exit taken after run(0) returns normally; MAIN-PARA ends every path in a RETURN that throws Goback, so no input reaches it; eleven inputs did not enter it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
    ]
   },
   {
@@ -916,6 +1076,22 @@
    ]
   },
   {
+   "id": "e4be7cac0e",
+   "op": "DEL",
+   "line": 326,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "the finally block's performDepth = mine only resets the PERFORM stack depth; the stack is read only after run(i) returns, which MAIN-PARA never does (it ends in a RETURN that throws Goback), and the 64-slot array never fills in a task, so a left-over depth is never seen; eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
+   ]
+  },
+  {
    "id": "05bc25ec8b",
    "op": "LIT",
    "line": 333,
@@ -925,6 +1101,22 @@
    "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6153800430",
+   "op": "CON",
+   "line": 344,
+   "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
+   "after": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 29)), 28, \"ERASE\");",
+   "verdict": "equivalent",
+   "reason": "text1 is WS-NOCTX, PIC X(28): Cobol.text always yields 28 characters, so Math.min(text1.length(), 29) and min(..., 28) are both 28 and the substring is the same; eleven inputs did not separate it",
+   "tried": [
+    "clear-ctx",
+    "hex-ff-10",
+    "hex-nul-10",
+    "pa1-hex-4",
+    "pf3-ctx"
    ]
   },
   {

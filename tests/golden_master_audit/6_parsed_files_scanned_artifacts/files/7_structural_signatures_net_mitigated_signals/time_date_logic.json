@@ -4171,7 +4171,7 @@
       "scala/kafka/LogManager.scala": 0,
       "scala/kafka/Partition.scala": 0,
       "scala/kafka/ReplicaManager.scala": 0,
-      "scala/kafka/SocketServer.scala": 1
+      "scala/kafka/SocketServer.scala": 0
     },
     "scheme": {
       "scheme/SOURCES.md": 0

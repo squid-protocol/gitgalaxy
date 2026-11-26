@@ -1208,31 +1208,31 @@
       "cpp/NVDA/core.py": 0,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 0,
-      "cpp/NVDA/inProcess.cpp": 1,
+      "cpp/NVDA/inProcess.cpp": 0,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 0,
-      "cpp/NVDA/storage.cpp": 0
+      "cpp/NVDA/storage.cpp": 2
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 54,
-      "cpp/godot/editor_node.h": 0,
-      "cpp/godot/gdscript_vm.cpp": 10,
-      "cpp/godot/main.cpp": 16,
+      "cpp/godot/editor_node.cpp": 9,
+      "cpp/godot/editor_node.h": 3,
+      "cpp/godot/gdscript_vm.cpp": 3,
+      "cpp/godot/main.cpp": 14,
       "cpp/godot/main.h": 0,
-      "cpp/godot/node.cpp": 22,
-      "cpp/godot/node.h": 5,
-      "cpp/godot/object.cpp": 28,
+      "cpp/godot/node.cpp": 1,
+      "cpp/godot/node.h": 1,
+      "cpp/godot/object.cpp": 12,
       "cpp/godot/object.h": 198,
-      "cpp/godot/rendering_server_default.cpp": 0,
+      "cpp/godot/rendering_server_default.cpp": 1,
       "cpp/godot/rendering_server_default.h": 1,
-      "cpp/godot/variant.cpp": 4,
+      "cpp/godot/variant.cpp": 14,
       "cpp/godot/variant.h": 2
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 5,
+      "cpp/mlir/flatbuffer_export.cc": 4,
       "cpp/mlir/glob_lit_test.bzl": 0,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 0,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 0,
@@ -1241,17 +1241,17 @@
       "cpp/mlir/tf_tfl_translate.cc": 0
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 9,
+      "cpp/powertoys/FancyZones.cpp": 0,
       "cpp/powertoys/FancyZones.h": 0,
       "cpp/powertoys/ImageResizerExt.cpp": 0,
-      "cpp/powertoys/centralized_kb_hook.cpp": 8,
-      "cpp/powertoys/logger.cpp": 1,
-      "cpp/powertoys/main.cpp": 5,
+      "cpp/powertoys/centralized_kb_hook.cpp": 1,
+      "cpp/powertoys/logger.cpp": 0,
+      "cpp/powertoys/main.cpp": 0,
       "cpp/powertoys/powertoy_module.h": 0
     },
     "cpp/serenity_ak_siphash_cpu": {
-      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 9,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 39
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 3,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 30
     },
     "crystal": {
       "crystal/SOURCES.md": 0
@@ -4067,12 +4067,12 @@
       "rust/bevy/LICENSE-APACHE": 0,
       "rust/bevy/LICENSE-MIT": 0,
       "rust/bevy/bevy_ecs_macros.rs": 0,
-      "rust/bevy/bevy_ecs_query.rs": 9,
+      "rust/bevy/bevy_ecs_query.rs": 0,
       "rust/bevy/bevy_ecs_table.rs": 0,
-      "rust/bevy/bevy_ecs_world.rs": 1,
+      "rust/bevy/bevy_ecs_world.rs": 0,
       "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
-      "rust/bevy/bevy_schedule_graph.rs": 1
+      "rust/bevy/bevy_schedule_graph.rs": 0
     },
     "rust/bevy_asset_examples": {
       "rust/bevy_asset_examples/LICENSE-APACHE": 0,
@@ -4093,27 +4093,27 @@
       "rust/serde/LICENSE-APACHE": 0,
       "rust/serde/LICENSE-MIT": 0,
       "rust/serde/serde_core_de_impls.rs": 0,
-      "rust/serde/serde_core_de_mod.rs": 0,
+      "rust/serde/serde_core_de_mod.rs": 2,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
-      "rust/serde/serde_internals_attr.rs": 0,
+      "rust/serde/serde_internals_attr.rs": 2,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,
-      "rust/syn/bigint.rs": 0,
+      "rust/syn/bigint.rs": 1,
       "rust/syn/buffer.rs": 0,
-      "rust/syn/classify.rs": 0,
+      "rust/syn/classify.rs": 1,
       "rust/syn/custom_keyword.rs": 0,
-      "rust/syn/custom_punctuation.rs": 7,
+      "rust/syn/custom_punctuation.rs": 8,
       "rust/syn/data.rs": 0,
       "rust/syn/derive.rs": 0
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
-      "rust/tokio/blocking.rs": 1,
+      "rust/tokio/blocking.rs": 0,
       "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
@@ -4121,9 +4121,9 @@
       "rust/tokio/lib.rs": 0,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 0,
-      "rust/tokio/tokio_mpsc_bounded.rs": 6,
-      "rust/tokio/tokio_named_pipe.rs": 10,
-      "rust/tokio/tokio_udp.rs": 4
+      "rust/tokio/tokio_mpsc_bounded.rs": 0,
+      "rust/tokio/tokio_named_pipe.rs": 16,
+      "rust/tokio/tokio_udp.rs": 0
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 9
@@ -4131,9 +4131,9 @@
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 0,
       "rust/wasmtime/wasmtime_instance.rs": 0,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 6,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 12,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 21
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 38
     },
     "scala": {
       "scala/SOURCES.md": 0

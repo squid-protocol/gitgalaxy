@@ -1217,7 +1217,7 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 0,
+      "cpp/godot/editor_node.cpp": 1,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 0,
       "cpp/godot/main.cpp": 0,
@@ -1246,12 +1246,12 @@
       "cpp/powertoys/ImageResizerExt.cpp": 0,
       "cpp/powertoys/centralized_kb_hook.cpp": 0,
       "cpp/powertoys/logger.cpp": 0,
-      "cpp/powertoys/main.cpp": 0,
+      "cpp/powertoys/main.cpp": 1,
       "cpp/powertoys/powertoy_module.h": 0
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 2,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 0
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 6
     },
     "crystal": {
       "crystal/SOURCES.md": 0

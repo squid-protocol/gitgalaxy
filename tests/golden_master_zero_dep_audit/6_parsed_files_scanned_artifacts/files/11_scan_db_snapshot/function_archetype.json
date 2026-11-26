@@ -20623,7 +20623,7 @@
         "set_convert_old_scene@952": "Parameter Forwarders",
         "show_about@836": "Interface Declarations",
         "step@1055": "Parameter Forwarders",
-        "~EditorProgressBG@1060": "State Mutators"
+        "~EditorProgressBG@1060": "I/O & Config Routines"
       },
       "cpp/godot/gdscript_vm.cpp": {
         "GDScriptFunction::_get_call_error@155": "Many-Argument Workhorses",
@@ -20687,7 +20687,7 @@
         "Node::_duplicate@2776": "Many-Argument Workhorses",
         "Node::_duplicate_properties@3070": "Many-Argument Workhorses",
         "Node::_duplicate_scripts@3053": "Compute Cores",
-        "Node::_duplicate_signals@3130": "Many-Argument Workhorses",
+        "Node::_duplicate_signals@3130": "Compute Cores",
         "Node::_emit_editor_state_changed@3044": "Interface Declarations",
         "Node::_generate_serial_child_name@1604": "Compute Cores",
         "Node::_get_child_by_name@1894": "Type Conversions",
@@ -21073,7 +21073,7 @@
         "ObjectDB::cleanup@2522": "I/O & Config Routines",
         "ObjectDB::debug_objects@2373": "Compute Cores",
         "ObjectDB::get_object_count@2437": "Interface Declarations",
-        "ObjectDB::remove_instance@2485": "I/O & Config Routines",
+        "ObjectDB::remove_instance@2485": "Compute Cores",
         "ObjectDB::setup@2518": "Interface Declarations",
         "ObjectGDExtension::create_gdtype@116": "Interface Declarations",
         "ObjectGDExtension::destroy_gdtype@123": "Type Conversions",

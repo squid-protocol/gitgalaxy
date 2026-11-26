@@ -211,6 +211,12 @@ class CppOracle(TreeSitterOracle):
                 if ctor in pats:
                     n[key] += 1
                     tokens[key][ctor] += 1
+            if node.type == "declaration":
+                # #9335: `[[maybe_unused]] auto x = ...;` attaches the attribute to the declaration it precedes (the contract)
+                for c in node.children:
+                    if c.type == "attribute_declaration":
+                        n["decorators"] += 1
+                        tokens["decorators"][_text(c).split("(")[0]] += 1
             if node.type == "call_expression":
                 wrong = _io_miscount(node)
                 if wrong:

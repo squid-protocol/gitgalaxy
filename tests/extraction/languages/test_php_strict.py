@@ -106,7 +106,7 @@ _PHP_SIMPLE_CASES = [
     ("test_skip", 'markTestSkipped("reason");', "markTestIncomplete('reason');"),
     ("serialization_parsing", "json_decode($str);", "json_last_error();"),
     ("regex_execution", "preg_match($pattern, $str);", "preg_quote($str);"),
-    ("time_date_logic", 'strtotime("now");', "date_diff($a, $b);"),
+    ("time_date_logic", 'strtotime("now");', "$clock->time($a);"),
 ]
 
 _PHP_DEEP_CASES = [
@@ -363,8 +363,9 @@ def test_php_ambiguity_sweep_shared_literals_are_not_bugs():
     assert api.search(route_attr)
     assert not io.search(route_attr) and not reflection.search(route_attr)
 
+    # #8863: a superglobal read is not a file/network call, so io no longer counts it.
     http_get = '$_GET["id"]'
-    assert io.search(http_get)
+    assert not io.search(http_get)
     assert not api.search(http_get)
 
     magic_get = "public function __get($name) {"

@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": -0.458,
       "groovy/spock/SpecParser.java": -0.696,
-      "groovy/spock/SpecRewriter.java": 0.436,
+      "groovy/spock/SpecRewriter.java": 0.581,
       "groovy/spock/SpockTransform.java": 0.241
     },
     "groovy/spock_core_groovy": {
@@ -2367,14 +2367,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.91
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.578,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.704,
       "java/springboot/Binder.java": 1.11,
       "java/springboot/JarLauncher.java": 3.007,
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": -0.151,
       "java/springboot/ServletWebServerApplicationContext.java": 0.908,
       "java/springboot/SpringApplication.java": 0.824,
-      "java/springboot/WebMvcAutoConfiguration.java": 1.541
+      "java/springboot/WebMvcAutoConfiguration.java": 1.352
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0
@@ -2407,8 +2407,8 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 1.451,
-      "javascript/react/ReactFiberBeginWork.js": 0.566,
-      "javascript/react/ReactFiberWorkLoop.js": -0.113,
+      "javascript/react/ReactFiberBeginWork.js": 0.366,
+      "javascript/react/ReactFiberWorkLoop.js": -0.162,
       "javascript/react/ReactFlightServer.js": -0.402,
       "javascript/react/ReactSymbols.js": 1.943,
       "javascript/react/build.js": -0.335
@@ -2419,7 +2419,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0.179,
       "javascript/threejs/Editor.js": 1.3,
-      "javascript/threejs/GLTFLoader.js": -0.324,
+      "javascript/threejs/GLTFLoader.js": -0.349,
       "javascript/threejs/Matrix4.js": 1.101,
       "javascript/threejs/Nodes.js": 0.823,
       "javascript/threejs/WebGLProgram.js": -0.332,
@@ -3280,7 +3280,7 @@
       "php/guzzle/Middleware.php": 0.763,
       "php/guzzle/Pool.php": 1.249,
       "php/guzzle/RequestException.php": 1.975,
-      "php/guzzle/StreamHandler.php": -0.454
+      "php/guzzle/StreamHandler.php": 0.537
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0.827,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 0.166,
       "php/magento2/Interceptor.php": 1.502,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": -0.476,
+      "php/magento2/Mysql.php": -0.428,
       "php/magento2/ObjectManager.php": 0.754
     },
     "php/symfony": {
@@ -3321,8 +3321,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.288,
       "php/wordpress/class-wp-query.php": 0.189,
-      "php/wordpress/formatting.php": 0.779,
-      "php/wordpress/functions.php": 0.447,
+      "php/wordpress/formatting.php": 0.794,
+      "php/wordpress/functions.php": 0.441,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
       "php/wordpress/wp-login.php": 1.987,

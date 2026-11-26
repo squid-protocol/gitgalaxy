@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 0,
       "groovy/spock/SpecParser.java": 0,
-      "groovy/spock/SpecRewriter.java": 0,
+      "groovy/spock/SpecRewriter.java": 12,
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
@@ -2329,7 +2329,7 @@
       "html/revealjs_decks/auto-animate.html": 0,
       "html/revealjs_decks/barebones.html": 0,
       "html/revealjs_decks/demo.html": 0,
-      "html/revealjs_decks/math.html": 6
+      "html/revealjs_decks/math.html": 3
     },
     "html/threejs_shader_examples": {
       "html/threejs_shader_examples/webgl_buffergeometry_custom_attributes_particles.html": 0,
@@ -2356,7 +2356,7 @@
       "java/SOURCES.md": 0
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 0
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 1
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": 0,
@@ -2384,20 +2384,20 @@
       "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
-      "javascript/javascript_algorithms_bits/fullAdder.js": 3
+      "javascript/javascript_algorithms_bits/fullAdder.js": 7
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 6,
+      "javascript/jquery/ajax.js": 0,
       "javascript/jquery/buildFragment.js": 0,
-      "javascript/jquery/core.js": 0,
+      "javascript/jquery/core.js": 1,
       "javascript/jquery/css.js": 0,
       "javascript/jquery/deferred.js": 0,
-      "javascript/jquery/event.js": 3,
+      "javascript/jquery/event.js": 1,
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 38,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 17,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
@@ -2407,11 +2407,11 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
-      "javascript/react/ReactFiberBeginWork.js": 6,
-      "javascript/react/ReactFiberWorkLoop.js": 8,
-      "javascript/react/ReactFlightServer.js": 4,
+      "javascript/react/ReactFiberBeginWork.js": 161,
+      "javascript/react/ReactFiberWorkLoop.js": 163,
+      "javascript/react/ReactFlightServer.js": 124,
       "javascript/react/ReactSymbols.js": 0,
-      "javascript/react/build.js": 2
+      "javascript/react/build.js": 0
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 0
@@ -2419,11 +2419,11 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
-      "javascript/threejs/GLTFLoader.js": 4,
+      "javascript/threejs/GLTFLoader.js": 0,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
-      "javascript/threejs/WebGLProgram.js": 1,
-      "javascript/threejs/WebGLRenderer.js": 0
+      "javascript/threejs/WebGLProgram.js": 0,
+      "javascript/threejs/WebGLRenderer.js": 3
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -3274,22 +3274,22 @@
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 3,
-      "php/guzzle/CurlFactory.php": 14,
+      "php/guzzle/Client.php": 0,
+      "php/guzzle/CurlFactory.php": 6,
       "php/guzzle/CurlMultiHandler.php": 0,
-      "php/guzzle/Middleware.php": 5,
-      "php/guzzle/Pool.php": 4,
+      "php/guzzle/Middleware.php": 0,
+      "php/guzzle/Pool.php": 0,
       "php/guzzle/RequestException.php": 0,
-      "php/guzzle/StreamHandler.php": 16
+      "php/guzzle/StreamHandler.php": 0
     },
     "php/laravel_core": {
-      "php/laravel_core/Application.php": 1,
-      "php/laravel_core/BladeCompiler.php": 1,
-      "php/laravel_core/Collection.php": 3,
-      "php/laravel_core/Container.php": 3,
+      "php/laravel_core/Application.php": 0,
+      "php/laravel_core/BladeCompiler.php": 0,
+      "php/laravel_core/Collection.php": 2,
+      "php/laravel_core/Container.php": 0,
       "php/laravel_core/Facade.php": 0,
       "php/laravel_core/LICENSE.md": 0,
-      "php/laravel_core/Model.php": 6,
+      "php/laravel_core/Model.php": 2,
       "php/laravel_core/Router.php": 0
     },
     "php/laravel_validation_rules": {
@@ -3297,35 +3297,35 @@
       "php/laravel_validation_rules/LICENSE.md": 0
     },
     "php/magento2": {
-      "php/magento2/AbstractBlock.php": 4,
-      "php/magento2/AbstractModel.php": 1,
+      "php/magento2/AbstractBlock.php": 0,
+      "php/magento2/AbstractModel.php": 0,
       "php/magento2/Application.php": 0,
       "php/magento2/Http.php": 0,
-      "php/magento2/Interceptor.php": 2,
+      "php/magento2/Interceptor.php": 0,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 31,
-      "php/magento2/ObjectManager.php": 2
+      "php/magento2/Mysql.php": 1,
+      "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
-      "php/symfony/Application.php": 19,
-      "php/symfony/ContainerBuilder.php": 17,
-      "php/symfony/EventDispatcher.php": 14,
-      "php/symfony/HttpKernel.php": 1,
-      "php/symfony/Parser.php": 10,
-      "php/symfony/Request.php": 23,
-      "php/symfony/Router.php": 2
+      "php/symfony/Application.php": 1,
+      "php/symfony/ContainerBuilder.php": 0,
+      "php/symfony/EventDispatcher.php": 0,
+      "php/symfony/HttpKernel.php": 0,
+      "php/symfony/Parser.php": 2,
+      "php/symfony/Request.php": 6,
+      "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
-      "php/wordpress/class-wp-query.php": 71,
-      "php/wordpress/formatting.php": 340,
-      "php/wordpress/functions.php": 124,
+      "php/wordpress/class-wp-query.php": 0,
+      "php/wordpress/formatting.php": 13,
+      "php/wordpress/functions.php": 9,
       "php/wordpress/license.txt": 0,
-      "php/wordpress/plugin.php": 3,
-      "php/wordpress/wp-login.php": 7,
+      "php/wordpress/plugin.php": 0,
+      "php/wordpress/wp-login.php": 1,
       "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
@@ -4541,7 +4541,7 @@
       "sql/SOURCES.md": 0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 2
+      "sql/baseline/schema.php": 0
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 0,
@@ -4895,7 +4895,7 @@
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 13,
       "typescript/vscode/codeEditorWidget.ts": 8,
-      "typescript/vscode/eslint.config.js": 246,
+      "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 26,
       "typescript/vscode/gulpfile.vscode.ts": 1,
       "typescript/vscode/instantiationService.ts": 1,

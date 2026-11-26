@@ -530,27 +530,27 @@
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 8.515,
       "c/cpython/ceval.c": 5.67,
-      "c/cpython/compile.c": 4.202,
-      "c/cpython/dictobject.c": 10.012,
+      "c/cpython/compile.c": 4.207,
+      "c/cpython/dictobject.c": 10.014,
       "c/cpython/frameobject.c": 6.096,
       "c/cpython/gc.c": 6.413,
-      "c/cpython/object.c": 6.401,
-      "c/cpython/typeobject.c": 8.159
+      "c/cpython/object.c": 6.387,
+      "c/cpython/typeobject.c": 8.162
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
       "c/doom/README.TXT": 0.0,
       "c/doom/d_main.c": 10.052,
       "c/doom/doomdef.h": 3.171,
-      "c/doom/i_system.c": 6.422,
+      "c/doom/i_system.c": 6.467,
       "c/doom/m_fixed.c": 5.411,
       "c/doom/m_fixed.h": 3.263,
       "c/doom/p_mobj.c": 6.931,
       "c/doom/p_mobj.h": 2.98,
       "c/doom/r_bsp.c": 7.621,
       "c/doom/r_defs.h": 3.243,
-      "c/doom/w_wad.c": 6.26,
-      "c/doom/z_zone.c": 9.147
+      "c/doom/w_wad.c": 6.22,
+      "c/doom/z_zone.c": 9.085
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 6.237
@@ -572,7 +572,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
       "c/sqlite/README.md": 0.0,
-      "c/sqlite/lemon.c": 6.5,
+      "c/sqlite/lemon.c": 6.273,
       "c/sqlite/parse.y": 8.938
     },
     "cobol": {
@@ -1173,7 +1173,7 @@
       "cobol/gnucobol_internals/COPYING": 0.0,
       "cobol/gnucobol_internals/codegen.c": 9.549,
       "cobol/gnucobol_internals/fileio.c": 7.741,
-      "cobol/gnucobol_internals/numeric.c": 6.357,
+      "cobol/gnucobol_internals/numeric.c": 6.356,
       "cobol/gnucobol_internals/parser.y": 9.636,
       "cobol/gnucobol_internals/scanner.l": 8.411,
       "cobol/gnucobol_internals/syn_misc.at": 4.14
@@ -4180,7 +4180,7 @@
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 9.991,
       "scheme/racket/eval.c": 8.811,
-      "scheme/racket/fun.c": 8.047,
+      "scheme/racket/fun.c": 8.049,
       "scheme/racket/io.ss": 9.0,
       "scheme/racket/schemify.rkt": 6.856,
       "scheme/racket/thread.rkt": 7.769

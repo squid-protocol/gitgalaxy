@@ -187,7 +187,9 @@ SPECS: dict[str, Spec] = {
         (".rs",),
         _fs("function_item"),
         _fs("closure_expression"),
-        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm"),
+        # `try_expression` is the `?` operator: a conditional early return (Ok continues, Err leaves), a runtime choice
+        # between paths that desugars to a `match`; branch contract corollary 3 excludes only UNCONDITIONAL transfers (#8868).
+        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm", "try_expression"),
         _fs(),
         _fs("call_expression", "macro_invocation"),
         {
@@ -409,6 +411,20 @@ SPECS: dict[str, Spec] = {
                 "fscanf",
                 "fseek",
                 "mmap",
+                # #9334: the contract's "moves data between the program and a system outside its own runtime" also names
+                # the stream writers and the libc transfer / file-system calls the C rule counts (#8868)
+                "fputs",
+                "fputc",
+                "getline",
+                "getdelim",
+                "pread",
+                "pwrite",
+                "recvfrom",
+                "sendto",
+                "recvmsg",
+                "sendmsg",
+                "stat",
+                "rename",
             ),
             "bailout": ("exit", "abort", "_exit", "_Exit", "quick_exit"),
         },

@@ -531,11 +531,11 @@
       "c/cpython/Makefile.pre.in": 1.963,
       "c/cpython/ceval.c": 0.296,
       "c/cpython/compile.c": 0.023,
-      "c/cpython/dictobject.c": 0.315,
+      "c/cpython/dictobject.c": 0.345,
       "c/cpython/frameobject.c": 0.142,
       "c/cpython/gc.c": -0.749,
-      "c/cpython/object.c": 0.457,
-      "c/cpython/typeobject.c": 0.142
+      "c/cpython/object.c": 0.462,
+      "c/cpython/typeobject.c": 0.157
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -572,7 +572,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
       "c/sqlite/README.md": 0.0,
-      "c/sqlite/lemon.c": -0.023,
+      "c/sqlite/lemon.c": -0.116,
       "c/sqlite/parse.y": 1.146
     },
     "cobol": {

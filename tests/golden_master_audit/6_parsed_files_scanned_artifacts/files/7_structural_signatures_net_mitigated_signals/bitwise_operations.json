@@ -212,7 +212,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
       "assembly/cosmopolitan/ape.S": 102,
-      "assembly/cosmopolitan/loader.c": 21,
+      "assembly/cosmopolitan/loader.c": 90,
       "assembly/cosmopolitan/notice.inc": 0,
       "assembly/cosmopolitan/start.S": 2
     },
@@ -525,17 +525,17 @@
       "c/SOURCES.md": 0
     },
     "c/cosmopolitan_intrin": {
-      "c/cosmopolitan_intrin/countbits.c": 9
+      "c/cosmopolitan_intrin/countbits.c": 19
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 0,
-      "c/cpython/ceval.c": 12,
-      "c/cpython/compile.c": 10,
-      "c/cpython/dictobject.c": 35,
-      "c/cpython/frameobject.c": 13,
-      "c/cpython/gc.c": 27,
-      "c/cpython/object.c": 3,
-      "c/cpython/typeobject.c": 50
+      "c/cpython/ceval.c": 22,
+      "c/cpython/compile.c": 17,
+      "c/cpython/dictobject.c": 87,
+      "c/cpython/frameobject.c": 41,
+      "c/cpython/gc.c": 60,
+      "c/cpython/object.c": 26,
+      "c/cpython/typeobject.c": 227
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0,
@@ -545,34 +545,34 @@
       "c/doom/i_system.c": 0,
       "c/doom/m_fixed.c": 3,
       "c/doom/m_fixed.h": 1,
-      "c/doom/p_mobj.c": 33,
+      "c/doom/p_mobj.c": 66,
       "c/doom/p_mobj.h": 0,
-      "c/doom/r_bsp.c": 8,
+      "c/doom/r_bsp.c": 10,
       "c/doom/r_defs.h": 0,
-      "c/doom/w_wad.c": 1,
-      "c/doom/z_zone.c": 1
+      "c/doom/w_wad.c": 4,
+      "c/doom/z_zone.c": 2
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 0
     },
     "c/micropython": {
-      "c/micropython/compile.c": 17,
+      "c/micropython/compile.c": 33,
       "c/micropython/compile.h": 0,
-      "c/micropython/emitnative.c": 16,
-      "c/micropython/gc.c": 38,
+      "c/micropython/emitnative.c": 63,
+      "c/micropython/gc.c": 65,
       "c/micropython/gc.h": 0,
       "c/micropython/modmachine.c": 0,
       "c/micropython/modmachine.h": 0,
-      "c/micropython/objtype.c": 4,
-      "c/micropython/objtype.h": 0,
-      "c/micropython/vfs.c": 0,
+      "c/micropython/objtype.c": 14,
+      "c/micropython/objtype.h": 2,
+      "c/micropython/vfs.c": 6,
       "c/micropython/vfs.h": 0,
-      "c/micropython/vm.c": 15
+      "c/micropython/vm.c": 48
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0,
       "c/sqlite/README.md": 0,
-      "c/sqlite/lemon.c": 2,
+      "c/sqlite/lemon.c": 19,
       "c/sqlite/parse.y": 209
     },
     "cobol": {
@@ -1171,9 +1171,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 56,
-      "cobol/gnucobol_internals/fileio.c": 120,
-      "cobol/gnucobol_internals/numeric.c": 56,
+      "cobol/gnucobol_internals/codegen.c": 154,
+      "cobol/gnucobol_internals/fileio.c": 233,
+      "cobol/gnucobol_internals/numeric.c": 109,
       "cobol/gnucobol_internals/parser.y": 2279,
       "cobol/gnucobol_internals/scanner.l": 63,
       "cobol/gnucobol_internals/syn_misc.at": 0
@@ -1225,7 +1225,7 @@
       "cpp/godot/node.cpp": 1,
       "cpp/godot/node.h": 1,
       "cpp/godot/object.cpp": 12,
-      "cpp/godot/object.h": 22,
+      "cpp/godot/object.h": 198,
       "cpp/godot/rendering_server_default.cpp": 1,
       "cpp/godot/rendering_server_default.h": 1,
       "cpp/godot/variant.cpp": 14,
@@ -3189,7 +3189,7 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 3,
-      "objective-c/worldwideweb/HText.c": 0,
+      "objective-c/worldwideweb/HText.c": 3,
       "objective-c/worldwideweb/HyperManager.m": 0,
       "objective-c/worldwideweb/HyperText.h": 0,
       "objective-c/worldwideweb/HyperText.m": 3,
@@ -4179,8 +4179,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 6,
-      "scheme/racket/eval.c": 15,
-      "scheme/racket/fun.c": 46,
+      "scheme/racket/eval.c": 43,
+      "scheme/racket/fun.c": 95,
       "scheme/racket/io.ss": 0,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0

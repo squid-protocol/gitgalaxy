@@ -289,7 +289,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution aborts forcing the build to fail dynamically.
         "panics_and_aborts": re.compile(r"\b(?:exit[ \t]+[1-9]|kill[ \t]+-[0-9]+)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # Forcing the build thread to sleep (often a hack to wait for a daemon/network).
         "thread_sleeps": re.compile(r"\bsleep[ \t]+[0-9]+\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)

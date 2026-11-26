@@ -290,6 +290,62 @@ def test_rust_bitwise_ops_vs_closures_no_false_collision():
     assert not closures.search(shift)
 
 
+def test_rust_bitwise_ops_counts_binary_and_or_in_operator_position_9340():
+    """#9340: `&` / `|` / `&=` / `|=` count between operands; references, closure pipes and or-patterns do not."""
+    rule = RUST_RULES["bitwise_ops"]
+    counts = [
+        "let m = a & b;",
+        "let m = x | y;",
+        "flags |= F;",
+        "mask &= k;",
+        "let m = (a) & mask;",
+        "let m = v[i] | 1;",
+        "let m = x as u32 & 0xff;",
+        "v.iter().map(|a| a | 1)",
+        "let r = ((i128::from(a)) >> 64) as i64;",
+    ]
+    for line in counts:
+        assert rule.search(line), line
+    ignored = [
+        "let r = &x;",
+        "f(&mut y);",
+        "for a in &v {",
+        "return &x;",
+        "let r = &*p;",
+        "fn f(x: &str) {}",
+        "let f = |a| a + 1;",
+        "let f = move |x| x;",
+        "if a && b {}",
+        "if a || b {}",
+        "Some(1) | Some(2) => 1,",
+        "fn f() -> Poll<io::Result<()>> {",
+        "let v: Vec<Vec<T>> = x;",
+    ]
+    for line in ignored:
+        assert not rule.search(line), line
+
+
+def test_rust_io_skips_error_and_address_type_paths_9340():
+    """#9340: `std::io::Error`, `IoSlice`, `std::net::SocketAddr`, `Shutdown` move no data; the operations still count."""
+    rule = RUST_RULES["io"]
+    for line in (
+        "fn f() -> std::io::Result<usize> {",
+        "fn f() -> Result<(), std::io::Error> {",
+        "bufs: &[std::io::IoSlice<'_>],",
+        "addr: std::net::SocketAddr,",
+        "s.shutdown_std(std::net::Shutdown::Write);",
+    ):
+        assert not rule.search(line), line
+    for line in (
+        "let f = std::fs::File::open(p)?;",
+        "let s = TcpStream::connect(a).await?;",
+        "let d = UnixDatagram::bind(p)?;",
+        "let l = std::net::TcpListener::bind(a)?;",
+        "let i = std::io::stdin();",
+    ):
+        assert rule.search(line), line
+
+
 def test_rust_explicit_casts_vs_pointers_no_false_collision():
     """
     Known ambiguity pattern from the issue template (already found in C:

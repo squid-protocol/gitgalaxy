@@ -487,7 +487,16 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|setImmediate|Atomics\.wait)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),
+        # #9342: a bitwise operator in operator position (the contract): binary `&` and `|` count, as do their compound forms
+        # (`&=` `|=` `^=` `<<=` `>>=`); a regex literal's `^` anchor, `[^x]` class, `[<<]` or `a|b` alternation is not one.
+        # An operand is a word, `$`, `)` or `]`. `|` needs a space after it or a digit (`x|0`): `/a|b/` is an alternation.
+        "bitwise_ops": re.compile(
+            r"(?<!\[)<<|(?<!\[)>>>?"
+            r"|(?<=[\w$)\]])[ \t]*\^"
+            r"|(?<=[\w$)\]])[ \t]*&(?!&)"
+            r"|(?<=[\w$)\]])[ \t]*\|=|(?<=[\w$)\]])[ \t]+\|(?![|=])[ \t]|(?<=[\w$)\]])\|(?=\d)"
+            r"|(?<=[\s(=,&|^?:!{};+-])~"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomics\.lock|Atomics\.wait)\b",

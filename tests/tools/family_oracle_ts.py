@@ -14,6 +14,7 @@ adding a Spec and running the scan of one real repository through `family_oracle
 from __future__ import annotations
 
 import collections
+import re
 from dataclasses import dataclass, field
 from typing import Any, NamedTuple
 
@@ -187,7 +188,9 @@ SPECS: dict[str, Spec] = {
         (".rs",),
         _fs("function_item"),
         _fs("closure_expression"),
-        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm"),
+        # `try_expression` is the `?` operator: a conditional early return (Ok continues, Err leaves), a runtime choice
+        # between paths that desugars to a `match`; branch contract corollary 3 excludes only UNCONDITIONAL transfers (#8868).
+        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm", "try_expression"),
         _fs(),
         _fs("call_expression", "macro_invocation"),
         {
@@ -216,8 +219,19 @@ SPECS: dict[str, Spec] = {
                 "fs::remove_file",
                 "fs::read_dir",
                 "fs::copy",
-                "TcpStream::connect",
-                "TcpListener::bind",
+                # #9340: the contract names a socket or file opened by a named type (the rule counts these type-path calls too)
+                "fs::metadata",
+                "fs::rename",
+                "fs::remove_dir",
+                "fs::remove_dir_all",
+                "File::",
+                "OpenOptions::",
+                "TcpStream::",
+                "TcpListener::",
+                "UdpSocket::",
+                "UnixStream::",
+                "UnixListener::",
+                "UnixDatagram::",
                 "io::stdin",
                 "io::stdout",
                 "stdin",
@@ -409,6 +423,20 @@ SPECS: dict[str, Spec] = {
                 "fscanf",
                 "fseek",
                 "mmap",
+                # #9334: the contract's "moves data between the program and a system outside its own runtime" also names
+                # the stream writers and the libc transfer / file-system calls the C rule counts (#8868)
+                "fputs",
+                "fputc",
+                "getline",
+                "getdelim",
+                "pread",
+                "pwrite",
+                "recvfrom",
+                "sendto",
+                "recvmsg",
+                "sendmsg",
+                "stat",
+                "rename",
             ),
             "bailout": ("exit", "abort", "_exit", "_Exit", "quick_exit"),
         },
@@ -525,6 +553,9 @@ def _to_console(call) -> bool:
         return False
     parts = [c for c in args.children if c.is_named]
     return any(_text(a).strip() in _CONSOLE_STREAMS for a in parts)
+
+
+_MACRO_PATH_CALL = re.compile(r"([A-Za-z_]\w*(?:::[A-Za-z_]\w*)+)[ \t]*\(")
 
 
 def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
@@ -755,6 +786,15 @@ class TreeSitterOracle:
                     hit = _matches(full, pats)
                     if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
+                if t == "macro_invocation" and spec.ts_name == "rust":
+                    # #9340: a macro's argument list is an opaque token tree to the grammar, but `assert_ok!(TcpListener::bind(..))`
+                    # still opens the socket: read the type-path calls inside it for the I/O family (the contract names the operation)
+                    body = next((c for c in node.children if c.type == "token_tree"), None)
+                    if body is not None:
+                        for m in _MACRO_PATH_CALL.finditer(_text(body)):
+                            hit = _matches(m.group(1), spec.calls["io"])
+                            if hit:
+                                add("io", hit)
         n["args"] = _params(spec, fn)
         deco = _decorators(fn, spec.ts_name == "go")
         if deco:

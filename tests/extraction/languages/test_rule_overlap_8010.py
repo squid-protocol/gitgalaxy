@@ -41,7 +41,7 @@ def test_python_swallowed_exception_is_one_bypass_site(lang, text):
 def test_php_exit_and_die_are_aborts_not_prints():
     assert _hits("php", "debug_prints", "exit(1); die('x');") == []
     assert _hits("php", "panics_and_aborts", "exit(1); die('x');") == ["exit", "die"]
-    assert _hits("php", "debug_prints", "echo $x; var_dump($y);") == ["echo", "var_dump"]
+    assert _hits("php", "debug_prints", "echo $x; var_dump($y);") == ["echo", "var_dump("]
 
 
 def test_csharp_arrow_is_a_closure_not_a_structural_boundary():

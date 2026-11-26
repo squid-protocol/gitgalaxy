@@ -79,7 +79,12 @@ DEFINITION: dict[str, Any] = {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
         # decision. See branch_rule_contract.md, "Literals".
-        "_scope_filters": {"branch": "outside_literals", "short_circuit": "outside_literals"},
+        "_scope_filters": {
+            "branch": "outside_literals",
+            "short_circuit": "outside_literals",
+            # #9341: `"~!@#$%^&*"` in a fixture string is text, not a shift or xor.
+            "bitwise_ops": "outside_literals",
+        },
         # Epic #3264 / ledger: `@Name(` is an attribute (C1); dotted trailing closures (`q.async { }`) are calls
         "calls_out": CALLS_OUT_SWIFT,
         "_calls_out_rewrite": _blank_swift_patterns,
@@ -227,7 +232,7 @@ DEFINITION: dict[str, Any] = {
         # Neither ever matched.
         "io": re.compile(
             r"\b(?:URLSession|FileManager|FileHandle|UserDefaults|CoreData|SwiftData|NWConnection)\b"
-            r"|Data\(contentsOf:|write\(to:"
+            r"|\b(?:Data|String)\(contentsOf(?:File)?:|write\(to:"
         ),
         # 10. api (Public Surface Area)
         # Exposed surface area. Explicit visibility and Objective-C bridges.
@@ -537,12 +542,18 @@ DEFINITION: dict[str, Any] = {
         # `.range(of:` starts on a non-word char, so behind the leading \b it
         # could only match right after a word char (#4108): own alternative.
         "regex_execution": re.compile(
-            r"\b(?:NSRegularExpression|Regex|try\s+Regex)\b|\.range\(of:.*\.regularExpression\b"
+            r"\b(?:NSRegularExpression|Regex|try\s+Regex)\b"
+            r"|\.(?:range|replacingOccurrences)\(of:.*\.regularExpression\b"
         ),
         # BUG FIX: `Date\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire. Never matched.
         "time_date_logic": re.compile(
-            r"\b(?:Calendar\.current|DateFormatter|DispatchTime\.now|Timer\.scheduledTimer)\b|\bDate\(\)"
+            # #9341: a clock or calendar value, a duration, a formatting or timezone call. A timer
+            # (`Timer.scheduledTimer`) is a deferral, thread_sleeps', not time.
+            r"\b(?:Calendar\.current|DateFormatter|ISO8601DateFormatter|DateComponents|DateInterval|TimeZone"
+            r"|DispatchTime\.now|DispatchWallTime|DispatchTimeInterval|ContinuousClock|SuspendingClock"
+            r"|CFAbsoluteTimeGetCurrent|clock_gettime|gettimeofday|mach_absolute_time)\b"
+            r"|\bDate(?:\(|\.)|\bDuration\.|\.(?:timeIntervalSince\w*|addingTimeInterval)\b"
         ),
         # BUG FIX: `Process\(\)` ends on `)` -- same bug. Never matched.
         "ipc_rpc_bridges": re.compile(

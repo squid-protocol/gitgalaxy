@@ -530,27 +530,27 @@
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 8.515,
       "c/cpython/ceval.c": 5.67,
-      "c/cpython/compile.c": 4.202,
-      "c/cpython/dictobject.c": 10.012,
+      "c/cpython/compile.c": 4.207,
+      "c/cpython/dictobject.c": 10.014,
       "c/cpython/frameobject.c": 6.096,
       "c/cpython/gc.c": 6.413,
-      "c/cpython/object.c": 6.401,
-      "c/cpython/typeobject.c": 8.159
+      "c/cpython/object.c": 6.387,
+      "c/cpython/typeobject.c": 8.162
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
       "c/doom/README.TXT": 0.0,
       "c/doom/d_main.c": 10.052,
       "c/doom/doomdef.h": 3.171,
-      "c/doom/i_system.c": 6.422,
+      "c/doom/i_system.c": 6.467,
       "c/doom/m_fixed.c": 5.411,
       "c/doom/m_fixed.h": 3.263,
       "c/doom/p_mobj.c": 6.931,
       "c/doom/p_mobj.h": 2.98,
       "c/doom/r_bsp.c": 7.621,
       "c/doom/r_defs.h": 3.243,
-      "c/doom/w_wad.c": 6.26,
-      "c/doom/z_zone.c": 9.147
+      "c/doom/w_wad.c": 6.22,
+      "c/doom/z_zone.c": 9.085
     },
     "c/freebsd_openpam": {
       "c/freebsd_openpam/pam_acct_mgmt.c": 6.237
@@ -572,7 +572,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
       "c/sqlite/README.md": 0.0,
-      "c/sqlite/lemon.c": 6.5,
+      "c/sqlite/lemon.c": 6.273,
       "c/sqlite/parse.y": 8.938
     },
     "cobol": {
@@ -1173,7 +1173,7 @@
       "cobol/gnucobol_internals/COPYING": 0.0,
       "cobol/gnucobol_internals/codegen.c": 9.549,
       "cobol/gnucobol_internals/fileio.c": 7.741,
-      "cobol/gnucobol_internals/numeric.c": 6.357,
+      "cobol/gnucobol_internals/numeric.c": 6.356,
       "cobol/gnucobol_internals/parser.y": 9.636,
       "cobol/gnucobol_internals/scanner.l": 8.411,
       "cobol/gnucobol_internals/syn_misc.at": 4.14
@@ -2407,8 +2407,8 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 7.224,
-      "javascript/react/ReactFiberBeginWork.js": 5.633,
-      "javascript/react/ReactFiberWorkLoop.js": 7.146,
+      "javascript/react/ReactFiberBeginWork.js": 5.599,
+      "javascript/react/ReactFiberWorkLoop.js": 7.105,
       "javascript/react/ReactFlightServer.js": 8.886,
       "javascript/react/ReactSymbols.js": 6.811,
       "javascript/react/build.js": 5.946
@@ -2419,7 +2419,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 5.478,
       "javascript/threejs/Editor.js": 6.709,
-      "javascript/threejs/GLTFLoader.js": 6.248,
+      "javascript/threejs/GLTFLoader.js": 6.253,
       "javascript/threejs/Matrix4.js": 5.184,
       "javascript/threejs/Nodes.js": 6.469,
       "javascript/threejs/WebGLProgram.js": 7.4,
@@ -3274,17 +3274,17 @@
       "php/SOURCES.md": 0.0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 6.386,
+      "php/guzzle/Client.php": 6.385,
       "php/guzzle/CurlFactory.php": 5.89,
       "php/guzzle/CurlMultiHandler.php": 6.739,
       "php/guzzle/Middleware.php": 6.449,
       "php/guzzle/Pool.php": 7.1,
       "php/guzzle/RequestException.php": 5.979,
-      "php/guzzle/StreamHandler.php": 6.809
+      "php/guzzle/StreamHandler.php": 6.797
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 6.546,
-      "php/laravel_core/BladeCompiler.php": 6.142,
+      "php/laravel_core/BladeCompiler.php": 6.133,
       "php/laravel_core/Collection.php": 5.894,
       "php/laravel_core/Container.php": 6.357,
       "php/laravel_core/Facade.php": 6.294,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 7.093,
       "php/magento2/Interceptor.php": 5.479,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": 7.09,
+      "php/magento2/Mysql.php": 7.099,
       "php/magento2/ObjectManager.php": 5.391
     },
     "php/symfony": {
@@ -3312,21 +3312,21 @@
       "php/symfony/EventDispatcher.php": 7.616,
       "php/symfony/HttpKernel.php": 7.738,
       "php/symfony/Parser.php": 6.175,
-      "php/symfony/Request.php": 6.008,
-      "php/symfony/Router.php": 6.135
+      "php/symfony/Request.php": 5.936,
+      "php/symfony/Router.php": 6.11
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 2.274
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 2.753,
-      "php/wordpress/class-wp-query.php": 6.75,
-      "php/wordpress/formatting.php": 6.518,
-      "php/wordpress/functions.php": 5.206,
+      "php/wordpress/admin-ajax.php": 1.867,
+      "php/wordpress/class-wp-query.php": 6.751,
+      "php/wordpress/formatting.php": 6.509,
+      "php/wordpress/functions.php": 5.212,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 5.616,
-      "php/wordpress/wp-login.php": 7.925,
-      "php/wordpress/wp-settings.php": 4.533
+      "php/wordpress/wp-login.php": 7.596,
+      "php/wordpress/wp-settings.php": 4.537
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0.0
@@ -4113,7 +4113,7 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 6.1,
       "rust/tokio/block_on.rs": 8.673,
-      "rust/tokio/blocking.rs": 7.257,
+      "rust/tokio/blocking.rs": 7.197,
       "rust/tokio/builder.rs": 6.402,
       "rust/tokio/config.rs": 6.603,
       "rust/tokio/fuzz.rs": 4.474,
@@ -4142,7 +4142,7 @@
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 6.943,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 12.188,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 16.816,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6.773,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6.711,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 5.752,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 6.564,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 7.141,
@@ -4167,11 +4167,11 @@
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 6.658,
       "scala/kafka/KafkaApis.scala": 10.411,
-      "scala/kafka/KafkaRaftManager.scala": 7.101,
+      "scala/kafka/KafkaRaftManager.scala": 7.054,
       "scala/kafka/LogManager.scala": 7.954,
       "scala/kafka/Partition.scala": 8.462,
-      "scala/kafka/ReplicaManager.scala": 9.093,
-      "scala/kafka/SocketServer.scala": 7.405
+      "scala/kafka/ReplicaManager.scala": 9.094,
+      "scala/kafka/SocketServer.scala": 7.407
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0
@@ -4180,7 +4180,7 @@
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 9.991,
       "scheme/racket/eval.c": 8.811,
-      "scheme/racket/fun.c": 8.047,
+      "scheme/racket/fun.c": 8.049,
       "scheme/racket/io.ss": 9.0,
       "scheme/racket/schemify.rkt": 6.856,
       "scheme/racket/thread.rkt": 7.769
@@ -4541,7 +4541,7 @@
       "sql/SOURCES.md": 0.0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 7.279
+      "sql/baseline/schema.php": 7.284
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 0.0,
@@ -4724,7 +4724,7 @@
       "swift/vapor_sources/Sources_Vapor_Application.swift": 8.236,
       "swift/vapor_sources/Sources_Vapor_Client_Request_Client.swift": 4.553,
       "swift/vapor_sources/Sources_Vapor_Concurrency_WebSocket_Concurrency.swift": 7.339,
-      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": 8.01,
+      "swift/vapor_sources/Sources_Vapor_HTTP_Headers_HTTPCookies.swift": 8.036,
       "swift/vapor_sources/Sources_Vapor_HTTP_Server_Application_HTTP_Server.swift": 5.062,
       "swift/vapor_sources/Sources_Vapor_Middleware_TracingMiddleware.swift": 7.416,
       "swift/vapor_sources/Sources_Vapor_Response_ResponseCodable.swift": 6.643,

@@ -3321,8 +3321,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 1,
-      "php/wordpress/formatting.php": 1,
-      "php/wordpress/functions.php": 3,
+      "php/wordpress/formatting.php": 0,
+      "php/wordpress/functions.php": 2,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 0,

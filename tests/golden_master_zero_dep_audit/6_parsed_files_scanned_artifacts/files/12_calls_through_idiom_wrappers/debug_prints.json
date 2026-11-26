@@ -16,23 +16,23 @@
         "Wrapped Sites": 33
       },
       "c/doom/w_wad.c": {
-        "Literal Sites": 5,
+        "Literal Sites": 2,
         "Wrapped Sites": 2
       },
       "c/doom/z_zone.c": {
-        "Literal Sites": 11,
+        "Literal Sites": 6,
         "Wrapped Sites": 6
       }
     },
     "c/sqlite": {
       "c/sqlite/lemon.c": {
-        "Literal Sites": 287,
+        "Literal Sites": 43,
         "Wrapped Sites": 71
       }
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/codegen.c": {
-        "Literal Sites": 3,
+        "Literal Sites": 2,
         "Wrapped Sites": 2
       }
     },

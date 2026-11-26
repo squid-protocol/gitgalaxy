@@ -689,7 +689,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|rethrow|exit|exitCode|Process\.killPid)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) (Forced waits/delays).
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval)\s*\(", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         # #8866: a `>>` closing a generic list is not a shift.

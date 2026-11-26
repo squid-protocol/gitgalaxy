@@ -4141,7 +4141,7 @@
     "scala/cobrix_scala": {
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": "Generic / Templated Code Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": "Large Core Modules (3)",
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Callbacks & Closures Files",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Compute Cores Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": "Many-Argument Workhorses Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": "Declarative / Non-Code",
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": "Declarative / Non-Code",
@@ -4165,7 +4165,7 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": "Data / Markup / Trivial"
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": "Large Core Modules (3)",
+      "scala/kafka/Kafka.scala": "Compute Cores Files",
       "scala/kafka/KafkaApis.scala": "Large Core Modules (3)",
       "scala/kafka/KafkaRaftManager.scala": "Encapsulated Accessors Files",
       "scala/kafka/LogManager.scala": "Large Core Modules (3)",

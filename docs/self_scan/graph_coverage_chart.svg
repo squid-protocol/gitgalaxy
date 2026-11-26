@@ -835,11 +835,11 @@
 <text class="n" x="324" y="869">n=397 imports</text>
 <text class="n" x="324" y="881">repos 2 · files 269</text>
 </g>
-<g><title>perl callee names: precision 97.1% of 4,708, recall 97.7% of 4,524 (raw 93.9% / 97.7%; 38 shapes without a verdict)</title>
+<g><title>perl callee names: precision 98.3% of 4,708, recall 97.7% of 4,524 (raw 93.9% / 97.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
-<rect x="472" y="861" width="106.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="869">97.1%*</text>
+<rect x="472" y="861" width="108.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="869">98.3%*</text>
 <text class="pr" x="426" y="880.5">Recall</text>
 <rect class="track" x="472" y="873" width="110" height="8" rx="2"/>
 <rect x="472" y="873" width="107.5" height="8" rx="2" fill="#eda100"/>

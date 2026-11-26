@@ -10881,6 +10881,17 @@
     "string_comment_boundary": null,
     "string_counts": null
    },
+   "bitwise_ops": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "NR",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "branch": {
     "block_comment": null,
     "comment": "pass",
@@ -11068,6 +11079,17 @@
     "string_comment_boundary": null,
     "string_counts": null
    },
+   "pointers": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "leak",
+    "keyword": "DC A(",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
+    "string_counts": true
+   },
    "reflection_metaprogramming": {
     "block_comment": null,
     "comment": "pass",
@@ -11122,6 +11144,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": null,
     "string_counts": null
+   },
+   "ssr_boundaries": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "leak",
+    "keyword": "EXEC CICS WEB",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
+    "string_counts": true
    },
    "state_mutation": {
     "block_comment": null,

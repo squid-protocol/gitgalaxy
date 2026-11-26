@@ -206,8 +206,13 @@ DEFINITION: dict[str, Any] = {
             r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime(?:\(\))?\.exec|sys\.process)\b"
         ),
         # 9. io: I/O & Network Boundaries. Filesystem, Network, and Http Clients (Includes CERN triggers).
+        # #9332 contract: a call or constructor that moves data to or from a file, stream or connection. A bare type or
+        # package name (`java.io.File` in a signature, `ByteBuffer`, an akka `Source` stage, `SocketServerConfigs`) is not I/O.
         "io": re.compile(
-            r"\b(Source|java\.io|java\.nio|Files\.|Socket|ServerSocket|sttp|Http|WSClient|HTLoad|HTGet|ENQUIRE)\b"
+            r"\b(?:Source\.from\w+|StdIn\.\w+|Files\.\w+|Http\s*\(|sttp|WSClient|HTLoad|HTGet|ENQUIRE|HttpURLConnection)"
+            r"|\bnew\s+(?:java\.io\.|java\.net\.)?(?:File(?:Reader|Writer|InputStream|OutputStream)|RandomAccessFile"
+            r"|Socket|ServerSocket|URL)\b"
+            r"|\.(?:listFiles|openStream|openConnection)\b|\breadLine\s*\("
         ),
         # 10. api: Public Surface Area. Implicit public visibility and Scala 3 @main entry points.
         "api": re.compile(
@@ -438,13 +443,21 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:logger|log|ZIO\.log|LoggerFactory|log4cats|slf4j)\.(?:info|error|warn|debug|trace)\b|@Slf4j"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
-        "debug_prints": re.compile(r"\b(println|print|Console\.println)\b"),
+        # #9332: a console call only (`println(x)`, `Console.err.print(x)`, `System.out.printf(..)`); `writer.print(x)` goes to a
+        # writer, and a `def print(` declares one.
+        "debug_prints": re.compile(
+            r"(?<![\w.])(?<!def )(?:println|print|printf)[ \t]*\("
+            r"|\b(?:Console(?:\.err|\.out)?|System\.(?:out|err))\.(?:println|print|printf)\b"
+        ),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
         "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
         # 41. panics_and_aborts (Error Exits: throw/panic/abort/sys.error/exit) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
-        "thread_sleeps": re.compile(r"\b(Thread\.sleep|delay|setTimeout|setInterval)\s*\("),
+        # #9332: any receiver (`time.sleep(ms)`, `TimeUnit.X.sleep`), a blocking `Await`, a park, and the forced delays.
+        "thread_sleeps": re.compile(
+            r"\b(?:sleep|delay|setTimeout|setInterval|Await\.(?:result|ready)|LockSupport\.park\w*)\s*\("
+        ),
         # 43. bitwise_ops (Bitwise Operations)
         # #9332: operator position between value operands on one line. Not counted: `|` as a pattern alternative (a `case`
         # line before its `if` guard, a trailing `|` continuing one), a `stripMargin` bar at a line start, `a|b` inside text,
@@ -486,13 +499,21 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(
             r"\b(io\.circe|decode\[|asJson|Json\.parse|Json\.toJson|upickle\.default)\b"
         ),
-        "regex_execution": re.compile(r'"[^"]+"\.r\b|\bRegex\s*\(|\.(findAllIn|findFirstIn|replaceAllIn)\b'),
+        "regex_execution": re.compile(
+            r'"[^"]+"\.r\b|\bRegex\s*\(|\.(?:findAllIn|findFirstIn|replaceAllIn|replaceFirstIn|findFirstMatchIn|findAllMatchIn)\b'
+            r"|\bPattern\.(?:compile|matches|quote)\b|\.matcher\s*\("
+        ),
         # BUG FIX: `Duration\s*\(` ends on `(` (non-word), so the
         # shared trailing \b only fired for the non-empty-argument form
         # (`Duration(5, SECONDS)`, where a digit follows the paren),
         # not the empty-argument form (`Duration()`).
+        # #9332: the java.time / scala.concurrent.duration surface and the clock reads, by call; `5.seconds` literals.
         "time_date_logic": re.compile(
-            r"\b(?:FiniteDuration|System\.currentTimeMillis|LocalDate\.now)\b|\bDuration\s*\("
+            r"\b(?:FiniteDuration|System\.currentTimeMillis|System\.nanoTime|SimpleDateFormat)\b|\bDuration\s*\("
+            r"|\b(?:Instant|Duration|Deadline|LocalDate|LocalDateTime|LocalTime|ZonedDateTime|OffsetDateTime|Period|Clock"
+            r"|ChronoUnit|DateTimeFormatter|Calendar|TimeZone|ZoneId)\.\w"
+            r"|\.(?:toNanos|toMillis|toSeconds|toMinutes)\b|\bnew\s+Date\b"
+            r"|\b\d+\.(?:nanos?|micros?|millis?|nanoseconds|microseconds|milliseconds|seconds?|minutes?|hours?|days?)\b"
         ),
         # BUG FIX: `Process\s*\(` ends on `(` -- same bug. Never
         # matched the common `Process("cmd")` form (a quote follows).

@@ -476,7 +476,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(Number|String|Boolean|BigInt|Symbol|Array\.from)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(throw|abort|process\.exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|setImmediate|Atomics\.wait)\b"),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),

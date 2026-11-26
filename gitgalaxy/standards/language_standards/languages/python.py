@@ -503,7 +503,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(int|str|float|list|dict|set|tuple|bool|bytes|cast)\b\s*\("),
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         "panics_and_aborts": re.compile(r"\b(raise|quit|exit|sys\.exit|abort)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(?:time\.sleep|asyncio\.sleep|anyio\.sleep|Thread\.join)\b|\bsleep[ \t]*\("),
         # 43. bitwise_ops (Bitwise Operations)
         # #8861: the contract's and / or operators too (`a & b`, `a | b`, `m &= x`); a `| None` /

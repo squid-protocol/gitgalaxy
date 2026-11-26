@@ -256,10 +256,20 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
         hit = IMPL_MACRO.match(lines[loc.line - 1]) if 0 < loc.line <= len(lines) else None
         return hit.group(1) if hit and cursor.spelling.endswith(hit.group(1)) else cursor.spelling
 
+    first_start: dict[tuple[str, str, int], int] = {}  # (file, name, the name's line) -> the start line first seen
+
     def key_of(cursor) -> tuple[str, str, int] | None:
         loc = cursor.extent.start
         rel = _rel(repo, loc.file.name if loc.file else None)
-        return (rel, macro_name(cursor), loc.line) if rel else None
+        if not rel:
+            return None
+        name = macro_name(cursor)
+        # A leading `__attribute__((destructor))` under `#if defined(__GNUC__) && !defined(_WIN32)` starts the
+        # extent two lines early in the Linux parse and not in the Windows one: one function, two start lines, two
+        # keys, and every edge scored twice (libuv's `uv_library_shutdown`, 465 phantom misses, #9327). The
+        # name's own line is the same in every parse, so the first parse's start stands for all of them.
+        name_line = cursor.location.line if cursor.location.file else loc.line
+        return (rel, name, first_start.setdefault((rel, name, name_line), loc.line))
 
     for src in sources:
         text = src.read_bytes().decode("latin-1")
@@ -331,6 +341,10 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
             found = by_group[WINDOWS].get(name) or shared_by_name.get(name, ())
         else:  # another Unix flavour links its own definitions, falling back to the shared ones
             found = by_group[group].get(name) or by_group[BASE].get(name, ())
+        # a translation unit's own external definition is the one its call links to: another platform's copy of the
+        # name (libuv's `uv_get_free_memory` in `linux.c`, `darwin.c`, ...) is a different build, never this caller's
+        # (#9327: 132 edges from a `linux.c` caller to the other platforms' copies)
+        found = [t for t in found if t[0] == caller[0]] or found
         # one function written as several `#if` variants in a file is one unit to the engine: link them all
         targets = [v for t in found if t != caller for v in variants[t[:2]]]
         if not targets and name not in named:

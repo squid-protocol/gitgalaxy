@@ -3205,7 +3205,7 @@
       "ocaml/janestreet_base/applicative_intf.ml": 5,
       "ocaml/janestreet_base/array.ml": 15,
       "ocaml/janestreet_base/array.mli": 0,
-      "ocaml/janestreet_base/array0.ml": 6,
+      "ocaml/janestreet_base/array0.ml": 4,
       "ocaml/janestreet_base/array0.mli": 0,
       "ocaml/janestreet_base/array_intf.ml": 6,
       "ocaml/janestreet_base/array_permute.ml": 0,

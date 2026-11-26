@@ -469,7 +469,7 @@ class Prism:
                 # #2503: hlasm is the same syntax bms's mode was built for
                 # (bms IS HLASM macro source) -- '*'/'.*' column-1 comments,
                 # no column-7 check, no inline split.
-                bms_mode=(lang_id in ("bms", "hlasm")),
+                bms_mode=(lang_id in ("bms", "hlasm", "easytrieve")),  # #9304
             )
             return positional_comments
 
@@ -890,7 +890,7 @@ class Prism:
                 # #2503: hlasm shares bms's mode -- bms IS HLASM macro
                 # source, and full HLASM has the identical comment syntax
                 # ('*'/'.*' in column 1, no inline marker).
-                bms_mode=(lang_id in ("bms", "hlasm")),
+                bms_mode=(lang_id in ("bms", "hlasm", "easytrieve")),  # #9304
             )
             if lang_id == "cobol":
                 # #4264: columns 73-80 of a fixed-format line are the identification area, which

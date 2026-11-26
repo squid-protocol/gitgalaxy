@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
         r")",
         re.M | re.I,
     ),
-    "lexical_family": "line_exclusive",
+    "lexical_family": "positional_anchored",  # #9304: column-1 `*` comments, like hlasm
     "identifier_case": "insensitive",
     "identifier_extra_chars": "-",
     "rules": {

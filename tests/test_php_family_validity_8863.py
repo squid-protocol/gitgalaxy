@@ -32,6 +32,7 @@ POSITIVE = {
         "unlink($tmp);",
         "$files = scandir($dir);",
         "$db = new PDO($dsn);",
+        "PDO::query($route);",
         "$r = mysqli_query($c, $q);",
         "mkdir($d);",
         "$s = fsockopen($host, 80);",
@@ -78,6 +79,7 @@ NEGATIVE = {
         "$v = $_GET['id'];",
         "function f(PDO $db) {}",
         "$x = $this->file($a);",
+        "$a = PDO::ATTR_ERRMODE;",
         "$x = Foo::copy($a);",
     ],
     "debug_prints": [

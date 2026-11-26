@@ -1112,12 +1112,12 @@
    "decorators": {
     "corpus": "wordpress",
     "functions": 10462,
-    "n_family": 80,
-    "n_oracle": 43,
+    "n_family": 78,
+    "n_oracle": 76,
     "pinned": false,
-    "precision": 0.537,
+    "precision": 0.974,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "doc": {
     "corpus": "language-crucible v1.9.0",
@@ -1646,11 +1646,11 @@
     "status": "ok"
    },
    "regex_execution": {
-    "corpus": "tokio",
-    "functions": 6826,
+    "corpus": "language-crucible v1.9.0",
+    "functions": 1905,
     "n_family": 0,
     "n_oracle": 0,
-    "pinned": false,
+    "pinned": true,
     "precision": null,
     "recall": null,
     "status": "no-instances"

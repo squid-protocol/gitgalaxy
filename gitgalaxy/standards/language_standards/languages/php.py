@@ -176,7 +176,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io (I/O & Network Boundaries)
         # #8863 (io contract: data moving between the program and a system outside its runtime): a CALL of a file, stream,
-        # socket, curl or database-driver function, or `new PDO` / `new mysqli`. Measured on the pinned crucible, the old
+        # socket, curl or database-driver function, or `new PDO` / `new mysqli`, or a static `PDO::method(` call (the keyword-rosetta plant; `PDO::ATTR_*` is a constant, not a call). Measured on the pinned crucible, the old
         # bare words counted a `header` in a comment or name, `\PDO::ATTR_*` constants, `PDO $pdo` hints and `$_GET` reads
         # (a variable read is not an operation; whether a request superglobal is io is a question on #8863), and missed
         # `unlink` / `mkdir` / `scandir` / `opendir` / `readdir` / `touch`. A method of the same name (`$f->copy()`) is not the function.
@@ -186,6 +186,7 @@ DEFINITION: dict[str, Any] = {
             r"|fsockopen|pfsockopen|stream_socket_client|stream_socket_server|stream_get_contents|curl_exec|move_uploaded_file"
             r"|readline|mysqli_connect|mysqli_query|pg_connect|pg_query)[ \t]*\("
             r"|\bnew[ \t]+\\?(?:PDO|mysqli)\b"
+            r"|(?<![>:$\w])\\?PDO::\w+[ \t]*\("
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Explicit public markers + attribute routes.

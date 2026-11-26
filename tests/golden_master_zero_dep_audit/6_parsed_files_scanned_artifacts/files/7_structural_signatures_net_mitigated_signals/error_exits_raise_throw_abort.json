@@ -530,8 +530,8 @@
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 12,
       "c/cpython/ceval.c": 2,
-      "c/cpython/compile.c": 2,
-      "c/cpython/dictobject.c": 2,
+      "c/cpython/compile.c": 0,
+      "c/cpython/dictobject.c": 0,
       "c/cpython/frameobject.c": 0,
       "c/cpython/gc.c": 0,
       "c/cpython/object.c": 0,
@@ -1171,7 +1171,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0,
-      "cobol/gnucobol_internals/codegen.c": 3,
+      "cobol/gnucobol_internals/codegen.c": 0,
       "cobol/gnucobol_internals/fileio.c": 4,
       "cobol/gnucobol_internals/numeric.c": 0,
       "cobol/gnucobol_internals/parser.y": 3,
@@ -4180,7 +4180,7 @@
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 2,
       "scheme/racket/eval.c": 2,
-      "scheme/racket/fun.c": 13,
+      "scheme/racket/fun.c": 2,
       "scheme/racket/io.ss": 9,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 3

@@ -489,7 +489,14 @@ DEFINITION: dict[str, Any] = {
         # 38. telemetry (Structured Logging / Telemetry)
         "telemetry": re.compile(r"\b(?:syslog|openlog|log_info|log_error|log_warn|log_debug|vsyslog)\b"),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
-        "debug_prints": re.compile(r"\b(printf|fprintf|vprintf|puts|putchar|perror)\b"),
+        # #9334: the contract is text for a developer on the console. `printf`/`puts`/`putchar`/`perror` always write to
+        # stdout/stderr; the stream-addressed writers (`fprintf(out, ...)`, `fputs(s, fp)`) count only when the stream is
+        # `stdout` or `stderr`. Output to a file or writer is not a debug print.
+        "debug_prints": re.compile(
+            r"\b(?:printf|vprintf|puts|putchar|perror)\b"
+            r"|\b(?:fprintf|vfprintf)[ \t]*\([ \t]*std(?:out|err)\b"
+            r"|\b(?:fputs|fputc|putc)[ \t]*\([^;\n]{0,160}?,[ \t]*std(?:out|err)[ \t]*\)"
+        ),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
             # =====================================================================
@@ -505,11 +512,22 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # #8868: `return -1` is an error return, not an abort (contract: abort, fatal error, unreachable, process exit);
         # `_exit` is the async-signal-safe exit, which `\bexit\b` cannot see (`_` is a word character).
-        "panics_and_aborts": re.compile(r"\b(abort|exit|_exit|_Exit|quick_exit)\b"),
+        # #9334: call form only (the contract's "in statement or call form"): a parameter or field named `exit`, or the word
+        # `abort` inside a string ("abort-current-continuation"), is not an abort; a member call (`x.abort()`) is not
+        # the libc one.
+        "panics_and_aborts": re.compile(r"(?<![.>\w])(?:abort|exit|_exit|_Exit|quick_exit)[ \t]*\("),
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|nanosleep|thrd_sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|\^|(?<![=!])~|<<=|>>=|&=|\|=|\^="),
+        # #9334: binary `&` and `|` count in operator position (after an operand: a non-keyword word or number, `]`, or `)`),
+        # never `&&`/`||`, a compound `&=`/`|=` (the arms below), or an address-of (`return &x`, `f(a, &b)`, `= &c`,
+        # a cast then `&x`: `)` needs a space after the `&`).
+        "bitwise_ops": re.compile(
+            r"<<|>>|\^|(?<![=!])~|<<=|>>=|&=|\|=|\^="
+            r"|\b(?!(?:return|sizeof|case|goto|else|do)\b)\w+[ \t]*(?:&(?![&=])|\|(?![|=]))"
+            r"|\][ \t]*(?:&(?![&=])|\|(?![|=]))"
+            r"|\)[ \t]*(?:&(?![&=])[ \t]|\|(?![|=]))"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mtx_lock|mtx_unlock|pthread_mutex_lock|atomic_flag_test_and_set|atomic_store)\b"

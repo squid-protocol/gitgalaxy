@@ -189,10 +189,25 @@ def test_callees(line, expected):
         "my $join = 1;",
         "$substr = 2;",
         "my @pack = (1);",
+        # quote-like and repetition operators with a parenthesised operand
+        "$ok = $path =~ m([:./]$);",
+        "$p =~ s(a)(b);",
+        "$p =~ tr(a-z)(A-Z);",
+        "$p =~ y(a)(b);",
+        '$b .= "\\xff" x ($n - 1);',
+        "my @l = (0) x (3);",
     ],
 )
 def test_not_calls(line):
     assert _callees(line) == []
+
+
+@pytest.mark.parametrize(
+    "line, expected",
+    [("$p->x(1);", ["x"]), ("$p->y;", ["y"]), ("$o->s(1);", ["s"]), ("foo(1) x (2);", ["foo"]), ("my $m = m(1);", [])],
+)
+def test_operator_words_still_methods(line, expected):
+    assert _callees(line) == expected
 
 
 def test_registered_in_the_qualified_family():

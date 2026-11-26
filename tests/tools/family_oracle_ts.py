@@ -14,6 +14,7 @@ adding a Spec and running the scan of one real repository through `family_oracle
 from __future__ import annotations
 
 import collections
+import re
 from dataclasses import dataclass, field
 from typing import Any, NamedTuple
 
@@ -136,7 +137,8 @@ SPECS: dict[str, Spec] = {
         {
             "print": ("fmt.Print", "fmt.Printf", "fmt.Println", "println", "print"),
             "sleep": ("time.Sleep", "time.After", "time.Tick", "time.NewTimer", "time.NewTicker"),
-            "regex": ("regexp.",),
+            # #9343: `re.MatchString(s)` on a *regexp.Regexp value evaluates the expression too (contract: "a match ... call at its invocation")
+            "regex": ("regexp.", "MatchString"),
             # time_date_logic: a clock or calendar value, duration arithmetic, a formatting or timezone call. Timers
             # (time.After / Tick / NewTimer / NewTicker / AfterFunc) are timed waits: thread_sleeps' (#8868)
             "time": (
@@ -187,7 +189,9 @@ SPECS: dict[str, Spec] = {
         (".rs",),
         _fs("function_item"),
         _fs("closure_expression"),
-        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm"),
+        # `try_expression` is the `?` operator: a conditional early return (Ok continues, Err leaves), a runtime choice
+        # between paths that desugars to a `match`; branch contract corollary 3 excludes only UNCONDITIONAL transfers (#8868).
+        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm", "try_expression"),
         _fs(),
         _fs("call_expression", "macro_invocation"),
         {
@@ -216,8 +220,19 @@ SPECS: dict[str, Spec] = {
                 "fs::remove_file",
                 "fs::read_dir",
                 "fs::copy",
-                "TcpStream::connect",
-                "TcpListener::bind",
+                # #9340: the contract names a socket or file opened by a named type (the rule counts these type-path calls too)
+                "fs::metadata",
+                "fs::rename",
+                "fs::remove_dir",
+                "fs::remove_dir_all",
+                "File::",
+                "OpenOptions::",
+                "TcpStream::",
+                "TcpListener::",
+                "UdpSocket::",
+                "UnixStream::",
+                "UnixListener::",
+                "UnixDatagram::",
                 "io::stdin",
                 "io::stdout",
                 "stdin",
@@ -297,6 +312,9 @@ SPECS: dict[str, Spec] = {
                 "System.err.print",
                 "System.err.println",
                 "System.err.printf",
+                # #8863: the print contract names a "diagnostic stream ... trace call": a no-argument printStackTrace() writes the
+                # trace to System.err for a developer to read, the same as System.err.println.
+                "printStackTrace",
             ),
             "sleep": (
                 "Thread.sleep",
@@ -305,7 +323,7 @@ SPECS: dict[str, Spec] = {
                 "SECONDS.sleep",
                 "MILLISECONDS.sleep",
             ),
-            "regex": ("Pattern.compile", "Pattern.matches", "Pattern.quote"),
+            "regex": ("Pattern.compile", "Pattern.matches"),
             "time": (
                 "System.currentTimeMillis",
                 "System.nanoTime",
@@ -409,6 +427,20 @@ SPECS: dict[str, Spec] = {
                 "fscanf",
                 "fseek",
                 "mmap",
+                # #9334: the contract's "moves data between the program and a system outside its own runtime" also names
+                # the stream writers and the libc transfer / file-system calls the C rule counts (#8868)
+                "fputs",
+                "fputc",
+                "getline",
+                "getdelim",
+                "pread",
+                "pwrite",
+                "recvfrom",
+                "sendto",
+                "recvmsg",
+                "sendmsg",
+                "stat",
+                "rename",
             ),
             "bailout": ("exit", "abort", "_exit", "_Exit", "quick_exit"),
         },
@@ -527,6 +559,9 @@ def _to_console(call) -> bool:
     return any(_text(a).strip() in _CONSOLE_STREAMS for a in parts)
 
 
+_MACRO_PATH_CALL = re.compile(r"([A-Za-z_]\w*(?:::[A-Za-z_]\w*)+)[ \t]*\(")
+
+
 def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
     """The pattern `full` matches: a prefix ending in `.` or `::`, `Name.` forms, the exact callee, or the last segment of a bare name."""
     last = full.replace("::", ".").split(".")[-1]
@@ -583,7 +618,7 @@ def _params(spec: Spec, node) -> int:
     return n
 
 
-def _decorators(node) -> list[str]:
+def _decorators(node, go: bool = False) -> list[str]:
     out: list[str] = []
     for c in node.children:
         if c.type == "modifiers":  # Java: annotations sit inside the modifiers
@@ -597,7 +632,20 @@ def _decorators(node) -> list[str]:
     while prev is not None and (prev.type in ("attribute_item", "decorator") or "comment" in prev.type):
         if prev.type in ("attribute_item", "decorator"):
             out.append(_text(prev).split("(")[0])
+        elif go and node.type != "func_literal" and _text(prev).startswith("//go:"):
+            out.append(_text(prev).split()[0])  # #8868: a Go pragma line (`//go:noinline`) above the function
+        below = prev
         prev = prev.prev_named_sibling
+        if go and prev is not None and prev.end_point[0] + 1 < below.start_point[0]:
+            break  # a blank line detaches the lines above (a file-level `//go:build` is not the function's)
+    if go:
+        # #8868: Go's attribute syntax on a declaration is the field tag: a tagged field of a type declared in the function
+        stack = list(node.children)
+        while stack:
+            n = stack.pop()
+            if n.type == "field_declaration" and n.child_by_field_name("tag") is not None:
+                out.append("struct-tag")
+            stack.extend(n.children)
     return out
 
 
@@ -623,6 +671,23 @@ def _documented(spec: Spec, node) -> bool:
             c.type == "comment" and _text(c).lstrip().startswith("/**") for c in params.children
         ):
             return True
+    elif spec.ts_name == "javascript":
+        # #8868: the same wrappers in the JavaScript grammar (`export default function f`, `const f = () =>`, `key: function () {}`,
+        # a class field, and `a.b = function () {}` / `this.f = function () {}`, whose doc sits above the assignment statement)
+        while node.parent is not None and (
+            node.parent.type
+            in (
+                "export_statement",
+                "lexical_declaration",
+                "variable_declaration",
+                "variable_declarator",
+                "pair",
+                "field_definition",
+                "expression_statement",
+            )
+            or (node.parent.type == "assignment_expression" and node.parent.child_by_field_name("right") == node)
+        ):
+            node = node.parent
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling
@@ -725,8 +790,17 @@ class TreeSitterOracle:
                     hit = _matches(full, pats)
                     if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
+                if t == "macro_invocation" and spec.ts_name == "rust":
+                    # #9340: a macro's argument list is an opaque token tree to the grammar, but `assert_ok!(TcpListener::bind(..))`
+                    # still opens the socket: read the type-path calls inside it for the I/O family (the contract names the operation)
+                    body = next((c for c in node.children if c.type == "token_tree"), None)
+                    if body is not None:
+                        for m in _MACRO_PATH_CALL.finditer(_text(body)):
+                            hit = _matches(m.group(1), spec.calls["io"])
+                            if hit:
+                                add("io", hit)
         n["args"] = _params(spec, fn)
-        deco = _decorators(fn)
+        deco = _decorators(fn, spec.ts_name == "go")
         if deco:
             n["decorators"] = len(deco)
             for d in deco:

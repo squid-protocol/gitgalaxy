@@ -1217,7 +1217,7 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 1,
+      "cpp/godot/editor_node.cpp": 0,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 0,
       "cpp/godot/main.cpp": 0,
@@ -1246,12 +1246,12 @@
       "cpp/powertoys/ImageResizerExt.cpp": 0,
       "cpp/powertoys/centralized_kb_hook.cpp": 0,
       "cpp/powertoys/logger.cpp": 0,
-      "cpp/powertoys/main.cpp": 1,
+      "cpp/powertoys/main.cpp": 0,
       "cpp/powertoys/powertoy_module.h": 0
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 2,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 6
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 0
     },
     "crystal": {
       "crystal/SOURCES.md": 0
@@ -1314,13 +1314,13 @@
     },
     "csharp/powershell_commands_utility": {
       "csharp/powershell_commands_utility/LICENSE.txt": 0,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 30,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_AddMember.cs": 29,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Disable-PSBreakpoint.cs": 3,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-file_Out-File.cs": 16,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_FormatAndOutput_out-string_Out-String.cs": 6,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Get-PSCallStack.cs": 2,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_Import-LocalizedData.cs": 10,
-      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 2,
+      "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_NewTemporaryFileCommand.cs": 1,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_RemoveEventCommand.cs": 3,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_ShowCommand_ShowCommandParameterInfo.cs": 0,
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_WebCmdlet_Common_BasicHtmlWebResponseObject.Common.cs": 1,
@@ -1339,13 +1339,13 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 1,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 0,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 11
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 2
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 3,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 12,
+      "csharp/roslyn/CSharpCompilation.cs": 4,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 14,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
-      "csharp/roslyn/LanguageParser.cs": 8,
+      "csharp/roslyn/LanguageParser.cs": 9,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 0,
       "csharp/roslyn/Workspace.cs": 5
@@ -3321,8 +3321,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 1,
-      "php/wordpress/formatting.php": 1,
-      "php/wordpress/functions.php": 3,
+      "php/wordpress/formatting.php": 0,
+      "php/wordpress/functions.php": 2,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
       "php/wordpress/wp-login.php": 0,

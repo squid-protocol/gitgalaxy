@@ -1339,12 +1339,12 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "file_cluster_16",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "file_cluster_0",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "file_cluster_15",
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "file_cluster_13"
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "file_cluster_0"
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "file_cluster_4",
       "csharp/roslyn/CSharpSyntaxTree.cs": "file_cluster_12",
-      "csharp/roslyn/DiagnosticAnalyzer.cs": "file_cluster_0",
+      "csharp/roslyn/DiagnosticAnalyzer.cs": "file_cluster_11",
       "csharp/roslyn/LanguageParser.cs": "file_cluster_6",
       "csharp/roslyn/License.txt": "Static: Literature & Documentation",
       "csharp/roslyn/MethodCompiler.cs": "file_cluster_6",
@@ -1825,7 +1825,7 @@
       "groovy/gradle/DefaultTask.java": "file_cluster_0"
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "file_cluster_12",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": "file_cluster_10",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": "file_cluster_0",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": "file_cluster_0",
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": "file_cluster_10",
@@ -2296,7 +2296,7 @@
       "html/jquery_test_fixtures/name.html": "file_cluster_2",
       "html/jquery_test_fixtures/qunit-fixture.html": "file_cluster_13",
       "html/jquery_test_fixtures/table.html": "file_cluster_12",
-      "html/jquery_test_fixtures/trusted-html.html": "file_cluster_10"
+      "html/jquery_test_fixtures/trusted-html.html": "file_cluster_15"
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": "Static: Literature & Documentation",
@@ -2380,7 +2380,7 @@
       "javascript/SOURCES.md": "Static: Literature & Documentation"
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": "file_cluster_10",
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "file_cluster_11",
       "javascript/cesium_particle_emitters/LICENSE.md": "Static: Literature & Documentation"
     },
     "javascript/javascript_algorithms_bits": {
@@ -2418,7 +2418,7 @@
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "file_cluster_15",
-      "javascript/threejs/Editor.js": "file_cluster_10",
+      "javascript/threejs/Editor.js": "file_cluster_15",
       "javascript/threejs/GLTFLoader.js": "file_cluster_4",
       "javascript/threejs/Matrix4.js": "file_cluster_15",
       "javascript/threejs/Nodes.js": "file_cluster_2",
@@ -2683,7 +2683,7 @@
       "kotlin/okhttp/OkHttp.android.kt": "file_cluster_15",
       "kotlin/okhttp/OkHttp.jvm.kt": "file_cluster_13",
       "kotlin/okhttp/OkHttp.kt": "file_cluster_2",
-      "kotlin/okhttp/build.gradle.kts": "file_cluster_2"
+      "kotlin/okhttp/build.gradle.kts": "file_cluster_10"
     },
     "kotlin/retrofit_kotlin": {
       "kotlin/retrofit_kotlin/LICENSE.txt": "Static: Literature & Documentation",

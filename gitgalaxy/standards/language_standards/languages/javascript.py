@@ -363,7 +363,15 @@ DEFINITION: dict[str, Any] = {
             r'<[A-Z]\w+|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition)|props\.|this\.state|document\.(?:getElementById|querySelector|addEventListener)|["\']use\s+(?:client|server)["\']'
         ),
         # 17. closures (Closures / Anonymous Functions)
-        "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
+        # #8868: anonymous callables only -- every value arrow (single-parameter and expression-bodied too) and
+        # `function (`. A unit's slice starts at its own name, so `name = function (` / `name: function (` /
+        # `x.y = function (` is the unit's OWN header, not a closure inside itself: a `function` straight after
+        # `=` or `:` is skipped (jquery `ajaxSetup: function(` scored 0.31 precision). A callback argument,
+        # `return function` and an IIFE are the closures.
+        "closures": re.compile(
+            r"(?:\((?:[^()]|\([^()]*\))*\)|(?<![\w$.)])[\w$]+)[ \t]*=>"
+            r"|(?<![=:])(?<![=:][ \t])(?<![=:][ \t]async[ \t])\bfunction\s*\*?\s*\("
+        ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
             # #2858 contract corollary 3: `self` and `global` are everyday
@@ -479,7 +487,16 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(sleep|delay|setTimeout|setInterval|setImmediate|Atomics\.wait)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>>?|\^|~"),
+        # #9342: a bitwise operator in operator position (the contract): binary `&` and `|` count, as do their compound forms
+        # (`&=` `|=` `^=` `<<=` `>>=`); a regex literal's `^` anchor, `[^x]` class, `[<<]` or `a|b` alternation is not one.
+        # An operand is a word, `$`, `)` or `]`. `|` needs a space after it or a digit (`x|0`): `/a|b/` is an alternation.
+        "bitwise_ops": re.compile(
+            r"(?<!\[)<<|(?<!\[)>>>?"
+            r"|(?<=[\w$)\]])[ \t]*\^"
+            r"|(?<=[\w$)\]])[ \t]*&(?!&)"
+            r"|(?<=[\w$)\]])[ \t]*\|=|(?<=[\w$)\]])[ \t]+\|(?![|=])[ \t]|(?<=[\w$)\]])\|(?=\d)"
+            r"|(?<=[\s(=,&|^?:!{};+-])~"
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(
             r"\b(mutex|lock|synchronized|Semaphore|Atomics\.lock|Atomics\.wait)\b",

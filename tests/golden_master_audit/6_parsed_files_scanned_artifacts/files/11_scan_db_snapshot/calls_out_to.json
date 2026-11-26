@@ -136502,7 +136502,6 @@
           "_setup_symbols"
         ],
         "_prevent_unsafe_response@315": [
-          "x",
           "ml",
           "c",
           "correct_urlbase",
@@ -137413,7 +137412,6 @@
           "reverse",
           "unshift",
           "length",
-          "x",
           "sprintf",
           "DaysInMonth",
           "TimeZoneString",
@@ -137537,7 +137535,6 @@
           "CopyImageData",
           "VPrint",
           "CopyBlock",
-          "x",
           "WriteTrailerBuffer",
           "AddNewTrailers"
         ],
@@ -137999,7 +137996,6 @@
           "Seek",
           "Read",
           "AXS",
-          "m",
           "undef"
         ],
         "ImageInfo@2382": [
@@ -138228,7 +138224,6 @@
           "add",
           "chr",
           "substr",
-          "x",
           "JpegMarkerName",
           "Warn",
           "print",
@@ -138451,10 +138446,8 @@
         ],
         "WindowsLongPath@4776": [
           "length",
-          "m",
           "defined",
           "print",
-          "tr",
           "Warn",
           "new",
           "Decode",
@@ -138604,7 +138597,6 @@
           "shift",
           "defined",
           "Error",
-          "s",
           "print"
         ],
         "DoHardLink@3680": [
@@ -138721,7 +138713,6 @@
           "defined",
           "split",
           "int",
-          "x",
           "SetWindowTitle",
           "undef",
           "length",
@@ -138783,7 +138774,6 @@
           "pos",
           "length",
           "Num2Alpha",
-          "x",
           "uc",
           "sprintf",
           "Exists",
@@ -138905,8 +138895,7 @@
           "EFile",
           "push",
           "GetImageInfo",
-          "Purge",
-          "s"
+          "Purge"
         ],
         "SetImageInfo@3129": [
           "defined",
@@ -138971,7 +138960,6 @@
         ],
         "SetWindowTitle@4213": [
           "shift",
-          "tr",
           "system",
           "printf"
         ],
@@ -140261,7 +140249,6 @@
           "am_running_in_taint_mode",
           "tainted",
           "taint_var",
-          "s",
           "localtime",
           "timelocal",
           "lc",

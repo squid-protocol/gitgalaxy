@@ -80,3 +80,11 @@ def test_only_owner_only_questions_stay_open():
     assert not any("llm_api" in q for q in questions)
     unplanted = (REPO / "docs" / "unplanted_family_contracts.md").read_text(encoding="utf-8")
     assert "### `llm_api` stated absences" in unplanted
+
+
+def test_the_rust_oracle_reads_the_try_operator_as_a_branch():
+    """#8868: `?` is a conditional early return; the branch contract excludes only unconditional transfers."""
+    import family_oracle_ts
+
+    family_oracle_ts._load_extras()
+    assert "try_expression" in family_oracle_ts.SPECS["rust"].branch_types

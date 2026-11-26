@@ -489,6 +489,44 @@ def test_clang_callgraph_parses_freebsd_qnx_and_mvs_branches_as_platform_groups(
     assert not any(b[1] == "bsd_only" for _, b in edges if _[0] == "user.c")
 
 
+def test_clang_callgraph_keys_a_def_by_one_start_line_across_platform_parses(tmp_path):
+    """#9327: a leading attribute under `#if` starts the extent early in one parse only; one function is one def."""
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "lib.c").write_text(
+        "#if defined(__GNUC__) && !defined(_WIN32)\n"  # 1
+        "__attribute__((destructor))\n"  # 2: the Linux parse starts the extent here, the _WIN32 parse at 4
+        "#endif\n"
+        "void shutdown_it(void) {}\n"  # 4
+        "void second(void) {}\n"  # 5: an unrelated def keeps its own line
+    )
+    (tmp_path / "user.c").write_text("void shutdown_it(void);\nvoid user(void) { shutdown_it(); }\n")
+    g = clang_callgraph.build(tmp_path)
+    assert [d for d in g["defs"] if d[1] == "shutdown_it"] == [["lib.c", "shutdown_it", 2]]
+    assert ["lib.c", "second", 5] in g["defs"]
+    targets = [b for a, b, _ in g["edges"] if a[1] == "user"]
+    assert targets == [["lib.c", "shutdown_it", 2]]
+
+
+def test_clang_callgraph_links_a_call_to_its_own_translation_units_external_def(tmp_path):
+    """#9327: `uv_get_free_memory` in every platform file; a caller beside one of them links that one only."""
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "a.c").write_text("int mem(void) { return 1; }\nint a_user(void) { return mem(); }\n")
+    (tmp_path / "b.c").write_text("int mem(void) { return 2; }\nint b_user(void) { return mem(); }\n")
+    (tmp_path / "c.c").write_text("int mem(void);\nint c_user(void) { return mem(); }\n")  # no def of its own
+    g = clang_callgraph.build(tmp_path)
+    edges = {(a[1], tuple(b[:2])) for a, b, _ in g["edges"]}
+    assert ("a_user", ("a.c", "mem")) in edges and ("a_user", ("b.c", "mem")) not in edges
+    assert ("b_user", ("b.c", "mem")) in edges and ("b_user", ("a.c", "mem")) not in edges
+    # a caller with no def of its own still reaches every platform's copy
+    assert ("c_user", ("a.c", "mem")) in edges and ("c_user", ("b.c", "mem")) in edges
+
+
 def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):
     import clang_callgraph
 

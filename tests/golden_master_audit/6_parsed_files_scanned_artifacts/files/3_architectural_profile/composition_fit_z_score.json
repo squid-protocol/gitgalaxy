@@ -531,11 +531,11 @@
       "c/cpython/Makefile.pre.in": 1.963,
       "c/cpython/ceval.c": 0.296,
       "c/cpython/compile.c": 0.023,
-      "c/cpython/dictobject.c": 0.315,
+      "c/cpython/dictobject.c": 0.345,
       "c/cpython/frameobject.c": 0.142,
       "c/cpython/gc.c": -0.749,
-      "c/cpython/object.c": 0.457,
-      "c/cpython/typeobject.c": 0.142
+      "c/cpython/object.c": 0.462,
+      "c/cpython/typeobject.c": 0.157
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 0.0,
@@ -572,7 +572,7 @@
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 0.0,
       "c/sqlite/README.md": 0.0,
-      "c/sqlite/lemon.c": -0.023,
+      "c/sqlite/lemon.c": -0.116,
       "c/sqlite/parse.y": 1.146
     },
     "cobol": {
@@ -1218,13 +1218,13 @@
       "cpp/godot/DONORS.md": 0.0,
       "cpp/godot/LICENSE.txt": 0.0,
       "cpp/godot/editor_node.cpp": 0.138,
-      "cpp/godot/editor_node.h": 1.442,
+      "cpp/godot/editor_node.h": 1.455,
       "cpp/godot/gdscript_vm.cpp": 1.343,
       "cpp/godot/main.cpp": 0.161,
       "cpp/godot/main.h": 1.188,
-      "cpp/godot/node.cpp": 0.015,
+      "cpp/godot/node.cpp": -0.005,
       "cpp/godot/node.h": 0.636,
-      "cpp/godot/object.cpp": -0.192,
+      "cpp/godot/object.cpp": -0.206,
       "cpp/godot/object.h": 0.672,
       "cpp/godot/rendering_server_default.cpp": 0.265,
       "cpp/godot/rendering_server_default.h": 0.093,
@@ -1339,31 +1339,31 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": -0.98,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 1.312,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 0.413,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 0.341
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 1.141
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 0.876,
-      "csharp/roslyn/CSharpSyntaxTree.cs": -0.273,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 2.392,
-      "csharp/roslyn/LanguageParser.cs": 1.142,
+      "csharp/roslyn/CSharpCompilation.cs": 0.887,
+      "csharp/roslyn/CSharpSyntaxTree.cs": -0.076,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 0.531,
+      "csharp/roslyn/LanguageParser.cs": 1.172,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": -0.232,
-      "csharp/roslyn/Workspace.cs": -0.618
+      "csharp/roslyn/Workspace.cs": -0.608
     },
     "csharp/runtime_linq": {
       "csharp/runtime_linq/LICENSE.TXT": 0.0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": -0.886,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 0.922,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": -0.955,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 1.879,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": -1.014,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 2.039,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0.603,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": -0.873,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0.603,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 0.118,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": -0.793,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 0.601,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0.712,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": -0.822,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0.349,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 1.288,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 1.323,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0.08
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0.124
     },
     "css": {
       "css/SOURCES.md": 0.0
@@ -1745,15 +1745,15 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": -0.068,
-      "go/core/mgc.go": 1.647,
+      "go/core/mgc.go": 1.616,
       "go/core/mutex.go": 0.192,
-      "go/core/proc.go": 0.457,
-      "go/core/server.go": -0.122,
-      "go/core/syscall_linux.go": 0.509,
-      "go/core/value.go": -0.402
+      "go/core/proc.go": 0.416,
+      "go/core/server.go": -0.107,
+      "go/core/syscall_linux.go": 0.585,
+      "go/core/value.go": -0.63
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 1.028
+      "go/go_runtime_rand/rand.go": 1.815
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": -0.444,
@@ -1825,7 +1825,7 @@
       "groovy/gradle/DefaultTask.java": 0.097
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 1.283,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 1.614,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": -0.002,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 0.369,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 0.287,
@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": -0.458,
       "groovy/spock/SpecParser.java": -0.696,
-      "groovy/spock/SpecRewriter.java": 0.436,
+      "groovy/spock/SpecRewriter.java": 0.581,
       "groovy/spock/SpockTransform.java": 0.241
     },
     "groovy/spock_core_groovy": {
@@ -2367,20 +2367,20 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.91
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.578,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.704,
       "java/springboot/Binder.java": 1.11,
       "java/springboot/JarLauncher.java": 3.007,
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": -0.151,
       "java/springboot/ServletWebServerApplicationContext.java": 0.908,
       "java/springboot/SpringApplication.java": 0.824,
-      "java/springboot/WebMvcAutoConfiguration.java": 1.541
+      "java/springboot/WebMvcAutoConfiguration.java": 1.352
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 0.552,
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 0.583,
       "javascript/cesium_particle_emitters/LICENSE.md": 0.0
     },
     "javascript/javascript_algorithms_bits": {
@@ -2388,12 +2388,12 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0.0,
-      "javascript/jquery/ajax.js": 0.394,
+      "javascript/jquery/ajax.js": -0.309,
       "javascript/jquery/buildFragment.js": -0.97,
-      "javascript/jquery/core.js": 0.428,
-      "javascript/jquery/css.js": 0.745,
-      "javascript/jquery/deferred.js": 1.031,
-      "javascript/jquery/event.js": 0.986,
+      "javascript/jquery/core.js": -0.235,
+      "javascript/jquery/css.js": 0.826,
+      "javascript/jquery/deferred.js": -0.459,
+      "javascript/jquery/event.js": -0.545,
       "javascript/jquery/tokenize.js": -1.06
     },
     "javascript/node_tls_security_tests": {
@@ -2407,23 +2407,23 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 1.451,
-      "javascript/react/ReactFiberBeginWork.js": 0.566,
-      "javascript/react/ReactFiberWorkLoop.js": -0.113,
-      "javascript/react/ReactFlightServer.js": -0.263,
+      "javascript/react/ReactFiberBeginWork.js": 0.366,
+      "javascript/react/ReactFiberWorkLoop.js": -0.162,
+      "javascript/react/ReactFlightServer.js": -0.402,
       "javascript/react/ReactSymbols.js": 1.943,
-      "javascript/react/build.js": -0.228
+      "javascript/react/build.js": -0.335
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 2.986
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0.179,
-      "javascript/threejs/Editor.js": -0.214,
-      "javascript/threejs/GLTFLoader.js": -0.489,
+      "javascript/threejs/Editor.js": 1.3,
+      "javascript/threejs/GLTFLoader.js": -0.349,
       "javascript/threejs/Matrix4.js": 1.101,
       "javascript/threejs/Nodes.js": 0.823,
-      "javascript/threejs/WebGLProgram.js": -0.667,
-      "javascript/threejs/WebGLRenderer.js": 0.554
+      "javascript/threejs/WebGLProgram.js": -0.332,
+      "javascript/threejs/WebGLRenderer.js": 0.262
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0
@@ -2693,14 +2693,14 @@
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": -0.417,
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": -0.479,
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": -0.53,
-      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": 1.545,
-      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": 1.545,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": 1.809,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": 1.809,
       "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": 0.0,
       "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": 1.276,
       "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": 1.369,
       "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": 0.364,
       "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": 0.008,
-      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": 0.996,
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": 1.587,
       "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": -1.059,
       "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": 1.834
     },
@@ -2709,7 +2709,7 @@
       "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": 0.0,
       "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": -0.029,
       "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": 0.083,
-      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": -0.185,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": 1.208,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": 0.583,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": 0.25,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": 0.598,
@@ -3280,7 +3280,7 @@
       "php/guzzle/Middleware.php": 0.763,
       "php/guzzle/Pool.php": 1.249,
       "php/guzzle/RequestException.php": 1.975,
-      "php/guzzle/StreamHandler.php": -0.454
+      "php/guzzle/StreamHandler.php": 0.537
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0.827,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 0.166,
       "php/magento2/Interceptor.php": 1.502,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": -0.476,
+      "php/magento2/Mysql.php": -0.428,
       "php/magento2/ObjectManager.php": 0.754
     },
     "php/symfony": {
@@ -3321,8 +3321,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.288,
       "php/wordpress/class-wp-query.php": 0.189,
-      "php/wordpress/formatting.php": 0.779,
-      "php/wordpress/functions.php": 0.447,
+      "php/wordpress/formatting.php": 0.794,
+      "php/wordpress/functions.php": 0.441,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
       "php/wordpress/wp-login.php": 1.987,
@@ -4139,15 +4139,15 @@
       "scala/SOURCES.md": 0.0
     },
     "scala/cobrix_scala": {
-      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 0.437,
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": -0.454,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 0.011,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0.915,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0.967,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": -0.189,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": -0.1,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0.086,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": -0.77,
       "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": -0.072,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0.348,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0.38,
       "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 1.666,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": -0.342,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": -0.489
@@ -4165,13 +4165,13 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": 0.0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 0.985,
-      "scala/kafka/KafkaApis.scala": -0.161,
+      "scala/kafka/Kafka.scala": 0.903,
+      "scala/kafka/KafkaApis.scala": -0.285,
       "scala/kafka/KafkaRaftManager.scala": 0.843,
-      "scala/kafka/LogManager.scala": 0.309,
-      "scala/kafka/Partition.scala": 1.119,
-      "scala/kafka/ReplicaManager.scala": 0.408,
-      "scala/kafka/SocketServer.scala": 0.976
+      "scala/kafka/LogManager.scala": 0.207,
+      "scala/kafka/Partition.scala": 0.2,
+      "scala/kafka/ReplicaManager.scala": 0.142,
+      "scala/kafka/SocketServer.scala": 0.852
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0

@@ -258,8 +258,10 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         # GoDoc standard: comments immediately preceding a declaration.
         # #8863: gofmt puts a declaration's doc comment at column 0 (an unexported `// handlePanic ensures ...` too, so no
-        # capital-letter test); an indented comment is a statement note inside a body, and `//go:build` / `//nolint` (no
-        # space) are directives, not documentation.
+        # capital-letter test), and `//go:build` / `//nolint` (no space) are directives, not documentation. The regex alone
+        # would skip an indented statement note, but the comment stream the engine matches carries each comment without its
+        # indentation, so an indented `// note` and a file-header `//` line count as doc too (keyword-rosetta ledger
+        # go-doc-counts-every-line-comment, #9345).
         "doc": re.compile(r"^//[ \t]+\S", re.M),
         # 14. test (Testing & Assertions)
         "test": re.compile(
@@ -359,6 +361,7 @@ DEFINITION: dict[str, Any] = {
         "_line_gates": ("state_mutation",),
         # 19. decorators (Decorators / Annotations)
         # Go lacks @decorators; uses Struct Tags and Build Tags.
+        # The `//go:` pragma line above a func is outside the unit text: detector._go_leading_pragmas adds it (#9343).
         "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),
         # 20. generics (Generics / Type Parameters)
         # BUG FIX: `~[a-zA-Z_]\w*` (the Go 1.18+ approximation-element

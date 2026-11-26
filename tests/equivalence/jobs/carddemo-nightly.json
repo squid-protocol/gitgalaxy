@@ -22,11 +22,23 @@
   "steps": [
     {
       "case": "carddemo-posttran",
-      "job": "POSTTRAN"
+      "job": "POSTTRAN",
+      "forged_job": {
+        "job": "POSTTRAN",
+        "step": "STEP15",
+        "config": "PosttranJobConfig",
+        "dds": "DDS_STEP15"
+      }
     },
     {
       "case": "carddemo-intcalc",
       "job": "INTCALC",
+      "forged_job": {
+        "job": "INTCALC",
+        "step": "STEP15",
+        "config": "IntcalcJobConfig",
+        "dds": "DDS_STEP15"
+      },
       "feeds": {
         "ACCTFILE": {
           "step": "carddemo-posttran",

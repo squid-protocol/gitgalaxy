@@ -1330,40 +1330,40 @@
     "csharp/powertoys_common": {
       "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": 0,
       "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": 0,
-      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 6,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 2,
       "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": 0,
       "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": 0,
       "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": 0,
       "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": 0,
       "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": 0,
-      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 1,
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 0,
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 1,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 4
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 1
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 63,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 17,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 1,
-      "csharp/roslyn/LanguageParser.cs": 143,
+      "csharp/roslyn/CSharpCompilation.cs": 34,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 3,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 0,
+      "csharp/roslyn/LanguageParser.cs": 82,
       "csharp/roslyn/License.txt": 0,
-      "csharp/roslyn/MethodCompiler.cs": 15,
-      "csharp/roslyn/Workspace.cs": 115
+      "csharp/roslyn/MethodCompiler.cs": 14,
+      "csharp/roslyn/Workspace.cs": 74
     },
     "csharp/runtime_linq": {
       "csharp/runtime_linq/LICENSE.TXT": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 1,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 5,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": 12,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 6,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 22,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 12,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 11,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": 2,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": 0,
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SelectMany.cs": 0,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 1,
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 18
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Shuffle.cs": 0,
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_SkipTake.SpeedOpt.cs": 0
     },
     "css": {
       "css/SOURCES.md": 0
@@ -1821,11 +1821,11 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 1,
-      "groovy/gradle/DefaultProject.java": 2,
+      "groovy/gradle/DefaultProject.java": 1,
       "groovy/gradle/DefaultTask.java": 0
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 5,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 7,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 0,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 6,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 2,
@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 0,
       "groovy/spock/SpecParser.java": 0,
-      "groovy/spock/SpecRewriter.java": 6,
+      "groovy/spock/SpecRewriter.java": 1,
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
@@ -2274,7 +2274,7 @@
       "html/cesium_sandcastle/HelloWorld.html": 0,
       "html/cesium_sandcastle/LICENSE.md": 0,
       "html/cesium_sandcastle/bucket.html": 0,
-      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 2
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 1
     },
     "html/cpython_jinja": {
       "html/cpython_jinja/LICENSE.txt": 0,
@@ -2296,7 +2296,7 @@
       "html/jquery_test_fixtures/name.html": 0,
       "html/jquery_test_fixtures/qunit-fixture.html": 0,
       "html/jquery_test_fixtures/table.html": 2,
-      "html/jquery_test_fixtures/trusted-html.html": 3
+      "html/jquery_test_fixtures/trusted-html.html": 2
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": 0,
@@ -2341,8 +2341,8 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": 0,
       "html/vscode_webviews/build_builtin_index.html": 0,
-      "html/vscode_webviews/github_auth_media_index.html": 1,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 6,
+      "html/vscode_webviews/github_auth_media_index.html": 2,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 7,
       "html/vscode_webviews/webview_pre_index.html": 0,
       "html/vscode_webviews/workbench.html": 0
     },
@@ -2367,20 +2367,20 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 1
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 11,
-      "java/springboot/Binder.java": 11,
+      "java/springboot/AutoConfigurationImportSelector.java": 2,
+      "java/springboot/Binder.java": 8,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
       "java/springboot/OnClassCondition.java": 1,
-      "java/springboot/ServletWebServerApplicationContext.java": 2,
-      "java/springboot/SpringApplication.java": 18,
-      "java/springboot/WebMvcAutoConfiguration.java": 29
+      "java/springboot/ServletWebServerApplicationContext.java": 1,
+      "java/springboot/SpringApplication.java": 13,
+      "java/springboot/WebMvcAutoConfiguration.java": 5
     },
     "javascript": {
       "javascript/SOURCES.md": 0
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": 3,
+      "javascript/cesium_particle_emitters/CircleEmitter.js": 0,
       "javascript/cesium_particle_emitters/LICENSE.md": 0
     },
     "javascript/javascript_algorithms_bits": {
@@ -2388,16 +2388,16 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 0,
-      "javascript/jquery/ajax.js": 17,
+      "javascript/jquery/ajax.js": 5,
       "javascript/jquery/buildFragment.js": 0,
-      "javascript/jquery/core.js": 32,
-      "javascript/jquery/css.js": 10,
-      "javascript/jquery/deferred.js": 20,
-      "javascript/jquery/event.js": 33,
+      "javascript/jquery/core.js": 4,
+      "javascript/jquery/css.js": 4,
+      "javascript/jquery/deferred.js": 9,
+      "javascript/jquery/event.js": 6,
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 3,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 4,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 11,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 3,
@@ -2408,22 +2408,22 @@
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
       "javascript/react/ReactFiberBeginWork.js": 0,
-      "javascript/react/ReactFiberWorkLoop.js": 16,
-      "javascript/react/ReactFlightServer.js": 47,
+      "javascript/react/ReactFiberWorkLoop.js": 22,
+      "javascript/react/ReactFlightServer.js": 61,
       "javascript/react/ReactSymbols.js": 1,
-      "javascript/react/build.js": 6
+      "javascript/react/build.js": 12
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": 1
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0,
-      "javascript/threejs/Editor.js": 41,
-      "javascript/threejs/GLTFLoader.js": 86,
+      "javascript/threejs/Editor.js": 4,
+      "javascript/threejs/GLTFLoader.js": 81,
       "javascript/threejs/Matrix4.js": 0,
       "javascript/threejs/Nodes.js": 0,
-      "javascript/threejs/WebGLProgram.js": 4,
-      "javascript/threejs/WebGLRenderer.js": 54
+      "javascript/threejs/WebGLProgram.js": 1,
+      "javascript/threejs/WebGLRenderer.js": 6
     },
     "jcl": {
       "jcl/SOURCES.md": 0
@@ -2678,12 +2678,12 @@
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 0,
-      "kotlin/okhttp/Dispatcher.kt": 0,
+      "kotlin/okhttp/Dispatcher.kt": 10,
       "kotlin/okhttp/LICENSE.txt": 0,
       "kotlin/okhttp/OkHttp.android.kt": 0,
       "kotlin/okhttp/OkHttp.jvm.kt": 0,
       "kotlin/okhttp/OkHttp.kt": 0,
-      "kotlin/okhttp/build.gradle.kts": 0
+      "kotlin/okhttp/build.gradle.kts": 37
     },
     "kotlin/retrofit_kotlin": {
       "kotlin/retrofit_kotlin/LICENSE.txt": 0,
@@ -2693,33 +2693,33 @@
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_main_java_retrofit2_converter_kotlinx_serialization_Serializer.kt": 0,
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryBytesTest.kt": 0,
       "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinSerializationConverterFactoryStringTest.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": 0,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualListTest.kt": 3,
+      "kotlin/retrofit_kotlin/retrofit-converters_kotlinx-serialization_src_test_java_retrofit2_converter_kotlinx_serialization_KotlinxSerializationConverterFactoryContextualTest.kt": 3,
       "kotlin/retrofit_kotlin/retrofit-mock_src_main_java_retrofit2_mock_KotlinExtensions.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": 2,
+      "kotlin/retrofit_kotlin/retrofit-mock_src_test_java_retrofit2_mock_BehaviorDelegateKotlinTest.kt": 6,
+      "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_main_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessor.kt": 3,
       "kotlin/retrofit_kotlin/retrofit-response-type-keeper_src_test_kotlin_retrofit2_keeper_RetrofitResponseTypeKeepProcessorTest.kt": 0,
       "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinExtensionsTest.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": 0,
-      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": 4,
+      "kotlin/retrofit_kotlin/retrofit_kotlin-test_src_test_java_retrofit2_KotlinSuspendTest.kt": 24,
+      "kotlin/retrofit_kotlin/retrofit_src_main_java_retrofit2_KotlinExtensions.kt": 8,
       "kotlin/retrofit_kotlin/samples_src_main_java_com_example_retrofit_ConditionalLoggingInterceptor.kt": 1
     },
     "kotlin/spring_boot_kotlin": {
       "kotlin/spring_boot_kotlin/LICENSE.txt": 0,
       "kotlin/spring_boot_kotlin/build-plugin_spring-boot-maven-plugin_src_intTest_projects_jar-with-kotlin-module_src_main_kotlin_org_test_SampleApplication.kt": 0,
       "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_KotlinApplicationWithMainThrowingException.kt": 0,
-      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": 0,
-      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": 0,
-      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot-test_src_test_kotlin_org_springframework_boot_test_context_SpringBootContextLoaderKotlinTests.kt": 1,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_main_kotlin_org_springframework_boot_SpringApplicationExtensions.kt": 1,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_SpringApplicationExtensionsTests.kt": 3,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesBeanRegistrarTests.kt": 0,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_KotlinConfigurationPropertiesTests.kt": 0,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinBindableRuntimeHintsRegistrarTests.kt": 1,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinConstructorParametersBinderTests.kt": 0,
-      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": 0,
+      "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_context_properties_bind_KotlinDefaultBindConstructorProviderTests.kt": 8,
       "kotlin/spring_boot_kotlin/core_spring-boot_src_test_kotlin_org_springframework_boot_kotlinsample_TestKotlinApplication.kt": 0,
       "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_main_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensions.kt": 0,
       "kotlin/spring_boot_kotlin/module_spring-boot-jpa-test_src_test_kotlin_org_springframework_boot_jpa_test_autoconfigure_TestEntityManagerExtensionsTests.kt": 0,
-      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": 21
+      "kotlin/spring_boot_kotlin/module_spring-boot-kotlinx-serialization-json_src_test_kotlin_org_springframework_boot_kotlinx_serialization_json_autoconfigure_KotlinxSerializationJsonAutoConfigurationTests.kt": 22
     },
     "livecode": {
       "livecode/SOURCES.md": 0
@@ -4139,21 +4139,21 @@
       "scala/SOURCES.md": 0
     },
     "scala/cobrix_scala": {
-      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 4,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 18,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 34,
+      "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 1,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 0,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 0,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 3,
-      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 1,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 1,
-      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 3,
+      "scala/cobrix_scala/examples_examples-collection_src_main_scala_com_example_spark_cobol_examples_parser_generators_TestDataGen1Transactions.scala": 0,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_reader_SparkCobolRowType.scala": 0,
+      "scala/cobrix_scala/spark-cobol_src_main_scala_za_co_absa_cobrix_spark_cobol_writer_WriterAst.scala": 0,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_ParametersParsingSpec.scala": 14,
       "scala/cobrix_scala/spark-cobol_src_test_scala_za_co_absa_cobrix_spark_cobol_source_integration_Test18PathSpecialCharSpec.scala": 7
     },
     "scala/gradle_scala": {
-      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": 1,
+      "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_compilerPlugin_groovy_src_main_scala_org_gradle_sample_Test.scala": 0,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_customizedLayout_kotlin_src_scala_org_gradle_sample_Named.scala": 0,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_force_groovy_src_test_scala_org_gradle_sample_PersonSpec.scala": 0,
       "scala/gradle_scala/platforms_documentation_docs_src_snippets_scala_mixedJavaAndScala_groovy_src_main_scala_org_gradle_sample_Person.scala": 0,
@@ -4165,13 +4165,13 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": 0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 8,
-      "scala/kafka/KafkaApis.scala": 456,
-      "scala/kafka/KafkaRaftManager.scala": 9,
-      "scala/kafka/LogManager.scala": 147,
-      "scala/kafka/Partition.scala": 183,
-      "scala/kafka/ReplicaManager.scala": 323,
-      "scala/kafka/SocketServer.scala": 136
+      "scala/kafka/Kafka.scala": 1,
+      "scala/kafka/KafkaApis.scala": 273,
+      "scala/kafka/KafkaRaftManager.scala": 6,
+      "scala/kafka/LogManager.scala": 89,
+      "scala/kafka/Partition.scala": 92,
+      "scala/kafka/ReplicaManager.scala": 137,
+      "scala/kafka/SocketServer.scala": 67
     },
     "scheme": {
       "scheme/SOURCES.md": 0
@@ -4895,7 +4895,7 @@
       "typescript/vscode/LICENSE.txt": 0,
       "typescript/vscode/async.ts": 139,
       "typescript/vscode/codeEditorWidget.ts": 51,
-      "typescript/vscode/eslint.config.js": 0,
+      "typescript/vscode/eslint.config.js": 1,
       "typescript/vscode/extHost.api.impl.ts": 23,
       "typescript/vscode/gulpfile.vscode.ts": 46,
       "typescript/vscode/instantiationService.ts": 8,

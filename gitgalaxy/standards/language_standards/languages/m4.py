@@ -249,7 +249,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard aborts.
         "panics_and_aborts": re.compile(r"\b(?:m4_fatal|AC_MSG_ERROR|AC_MSG_FAILURE|AS_EXIT)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # Raw sleeps in generated scripts.
         "thread_sleeps": re.compile(r"\b(?:sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)

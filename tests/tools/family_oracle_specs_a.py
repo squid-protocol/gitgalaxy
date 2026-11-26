@@ -676,6 +676,12 @@ class OracleA(TreeSitterOracle):
                 out.extend(_text(a).split("(")[0] for a in c.children if a.type in t)
             elif c.type in t:
                 out.append(_text(c).split("(")[0])
+            elif c.type == "parameter_list" and self.spec.lang == "csharp":
+                # #8863: a C# parameter attribute (`[NotNull] ref T x`) is a metadata attribute on the declaration it precedes
+                for prm in c.children:
+                    for al in prm.children:
+                        if al.type == "attribute_list":
+                            out.extend(_text(a).split("(")[0] for a in al.children if a.type in t)
         return out
 
     def _documented(self, fn) -> bool:
@@ -816,6 +822,12 @@ class OracleA(TreeSitterOracle):
             labels = [_text(x) for x in node.children[1:] for x in _walk_types(x, "value_argument_label")]
             if any(lb in ("contentsOf", "contentsOfFile") for lb in labels):
                 add("io", "contentsOf")
+        if (
+            lang == "swift"
+            and full.endswith((".range", ".replacingOccurrences"))
+            and "regularExpression" in _text(node)
+        ):
+            add("regex", "regularExpression")  # NSString/String options: [.regularExpression] runs the pattern (#9341)
 
     def _special_node(self, node, add) -> None:
         lang, t = self.spec.lang, node.type

@@ -1339,12 +1339,12 @@
       "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": "Encapsulated Accessors Files",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": "Generic / Templated Code Files",
       "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": "State Mutators Files",
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "Callbacks & Closures Files"
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": "State Mutators Files"
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": "Large Core Modules (3)",
       "csharp/roslyn/CSharpSyntaxTree.cs": "Large Core Modules (3)",
-      "csharp/roslyn/DiagnosticAnalyzer.cs": "Declarative / Non-Code",
+      "csharp/roslyn/DiagnosticAnalyzer.cs": "State Mutators Files",
       "csharp/roslyn/LanguageParser.cs": "Encapsulated Accessors Files",
       "csharp/roslyn/License.txt": "Data / Markup / Trivial",
       "csharp/roslyn/MethodCompiler.cs": "Large Core Modules (3)",
@@ -1355,9 +1355,9 @@
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_AggregateBy.cs": "Generic / Templated Code Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Cast.cs": "Large Core Modules (2)",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_CountBy.cs": "Generic / Templated Code Files",
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Distinct.SpeedOpt.cs": "Generic / Templated Code Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Grouping.SpeedOpt.cs": "Generic / Templated Code Files",
-      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "Callbacks & Closures Files",
+      "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Iterator.SpeedOpt.cs": "State Mutators Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Max.cs": "Large Core Modules (3)",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_OrderedEnumerable.cs": "Encapsulated Accessors Files",
       "csharp/runtime_linq/src_libraries_System.Linq_src_System_Linq_Repeat.SpeedOpt.cs": "Large Core Modules (3)",
@@ -1753,7 +1753,7 @@
       "go/core/value.go": "Large Core Modules (3)"
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": "Large Core Modules (3)"
+      "go/go_runtime_rand/rand.go": "Large Core Modules"
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "Large Core Modules (2)",
@@ -2380,7 +2380,7 @@
       "javascript/SOURCES.md": "Data / Markup / Trivial"
     },
     "javascript/cesium_particle_emitters": {
-      "javascript/cesium_particle_emitters/CircleEmitter.js": "Callbacks & Closures Files",
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "State Mutators Files",
       "javascript/cesium_particle_emitters/LICENSE.md": "Data / Markup / Trivial"
     },
     "javascript/javascript_algorithms_bits": {
@@ -2388,12 +2388,12 @@
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "Data / Markup / Trivial",
-      "javascript/jquery/ajax.js": "Large Core Modules (2)",
+      "javascript/jquery/ajax.js": "Large Core Modules (3)",
       "javascript/jquery/buildFragment.js": "Many-Argument Workhorses Files",
-      "javascript/jquery/core.js": "Callbacks & Closures Files",
-      "javascript/jquery/css.js": "Large Core Modules (2)",
-      "javascript/jquery/deferred.js": "Callbacks & Closures Files",
-      "javascript/jquery/event.js": "Large Core Modules (2)",
+      "javascript/jquery/core.js": "Large Core Modules (3)",
+      "javascript/jquery/css.js": "Many-Argument Workhorses Files",
+      "javascript/jquery/deferred.js": "Large Core Modules (2)",
+      "javascript/jquery/event.js": "Large Core Modules (3)",
       "javascript/jquery/tokenize.js": "Many-Argument Workhorses Files"
     },
     "javascript/node_tls_security_tests": {
@@ -4141,7 +4141,7 @@
     "scala/cobrix_scala": {
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": "Generic / Templated Code Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": "Large Core Modules (3)",
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Callbacks & Closures Files",
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": "Compute Cores Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": "Many-Argument Workhorses Files",
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": "Declarative / Non-Code",
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": "Declarative / Non-Code",
@@ -4165,7 +4165,7 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": "Data / Markup / Trivial"
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": "Large Core Modules (3)",
+      "scala/kafka/Kafka.scala": "Compute Cores Files",
       "scala/kafka/KafkaApis.scala": "Large Core Modules (3)",
       "scala/kafka/KafkaRaftManager.scala": "Encapsulated Accessors Files",
       "scala/kafka/LogManager.scala": "Large Core Modules (3)",

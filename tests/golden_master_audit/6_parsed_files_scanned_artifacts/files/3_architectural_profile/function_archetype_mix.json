@@ -10601,9 +10601,9 @@
       },
       "php/guzzle/StreamHandler.php": {
         "Defensive Guards": 2,
-        "Encapsulated Accessors": 1,
+        "Encapsulated Accessors": 2,
         "Many-Argument Workhorses": 1,
-        "Stateful Encapsulated Methods": 16
+        "Stateful Encapsulated Methods": 15
       }
     },
     "php/laravel_core": {
@@ -10730,13 +10730,13 @@
       },
       "php/magento2/LICENSE.txt": {},
       "php/magento2/Mysql.php": {
-        "Compute Cores": 21,
-        "Defensive Guards": 22,
+        "Compute Cores": 20,
+        "Defensive Guards": 23,
         "Encapsulated Accessors": 8,
         "I/O & Config Routines": 2,
         "Interface Declarations": 10,
-        "Many-Argument Workhorses": 20,
-        "Parameter Forwarders": 32,
+        "Many-Argument Workhorses": 19,
+        "Parameter Forwarders": 33,
         "Stateful Encapsulated Methods": 26
       },
       "php/magento2/ObjectManager.php": {
@@ -10824,23 +10824,22 @@
         "Type Conversions": 23
       },
       "php/wordpress/formatting.php": {
-        "Annotated & Test Methods": 1,
         "Callbacks & Closures": 2,
-        "Compute Cores": 41,
+        "Compute Cores": 42,
         "Defensive Guards": 8,
-        "I/O & Config Routines": 14,
+        "I/O & Config Routines": 13,
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 24,
-        "Parameter Forwarders": 22,
+        "Parameter Forwarders": 23,
         "Type Conversions": 6
       },
       "php/wordpress/functions.php": {
         "Annotated & Test Methods": 1,
         "Compute Cores": 49,
-        "Defensive Guards": 26,
+        "Defensive Guards": 27,
         "I/O & Config Routines": 47,
         "Interface Declarations": 18,
-        "Many-Argument Workhorses": 50,
+        "Many-Argument Workhorses": 49,
         "Parameter Forwarders": 12,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 10

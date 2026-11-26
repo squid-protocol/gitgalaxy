@@ -96,3 +96,39 @@ def test_ts_io_needs_an_operative_form():
     r = _rule(ts_lang, "io")
     assert r.search("fs.readFileSync(p)") and r.search("fetch(url)")
     assert not r.search("const sql = 'select 1'; const database = path;")
+
+
+# --- JavaScript closures (#8868) ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "xs.map(x => x + 1)",
+        "xs.map((a, b) => a + b)",
+        "setTimeout(() => { go(); }, 5)",
+        "run(function (err) {",
+        "return function () {",
+        "(function () { init(); })();",
+        "p.then(async (r) => r.json())",
+    ],
+)
+def test_js_anonymous_callables_are_closures(line):
+    assert _rule(js_lang, "closures").search(line)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "ajaxSetup: function( target, settings ) {",
+        "jQuery.fn.extend = function() {",
+        "Foo.prototype.emit = function (particle) {",
+        "jQuery[ method ] = function( url ) {",
+        "run: async function (x) {",
+        "function named(a) {",
+        "class A { m(a) { return a; } }",
+        "if (a >= b) {",
+    ],
+)
+def test_js_own_header_and_declarations_are_not_closures(line):
+    assert not _rule(js_lang, "closures").search(line)

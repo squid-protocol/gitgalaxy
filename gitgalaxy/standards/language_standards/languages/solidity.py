@@ -314,7 +314,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\b(address|uint\d*|int\d*|bytes\d*|uint|int|bytes)\s*\("),
         # 41. panics_and_aborts (Error Exits: revert) Aborting transaction state.
         "panics_and_aborts": re.compile(r"\b(revert)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (EVM cannot sleep).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) (EVM cannot sleep).
         "thread_sleeps": None,
         # 43. bitwise_ops (Bitwise Operations) Bitwise operations for gas optimization.
         "bitwise_ops": re.compile(r"<<|>>|\^|~|(?<!&)&(?!&)|(?<!\|)\|(?!\|)"),

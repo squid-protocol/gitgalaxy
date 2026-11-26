@@ -606,7 +606,7 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: @throw never matched -- same \b-before-@ shape as
         # branch's fix above.
         "panics_and_aborts": re.compile(r"@(throw)\b|\b(abort|exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) Forcing threads to sleep.
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) Forcing threads to sleep.
         # #8907: the Foundation sleep and the timed deferrals are the same contract
         # ("a sleep, a timed wait, a timeout-driven deferral").
         "thread_sleeps": re.compile(

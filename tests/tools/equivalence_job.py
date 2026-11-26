@@ -343,11 +343,13 @@ def run_case(api: Any, job: dict[str, Any], work: Path, port: bool = True, cobol
                                             port=port)  # fmt: skip
             run = api.compare_run(case, corpus, cobol, runs["default"])
             ported = java_generations(step, gdg_created, runs["default"])
+            java_out = java_outputs(step, case, cobol, runs["default"], run["outputs"])
             report["steps"].append({"case": name, "program": case["program"], "fed": fed, "ok": run["ok"],
                                     "return_code": run["return_code"], "abend": run["abend"],
                                     "outputs": run["outputs"],
                                     **({"gdg_created": gdg_created} if gdg_created else {}),
                                     **({"java_gdg": ported} if ported else {}),
+                                    **({"java_out": java_out} if java_out else {}),
                                     **({"subprograms": case["subprograms"]} if case.get("subprograms") else {})})  # fmt: skip
             ok &= run["ok"]
             if i == stop:  # IBM ends the job here (ICE043A, COND=(0,NE) bypasses the rest): the later steps are not run
@@ -401,6 +403,37 @@ def java_generations(
         if base in created and isinstance(java.get(dd), bytes):
             d = _digest(java[dd])
             got[base] = {**d, "equal": (d["size"], d["sha256"]) == (created[base]["size"], created[base]["sha256"])}
+    return got
+
+
+def java_outputs(
+    step: dict[str, Any],
+    case: dict[str, Any],
+    cobol: dict[str, bytes],
+    java: dict[str, bytes],
+    compared: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """#8886 slice 25: for a step run through a forged job, the bytes the linked port left in each compared DD (`compare`
+    in the case's datasets: the program-step datasets, a KSDS or a sequential file, that no GDG catalogs), set against
+    the COBOL bytes of the same DD: DD -> size and digest of the Java bytes, `equal` when both match exactly. Empty for a
+    step not run through a forged job; a DD either side left no bytes for is left out (never an equal).
+    #8886 slice 26: a DD whose bytes differ but whose layout comparison (`compared`, the step's `outputs`) holds every record
+    equal with only FILLER bytes apart carries `filler_differs` (the record count): never `equal`, never a difference of a field."""
+    if "forged_job" not in step:
+        return {}
+    got: dict[str, dict[str, Any]] = {}
+    for dd, ds in case.get("datasets", {}).items():
+        if ds.get("compare") and isinstance(java.get(dd), bytes) and isinstance(cobol.get(dd), bytes):
+            d = _digest(java[dd])
+            got[dd] = {**d, "equal": java[dd] == cobol[dd]}
+            c = (compared or {}).get(dd) or {}
+            if (
+                not got[dd]["equal"]
+                and c.get("filler_differs")
+                and not c.get("diffs")
+                and c.get("equal") == c.get("records")
+            ):
+                got[dd]["filler_differs"] = c["filler_differs"]
     return got
 
 

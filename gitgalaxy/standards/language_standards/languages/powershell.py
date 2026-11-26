@@ -625,7 +625,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: throw/Exit/-ErrorAction Stop)
         "panics_and_aborts": re.compile(r"\b(throw|Exit)\b|-ErrorAction\s+Stop", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(Start-Sleep|sleep)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         # Low-level byte manipulation. CRITICAL: Removed the pipe '|' (PHP 8 Union Types), ampersand '&' (Pass-by-reference `&$var`), and used lookarounds for `<<` to prevent triggering on Heredocs (`<<<EOF`).

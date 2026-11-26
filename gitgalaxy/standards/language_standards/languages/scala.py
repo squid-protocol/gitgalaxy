@@ -453,7 +453,7 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"\basInstanceOf\[[^\]]*\]|\.(?:toInt|toLong|toFloat|toDouble|toByte|toShort)\b"),
         # 41. panics_and_aborts (Error Exits: throw/panic/abort/sys.error/exit) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|panic|abort|sys\.error|exit)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay) (Forced waits/sleep).
         # #9332: any receiver (`time.sleep(ms)`, `TimeUnit.X.sleep`), a blocking `Await`, a park, and the forced delays.
         "thread_sleeps": re.compile(
             r"\b(?:sleep|delay|setTimeout|setInterval|Await\.(?:result|ready)|LockSupport\.park\w*)\s*\("

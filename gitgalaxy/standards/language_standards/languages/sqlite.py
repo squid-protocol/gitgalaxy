@@ -361,7 +361,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 41. panics_and_aborts (Error Exits: ABORT/RAISE/EXIT/QUIT, .exit/.quit)
         "panics_and_aborts": re.compile(r"\b(ABORT|RAISE|EXIT|QUIT)\b|^[ \t]*\.(?:exit|quit)\b", re.I | re.M),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\bPRAGMA\s+busy_timeout\b|^[ \t]*\.pause\b", re.I | re.M),
         # 43. bitwise_ops (Bitwise Operations)
         # (?<!-)>> excludes the `->>` JSON arrow operator (reflection_metaprogramming),

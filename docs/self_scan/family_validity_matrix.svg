@@ -301,7 +301,7 @@
 <rect x="312" y="260" width="11" height="11" fill="#a9d1ff"><title>rust / args: recall 1.00, precision 1.00 (1738 oracle, 1738 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="260" width="11" height="11" fill="#a9d1ff"><title>c / args: recall 1.00, precision 1.00 (2376 oracle, 2376 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="260" width="11" height="11" fill="#a9d1ff"><title>java / args: recall 0.99, precision 1.00 (504 oracle, 501 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="348" y="260" width="11" height="11" fill="#a9d1ff"><title>lua / args: recall 1.00, precision 1.00 (459 oracle, 459 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="348" y="260" width="11" height="11" fill="#a9d1ff"><title>lua / args: recall 1.00, precision 0.99 (454 oracle, 459 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="260" width="11" height="11" fill="#4f9be8"><title>shell / args: recall 0.98, precision 0.98 (177 oracle, 176 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="260" width="11" height="11" fill="#a9d1ff"><title>cpp / args: recall 1.00, precision 1.00 (740 oracle, 741 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="260" width="11" height="11" fill="#4f9be8"><title>jcl / args: recall 0.97, precision 1.00 (35 oracle, 34 family functions; language-crucible v1.9.0)</title></rect>
@@ -749,7 +749,7 @@
 <rect x="324" y="356" width="11" height="11" fill="#4f9be8"><title>c / io: recall 1.00, precision 0.93 (52 oracle, 56 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="356" width="11" height="11" fill="#3b3f4a"><title>java / io: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="336" y="356" width="11" height="11" fill="url(#dots)"/>
-<rect x="348" y="356" width="11" height="11" fill="#1f3b5c"><title>lua / io: recall 0.50, precision 1.00 (14 oracle, 7 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="348" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>lua / io: recall 1.00, precision 1.00 (8 oracle, 8 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="356" width="11" height="11" fill="#4f9be8"><title>shell / io: recall 0.95, precision 0.92 (236 oracle, 245 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="356" width="11" height="11" fill="#2f6aa8" opacity="0.5"><title>cpp / io: recall 1.00, precision 0.83 (5 oracle, 6 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="384" y="356" width="11" height="11" fill="#a9d1ff"><title>jcl / io: recall 1.00, precision 1.00 (210 oracle, 210 family functions; language-crucible v1.9.0)</title></rect>
@@ -2450,7 +2450,7 @@
 <rect x="324" y="776" width="11" height="11" fill="#a9d1ff"><title>c / thread_sleeps: recall 1.00, precision 1.00 (33 oracle, 33 family functions; redis (not pinned))</title></rect>
 <rect x="324" y="776" width="11" height="11" fill="url(#hatch)"/>
 <rect x="336" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>java / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="348" y="776" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>lua / thread_sleeps: recall 0.00, precision - (3 oracle, 0 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="348" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>lua / thread_sleeps: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="776" width="11" height="11" fill="#2f6aa8"><title>shell / thread_sleeps: recall 1.00, precision 0.83 (24 oracle, 29 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>cpp / thread_sleeps: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="396" y="776" width="11" height="11" fill="#566074"><title>hlasm / thread_sleeps: decoy test with &#x27;EXEC CICS DELAY&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -2510,7 +2510,7 @@
 <rect x="312" y="788" width="11" height="11" fill="#4f9be8"><title>rust / bitwise_ops: recall 0.96, precision 0.98 (47 oracle, 46 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="788" width="11" height="11" fill="#4f9be8"><title>c / bitwise_ops: recall 0.99, precision 0.96 (414 oracle, 423 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="788" width="11" height="11" fill="#a9d1ff"><title>java / bitwise_ops: recall 1.00, precision 1.00 (10 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="348" y="788" width="11" height="11" fill="#1f3b5c"><title>lua / bitwise_ops: recall 1.00, precision 0.52 (27 oracle, 52 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="348" y="788" width="11" height="11" fill="#4f9be8"><title>lua / bitwise_ops: recall 1.00, precision 0.95 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="788" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>shell / bitwise_ops: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="788" width="11" height="11" fill="#2f6aa8"><title>cpp / bitwise_ops: recall 0.88, precision 0.91 (57 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="396" y="788" class="u"/>
@@ -2979,7 +2979,7 @@
 <rect x="324" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="336" y="908" width="11" height="11" fill="#3b3f4a"><title>java / regex_execution: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="336" y="908" width="11" height="11" fill="url(#dots)"/>
-<rect x="348" y="908" width="11" height="11" fill="#1f3b5c"><title>lua / regex_execution: recall 0.74, precision 1.00 (87 oracle, 64 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="348" y="908" width="11" height="11" fill="#a9d1ff"><title>lua / regex_execution: recall 0.99, precision 1.00 (87 oracle, 86 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="908" width="11" height="11" fill="#4f9be8"><title>shell / regex_execution: recall 1.00, precision 0.94 (93 oracle, 99 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="908" width="11" height="11" fill="#3b3f4a"><title>cpp / regex_execution: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="372" y="908" width="11" height="11" fill="url(#dots)"/>

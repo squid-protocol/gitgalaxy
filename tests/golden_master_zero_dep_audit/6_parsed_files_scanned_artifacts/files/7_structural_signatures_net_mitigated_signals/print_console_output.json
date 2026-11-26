@@ -3313,7 +3313,7 @@
       "php/symfony/HttpKernel.php": 0,
       "php/symfony/Parser.php": 0,
       "php/symfony/Request.php": 0,
-      "php/symfony/Router.php": 2
+      "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 0
@@ -3321,7 +3321,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 2,
+      "php/wordpress/formatting.php": 0,
       "php/wordpress/functions.php": 22,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,

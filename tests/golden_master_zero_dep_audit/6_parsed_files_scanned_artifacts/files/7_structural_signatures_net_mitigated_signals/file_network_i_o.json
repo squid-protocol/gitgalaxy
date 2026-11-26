@@ -1217,10 +1217,10 @@
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 0,
+      "cpp/godot/editor_node.cpp": 3,
       "cpp/godot/editor_node.h": 0,
       "cpp/godot/gdscript_vm.cpp": 0,
-      "cpp/godot/main.cpp": 0,
+      "cpp/godot/main.cpp": 4,
       "cpp/godot/main.h": 0,
       "cpp/godot/node.cpp": 0,
       "cpp/godot/node.h": 0,
@@ -3274,17 +3274,17 @@
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 1,
+      "php/guzzle/Client.php": 0,
       "php/guzzle/CurlFactory.php": 0,
       "php/guzzle/CurlMultiHandler.php": 0,
       "php/guzzle/Middleware.php": 0,
       "php/guzzle/Pool.php": 0,
       "php/guzzle/RequestException.php": 0,
-      "php/guzzle/StreamHandler.php": 10
+      "php/guzzle/StreamHandler.php": 3
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 1,
-      "php/laravel_core/BladeCompiler.php": 0,
+      "php/laravel_core/BladeCompiler.php": 2,
       "php/laravel_core/Collection.php": 0,
       "php/laravel_core/Container.php": 0,
       "php/laravel_core/Facade.php": 0,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 0,
       "php/magento2/Interceptor.php": 0,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 8,
+      "php/magento2/Mysql.php": 1,
       "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
@@ -3312,20 +3312,20 @@
       "php/symfony/EventDispatcher.php": 0,
       "php/symfony/HttpKernel.php": 0,
       "php/symfony/Parser.php": 0,
-      "php/symfony/Request.php": 25,
+      "php/symfony/Request.php": 5,
       "php/symfony/Router.php": 0
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 0
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 13,
-      "php/wordpress/class-wp-query.php": 1,
-      "php/wordpress/formatting.php": 5,
-      "php/wordpress/functions.php": 30,
+      "php/wordpress/admin-ajax.php": 0,
+      "php/wordpress/class-wp-query.php": 0,
+      "php/wordpress/formatting.php": 1,
+      "php/wordpress/functions.php": 13,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
-      "php/wordpress/wp-login.php": 111,
+      "php/wordpress/wp-login.php": 3,
       "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {

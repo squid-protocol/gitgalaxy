@@ -1218,13 +1218,13 @@
       "cpp/godot/DONORS.md": 0.0,
       "cpp/godot/LICENSE.txt": 0.0,
       "cpp/godot/editor_node.cpp": 0.138,
-      "cpp/godot/editor_node.h": 1.442,
+      "cpp/godot/editor_node.h": 1.455,
       "cpp/godot/gdscript_vm.cpp": 1.343,
       "cpp/godot/main.cpp": 0.161,
       "cpp/godot/main.h": 1.188,
-      "cpp/godot/node.cpp": 0.015,
+      "cpp/godot/node.cpp": -0.005,
       "cpp/godot/node.h": 0.636,
-      "cpp/godot/object.cpp": -0.192,
+      "cpp/godot/object.cpp": -0.206,
       "cpp/godot/object.h": 0.672,
       "cpp/godot/rendering_server_default.cpp": 0.265,
       "cpp/godot/rendering_server_default.h": 0.093,
@@ -1745,15 +1745,15 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": -0.068,
-      "go/core/mgc.go": 1.647,
+      "go/core/mgc.go": 1.616,
       "go/core/mutex.go": 0.192,
-      "go/core/proc.go": 0.457,
-      "go/core/server.go": -0.122,
-      "go/core/syscall_linux.go": 0.509,
-      "go/core/value.go": -0.402
+      "go/core/proc.go": 0.416,
+      "go/core/server.go": -0.107,
+      "go/core/syscall_linux.go": 0.585,
+      "go/core/value.go": -0.63
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 1.028
+      "go/go_runtime_rand/rand.go": 1.815
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": -0.444,
@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": -0.458,
       "groovy/spock/SpecParser.java": -0.696,
-      "groovy/spock/SpecRewriter.java": 0.436,
+      "groovy/spock/SpecRewriter.java": 0.581,
       "groovy/spock/SpockTransform.java": 0.241
     },
     "groovy/spock_core_groovy": {
@@ -2367,14 +2367,14 @@
       "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 0.91
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 0.578,
+      "java/springboot/AutoConfigurationImportSelector.java": 0.704,
       "java/springboot/Binder.java": 1.11,
       "java/springboot/JarLauncher.java": 3.007,
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": -0.151,
       "java/springboot/ServletWebServerApplicationContext.java": 0.908,
       "java/springboot/SpringApplication.java": 0.824,
-      "java/springboot/WebMvcAutoConfiguration.java": 1.541
+      "java/springboot/WebMvcAutoConfiguration.java": 1.352
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0
@@ -3280,7 +3280,7 @@
       "php/guzzle/Middleware.php": 0.763,
       "php/guzzle/Pool.php": 1.249,
       "php/guzzle/RequestException.php": 1.975,
-      "php/guzzle/StreamHandler.php": -0.454
+      "php/guzzle/StreamHandler.php": 0.537
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0.827,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 0.166,
       "php/magento2/Interceptor.php": 1.502,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": -0.476,
+      "php/magento2/Mysql.php": -0.428,
       "php/magento2/ObjectManager.php": 0.754
     },
     "php/symfony": {
@@ -3321,8 +3321,8 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.288,
       "php/wordpress/class-wp-query.php": 0.189,
-      "php/wordpress/formatting.php": 0.779,
-      "php/wordpress/functions.php": 0.447,
+      "php/wordpress/formatting.php": 0.794,
+      "php/wordpress/functions.php": 0.441,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
       "php/wordpress/wp-login.php": 1.987,

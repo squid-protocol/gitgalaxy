@@ -901,6 +901,11 @@ class BOracle(TreeSitterOracle):
         n["args"] = self._args(fn)
         if lang == "php":
             deco = [c for c in fn.children if c.type == "attribute_list"]
+            # #8863: a parameter attribute (`#[\SensitiveParameter] $password`) is a metadata attribute on the declaration it
+            # precedes, as for C# (family_oracle_specs_a); `formal_parameters` holds the parameters, never the body's closures.
+            for params in (c for c in fn.children if c.type == "formal_parameters"):
+                for prm in params.children:
+                    deco.extend(al for al in prm.children if al.type == "attribute_list")
             cnt = sum(1 for d in deco for a in _walk(d) if a.type == "attribute")
             if cnt:
                 n["decorators"] = cnt

@@ -361,6 +361,7 @@ DEFINITION: dict[str, Any] = {
         "_line_gates": ("state_mutation",),
         # 19. decorators (Decorators / Annotations)
         # Go lacks @decorators; uses Struct Tags and Build Tags.
+        # The `//go:` pragma line above a func is outside the unit text: detector._go_leading_pragmas adds it (#9343).
         "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),
         # 20. generics (Generics / Type Parameters)
         # BUG FIX: `~[a-zA-Z_]\w*` (the Go 1.18+ approximation-element

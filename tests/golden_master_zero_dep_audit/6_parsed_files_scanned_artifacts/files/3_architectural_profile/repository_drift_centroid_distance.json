@@ -1218,16 +1218,16 @@
       "cpp/godot/DONORS.md": 0.0,
       "cpp/godot/LICENSE.txt": 0.0,
       "cpp/godot/editor_node.cpp": 8.22,
-      "cpp/godot/editor_node.h": 5.968,
+      "cpp/godot/editor_node.h": 6.066,
       "cpp/godot/gdscript_vm.cpp": 9.307,
-      "cpp/godot/main.cpp": 6.753,
+      "cpp/godot/main.cpp": 6.756,
       "cpp/godot/main.h": 4.455,
-      "cpp/godot/node.cpp": 8.24,
+      "cpp/godot/node.cpp": 8.238,
       "cpp/godot/node.h": 7.875,
-      "cpp/godot/object.cpp": 6.245,
+      "cpp/godot/object.cpp": 6.257,
       "cpp/godot/object.h": 7.375,
       "cpp/godot/rendering_server_default.cpp": 6.859,
-      "cpp/godot/rendering_server_default.h": 7.584,
+      "cpp/godot/rendering_server_default.h": 7.586,
       "cpp/godot/variant.cpp": 7.305,
       "cpp/godot/variant.h": 8.476
     },
@@ -1246,12 +1246,12 @@
       "cpp/powertoys/ImageResizerExt.cpp": 4.762,
       "cpp/powertoys/centralized_kb_hook.cpp": 6.316,
       "cpp/powertoys/logger.cpp": 6.046,
-      "cpp/powertoys/main.cpp": 6.945,
+      "cpp/powertoys/main.cpp": 6.953,
       "cpp/powertoys/powertoy_module.h": 5.472
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 7.227,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 8.057
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 7.829
     },
     "crystal": {
       "crystal/SOURCES.md": 0.0
@@ -1745,15 +1745,15 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": 8.494,
-      "go/core/mgc.go": 6.605,
+      "go/core/mgc.go": 6.657,
       "go/core/mutex.go": 6.278,
-      "go/core/proc.go": 7.327,
-      "go/core/server.go": 8.268,
-      "go/core/syscall_linux.go": 6.631,
-      "go/core/value.go": 7.777
+      "go/core/proc.go": 7.598,
+      "go/core/server.go": 8.273,
+      "go/core/syscall_linux.go": 6.726,
+      "go/core/value.go": 7.953
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 6.814
+      "go/go_runtime_rand/rand.go": 7.34
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 5.846,
@@ -1821,8 +1821,8 @@
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 6.18,
-      "groovy/gradle/DefaultProject.java": 6.969,
-      "groovy/gradle/DefaultTask.java": 6.54
+      "groovy/gradle/DefaultProject.java": 6.987,
+      "groovy/gradle/DefaultTask.java": 6.517
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 7.971,
@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 7.738,
       "groovy/spock/SpecParser.java": 7.117,
-      "groovy/spock/SpecRewriter.java": 6.834,
+      "groovy/spock/SpecRewriter.java": 6.892,
       "groovy/spock/SpockTransform.java": 6.865
     },
     "groovy/spock_core_groovy": {
@@ -2364,17 +2364,17 @@
     },
     "java/selenium_grid_session_queue": {
       "java/selenium_grid_session_queue/NOTICE": 0.0,
-      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.538
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": 6.494
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 5.957,
-      "java/springboot/Binder.java": 7.631,
+      "java/springboot/AutoConfigurationImportSelector.java": 5.869,
+      "java/springboot/Binder.java": 7.585,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 6.391,
-      "java/springboot/ServletWebServerApplicationContext.java": 7.262,
-      "java/springboot/SpringApplication.java": 5.938,
-      "java/springboot/WebMvcAutoConfiguration.java": 6.599
+      "java/springboot/OnClassCondition.java": 6.379,
+      "java/springboot/ServletWebServerApplicationContext.java": 7.277,
+      "java/springboot/SpringApplication.java": 5.887,
+      "java/springboot/WebMvcAutoConfiguration.java": 6.293
     },
     "javascript": {
       "javascript/SOURCES.md": 0.0
@@ -3274,17 +3274,17 @@
       "php/SOURCES.md": 0.0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 6.386,
+      "php/guzzle/Client.php": 6.385,
       "php/guzzle/CurlFactory.php": 5.89,
       "php/guzzle/CurlMultiHandler.php": 6.739,
       "php/guzzle/Middleware.php": 6.449,
       "php/guzzle/Pool.php": 7.1,
       "php/guzzle/RequestException.php": 5.979,
-      "php/guzzle/StreamHandler.php": 6.809
+      "php/guzzle/StreamHandler.php": 6.797
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 6.546,
-      "php/laravel_core/BladeCompiler.php": 6.142,
+      "php/laravel_core/BladeCompiler.php": 6.133,
       "php/laravel_core/Collection.php": 5.894,
       "php/laravel_core/Container.php": 6.357,
       "php/laravel_core/Facade.php": 6.294,
@@ -3303,7 +3303,7 @@
       "php/magento2/Http.php": 7.093,
       "php/magento2/Interceptor.php": 5.479,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": 7.09,
+      "php/magento2/Mysql.php": 7.099,
       "php/magento2/ObjectManager.php": 5.391
     },
     "php/symfony": {
@@ -3312,21 +3312,21 @@
       "php/symfony/EventDispatcher.php": 7.616,
       "php/symfony/HttpKernel.php": 7.738,
       "php/symfony/Parser.php": 6.175,
-      "php/symfony/Request.php": 6.008,
-      "php/symfony/Router.php": 6.135
+      "php/symfony/Request.php": 5.936,
+      "php/symfony/Router.php": 6.11
     },
     "php/symfony_emoji_data": {
       "php/symfony_emoji_data/emoji-ccp.php": 2.274
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 2.753,
-      "php/wordpress/class-wp-query.php": 6.75,
-      "php/wordpress/formatting.php": 6.518,
-      "php/wordpress/functions.php": 5.206,
+      "php/wordpress/admin-ajax.php": 1.867,
+      "php/wordpress/class-wp-query.php": 6.751,
+      "php/wordpress/formatting.php": 6.509,
+      "php/wordpress/functions.php": 5.212,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 5.616,
-      "php/wordpress/wp-login.php": 7.925,
-      "php/wordpress/wp-settings.php": 4.533
+      "php/wordpress/wp-login.php": 7.596,
+      "php/wordpress/wp-settings.php": 4.537
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0.0
@@ -4541,7 +4541,7 @@
       "sql/SOURCES.md": 0.0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 7.279
+      "sql/baseline/schema.php": 7.284
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 0.0,

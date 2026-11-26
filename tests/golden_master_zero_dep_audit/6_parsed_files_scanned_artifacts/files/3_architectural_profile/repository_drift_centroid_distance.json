@@ -4142,7 +4142,7 @@
       "scala/cobrix_scala/cobol-converters_src_test_scala_za_co_absa_cobrix_cobol_converters_extra_SerializersSpec.scala": 6.943,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_decoders_StringDecoders.scala": 12.188,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_parser_encoding_codepage_CodePage.scala": 16.816,
-      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6.773,
+      "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_processor_impl_StreamProcessor.scala": 6.711,
       "scala/cobrix_scala/cobol-parser_src_main_scala_za_co_absa_cobrix_cobol_reader_parameters_VariableLengthParameters.scala": 5.752,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_parser_decoders_BinaryNumbersSpec.scala": 6.564,
       "scala/cobrix_scala/cobol-parser_src_test_scala_za_co_absa_cobrix_cobol_reader_FixedLenNestedReaderSpec.scala": 7.141,
@@ -4167,11 +4167,11 @@
     "scala/kafka": {
       "scala/kafka/Kafka.scala": 6.658,
       "scala/kafka/KafkaApis.scala": 10.411,
-      "scala/kafka/KafkaRaftManager.scala": 7.101,
+      "scala/kafka/KafkaRaftManager.scala": 7.054,
       "scala/kafka/LogManager.scala": 7.954,
       "scala/kafka/Partition.scala": 8.462,
-      "scala/kafka/ReplicaManager.scala": 9.093,
-      "scala/kafka/SocketServer.scala": 7.405
+      "scala/kafka/ReplicaManager.scala": 9.094,
+      "scala/kafka/SocketServer.scala": 7.407
     },
     "scheme": {
       "scheme/SOURCES.md": 0.0

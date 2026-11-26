@@ -53076,7 +53076,7 @@
         "check_size@28": "State Mutators",
         "chrdev_body@70": "I/O & Config Routines",
         "chrdev_head@66": "I/O & Config Routines",
-        "directory_to_symlink_body@551": "Interface Declarations",
+        "directory_to_symlink_body@551": "I/O & Config Routines",
         "directory_to_symlink_head@547": "I/O & Config Routines",
         "dirloop_body@791": "I/O & Config Routines",
         "dirloop_head@787": "I/O & Config Routines",
@@ -53100,7 +53100,7 @@
         "matching_srctgt_nonexistent_head@196": "I/O & Config Routines",
         "nopermute_body@863": "I/O & Config Routines",
         "nopermute_head@859": "I/O & Config Routines",
-        "overwrite_directory_body@568": "Interface Declarations",
+        "overwrite_directory_body@568": "I/O & Config Routines",
         "overwrite_directory_head@564": "I/O & Config Routines",
         "pflag_acls_body@228": "I/O & Config Routines",
         "pflag_acls_head@224": "I/O & Config Routines",
@@ -53345,7 +53345,7 @@
         "lcomma_flag_head@671": "I/O & Config Routines",
         "m_flag_body@691": "I/O & Config Routines",
         "m_flag_head@686": "I/O & Config Routines",
-        "n_flag_body@711": "I/O & Config Routines",
+        "n_flag_body@711": "Compute Cores",
         "n_flag_head@705": "I/O & Config Routines",
         "o_flag_body@731": "I/O & Config Routines",
         "o_flag_head@726": "I/O & Config Routines",
@@ -53366,7 +53366,7 @@
         "u_flag_head@871": "I/O & Config Routines",
         "v_flag_body@899": "Interface Declarations",
         "v_flag_head@894": "I/O & Config Routines",
-        "x_flag_body@913": "Interface Declarations",
+        "x_flag_body@913": "I/O & Config Routines",
         "x_flag_head@908": "I/O & Config Routines",
         "y_flag_body@936": "I/O & Config Routines",
         "y_flag_head@931": "I/O & Config Routines"
@@ -53496,7 +53496,7 @@
       },
       "shell/freebsd-src/rm_test.sh": {
         "atf_init_test_cases@41": "I/O & Config Routines",
-        "unlink_dash_filename_body@32": "Interface Declarations",
+        "unlink_dash_filename_body@32": "I/O & Config Routines",
         "unlink_dash_filename_head@28": "I/O & Config Routines"
       },
       "shell/freebsd-src/rmdir_test.sh": {
@@ -53566,7 +53566,7 @@
         "usbRalinkBsdDriver@42": "Parameter Forwarders"
       },
       "shell/haiku/install-wifi-firmwares.sh": {
-        "CleanTemporaryFiles@124": "Interface Declarations",
+        "CleanTemporaryFiles@124": "I/O & Config Routines",
         "CutAndInstallBroadcomFirmware@245": "I/O & Config Routines",
         "DisplayAlert@42": "I/O & Config Routines",
         "DownloadFileIfNotCached@92": "Compute Cores",
@@ -53698,7 +53698,7 @@
         "docker-installed@1512": "Interface Declarations",
         "download-extra-addons@2549": "I/O & Config Routines",
         "ensure-local-ssds-ephemeral-storage@473": "I/O & Config Routines",
-        "ensure-local-ssds@414": "I/O & Config Routines",
+        "ensure-local-ssds@414": "Compute Cores",
         "ensure-master-bootstrap-kubectl-auth@3219": "Defensive Guards",
         "find-master-pd@591": "Interface Declarations",
         "gce-metadata-fw-helper@129": "Defensive Guards",
@@ -53776,7 +53776,7 @@
         "kube::etcd::install@146": "I/O & Config Routines",
         "kube::etcd::scrape@112": "Interface Declarations",
         "kube::etcd::start@76": "Defensive Guards",
-        "kube::etcd::start_scraping@96": "Defensive Guards",
+        "kube::etcd::start_scraping@96": "I/O & Config Routines",
         "kube::etcd::stop@117": "Defensive Guards",
         "kube::etcd::validate@28": "Defensive Guards",
         "kube::etcd::version@72": "Parameter Forwarders"
@@ -53821,7 +53821,7 @@
         "kube::release::package_kube_manifests_tarball@386": "I/O & Config Routines",
         "kube::release::package_node_tarballs@125": "I/O & Config Routines",
         "kube::release::package_server_tarballs@204": "I/O & Config Routines",
-        "kube::release::package_src_tarball@63": "I/O & Config Routines",
+        "kube::release::package_src_tarball@63": "Interface Declarations",
         "kube::release::package_tarballs@43": "I/O & Config Routines",
         "kube::release::package_test_platform_tarballs@425": "I/O & Config Routines",
         "kube::release::package_test_tarballs@468": "I/O & Config Routines",
@@ -53940,7 +53940,7 @@
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": {
         "die@10": "Parameter Forwarders",
-        "pick_clang@15": "I/O & Config Routines"
+        "pick_clang@15": "Defensive Guards"
       },
       "shell/serenity/ClassiCube__package.sh": {
         "install@24": "Interface Declarations"

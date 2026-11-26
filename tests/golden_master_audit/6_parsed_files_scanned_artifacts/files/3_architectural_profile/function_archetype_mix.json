@@ -13967,8 +13967,8 @@
       },
       "shell/freebsd-src/ckscripts.sh": {},
       "shell/freebsd-src/cp_test.sh": {
-        "I/O & Config Routines": 81,
-        "Interface Declarations": 3,
+        "I/O & Config Routines": 83,
+        "Interface Declarations": 1,
         "Parameter Forwarders": 1,
         "State Mutators": 3
       },
@@ -14010,9 +14010,9 @@
         "State Mutators": 2
       },
       "shell/freebsd-src/ls_tests.sh": {
-        "Compute Cores": 2,
+        "Compute Cores": 3,
         "I/O & Config Routines": 61,
-        "Interface Declarations": 17,
+        "Interface Declarations": 16,
         "Many-Argument Workhorses": 1
       },
       "shell/freebsd-src/mkdir_test.sh": {
@@ -14039,8 +14039,7 @@
         "I/O & Config Routines": 7
       },
       "shell/freebsd-src/rm_test.sh": {
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 3
       },
       "shell/freebsd-src/rmdir_test.sh": {
         "I/O & Config Routines": 4,
@@ -14086,8 +14085,7 @@
       },
       "shell/haiku/install-wifi-firmwares.sh": {
         "Compute Cores": 2,
-        "I/O & Config Routines": 12,
-        "Interface Declarations": 1
+        "I/O & Config Routines": 13
       },
       "shell/haiku/install.sh": {},
       "shell/haiku/leak_analyser.sh": {
@@ -14177,17 +14175,17 @@
       },
       "shell/kubernetes/config-default.sh": {},
       "shell/kubernetes/configure-helper.sh": {
-        "Compute Cores": 8,
+        "Compute Cores": 9,
         "Defensive Guards": 40,
-        "I/O & Config Routines": 27,
+        "I/O & Config Routines": 26,
         "Interface Declarations": 10,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 11
       },
       "shell/kubernetes/e2e-cluster-size.sh": {},
       "shell/kubernetes/etcd.sh": {
-        "Defensive Guards": 4,
-        "I/O & Config Routines": 2,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 2,
         "Parameter Forwarders": 1
       },
@@ -14215,8 +14213,8 @@
       },
       "shell/kubernetes/release.sh": {
         "Compute Cores": 2,
-        "I/O & Config Routines": 10,
-        "Interface Declarations": 1,
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 2,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2
       },
@@ -14339,7 +14337,7 @@
     },
     "shell/serenity": {
       "shell/serenity/BuildFuzzers.sh": {
-        "I/O & Config Routines": 1,
+        "Defensive Guards": 1,
         "Parameter Forwarders": 1
       },
       "shell/serenity/ClassiCube__package.sh": {

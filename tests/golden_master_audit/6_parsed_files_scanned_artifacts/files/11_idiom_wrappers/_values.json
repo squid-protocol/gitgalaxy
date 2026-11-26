@@ -289,14 +289,6 @@
           "Name": "ASSERT_SUSPEND_BREAK_ZERO",
           "Rule": "panics_and_aborts",
           "Via": "primitive"
-        },
-        {
-          "Call Sites": 2,
-          "Calling Files": 1,
-          "Kind": "function",
-          "Name": "chaperone_do_abort",
-          "Rule": "panics_and_aborts",
-          "Via": "primitive"
         }
       ]
     }

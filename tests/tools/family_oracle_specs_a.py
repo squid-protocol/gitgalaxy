@@ -822,6 +822,12 @@ class OracleA(TreeSitterOracle):
             labels = [_text(x) for x in node.children[1:] for x in _walk_types(x, "value_argument_label")]
             if any(lb in ("contentsOf", "contentsOfFile") for lb in labels):
                 add("io", "contentsOf")
+        if (
+            lang == "swift"
+            and full.endswith((".range", ".replacingOccurrences"))
+            and "regularExpression" in _text(node)
+        ):
+            add("regex", "regularExpression")  # NSString/String options: [.regularExpression] runs the pattern (#9341)
 
     def _special_node(self, node, add) -> None:
         lang, t = self.spec.lang, node.type

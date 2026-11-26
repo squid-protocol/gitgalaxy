@@ -175,8 +175,18 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 9. io (I/O & Network Boundaries)
+        # #8863 (io contract: data moving between the program and a system outside its runtime): a CALL of a file, stream,
+        # socket, curl or database-driver function, or `new PDO` / `new mysqli`, or a static `PDO::method(` call (the keyword-rosetta plant; `PDO::ATTR_*` is a constant, not a call). Measured on the pinned crucible, the old
+        # bare words counted a `header` in a comment or name, `\PDO::ATTR_*` constants, `PDO $pdo` hints and `$_GET` reads
+        # (a variable read is not an operation; whether a request superglobal is io is a question on #8863), and missed
+        # `unlink` / `mkdir` / `scandir` / `opendir` / `readdir` / `touch`. A method of the same name (`$f->copy()`) is not the function.
         "io": re.compile(
-            r"\b(fopen|fread|fwrite|file_get_contents|file_put_contents|PDO|mysqli|curl_exec|socket|header|setcookie)\b|\$_(?:GET|POST|FILES|REQUEST|COOKIE)"
+            r"(?<![>:$\w])(?:fopen|fread|fwrite|fputs|fgets|fgetc|fgetcsv|fputcsv|fscanf|file_get_contents|file_put_contents"
+            r"|file|readfile|fpassthru|unlink|rename|copy|mkdir|rmdir|touch|tempnam|tmpfile|scandir|glob|opendir|readdir"
+            r"|fsockopen|pfsockopen|stream_socket_client|stream_socket_server|stream_get_contents|curl_exec|move_uploaded_file"
+            r"|readline|mysqli_connect|mysqli_query|pg_connect|pg_query)[ \t]*\("
+            r"|\bnew[ \t]+\\?(?:PDO|mysqli)\b"
+            r"|(?<![>:$\w])\\?PDO::\w+[ \t]*\("
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Explicit public markers + attribute routes.
@@ -309,7 +319,10 @@ DEFINITION: dict[str, Any] = {
         # before failing. Confirmed genuine O(n^2) scaling (0.045s/
         # 0.18s/0.71s/2.85s for n=10k/20k/40k/80k, ~4x per doubling).
         # Bounded both to reasonable caps.
-        "decorators": re.compile(r"#\[\s*[a-zA-Z0-9_:\\]{1,100}[^\]]{0,300}\]", re.M),
+        # #8863: an attribute starts a line or follows `(`, `,` or `=` (a parameter, a promoted property, an arrow fn). `#[` inside a
+        # string -- a regex such as '#[0-9]{2}#' or '#[dj]\\.? F#' -- follows a quote or an operand, and an attribute name never starts
+        # with a digit.
+        "decorators": re.compile(r"(?<![\w'\"\]#/])#\[[ \t]*[\\a-zA-Z_][a-zA-Z0-9_:\\]{0,99}[^\]\n]{0,300}\]"),
         # 20. generics (Generics / Type Parameters)
         # Simulated/Docblock generics.
         "generics": re.compile(
@@ -435,7 +448,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
         # #8010: die/exit end the request (panics_and_aborts), they are not prints.
-        "debug_prints": re.compile(r"\b(echo|print|var_dump|print_r|printf|vprintf|var_export|dd|dump)\b"),
+        # #8863: `echo` / `print` as statements and the dump functions as CALLS. `->dump()` (a dumper object's method), a bare `dd`
+        # inside a regex alternation (`dl|dd|dt`) and a `$print` variable are not console output.
+        "debug_prints": re.compile(
+            r"(?<![\w$>:'\"|])(?:echo|print)\b|(?<![\w$>:|])(?:var_dump|print_r|printf|vprintf|var_export|dd|dump)[ \t]*\("
+        ),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
             r"\((?:int|integer|bool|boolean|float|double|string|array|object|unset)\)\s*|\bsettype\s*\("
@@ -447,7 +464,15 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         # #2899: `&` no longer matches HTML entities (&amp;, &#123;) inside the string
         # stream -- 12316 of php's 15137 crucible hits were entity ampersands.
-        "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)(?![a-zA-Z#][" + ID_CONTINUE + r"]*;)|(?<!\|)\|(?!\|)|\^|~"),
+        # #8863: a bitwise operator between value operands: `&` `|` `^` `<<` `>>` (and the compound `&=` `|=` `^=` `<<=` `>>=`) after an
+        # operand (word, `)` or `]`) and before whitespace, or the unary complement `~` before an operand. A by-reference
+        # `&$x`, a union type `int|string`, a `<<<` heredoc opener, a regex `^` / `~` and a `'<<'` string are not operators
+        # (measured: 188 functions fired against 24 the parser sees, the rest were those forms). PSR-12 spaces binary operators.
+        "bitwise_ops": re.compile(
+            r"(?:[\w)\]'\"])[ \t]+(?:[&|^](?![&|])=?|<<(?!<)=?|>>=?)(?=[ \t]|$)"
+            r"|(?<![\w'\"~/#])~(?=[$(\\\w])",
+            re.M,
+        ),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|flock|sem_acquire)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)
@@ -485,7 +510,12 @@ DEFINITION: dict[str, Any] = {
         # immediately followed the paren -- never true for the
         # zero-argument form (`time()`) or a quoted format string
         # (`date("Y-m-d")`).
-        "time_date_logic": re.compile(r"\b(?:strtotime|DateTime(?:Immutable)?|date_create)\b|\btime\s*\(|\bdate\s*\("),
+        # #8863: also the gm / mk / micro / hr clock functions, the calendar checks and the interval / timezone / period classes.
+        "time_date_logic": re.compile(
+            r"\b(?:strtotime|DateTime(?:Immutable|Zone)?|DateInterval|DatePeriod|date_create(?:_immutable)?|date_(?:diff|add|sub|parse|format))\b(?![ \t]*[$&.])"
+            r"|(?<![>:$\w])(?:time|date|gmdate|mktime|gmmktime|microtime|hrtime|idate|getdate|localtime|checkdate|strftime|gmstrftime"
+            r"|date_default_timezone_(?:get|set))\s*\("
+        ),
         "ipc_rpc_bridges": re.compile(r"\b(shell_exec|exec|system|passthru|proc_open|curl_exec|fsockopen)\b"),
         # system_config_mutation (#3084): contract-level absence. web-app layer;
         # ini_set( tunes the current process only (program-own state, not

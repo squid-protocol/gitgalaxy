@@ -1,5 +1,5 @@
 {
- "commit": "629eab5ba",
+ "commit": "f180fa1ba",
  "components": {
   "capabilities": {
    "groups": [
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-26T22:59:20Z",
+  "as_of": "2026-11-26T23:32:29Z",
   "core": {
    "closed": 264,
    "open": 13,
@@ -1887,8 +1887,8 @@
     "l4_plus_pct": 61.2,
     "l5": 1,
     "levels": {
-     "L0": 6,
-     "L1": 48,
+     "L0": 5,
+     "L1": 49,
      "L2": 0,
      "L3": 0,
      "L4": 84,
@@ -1901,7 +1901,7 @@
     },
     "programs": 139,
     "stale": 0,
-    "translated_whole": 133
+    "translated_whole": 134
    }
   },
   "total": {

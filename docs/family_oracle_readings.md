@@ -76,17 +76,6 @@ Per-language readings that differ from the shared sentence:
 The non-Python `branch` cells in `tests/family_validity_baseline.json` were measured before this realignment and there is no
 `short_circuit` cell yet: they are rescanned per corpus (`family_oracle.py --lang X --corpus NAME --update-baseline`), not here.
 
-## JCL oracle (job-flow statement reader, `tests/tools/family_oracle_jcl.py`)
-
-A function is an EXEC step: the statements from its EXEC card to the next EXEC, JOB, PROC or PEND, read through
-`gitgalaxy/core/job_flow.py::_statements` (continuations joined, comments and in-stream data skipped). Readings, written
-before the first run, from the family contracts and IBM's z/OS MVS JCL Reference:
-
-- `branch`: an IF statement; ELSE and ENDIF belong to the same decision. The engine rule also counts ELSE, so `branch` over-counts (a finding in the baseline, not fixed here).
-- `args`: a `PARM=` operand on the EXEC card. `io`: a DD with `DSN=` / `DSNAME=` (not `&&`) or `SYSOUT=`, once per DD.
-- `sync_locks`: DISP status OLD or MOD. `cleanup`: DISP normal-termination disposition DELETE. `safety`: `COND=` other than EVEN / ONLY alone. `danger`: `EXEC PGM=` of a command-running program.
-- The scan's per-file `Unknown_Block` rows (31 on the pinned crucible) are not steps and stay unmatched. HLASM has no oracle yet (#8863 remaining slice).
-
 ## Open owner questions
 
 Ruled 2026-11-24 (#8862, closed): `assert` is not an abort; `doc` is the structured form, N/A where a language has none.

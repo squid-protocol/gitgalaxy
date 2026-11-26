@@ -473,8 +473,8 @@ def test_swift_api_contract_2730():
     "line",
     [
         'let r = s.range(of: "a+", options: .regularExpression)',
-        'if (s).range(of: p, options: .regularExpression) != nil {}',
-        'let r = names[0].range(of: p, options: [.regularExpression])',
+        "if (s).range(of: p, options: .regularExpression) != nil {}",
+        "let r = names[0].range(of: p, options: [.regularExpression])",
     ],
 )
 def test_swift_regex_execution_range_of_fires_after_non_word(line):
@@ -510,3 +510,84 @@ def test_swift_regex_execution_range_of_needs_regular_expression():
 )
 def test_swift_branch_counts_decisions_not_types_labels_or_enum_cases_8895(src, expected):
     assert len(SWIFT_RULES["branch"].findall(src)) == expected
+
+
+# #9341: keyword families on the pinned-corpus red cells (io, time_date_logic, regex_execution, bitwise_ops)
+def _swift_equation(key: str, code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    return StructuralExtractor("swift", LANGUAGE_DEFINITIONS).splice(code, "")["equations"][key]
+
+
+@pytest.mark.parametrize(
+    ("src", "expected"),
+    [
+        ("let m = 1 << 14", 1),
+        ("let m = (buf &>> n) & mask", 1),
+        ("let x = a ^ b", 1),
+        ("let x = ~mask", 1),
+        ('let s = "~!@#$%^&*()"', 0),
+        ('let s = "1 << 2"', 0),
+        ('let s = "&;!$\'(),/:=?@~"', 0),
+        ("// a ^ b", 0),
+    ],
+)
+def test_swift_bitwise_ops_skips_literals_9341(src, expected):
+    assert _swift_equation("bitwise_ops", src) == expected
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "let d = Date()",
+        "let d = Date(timeIntervalSince1970: 0)",
+        "let t = Date.now",
+        "let e = Int(modifiedAt.timeIntervalSince1970)",
+        "let u = d.timeIntervalSinceNow",
+        "let n = d.addingTimeInterval(5)",
+        "let f = ISO8601DateFormatter()",
+        "let c = DateComponents(year: 1)",
+        'let z = TimeZone(identifier: "UTC")',
+        "let c = ContinuousClock()",
+        "let t = Duration.seconds(1)",
+    ],
+)
+def test_swift_time_date_logic_counts_clock_calendar_duration_9341(line):
+    assert SWIFT_RULES["time_date_logic"].search(line)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in }",
+        "let update = x.updateDate",
+        "let s = candidate.name",
+    ],
+)
+def test_swift_time_date_logic_skips_timers_and_lookalikes_9341(line):
+    assert not SWIFT_RULES["time_date_logic"].search(line)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "let d = try Data(contentsOf: url)",
+        "let t = try String(contentsOfFile: path)",
+        "let t = try String(contentsOf: url)",
+        "try d.write(to: url)",
+    ],
+)
+def test_swift_io_reads_data_and_string_from_contents_9341(line):
+    assert SWIFT_RULES["io"].search(line)
+
+
+@pytest.mark.parametrize("line", ["let t = String(repeating: x, count: 2)", "let d = Data(count: 4)"])
+def test_swift_io_skips_in_memory_constructors_9341(line):
+    assert not SWIFT_RULES["io"].search(line)
+
+
+def test_swift_regex_execution_replacing_occurrences_regular_expression_9341():
+    assert SWIFT_RULES["regex_execution"].search(
+        's.replacingOccurrences(of: "a+", with: "", options: .regularExpression)'
+    )
+    assert not SWIFT_RULES["regex_execution"].search('s.replacingOccurrences(of: "a", with: "b")')

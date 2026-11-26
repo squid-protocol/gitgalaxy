@@ -1000,7 +1000,7 @@
 <rect x="252" y="404" width="11" height="11" fill="#4f9be8"><title>scala / doc: recall 1.00, precision 0.90 (141 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="264" y="404" width="11" height="11" fill="#2f6aa8"><title>typescript / doc: recall 0.99, precision 0.89 (661 oracle, 729 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="404" width="11" height="11" fill="#2f6aa8"><title>java / doc: recall 1.00, precision 0.89 (115 oracle, 129 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="288" y="404" width="11" height="11" fill="#1f3b5c"><title>javascript / doc: recall 1.00, precision 0.60 (108 oracle, 180 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="288" y="404" width="11" height="11" fill="#2f6aa8"><title>javascript / doc: recall 1.00, precision 0.86 (155 oracle, 180 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="404" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / doc: recall 0.07, precision 0.02 (61 oracle, 221 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="404" width="11" height="11" fill="#2f6aa8"><title>rust / doc: recall 1.00, precision 0.90 (547 oracle, 610 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="404" width="11" height="11" fill="#4f9be8"><title>swift / doc: recall 1.00, precision 0.95 (179 oracle, 189 family functions; language-crucible v1.9.0)</title></rect>

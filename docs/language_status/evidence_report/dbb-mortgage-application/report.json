@@ -2422,7 +2422,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a99ec9de4090312c87f29ffb4f33619733bd48c1",
+   "sha": "221d592ef3a2fdd8dae9d4c08d344bdf87d25c2e",
    "translator": {
     "files": 189,
     "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
@@ -4878,8 +4878,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha a99ec9de4090312c87f29ffb4f33619733bd48c1",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha a99ec9de4090312c87f29ffb4f33619733bd48c1",
+   "python tests/tools/cics_census.py survey --baseline --sha 221d592ef3a2fdd8dae9d4c08d344bdf87d25c2e",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 221d592ef3a2fdd8dae9d4c08d344bdf87d25c2e",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4891,7 +4891,7 @@
   "crucible_pins": {
    "cics": "v0.19.0",
    "estate": "v0.9.0",
-   "language": "v1.8.0"
+   "language": "v1.9.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [],
@@ -4900,13 +4900,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "a99ec9de4090312c87f29ffb4f33619733bd48c1",
+   "sha": "221d592ef3a2fdd8dae9d4c08d344bdf87d25c2e",
    "translator": {
     "files": 189,
     "sha256": "b906c7036e1b0732ee83bcba8e57d5026af38bba1074cf6f5b9c5618ea9b4011"
    }
   },
-  "translator_commit": "a99ec9de4090312c87f29ffb4f33619733bd48c1",
+  "translator_commit": "221d592ef3a2fdd8dae9d4c08d344bdf87d25c2e",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

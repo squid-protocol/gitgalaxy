@@ -1332,7 +1332,7 @@
 <rect x="324" y="488" width="11" height="11" fill="url(#dots)"/>
 <rect x="336" y="488" width="11" height="11" fill="#4f9be8"><title>java / decorators: recall 0.96, precision 0.98 (474 oracle, 464 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="348" y="488" class="u"/>
-<rect x="372" y="488" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>cpp / decorators: recall -, precision 0.00 (0 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="372" y="488" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>cpp / decorators: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <use href="#c" x="384" y="488" class="u"/>
 <rect x="396" y="488" width="11" height="11" fill="#8a6d3b"><title>abap / decorators: decoy test with &#x27;@deprecated&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="488" width="11" height="11" fill="#8a6d3b"><title>ada / decorators: decoy test with &#x27;pragma SPARK_Mode&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

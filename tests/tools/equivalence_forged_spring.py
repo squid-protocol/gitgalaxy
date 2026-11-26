@@ -316,6 +316,34 @@ def _service_class(key: str) -> str:
     return java_class_base(key) + "Service"
 
 
+def compare_final(spec: dict, outputs: Path | None, run: dict) -> list[dict]:
+    """The datasets a step leaves that no GDG catalogs (a KSDS after REPRO): per spec `final_outputs` entry
+    `{case, dd, job, dataset}`, the bytes the COBOL chain's step wrote to that DD (`outputs/<case>/<DD>`) against the
+    file the forged job left under the dataset's name, per mode. Same row shape as `compare_datasets`, so `render` and
+    `differs` carry it: no chain output, or no file from the job, is `differs` and says so."""
+    rows = []
+    for f in spec.get("final_outputs", ()):
+        want_file = outputs / f["case"] / f["dd"] if outputs else None
+        want = None
+        if want_file is not None and want_file.is_file():
+            data = want_file.read_bytes()
+            want = {"size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        row: dict = {"case": f["case"], "job": f["job"], "dataset": f["dataset"], "chain": want, "modes": {}}
+        for mode in ("strict", "skip"):
+            got = run.get("datasets_by_job", {}).get(mode, {}).get(f["job"], {}).get(f["dataset"])
+            if want is None:
+                issue = f"the chain exported no {f['case']}/{f['dd']}"
+            elif got is None:
+                issue = f"{f['job']} left no {f['dataset']}"
+            elif (got["size"], got["sha256"]) != (want["size"], want["sha256"]):
+                issue = f"{got['size']} bytes {got['sha256'][:12]}, chain {want['size']} bytes {want['sha256'][:12]}"
+            else:
+                issue = None
+            row["modes"][mode] = {"status": "differs" if issue else "equal", "got": got, "issue": issue}
+        rows.append(row)
+    return rows
+
+
 def run_forged(
     forge,
     rc_by_step: dict[tuple[str, str], int | None],
@@ -562,7 +590,7 @@ def scan_and_run(
         rows = compare_run(forge, spec, rcs, ran, run)
         return {
             "rows": rows,
-            "datasets": compare_datasets(spec, report, run, chain),
+            "datasets": compare_datasets(spec, report, run, chain) + compare_final(spec, outputs, run),
             "jobs": {j.job: {"kind": _kind(j), "reason": j.reason} for j in forge.jobs},
             "raw": run,
             "idcams_lowered": sorted(  # the steps the forge runs through the IDCAMS model, not a copy or `utility`

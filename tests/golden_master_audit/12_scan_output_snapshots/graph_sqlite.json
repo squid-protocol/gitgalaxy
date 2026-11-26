@@ -5226,7 +5226,7 @@
       "cobol/gnucobol/xfhfcd.cpy": "8879f4482be5",
       "cobol/gnucobol/xfhfcd3.cpy": "14f4b0b05ee0",
       "cobol/gnucobol_internals/codegen.c": "46484ed5cf72",
-      "cobol/gnucobol_internals/fileio.c": "35ee458269a5",
+      "cobol/gnucobol_internals/fileio.c": "12626764bda9",
       "cobol/gnucobol_internals/numeric.c": "a0212474a9ff",
       "cobol/gnucobol_internals/parser.y": "64ff915751ec",
       "cobol/gnucobol_internals/scanner.l": "3ab2eb8b60e9",

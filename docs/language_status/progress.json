@@ -1,5 +1,5 @@
 {
- "commit": "6c5fd32ea",
+ "commit": "c1d1cedfd",
  "components": {
   "capabilities": {
    "groups": [
@@ -654,20 +654,20 @@
      "unreachable": 70
     },
     "cics-banking-sample-application-cbsa": {
-     "caught": 3024,
+     "caught": 3025,
      "closed": 3,
      "closed_caught": 1008,
      "closed_survived": 780,
-     "equivalent": 2737,
+     "equivalent": 2738,
      "l5": 3,
      "measured": 12,
      "mutants": 8407,
      "programs": 31,
-     "raw_pct": 42.2,
+     "raw_pct": 42.3,
      "ready": 0,
      "sampled": 7542,
      "sampled_pct": 89.7,
-     "survived": 4135,
+     "survived": 4134,
      "unreachable": 831
     },
     "cics-genapp": {
@@ -740,11 +740,11 @@
     }
    },
    "total": {
-    "caught": 18115,
+    "caught": 18116,
     "closed": 5,
     "closed_caught": 1213,
     "closed_survived": 858,
-    "equivalent": 7125,
+    "equivalent": 7126,
     "l5": 5,
     "measured": 64,
     "mutants": 59197,
@@ -753,7 +753,7 @@
     "ready": 0,
     "sampled": 40508,
     "sampled_pct": 68.4,
-    "survived": 19668,
+    "survived": 19667,
     "unreachable": 1464
    }
   },
@@ -1070,7 +1070,7 @@
   "planned": 17
  },
  "issues": {
-  "as_of": "2026-11-26T21:11:52Z",
+  "as_of": "2026-11-26T21:35:12Z",
   "core": {
    "closed": 264,
    "open": 13,

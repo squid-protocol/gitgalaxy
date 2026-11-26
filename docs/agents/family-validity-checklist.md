@@ -26,6 +26,8 @@ Go `decorators` counts the `//go:` pragma line(s) directly above a `func` (a bla
 
 Shell (#9338, re-measured 2026-11-26 on the pinned crucible, language-crucible v1.9.0, 816 functions): the five cells the issue listed (`bitwise_ops`, `time_date_logic`, `panics_and_aborts`, `io`, `debug_prints`) were already at or above 0.8 after #9409; `family_oracle_sweep.py --write` reproduced the committed baseline byte for byte, so no rule or oracle changed. Lowest Shell cells now: `thread_sleeps` precision 0.828, `branch` 0.833 (both above the bar).
 
+Kotlin (#9330, re-measured 2026-11-26 on the pinned crucible, language-crucible v1.9.0, 246 functions): the seven cells the issue listed were already at or above 0.8 (`closures` and `doc` after #9358, `io`, `panics_and_aborts`, `bitwise_ops`, `regex_execution` and `time_date_logic` after #9409); `family_oracle_sweep.py --write` reproduced the committed baseline byte for byte and `family_red_cells.py --lang kotlin` lists 0 red cells, so no rule or oracle changed. Only `closures` (1.00 / 0.971) and `doc` (1.00 / 1.00) have pinned instances; the other five are scored on okhttp (hatched, not quotable: `io` 0.948, `regex_execution` 0.912, `panics_and_aborts` 0.98 / 0.993, `bitwise_ops` and `time_date_logic` 1.00). Lowest Kotlin cell: `thread_sleeps` on okhttp, precision 0.80 (above the bar, not in the issue's list).
+
 ## What a red cell usually is (check in this order)
 | Symptom | Usual cause | Real examples |
 |---|---|---|

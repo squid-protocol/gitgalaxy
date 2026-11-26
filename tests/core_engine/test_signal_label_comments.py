@@ -251,3 +251,10 @@ def test_thread_sleeps_comments_use_the_display_name():
         text = (LANGS / f"{stem}.py").read_text(encoding="utf-8")
         assert f"thread_sleeps ({name}:" in text, stem
         assert "Thread Blocking / Synchronous Pauses" not in text, stem
+
+
+def test_language_how_to_names_thread_sleeps_by_its_display_name():
+    doc = LANGS.parents[2] / "standards" / "how_to_add_a_language.md"
+    text = doc.read_text(encoding="utf-8")
+    assert "Thread Blocking / Synchronous Pauses" not in text
+    assert "thread_sleeps (Sleeps & Timed Waits)" in text

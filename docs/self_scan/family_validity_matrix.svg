@@ -191,7 +191,7 @@
 <rect x="276" y="236" width="11" height="11" fill="#a9d1ff"><title>java / branch: recall 1.00, precision 0.99 (218 oracle, 220 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="236" width="11" height="11" fill="#a9d1ff"><title>javascript / branch: recall 1.00, precision 1.00 (381 oracle, 382 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="300" y="236" width="11" height="11" fill="#a9d1ff"><title>ruby / branch: recall 1.00, precision 0.99 (154 oracle, 156 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="312" y="236" width="11" height="11" fill="#1f3b5c"><title>rust / branch: recall 1.00, precision 0.76 (530 oracle, 702 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="312" y="236" width="11" height="11" fill="#a9d1ff"><title>rust / branch: recall 1.00, precision 0.99 (694 oracle, 702 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="236" width="11" height="11" fill="#a9d1ff"><title>swift / branch: recall 1.00, precision 0.98 (155 oracle, 158 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="236" width="11" height="11" fill="#a9d1ff"><title>c / branch: recall 1.00, precision 1.00 (1801 oracle, 1801 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="236" width="11" height="11" fill="#a9d1ff"><title>lua / branch: recall 1.00, precision 0.99 (272 oracle, 276 family functions; language-crucible v1.9.0)</title></rect>

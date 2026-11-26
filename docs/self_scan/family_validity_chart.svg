@@ -197,9 +197,9 @@
 <rect x="582" y="260" width="40" height="18" fill="#a9d1ff"/>
 <text class="numd" x="602.0" y="273">99</text>
 <text class="sided" x="585" y="268">P</text>
-<rect x="624" y="260" width="40" height="18" fill="#1f3b5c"/>
-<text class="num" x="644.0" y="273">76</text>
-<text class="side" x="627" y="268">P</text>
+<rect x="624" y="260" width="40" height="18" fill="#a9d1ff"/>
+<text class="numd" x="644.0" y="273">99</text>
+<text class="sided" x="627" y="268">P</text>
 <rect x="666" y="260" width="40" height="18" fill="#a9d1ff"/>
 <text class="numd" x="686.0" y="273">98</text>
 <text class="sided" x="669" y="268">P</text>

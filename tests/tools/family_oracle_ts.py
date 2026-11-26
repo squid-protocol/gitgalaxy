@@ -187,7 +187,9 @@ SPECS: dict[str, Spec] = {
         (".rs",),
         _fs("function_item"),
         _fs("closure_expression"),
-        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm"),
+        # `try_expression` is the `?` operator: a conditional early return (Ok continues, Err leaves), a runtime choice
+        # between paths that desugars to a `match`; branch contract corollary 3 excludes only UNCONDITIONAL transfers (#8868).
+        _fs("if_expression", "for_expression", "while_expression", "loop_expression", "match_arm", "try_expression"),
         _fs(),
         _fs("call_expression", "macro_invocation"),
         {

@@ -744,7 +744,7 @@
 <rect x="276" y="356" width="11" height="11" fill="#3b3f4a"><title>java / io: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="276" y="356" width="11" height="11" fill="url(#dots)"/>
 <rect x="288" y="356" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / io: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / io: recall 0.65, precision 0.28 (17 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="356" width="11" height="11" fill="#4f9be8"><title>ruby / io: recall 1.00, precision 0.94 (17 oracle, 18 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>rust / io: recall 0.49, precision 0.25 (129 oracle, 253 family functions; tokio (not pinned))</title></rect>
 <rect x="312" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="356" width="11" height="11" fill="#1f3b5c"><title>swift / io: recall 0.73, precision 1.00 (11 oracle, 8 family functions; vapor (not pinned))</title></rect>
@@ -2261,7 +2261,7 @@
 <rect x="276" y="740" width="11" height="11" fill="#1f3b5c"><title>java / debug_prints: recall 1.00, precision 0.65 (20 oracle, 31 family functions; retrofit (not pinned))</title></rect>
 <rect x="276" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="288" y="740" width="11" height="11" fill="#a9d1ff"><title>javascript / debug_prints: recall 1.00, precision 1.00 (33 oracle, 33 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="740" width="11" height="11" fill="#1f3b5c"><title>ruby / debug_prints: recall 1.00, precision 0.76 (16 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="740" width="11" height="11" fill="#a9d1ff"><title>ruby / debug_prints: recall 1.00, precision 1.00 (16 oracle, 16 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="740" width="11" height="11" fill="#a9d1ff"><title>rust / debug_prints: recall 1.00, precision 0.98 (54 oracle, 55 family functions; tokio (not pinned))</title></rect>
 <rect x="312" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="324" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / debug_prints: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
@@ -2972,7 +2972,7 @@
 <rect x="264" y="908" width="11" height="11" fill="#2f6aa8"><title>typescript / regex_execution: recall 0.97, precision 0.82 (34 oracle, 40 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="908" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>java / regex_execution: recall -, precision 0.00 (0 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="288" y="908" width="11" height="11" fill="#2f6aa8"><title>javascript / regex_execution: recall 0.94, precision 0.81 (36 oracle, 42 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="908" width="11" height="11" fill="#1f3b5c"><title>ruby / regex_execution: recall 0.67, precision 0.94 (24 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="908" width="11" height="11" fill="#4f9be8"><title>ruby / regex_execution: recall 1.00, precision 0.96 (24 oracle, 25 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="908" width="11" height="11" fill="#3b3f4a"><title>rust / regex_execution: scored, but the oracle sees no instance in language-crucible v1.9.0</title></rect>
 <rect x="312" y="908" width="11" height="11" fill="url(#dots)"/>
 <rect x="324" y="908" width="11" height="11" fill="#3b1d1d" opacity="0.5" stroke="#e5534b" stroke-width="1.2"><title>swift / regex_execution: recall -, precision 0.00 (0 oracle, 1 family functions; vapor (not pinned))</title></rect>
@@ -3024,7 +3024,7 @@
 <rect x="276" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>java / time_date_logic: recall 0.38, precision 1.00 (16 oracle, 6 family functions; retrofit (not pinned))</title></rect>
 <rect x="276" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="288" y="920" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>javascript / time_date_logic: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="300" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>ruby / time_date_logic: recall 0.20, precision 1.00 (10 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
+<rect x="300" y="920" width="11" height="11" fill="#a9d1ff"><title>ruby / time_date_logic: recall 1.00, precision 1.00 (10 oracle, 10 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="312" y="920" width="11" height="11" fill="#4f9be8"><title>rust / time_date_logic: recall 1.00, precision 0.93 (13 oracle, 14 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="324" y="920" width="11" height="11" fill="#1f3b5c"><title>swift / time_date_logic: recall 0.59, precision 0.96 (44 oracle, 27 family functions; vapor (not pinned))</title></rect>
 <rect x="324" y="920" width="11" height="11" fill="url(#hatch)"/>

@@ -1934,12 +1934,12 @@
    "bitwise_ops": {
     "corpus": "vapor",
     "functions": 1906,
-    "n_family": 17,
+    "n_family": 14,
     "n_oracle": 13,
     "pinned": false,
-    "precision": 0.765,
+    "precision": 0.929,
     "recall": 1.0,
-    "status": "over-counts"
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -1994,12 +1994,12 @@
    "io": {
     "corpus": "vapor",
     "functions": 1906,
-    "n_family": 8,
+    "n_family": 11,
     "n_oracle": 11,
     "pinned": false,
     "precision": 1.0,
-    "recall": 0.727,
-    "status": "misses"
+    "recall": 1.0,
+    "status": "ok"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
@@ -2015,11 +2015,11 @@
     "corpus": "vapor",
     "functions": 1906,
     "n_family": 1,
-    "n_oracle": 0,
+    "n_oracle": 1,
     "pinned": false,
-    "precision": 0.0,
-    "recall": null,
-    "status": "over-counts"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",
@@ -2032,24 +2032,24 @@
     "status": "ok"
    },
    "thread_sleeps": {
-    "corpus": "language-crucible v1.9.0",
-    "functions": 352,
-    "n_family": 0,
-    "n_oracle": 0,
-    "pinned": true,
-    "precision": null,
-    "recall": null,
-    "status": "no-instances"
+    "corpus": "vapor",
+    "functions": 1906,
+    "n_family": 8,
+    "n_oracle": 8,
+    "pinned": false,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "time_date_logic": {
     "corpus": "vapor",
     "functions": 1906,
-    "n_family": 27,
+    "n_family": 48,
     "n_oracle": 44,
     "pinned": false,
-    "precision": 0.963,
-    "recall": 0.591,
-    "status": "misses"
+    "precision": 0.896,
+    "recall": 0.977,
+    "status": "ok"
    }
   },
   "typescript": {

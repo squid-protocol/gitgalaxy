@@ -4687,7 +4687,7 @@
       "swift/ghostty_macos/macos_Sources_Helpers_AnySortKey.swift": 0,
       "swift/ghostty_macos/macos_Sources_Helpers_Extensions_Duration_Extension.swift": 0,
       "swift/ghostty_macos/macos_Sources_Helpers_Extensions_NSMenuItem_Extension.swift": 0,
-      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": 2,
+      "swift/ghostty_macos/macos_Sources_Helpers_Extensions_String_Extension.swift": 1,
       "swift/ghostty_macos/macos_Sources_Helpers_LastWindowPosition.swift": 0
     },
     "swift/swift_argument_parser": {
@@ -4712,7 +4712,7 @@
       "swift/swift_nio_core/Sources_NIOCore_SingleStepByteToMessageDecoder.swift": 2,
       "swift/swift_nio_core/Sources_NIOFS_FileChunks.swift": 0,
       "swift/swift_nio_core/Sources_NIOFoundationCompat_Exports.swift": 0,
-      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": 1,
+      "swift/swift_nio_core/Sources_NIOMulticastChat_main.swift": 0,
       "swift/swift_nio_core/Sources_NIOPerformanceTester_WebSocketFrameEncoderBenchmark.swift": 0,
       "swift/swift_nio_core/Sources_NIOPosix_NIOPosixSendableMetatype.swift": 0,
       "swift/swift_nio_core/Sources_NIOPosix_StructuredConcurrencyHelpers.swift": 0,

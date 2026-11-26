@@ -9926,17 +9926,9 @@
       "investigated_at": "2026-10-24T09:30:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
-      "last_seen_count": 7,
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
+      "last_seen_count": 6,
       "last_seen_examples": [
-        {
-          "file_path": "perl/ack3_tests/file-permission.t",
-          "name": "check_with -> subtest",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 65
-          }
-        },
         {
           "file_path": "perl/exiftool/exiftool",
           "name": "SetImageInfo -> ORIG_FILE",
@@ -9968,6 +9960,14 @@
             "gitgalaxy": null,
             "tree_sitter": 156
           }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "create_default_prefs -> OUT",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2175
+          }
         }
       ],
       "metric": "ambiguous_function_call_expression/function",
@@ -9990,47 +9990,47 @@
       "investigated_at": "2026-10-24T09:30:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
-      "last_seen_count": 101,
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
+      "last_seen_count": 61,
       "last_seen_examples": [
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_set_product -> groups_in",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> SerializeStruct",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2856
+            "tree_sitter": 2711
           }
         },
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_set_product -> groups_mandatory",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> PrintErrors",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2864
+            "tree_sitter": 2293
           }
         },
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_set_product -> group_is_valid",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> delete",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2858
+            "tree_sitter": 2254
           }
         },
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_extract_bug_ids -> uniq",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> printf",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 581
+            "tree_sitter": 2469
           }
         },
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_check_alias -> new",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> FormatXML",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 1430
+            "tree_sitter": 2907
           }
         }
       ],
@@ -10052,7 +10052,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 20,
       "last_seen_examples": [
         {
@@ -10098,7 +10098,7 @@
       ],
       "metric": "func1op_call_expression/-x",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "Tree-sitter wrong, no credit. The recorded examples (20) are file-test operators: `-x $webdotbase`, `-e \"$webdotdir/.htaccess\"`, `-p $$raf{FILE_PT}`. A file test is an operator spelled with a dash, not a function with a name: `-x` is no identifier a call could be to or resolve against, and C1/C3 count a call to the name written. Tree-sitter files it as `func1op_call_expression` and the harness takes the operator spelling as a callee name. Leaves the FN count."
     },
@@ -10116,7 +10116,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10156,7 +10156,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -10220,7 +10220,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -10284,7 +10284,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10324,7 +10324,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 21,
       "last_seen_examples": [
         {
@@ -10388,7 +10388,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 54,
       "last_seen_examples": [
         {
@@ -10452,7 +10452,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -10516,7 +10516,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 54,
       "last_seen_examples": [
         {
@@ -10580,7 +10580,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -10644,7 +10644,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10676,7 +10676,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10690,7 +10690,7 @@
       ],
       "metric": "func1op_call_expression/int",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "GitGalaxy missed it. `int` is a Perl builtin invoked as a named unary operator (the recorded example is `int rand $max / 2`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
@@ -10708,7 +10708,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10740,7 +10740,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -10804,7 +10804,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10836,7 +10836,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10868,7 +10868,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -10900,7 +10900,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -10940,7 +10940,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 19,
       "last_seen_examples": [
         {
@@ -11004,7 +11004,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -11068,7 +11068,7 @@
       "investigated_at": "2026-10-24T09:30:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 214,
       "last_seen_examples": [
         {
@@ -11132,7 +11132,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11164,7 +11164,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -11204,7 +11204,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11236,7 +11236,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -11298,39 +11298,39 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> FullEscapeXML",
+          "name": "GetImageInfo -> AddGroups",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2891
+            "tree_sitter": 2656
           }
         },
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> SetImageInfo",
+          "name": "GetImageInfo -> Printable",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2291
+            "tree_sitter": 2458
           }
         },
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> FormatJSON",
+          "name": "GetImageInfo -> OpenOutputFile",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2987
+            "tree_sitter": 2282
           }
         },
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> LengthUTF8",
+          "name": "GetImageInfo -> SuggestedExtension",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2453
+            "tree_sitter": 2783
           }
         },
         {
@@ -11362,31 +11362,31 @@
       "investigated_at": "2026-10-24T09:30:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
-      "last_seen_count": 21,
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
+      "last_seen_count": 19,
       "last_seen_examples": [
         {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_set_product -> add_group",
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> GetInfo",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2865
-          }
-        },
-        {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "_set_product -> remove_group",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 2859
+            "tree_sitter": 2292
           }
         },
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> InsertTagValues",
+          "name": "GetImageInfo -> ImageInfo",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2210
+            "tree_sitter": 2208
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> AddPoints",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2630
           }
         },
         {
@@ -11399,10 +11399,10 @@
         },
         {
           "file_path": "perl/exiftool/exiftool",
-          "name": "GetImageInfo -> GetGroup",
+          "name": "GetImageInfo -> InsertTagValues",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2438
+            "tree_sitter": 2210
           }
         }
       ],
@@ -11416,15 +11416,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11437,10 +11439,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:array<variable_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `my @time = localtime(time());`: `time()` is a real call to the built-in `time` (func0op node in tree-sitter)."
     },
     "perl/call/not-a-call-in-ts:binary_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11451,10 +11453,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11467,10 +11469,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:binary_expression<assignment_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `x` is the repetition operator, `\"\\xff\" x ($n - 1)`, `'a' x ($w - length($a))`, `('0' x $dig)`: an operator, not a call. The engine read `x (` as `name(`. Fixed in this PR: the name-then-paren alternative of CALLS_OUT_PERL now refuses `m s tr y x` (a `->x` method still counts). No credit."
     },
     "perl/call/not-a-call-in-ts:binary_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11481,10 +11483,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11497,10 +11499,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:binary_expression<conditional_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `x` is the repetition operator, `\"\\xff\" x ($n - 1)`, `'a' x ($w - length($a))`, `('0' x $dig)`: an operator, not a call. The engine read `x (` as `name(`. Fixed in this PR: the name-then-paren alternative of CALLS_OUT_PERL now refuses `m s tr y x` (a `->x` method still counts). No credit."
     },
     "perl/call/not-a-call-in-ts:binary_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11511,10 +11513,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11527,10 +11529,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:binary_expression<list_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `x` is the repetition operator, `\"\\xff\" x ($n - 1)`, `'a' x ($w - length($a))`, `('0' x $dig)`: an operator, not a call. The engine read `x (` as `name(`. Fixed in this PR: the name-then-paren alternative of CALLS_OUT_PERL now refuses `m s tr y x` (a `->x` method still counts). No credit."
     },
     "perl/call/not-a-call-in-ts:binary_expression<parenthesized_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11541,10 +11543,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -11565,24 +11567,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:binary_expression<parenthesized_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `x` is the repetition operator, `\"\\xff\" x ($n - 1)`, `'a' x ($w - length($a))`, `('0' x $dig)`: an operator, not a call. The engine read `x (` as `name(`. Fixed in this PR: the name-then-paren alternative of CALLS_OUT_PERL now refuses `m s tr y x` (a `->x` method still counts). No credit."
     },
     "perl/call/not-a-call-in-ts:eval_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11595,24 +11599,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:eval_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `eval` here is `eval(\"require $pkg_module\")` / `eval $count`: string eval compiles and runs code, an invocation of the built-in by name (C3). Tree-sitter models it as eval_expression."
     },
     "perl/call/not-a-call-in-ts:eval_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11625,24 +11631,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:eval_expression<binary_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `eval` here is `eval(\"require $pkg_module\")` / `eval $count`: string eval compiles and runs code, an invocation of the built-in by name (C3). Tree-sitter models it as eval_expression."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -11687,24 +11695,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11733,24 +11743,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<binary_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -11795,24 +11807,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<conditional_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -11841,24 +11855,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<conditional_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<elsif/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -11879,24 +11895,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<elsif",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -11909,24 +11927,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<list_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<postfix_conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -11963,24 +11983,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<postfix_conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:func0op_call_expression<relational_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-11-11T12:07:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12001,10 +12023,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:func0op_call_expression<relational_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `time` and `wantarray` are Perl built-ins taking no argument (`my $now = time;`, `if (time > $deadline)`, `return wantarray ? @r : $r[0];`, `unless wantarray`). They are invoked by name, so they are calls by C3, the same ruling as the paren-less `shift`. Tree-sitter gives them a func0op node instead of a call node."
     },
     "perl/call/not-a-call-in-ts:hash_element_expression<func1op_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12018,7 +12040,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -12056,15 +12078,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12077,24 +12101,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<anonymous_array_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -12131,24 +12157,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12161,24 +12189,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<binary_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12199,24 +12229,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12229,24 +12261,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<for_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<function_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12267,24 +12301,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<function_call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12297,24 +12333,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<list_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<map_grep_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12327,24 +12365,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<map_grep_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<parenthesized_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12357,24 +12397,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<parenthesized_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<sort_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12395,24 +12437,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<sort_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<unary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -12457,10 +12501,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:map_grep_expression<unary_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `map`, `grep` are Perl list operators (`grep($sql_vers =~ /$_/, @list)`, `foreach my $id (map($_->id, @$kw))`, `push(@a, $x) if !grep(...)`). Each is invoked with arguments, so it is a call by C3; tree-sitter models them as a map_grep node, not a call. Every recorded example is the call form."
     },
     "perl/call/not-a-call-in-ts:match_regexp<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12471,10 +12515,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12495,10 +12539,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:match_regexp<binary_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `m` is the match operator with a paren delimiter, `$path =~ m([:./\\\\]$)`. Not a call. Engine false positive, fixed in this PR (same lookahead). No credit."
     },
     "perl/call/not-a-call-in-ts:scalar<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12512,7 +12556,7 @@
       "investigated_at": "2026-10-24T09:30:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 170,
       "last_seen_examples": [
         {
@@ -12574,7 +12618,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12604,7 +12648,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12634,7 +12678,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12664,7 +12708,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 79,
       "last_seen_examples": [
         {
@@ -12718,15 +12762,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12739,24 +12785,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:sort_expression<for_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `sort` is a Perl list operator invoked with arguments (`sort($self->param())`, `sort(grep /^$tag /, keys %$info)`). A call by C3; tree-sitter gives it a sort_expression node."
     },
     "perl/call/not-a-call-in-ts:sort_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12769,10 +12817,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:sort_expression<list_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `sort` is a Perl list operator invoked with arguments (`sort($self->param())`, `sort(grep /^$tag /, keys %$info)`). A call by C3; tree-sitter gives it a sort_expression node."
     },
     "perl/call/not-a-call-in-ts:string_literal<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12786,7 +12834,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12816,7 +12864,7 @@
       "investigated_at": "2026-10-24T20:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12846,7 +12894,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12873,10 +12921,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -12905,10 +12953,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:substitution_regexp<binary_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `s` is the substitution operator. Not a call. Engine false positive, fixed in this PR (same lookahead). No credit."
     },
     "perl/call/not-a-call-in-ts:transliteration_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12919,10 +12967,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -12943,10 +12991,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:transliteration_expression<binary_expression",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. The callee `tr` is the transliteration operator with paren delimiters, `tr(/)(\\\\)`. Not a call. Engine false positive, fixed in this PR (same lookahead). No credit."
     },
     "perl/call/not-a-call-in-ts:undef_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12962,22 +13010,22 @@
       "investigated_at": "2026-11-22",
       "investigated_by": "claude",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 12,
       "last_seen_examples": [
-        {
-          "file_path": "perl/bugzilla/Bug.pm",
-          "name": "actual_time -> undef",
-          "readings": {
-            "gitgalaxy": 3486,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "perl/bugzilla/Bug.pm",
           "name": "dup_id -> undef",
           "readings": {
             "gitgalaxy": 3435,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "actual_time -> undef",
+          "readings": {
+            "gitgalaxy": 3486,
             "tree_sitter": null
           }
         },
@@ -13026,7 +13074,7 @@
       "investigated_at": "2026-11-22",
       "investigated_by": "claude",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
@@ -13090,7 +13138,7 @@
       "investigated_at": "2026-10-24T19:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -13111,17 +13159,17 @@
         },
         {
           "file_path": "perl/exiftool/ExifTool.pm",
-          "name": "Options -> undef",
+          "name": "GetValue -> undef",
           "readings": {
-            "gitgalaxy": 2511,
+            "gitgalaxy": 3600,
             "tree_sitter": null
           }
         },
         {
           "file_path": "perl/exiftool/ExifTool.pm",
-          "name": "GetValue -> undef",
+          "name": "Options -> undef",
           "readings": {
-            "gitgalaxy": 3600,
+            "gitgalaxy": 2511,
             "tree_sitter": null
           }
         },
@@ -13154,7 +13202,7 @@
       "investigated_at": "2026-10-24T19:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 53,
       "last_seen_examples": [
         {
@@ -13208,15 +13256,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13237,24 +13287,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<lowprec_logical_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `undef` is a Perl built-in operator (`undef @matches`, `undef $fileType if ...`, `->compiled(undef)`); same ruling as the validated `undef` shapes: a named built-in invoked by name is a call by C3, tree-sitter models it as undef_expression."
     },
     "perl/call/not-a-call-in-ts:undef_expression<method_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13267,24 +13319,26 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<method_call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `undef` is a Perl built-in operator (`undef @matches`, `undef $fileType if ...`, `->compiled(undef)`); same ruling as the validated `undef` shapes: a named built-in invoked by name is a call by C3, tree-sitter models it as undef_expression."
     },
     "perl/call/not-a-call-in-ts:undef_expression<postfix_conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-11-25T20:30:00Z",
+      "investigated_by": "claude (churn worker, #6433)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -13305,10 +13359,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<postfix_conditional_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `undef` is a Perl built-in operator (`undef @matches`, `undef $fileType if ...`, `->compiled(undef)`); same ruling as the validated `undef` shapes: a named built-in invoked by name is a call by C3, tree-sitter models it as undef_expression."
     },
     "perl/call/not-a-call-in-ts:undef_expression<return_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -13324,7 +13378,7 @@
       "investigated_at": "2026-10-24T19:30:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 37,
       "last_seen_examples": [
         {
@@ -13388,7 +13442,7 @@
       "investigated_at": "2026-11-22",
       "investigated_by": "claude",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -13450,20 +13504,12 @@
       "investigated_at": "2026-10-24T13:50:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
-      "last_reconciled_at": "2026-11-11T12:07:23Z",
-      "last_seen_count": 64,
+      "last_reconciled_at": "2026-11-26T01:12:43Z",
+      "last_seen_count": 63,
       "last_seen_examples": [
         {
           "file_path": "perl/bugzilla/Bug.pm",
           "name": "_extract_bug_ids -> E",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "perl/bugzilla/CGI.pm",
-          "name": "_prevent_unsafe_response -> x",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -13488,6 +13534,14 @@
         {
           "file_path": "perl/exiftool/ExifTool.pm",
           "name": "ExtractInfo -> SHA",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessBinaryData -> G",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null

@@ -603,6 +603,7 @@ def _decorators(node) -> list[str]:
 
 def _documented(spec: Spec, node) -> bool:
     """A doc comment directly above, in the language's structured style: `/** */` (C, Java, JS, TS), `///` / `//!` / `/** */` (Rust), any comment (Go: godoc)."""
+    fn_node = node
     if spec.ts_name == "typescript":
         # #8863: the doc sits above `export function f` / `export const f = () =>`, the wrapper's sibling, not the function's
         while node.parent is not None and node.parent.type in (
@@ -610,8 +611,18 @@ def _documented(spec: Spec, node) -> bool:
             "lexical_declaration",
             "variable_declaration",
             "variable_declarator",
+            # #8863: the doc sits above the property or field that holds the function (`/** d */ key: (x) => ...`)
+            "pair",
+            "public_field_definition",
         ):
             node = node.parent
+        # #8863: a documented parameter (`constructor(/** the name */ public name: string)`) is structured documentation
+        # in the signature the tool reads
+        params = next((c for c in fn_node.children if c.type == "formal_parameters"), None)
+        if params is not None and any(
+            c.type == "comment" and _text(c).lstrip().startswith("/**") for c in params.children
+        ):
+            return True
     prev = node.prev_named_sibling
     while prev is not None and prev.type in ("attribute_item", "decorator"):
         prev = prev.prev_named_sibling

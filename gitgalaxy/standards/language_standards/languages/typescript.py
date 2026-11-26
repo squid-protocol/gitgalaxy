@@ -783,8 +783,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 19. decorators (Decorators / Annotations)
         # #8863: a decorator opens a statement, a parameter or an argument list; `@` inside a word, a template literal or
-        # a doc tag is not one.
-        "decorators": re.compile(r"(?:^|[(,;{}])[ \t]*@[A-Za-z_$][\w$.]*(?:\([^)]*\))?", re.M),
+        # a doc tag is not one. `@${` is a template literal's placeholder after a `}` (`__@${a}@${b}`), never a decorator.
+        "decorators": re.compile(r"(?:^|[(,;{}])[ \t]*@(?!\$\{)[A-Za-z_$][\w$.]*(?:\([^)]*\))?", re.M),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(
             # #8010: bare `extends` (class/interface heritage) is not generic; only a conditional type

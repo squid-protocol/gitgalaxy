@@ -212,7 +212,7 @@
 <rect x="576" y="236" width="11" height="11" fill="#3d6a8c"><title>dart / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="588" y="236" width="11" height="11" fill="#8a6d3b"><title>db2_sql / branch: decoy test with &#x27;IF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="600" y="236" width="11" height="11" fill="#8a6d3b"><title>dockerfile / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="612" y="236" width="11" height="11" fill="#e5534b"><title>easytrieve / branch: decoy test with &#x27;IF&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
+<rect x="612" y="236" width="11" height="11" fill="#8a6d3b"><title>easytrieve / branch: decoy test with &#x27;IF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="624" y="236" width="11" height="11" fill="#8a6d3b"><title>elixir / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="636" y="236" width="11" height="11" fill="#8a6d3b"><title>embedded_python / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="648" y="236" width="11" height="11" fill="#8a6d3b"><title>erlang / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -699,7 +699,7 @@
 <rect x="576" y="344" width="11" height="11" fill="#8a6d3b"><title>dart / high_risk_execution: decoy test with &#x27;exit&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="588" y="344" width="11" height="11" fill="#8a6d3b"><title>db2_sql / high_risk_execution: decoy test with &#x27;EXECUTE IMMEDIATE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="600" y="344" width="11" height="11" fill="#8a6d3b"><title>dockerfile / high_risk_execution: decoy test with &#x27;eval&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="612" y="344" width="11" height="11" fill="#e5534b"><title>easytrieve / high_risk_execution: decoy test with &#x27;STOP&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
+<rect x="612" y="344" width="11" height="11" fill="#8a6d3b"><title>easytrieve / high_risk_execution: decoy test with &#x27;STOP&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="624" y="344" width="11" height="11" fill="#8a6d3b"><title>elixir / high_risk_execution: decoy test with &#x27;System.cmd&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="636" y="344" width="11" height="11" fill="#8a6d3b"><title>embedded_python / high_risk_execution: decoy test with &#x27;eval&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="648" y="344" width="11" height="11" fill="#8a6d3b"><title>erlang / high_risk_execution: decoy test with &#x27;apply()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -767,7 +767,7 @@
 <rect x="576" y="356" width="11" height="11" fill="#8a6d3b"><title>dart / io: decoy test with &#x27;File&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="588" y="356" width="11" height="11" fill="#8a6d3b"><title>db2_sql / io: decoy test with &#x27;FETCH&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="600" y="356" width="11" height="11" fill="#3d6a8c"><title>dockerfile / io: decoy test with &#x27;COPY&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<rect x="612" y="356" width="11" height="11" fill="#e5534b"><title>easytrieve / io: decoy test with &#x27;GET&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
+<rect x="612" y="356" width="11" height="11" fill="#8a6d3b"><title>easytrieve / io: decoy test with &#x27;GET&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="624" y="356" class="u"/>
 <rect x="636" y="356" width="11" height="11" fill="#8a6d3b"><title>embedded_python / io: decoy test with &#x27;open&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="648" y="356" class="u"/>
@@ -2396,7 +2396,7 @@
 <rect x="576" y="764" width="11" height="11" fill="#8a6d3b"><title>dart / panics_and_aborts: decoy test with &#x27;throw&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="588" y="764" width="11" height="11" fill="#8a6d3b"><title>db2_sql / panics_and_aborts: decoy test with &#x27;SIGNAL SQLSTATE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="600" y="764" class="u"/>
-<rect x="612" y="764" width="11" height="11" fill="#e5534b"><title>easytrieve / panics_and_aborts: decoy test with &#x27;STOP&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
+<rect x="612" y="764" width="11" height="11" fill="#8a6d3b"><title>easytrieve / panics_and_aborts: decoy test with &#x27;STOP&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="624" y="764" width="11" height="11" fill="#8a6d3b"><title>elixir / panics_and_aborts: decoy test with &#x27;raise&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="636" y="764" width="11" height="11" fill="#8a6d3b"><title>embedded_python / panics_and_aborts: decoy test with &#x27;raise&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="648" y="764" width="11" height="11" fill="#8a6d3b"><title>erlang / panics_and_aborts: decoy test with &#x27;error()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

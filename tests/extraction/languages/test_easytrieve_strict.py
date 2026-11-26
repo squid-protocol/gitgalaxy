@@ -209,3 +209,18 @@ def test_easytrieve_internal_discriminator_strict():
     assert_redos_immune(disc, "MACRO " + "A" * 100000)
     assert_redos_immune(disc, "%" + "A" * 100000)
     assert_redos_immune(disc, "END-MACRO" + "A" * 100000)
+
+
+def test_easytrieve_column1_star_comment_not_in_code_stream_9304():
+    """#9304: a column-1 `*` line is a comment; keywords in it must not reach code_stream."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    p = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    res = p.split_streams("* IF GET STOP\nIF A EQ B\n  GET F\nEND-IF\n", "easytrieve")
+    assert "STOP" not in res["code_stream"] and "GET STOP" not in res["code_stream"]
+    assert "* IF GET STOP" in res["comment_stream"]
+    assert "IF A EQ B" in res["code_stream"] and "GET F" in res["code_stream"]
+    # an indented `*` is not column 1: stays code (multiplication / continuation text)
+    res = p.split_streams("  X = A * B\n", "easytrieve")
+    assert "A * B" in res["code_stream"]

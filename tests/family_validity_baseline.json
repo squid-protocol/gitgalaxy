@@ -7596,7 +7596,7 @@
   "easytrieve": {
    "branch": {
     "block_comment": null,
-    "comment": "leak",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
     "inline_comment": null,
@@ -7607,7 +7607,7 @@
    },
    "high_risk_execution": {
     "block_comment": null,
-    "comment": "leak",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
     "inline_comment": null,
@@ -7618,7 +7618,7 @@
    },
    "io": {
     "block_comment": null,
-    "comment": "leak",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
     "inline_comment": null,
@@ -7640,7 +7640,7 @@
    },
    "panics_and_aborts": {
     "block_comment": null,
-    "comment": "leak",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
     "inline_comment": null,

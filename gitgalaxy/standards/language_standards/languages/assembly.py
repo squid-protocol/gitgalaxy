@@ -369,7 +369,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Hard execution destruction and unrecoverable hardware exceptions. [cite: 780]
         "panics_and_aborts": re.compile(r"(?i)\b(?:hlt|ud2|brk|svc|int[ \t]+3)\b"),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         # Forcing hardware threads to sleep or pause execution. [cite: 781]
         "thread_sleeps": re.compile(r"(?i)\b(?:pause|hlt|wfi|wfe)\b"),
         # 43. bitwise_ops (Bitwise Operations)

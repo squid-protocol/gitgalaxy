@@ -328,7 +328,7 @@ DEFINITION: dict[str, Any] = {
         # 41. panics_and_aborts (Error Exits: raise/throw/abort)
         # Execution resets.
         "panics_and_aborts": re.compile(r"\b(unset|initial|revert|revert-layer)\b", re.I),
-        # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
+        # 42. thread_sleeps (Sleeps & Timed Waits: a call that blocks the thread or forces a delay)
         "thread_sleeps": re.compile(r"\b(?:transition-delay|animation-delay)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": None,

@@ -738,7 +738,7 @@
 <rect x="228" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / io: recall 0.21, precision 0.14 (115 oracle, 172 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="356" width="11" height="11" fill="#a9d1ff"><title>php / io: recall 1.00, precision 1.00 (18 oracle, 18 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="252" y="356" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / io: recall 0.97, precision 0.35 (39 oracle, 108 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="356" width="11" height="11" fill="#2f6aa8"><title>scala / io: recall 1.00, precision 0.89 (62 oracle, 70 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="356" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="356" width="11" height="11" fill="#a9d1ff"><title>swift / io: recall 1.00, precision 1.00 (11 oracle, 11 family functions; vapor (not pinned))</title></rect>
 <rect x="264" y="356" width="11" height="11" fill="url(#hatch)"/>
@@ -1320,7 +1320,7 @@
 <rect x="228" y="488" width="11" height="11" fill="#4f9be8"><title>kotlin / decorators: recall 0.99, precision 0.94 (158 oracle, 167 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="#1f3b5c"><title>php / decorators: recall 1.00, precision 0.54 (43 oracle, 80 family functions; wordpress (not pinned))</title></rect>
 <rect x="240" y="488" width="11" height="11" fill="url(#hatch)"/>
-<rect x="252" y="488" width="11" height="11" fill="#4f9be8"><title>scala / decorators: recall 0.97, precision 0.99 (2415 oracle, 2365 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="488" width="11" height="11" fill="#4f9be8"><title>scala / decorators: recall 0.97, precision 0.99 (2601 oracle, 2551 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="488" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="488" width="11" height="11" fill="#a9d1ff"><title>swift / decorators: recall 1.00, precision 0.98 (53 oracle, 54 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="488" width="11" height="11" fill="#1f3b5c" opacity="0.5"><title>typescript / decorators: recall 0.50, precision 1.00 (2 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
@@ -2253,7 +2253,7 @@
 <rect x="228" y="740" width="11" height="11" fill="#a9d1ff"><title>kotlin / debug_prints: recall 1.00, precision 0.99 (72 oracle, 73 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="740" width="11" height="11" fill="#2f6aa8"><title>php / debug_prints: recall 0.94, precision 0.90 (18 oracle, 19 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="252" y="740" width="11" height="11" fill="#1f3b5c"><title>scala / debug_prints: recall 1.00, precision 0.74 (14 oracle, 19 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="740" width="11" height="11" fill="#a9d1ff"><title>scala / debug_prints: recall 1.00, precision 1.00 (14 oracle, 14 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="740" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="740" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / debug_prints: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="276" y="740" width="11" height="11" fill="#4f9be8"><title>typescript / debug_prints: recall 0.94, precision 0.94 (17 oracle, 17 family functions; language-crucible v1.9.0)</title></rect>
@@ -2436,7 +2436,7 @@
 <rect x="228" y="776" width="11" height="11" fill="#2f6aa8"><title>kotlin / thread_sleeps: recall 0.93, precision 0.80 (56 oracle, 65 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="776" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>php / thread_sleeps: recall 1.00, precision 1.00 (3 oracle, 3 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="252" y="776" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / thread_sleeps: recall 0.25, precision 0.95 (81 oracle, 21 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="776" width="11" height="11" fill="#a9d1ff"><title>scala / thread_sleeps: recall 1.00, precision 0.98 (98 oracle, 100 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="776" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="776" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / thread_sleeps: recall 1.00, precision 1.00 (8 oracle, 8 family functions; vapor (not pinned))</title></rect>
 <rect x="264" y="776" width="11" height="11" fill="url(#hatch)"/>
@@ -2965,7 +2965,7 @@
 <rect x="228" y="908" width="11" height="11" fill="#1f3b5c"><title>kotlin / regex_execution: recall 0.98, precision 0.55 (62 oracle, 111 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="908" width="11" height="11" fill="#a9d1ff"><title>php / regex_execution: recall 0.98, precision 1.00 (116 oracle, 114 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="252" y="908" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / regex_execution: recall 0.14, precision 1.00 (14 oracle, 2 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="908" width="11" height="11" fill="#a9d1ff"><title>scala / regex_execution: recall 1.00, precision 1.00 (14 oracle, 14 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="908" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="908" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>swift / regex_execution: recall 1.00, precision 1.00 (1 oracle, 1 family functions; vapor (not pinned))</title></rect>
 <rect x="264" y="908" width="11" height="11" fill="url(#hatch)"/>
@@ -3016,7 +3016,7 @@
 <rect x="228" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>kotlin / time_date_logic: recall 0.12, precision 1.00 (184 oracle, 22 family functions; okhttp (not pinned))</title></rect>
 <rect x="228" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="240" y="920" width="11" height="11" fill="#4f9be8"><title>php / time_date_logic: recall 1.00, precision 0.92 (24 oracle, 26 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="252" y="920" width="11" height="11" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"><title>scala / time_date_logic: recall 0.36, precision 0.98 (127 oracle, 47 family functions; kafka (not pinned))</title></rect>
+<rect x="252" y="920" width="11" height="11" fill="#4f9be8"><title>scala / time_date_logic: recall 1.00, precision 0.97 (128 oracle, 132 family functions; kafka (not pinned))</title></rect>
 <rect x="252" y="920" width="11" height="11" fill="url(#hatch)"/>
 <rect x="264" y="920" width="11" height="11" fill="#2f6aa8"><title>swift / time_date_logic: recall 0.98, precision 0.90 (44 oracle, 48 family functions; vapor (not pinned))</title></rect>
 <rect x="264" y="920" width="11" height="11" fill="url(#hatch)"/>

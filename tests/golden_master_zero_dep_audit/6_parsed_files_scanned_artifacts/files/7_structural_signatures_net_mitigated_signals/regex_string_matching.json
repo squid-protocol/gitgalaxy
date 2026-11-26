@@ -2371,7 +2371,7 @@
       "java/springboot/Binder.java": 0,
       "java/springboot/JarLauncher.java": 0,
       "java/springboot/LICENSE.txt": 0,
-      "java/springboot/OnClassCondition.java": 1,
+      "java/springboot/OnClassCondition.java": 0,
       "java/springboot/ServletWebServerApplicationContext.java": 0,
       "java/springboot/SpringApplication.java": 0,
       "java/springboot/WebMvcAutoConfiguration.java": 0

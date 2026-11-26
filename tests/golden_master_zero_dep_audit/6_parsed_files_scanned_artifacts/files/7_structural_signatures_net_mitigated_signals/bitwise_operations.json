@@ -1208,31 +1208,31 @@
       "cpp/NVDA/core.py": 0,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 0,
-      "cpp/NVDA/inProcess.cpp": 1,
+      "cpp/NVDA/inProcess.cpp": 0,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 0,
-      "cpp/NVDA/storage.cpp": 0
+      "cpp/NVDA/storage.cpp": 2
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 0,
       "cpp/godot/DONORS.md": 0,
       "cpp/godot/LICENSE.txt": 0,
-      "cpp/godot/editor_node.cpp": 54,
-      "cpp/godot/editor_node.h": 0,
-      "cpp/godot/gdscript_vm.cpp": 10,
-      "cpp/godot/main.cpp": 16,
+      "cpp/godot/editor_node.cpp": 9,
+      "cpp/godot/editor_node.h": 3,
+      "cpp/godot/gdscript_vm.cpp": 3,
+      "cpp/godot/main.cpp": 14,
       "cpp/godot/main.h": 0,
-      "cpp/godot/node.cpp": 22,
-      "cpp/godot/node.h": 5,
-      "cpp/godot/object.cpp": 28,
+      "cpp/godot/node.cpp": 1,
+      "cpp/godot/node.h": 1,
+      "cpp/godot/object.cpp": 12,
       "cpp/godot/object.h": 198,
-      "cpp/godot/rendering_server_default.cpp": 0,
+      "cpp/godot/rendering_server_default.cpp": 1,
       "cpp/godot/rendering_server_default.h": 1,
-      "cpp/godot/variant.cpp": 4,
+      "cpp/godot/variant.cpp": 14,
       "cpp/godot/variant.h": 2
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 5,
+      "cpp/mlir/flatbuffer_export.cc": 4,
       "cpp/mlir/glob_lit_test.bzl": 0,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 0,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 0,
@@ -1241,17 +1241,17 @@
       "cpp/mlir/tf_tfl_translate.cc": 0
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 9,
+      "cpp/powertoys/FancyZones.cpp": 0,
       "cpp/powertoys/FancyZones.h": 0,
       "cpp/powertoys/ImageResizerExt.cpp": 0,
-      "cpp/powertoys/centralized_kb_hook.cpp": 8,
-      "cpp/powertoys/logger.cpp": 1,
-      "cpp/powertoys/main.cpp": 5,
+      "cpp/powertoys/centralized_kb_hook.cpp": 1,
+      "cpp/powertoys/logger.cpp": 0,
+      "cpp/powertoys/main.cpp": 0,
       "cpp/powertoys/powertoy_module.h": 0
     },
     "cpp/serenity_ak_siphash_cpu": {
-      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 9,
-      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 39
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 3,
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": 30
     },
     "crystal": {
       "crystal/SOURCES.md": 0
@@ -2010,7 +2010,7 @@
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": 0,
       "groovy/spock/SpecParser.java": 0,
-      "groovy/spock/SpecRewriter.java": 0,
+      "groovy/spock/SpecRewriter.java": 12,
       "groovy/spock/SpockTransform.java": 0
     },
     "groovy/spock_core_groovy": {
@@ -2356,7 +2356,7 @@
       "java/SOURCES.md": 0
     },
     "java/flutter_android_editing_tests": {
-      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 0
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": 1
     },
     "java/jenkins_cli": {
       "java/jenkins_cli/LICENSE.txt": 0,

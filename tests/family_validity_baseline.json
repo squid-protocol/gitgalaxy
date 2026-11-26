@@ -168,12 +168,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 55,
-    "n_oracle": 57,
+    "n_family": 26,
+    "n_oracle": 112,
     "pinned": true,
-    "precision": 0.909,
-    "recall": 0.877,
-    "status": "ok"
+    "precision": 0.5,
+    "recall": 0.116,
+    "status": "both"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -198,7 +198,7 @@
    "decorators": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 2,
+    "n_family": 4,
     "n_oracle": 0,
     "pinned": true,
     "precision": 0.0,
@@ -218,22 +218,22 @@
    "io": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 6,
-    "n_oracle": 5,
+    "n_family": 2,
+    "n_oracle": 12,
     "pinned": true,
-    "precision": 0.833,
-    "recall": 1.0,
-    "status": "ok"
+    "precision": 0.5,
+    "recall": 0.083,
+    "status": "both"
    },
    "panics_and_aborts": {
     "corpus": "language-crucible v1.9.0",
     "functions": 1075,
-    "n_family": 0,
+    "n_family": 6,
     "n_oracle": 0,
     "pinned": true,
-    "precision": null,
+    "precision": 0.0,
     "recall": null,
-    "status": "no-instances"
+    "status": "over-counts"
    },
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
@@ -261,9 +261,9 @@
     "n_family": 1,
     "n_oracle": 1,
     "pinned": true,
-    "precision": 1.0,
-    "recall": 1.0,
-    "status": "ok"
+    "precision": 0.0,
+    "recall": 0.0,
+    "status": "both"
    },
    "time_date_logic": {
     "corpus": "language-crucible v1.9.0",
@@ -554,12 +554,12 @@
    "bitwise_ops": {
     "corpus": "language-crucible v1.9.0",
     "functions": 802,
-    "n_family": 0,
+    "n_family": 10,
     "n_oracle": 10,
     "pinned": true,
-    "precision": null,
-    "recall": 0.0,
-    "status": "dead"
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "ok"
    },
    "branch": {
     "corpus": "language-crucible v1.9.0",
@@ -574,12 +574,12 @@
    "closures": {
     "corpus": "language-crucible v1.9.0",
     "functions": 802,
-    "n_family": 46,
+    "n_family": 28,
     "n_oracle": 29,
     "pinned": true,
-    "precision": 0.63,
-    "recall": 1.0,
-    "status": "over-counts"
+    "precision": 1.0,
+    "recall": 0.966,
+    "status": "ok"
    },
    "debug_prints": {
     "corpus": "retrofit",
@@ -634,12 +634,12 @@
    "regex_execution": {
     "corpus": "language-crucible v1.9.0",
     "functions": 802,
-    "n_family": 1,
+    "n_family": 0,
     "n_oracle": 0,
     "pinned": true,
-    "precision": 0.0,
+    "precision": null,
     "recall": null,
-    "status": "over-counts"
+    "status": "no-instances"
    },
    "short_circuit": {
     "corpus": "language-crucible v1.9.0",

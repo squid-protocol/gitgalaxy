@@ -3918,9 +3918,10 @@
       },
       "cpp/godot/editor_node.h": {
         "Compute Cores": 1,
+        "I/O & Config Routines": 1,
         "Interface Declarations": 27,
         "Parameter Forwarders": 3,
-        "State Mutators": 2,
+        "State Mutators": 1,
         "Type Conversions": 1
       },
       "cpp/godot/gdscript_vm.cpp": {
@@ -3937,10 +3938,10 @@
       },
       "cpp/godot/main.h": {},
       "cpp/godot/node.cpp": {
-        "Compute Cores": 78,
+        "Compute Cores": 79,
         "I/O & Config Routines": 26,
         "Interface Declarations": 61,
-        "Many-Argument Workhorses": 18,
+        "Many-Argument Workhorses": 17,
         "Parameter Forwarders": 47,
         "Type Conversions": 6
       },
@@ -3954,8 +3955,8 @@
         "State Mutators": 3
       },
       "cpp/godot/object.cpp": {
-        "Compute Cores": 43,
-        "I/O & Config Routines": 18,
+        "Compute Cores": 44,
+        "I/O & Config Routines": 17,
         "Interface Declarations": 22,
         "Many-Argument Workhorses": 13,
         "Parameter Forwarders": 25,
@@ -6662,10 +6663,10 @@
         "Annotated & Test Methods": 10,
         "Compute Cores": 2,
         "Defensive Guards": 4,
-        "Encapsulated Accessors": 16,
+        "Encapsulated Accessors": 14,
         "Interface Declarations": 2,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 22
+        "Stateful Encapsulated Methods": 24
       },
       "groovy/spock/SpockTransform.java": {
         "Annotated & Test Methods": 1,
@@ -7558,9 +7559,8 @@
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
-        "Callbacks & Closures": 1,
         "Encapsulated Accessors": 20,
-        "Generic / Templated Code": 6,
+        "Generic / Templated Code": 7,
         "State Mutators": 1,
         "Stateful Encapsulated Methods": 7,
         "Type Conversions": 2
@@ -7610,11 +7610,11 @@
       },
       "java/springboot/WebMvcAutoConfiguration.java": {
         "Annotated & Test Methods": 21,
-        "Callbacks & Closures": 5,
+        "Callbacks & Closures": 3,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 10,
         "Generic / Templated Code": 3,
-        "Parameter Forwarders": 1,
+        "Parameter Forwarders": 3,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 7
       }

@@ -14,6 +14,7 @@ adding a Spec and running the scan of one real repository through `family_oracle
 from __future__ import annotations
 
 import collections
+import re
 from dataclasses import dataclass, field
 from typing import Any, NamedTuple
 
@@ -218,8 +219,19 @@ SPECS: dict[str, Spec] = {
                 "fs::remove_file",
                 "fs::read_dir",
                 "fs::copy",
-                "TcpStream::connect",
-                "TcpListener::bind",
+                # #9340: the contract names a socket or file opened by a named type (the rule counts these type-path calls too)
+                "fs::metadata",
+                "fs::rename",
+                "fs::remove_dir",
+                "fs::remove_dir_all",
+                "File::",
+                "OpenOptions::",
+                "TcpStream::",
+                "TcpListener::",
+                "UdpSocket::",
+                "UnixStream::",
+                "UnixListener::",
+                "UnixDatagram::",
                 "io::stdin",
                 "io::stdout",
                 "stdin",
@@ -543,6 +555,9 @@ def _to_console(call) -> bool:
     return any(_text(a).strip() in _CONSOLE_STREAMS for a in parts)
 
 
+_MACRO_PATH_CALL = re.compile(r"([A-Za-z_]\w*(?:::[A-Za-z_]\w*)+)[ \t]*\(")
+
+
 def _matches(full: str, patterns: tuple[str, ...]) -> str | None:
     """The pattern `full` matches: a prefix ending in `.` or `::`, `Name.` forms, the exact callee, or the last segment of a bare name."""
     last = full.replace("::", ".").split(".")[-1]
@@ -771,6 +786,15 @@ class TreeSitterOracle:
                     hit = _matches(full, pats)
                     if hit and not (key == "print" and hit in _STREAM_PRINTS and not _to_console(node)):
                         add(key, hit)
+                if t == "macro_invocation" and spec.ts_name == "rust":
+                    # #9340: a macro's argument list is an opaque token tree to the grammar, but `assert_ok!(TcpListener::bind(..))`
+                    # still opens the socket: read the type-path calls inside it for the I/O family (the contract names the operation)
+                    body = next((c for c in node.children if c.type == "token_tree"), None)
+                    if body is not None:
+                        for m in _MACRO_PATH_CALL.finditer(_text(body)):
+                            hit = _matches(m.group(1), spec.calls["io"])
+                            if hit:
+                                add("io", hit)
         n["args"] = _params(spec, fn)
         deco = _decorators(fn, spec.ts_name == "go")
         if deco:

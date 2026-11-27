@@ -93,7 +93,7 @@ DEFINITION: dict[str, Any] = {
         # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
         "branch": re.compile(r"\b(if|unless|elsif|else|case|when|in|for|while|until)\b|(?<![" + ID_CONTINUE + r"])\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks of methods, lambdas, and blocks. Bounded to prevent ReDoS.
         # #1209: parameter-list span wrapped in its own capture group in
         # all four branches (was only reachable via group(0), the whole

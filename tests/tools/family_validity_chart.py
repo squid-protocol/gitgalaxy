@@ -5,6 +5,8 @@ family_validity_chart.py -- how much of the keyword-family signals is checked, a
 The counterpart of tri_comparison_chart.svg (function finding) and graph_coverage_chart.svg (call graph) for the keyword families. Two figures
 from one baseline, because one picture cannot honestly carry both "how much is checked" and "how well":
 
+  (Neither is committed: tests/tools/generated_docs.py renders them from the baseline and generated-docs.yml publishes them to the
+  `generated` branch; the README points there.)
   docs/self_scan/family_validity_chart.svg    the README figure: a coverage bar, a table of every parser-measured cell with the score PRINTED in it,
                                               and the key to the decoy ladder. Few numbers, readable at README width, no hover needed.
   docs/self_scan/family_validity_matrix.svg   the maintainer matrix: every language the engine parses against every family with a written contract
@@ -26,8 +28,7 @@ WHAT THE NUMBERS ARE
 
 USAGE
     python tests/tools/family_validity_chart.py                 # markdown summary to stdout
-    python tests/tools/family_validity_chart.py --write         # both SVGs
-    python tests/tools/family_validity_chart.py --check         # fail if a committed SVG is stale
+    python tests/tools/family_validity_chart.py --write         # both SVGs, for reading locally (git-ignored)
     python tests/tools/family_validity_chart.py --history PATH  # append per-language rows to a history CSV
 """
 
@@ -652,7 +653,6 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help=f"write {CHART_PATH.relative_to(REPO_ROOT)} and {MATRIX_PATH.relative_to(REPO_ROOT)}",
     )
-    ap.add_argument("--check", action="store_true", help="fail if a committed SVG differs from a fresh render")
     ap.add_argument("--history", metavar="PATH", help="append per-language rows to a history CSV")
     ap.add_argument(
         "--baseline", default=str(BASELINE), help="the baseline JSON (default tests/family_validity_baseline.json)"
@@ -670,19 +670,6 @@ def main(argv: list[str] | None = None) -> int:
         when = os.environ.get("FAMILY_VALIDITY_TIMESTAMP") or dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         wrote = append_history(Path(a.history), history_rows(families, languages, defined, cells, _head_sha(), when))
         print(f"family_validity_chart: history {'appended' if wrote else 'unchanged'}")
-    if a.check:
-        stale = [
-            path for path, svg in outputs.items() if (path.read_text(encoding="utf-8") if path.exists() else "") != svg
-        ]
-        for path in stale:
-            print(
-                f"family_validity_chart: {path.relative_to(REPO_ROOT)} is stale -- "
-                "run `python tests/tools/family_validity_chart.py --write` and commit it"
-            )
-        if stale:
-            return 1
-        print("family_validity_chart: charts are current")
-        return 0
     if a.write:
         for path, svg in outputs.items():
             path.parent.mkdir(parents=True, exist_ok=True)

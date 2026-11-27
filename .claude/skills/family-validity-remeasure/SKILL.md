@@ -14,7 +14,7 @@ starves the focus.
 2. **Sweep under the box gate**: `tests/tools/box/heavy-run.sh python tests/tools/family_oracle_sweep.py --write` (it scans
    `<crucible>/data` the way the golden masters do, scores every oracle language, and merges the cells into the baseline).
    Check `box_status` is GREEN first; the scan is heavy.
-3. **Regenerate the grid**: `python tests/tools/family_validity_chart.py` (and `--check`); the README chart is generated, never edited.
+3. **Regenerate the grid**: `python tests/tools/family_validity_chart.py` ; the README chart is rendered from the baseline by CI and published, never committed or edited.
 4. **Rank what is left**: `python tests/tools/family_red_cells.py` (and `--slices`). Compare with the previous baseline: list the cells that
    went green, any that fell (a regression: open it first), and new cells.
 5. **Refill the epic**: replace the per-language `- [ ]` lines on #8863 with the `--slices` output, tick finished languages, and

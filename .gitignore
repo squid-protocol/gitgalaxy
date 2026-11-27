@@ -282,6 +282,12 @@ docs/language_status/oracle_assumptions.md
 docs/language_status/cics_spec_status.md
 docs/language_status/cobolrt_rules.md
 docs/language_status/readiness_report.md
+# #8863: the keyword-family charts and the per-language sheets are rendered from committed sources (baseline, notes/,
+# rosetta_snapshot.json) and published; the sources stay committed.
+docs/self_scan/family_validity_chart.svg
+docs/self_scan/family_validity_matrix.svg
+docs/language_sheets/*.md
+docs/language_sheets/*.svg
 # #5280, #5286: the progress page, its slide and its issues cache (tests/tools/progress_report.py)
 docs/language_status/progress.md
 docs/language_status/progress.json

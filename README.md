@@ -133,7 +133,7 @@ not how good the engine is.
 <details open>
 <summary><strong>Measured on four or more of the seven stats</strong> (A to Z)</summary>
 
-<p><img src="docs/language_sheets/matrix.svg" width="100%" alt="Per-language evidence for the modern languages measured on four or more of seven stats: detection, functions, call links, imports, keyword families, Rosetta and answer key"></p>
+<p><img src="https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_sheets/matrix.svg" width="100%" alt="Per-language evidence for the modern languages measured on four or more of seven stats: detection, functions, call links, imports, keyword families, Rosetta and answer key"></p>
 
 Colour is the keyword chart's scale (blue is better, red is under 50%). `p` is precision and `r` is recall. Keyword bars count families by score,
 high to low.
@@ -148,18 +148,18 @@ source, drafted by a separately written reader and re-read by blind LLM reviewer
 answer-key cell shows how much of that evidence is cross-verified and how much is still a draft. **The reviewers are LLMs, not people, and no field
 has a human sign-off.** Where blind reviewers re-read a sample of a key, the line under the bar gives the upper bound on the key's error rate (counted against the key as first drafted). A language with no answer key shows "not measured", which means nothing has been checked, not that it is wrong.
 
-<p><img src="docs/language_sheets/matrix_legacy.svg" width="100%" alt="Per-language evidence for the legacy and mainframe languages, with the answer-key column and its verification tiers"></p>
+<p><img src="https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_sheets/matrix_legacy.svg" width="100%" alt="Per-language evidence for the legacy and mainframe languages, with the answer-key column and its verification tiers"></p>
 
 </details>
 
 <details>
 <summary><strong>Sparsely measured languages</strong> (A to Z)</summary>
 
-<p><img src="docs/language_sheets/matrix_sparse.svg" width="100%" alt="Per-language evidence for the modern languages measured on fewer than four of seven stats"></p>
+<p><img src="https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/language_sheets/matrix_sparse.svg" width="100%" alt="Per-language evidence for the modern languages measured on fewer than four of seven stats"></p>
 
 </details>
 
-Every language has a sheet with the method, the reference tool and a note on what was possible for it: [all language sheets](docs/language_sheets/README.md).
+Every language has a sheet with the method, the reference tool and a note on what was possible for it: [all language sheets](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_sheets/README.md).
 
 <details>
 <summary><strong>Function extraction: the numbers</strong></summary>
@@ -184,7 +184,7 @@ the call graph.
 - **Recall:** from 41.5% (C++) and 42.5% (Kotlin) to 87.9% (JavaScript) and 97.9% (PHP) of calls are linked, so
   function fan-in and PageRank are a lower bound ([graph accuracy](docs/graph_accuracy.md),
   [epic #8161](https://github.com/squid-protocol/gitgalaxy/issues/8161)).
-- **Import graph:** measured in 34 of 73 languages (49 repos). The [language sheets](docs/language_sheets/README.md) name every language not yet measured
+- **Import graph:** measured in 34 of 73 languages (49 repos). The [language sheets](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_sheets/README.md) name every language not yet measured
   ([epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772)).
 
 </details>
@@ -206,11 +206,11 @@ finds every construct but also fires on strings does not look good.
 - Limit: one corpus per language, and the parser's reading is our interpretation of each contract, not ground truth.
   Cells marked † come from repositories that are not pinned, so they are exploratory
   ([epic #8863](https://github.com/squid-protocol/gitgalaxy/issues/8863)). The full 73 x 71 matrix, with hover numbers, is
-  [`family_validity_matrix.svg`](docs/self_scan/family_validity_matrix.svg).
+  [`family_validity_matrix.svg`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/family_validity_matrix.svg).
 
 </details>
 
-![Keyword families: how much is checked, and how well](docs/self_scan/family_validity_chart.svg)
+![Keyword families: how much is checked, and how well](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/generated/docs/self_scan/family_validity_chart.svg)
 
 **Same intent, same measurement.** The [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in every language. Any difference in what the engine measures is therefore language

@@ -42,7 +42,6 @@ description: Graduate 1-3 languages from SOP-001 automated decoys to SOP-002 spe
    - Run:
      ```sh
      python tests/tools/family_validity_chart.py --write
-     python tests/tools/family_validity_chart.py --check
      ```
 
 7. **Verify and open one PR per batch:**

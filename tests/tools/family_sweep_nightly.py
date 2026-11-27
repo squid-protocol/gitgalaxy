@@ -10,8 +10,8 @@ Run by a systemd user timer in a dedicated worktree of origin/main (docs/agents/
   3. its OWN checkout of the pinned language-crucible (never the shared one: `crucible_pins.py sync` moves a shared checkout under
      other jobs' feet), synced to tests/crucible_pins.toml;
   4. `family_oracle_sweep.py --write` under tests/tools/box/heavy-run.sh, with this worktree first on PYTHONPATH (a venv's editable
-     install points at another checkout and would scan the wrong engine), then `family_validity_chart.py`;
-  5. when the baseline or the grid changed: branch `bot/family-validity-baseline`, one commit, `--force-with-lease`, and a single
+     install points at another checkout and would scan the wrong engine);
+  5. when the baseline changed (the charts are rendered from it and published, not committed): branch `bot/family-validity-baseline`, one commit, `--force-with-lease`, and a single
      standing DRAFT PR whose body lists regressions first, then improvements, the red-cell count, and the per-language epic lines
      (`family_red_cells.py --slices`). The PR is refreshed in place each night, never duplicated; nothing is merged.
 
@@ -40,7 +40,6 @@ import family_red_cells  # noqa: E402
 GH = shutil.which("gh") or "gh"
 BRANCH = "bot/family-validity-baseline"
 BASELINE = "tests/family_validity_baseline.json"
-CHART_FILES = ("docs/self_scan/family_validity_chart.svg", "docs/self_scan/family_validity_matrix.svg")
 FELL = 0.05  # a cell whose weaker score dropped by more than this is a regression, listed first
 
 
@@ -139,9 +138,8 @@ def run(args: argparse.Namespace) -> int:
         env["PATH"] = f"{venv_bin}:{env['PATH']}"
     sweep = [sys.executable, str(TOOLS / "family_oracle_sweep.py"), "--write"]
     subprocess.run(["bash", str(TOOLS / "box" / "heavy-run.sh"), *sweep], check=True, env=env, cwd=REPO)  # noqa: S603,S607
-    subprocess.run([sys.executable, str(TOOLS / "family_validity_chart.py")], check=True, env=env, cwd=REPO)  # noqa: S603
     new = json.loads((REPO / BASELINE).read_text(encoding="utf-8"))
-    dirty = git("status", "--porcelain", "--", BASELINE, *CHART_FILES)
+    dirty = git("status", "--porcelain", "--", BASELINE)
     if not dirty:
         print("no change: the baseline and the grid are what main already has")
     else:
@@ -168,7 +166,7 @@ def run(args: argparse.Namespace) -> int:
 
 def publish(sha: str, body: str) -> None:
     """Commit the swept files on the standing bot branch (fast-forward only: no force push), then open or refresh its one draft PR."""
-    files = (BASELINE, *CHART_FILES)
+    files = (BASELINE,)  # the charts are rendered from it and published (generated_docs.py), never committed
     kept = {f: (REPO / f).read_bytes() for f in files}  # the sweep's output, carried across the branch switch
     git("checkout", "-q", "-f", "--detach", "origin/main")
     remote = git("ls-remote", "--heads", "origin", BRANCH)

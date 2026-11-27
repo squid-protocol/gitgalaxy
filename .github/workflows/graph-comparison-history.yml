@@ -170,7 +170,7 @@ jobs:
         if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
-          python tests/tools/family_validity_chart.py --write --history docs/self_scan/family_validity_history.csv
+          python tests/tools/family_validity_chart.py --history docs/self_scan/family_validity_history.csv
 
       # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
       # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
@@ -183,6 +183,4 @@ jobs:
             docs/self_scan/graph_comparison_ledger.json \
             docs/self_scan/graph_coverage_chart.svg \
             docs/self_scan/graph_coverage_history.csv \
-            docs/self_scan/family_validity_chart.svg \
-            docs/self_scan/family_validity_matrix.svg \
             docs/self_scan/family_validity_history.csv

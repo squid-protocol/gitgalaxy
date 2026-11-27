@@ -6,7 +6,7 @@
 **Next Tier (Spec-Grade Batch Hardening):** `SOP-002` (`docs/agents/decoy-spec-protocol.md`, `.claude/skills/family-decoy-spec/SKILL.md`)  
 **Runner:** `tests/tools/family_decoy_runner.py`  
 **Baseline:** `tests/family_validity_baseline.json`  
-**Charts:** `docs/self_scan/family_validity_chart.svg`, `docs/self_scan/family_validity_matrix.svg`
+**Charts:** `docs/self_scan/family_validity_chart.svg`, `docs/self_scan/family_validity_matrix.svg` (rendered from the baseline and published to the `generated` branch; not committed)
 
 ---
 
@@ -111,6 +111,6 @@ When any gate (`G2`, `G3`, `G4`, `G5`, or `G6b`) reports `"leak"`:
 - [ ] All tested cells ran through `Prism.split_streams` + `StructuralExtractor.splice` (positive control G1 verified)
 - [ ] Idiomatic language syntax used for G2/G3/G4/G6 (no foreign comment workarounds)
 - [ ] Leaks reported honestly in `tests/family_validity_baseline.json`; GitHub issues filed for every new root-cause leak
-- [ ] `python tests/tools/family_validity_chart.py --write` and `--check` pass
+- [ ] `python tests/tools/family_validity_chart.py --write` renders (charts are not committed; CI publishes them)
 - [ ] `pytest tests/tools/test_family_decoy_runner.py tests/tools/test_family_validity_chart.py tests/tools/test_language_sheets.py` pass
 - [ ] `ruff_audit.py --ci`, `mypy_audit.py --ci`, `dead_key_audit.py --ci`, `doc_refs_audit.py --ci` pass with 0 new findings

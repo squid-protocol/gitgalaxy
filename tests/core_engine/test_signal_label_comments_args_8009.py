@@ -41,6 +41,8 @@ RELABELLED = (
     "lua",
     "powershell",
     "zig",
+    "solidity",
+    "objectivec",
 )
 
 

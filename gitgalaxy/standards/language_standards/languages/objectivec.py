@@ -118,7 +118,7 @@ DEFINITION: dict[str, Any] = {
         # (planted 3, +260%) -> exact.
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
+        # 2. args (Calls & Signatures With Arguments). Captures method parameters (colons), C-style args, and Blocks (^).
         "args": re.compile(
             # =====================================================================
             # [ THE GHOST ARGS & BLOCK SHIELD (OBJECTIVE-C) ]

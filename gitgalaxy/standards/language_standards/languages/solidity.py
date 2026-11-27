@@ -138,7 +138,7 @@ DEFINITION: dict[str, Any] = {
         # (planted 3, +280%) -> exact.
         "branch": re.compile(r"\b(if|else|for|while|do)\b|\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
+        # 2. args (Calls & Signatures With Arguments). Captures parameters for functions, errors, events, and modifiers.
         # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
         # #1209: parameter-list span wrapped in its own capture group in
         # both alternatives (was only reachable via group(0), the whole

@@ -30,7 +30,11 @@ FIRES = {
     "py_langgraph": ("python", "from langgraph.graph import StateGraph\n", "llm_orchestrator"),
     "py_crewai": ("python", "import crewai\n", "llm_orchestrator"),
     "py_dspy": ("python", "import dspy\n", "llm_orchestrator"),
-    "js_langchain_scope": ("javascript", "import { ChatPromptTemplate } from '@langchain/core/prompts';\n", "llm_orchestrator"),
+    "js_langchain_scope": (
+        "javascript",
+        "import { ChatPromptTemplate } from '@langchain/core/prompts';\n",
+        "llm_orchestrator",
+    ),
     "js_vercel_ai": ("javascript", "import { generateText } from 'ai';\n", "llm_orchestrator"),
     "py_chromadb": ("python", "import chromadb\n", "llm_vector_store"),
     "py_pinecone": ("python", "from pinecone import Pinecone\n", "llm_vector_store"),

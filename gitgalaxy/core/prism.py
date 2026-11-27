@@ -74,6 +74,15 @@ def extract_mitigations(content: str) -> list[str]:
     return [m.group(1).lower() for m in re.finditer(r"galaxyscope:ignore\s+([a-zA-Z0-9_-]+)", content, re.IGNORECASE)]
 
 
+NESTED_FAMILIES = (
+    "recursive_block",
+    "recursive_block_haskell",
+    "recursive_block_lisp",
+    "recursive_block_rexx",
+    "recursive_block_ml",
+)
+
+
 class PrismResult(TypedDict):
     """
     The dual-output of the Prism.
@@ -464,7 +473,7 @@ class Prism:
             )
             return positional_comments
 
-        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp", "recursive_block_rexx"):
+        if family in NESTED_FAMILIES:
             # #2908 Phase 2 follow-up: rust/scala/swift (recursive_block),
             # haskell (recursive_block_haskell), scheme
             # (recursive_block_lisp) and rexx (recursive_block_rexx, #2504)
@@ -758,15 +767,18 @@ class Prism:
         `text` at the end, everything else blanked.
         """
         delims = self.lexical_families.get(family, {}).get("delimiters", ["//", "/*", "*/"])
-        if len(delims) < 3:
+        if len(delims) < 3 and not (family == "recursive_block_ml" and len(delims) == 2):
             return self._blank_preserve_newlines(text)
-        s_line, b_start, b_end = delims[0], delims[1], delims[2]
+        # recursive_block_ml (OCaml) has no line-comment token: delimiters are the block pair only.
+        s_line, b_start, b_end = ("", delims[0], delims[1]) if len(delims) == 2 else (delims[0], delims[1], delims[2])
 
         # Same construction as _strip_nested_comments -- see that method's
         # own comment for why each alternative exists, why lisp's char
         # literal must be tried first, and why rexx swaps the quote branches.
         lisp_char_literal = r"#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])|" if family == "recursive_block_lisp" else ""
-        if family == "recursive_block_rexx":
+        if family == "recursive_block_ml":
+            combined_pattern = self._ml_combined_pattern()
+        elif family == "recursive_block_rexx":
             combined_pattern = re.compile(
                 r'"(?:""|[^"\n]){0,500}"'
                 r"|'(?:''|[^'\n]){0,500}'" + rf"|{re.escape(s_line)}[^\n]*",
@@ -788,7 +800,7 @@ class Prism:
         keep_spans: list[tuple[int, int]] = []
 
         def _combined_replacer(m: "re.Match[str]") -> str:
-            if m.group(0).startswith(s_line):
+            if s_line and m.group(0).startswith(s_line):
                 keep_spans.append((m.start(), m.end()))
             return _neutralize(m.group(0))
 
@@ -854,7 +866,7 @@ class Prism:
         # line_exclusive/recursive_block/positional_anchored/block_exclusive/
         # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
         # stripper below, ever actually ran for any language.
-        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp", "recursive_block_rexx"):
+        if family in NESTED_FAMILIES:
             # #621: recursive_block_haskell added because Haskell's {- -}
             # blocks genuinely nest (unlike the standard_block family's flat
             # delimiters) but use -- for line comments and {- -} rather than
@@ -967,6 +979,7 @@ class Prism:
                 "recursive_block",
                 "recursive_block_haskell",
                 "recursive_block_lisp",
+                "recursive_block_ml",
                 "positional_anchored",
                 "positional_abap",
             ):
@@ -1516,6 +1529,19 @@ class Prism:
         self.logger.warning(f"Scanner Scope Guard: Failed to find balanced '{opener}{closer}'. Forcing closure.")
         return limit
 
+    @staticmethod
+    def _ml_combined_pattern() -> "re.Pattern[str]":
+        """Literal shield for OCaml's `(* ... *)` family: a delimiter-shaped `(*` inside a string,
+        a quoted string `{id|...|id}` or a char literal must not open or close a comment.
+        OCaml strings escape with a backslash and span lines; a quote that is a type variable
+        (`'a`) is not a char literal (same guard as the shared pattern)."""
+        return re.compile(
+            r'(?<!\\)"(?:\\.|[^"\\])*"'
+            r"|\{([a-z_]{0,20})\|.{0,20000}?\|\1\}"
+            r"|'(?:\\(?:x[0-9a-fA-F]{2}|[0-9]{3}|.)|[^'\\\n])'",
+            re.S,
+        )
+
     def _strip_nested_comments(
         self, text: str, family: str = "recursive_block", keep_pragmas: bool = False
     ) -> tuple[str, list[str]]:
@@ -1529,10 +1555,11 @@ class Prism:
         # below matches "recursive_block"'s real delimiters exactly today),
         # but was silently ignoring the real config, not reading it.
         delims = self.lexical_families.get(family, {}).get("delimiters", ["//", "/*", "*/"])
-        if len(delims) < 3:
+        if len(delims) < 3 and not (family == "recursive_block_ml" and len(delims) == 2):
             return text, []
 
-        s_line, b_start, b_end = delims[0], delims[1], delims[2]
+        # recursive_block_ml (OCaml) has no line-comment token: delimiters are the block pair only.
+        s_line, b_start, b_end = ("", delims[0], delims[1]) if len(delims) == 2 else (delims[0], delims[1], delims[2])
         lits = []
 
         # 1. Protect Strings AND single-line comments via ONE atomic pass.
@@ -1592,7 +1619,9 @@ class Prism:
         # so an English apostrophe inside a comment can cascade at most to its
         # own line's end (the #1302 discipline); the backtick branch is
         # dropped (no backtick syntax in REXX).
-        if family == "recursive_block_rexx":
+        if family == "recursive_block_ml":
+            combined_pattern = self._ml_combined_pattern()
+        elif family == "recursive_block_rexx":
             combined_pattern = re.compile(
                 r'"(?:""|[^"\n]){0,500}"'
                 r"|'(?:''|[^'\n]){0,500}'" + rf"|{re.escape(s_line)}[^\n]*",
@@ -1616,7 +1645,7 @@ class Prism:
 
         def _combined_replacer(m: re.Match) -> str:
             matched = m.group(0)
-            if matched.startswith(s_line):
+            if s_line and matched.startswith(s_line):
                 lits.append(matched.strip())
                 return ""
             key = f"__GALAXY_STR_MASK_{len(string_cache)}__"

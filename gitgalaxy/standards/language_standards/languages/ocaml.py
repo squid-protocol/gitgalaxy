@@ -37,10 +37,9 @@ DEFINITION: dict[str, Any] = {
     # `dune-project` / `dune` / `*.opam` anchor an OCaml project.
     "discriminators": [".mli", ".opam", "dune-project", "dune"],
     "shebangs": ["ocaml", "ocamlrun", "ocamlscript"],
-    # `(* ... *)` nested block comments have no lexical family yet (a `(*` `*)` pair is new to prism): like F#,
-    # the family strips only `//`, which OCaml never writes, and a comment stays in the code stream
-    # (docs/language_status, limitations). `import_capture_blank` keeps an `open` in a comment from being an import.
-    "lexical_family": "recursive_block",
+    # #9303: `(* ... *)` nested block comments (`(** ... *)` doc comments included) go to the comment stream via
+    # the `recursive_block_ml` family. `import_capture_blank` keeps an `open` in a comment from being an import.
+    "lexical_family": "recursive_block_ml",
     # #6572: an `open` / `include` inside `(* ... *)` (one level, capped, so linear) holds no import.
     "import_capture_blank": r"\(\*(?:[^*]|\*(?!\)))" + r"{0,20000}\*\)",
     # OCaml module names are capitalized (`Cmdliner_cmd`) while files on disk are lowercase (`cmdliner_cmd.ml` + `.mli`).

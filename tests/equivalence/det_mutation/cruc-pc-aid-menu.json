@@ -5,19 +5,19 @@
  "case": "cruc-pc-aid-menu",
  "entry": {
   "program": "PCMENU",
-  "commit": "d8877770a4a14b78fd7fce3e0552682d02d376ed+uncommitted",
-  "date": "2026-11-20",
-  "mode": "fast",
+  "commit": "b5a5025c149013466691f28791c327a9218243df",
+  "date": "2026-11-27",
+  "mode": "fast+one-jvm",
   "seed": 0,
-  "mutants": 937,
+  "mutants": 910,
   "out_of_scope": 12,
-  "chosen": 937,
+  "chosen": 910,
   "coverage": "proven on 13 scenarios, covering 4/4 paragraphs and 9/9 branches",
   "counts": {
-   "killed": 236,
-   "timeout": 1,
-   "survived": 676,
-   "stillborn": 24,
+   "killed": 239,
+   "timeout": 16,
+   "survived": 635,
+   "stillborn": 20,
    "error": 0,
    "pending": 0
   },
@@ -38,8 +38,10 @@
    "11789fba9f",
    "120a6f7528",
    "1457b40ec1",
+   "1550effc58",
    "173652f135",
    "176b3a342c",
+   "1925304319",
    "19c54f1bad",
    "1a280e9d2b",
    "1ad78b95d3",
@@ -50,7 +52,9 @@
    "1de1164d4d",
    "1f045adb29",
    "1f4365d976",
+   "1f96903296",
    "2370434ccd",
+   "25b08cd770",
    "25db6ebdfd",
    "2844e81bfc",
    "295dc267dc",
@@ -82,7 +86,9 @@
    "47a7bbe2fc",
    "48abc90751",
    "48c7005571",
+   "4c3ecc793a",
    "4c7919bf28",
+   "4d2ab26872",
    "4e1c6228e6",
    "4f34946edc",
    "4fa3922be8",
@@ -113,7 +119,6 @@
    "6958bd98ea",
    "6a6554b04f",
    "6ad1f20fdd",
-   "6bc12e75d8",
    "6db8e8c15e",
    "6f180df20b",
    "6f4147e97d",
@@ -147,8 +152,11 @@
    "8c447a0b2f",
    "8c8fd09e52",
    "9062a6e243",
+   "915c777686",
    "91cba556ed",
+   "91e3279c98",
    "92e2517d2b",
+   "977ec6eddf",
    "978ccb76c3",
    "986bde89e4",
    "9953919281",
@@ -178,6 +186,7 @@
    "a8ca572c6b",
    "a8fc707761",
    "a9920d4e64",
+   "a9bd217932",
    "a9cc9de941",
    "aaeeb88fd6",
    "abea4d3a3f",
@@ -189,10 +198,12 @@
    "b0f91dcafd",
    "b137f76b83",
    "b23fabfa4c",
+   "b518644b18",
    "b5c0e72ddf",
    "b6dfb3e53e",
    "b7a256147a",
    "b7d16e608a",
+   "b88c846057",
    "b91bb88fa8",
    "bad3a2f0f3",
    "bb9c5c6d85",
@@ -206,6 +217,7 @@
    "c3a683ed27",
    "c3edc73e5c",
    "c631e0e035",
+   "c7af1f4e01",
    "c801a6c046",
    "c82ebb48b7",
    "c929eb9bed",
@@ -217,12 +229,15 @@
    "cd9659bfcf",
    "cfa6c31fda",
    "d03888e005",
+   "d088fc2c15",
    "d0b1ea88bc",
    "d1074c343d",
    "d1838b22e6",
    "d1dde793dc",
+   "d43e93c8b6",
    "d4f4610df0",
    "d56e5acca4",
+   "d83c04b576",
    "d89cae7f14",
    "d98533070e",
    "da8daf2d30",
@@ -236,6 +251,7 @@
    "e1bd2fe0cb",
    "e2bc118898",
    "e3df657038",
+   "e473871920",
    "e4765be419",
    "e5106deb7e",
    "e5cb87b24a",
@@ -246,6 +262,7 @@
    "ea42de0514",
    "eb0dba60ca",
    "eb36b053e3",
+   "ec50b0e6da",
    "ecb89409c4",
    "ed98a6ef09",
    "edc37c2026",
@@ -258,7 +275,8 @@
    "f832374280",
    "f85effe2ae",
    "fd938d16e7",
-   "ff5f2ecde6"
+   "ff5f2ecde6",
+   "ffb88402bd"
   ],
   "stillborn": [
    "008d76464b",
@@ -266,11 +284,9 @@
    "1638dce3fa",
    "1a1db9bd16",
    "2d6d0d61c1",
-   "3c0de19c8d",
    "5319a1fe57",
    "54b22322ca",
    "5d42a3f71d",
-   "6edfdf679b",
    "8052475c48",
    "8b00962029",
    "90cd7f2d3e",
@@ -279,14 +295,20 @@
    "ae52540260",
    "b42ae7bc55",
    "be0d9c1803",
-   "bebec78768",
    "bf1b6acf21",
    "d7afc914a8",
    "f106996fc2",
-   "f564a2f435",
-   "fc5fd40df5"
+   "f564a2f435"
   ],
   "survived": [
+   {
+    "id": "b23f860853",
+    "op": "LIT",
+    "file": "service/PcdetlService.java",
+    "line": 35,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
+   },
    {
     "id": "f5e89fc174",
     "op": "CON",
@@ -302,6 +324,14 @@
     "line": 36,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "1c49bc5290",
+    "op": "LIT",
+    "file": "service/PcdetlService.java",
+    "line": 37,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
    },
    {
     "id": "f364b926fc",
@@ -888,90 +918,10 @@
     "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
-    "id": "dfb67fd5d1",
-    "op": "NEG",
-    "file": "service/PcdetlService.java",
-    "line": 99,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "b380340d8f",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 99,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "9bf4aa1a3b",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 99,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "54e7a51712",
-    "op": "CON",
-    "file": "service/PcdetlService.java",
-    "line": 99,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() > 2) {"
-   },
-   {
-    "id": "58e9614718",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 100,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "fbd6166714",
-    "op": "LIT",
-    "file": "service/PcdetlService.java",
-    "line": 105,
-    "before": "@SuppressWarnings(\"unchecked\")",
-    "after": "@SuppressWarnings(\"Xnchecked\")"
-   },
-   {
-    "id": "33a520c9f9",
-    "op": "NEG",
-    "file": "service/PcdetlService.java",
-    "line": 107,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
-   },
-   {
-    "id": "56891e7641",
-    "op": "COR",
-    "file": "service/PcdetlService.java",
-    "line": 107,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
-   },
-   {
-    "id": "272dac08db",
-    "op": "LIT",
-    "file": "service/PcdetlService.java",
-    "line": 110,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
-   },
-   {
-    "id": "9cc427a8b0",
-    "op": "LIT",
-    "file": "service/PcdetlService.java",
-    "line": 110,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
-   },
-   {
     "id": "2dda22e406",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 114,
+    "line": 103,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
    },
@@ -979,7 +929,7 @@
     "id": "ce9988a914",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 114,
+    "line": 103,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
    },
@@ -987,7 +937,7 @@
     "id": "aaf7f7f8aa",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 137,
+    "line": 122,
     "before": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);",
     "after": "/* System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length); */"
    },
@@ -995,7 +945,7 @@
     "id": "0e7f25b5b5",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 137,
+    "line": 122,
     "before": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);",
     "after": "System.arraycopy(IMAGE_s_PCMNI, 1, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);"
    },
@@ -1003,7 +953,7 @@
     "id": "52f4069719",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 137,
+    "line": 122,
     "before": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);",
     "after": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 1, IMAGE_s_PCMNI.length);"
    },
@@ -1011,7 +961,7 @@
     "id": "3a77f5cf77",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 138,
+    "line": 123,
     "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
     "after": "/* System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length); */"
    },
@@ -1019,7 +969,7 @@
     "id": "9f94a3b7ce",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 138,
+    "line": 123,
     "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
     "after": "System.arraycopy(IMAGE_s_PCDTI, 1, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);"
    },
@@ -1027,7 +977,7 @@
     "id": "f48d5fc17f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 138,
+    "line": 123,
     "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
     "after": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 1, IMAGE_s_PCDTI.length);"
    },
@@ -1035,7 +985,7 @@
     "id": "f8bdf01b37",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 139,
+    "line": 124,
     "before": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length); */"
    },
@@ -1043,7 +993,7 @@
     "id": "c04d9ec88f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 139,
+    "line": 124,
     "before": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);",
     "after": "System.arraycopy(IMAGE_s_WS_CA, 1, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);"
    },
@@ -1051,7 +1001,7 @@
     "id": "1326391960",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 139,
+    "line": 124,
     "before": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);",
     "after": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 1, IMAGE_s_WS_CA.length);"
    },
@@ -1059,7 +1009,7 @@
     "id": "7d5843f457",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 140,
+    "line": 125,
     "before": "System.arraycopy(IMAGE_s_WS_NOCTX, 0, s_WS_NOCTX.bytes, 0, IMAGE_s_WS_NOCTX.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_NOCTX, 0, s_WS_NOCTX.bytes, 0, IMAGE_s_WS_NOCTX.length); */"
    },
@@ -1067,7 +1017,7 @@
     "id": "71a3cc53d9",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 140,
+    "line": 125,
     "before": "System.arraycopy(IMAGE_s_WS_NOCTX, 0, s_WS_NOCTX.bytes, 0, IMAGE_s_WS_NOCTX.length);",
     "after": "System.arraycopy(IMAGE_s_WS_NOCTX, 1, s_WS_NOCTX.bytes, 0, IMAGE_s_WS_NOCTX.length);"
    },
@@ -1075,7 +1025,7 @@
     "id": "1ba5ca3106",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 140,
+    "line": 125,
     "before": "System.arraycopy(IMAGE_s_WS_NOCTX, 0, s_WS_NOCTX.bytes, 0, IMAGE_s_WS_NOCTX.length);",
     "after": "System.arraycopy(IMAGE_s_WS_NOCTX, 0, s_WS_NOCTX.bytes, 1, IMAGE_s_WS_NOCTX.length);"
    },
@@ -1083,7 +1033,7 @@
     "id": "c84db7cd33",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 141,
+    "line": 126,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
    },
@@ -1091,7 +1041,7 @@
     "id": "e83d2080b7",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 141,
+    "line": 126,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 1, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);"
    },
@@ -1099,7 +1049,7 @@
     "id": "dafd5c95ce",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 141,
+    "line": 126,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 1, IMAGE_s_DFHCOMMAREA.length);"
    },
@@ -1107,7 +1057,7 @@
     "id": "ebbc7b4713",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 142,
+    "line": 127,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
    },
@@ -1115,7 +1065,7 @@
     "id": "558b12c5d2",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 142,
+    "line": 127,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "System.arraycopy(IMAGE_s_DFHEIBLK, 1, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);"
    },
@@ -1123,7 +1073,7 @@
     "id": "f7b7086809",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 142,
+    "line": 127,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 1, IMAGE_s_DFHEIBLK.length);"
    },
@@ -1131,7 +1081,7 @@
     "id": "af02ebe55c",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 143,
+    "line": 128,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -1139,7 +1089,7 @@
     "id": "656213899f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 143,
+    "line": 128,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 1, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);"
    },
@@ -1147,7 +1097,7 @@
     "id": "7b9661547f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 143,
+    "line": 128,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 1, IMAGE_s_GG_RETURN_CODE.length);"
    },
@@ -1155,7 +1105,7 @@
     "id": "5de1127d99",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 164,
+    "line": 149,
     "before": "this.task = task;",
     "after": "/* this.task = task; */"
    },
@@ -1163,7 +1113,7 @@
     "id": "008f67c6f0",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 165,
+    "line": 150,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
    },
@@ -1171,7 +1121,7 @@
     "id": "7c89705139",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 166,
+    "line": 151,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
    },
@@ -1179,7 +1129,7 @@
     "id": "caa4ce2c2a",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 167,
+    "line": 152,
     "before": "heldKey.clear();",
     "after": "/* heldKey.clear(); */"
    },
@@ -1187,7 +1137,7 @@
     "id": "ba608b343f",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 168,
+    "line": 153,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -1195,7 +1145,7 @@
     "id": "9831ffbceb",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 169,
+    "line": 154,
     "before": "Cobol.move(task.transid(), f67_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f67_EIBTRNID, CS); */"
    },
@@ -1203,7 +1153,7 @@
     "id": "3d8cc47b74",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 170,
+    "line": 155,
     "before": "Cobol.move(task.termid() == null ? \"\" : task.termid(), f69_EIBTRMID, CS);",
     "after": "Cobol.move(task.termid() != null ? \"\" : task.termid(), f69_EIBTRMID, CS);"
    },
@@ -1211,7 +1161,7 @@
     "id": "cd8ad32bf2",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 171,
+    "line": 156,
     "before": "Cobol.store(f68_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f68_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
@@ -1219,7 +1169,7 @@
     "id": "79dd7fe87b",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 173,
+    "line": 158,
     "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -1227,7 +1177,7 @@
     "id": "8a37f9971e",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 173,
+    "line": 158,
     "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -1235,7 +1185,7 @@
     "id": "b7db936f7b",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 173,
+    "line": 158,
     "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -1243,7 +1193,7 @@
     "id": "a6d1621b4c",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 173,
+    "line": 158,
     "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -1251,7 +1201,7 @@
     "id": "9f071884db",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 173,
+    "line": 158,
     "before": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f66_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -1259,7 +1209,7 @@
     "id": "668b8aeb29",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 174,
+    "line": 159,
     "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -1267,7 +1217,7 @@
     "id": "8d327c4465",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 174,
+    "line": 159,
     "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -1275,7 +1225,7 @@
     "id": "c762fb3f28",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 174,
+    "line": 159,
     "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -1283,7 +1233,7 @@
     "id": "6f0d9f5330",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 174,
+    "line": 159,
     "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -1291,7 +1241,7 @@
     "id": "2c99db56e7",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 174,
+    "line": 159,
     "before": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f65_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -1299,7 +1249,7 @@
     "id": "46b8c037f4",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 175,
+    "line": 160,
     "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
     "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
    },
@@ -1307,7 +1257,7 @@
     "id": "2e47ebee08",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 179,
+    "line": 164,
     "before": "int calen = 0;",
     "after": "int calen = 1;"
    },
@@ -1315,15 +1265,31 @@
     "id": "14c6db23db",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 180,
+    "line": 165,
     "before": "s_DFHCOMMAREA.beyond = null;",
     "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "9166cf8689",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 168,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
+   },
+   {
+    "id": "934bc777cb",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 169,
+    "before": "calen = DetCics.eibCalen(task, cb.length);",
+    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
    },
    {
     "id": "f69f1d8363",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (!(calen == 0 && ca != null && !(ca instanceof byte[]))) {"
    },
@@ -1331,7 +1297,7 @@
     "id": "eebcbdd24e",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (calen != 0 && ca != null && !(ca instanceof byte[])) {"
    },
@@ -1339,7 +1305,7 @@
     "id": "cc3db14bdd",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (calen == 1 && ca != null && !(ca instanceof byte[])) {"
    },
@@ -1347,7 +1313,7 @@
     "id": "a882613d17",
     "op": "COR",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (calen == 0 || ca != null && !(ca instanceof byte[])) {"
    },
@@ -1355,7 +1321,7 @@
     "id": "854f0b4f1d",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (calen == 0 && ca == null && !(ca instanceof byte[])) {"
    },
@@ -1363,15 +1329,31 @@
     "id": "00ac1e9882",
     "op": "COR",
     "file": "service/PcdetlService.java",
-    "line": 186,
+    "line": 171,
     "before": "if (calen == 0 && ca != null && !(ca instanceof byte[])) {",
     "after": "if (calen == 0 && ca != null || !(ca instanceof byte[])) {"
+   },
+   {
+    "id": "40d296f033",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 173,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
+   },
+   {
+    "id": "022f885378",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 174,
+    "before": "calen = DetCics.eibCalen(task, cb.length);",
+    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
    },
    {
     "id": "b9e18d53fe",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 192,
+    "line": 177,
     "before": "if (raw != null) {",
     "after": "if (!(raw != null)) {"
    },
@@ -1379,15 +1361,23 @@
     "id": "4526b60005",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 192,
+    "line": 177,
     "before": "if (raw != null) {",
     "after": "if (raw == null) {"
+   },
+   {
+    "id": "dc93748f79",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 178,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, raw);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, raw); */"
    },
    {
     "id": "9d35ad2668",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
    },
@@ -1395,7 +1385,7 @@
     "id": "f71f808027",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -1403,7 +1393,7 @@
     "id": "00437d8b06",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -1411,7 +1401,7 @@
     "id": "6b2876ecae",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -1419,7 +1409,7 @@
     "id": "a57bfc5ac6",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -1427,7 +1417,7 @@
     "id": "09bfdc00aa",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -1435,7 +1425,7 @@
     "id": "868b2e491d",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 196,
+    "line": 181,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
@@ -1443,7 +1433,7 @@
     "id": "aacd13e8ab",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 199,
+    "line": 184,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -1451,7 +1441,7 @@
     "id": "474139a9b9",
     "op": "COR",
     "file": "service/PcdetlService.java",
-    "line": 199,
+    "line": 184,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
    },
@@ -1459,7 +1449,7 @@
     "id": "082d72b8e8",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 199,
+    "line": 184,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -1467,7 +1457,7 @@
     "id": "0cdd5c81c4",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 199,
+    "line": 184,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -1475,7 +1465,7 @@
     "id": "d1a6ebec5c",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 200,
+    "line": 185,
     "before": "caWhole = s_DFHCOMMAREA.bytes;",
     "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
    },
@@ -1483,15 +1473,23 @@
     "id": "45e030e1dc",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 201,
+    "line": 186,
     "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
     "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "77c137d144",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 189,
+    "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+    "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */"
    },
    {
     "id": "8261f8dadd",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 206,
+    "line": 191,
     "before": "Cobol.store(f72_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
     "after": "/* Cobol.store(f72_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
    },
@@ -1499,7 +1497,7 @@
     "id": "bc8248519c",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 209,
+    "line": 194,
     "before": "perform(0, 0);",
     "after": "/* perform(0, 0); */"
    },
@@ -1507,7 +1505,7 @@
     "id": "f30483beae",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 209,
+    "line": 194,
     "before": "perform(0, 0);",
     "after": "perform(1, 0);"
    },
@@ -1515,7 +1513,7 @@
     "id": "7feaa80e84",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 209,
+    "line": 194,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -1523,7 +1521,7 @@
     "id": "f8fb4e98d8",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 214,
+    "line": 199,
     "before": "if (caWhole == null) {",
     "after": "if (!(caWhole == null)) {"
    },
@@ -1531,7 +1529,7 @@
     "id": "5bb62e509a",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 214,
+    "line": 199,
     "before": "if (caWhole == null) {",
     "after": "if (caWhole != null) {"
    },
@@ -1539,7 +1537,7 @@
     "id": "bf7fe90999",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 217,
+    "line": 202,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
    },
@@ -1547,7 +1545,7 @@
     "id": "8ab028bca2",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 217,
+    "line": 202,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
    },
@@ -1555,7 +1553,7 @@
     "id": "ab24802d5d",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 219,
+    "line": 204,
     "before": "if (caWhole != null) {",
     "after": "if (!(caWhole != null)) {"
    },
@@ -1563,23 +1561,31 @@
     "id": "9e06729a71",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 219,
+    "line": 204,
     "before": "if (caWhole != null) {",
     "after": "if (caWhole == null) {"
+   },
+   {
+    "id": "8e5e4c0683",
+    "op": "DEL",
+    "file": "service/PcdetlService.java",
+    "line": 205,
+    "before": "DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole);",
+    "after": "/* DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole); */"
    },
    {
     "id": "40f9c6cbc9",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 223,
+    "line": 208,
     "before": "if (!task.ended()) {",
     "after": "if (!(!task.ended())) {"
    },
    {
-    "id": "d191080b6d",
+    "id": "6129a8c734",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 224,
+    "line": 209,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -1587,7 +1593,7 @@
     "id": "a72f8b8c3d",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 228,
+    "line": 213,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -1595,7 +1601,7 @@
     "id": "3874a73f86",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 229,
+    "line": 214,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -1603,7 +1609,7 @@
     "id": "3fda0bf87e",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 236,
+    "line": 221,
     "before": "region.run(task, \"PCDETL\", this::runTask);",
     "after": "region.run(task, \"XCDETL\", this::runTask);"
    },
@@ -1611,7 +1617,7 @@
     "id": "e01e66c0cb",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 241,
+    "line": 226,
     "before": "if (request instanceof byte[] && area != null) {",
     "after": "if (!(request instanceof byte[] && area != null)) {"
    },
@@ -1619,7 +1625,7 @@
     "id": "0077851d22",
     "op": "COR",
     "file": "service/PcdetlService.java",
-    "line": 241,
+    "line": 226,
     "before": "if (request instanceof byte[] && area != null) {",
     "after": "if (request instanceof byte[] || area != null) {"
    },
@@ -1627,7 +1633,7 @@
     "id": "17545fac02",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 241,
+    "line": 226,
     "before": "if (request instanceof byte[] && area != null) {",
     "after": "if (request instanceof byte[] && area == null) {"
    },
@@ -1635,7 +1641,7 @@
     "id": "5160511fc8",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 242,
+    "line": 227,
     "before": "throw new IllegalArgumentException(\"handleTransaction: the request is the COMMAREA as bytes (the region's EBCDIC) and the bytes beside it are in the port's page: pass one\");",
     "after": "throw new IllegalArgumentException(\"XandleTransaction: the request is the COMMAREA as bytes (the region's EBCDIC) and the bytes beside it are in the port's page: pass one\");"
    },
@@ -1643,7 +1649,7 @@
     "id": "b605f06aee",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 246,
+    "line": 231,
     "before": "region.run(task, \"PCDETL\", this::runTask);",
     "after": "region.run(task, \"XCDETL\", this::runTask);"
    },
@@ -1651,7 +1657,7 @@
     "id": "3eb3f5d79d",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 247,
+    "line": 232,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
    },
@@ -1659,7 +1665,7 @@
     "id": "4c1d1103ac",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 253,
+    "line": 238,
     "before": "CicsTask task = region.linked(\"PCDETL\", request);",
     "after": "CicsTask task = region.linked(\"XCDETL\", request);"
    },
@@ -1667,7 +1673,7 @@
     "id": "856d735670",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 254,
+    "line": 239,
     "before": "region.run(task, \"PCDETL\", this::runTask);",
     "after": "region.run(task, \"XCDETL\", this::runTask);"
    },
@@ -1675,7 +1681,7 @@
     "id": "2aac488e48",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 260,
+    "line": 245,
     "before": "CicsTask task = region.linked(\"PCDETL\", request, area);",
     "after": "CicsTask task = region.linked(\"XCDETL\", request, area);"
    },
@@ -1683,7 +1689,7 @@
     "id": "29255f7231",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 261,
+    "line": 246,
     "before": "region.run(task, \"PCDETL\", this::runTask);",
     "after": "region.run(task, \"XCDETL\", this::runTask);"
    },
@@ -1691,7 +1697,7 @@
     "id": "39b7f8815e",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 263,
+    "line": 248,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */"
    },
@@ -1699,7 +1705,7 @@
     "id": "e8cd6679df",
     "op": "COR",
     "file": "service/PcdetlService.java",
-    "line": 263,
+    "line": 248,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
    },
@@ -1707,31 +1713,15 @@
     "id": "e3e3d9cfb6",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 263,
+    "line": 248,
     "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
     "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;"
-   },
-   {
-    "id": "91dda231f4",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 273,
-    "before": "return lastAnswerBytes == null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);",
-    "after": "return lastAnswerBytes != null ? null : java.util.Arrays.copyOf(lastAnswerBytes, lastAnswerBytes.length);"
-   },
-   {
-    "id": "cde66d9e37",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 282,
-    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);"
    },
    {
     "id": "948756a830",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 291,
+    "line": 272,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1739,7 +1729,7 @@
     "id": "a9d4e4c37f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 296,
+    "line": 277,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -1747,7 +1737,7 @@
     "id": "bb320cb330",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 297,
+    "line": 278,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -1755,7 +1745,7 @@
     "id": "91b374ab53",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 305,
+    "line": 286,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -1763,7 +1753,7 @@
     "id": "cf865ff17e",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 315,
+    "line": 296,
     "before": "if (mine == performThru.length) {",
     "after": "if (!(mine == performThru.length)) {"
    },
@@ -1771,7 +1761,7 @@
     "id": "f6d3665368",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 315,
+    "line": 296,
     "before": "if (mine == performThru.length) {",
     "after": "if (mine != performThru.length) {"
    },
@@ -1779,7 +1769,7 @@
     "id": "4cc3c0fb13",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 316,
+    "line": 297,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -1787,7 +1777,7 @@
     "id": "8e642a009f",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 316,
+    "line": 297,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -1795,7 +1785,7 @@
     "id": "0bb3ebf678",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 316,
+    "line": 297,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -1803,7 +1793,7 @@
     "id": "bb7cde6ef8",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 318,
+    "line": 299,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -1811,7 +1801,7 @@
     "id": "7b6584e064",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 323,
+    "line": 304,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -1819,7 +1809,7 @@
     "id": "bedd298876",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 323,
+    "line": 304,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -1827,7 +1817,7 @@
     "id": "bd2dccbcac",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 325,
+    "line": 306,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -1835,7 +1825,7 @@
     "id": "9c9cda9096",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 326,
+    "line": 307,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -1843,7 +1833,7 @@
     "id": "45a5bf3e52",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 326,
+    "line": 307,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -1851,7 +1841,7 @@
     "id": "64801b7631",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 327,
+    "line": 308,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -1859,7 +1849,7 @@
     "id": "bf1f6ff6c8",
     "op": "AOR",
     "file": "service/PcdetlService.java",
-    "line": 329,
+    "line": 310,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -1867,7 +1857,7 @@
     "id": "15b8295bdf",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 329,
+    "line": 310,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -1875,7 +1865,7 @@
     "id": "7f2fad194e",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 329,
+    "line": 310,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -1883,7 +1873,7 @@
     "id": "2adcd7cf16",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 329,
+    "line": 310,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -1891,63 +1881,15 @@
     "id": "2bd4f1daa9",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 329,
+    "line": 310,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
-   },
-   {
-    "id": "d088fc2c15",
-    "op": "AOR",
-    "file": "service/PcdetlService.java",
-    "line": 329,
-    "before": "for (int d = mine - 1; d >= 0; d--) {",
-    "after": "for (int d = mine - 1; d >= 0; d++) {"
-   },
-   {
-    "id": "1f96903296",
-    "op": "NEG",
-    "file": "service/PcdetlService.java",
-    "line": 330,
-    "before": "if (performThru[d] == i) {",
-    "after": "if (!(performThru[d] == i)) {"
-   },
-   {
-    "id": "b88c846057",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 330,
-    "before": "if (performThru[d] == i) {",
-    "after": "if (performThru[d] != i) {"
-   },
-   {
-    "id": "1550effc58",
-    "op": "NEG",
-    "file": "service/PcdetlService.java",
-    "line": 335,
-    "before": "if (next >= 1) {",
-    "after": "if (!(next >= 1)) {"
-   },
-   {
-    "id": "a9bd217932",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 335,
-    "before": "if (next >= 1) {",
-    "after": "if (next < 1) {"
-   },
-   {
-    "id": "e473871920",
-    "op": "ROR",
-    "file": "service/PcdetlService.java",
-    "line": 335,
-    "before": "if (next >= 1) {",
-    "after": "if (next > 1) {"
    },
    {
     "id": "7f79cf0286",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 335,
+    "line": 316,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -1955,7 +1897,7 @@
     "id": "c7c83d3b2a",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 338,
+    "line": 319,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -1963,7 +1905,7 @@
     "id": "9f8c88e974",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 341,
+    "line": 322,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -1971,7 +1913,7 @@
     "id": "d47279d8a7",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 341,
+    "line": 322,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -1979,7 +1921,7 @@
     "id": "e4be7cac0e",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 345,
+    "line": 326,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -1987,7 +1929,7 @@
     "id": "105f2e81ef",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 351,
+    "line": 332,
     "before": "case 0: return p0();",
     "after": "case 1: return p0();"
    },
@@ -1995,7 +1937,7 @@
     "id": "05bc25ec8b",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 352,
+    "line": 333,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -2003,7 +1945,7 @@
     "id": "9993bdcd24",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 359,
+    "line": 340,
     "before": "if (Cobol.num(f72_EIBCALEN, CS).compareTo(D0) == 0) {",
     "after": "if (!(Cobol.num(f72_EIBCALEN, CS).compareTo(D0) == 0)) {"
    },
@@ -2011,7 +1953,7 @@
     "id": "e26c14718a",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 359,
+    "line": 340,
     "before": "if (Cobol.num(f72_EIBCALEN, CS).compareTo(D0) == 0) {",
     "after": "if (Cobol.num(f72_EIBCALEN, CS).compareTo(D0) != 0) {"
    },
@@ -2019,7 +1961,7 @@
     "id": "af700b840d",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 359,
+    "line": 340,
     "before": "if (Cobol.num(f72_EIBCALEN, CS).compareTo(D0) == 0) {",
     "after": "if (Cobol.num(f72_EIBCALEN, CS).compareTo(D0) == 1) {"
    },
@@ -2027,7 +1969,7 @@
     "id": "05f6becfea",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 362,
+    "line": 343,
     "before": "int[] planned2 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned2 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -2035,7 +1977,7 @@
     "id": "2357f537d8",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 362,
+    "line": 343,
     "before": "int[] planned2 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned2 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -2043,7 +1985,7 @@
     "id": "c7ced1071e",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (!(planned2[0] == 0)) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");"
    },
@@ -2051,7 +1993,7 @@
     "id": "6730bff972",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[1] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");"
    },
@@ -2059,7 +2001,7 @@
     "id": "6d447ea2fe",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] != 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");"
    },
@@ -2067,7 +2009,7 @@
     "id": "e7278f6a6a",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] == 1) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");"
    },
@@ -2075,7 +2017,7 @@
     "id": "1471031395",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] == 0) task.sendText(text1.substring(1, Math.min(text1.length(), 28)), 28, \"ERASE\");"
    },
@@ -2083,7 +2025,7 @@
     "id": "6153800430",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 29)), 28, \"ERASE\");"
    },
@@ -2091,7 +2033,7 @@
     "id": "b7b5e1fbdc",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 29, \"ERASE\");"
    },
@@ -2099,7 +2041,7 @@
     "id": "53e5d31adb",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 363,
+    "line": 344,
     "before": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"ERASE\");",
     "after": "if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 28)), 28, \"XRASE\");"
    },
@@ -2107,7 +2049,7 @@
     "id": "bcb27a94d6",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 364,
+    "line": 345,
     "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
     "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS); */"
    },
@@ -2115,7 +2057,7 @@
     "id": "bdfa3383e8",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 364,
+    "line": 345,
     "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[0]), false, CS);",
     "after": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned2[1]), false, CS);"
    },
@@ -2123,7 +2065,7 @@
     "id": "2d77208678",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 365,
+    "line": 346,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
     "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS); */"
    },
@@ -2131,7 +2073,7 @@
     "id": "3bbf39b378",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 365,
+    "line": 346,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
     "after": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[2]), false, CS);"
    },
@@ -2139,7 +2081,7 @@
     "id": "5289d5726f",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 366,
+    "line": 347,
     "before": "if (planned2[0] != 0) {",
     "after": "if (!(planned2[0] != 0)) {"
    },
@@ -2147,7 +2089,7 @@
     "id": "af4d27f0d1",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 366,
+    "line": 347,
     "before": "if (planned2[0] != 0) {",
     "after": "if (planned2[1] != 0) {"
    },
@@ -2155,7 +2097,7 @@
     "id": "5a30da542d",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 366,
+    "line": 347,
     "before": "if (planned2[0] != 0) {",
     "after": "if (planned2[0] == 0) {"
    },
@@ -2163,7 +2105,7 @@
     "id": "db720e1ad9",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 366,
+    "line": 347,
     "before": "if (planned2[0] != 0) {",
     "after": "if (planned2[0] != 1) {"
    },
@@ -2171,7 +2113,7 @@
     "id": "e0da9a80ed",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 367,
+    "line": 348,
     "before": "int to = condition(DetCics.condition(planned2[0]));",
     "after": "int to = condition(DetCics.condition(planned2[1]));"
    },
@@ -2179,7 +2121,7 @@
     "id": "351d03d576",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 368,
+    "line": 349,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -2187,7 +2129,7 @@
     "id": "c893dbe65b",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 368,
+    "line": 349,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -2195,7 +2137,7 @@
     "id": "a70500adff",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 368,
+    "line": 349,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -2203,15 +2145,15 @@
     "id": "be7374e505",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 368,
+    "line": 349,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "1dcf6c5e20",
+    "id": "a3a94b90eb",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 371,
+    "line": 352,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -2219,7 +2161,7 @@
     "id": "9850bb7286",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 372,
+    "line": 353,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -2227,7 +2169,7 @@
     "id": "bf2a019e6a",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 373,
+    "line": 354,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -2235,7 +2177,7 @@
     "id": "2af5506137",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 376,
+    "line": 357,
     "before": "Cobol.move(f63_DFHCOMMAREA, f58_WS_CA, CS);",
     "after": "/* Cobol.move(f63_DFHCOMMAREA, f58_WS_CA, CS); */"
    },
@@ -2243,7 +2185,7 @@
     "id": "90c013c93c",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 378,
+    "line": 359,
     "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f48_PCDTO, CS);",
     "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f48_PCDTO, CS); */"
    },
@@ -2251,7 +2193,7 @@
     "id": "592b482c59",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 380,
+    "line": 361,
     "before": "Cobol.move(f59_MN_VISITS, f51_DVISITSO, CS);",
     "after": "/* Cobol.move(f59_MN_VISITS, f51_DVISITSO, CS); */"
    },
@@ -2259,7 +2201,7 @@
     "id": "ce8c8971c8",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 382,
+    "line": 363,
     "before": "Cobol.move(f60_MN_LAST, f53_DLASTO, CS);",
     "after": "/* Cobol.move(f60_MN_LAST, f53_DLASTO, CS); */"
    },
@@ -2267,7 +2209,7 @@
     "id": "66e656951f",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 384,
+    "line": 365,
     "before": "Cobol.move(f67_EIBTRNID, f55_DTRANO, CS);",
     "after": "/* Cobol.move(f67_EIBTRNID, f55_DTRANO, CS); */"
    },
@@ -2275,7 +2217,7 @@
     "id": "304f2d7949",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 386,
+    "line": 367,
     "before": "Cobol.move(\"ENTER RETURNS TO THE MENU\", f57_DMSGO, CS);",
     "after": "Cobol.move(\"XNTER RETURNS TO THE MENU\", f57_DMSGO, CS);"
    },
@@ -2283,7 +2225,7 @@
     "id": "09af7032ea",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 390,
+    "line": 371,
     "before": "values3.put(\"DVISITS\", Cobol.text(f51_DVISITSO, CS));",
     "after": "values3.put(\"XVISITS\", Cobol.text(f51_DVISITSO, CS));"
    },
@@ -2291,7 +2233,7 @@
     "id": "5d4951935b",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 391,
+    "line": 372,
     "before": "DetCics.subfields(sub4, \"DVISITS\", f28_DVISITSL, f31_DVISITSA, null, null, CS);",
     "after": "DetCics.subfields(sub4, \"XVISITS\", f28_DVISITSL, f31_DVISITSA, null, null, CS);"
    },
@@ -2299,7 +2241,7 @@
     "id": "db4975d9f2",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 392,
+    "line": 373,
     "before": "values3.put(\"DLAST\", Cobol.text(f53_DLASTO, CS));",
     "after": "values3.put(\"XLAST\", Cobol.text(f53_DLASTO, CS));"
    },
@@ -2307,7 +2249,7 @@
     "id": "588d7893b2",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 393,
+    "line": 374,
     "before": "DetCics.subfields(sub4, \"DLAST\", f33_DLASTL, f36_DLASTA, null, null, CS);",
     "after": "DetCics.subfields(sub4, \"XLAST\", f33_DLASTL, f36_DLASTA, null, null, CS);"
    },
@@ -2315,7 +2257,7 @@
     "id": "d016fb3bf5",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 394,
+    "line": 375,
     "before": "values3.put(\"DTRAN\", Cobol.text(f55_DTRANO, CS));",
     "after": "values3.put(\"XTRAN\", Cobol.text(f55_DTRANO, CS));"
    },
@@ -2323,7 +2265,7 @@
     "id": "f3df5c67b8",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 395,
+    "line": 376,
     "before": "DetCics.subfields(sub4, \"DTRAN\", f38_DTRANL, f41_DTRANA, null, null, CS);",
     "after": "DetCics.subfields(sub4, \"XTRAN\", f38_DTRANL, f41_DTRANA, null, null, CS);"
    },
@@ -2331,7 +2273,7 @@
     "id": "3d48f21a0f",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 396,
+    "line": 377,
     "before": "values3.put(\"DMSG\", Cobol.text(f57_DMSGO, CS));",
     "after": "values3.put(\"XMSG\", Cobol.text(f57_DMSGO, CS));"
    },
@@ -2339,7 +2281,7 @@
     "id": "9933155c18",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 397,
+    "line": 378,
     "before": "DetCics.subfields(sub4, \"DMSG\", f43_DMSGL, f46_DMSGA, null, null, CS);",
     "after": "DetCics.subfields(sub4, \"XMSG\", f43_DMSGL, f46_DMSGA, null, null, CS);"
    },
@@ -2347,7 +2289,7 @@
     "id": "92e0b623c0",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 399,
+    "line": 380,
     "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"PCDT\");",
     "after": "int[] planned6 = task.planned(\"XEND-MAP\", \"PCDT\");"
    },
@@ -2355,7 +2297,7 @@
     "id": "ffee731e52",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 399,
+    "line": 380,
     "before": "int[] planned6 = task.planned(\"SEND-MAP\", \"PCDT\");",
     "after": "int[] planned6 = task.planned(\"SEND-MAP\", \"XCDT\");"
    },
@@ -2363,7 +2305,7 @@
     "id": "fd7e2cf780",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (!(planned6[0] == 0)) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2371,7 +2313,7 @@
     "id": "4d02e5abbb",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[1] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2379,7 +2321,7 @@
     "id": "b9bc754662",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[0] != 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2387,7 +2329,7 @@
     "id": "4ea1e1bf54",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[0] == 1) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2395,7 +2337,7 @@
     "id": "113de275f9",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[0] == 0) task.sendMap(\"XCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2403,7 +2345,7 @@
     "id": "6b84e28c44",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"XCSET2\", screen5, sub4, \"ERASE\");"
    },
@@ -2411,7 +2353,7 @@
     "id": "7649c09910",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 400,
+    "line": 381,
     "before": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"ERASE\");",
     "after": "if (planned6[0] == 0) task.sendMap(\"PCDT\", \"PCSET2\", screen5, sub4, \"XRASE\");"
    },
@@ -2419,7 +2361,7 @@
     "id": "ba9cc21f34",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 401,
+    "line": 382,
     "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
     "after": "/* Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS); */"
    },
@@ -2427,7 +2369,7 @@
     "id": "dc4f7e9792",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 401,
+    "line": 382,
     "before": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[0]), false, CS);",
     "after": "Cobol.store(f93_EIBRESP, BigDecimal.valueOf(planned6[1]), false, CS);"
    },
@@ -2435,7 +2377,7 @@
     "id": "3876939ed6",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 402,
+    "line": 383,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
     "after": "/* Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS); */"
    },
@@ -2443,7 +2385,7 @@
     "id": "ac4e1a330d",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 402,
+    "line": 383,
     "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[1]), false, CS);",
     "after": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned6[2]), false, CS);"
    },
@@ -2451,7 +2393,7 @@
     "id": "26bac894b6",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 403,
+    "line": 384,
     "before": "if (planned6[0] != 0) {",
     "after": "if (!(planned6[0] != 0)) {"
    },
@@ -2459,7 +2401,7 @@
     "id": "d5d07e4947",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 403,
+    "line": 384,
     "before": "if (planned6[0] != 0) {",
     "after": "if (planned6[1] != 0) {"
    },
@@ -2467,7 +2409,7 @@
     "id": "5dad5d7859",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 403,
+    "line": 384,
     "before": "if (planned6[0] != 0) {",
     "after": "if (planned6[0] == 0) {"
    },
@@ -2475,7 +2417,7 @@
     "id": "91d7cc9273",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 403,
+    "line": 384,
     "before": "if (planned6[0] != 0) {",
     "after": "if (planned6[0] != 1) {"
    },
@@ -2483,7 +2425,7 @@
     "id": "71827f3e9f",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 404,
+    "line": 385,
     "before": "int to = condition(DetCics.condition(planned6[0]));",
     "after": "int to = condition(DetCics.condition(planned6[1]));"
    },
@@ -2491,7 +2433,7 @@
     "id": "bebcc6fa5d",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 405,
+    "line": 386,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -2499,7 +2441,7 @@
     "id": "0f64484f9c",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 405,
+    "line": 386,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -2507,7 +2449,7 @@
     "id": "622b8f45e0",
     "op": "ROR",
     "file": "service/PcdetlService.java",
-    "line": 405,
+    "line": 386,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -2515,15 +2457,15 @@
     "id": "f6ec175c65",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 405,
+    "line": 386,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "8c576a0da7",
+    "id": "94098dc82b",
     "op": "DEL",
     "file": "service/PcdetlService.java",
-    "line": 408,
+    "line": 389,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -2531,7 +2473,7 @@
     "id": "aa78d30462",
     "op": "LIT",
     "file": "service/PcdetlService.java",
-    "line": 409,
+    "line": 390,
     "before": "task.returnTransid(\"PC11\".strip(), null, null);",
     "after": "task.returnTransid(\"XC11\".strip(), null, null);"
    },
@@ -2539,7 +2481,7 @@
     "id": "2de8e121bc",
     "op": "NEG",
     "file": "service/PcdetlService.java",
-    "line": 410,
+    "line": 391,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -2547,9 +2489,17 @@
     "id": "24b3c71406",
     "op": "CON",
     "file": "service/PcdetlService.java",
-    "line": 411,
+    "line": 392,
     "before": "return 1;",
     "after": "return 2;"
+   },
+   {
+    "id": "32c3671565",
+    "op": "LIT",
+    "file": "service/PcmenuService.java",
+    "line": 35,
+    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
    },
    {
     "id": "353d762890",
@@ -2566,6 +2516,14 @@
     "line": 36,
     "before": "private static final int GOTO = 1 << 20;",
     "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "be00e7cf78",
+    "op": "LIT",
+    "file": "service/PcmenuService.java",
+    "line": 37,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
    },
    {
     "id": "e1c0e9d74b",
@@ -2766,14 +2724,6 @@
     "line": 80,
     "before": "private final Field f21_OPTO = Field.alphanumeric(s_PCMNI, 15, 1, false);",
     "after": "private final Field f21_OPTO = Field.alphanumeric(s_PCMNI, 16, 1, false);"
-   },
-   {
-    "id": "25b08cd770",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 80,
-    "before": "private final Field f21_OPTO = Field.alphanumeric(s_PCMNI, 15, 1, false);",
-    "after": "private final Field f21_OPTO = Field.alphanumeric(s_PCMNI, 15, 2, false);"
    },
    {
     "id": "f6ed00649e",
@@ -3424,22 +3374,6 @@
     "after": "private final Field f106_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
    },
    {
-    "id": "4d2ab26872",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 128,
-    "before": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
-    "after": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
-   },
-   {
-    "id": "1925304319",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 128,
-    "before": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
-    "after": "private final Field f107_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
-   },
-   {
     "id": "7d3442866f",
     "op": "CON",
     "file": "service/PcmenuService.java",
@@ -3536,90 +3470,10 @@
     "after": "private final Field f134_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
    },
    {
-    "id": "cd3ffa23fa",
-    "op": "NEG",
-    "file": "service/PcmenuService.java",
-    "line": 146,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "24624c7d49",
-    "op": "ROR",
-    "file": "service/PcmenuService.java",
-    "line": 146,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "07608992f1",
-    "op": "ROR",
-    "file": "service/PcmenuService.java",
-    "line": 146,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "0e9b3a6901",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 146,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() > 2) {"
-   },
-   {
-    "id": "4aa470428a",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 147,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "c72de47b91",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 152,
-    "before": "@SuppressWarnings(\"unchecked\")",
-    "after": "@SuppressWarnings(\"Xnchecked\")"
-   },
-   {
-    "id": "3187bf8328",
-    "op": "NEG",
-    "file": "service/PcmenuService.java",
-    "line": 154,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
-   },
-   {
-    "id": "e7cd0e9d08",
-    "op": "COR",
-    "file": "service/PcmenuService.java",
-    "line": 154,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
-   },
-   {
-    "id": "4f27cd1377",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 157,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
-   },
-   {
-    "id": "475f7e9c56",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 157,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
-   },
-   {
     "id": "0af1460632",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 161,
+    "line": 150,
     "before": "java.util.Map.entry(\"SHOW-MENU\", 3),",
     "after": "java.util.Map.entry(\"XHOW-MENU\", 3),"
    },
@@ -3627,7 +3481,7 @@
     "id": "7d9c74abf8",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 161,
+    "line": 150,
     "before": "java.util.Map.entry(\"SHOW-MENU\", 3),",
     "after": "java.util.Map.entry(\"SHOW-MENU\", 4),"
    },
@@ -3635,7 +3489,7 @@
     "id": "bd29c5e926",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 162,
+    "line": 151,
     "before": "java.util.Map.entry(\"MENU-REFRESH\", 2),",
     "after": "java.util.Map.entry(\"XENU-REFRESH\", 2),"
    },
@@ -3643,7 +3497,7 @@
     "id": "fbf2e166af",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 162,
+    "line": 151,
     "before": "java.util.Map.entry(\"MENU-REFRESH\", 2),",
     "after": "java.util.Map.entry(\"MENU-REFRESH\", 3),"
    },
@@ -3651,7 +3505,7 @@
     "id": "4cf48adb5f",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 163,
+    "line": 152,
     "before": "java.util.Map.entry(\"MENU-EXIT\", 1),",
     "after": "java.util.Map.entry(\"XENU-EXIT\", 1),"
    },
@@ -3659,7 +3513,7 @@
     "id": "c9a0a4343b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 163,
+    "line": 152,
     "before": "java.util.Map.entry(\"MENU-EXIT\", 1),",
     "after": "java.util.Map.entry(\"MENU-EXIT\", 2),"
    },
@@ -3667,7 +3521,7 @@
     "id": "519ef21d0f",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 164,
+    "line": 153,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
    },
@@ -3675,7 +3529,7 @@
     "id": "fa4692f3f5",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 164,
+    "line": 153,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
    },
@@ -3683,7 +3537,7 @@
     "id": "bb3839ae16",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 185,
+    "line": 170,
     "before": "return -1;",
     "after": "return -2;"
    },
@@ -3691,7 +3545,7 @@
     "id": "0cb5a89474",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 188,
+    "line": 173,
     "before": "throw new IllegalStateException(\"HANDLE AID \" + task.aid() + \" and condition \" + DetCics.condition(resp)",
     "after": "throw new IllegalStateException(\"XANDLE AID \" + task.aid() + \" and condition \" + DetCics.condition(resp)"
    },
@@ -3699,7 +3553,7 @@
     "id": "6148af9399",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 188,
+    "line": 173,
     "before": "throw new IllegalStateException(\"HANDLE AID \" + task.aid() + \" and condition \" + DetCics.condition(resp)",
     "after": "throw new IllegalStateException(\"HANDLE AID \" + task.aid() + \"Xand condition \" + DetCics.condition(resp)"
    },
@@ -3707,7 +3561,7 @@
     "id": "d80734a3fa",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 189,
+    "line": 174,
     "before": "+ \" on one input command: which CICS takes first is not documented\");",
     "after": "+ \"Xon one input command: which CICS takes first is not documented\");"
    },
@@ -3715,7 +3569,7 @@
     "id": "0e1170daad",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 195,
+    "line": 180,
     "before": "if (d == null) {",
     "after": "if (!(d == null)) {"
    },
@@ -3723,7 +3577,7 @@
     "id": "460f7269ce",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 195,
+    "line": 180,
     "before": "if (d == null) {",
     "after": "if (d != null) {"
    },
@@ -3731,7 +3585,7 @@
     "id": "4cd52db0d0",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 196,
+    "line": 181,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -3739,7 +3593,7 @@
     "id": "fbd0596a66",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "/* Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS); */"
    },
@@ -3747,7 +3601,7 @@
     "id": "692e744916",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() != null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);"
    },
@@ -3755,7 +3609,7 @@
     "id": "72ab44560b",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base - 0, 4, 0, false, false, false), CS);"
    },
@@ -3763,7 +3617,7 @@
     "id": "20fd29d71e",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 1, 4, 0, false, false, false), CS);"
    },
@@ -3771,7 +3625,7 @@
     "id": "c246ffb072",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 5, 0, false, false, false), CS);"
    },
@@ -3779,7 +3633,7 @@
     "id": "7d7e8a24e3",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 198,
+    "line": 183,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 1, false, false, false), CS);"
    },
@@ -3787,7 +3641,7 @@
     "id": "e6a3ae15fb",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 199,
+    "line": 184,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() != null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);"
    },
@@ -3795,7 +3649,7 @@
     "id": "716b1bec17",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 199,
+    "line": 184,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base - 4, 4, false), CS);"
    },
@@ -3803,7 +3657,7 @@
     "id": "6a0e6b97e9",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 199,
+    "line": 184,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 5, 4, false), CS);"
    },
@@ -3811,7 +3665,7 @@
     "id": "8401fb4590",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 199,
+    "line": 184,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 5, false), CS);"
    },
@@ -3819,7 +3673,7 @@
     "id": "87c7410f85",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 200,
+    "line": 185,
     "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
     "after": "Cobol.move(d.getMnFlag() != null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);"
    },
@@ -3827,7 +3681,7 @@
     "id": "d1631e3185",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 200,
+    "line": 185,
     "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
     "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base - 8, 2, false), CS);"
    },
@@ -3835,7 +3689,7 @@
     "id": "a5f2de119b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 200,
+    "line": 185,
     "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
     "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 9, 2, false), CS);"
    },
@@ -3843,7 +3697,7 @@
     "id": "4caed115f6",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 200,
+    "line": 185,
     "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
     "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 3, false), CS);"
    },
@@ -3851,7 +3705,7 @@
     "id": "6ffdcd9a95",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 204,
+    "line": 189,
     "before": "d.setMnVisits(Cobol.num(Field.zoned(s, base + 0, 4, 0, false, false, false), CS).intValue());",
     "after": "d.setMnVisits(Cobol.num(Field.zoned(s, base - 0, 4, 0, false, false, false), CS).intValue());"
    },
@@ -3859,7 +3713,7 @@
     "id": "12f7a27fef",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 217,
+    "line": 202,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -3867,7 +3721,7 @@
     "id": "9a40ff2bb8",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 219,
+    "line": 204,
     "before": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.move(d.getMnVisits() == null ? BigDecimal.ZERO : new BigDecimal(d.getMnVisits().toString()), Field.zoned(s, base - 0, 4, 0, false, false, false), CS);"
    },
@@ -3875,7 +3729,7 @@
     "id": "4c88606282",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 220,
+    "line": 205,
     "before": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 4, false), CS);",
     "after": "Cobol.move(d.getMnLast() == null ? \"\" : d.getMnLast(), Field.alphanumeric(s, base + 4, 5, false), CS);"
    },
@@ -3883,7 +3737,7 @@
     "id": "0e2464bc16",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 221,
+    "line": 206,
     "before": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 2, false), CS);",
     "after": "Cobol.move(d.getMnFlag() == null ? \"\" : d.getMnFlag(), Field.alphanumeric(s, base + 8, 3, false), CS);"
    },
@@ -3891,7 +3745,7 @@
     "id": "a70c12470c",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 225,
+    "line": 210,
     "before": "d.setMnVisits(Cobol.num(Field.zoned(s, base + 0, 4, 0, false, false, false), CS).intValue());",
     "after": "d.setMnVisits(Cobol.num(Field.zoned(s, base - 0, 4, 0, false, false, false), CS).intValue());"
    },
@@ -3899,7 +3753,7 @@
     "id": "c3bec6fcf7",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 243,
+    "line": 228,
     "before": "System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length);",
     "after": "/* System.arraycopy(IMAGE_s_PCMNI, 0, s_PCMNI.bytes, 0, IMAGE_s_PCMNI.length); */"
    },
@@ -3907,7 +3761,7 @@
     "id": "cada5c9521",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 244,
+    "line": 229,
     "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
     "after": "/* System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length); */"
    },
@@ -3915,7 +3769,7 @@
     "id": "b30f4ad243",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 246,
+    "line": 231,
     "before": "System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_CA, 0, s_WS_CA.bytes, 0, IMAGE_s_WS_CA.length); */"
    },
@@ -3923,7 +3777,7 @@
     "id": "1d621d0f47",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 249,
+    "line": 234,
     "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */"
    },
@@ -3931,7 +3785,7 @@
     "id": "829e051efb",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 250,
+    "line": 235,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
    },
@@ -3939,7 +3793,7 @@
     "id": "da4c5c91e5",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 251,
+    "line": 236,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -3947,7 +3801,7 @@
     "id": "a8eacb0619",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 252,
+    "line": 237,
     "before": "f98_WS_MSG = \"                                        \";",
     "after": "f98_WS_MSG = \"X                                       \";"
    },
@@ -3955,7 +3809,7 @@
     "id": "aa0e6bbdbe",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 274,
+    "line": 259,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
    },
@@ -3963,7 +3817,7 @@
     "id": "5ad7bd000f",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 275,
+    "line": 260,
     "before": "handlers.clear();",
     "after": "/* handlers.clear(); */"
    },
@@ -3971,7 +3825,7 @@
     "id": "beb83f1b87",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 276,
+    "line": 261,
     "before": "aids.clear();",
     "after": "/* aids.clear(); */"
    },
@@ -3979,7 +3833,7 @@
     "id": "0300802658",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 277,
+    "line": 262,
     "before": "heldKey.clear();",
     "after": "/* heldKey.clear(); */"
    },
@@ -3987,7 +3841,7 @@
     "id": "50c043a99b",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 279,
+    "line": 264,
     "before": "Cobol.move(task.transid(), f105_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f105_EIBTRNID, CS); */"
    },
@@ -3995,7 +3849,7 @@
     "id": "9bfe4c9d93",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 281,
+    "line": 266,
     "before": "Cobol.store(f106_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
     "after": "/* Cobol.store(f106_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
    },
@@ -4003,7 +3857,7 @@
     "id": "7d68132b0a",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 283,
+    "line": 268,
     "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -4011,7 +3865,7 @@
     "id": "0ae6244926",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 283,
+    "line": 268,
     "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -4019,7 +3873,7 @@
     "id": "e5356651e9",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 283,
+    "line": 268,
     "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -4027,7 +3881,7 @@
     "id": "d1ac1d64b6",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 283,
+    "line": 268,
     "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -4035,7 +3889,7 @@
     "id": "c70a62de4f",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 283,
+    "line": 268,
     "before": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f104_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -4043,7 +3897,7 @@
     "id": "026866c932",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 284,
+    "line": 269,
     "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -4051,7 +3905,7 @@
     "id": "36239534d7",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 284,
+    "line": 269,
     "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -4059,7 +3913,7 @@
     "id": "830188c08c",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 284,
+    "line": 269,
     "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -4067,7 +3921,7 @@
     "id": "967c00cc2c",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 284,
+    "line": 269,
     "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -4075,7 +3929,7 @@
     "id": "8a07022bee",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 284,
+    "line": 269,
     "before": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f103_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
    },
@@ -4083,7 +3937,7 @@
     "id": "313f60c08c",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 286,
+    "line": 271,
     "before": "case \"NULL\" -> Cobol.move(f59_DFHNULL, f111_EIBAID, CS);",
     "after": "case \"XULL\" -> Cobol.move(f59_DFHNULL, f111_EIBAID, CS);"
    },
@@ -4091,7 +3945,7 @@
     "id": "cfcf957a68",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 289,
+    "line": 274,
     "before": "case \"PEN\" -> Cobol.move(f62_DFHPEN, f111_EIBAID, CS);",
     "after": "case \"XEN\" -> Cobol.move(f62_DFHPEN, f111_EIBAID, CS);"
    },
@@ -4099,7 +3953,7 @@
     "id": "8342f68cd9",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 290,
+    "line": 275,
     "before": "case \"OPID\" -> Cobol.move(f63_DFHOPID, f111_EIBAID, CS);",
     "after": "case \"XPID\" -> Cobol.move(f63_DFHOPID, f111_EIBAID, CS);"
    },
@@ -4107,7 +3961,7 @@
     "id": "d6b987c9b0",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 291,
+    "line": 276,
     "before": "case \"MSRE\" -> Cobol.move(f64_DFHMSRE, f111_EIBAID, CS);",
     "after": "case \"XSRE\" -> Cobol.move(f64_DFHMSRE, f111_EIBAID, CS);"
    },
@@ -4115,7 +3969,7 @@
     "id": "79c3f0c483",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 292,
+    "line": 277,
     "before": "case \"STRF\" -> Cobol.move(f65_DFHSTRF, f111_EIBAID, CS);",
     "after": "case \"XTRF\" -> Cobol.move(f65_DFHSTRF, f111_EIBAID, CS);"
    },
@@ -4123,7 +3977,7 @@
     "id": "9047d3ae6a",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 293,
+    "line": 278,
     "before": "case \"TRIG\" -> Cobol.move(f66_DFHTRIG, f111_EIBAID, CS);",
     "after": "case \"XRIG\" -> Cobol.move(f66_DFHTRIG, f111_EIBAID, CS);"
    },
@@ -4131,7 +3985,7 @@
     "id": "5fe1886dfe",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 294,
+    "line": 279,
     "before": "case \"PA1\" -> Cobol.move(f67_DFHPA1, f111_EIBAID, CS);",
     "after": "case \"XA1\" -> Cobol.move(f67_DFHPA1, f111_EIBAID, CS);"
    },
@@ -4139,7 +3993,7 @@
     "id": "46a0b31b20",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 295,
+    "line": 280,
     "before": "case \"PA2\" -> Cobol.move(f68_DFHPA2, f111_EIBAID, CS);",
     "after": "case \"XA2\" -> Cobol.move(f68_DFHPA2, f111_EIBAID, CS);"
    },
@@ -4147,7 +4001,7 @@
     "id": "eda9ea019e",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 296,
+    "line": 281,
     "before": "case \"PA3\" -> Cobol.move(f69_DFHPA3, f111_EIBAID, CS);",
     "after": "case \"XA3\" -> Cobol.move(f69_DFHPA3, f111_EIBAID, CS);"
    },
@@ -4155,7 +4009,7 @@
     "id": "6c9014ffc7",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 297,
+    "line": 282,
     "before": "case \"PF1\" -> Cobol.move(f70_DFHPF1, f111_EIBAID, CS);",
     "after": "case \"XF1\" -> Cobol.move(f70_DFHPF1, f111_EIBAID, CS);"
    },
@@ -4163,7 +4017,7 @@
     "id": "148395c045",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 298,
+    "line": 283,
     "before": "case \"PF2\" -> Cobol.move(f71_DFHPF2, f111_EIBAID, CS);",
     "after": "case \"XF2\" -> Cobol.move(f71_DFHPF2, f111_EIBAID, CS);"
    },
@@ -4171,7 +4025,7 @@
     "id": "b2173dcb81",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 299,
+    "line": 284,
     "before": "case \"PF3\" -> Cobol.move(f72_DFHPF3, f111_EIBAID, CS);",
     "after": "case \"XF3\" -> Cobol.move(f72_DFHPF3, f111_EIBAID, CS);"
    },
@@ -4179,7 +4033,7 @@
     "id": "0e9f92f7fd",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 300,
+    "line": 285,
     "before": "case \"PF4\" -> Cobol.move(f73_DFHPF4, f111_EIBAID, CS);",
     "after": "case \"XF4\" -> Cobol.move(f73_DFHPF4, f111_EIBAID, CS);"
    },
@@ -4187,7 +4041,7 @@
     "id": "955dc8c4fe",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 301,
+    "line": 286,
     "before": "case \"PF5\" -> Cobol.move(f74_DFHPF5, f111_EIBAID, CS);",
     "after": "case \"XF5\" -> Cobol.move(f74_DFHPF5, f111_EIBAID, CS);"
    },
@@ -4195,7 +4049,7 @@
     "id": "7c8b89476a",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 302,
+    "line": 287,
     "before": "case \"PF6\" -> Cobol.move(f75_DFHPF6, f111_EIBAID, CS);",
     "after": "case \"XF6\" -> Cobol.move(f75_DFHPF6, f111_EIBAID, CS);"
    },
@@ -4203,7 +4057,7 @@
     "id": "29caa48221",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 303,
+    "line": 288,
     "before": "case \"PF7\" -> Cobol.move(f76_DFHPF7, f111_EIBAID, CS);",
     "after": "case \"XF7\" -> Cobol.move(f76_DFHPF7, f111_EIBAID, CS);"
    },
@@ -4211,7 +4065,7 @@
     "id": "5d3197a9ed",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 304,
+    "line": 289,
     "before": "case \"PF8\" -> Cobol.move(f77_DFHPF8, f111_EIBAID, CS);",
     "after": "case \"XF8\" -> Cobol.move(f77_DFHPF8, f111_EIBAID, CS);"
    },
@@ -4219,7 +4073,7 @@
     "id": "0df1793097",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 305,
+    "line": 290,
     "before": "case \"PF9\" -> Cobol.move(f78_DFHPF9, f111_EIBAID, CS);",
     "after": "case \"XF9\" -> Cobol.move(f78_DFHPF9, f111_EIBAID, CS);"
    },
@@ -4227,7 +4081,7 @@
     "id": "5f4e60a2d9",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 306,
+    "line": 291,
     "before": "case \"PF10\" -> Cobol.move(f79_DFHPF10, f111_EIBAID, CS);",
     "after": "case \"XF10\" -> Cobol.move(f79_DFHPF10, f111_EIBAID, CS);"
    },
@@ -4235,7 +4089,7 @@
     "id": "74026c61b6",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 307,
+    "line": 292,
     "before": "case \"PF11\" -> Cobol.move(f80_DFHPF11, f111_EIBAID, CS);",
     "after": "case \"XF11\" -> Cobol.move(f80_DFHPF11, f111_EIBAID, CS);"
    },
@@ -4243,7 +4097,7 @@
     "id": "2de4a1ea3d",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 308,
+    "line": 293,
     "before": "case \"PF12\" -> Cobol.move(f81_DFHPF12, f111_EIBAID, CS);",
     "after": "case \"XF12\" -> Cobol.move(f81_DFHPF12, f111_EIBAID, CS);"
    },
@@ -4251,7 +4105,7 @@
     "id": "6d9133185c",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 309,
+    "line": 294,
     "before": "case \"PF13\" -> Cobol.move(f82_DFHPF13, f111_EIBAID, CS);",
     "after": "case \"XF13\" -> Cobol.move(f82_DFHPF13, f111_EIBAID, CS);"
    },
@@ -4259,7 +4113,7 @@
     "id": "be249d813b",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 310,
+    "line": 295,
     "before": "case \"PF14\" -> Cobol.move(f83_DFHPF14, f111_EIBAID, CS);",
     "after": "case \"XF14\" -> Cobol.move(f83_DFHPF14, f111_EIBAID, CS);"
    },
@@ -4267,7 +4121,7 @@
     "id": "cf27e7f26d",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 311,
+    "line": 296,
     "before": "case \"PF15\" -> Cobol.move(f84_DFHPF15, f111_EIBAID, CS);",
     "after": "case \"XF15\" -> Cobol.move(f84_DFHPF15, f111_EIBAID, CS);"
    },
@@ -4275,7 +4129,7 @@
     "id": "824b13e15f",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 312,
+    "line": 297,
     "before": "case \"PF16\" -> Cobol.move(f85_DFHPF16, f111_EIBAID, CS);",
     "after": "case \"XF16\" -> Cobol.move(f85_DFHPF16, f111_EIBAID, CS);"
    },
@@ -4283,7 +4137,7 @@
     "id": "2c9d6a0192",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 313,
+    "line": 298,
     "before": "case \"PF17\" -> Cobol.move(f86_DFHPF17, f111_EIBAID, CS);",
     "after": "case \"XF17\" -> Cobol.move(f86_DFHPF17, f111_EIBAID, CS);"
    },
@@ -4291,7 +4145,7 @@
     "id": "c0eba7ad51",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 314,
+    "line": 299,
     "before": "case \"PF18\" -> Cobol.move(f87_DFHPF18, f111_EIBAID, CS);",
     "after": "case \"XF18\" -> Cobol.move(f87_DFHPF18, f111_EIBAID, CS);"
    },
@@ -4299,7 +4153,7 @@
     "id": "39269e7321",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 315,
+    "line": 300,
     "before": "case \"PF19\" -> Cobol.move(f88_DFHPF19, f111_EIBAID, CS);",
     "after": "case \"XF19\" -> Cobol.move(f88_DFHPF19, f111_EIBAID, CS);"
    },
@@ -4307,47 +4161,15 @@
     "id": "5efb89a48c",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 316,
+    "line": 301,
     "before": "case \"PF20\" -> Cobol.move(f89_DFHPF20, f111_EIBAID, CS);",
     "after": "case \"XF20\" -> Cobol.move(f89_DFHPF20, f111_EIBAID, CS);"
-   },
-   {
-    "id": "ffb88402bd",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 317,
-    "before": "case \"PF21\" -> Cobol.move(f90_DFHPF21, f111_EIBAID, CS);",
-    "after": "case \"XF21\" -> Cobol.move(f90_DFHPF21, f111_EIBAID, CS);"
-   },
-   {
-    "id": "b518644b18",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 318,
-    "before": "case \"PF22\" -> Cobol.move(f91_DFHPF22, f111_EIBAID, CS);",
-    "after": "case \"XF22\" -> Cobol.move(f91_DFHPF22, f111_EIBAID, CS);"
-   },
-   {
-    "id": "ec50b0e6da",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 319,
-    "before": "case \"PF23\" -> Cobol.move(f92_DFHPF23, f111_EIBAID, CS);",
-    "after": "case \"XF23\" -> Cobol.move(f92_DFHPF23, f111_EIBAID, CS);"
-   },
-   {
-    "id": "d83c04b576",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 320,
-    "before": "case \"PF24\" -> Cobol.move(f93_DFHPF24, f111_EIBAID, CS);",
-    "after": "case \"XF24\" -> Cobol.move(f93_DFHPF24, f111_EIBAID, CS);"
    },
    {
     "id": "d60e55ce22",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 327,
+    "line": 312,
     "before": "caBack = () -> fill_PcmenuWsCa(x, s_DFHCOMMAREA, 0);",
     "after": "/* caBack = () -> fill_PcmenuWsCa(x, s_DFHCOMMAREA, 0); */"
    },
@@ -4355,23 +4177,55 @@
     "id": "0c6accf3ed",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 327,
+    "line": 312,
     "before": "caBack = () -> fill_PcmenuWsCa(x, s_DFHCOMMAREA, 0);",
     "after": "caBack = () -> fill_PcmenuWsCa(x, s_DFHCOMMAREA, 1);"
+   },
+   {
+    "id": "5bd5042b0d",
+    "op": "CON",
+    "file": "service/PcmenuService.java",
+    "line": 313,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
    },
    {
     "id": "5e820d8d56",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 330,
+    "line": 315,
     "before": "s_DFHCOMMAREA.beyond = null;",
     "after": "/* s_DFHCOMMAREA.beyond = null; */"
+   },
+   {
+    "id": "ae8482e51e",
+    "op": "DEL",
+    "file": "service/PcmenuService.java",
+    "line": 318,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
+   },
+   {
+    "id": "d96eb1aaf5",
+    "op": "DEL",
+    "file": "service/PcmenuService.java",
+    "line": 319,
+    "before": "calen = DetCics.eibCalen(task, cb.length);",
+    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
+   },
+   {
+    "id": "5c43760e5c",
+    "op": "DEL",
+    "file": "service/PcmenuService.java",
+    "line": 323,
+    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, raw);",
+    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, raw); */"
    },
    {
     "id": "752508c5fb",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
    },
@@ -4379,7 +4233,7 @@
     "id": "178dbfe2f9",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 1, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -4387,7 +4241,7 @@
     "id": "360f363a8c",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 1, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -4395,7 +4249,7 @@
     "id": "85cb7d1511",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (!(s_DFHCOMMAREA.beyond != null)) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -4403,7 +4257,7 @@
     "id": "5d42fccb9d",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -4411,7 +4265,7 @@
     "id": "f6d9409c42",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } typed.run(); };"
    },
@@ -4419,7 +4273,7 @@
     "id": "bba4758ea2",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 341,
+    "line": 326,
     "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
     "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
    },
@@ -4427,7 +4281,7 @@
     "id": "d5b674c3fd",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 344,
+    "line": 329,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (!(task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length)) {"
    },
@@ -4435,7 +4289,7 @@
     "id": "41dfe051da",
     "op": "COR",
     "file": "service/PcmenuService.java",
-    "line": 344,
+    "line": 329,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
    },
@@ -4443,7 +4297,7 @@
     "id": "a197222e80",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 344,
+    "line": 329,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -4451,7 +4305,7 @@
     "id": "b9475047ef",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 344,
+    "line": 329,
     "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
     "after": "if (task.exactCommarea() && calen >= s_DFHCOMMAREA.bytes.length) {"
    },
@@ -4459,7 +4313,7 @@
     "id": "912f8d184a",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 345,
+    "line": 330,
     "before": "caWhole = s_DFHCOMMAREA.bytes;",
     "after": "/* caWhole = s_DFHCOMMAREA.bytes; */"
    },
@@ -4467,15 +4321,23 @@
     "id": "9c246d6aa4",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 346,
+    "line": 331,
     "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
     "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */"
+   },
+   {
+    "id": "f849bcaaeb",
+    "op": "DEL",
+    "file": "service/PcmenuService.java",
+    "line": 334,
+    "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
+    "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */"
    },
    {
     "id": "1066b2b9fc",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 354,
+    "line": 339,
     "before": "perform(0, 3);",
     "after": "perform(0, 4);"
    },
@@ -4483,7 +4345,7 @@
     "id": "8ab44c82c8",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 359,
+    "line": 344,
     "before": "if (caWhole == null) {",
     "after": "if (!(caWhole == null)) {"
    },
@@ -4491,7 +4353,7 @@
     "id": "3647dc718f",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 359,
+    "line": 344,
     "before": "if (caWhole == null) {",
     "after": "if (caWhole != null) {"
    },
@@ -4499,7 +4361,7 @@
     "id": "1742c772f9",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 362,
+    "line": 347,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");"
    },
@@ -4507,15 +4369,23 @@
     "id": "bff0b239d1",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 362,
+    "line": 347,
     "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
     "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");"
    },
    {
-    "id": "5dcf570bfd",
+    "id": "7280482044",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 369,
+    "line": 350,
+    "before": "DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole);",
+    "after": "/* DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole); */"
+   },
+   {
+    "id": "8c6cace79d",
+    "op": "DEL",
+    "file": "service/PcmenuService.java",
+    "line": 354,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -4523,7 +4393,7 @@
     "id": "75aac304e3",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 373,
+    "line": 358,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -4531,7 +4401,7 @@
     "id": "3143b9f3e6",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 374,
+    "line": 359,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -4539,7 +4409,7 @@
     "id": "86a48ab392",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 381,
+    "line": 366,
     "before": "region.run(task, \"PCMENU\", this::runTask);",
     "after": "region.run(task, \"XCMENU\", this::runTask);"
    },
@@ -4547,7 +4417,7 @@
     "id": "84e331ae1b",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 408,
+    "line": 391,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -4555,7 +4425,7 @@
     "id": "6312f3fb4c",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 413,
+    "line": 396,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -4563,7 +4433,7 @@
     "id": "d3c8c73c36",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 414,
+    "line": 397,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -4571,7 +4441,7 @@
     "id": "dde3c7b4fd",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 422,
+    "line": 405,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -4579,7 +4449,7 @@
     "id": "0894c00552",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 433,
+    "line": 416,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -4587,7 +4457,7 @@
     "id": "71f84bbd50",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 433,
+    "line": 416,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -4595,7 +4465,7 @@
     "id": "15ece7e397",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 433,
+    "line": 416,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -4603,7 +4473,7 @@
     "id": "8d5349677b",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 440,
+    "line": 423,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -4611,7 +4481,7 @@
     "id": "eb502f18c0",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 440,
+    "line": 423,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -4619,7 +4489,7 @@
     "id": "353033deba",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 442,
+    "line": 425,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -4627,7 +4497,7 @@
     "id": "0a4bce8eaf",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 444,
+    "line": 427,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -4635,7 +4505,7 @@
     "id": "67328cedc9",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 446,
+    "line": 429,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -4643,7 +4513,7 @@
     "id": "de57a78d7d",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 446,
+    "line": 429,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -4651,7 +4521,7 @@
     "id": "3ff51df173",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 446,
+    "line": 429,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -4659,7 +4529,7 @@
     "id": "e3b7e19141",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 446,
+    "line": 429,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -4667,7 +4537,7 @@
     "id": "e19c3a84c8",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 446,
+    "line": 429,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -4675,7 +4545,7 @@
     "id": "aaaeebd809",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 447,
+    "line": 430,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -4683,7 +4553,7 @@
     "id": "63f2b52da3",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 447,
+    "line": 430,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -4691,7 +4561,7 @@
     "id": "69c2bcde87",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 452,
+    "line": 435,
     "before": "if (next >= 4) {",
     "after": "if (next > 4) {"
    },
@@ -4699,7 +4569,7 @@
     "id": "0ff540758b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 452,
+    "line": 435,
     "before": "if (next >= 4) {",
     "after": "if (next >= 5) {"
    },
@@ -4707,7 +4577,7 @@
     "id": "c4f134fe7b",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 458,
+    "line": 441,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -4715,7 +4585,7 @@
     "id": "5ff0bdf7b1",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 458,
+    "line": 441,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -4723,7 +4593,7 @@
     "id": "2706369cf2",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 462,
+    "line": 445,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -4731,7 +4601,7 @@
     "id": "9dad7cd491",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 472,
+    "line": 455,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -4739,7 +4609,7 @@
     "id": "18662842a4",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 481,
+    "line": 464,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS);",
     "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS); */"
    },
@@ -4747,7 +4617,7 @@
     "id": "66e1ad5958",
     "op": "AOR",
     "file": "service/PcmenuService.java",
-    "line": 481,
+    "line": 464,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() - 0, 4, 0, false, false, false), CS);"
    },
@@ -4755,7 +4625,7 @@
     "id": "f6b4a93a95",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 481,
+    "line": 464,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 1, 4, 0, false, false, false), CS);"
    },
@@ -4763,7 +4633,7 @@
     "id": "0c1e94965b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 481,
+    "line": 464,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 5, 0, false, false, false), CS);"
    },
@@ -4771,7 +4641,7 @@
     "id": "6277ec33a6",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 481,
+    "line": 464,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 0, false, false, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f94_WS_CA.storage(), f94_WS_CA.offset() + 0, 4, 1, false, false, false), CS);"
    },
@@ -4779,7 +4649,7 @@
     "id": "686e415b41",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 482,
+    "line": 465,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 4, 4, false), CS);",
     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 4, 4, false), CS); */"
    },
@@ -4787,7 +4657,7 @@
     "id": "ad1eeeb999",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 482,
+    "line": 465,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 4, 4, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 5, 4, false), CS);"
    },
@@ -4795,7 +4665,7 @@
     "id": "7a07b52fe7",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 482,
+    "line": 465,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 4, 4, false), CS);",
     "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 4, 5, false), CS);"
    },
@@ -4803,7 +4673,7 @@
     "id": "b4bf9223fc",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 483,
+    "line": 466,
     "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 8, 2, false), CS);",
     "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f94_WS_CA.storage(), f94_WS_CA.offset() + 8, 2, false), CS); */"
    },
@@ -4811,7 +4681,7 @@
     "id": "4902bba6c0",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 489,
+    "line": 472,
     "before": "perform(3, 3);",
     "after": "perform(3, 4);"
    },
@@ -4819,7 +4689,7 @@
     "id": "2a5027866d",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 501,
+    "line": 484,
     "before": "perform(3, 3);",
     "after": "perform(3, 4);"
    },
@@ -4827,7 +4697,7 @@
     "id": "f46c4d7b14",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 507,
+    "line": 490,
     "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f1_PCMNI, CS);",
     "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f1_PCMNI, CS); */"
    },
@@ -4835,7 +4705,7 @@
     "id": "75a8da9b2d",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 509,
+    "line": 492,
     "before": "int[] planned6 = task.planned(\"RECEIVE-MAP\", \"PCMN\");",
     "after": "int[] planned6 = task.planned(\"XECEIVE-MAP\", \"PCMN\");"
    },
@@ -4843,7 +4713,7 @@
     "id": "5edc1cb5ef",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 509,
+    "line": 492,
     "before": "int[] planned6 = task.planned(\"RECEIVE-MAP\", \"PCMN\");",
     "after": "int[] planned6 = task.planned(\"RECEIVE-MAP\", \"XCMN\");"
    },
@@ -4851,7 +4721,7 @@
     "id": "98a145de2a",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 510,
+    "line": 493,
     "before": "java.util.Optional<PcmnScreen> received3 = planned6[0] != 0 ? java.util.Optional.empty() : task.receive(\"PCMN\", \"PCSET2\", PcmnScreen.class);",
     "after": "java.util.Optional<PcmnScreen> received3 = planned6[1] != 0 ? java.util.Optional.empty() : task.receive(\"PCMN\", \"PCSET2\", PcmnScreen.class);"
    },
@@ -4859,7 +4729,7 @@
     "id": "8da94bbaef",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 511,
+    "line": 494,
     "before": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;",
     "after": "int resp5 = planned6[1] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;"
    },
@@ -4867,7 +4737,7 @@
     "id": "3a6e9a74a9",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 511,
+    "line": 494,
     "before": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;",
     "after": "int resp5 = planned6[0] == 0 ? planned6[0] : received3.isPresent() ? 0 : 36;"
    },
@@ -4875,7 +4745,7 @@
     "id": "816649afa7",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 511,
+    "line": 494,
     "before": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;",
     "after": "int resp5 = planned6[0] != 1 ? planned6[0] : received3.isPresent() ? 0 : 36;"
    },
@@ -4883,7 +4753,7 @@
     "id": "917e216e6d",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 511,
+    "line": 494,
     "before": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;",
     "after": "int resp5 = planned6[0] != 0 ? planned6[1] : received3.isPresent() ? 0 : 36;"
    },
@@ -4891,7 +4761,7 @@
     "id": "d9745f0d1b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 511,
+    "line": 494,
     "before": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 36;",
     "after": "int resp5 = planned6[0] != 0 ? planned6[0] : received3.isPresent() ? 0 : 37;"
    },
@@ -4899,7 +4769,7 @@
     "id": "bcdbbd2573",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 513,
+    "line": 496,
     "before": "java.util.Arrays.fill(f1_PCMNI.storage().bytes, f1_PCMNI.offset(), f1_PCMNI.offset() + f1_PCMNI.length(), (byte) 0);",
     "after": "/* java.util.Arrays.fill(f1_PCMNI.storage().bytes, f1_PCMNI.offset(), f1_PCMNI.offset() + f1_PCMNI.length(), (byte) 0); */"
    },
@@ -4907,7 +4777,7 @@
     "id": "065ebe4fcf",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 513,
+    "line": 496,
     "before": "java.util.Arrays.fill(f1_PCMNI.storage().bytes, f1_PCMNI.offset(), f1_PCMNI.offset() + f1_PCMNI.length(), (byte) 0);",
     "after": "java.util.Arrays.fill(f1_PCMNI.storage().bytes, f1_PCMNI.offset(), f1_PCMNI.offset() + f1_PCMNI.length(), (byte) 1);"
    },
@@ -4915,7 +4785,7 @@
     "id": "27be6f5f06",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 516,
+    "line": 499,
     "before": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f7_OPTI, f3_OPTL, typed4.get(\"OPT\"), CS, \"LEFT,BLANK\");",
     "after": "com.gitgalaxy.modernized.cobolrt.cics.DetJustify.place(f7_OPTI, f3_OPTL, typed4.get(\"OPT\"), CS, \"XEFT,BLANK\");"
    },
@@ -4923,7 +4793,7 @@
     "id": "379bcc7e4d",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 518,
+    "line": 501,
     "before": "if (typed4.get(\"VISITS\") != null) {",
     "after": "if (typed4.get(\"XISITS\") != null) {"
    },
@@ -4931,7 +4801,7 @@
     "id": "947a3f03a5",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 519,
+    "line": 502,
     "before": "DetCics.typed(f12_VISITSI, f8_VISITSL, typed4.get(\"VISITS\"), CS);",
     "after": "DetCics.typed(f12_VISITSI, f8_VISITSL, typed4.get(\"XISITS\"), CS);"
    },
@@ -4939,7 +4809,7 @@
     "id": "547c9f8a5b",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 521,
+    "line": 504,
     "before": "if (typed4.get(\"MSG\") != null) {",
     "after": "if (typed4.get(\"XSG\") != null) {"
    },
@@ -4947,7 +4817,7 @@
     "id": "53855880d3",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 522,
+    "line": 505,
     "before": "DetCics.typed(f17_MSGI, f13_MSGL, typed4.get(\"MSG\"), CS);",
     "after": "DetCics.typed(f17_MSGI, f13_MSGL, typed4.get(\"XSG\"), CS);"
    },
@@ -4955,7 +4825,7 @@
     "id": "359e90ebcc",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 525,
+    "line": 508,
     "before": "aid(resp5);",
     "after": "/* aid(resp5); */"
    },
@@ -4963,7 +4833,7 @@
     "id": "a347e7eb82",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 526,
+    "line": 509,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(resp5), false, CS);",
     "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(resp5), false, CS); */"
    },
@@ -4971,7 +4841,7 @@
     "id": "dd858e5134",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 527,
+    "line": 510,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -4979,7 +4849,7 @@
     "id": "b7fbd5adb9",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 527,
+    "line": 510,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
    },
@@ -4987,7 +4857,7 @@
     "id": "e6e6363dc8",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 530,
+    "line": 513,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -4995,7 +4865,7 @@
     "id": "1f18cf6795",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 530,
+    "line": 513,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -5003,7 +4873,7 @@
     "id": "108a7c66fb",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 530,
+    "line": 513,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -5011,7 +4881,7 @@
     "id": "f026ab49b1",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 530,
+    "line": 513,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -5019,7 +4889,7 @@
     "id": "587eb58763",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 533,
+    "line": 516,
     "before": "if (aidTo7 >= 0) return GOTO | aidTo7;",
     "after": "if (aidTo7 > 0) return GOTO | aidTo7;"
    },
@@ -5027,7 +4897,7 @@
     "id": "ea3f7fd48d",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 533,
+    "line": 516,
     "before": "if (aidTo7 >= 0) return GOTO | aidTo7;",
     "after": "if (aidTo7 >= 1) return GOTO | aidTo7;"
    },
@@ -5035,7 +4905,7 @@
     "id": "94f5c29bde",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 539,
+    "line": 522,
     "before": "perform(3, 3);",
     "after": "perform(3, 4);"
    },
@@ -5043,7 +4913,7 @@
     "id": "923d5b06b8",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 546,
+    "line": 529,
     "before": "String xr8 = task.xctl(\"PCDETL\".strip(), out_PcdetlWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
     "after": "String xr8 = task.xctl(\"PCDETL\".strip(), out_PcdetlWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 11, Cobol.commarea(f94_WS_CA, 10).bytes);"
    },
@@ -5051,7 +4921,7 @@
     "id": "e27d90ef5a",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 546,
+    "line": 529,
     "before": "String xr8 = task.xctl(\"PCDETL\".strip(), out_PcdetlWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
     "after": "String xr8 = task.xctl(\"PCDETL\".strip(), out_PcdetlWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 11).bytes);"
    },
@@ -5059,7 +4929,7 @@
     "id": "76adcdab8f",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 548,
+    "line": 531,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr8)), false, CS);",
     "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr8)), false, CS); */"
    },
@@ -5067,7 +4937,7 @@
     "id": "cb38b8a726",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 549,
+    "line": 532,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);",
     "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS); */"
    },
@@ -5075,7 +4945,7 @@
     "id": "334496b585",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 550,
+    "line": 533,
     "before": "if (DetCics.resp(xr8) != 0) {",
     "after": "if (!(DetCics.resp(xr8) != 0)) {"
    },
@@ -5083,7 +4953,7 @@
     "id": "a38d0f585d",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 550,
+    "line": 533,
     "before": "if (DetCics.resp(xr8) != 0) {",
     "after": "if (DetCics.resp(xr8) == 0) {"
    },
@@ -5091,7 +4961,7 @@
     "id": "d468717905",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 550,
+    "line": 533,
     "before": "if (DetCics.resp(xr8) != 0) {",
     "after": "if (DetCics.resp(xr8) != 1) {"
    },
@@ -5099,7 +4969,7 @@
     "id": "c002547cba",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 552,
+    "line": 535,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -5107,7 +4977,7 @@
     "id": "42667195a4",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 552,
+    "line": 535,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -5115,7 +4985,7 @@
     "id": "e180cf6567",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 552,
+    "line": 535,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -5123,7 +4993,7 @@
     "id": "47f5baac48",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 552,
+    "line": 535,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -5131,7 +5001,7 @@
     "id": "a9245e3545",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 559,
+    "line": 542,
     "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned10 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -5139,7 +5009,7 @@
     "id": "66c08983fb",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 559,
+    "line": 542,
     "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned10 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -5147,7 +5017,7 @@
     "id": "1f0b3a2c07",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 560,
+    "line": 543,
     "before": "if (planned10[0] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), 20)), 20, \"ERASE\");",
     "after": "if (planned10[1] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), 20)), 20, \"ERASE\");"
    },
@@ -5155,7 +5025,7 @@
     "id": "5f27b0864b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 560,
+    "line": 543,
     "before": "if (planned10[0] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), 20)), 20, \"ERASE\");",
     "after": "if (planned10[0] == 0) task.sendText(text9.substring(0, Math.min(text9.length(), 21)), 20, \"ERASE\");"
    },
@@ -5163,7 +5033,7 @@
     "id": "d0d16b2cc2",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 561,
+    "line": 544,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
     "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS); */"
    },
@@ -5171,7 +5041,7 @@
     "id": "efca40a5a1",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 561,
+    "line": 544,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[0]), false, CS);",
     "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned10[1]), false, CS);"
    },
@@ -5179,7 +5049,7 @@
     "id": "148a7de410",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 562,
+    "line": 545,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
     "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS); */"
    },
@@ -5187,7 +5057,7 @@
     "id": "54a9c9ef6a",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 563,
+    "line": 546,
     "before": "if (planned10[0] != 0) {",
     "after": "if (planned10[1] != 0) {"
    },
@@ -5195,7 +5065,7 @@
     "id": "ab4c350c2c",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 564,
+    "line": 547,
     "before": "int to = condition(DetCics.condition(planned10[0]));",
     "after": "int to = condition(DetCics.condition(planned10[1]));"
    },
@@ -5203,7 +5073,7 @@
     "id": "eea3b17837",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 565,
+    "line": 548,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -5211,7 +5081,7 @@
     "id": "54e05b7d8e",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 565,
+    "line": 548,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -5219,7 +5089,7 @@
     "id": "81745cc3a8",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 565,
+    "line": 548,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -5227,31 +5097,23 @@
     "id": "6a42d6f964",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 565,
+    "line": 548,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "40cb108402",
+    "id": "9e3f8ab97b",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 568,
+    "line": 551,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "4c3ecc793a",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 569,
-    "before": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
-    "after": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 11, Cobol.commarea(f94_WS_CA, 10).bytes);"
    },
    {
     "id": "9fdd60d77f",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 569,
+    "line": 552,
     "before": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
     "after": "task.returnTransid(\"PC12\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 11).bytes);"
    },
@@ -5259,7 +5121,7 @@
     "id": "18cb50bfc5",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 575,
+    "line": 558,
     "before": "perform(3, 3);",
     "after": "perform(3, 4);"
    },
@@ -5267,7 +5129,7 @@
     "id": "e67ae267a3",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 577,
+    "line": 560,
     "before": "return 1;",
     "after": "return 2;"
    },
@@ -5275,7 +5137,7 @@
     "id": "b9ea63f4c3",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 584,
+    "line": 567,
     "before": "int[] planned12 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned12 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -5283,7 +5145,7 @@
     "id": "f58e44bb4f",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 584,
+    "line": 567,
     "before": "int[] planned12 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned12 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -5291,7 +5153,7 @@
     "id": "3fb3ae029b",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 585,
+    "line": 568,
     "before": "if (planned12[0] == 0) task.sendText(text11.substring(0, Math.min(text11.length(), 10)), 10, \"ERASE\");",
     "after": "if (planned12[1] == 0) task.sendText(text11.substring(0, Math.min(text11.length(), 10)), 10, \"ERASE\");"
    },
@@ -5299,7 +5161,7 @@
     "id": "a4303c12f1",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 585,
+    "line": 568,
     "before": "if (planned12[0] == 0) task.sendText(text11.substring(0, Math.min(text11.length(), 10)), 10, \"ERASE\");",
     "after": "if (planned12[0] == 0) task.sendText(text11.substring(0, Math.min(text11.length(), 11)), 10, \"ERASE\");"
    },
@@ -5307,7 +5169,7 @@
     "id": "fd4f3fdc6e",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 586,
+    "line": 569,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
     "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS); */"
    },
@@ -5315,7 +5177,7 @@
     "id": "6bc148d9c7",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 586,
+    "line": 569,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[0]), false, CS);",
     "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned12[1]), false, CS);"
    },
@@ -5323,7 +5185,7 @@
     "id": "7256b73299",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 587,
+    "line": 570,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS);",
     "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned12[1]), false, CS); */"
    },
@@ -5331,7 +5193,7 @@
     "id": "2ebb791707",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 588,
+    "line": 571,
     "before": "if (planned12[0] != 0) {",
     "after": "if (planned12[1] != 0) {"
    },
@@ -5339,7 +5201,7 @@
     "id": "fee80f9c74",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 589,
+    "line": 572,
     "before": "int to = condition(DetCics.condition(planned12[0]));",
     "after": "int to = condition(DetCics.condition(planned12[1]));"
    },
@@ -5347,7 +5209,7 @@
     "id": "ce2a5db53e",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 590,
+    "line": 573,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -5355,7 +5217,7 @@
     "id": "a8d9e08bb1",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 590,
+    "line": 573,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -5363,7 +5225,7 @@
     "id": "b07b9a17b0",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 590,
+    "line": 573,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -5371,15 +5233,15 @@
     "id": "7af4ee04c2",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 590,
+    "line": 573,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "c73a331cf7",
+    "id": "e5f3f2e46c",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 593,
+    "line": 576,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -5387,7 +5249,7 @@
     "id": "2d2a01ad8a",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 594,
+    "line": 577,
     "before": "task.returnTransid(null, null);",
     "after": "/* task.returnTransid(null, null); */"
    },
@@ -5395,47 +5257,15 @@
     "id": "55b885ee4d",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 596,
+    "line": 579,
     "before": "return 2;",
     "after": "return 3;"
-   },
-   {
-    "id": "915c777686",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 617,
-    "before": "values13.put(\"OPT\", Cobol.text(f21_OPTO, CS));",
-    "after": "values13.put(\"XPT\", Cobol.text(f21_OPTO, CS));"
-   },
-   {
-    "id": "d43e93c8b6",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 618,
-    "before": "DetCics.subfields(sub14, \"OPT\", f3_OPTL, f6_OPTA, null, null, CS);",
-    "after": "DetCics.subfields(sub14, \"XPT\", f3_OPTL, f6_OPTA, null, null, CS);"
-   },
-   {
-    "id": "977ec6eddf",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 620,
-    "before": "DetCics.subfields(sub14, \"VISITS\", f8_VISITSL, f11_VISITSA, null, null, CS);",
-    "after": "DetCics.subfields(sub14, \"XISITS\", f8_VISITSL, f11_VISITSA, null, null, CS);"
-   },
-   {
-    "id": "91e3279c98",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 622,
-    "before": "DetCics.subfields(sub14, \"MSG\", f13_MSGL, f16_MSGA, null, null, CS);",
-    "after": "DetCics.subfields(sub14, \"XSG\", f13_MSGL, f16_MSGA, null, null, CS);"
    },
    {
     "id": "7e375409f6",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 624,
+    "line": 607,
     "before": "int[] planned16 = task.planned(\"SEND-MAP\", \"PCMN\");",
     "after": "int[] planned16 = task.planned(\"XEND-MAP\", \"PCMN\");"
    },
@@ -5443,7 +5273,7 @@
     "id": "1f91391dbb",
     "op": "LIT",
     "file": "service/PcmenuService.java",
-    "line": 624,
+    "line": 607,
     "before": "int[] planned16 = task.planned(\"SEND-MAP\", \"PCMN\");",
     "after": "int[] planned16 = task.planned(\"SEND-MAP\", \"XCMN\");"
    },
@@ -5451,7 +5281,7 @@
     "id": "3f88164207",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 625,
+    "line": 608,
     "before": "if (planned16[0] == 0) task.sendMap(\"PCMN\", \"PCSET2\", screen15, sub14, \"ERASE\");",
     "after": "if (planned16[1] == 0) task.sendMap(\"PCMN\", \"PCSET2\", screen15, sub14, \"ERASE\");"
    },
@@ -5459,7 +5289,7 @@
     "id": "2c204f5e05",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 626,
+    "line": 609,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
     "after": "/* Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS); */"
    },
@@ -5467,7 +5297,7 @@
     "id": "26ab06cfd3",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 626,
+    "line": 609,
     "before": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[0]), false, CS);",
     "after": "Cobol.store(f131_EIBRESP, BigDecimal.valueOf(planned16[1]), false, CS);"
    },
@@ -5475,7 +5305,7 @@
     "id": "f7852b942d",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 627,
+    "line": 610,
     "before": "Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS);",
     "after": "/* Cobol.store(f132_EIBRESP2, BigDecimal.valueOf(planned16[1]), false, CS); */"
    },
@@ -5483,7 +5313,7 @@
     "id": "685f588810",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 628,
+    "line": 611,
     "before": "if (planned16[0] != 0) {",
     "after": "if (planned16[1] != 0) {"
    },
@@ -5491,7 +5321,7 @@
     "id": "9e4f6f9dac",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 629,
+    "line": 612,
     "before": "int to = condition(DetCics.condition(planned16[0]));",
     "after": "int to = condition(DetCics.condition(planned16[1]));"
    },
@@ -5499,7 +5329,7 @@
     "id": "8ade9e7553",
     "op": "NEG",
     "file": "service/PcmenuService.java",
-    "line": 630,
+    "line": 613,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -5507,7 +5337,7 @@
     "id": "4ffc647fb9",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 630,
+    "line": 613,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -5515,7 +5345,7 @@
     "id": "1c9d32087f",
     "op": "ROR",
     "file": "service/PcmenuService.java",
-    "line": 630,
+    "line": 613,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -5523,31 +5353,23 @@
     "id": "0fe7cdbbd5",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 630,
+    "line": 613,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
    {
-    "id": "1f3b4ec85a",
+    "id": "c73a331cf7",
     "op": "DEL",
     "file": "service/PcmenuService.java",
-    "line": 633,
+    "line": 616,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "c7af1f4e01",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 634,
-    "before": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
-    "after": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 11, Cobol.commarea(f94_WS_CA, 10).bytes);"
    },
    {
     "id": "dcd229c4be",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 634,
+    "line": 617,
     "before": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 10).bytes);",
     "after": "task.returnTransid(\"PC11\".strip(), out_PcmenuWsCa(f94_WS_CA.storage(), f94_WS_CA.offset()), 10, Cobol.commarea(f94_WS_CA, 11).bytes);"
    },
@@ -5555,155 +5377,19 @@
     "id": "d1634d7d09",
     "op": "CON",
     "file": "service/PcmenuService.java",
-    "line": 636,
+    "line": 619,
     "before": "return 4;",
     "after": "return 5;"
-   },
-   {
-    "id": "022f885378",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 189,
-    "before": "calen = DetCics.eibCalen(task, cb.length);",
-    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
-   },
-   {
-    "id": "1c49bc5290",
-    "op": "LIT",
-    "file": "service/PcdetlService.java",
-    "line": 37,
-    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
-    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
-   },
-   {
-    "id": "32c3671565",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 35,
-    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
-    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
-   },
-   {
-    "id": "40d296f033",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 188,
-    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
-    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
-   },
-   {
-    "id": "5bd5042b0d",
-    "op": "CON",
-    "file": "service/PcmenuService.java",
-    "line": 328,
-    "before": "calen = DetCics.eibCalen(task, 10);",
-    "after": "calen = DetCics.eibCalen(task, 11);"
-   },
-   {
-    "id": "5c43760e5c",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 338,
-    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, raw);",
-    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, raw); */"
-   },
-   {
-    "id": "7280482044",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 365,
-    "before": "DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole);",
-    "after": "/* DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole); */"
-   },
-   {
-    "id": "77c137d144",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 204,
-    "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
-    "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */"
-   },
-   {
-    "id": "8e5e4c0683",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 220,
-    "before": "DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole);",
-    "after": "/* DetCics.restoreCommarea(s_DFHCOMMAREA, caWhole); */"
-   },
-   {
-    "id": "9166cf8689",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 183,
-    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
-    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
-   },
-   {
-    "id": "934bc777cb",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 184,
-    "before": "calen = DetCics.eibCalen(task, cb.length);",
-    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
-   },
-   {
-    "id": "ae8482e51e",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 333,
-    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, cb);",
-    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, cb); */"
-   },
-   {
-    "id": "b23f860853",
-    "op": "LIT",
-    "file": "service/PcdetlService.java",
-    "line": 35,
-    "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
-    "after": "public static final String COBOLRT_VERSION = \"X.1.0\";"
-   },
-   {
-    "id": "be00e7cf78",
-    "op": "LIT",
-    "file": "service/PcmenuService.java",
-    "line": 37,
-    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
-    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
-   },
-   {
-    "id": "d96eb1aaf5",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 334,
-    "before": "calen = DetCics.eibCalen(task, cb.length);",
-    "after": "/* calen = DetCics.eibCalen(task, cb.length); */"
-   },
-   {
-    "id": "dc93748f79",
-    "op": "DEL",
-    "file": "service/PcdetlService.java",
-    "line": 193,
-    "before": "DetCics.loadCommarea(s_DFHCOMMAREA, raw);",
-    "after": "/* DetCics.loadCommarea(s_DFHCOMMAREA, raw); */"
-   },
-   {
-    "id": "f849bcaaeb",
-    "op": "DEL",
-    "file": "service/PcmenuService.java",
-    "line": 349,
-    "before": "caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); };",
-    "after": "/* caBack = () -> { DetCics.restoreCommarea(s_DFHCOMMAREA, whole); typed.run(); }; */"
    }
   ],
   "inputs": {
-   "port": "c563846a9f162db88dce73fe54b71371f4742c43f87460f1d97ff4c2e0860b8c",
-   "runtime": "66bda5999b70689e073b040600cbed86b0b3da96422152b516d140fcf62a4af5",
-   "generator": "a4106f9593efb01f2d31d986d9fbd2a965f3695d4bca7a24dcfca7dd423bd864",
+   "port": "e75a201a12ca57e4e5dcd26b842ab2cea421d143529747afd1ac4dc951c911d1",
+   "runtime": "03164a88d8a5e92bf7e5706f443973a448338e510c1a6bef6a62ff5659ec2af6",
+   "generator": "d24e5f4b3179a4b7aec60c91e50c635a850e1784aaf6b32d30d926fef261cc92",
    "case": "7a4413f12217b8997ca0c659791440a9d4407984bab65d1e8ddca56225971818",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "bbe0b5c69920ce5f946f96767c46abd8f31b7d548515293b0a29e880a06fa4f0",
-   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "harness": "392d5c93e8c9e61ff9cb5c77cce9c80d3552aed15aba491016a348fea2a4060e",
+   "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
    "survivors": "eff262775a399ba1f8c29c1ec641bd34b532dfc6aa498f8c551cc9929a39ad1e"
   },
   "components": {
@@ -5736,10 +5422,11 @@
     "generator:cobolrt/StringSpec.java": "f832b696ce0b1860fb53a536efb2ee282d3355202ea42fab03e12df0ad24fec7",
     "generator:cobolrt/Zoned.java": "614ce9e271d21343be132d13cf47e3f159a24231eae99682ef15f10414024a01",
     "generator:cobolrt/batch/DetFiles.java": "93a8b702e9dec728c6ed17a734125f0c7c4b34dd29afb055536a9592a9c7caa7",
-    "generator:cobolrt/cics/DetCics.java": "f8f0b09d3c885e9b5fdff7be116b739decd975af992594b9dc1e5480ae4cb19d",
+    "generator:cobolrt/cics/DetCics.java": "1988892e1059c018f3e442bafa01fa73a014a77d4e5fbd9f9b1093aeec6a0a48",
     "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
+    "generator:cobolrt/job/Idcams.java": "9389c5e19810ec814b8ad20c90c30270fc151bc2411b2585bae80dc0129ae90d",
     "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
     "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
     "generator:cobolrt/le/Ceedays.java": "76ce46c61da5542390cb2997d72169d0f486722f0cc30dbc2b459e2663551574",
@@ -5761,7 +5448,7 @@
     "generator:cobolrt/sql/DetSql.java": "0f1ad0d33d9ce5301ba16bfa1e0b3562d71dce1518af8932c3ea93d77bc89bf9",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "d26fab1455283a28cfb0ae3799b2ad5df99a495dcbfa2108ba2075270cc5c548",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
@@ -5777,7 +5464,7 @@
     "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
     "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cics_web": "d07666e2ab7079aec1a5f2288f4c0bea3da45ffff723e869d7eef20d93e712c0",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dfsort": "19ef95f6dbe5c034880fc4b4e4aa6154964b57727c3d80358f0fb76c17f484b4",
     "generator:det/dli": "3543f9f3c05be02b2f8e0702a09f53874303bb17de9972a36a1e05521d90bc57",
@@ -5789,33 +5476,29 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/idcams": "51a9bbef4ed24288fc9abd58bae6c8795ac02d2b21700e750334a286acf2f577",
+    "generator:det/idcams_model": "fed2ad60f17e77252e200668ec1b19676fbe0fcc023e9082ce35dfe11bd9d216",
     "generator:det/ims_region": "05becbc32fac8a8ea4a7f480e3c69cddeacb8a240ff37bcc17d2cb0fdd052c91",
-    "generator:det/layout": "364ab65f9ef4b7e68048f2a59eae8317d792c9fdfb58acc17aaa018cff55410d",
+    "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
     "generator:det/mq": "f657dc097af0127930c9dfc41b0687701f4300cdcb82b7e0a2f8884ab1c53083",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/program": "755f84dce859ed1d117fe55d42f8fa952f57e70262090cac382c0c90e7fa9470",
+    "generator:det/program": "632c9652f0fad7ab660d5eccc9ad1180f63b9d9d814dff246f04d325b2ad6104",
     "generator:det/refine": "e33674b05cbff5072eac5163cd9efbd60e5358ccb10e2855d8b73634354fe58e",
-    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d",
+    "generator:det/replace": "63b00b343ede85ea6ee431a521c5094d52bf03a347cd30bd56d30d821f0bae9c",
+    "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc",
     "generator:det/sql": "74791ed542d623b7ddf082de9cdf01fc7b2a254a9e1c7b41423b58793309c561",
     "generator:det/stmt": "5590bdc345efe60c24a8de8e021b73e3b1d131bff5d4966ccf58bb2f8bd01bb8",
     "generator:det/tso": "7e4c6c4847b0154df35b1e64082aef52cd46e867900b2ce987ed523cdac86502"
    },
    "harness": {
-    "harness:cics": "a087f5d0b585502485eec7ddf951b2c18be810732088641086f699ff3087848b",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "bb33d6326b25595ce79c9986ad29dd1c32766d44cf987f3a8fe40dd5de064368",
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381"
    },
    "oracle": {
-    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "00437d8b06 0077851d22 008d76464b 008f67c6f0 00ac1e9882 013b77eb15 014ca1735c 018d6bdbaa 01d8bdfb03 022f885378 026866c932 028a02c71d 02c6ad005d 0300802658 04b6826cbe 0588dd3a32 05adf74ee7 05b928c6da 05bc25ec8b 05f6becfea 0608345647 065ebe4fcf 06825af15c 075cdbb8b0 07608992f1 07da815167 07eb20d356 082d72b8e8 0894c00552 0920169c11 095e1c2b39 09af7032ea 09bfdc00aa 0a4bce8eaf 0a78190977 0ae6244926 0af1460632 0bb3ebf678 0c1e94965b 0c34ee5712 0c6accf3ed 0c6cb0f705 0c84dbd09b 0cb5a89474 0cdd5c81c4 0dab63a71a 0dcc7cd3f8 0dde147c3d 0df1793097 0e1170daad 0e150198de 0e2464bc16 0e559e9499 0e7f25b5b5 0e9b3a6901 0e9f92f7fd 0f64484f9c 0fa8397bf4 0fe7cdbbd5 0ff540758b 105f2e81ef 1066b2b9fc 10892a0405 108a7c66fb 10d198c4db 110fc5c793 1122f25fd9 113de275f9 114e6936bb 11789fba9f 120a6f7528 12f7a27fef 1326391960 1457b40ec1 1471031395 148395c045 148a7de410 14c6db23db 14d0793718 14e9248096 153aa73932 1550effc58 15b8295bdf 15c56faa93 15ece7e397 1618187085 1638dce3fa 173652f135 1742c772f9 17545fac02 176b3a342c 176ddafa3a 178dbfe2f9 18662842a4 18adcfac7f 18cb50bfc5 1925304319 193814b38a 1989e93f1c 19c54f1bad 19c9169378 19da0a703b 19df0c7df2 1a1db9bd16 1a280e9d2b 1abee474a8 1ad78b95d3 1ba5ca3106 1c411b36fe 1c49bc5290 1c9b7a3f50 1c9d32087f 1cb2ce1a12 1d621d0f47 1d62685881 1d761d4935 1dcf6c5e20 1de1164d4d 1e72e6481c 1f045adb29 1f0b3a2c07 1f18cf6795 1f3b4ec85a 1f4365d976 1f91391dbb 1f96903296 2002d8eb63 20fd29d71e 21ae76002e 22d9fc5d08 2346749beb 234caf441d 2355100b5a 2357f537d8 2370434ccd 23a1da46a3 24624c7d49 24b3c71406 25b08cd770 25b4f933b6 25db6ebdfd 26ab06cfd3 26bac894b6 2706369cf2 272dac08db 27be6f5f06 283dc69bb2 2844e81bfc 29255f7231 295dc267dc 29caa48221 2a0365c06a 2a5027866d 2aac488e48 2ad1a620ef 2adcd7cf16 2af5506137 2af79ddc4d 2b88f1eb20 2bd4f1daa9 2c023beb68 2c204f5e05 2c99db56e7 2c9d6a0192 2d2a01ad8a 2d6d0d61c1 2d70239811 2d77208678 2da43b1cc0 2dda22e406 2de4a1ea3d 2de8e121bc 2e0fd687c5 2e155510ef 2e47ebee08 2e4e2a13aa 2e6e52404f 2ebb791707 2f0ed7494a 304f2d7949 30b91defb2 313f60c08c 3143b9f3e6 3180e19d35 3187bf8328 3238e7e432 32c3671565 334496b585 33a520c9f9 34d750a4f8 351bca91e6 351d03d576 353033deba 353d762890 354155b368 3566eb4625 359e90ebcc 35f4c9191c 360f363a8c 36239534d7 362a6a85aa 3647dc718f 3660883b73 367153c33b 379bcc7e4d 3874a73f86 3876939ed6 38a432d287 39205449af 39269e7321 39a117352a 39b7f8815e 3a6e9a74a9 3a77f5cf77 3b54cd2719 3b8ef92206 3bbf39b378 3c0de19c8d 3c84fab151 3c9b901307 3cbac53889 3d48f21a0f 3d8cc47b74 3d97cfcf9d 3e38816c10 3e38b150b9 3e8e6f747a 3eb3f5d79d 3ee39795c0 3f88164207 3fb3ae029b 3fda0bf87e 3ff51df173 408a44ee14 40928d5716 40cb108402 40d296f033 40f9c6cbc9 41bb90e45a 41dfe051da 4203666866 42667195a4 4339373900 43803edd96 43a06a3260 44360f592f 44b7cefad3 44c6155fb4 452128e3da 4526b60005 45a5bf3e52 45e030e1dc 460f7269ce 4652ddbb00 46a0b31b20 46b8c037f4 46cb867da2 4709b40f71 474139a9b9 475f7e9c56 47a7bbe2fc 47f5baac48 48abc90751 48c7005571 4902bba6c0 4941db4ff8 4a71e0574e 4aa470428a 4af548cfb6 4c1d1103ac 4c3ecc793a 4c7919bf28 4c88606282 4caed115f6 4cc3c0fb13 4cd52db0d0 4cf48adb5f 4d02e5abbb 4d2ab26872 4e1c6228e6 4ea1e1bf54 4ec5478579 4f27cd1377 4f34946edc 4fa3922be8 4fb8fbc756 4ffc647fb9 50791dd86a 50a80ea607 50abff7b46 50c043a99b 50e290d823 510be75e27 5160511fc8 519ef21d0f 5289d5726f 52f4069719 5319a1fe57 53855880d3 53e5d31adb 53eb62db74 547c9f8a5b 54a9c9ef6a 54b22322ca 54b798ba89 54e05b7d8e 54e7a51712 5503c55fd8 558b12c5d2 55aee08e68 55b885ee4d 56891e7641 56c75cc384 56d507954b 5726c5bfe7 572dca7050 57f97fdca8 585f183bad 587eb58763 588d7893b2 58e9614718 5927fa7f47 592b482c59 59dec2dd0b 5a30da542d 5ad7bd000f 5b358da774 5bb62e509a 5bd5042b0d 5c43760e5c 5d0b5c846d 5d3197a9ed 5d42a3f71d 5d42fccb9d 5d4951935b 5dad5d7859 5db4806b33 5dcf570bfd 5ddc074bad 5de1127d99 5e820d8d56 5ecf7a5caf 5edc1cb5ef 5efb89a48c 5f12c68998 5f27b0864b 5f4e60a2d9 5f76595f8e 5fa7fab7ed 5fe1886dfe 5ff0bdf7b1 6008ae1364 6089c29780 6109118397 6148af9399 6153800430 618236a2f2 622b8f45e0 622c0e06fb 6277ec33a6 629230f32c 62c8d995e2 6312f3fb4c 63f2b52da3 644e821cd4 64801b7631 64c31c8314 654d6bed8f 656213899f 65eaa9ddf1 66155daa1a 668b8aeb29 66c08983fb 66e1ad5958 66e656951f 6730bff972 67328cedc9 685f588810 686e415b41 6882333b9b 6914b0a65b 692e744916 6958bd98ea 69b7c97c2a 69c2bcde87 6a0e6b97e9 6a42d6f964 6a6554b04f 6ad1f20fdd 6b2876ecae 6b84e28c44 6bb00a1f62 6bc12e75d8 6bc148d9c7 6c9014ffc7 6d447ea2fe 6d9133185c 6db8e8c15e 6edfdf679b 6f0d9f5330 6f180df20b 6f4147e97d 6f7f2cf725 6faba014cd 6ffdcd9a95 716b1bec17 71827f3e9f 71a3cc53d9 71aed485af 71f84bbd50 7256b73299 7280482044 72ab44560b 72d0ea3ae6 72d6873f6a 72fd048812 74026c61b6 74a1d68634 750d628a60 752508c5fb 756fcd17ea 75a4dcc887 75a8da9b2d 75aac304e3 75edf511ec 7649c09910 7652d06087 7660a6c701 76adcdab8f 77c137d144 77d2e8985a 7842d62fe4 785ca4791e 79c36da980 79c3f0c483 79dd7fe87b 7a07b52fe7 7a202f2200 7af4ee04c2 7b6584e064 7b9661547f 7c214f296e 7c3bc8ffeb 7c3ccb5852 7c89705139 7c8b89476a 7d025ec927 7d3442866f 7d5843f457 7d68132b0a 7d7e8a24e3 7d9c74abf8 7e10f9a784 7e375409f6 7f2fad194e 7f79cf0286 7feaa80e84 8052475c48 80c6e2c599 816405e98f 816649afa7 81745cc3a8 81be2a30f6 824b13e15f 825ba0011d 8261f8dadd 829e051efb 82d436071e 830188c08c 8326212b1a 8342f68cd9 835f1ce278 8401fb4590 84e331ae1b 854f0b4f1d 856d735670 85a0c98019 85cb7d1511 868b2e491d 86a48ab392 86aa344027 877d9c5e12 87c7410f85 87f8ec400e 8896bd908e 88f2c5ace0 892ab7da8b 89608e896e 8977d228a9 89ecea333a 8a07022bee 8a37f9971e 8ab028bca2 8ab44c82c8 8ade9e7553 8b00962029 8b621e21b8 8bb3cf2955 8bdfc4d48b 8c447a0b2f 8c576a0da7 8c8fd09e52 8d327c4465 8d5349677b 8da94bbaef 8df95ab12f 8e5e4c0683 8e642a009f 8f3fd1c210 8fabc84119 9047d3ae6a 9062a6e243 90c013c93c 90cd7f2d3e 90e7c043d7 912f8d184a 915c777686 9166cf8689 917e216e6d 91b374ab53 91cba556ed 91d7cc9273 91dda231f4 91e3279c98 923d5b06b8 926cda540e 92e0b623c0 92e2517d2b 934bc777cb 9463d5d25f 947a3f03a5 948756a830 94f5c29bde 955dc8c4fe 958d32b419 967c00cc2c 96dab1b6b8 9763dac08e 977ec6eddf 978ccb76c3 9831ffbceb 9850bb7286 986bde89e4 989618274a 98a145de2a 98b8208ba2 9933155c18 994ce83708 9953919281 995871c096 9993bdcd24 99b30af37e 99b8b65448 9a40ff2bb8 9a909daa5a 9a95277443 9b0f77623c 9b53406320 9b65df8ef3 9bf4aa1a3b 9bfe4c9d93 9c166dc64e 9c246d6aa4 9c67556471 9c9cda9096 9cc427a8b0 9d35ad2668 9d3ff181b8 9dad7cd491 9e06729a71 9e0c4a1398 9e4f6f9dac 9ea3eafa16 9f071884db 9f636b2d6b 9f8c88e974 9f94a3b7ce 9f98859b32 9fd2336d7f 9fdd60d77f a0698e5c85 a0acad6a0a a197222e80 a1bf39414d a2227f0ac2 a224799a08 a2d96b2169 a347e7eb82 a38d0f585d a39325a0db a3aa749503 a4303c12f1 a4661ebc23 a4745736cf a5365b8123 a57bfc5ac6 a5f2de119b a6245afde7 a6547ecbc8 a6a34a585b a6d1621b4c a6d26e1599 a70500adff a70c12470c a70cc4a5d3 a7188460e7 a72f8b8c3d a72ffea18a a7ed9bad5c a816067c76 a83969f6f0 a85ef5de30 a882613d17 a89aae4221 a8ca572c6b a8d9e08bb1 a8eacb0619 a8fc707761 a9245e3545 a9920d4e64 a9b014cee0 a9bd217932 a9cc9de941 a9d4e4c37f aa0e6bbdbe aa78d30462 aaaeebd809 aacd13e8ab aaeeb88fd6 aaf7f7f8aa ab24802d5d ab4c350c2c ab5df74220 abea4d3a3f ac4e1a330d acc2ffaf9b accd891eb7 ad1eeeb999 ad3bfba8fb ad3cd162da adf0fe2180 ae52540260 ae8482e51e af02ebe55c af07f7b516 af4d27f0d1 af700b840d b07b9a17b0 b0f91dcafd b137f76b83 b15a0b7418 b2173dcb81 b23f860853 b23fabfa4c b2d3a3fc0a b30f4ad243 b380340d8f b42ae7bc55 b48ad0e681 b4bf9223fc b518644b18 b5c0e72ddf b605f06aee b624918b24 b6dfb3e53e b7a256147a b7b4bce653 b7b5e1fbdc b7d16e608a b7d2aa0770 b7db936f7b b7fbd5adb9 b88c846057 b91bb88fa8 b9475047ef b9bc754662 b9e18d53fe b9ea63f4c3 ba608b343f ba6e4ea15d ba9cc21f34 bad3a2f0f3 bb320cb330 bb3839ae16 bb7cde6ef8 bb9c5c6d85 bba4758ea2 bc8248519c bcb27a94d6 bcdbbd2573 bd29c5e926 bd2dccbcac bdfa3383e8 be00e7cf78 be0d9c1803 be249d813b be7374e505 bea4155df3 beb83f1b87 bebcc6fa5d bebec78768 bedb28f335 bedd298876 bf1b6acf21 bf1f6ff6c8 bf2a019e6a bf7fe90999 bfe880c865 bff0b239d1 bff696667c c002547cba c04d9ec88f c0eba7ad51 c148d60d83 c1667eca16 c17cbb81ae c1ec361ea5 c1fc0eeec4 c246ffb072 c25b218491 c2d2e18ccc c2ea74e33b c3a2dfddcf c3a683ed27 c3bec6fcf7 c3edc73e5c c4429ae69c c4782304f4 c4f134fe7b c595384612 c61c59a1e6 c631e0e035 c6ae23c688 c6cad31bf8 c70a62de4f c72de47b91 c73a331cf7 c762fb3f28 c7af1f4e01 c7c83d3b2a c7ced1071e c801a6c046 c82ebb48b7 c84db7cd33 c893dbe65b c8a2cef353 c929eb9bed c964c7813e c9a0a4343b caa4ce2c2a cada5c9521 cafdc02657 cb2a19e791 cb38b8a726 cb51343477 cc3db14bdd cc79e2ed13 cd3ffa23fa cd674602b0 cd8ad32bf2 cd9659bfcf cde66d9e37 ce2a5db53e ce8c8971c8 ce9988a914 cf27e7f26d cf46548ad3 cf865ff17e cfa6c31fda cfcf957a68 d016fb3bf5 d03888e005 d088fc2c15 d0b1ea88bc d0d16b2cc2 d0d88b1b07 d1074c343d d1631e3185 d1634d7d09 d1838b22e6 d191080b6d d1a6ebec5c d1ac1d64b6 d1dd0987a7 d1dde793dc d274d1a357 d2796be82e d3c8c73c36 d43e93c8b6 d468717905 d47279d8a7 d4f4610df0 d56e5acca4 d5b674c3fd d5d07e4947 d60e55ce22 d6b987c9b0 d75ff745d2 d7afc914a8 d7d64d2d52 d80734a3fa d83c04b576 d89cae7f14 d953ee044b d96eb1aaf5 d9745f0d1b d98533070e d9e379e004 da4c5c91e5 da8daf2d30 dad3cd97dc dafd5c95ce db4975d9f2 db720e1ad9 dc428efd6d dc4f7e9792 dc5f27e6c1 dc93748f79 dcd229c4be dd441e6a06 dd5c1ee87d dd858e5134 dde3c7b4fd de2d5d1cbd de57a78d7d dec21457ea dfb67fd5d1 e01e66c0cb e04dc2309f e0630b91ef e09f90dec2 e0da9a80ed e180cf6567 e180e6fcfd e19c3a84c8 e1bd2fe0cb e1c0e9d74b e26c14718a e27d90ef5a e27ea241bd e2bc118898 e3b7e19141 e3df657038 e3e3d9cfb6 e473871920 e4765be419 e4be7cac0e e5106deb7e e5356651e9 e5cb87b24a e6186fbd30 e647910f7f e67ae267a3 e6a3ae15fb e6e3f7711b e6e6363dc8 e7278f6a6a e73cb02f4f e7cd0e9d08 e83d2080b7 e8b1339792 e8c9e65494 e8cd6679df e8ed6bd7a5 e98c1fc130 ea3f7fd48d ea42de0514 eaf6aa1017 eb0dba60ca eb262ea7dc eb36b053e3 eb502f18c0 ebbc7b4713 ebfbbc327c ec50b0e6da ecb89409c4 ed98a6ef09 eda9ea019e edc37c2026 eea3b17837 eebcbdd24e efca40a5a1 f026ab49b1 f106996fc2 f142660b1d f167502bfb f16a638b5e f21397216e f29b12b429 f30483beae f34aa61991 f364b926fc f3df5c67b8 f46c4d7b14 f48d5fc17f f4fd9c7dc4 f51787bef1 f54babbb1c f564a2f435 f58e44bb4f f5e89fc174 f67e1d8531 f69f1d8363 f6b4a93a95 f6d3665368 f6d9409c42 f6ec175c65 f6ed00649e f71f808027 f743e4a6cb f7852b942d f7b7086809 f832374280 f849bcaaeb f8513914b9 f85effe2ae f881f88ebf f8ad536b75 f8bdf01b37 f8fb4e98d8 f90940c8b8 fa4692f3f5 fac30f8c23 fbd0596a66 fbd6166714 fbf2e166af fc5fd40df5 fc6de27341 fd0955a01b fd4f3fdc6e fd71cb6092 fd7e2cf780 fd938d16e7 fee80f9c74 ff5f2ecde6 ffb88402bd ffee731e52",
-  "refreshed": {
-   "from": "2026-11-13",
-   "survivors_rerun": 0,
-   "fresh": 18,
-   "stale": []
-  }
+  "every": "00437d8b06 0077851d22 008d76464b 008f67c6f0 00ac1e9882 013b77eb15 014ca1735c 018d6bdbaa 01d8bdfb03 022f885378 026866c932 028a02c71d 02c6ad005d 0300802658 04b6826cbe 0588dd3a32 05adf74ee7 05b928c6da 05bc25ec8b 05f6becfea 0608345647 065ebe4fcf 06825af15c 075cdbb8b0 07da815167 07eb20d356 082d72b8e8 0894c00552 0920169c11 095e1c2b39 09af7032ea 09bfdc00aa 0a4bce8eaf 0a78190977 0ae6244926 0af1460632 0bb3ebf678 0c1e94965b 0c34ee5712 0c6accf3ed 0c6cb0f705 0c84dbd09b 0cb5a89474 0cdd5c81c4 0dab63a71a 0dcc7cd3f8 0dde147c3d 0df1793097 0e1170daad 0e150198de 0e2464bc16 0e559e9499 0e7f25b5b5 0e9f92f7fd 0f64484f9c 0fa8397bf4 0fe7cdbbd5 0ff540758b 105f2e81ef 1066b2b9fc 10892a0405 108a7c66fb 10d198c4db 110fc5c793 1122f25fd9 113de275f9 114e6936bb 11789fba9f 120a6f7528 12f7a27fef 1326391960 1457b40ec1 1471031395 148395c045 148a7de410 14c6db23db 14d0793718 14e9248096 153aa73932 1550effc58 15b8295bdf 15c56faa93 15ece7e397 1618187085 1638dce3fa 173652f135 1742c772f9 17545fac02 176b3a342c 176ddafa3a 178dbfe2f9 18662842a4 18adcfac7f 18cb50bfc5 1925304319 193814b38a 1989e93f1c 19c54f1bad 19c9169378 19da0a703b 19df0c7df2 1a1db9bd16 1a280e9d2b 1abee474a8 1ad78b95d3 1ba5ca3106 1c411b36fe 1c49bc5290 1c9b7a3f50 1c9d32087f 1cb2ce1a12 1d621d0f47 1d62685881 1d761d4935 1de1164d4d 1e72e6481c 1f045adb29 1f0b3a2c07 1f18cf6795 1f4365d976 1f91391dbb 1f96903296 2002d8eb63 20fd29d71e 21ae76002e 22d9fc5d08 2346749beb 234caf441d 2355100b5a 2357f537d8 2370434ccd 23a1da46a3 24b3c71406 25b08cd770 25b4f933b6 25db6ebdfd 26ab06cfd3 26bac894b6 2706369cf2 27be6f5f06 283dc69bb2 2844e81bfc 29255f7231 295dc267dc 29caa48221 2a0365c06a 2a5027866d 2aac488e48 2ad1a620ef 2adcd7cf16 2af5506137 2af79ddc4d 2b88f1eb20 2bd4f1daa9 2c023beb68 2c204f5e05 2c99db56e7 2c9d6a0192 2d2a01ad8a 2d6d0d61c1 2d70239811 2d77208678 2da43b1cc0 2dda22e406 2de4a1ea3d 2de8e121bc 2e0fd687c5 2e155510ef 2e47ebee08 2e4e2a13aa 2e6e52404f 2ebb791707 2f0ed7494a 304f2d7949 30b91defb2 313f60c08c 3143b9f3e6 3180e19d35 3238e7e432 32c3671565 334496b585 34d750a4f8 351bca91e6 351d03d576 353033deba 353d762890 354155b368 3566eb4625 359e90ebcc 35f4c9191c 360f363a8c 36239534d7 362a6a85aa 3647dc718f 3660883b73 367153c33b 379bcc7e4d 3874a73f86 3876939ed6 38a432d287 39205449af 39269e7321 39a117352a 39b7f8815e 3a6e9a74a9 3a77f5cf77 3b54cd2719 3b8ef92206 3bbf39b378 3c84fab151 3c9b901307 3cbac53889 3d48f21a0f 3d8cc47b74 3d97cfcf9d 3e38816c10 3e38b150b9 3e8e6f747a 3eb3f5d79d 3ee39795c0 3f88164207 3fb3ae029b 3fda0bf87e 3ff51df173 408a44ee14 40928d5716 40d296f033 40f9c6cbc9 41bb90e45a 41dfe051da 4203666866 42667195a4 4339373900 43803edd96 43a06a3260 44360f592f 44b7cefad3 44c6155fb4 452128e3da 4526b60005 45a5bf3e52 45e030e1dc 460f7269ce 4652ddbb00 46a0b31b20 46b8c037f4 46cb867da2 4709b40f71 474139a9b9 47a7bbe2fc 47f5baac48 48abc90751 48c7005571 4902bba6c0 4941db4ff8 4a71e0574e 4af548cfb6 4c1d1103ac 4c3ecc793a 4c7919bf28 4c88606282 4caed115f6 4cc3c0fb13 4cd52db0d0 4cf48adb5f 4d02e5abbb 4d2ab26872 4e1c6228e6 4ea1e1bf54 4ec5478579 4f34946edc 4fa3922be8 4fb8fbc756 4ffc647fb9 50791dd86a 50a80ea607 50abff7b46 50c043a99b 50e290d823 510be75e27 5160511fc8 519ef21d0f 5289d5726f 52f4069719 5319a1fe57 53855880d3 53e5d31adb 53eb62db74 547c9f8a5b 54a9c9ef6a 54b22322ca 54b798ba89 54e05b7d8e 5503c55fd8 558b12c5d2 55aee08e68 55b885ee4d 56c75cc384 56d507954b 5726c5bfe7 572dca7050 57f97fdca8 585f183bad 587eb58763 588d7893b2 5927fa7f47 592b482c59 59dec2dd0b 5a30da542d 5ad7bd000f 5b358da774 5bb62e509a 5bd5042b0d 5c43760e5c 5d0b5c846d 5d3197a9ed 5d42a3f71d 5d42fccb9d 5d4951935b 5dad5d7859 5db4806b33 5ddc074bad 5de1127d99 5e820d8d56 5ecf7a5caf 5edc1cb5ef 5efb89a48c 5f12c68998 5f27b0864b 5f4e60a2d9 5f76595f8e 5fa7fab7ed 5fe1886dfe 5ff0bdf7b1 6008ae1364 6089c29780 6109118397 6129a8c734 6148af9399 6153800430 618236a2f2 622b8f45e0 622c0e06fb 6277ec33a6 629230f32c 62c8d995e2 6312f3fb4c 63f2b52da3 644e821cd4 64801b7631 64c31c8314 654d6bed8f 656213899f 65eaa9ddf1 66155daa1a 668b8aeb29 66c08983fb 66e1ad5958 66e656951f 6730bff972 67328cedc9 685f588810 686e415b41 6882333b9b 6914b0a65b 692e744916 6958bd98ea 69b7c97c2a 69c2bcde87 6a0e6b97e9 6a42d6f964 6a6554b04f 6ad1f20fdd 6b2876ecae 6b84e28c44 6bb00a1f62 6bc148d9c7 6c9014ffc7 6d447ea2fe 6d9133185c 6db8e8c15e 6f0d9f5330 6f180df20b 6f4147e97d 6f7f2cf725 6faba014cd 6ffdcd9a95 716b1bec17 71827f3e9f 71a3cc53d9 71aed485af 71f84bbd50 7256b73299 7280482044 72ab44560b 72d0ea3ae6 72d6873f6a 72fd048812 74026c61b6 74a1d68634 750d628a60 752508c5fb 756fcd17ea 75a4dcc887 75a8da9b2d 75aac304e3 75edf511ec 7649c09910 7652d06087 7660a6c701 76adcdab8f 77c137d144 77d2e8985a 7842d62fe4 785ca4791e 79c36da980 79c3f0c483 79dd7fe87b 7a07b52fe7 7a202f2200 7af4ee04c2 7b6584e064 7b9661547f 7c214f296e 7c3bc8ffeb 7c3ccb5852 7c89705139 7c8b89476a 7d025ec927 7d3442866f 7d5843f457 7d68132b0a 7d7e8a24e3 7d9c74abf8 7e10f9a784 7e375409f6 7f2fad194e 7f79cf0286 7feaa80e84 8052475c48 80c6e2c599 816405e98f 816649afa7 81745cc3a8 81be2a30f6 824b13e15f 825ba0011d 8261f8dadd 829e051efb 82d436071e 830188c08c 8326212b1a 8342f68cd9 835f1ce278 8401fb4590 84e331ae1b 854f0b4f1d 856d735670 85a0c98019 85cb7d1511 868b2e491d 86a48ab392 86aa344027 877d9c5e12 87c7410f85 87f8ec400e 8896bd908e 88f2c5ace0 892ab7da8b 89608e896e 8977d228a9 89ecea333a 8a07022bee 8a37f9971e 8ab028bca2 8ab44c82c8 8ade9e7553 8b00962029 8b621e21b8 8bb3cf2955 8bdfc4d48b 8c447a0b2f 8c6cace79d 8c8fd09e52 8d327c4465 8d5349677b 8da94bbaef 8df95ab12f 8e5e4c0683 8e642a009f 8f3fd1c210 8fabc84119 9047d3ae6a 9062a6e243 90c013c93c 90cd7f2d3e 90e7c043d7 912f8d184a 915c777686 9166cf8689 917e216e6d 91b374ab53 91cba556ed 91d7cc9273 91e3279c98 923d5b06b8 926cda540e 92e0b623c0 92e2517d2b 934bc777cb 94098dc82b 9463d5d25f 947a3f03a5 948756a830 94f5c29bde 955dc8c4fe 958d32b419 967c00cc2c 96dab1b6b8 9763dac08e 977ec6eddf 978ccb76c3 9831ffbceb 9850bb7286 986bde89e4 989618274a 98a145de2a 98b8208ba2 9933155c18 994ce83708 9953919281 995871c096 9993bdcd24 99b30af37e 99b8b65448 9a40ff2bb8 9a909daa5a 9a95277443 9b0f77623c 9b53406320 9b65df8ef3 9bfe4c9d93 9c166dc64e 9c246d6aa4 9c67556471 9c9cda9096 9d35ad2668 9d3ff181b8 9dad7cd491 9e06729a71 9e0c4a1398 9e3f8ab97b 9e4f6f9dac 9ea3eafa16 9f071884db 9f636b2d6b 9f8c88e974 9f94a3b7ce 9f98859b32 9fd2336d7f 9fdd60d77f a0698e5c85 a0acad6a0a a197222e80 a1bf39414d a2227f0ac2 a224799a08 a2d96b2169 a347e7eb82 a38d0f585d a39325a0db a3a94b90eb a3aa749503 a4303c12f1 a4661ebc23 a4745736cf a5365b8123 a57bfc5ac6 a5f2de119b a6245afde7 a6547ecbc8 a6a34a585b a6d1621b4c a6d26e1599 a70500adff a70c12470c a70cc4a5d3 a7188460e7 a72f8b8c3d a72ffea18a a7ed9bad5c a816067c76 a83969f6f0 a85ef5de30 a882613d17 a89aae4221 a8ca572c6b a8d9e08bb1 a8eacb0619 a8fc707761 a9245e3545 a9920d4e64 a9b014cee0 a9bd217932 a9cc9de941 a9d4e4c37f aa0e6bbdbe aa78d30462 aaaeebd809 aacd13e8ab aaeeb88fd6 aaf7f7f8aa ab24802d5d ab4c350c2c ab5df74220 abea4d3a3f ac4e1a330d acc2ffaf9b accd891eb7 ad1eeeb999 ad3bfba8fb ad3cd162da adf0fe2180 ae52540260 ae8482e51e af02ebe55c af07f7b516 af4d27f0d1 af700b840d b07b9a17b0 b0f91dcafd b137f76b83 b15a0b7418 b2173dcb81 b23f860853 b23fabfa4c b2d3a3fc0a b30f4ad243 b42ae7bc55 b48ad0e681 b4bf9223fc b518644b18 b5c0e72ddf b605f06aee b624918b24 b6dfb3e53e b7a256147a b7b4bce653 b7b5e1fbdc b7d16e608a b7d2aa0770 b7db936f7b b7fbd5adb9 b88c846057 b91bb88fa8 b9475047ef b9bc754662 b9e18d53fe b9ea63f4c3 ba608b343f ba6e4ea15d ba9cc21f34 bad3a2f0f3 bb320cb330 bb3839ae16 bb7cde6ef8 bb9c5c6d85 bba4758ea2 bc8248519c bcb27a94d6 bcdbbd2573 bd29c5e926 bd2dccbcac bdfa3383e8 be00e7cf78 be0d9c1803 be249d813b be7374e505 bea4155df3 beb83f1b87 bebcc6fa5d bedb28f335 bedd298876 bf1b6acf21 bf1f6ff6c8 bf2a019e6a bf7fe90999 bfe880c865 bff0b239d1 bff696667c c002547cba c04d9ec88f c0eba7ad51 c148d60d83 c1667eca16 c17cbb81ae c1ec361ea5 c1fc0eeec4 c246ffb072 c25b218491 c2d2e18ccc c2ea74e33b c3a2dfddcf c3a683ed27 c3bec6fcf7 c3edc73e5c c4429ae69c c4782304f4 c4f134fe7b c595384612 c61c59a1e6 c631e0e035 c6ae23c688 c6cad31bf8 c70a62de4f c73a331cf7 c762fb3f28 c7af1f4e01 c7c83d3b2a c7ced1071e c801a6c046 c82ebb48b7 c84db7cd33 c893dbe65b c8a2cef353 c929eb9bed c964c7813e c9a0a4343b caa4ce2c2a cada5c9521 cafdc02657 cb2a19e791 cb38b8a726 cb51343477 cc3db14bdd cc79e2ed13 cd674602b0 cd8ad32bf2 cd9659bfcf ce2a5db53e ce8c8971c8 ce9988a914 cf27e7f26d cf46548ad3 cf865ff17e cfa6c31fda cfcf957a68 d016fb3bf5 d03888e005 d088fc2c15 d0b1ea88bc d0d16b2cc2 d0d88b1b07 d1074c343d d1631e3185 d1634d7d09 d1838b22e6 d1a6ebec5c d1ac1d64b6 d1dd0987a7 d1dde793dc d274d1a357 d2796be82e d3c8c73c36 d43e93c8b6 d468717905 d47279d8a7 d4f4610df0 d56e5acca4 d5b674c3fd d5d07e4947 d60e55ce22 d6b987c9b0 d75ff745d2 d7afc914a8 d7d64d2d52 d80734a3fa d83c04b576 d89cae7f14 d953ee044b d96eb1aaf5 d9745f0d1b d98533070e d9e379e004 da4c5c91e5 da8daf2d30 dad3cd97dc dafd5c95ce db4975d9f2 db720e1ad9 dc428efd6d dc4f7e9792 dc5f27e6c1 dc93748f79 dcd229c4be dd441e6a06 dd5c1ee87d dd858e5134 dde3c7b4fd de2d5d1cbd de57a78d7d dec21457ea e01e66c0cb e04dc2309f e0630b91ef e09f90dec2 e0da9a80ed e180cf6567 e180e6fcfd e19c3a84c8 e1bd2fe0cb e1c0e9d74b e26c14718a e27d90ef5a e27ea241bd e2bc118898 e3b7e19141 e3df657038 e3e3d9cfb6 e473871920 e4765be419 e4be7cac0e e5106deb7e e5356651e9 e5cb87b24a e5f3f2e46c e6186fbd30 e647910f7f e67ae267a3 e6a3ae15fb e6e3f7711b e6e6363dc8 e7278f6a6a e73cb02f4f e83d2080b7 e8b1339792 e8c9e65494 e8cd6679df e8ed6bd7a5 e98c1fc130 ea3f7fd48d ea42de0514 eaf6aa1017 eb0dba60ca eb262ea7dc eb36b053e3 eb502f18c0 ebbc7b4713 ebfbbc327c ec50b0e6da ecb89409c4 ed98a6ef09 eda9ea019e edc37c2026 eea3b17837 eebcbdd24e efca40a5a1 f026ab49b1 f106996fc2 f142660b1d f167502bfb f16a638b5e f21397216e f29b12b429 f30483beae f34aa61991 f364b926fc f3df5c67b8 f46c4d7b14 f48d5fc17f f4fd9c7dc4 f51787bef1 f54babbb1c f564a2f435 f58e44bb4f f5e89fc174 f67e1d8531 f69f1d8363 f6b4a93a95 f6d3665368 f6d9409c42 f6ec175c65 f6ed00649e f71f808027 f743e4a6cb f7852b942d f7b7086809 f832374280 f849bcaaeb f8513914b9 f85effe2ae f881f88ebf f8ad536b75 f8bdf01b37 f8fb4e98d8 f90940c8b8 fa4692f3f5 fac30f8c23 fbd0596a66 fbf2e166af fc6de27341 fd0955a01b fd4f3fdc6e fd71cb6092 fd7e2cf780 fd938d16e7 fee80f9c74 ff5f2ecde6 ffb88402bd ffee731e52"
  }
 }

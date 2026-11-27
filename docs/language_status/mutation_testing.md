@@ -408,7 +408,25 @@ What it says:
   the box was quieter). readcust is steadier, 303-315 s against 364 s for its first run (that one paid a 15.8 s cold
   translation). The baseline proof is 4-9% of a full enumeration (13-22 s of 253-291 on UPDCUST, 24-25 s of 303-315 on
   readcust), which agrees with the 2026-11-19 reading that a full run is dominated by the per-mutant part. Not
-  measured: a loaded box (busy loops beside the run) at full enumeration, and per-phase stamps for these runs.
+  measured here: per-phase stamps for these runs.
+- **The full enumerations on a loaded box (n=3 each, 2026-11-26, #8599).** The same command
+  (`det_mutation.py run <case> --sample 0 --seed 0 --jobs 2`, fast+one-jvm, origin/main, through `heavy-run.sh`) with 12
+  busy loops beside it, the six runs alternating between the two cases in one session. The box already carried other
+  agents: 1-minute load 8 at the first start, 15-16 at every later one. Wall seconds of the whole command; the baseline
+  proof is the "baseline N s" figure the run prints:
+
+  | run | mutants chosen | baseline proof s | total s | median total | quiet median (above) | ratio |
+  |---|---|---|---|---|---|---|
+  | cbsa-updcust | 684, 684, 684 | 39, 28, 29 | 625, 594, 587 | 594 | 253-291 (n=2) | about 2.2x |
+  | carddemo-readcust | 249, 249, 249 | 55, 55, 55 | 632, 599, 608 | 608 | 303-315 (n=2) | about 2.0x |
+
+  The loaded totals spread 6% on UPDCUST and 5% on readcust, far tighter than the 2.2x spread of the quiet-ish UPDCUST
+  runs (235 / 253-291 / 556 s), so the stretch under a steady load is stable while the total on an unmanaged shared box is
+  not. The baseline proof is 5-7% (UPDCUST) and 9% (readcust) of a loaded full enumeration: the same share as when
+  quiet, so the full-enumeration split is the same at both loads (per-mutant work is about 90%). The baseline stretches
+  2-4x (13-22 s quiet, 28-39 s loaded on UPDCUST; 24-25 s against 55 s on readcust), at least as much as the whole run.
+  This closes the n=1 gap on the full-enumeration and loaded rows; the split of the loaded run into phases is not
+  measured (no per-phase stamps in these logs).
 - **Re-translating an unchanged case was only half skipped, now it is skipped (#8599).** The estate scan and the
   refactor were already cached (`equivalence_cache`), but the program's own translation (2.7-2.8 s warm on UPDCUST,
   15.8 s cold on readcust) ran again for every case of a `refresh` batch, including a case-only change (its

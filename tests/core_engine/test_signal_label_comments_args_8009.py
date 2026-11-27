@@ -23,6 +23,10 @@ RELABELLED = (
     "kotlin",
     "ruby",
     "scheme",
+    "php",
+    "groovy",
+    "m4",
+    "typescript",
 )
 
 

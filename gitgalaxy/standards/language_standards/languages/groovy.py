@@ -70,7 +70,7 @@ DEFINITION: dict[str, Any] = {
         # by `.` / `[` counts (ternary `a ? b : c`; Elvis `?:` counts once).
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?(?![.\[])"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Captures standard method arguments and Groovy closures (x, y ->)
         # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it
         # doesn't hallucinate every standard method call or if-statement in the file.

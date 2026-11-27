@@ -100,7 +100,7 @@ DEFINITION: dict[str, Any] = {
         # EXCLUDES: Exceptions (throw). Includes control flow and logical short-circuits.
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|\?\?|\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
         # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
         # `[\w$]*` was unbounded. On a long line with no `=>` at all, the

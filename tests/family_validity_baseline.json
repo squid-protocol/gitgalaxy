@@ -12053,6 +12053,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "cryptography": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { createHash } from \"node:crypto\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "debug_prints": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12086,6 +12097,28 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "dl_frameworks": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import * as tf from \"@tensorflow/tfjs\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "encapsulation": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": null,
+    "inline_comment": "pass",
+    "keyword": "class Counter { #count = 0; }",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "events": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12094,6 +12127,17 @@
     "inline_comment": "pass",
     "keyword": "emit",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "exfiltration_camouflage": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "fetch(\"https://collector.example.com/telemetry\", { method: \"POST\" });",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -12127,6 +12171,17 @@
     "inline_comment": "pass",
     "keyword": "process.env",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "hardware_bridge": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { SerialPort } from \"serialport\";",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -12207,6 +12262,39 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "llm_api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import OpenAI from \"openai\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "llm_orchestrator": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { ChatOpenAI } from \"@langchain/openai\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "llm_vector_store": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { ChromaClient } from \"chromadb\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "memory_alloc": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12226,6 +12314,17 @@
     "inline_comment": "pass",
     "keyword": "throw",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "rce_funnel": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "child_process.spawn(\"python\", [\"train.py\"]);",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -12270,6 +12369,17 @@
     "inline_comment": "pass",
     "keyword": "with",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "scientific": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "import cv from \"@techstark/opencv-js\";",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -12325,6 +12435,17 @@
     "inline_comment": "pass",
     "keyword": "mutex",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "telemetry": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "logger.info(\"request served\");",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -18434,6 +18555,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "cryptography": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "from cryptography.fernet import Fernet",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "debug_prints": {
     "block_comment": null,
     "comment": "pass",
@@ -18467,6 +18599,28 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "dl_frameworks": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import torch",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
+   "encapsulation": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "def _helper(x): return x",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "events": {
     "block_comment": null,
     "comment": "pass",
@@ -18475,6 +18629,17 @@
     "inline_comment": "pass",
     "keyword": "Signal",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "exfiltration_camouflage": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "requests.post(\"https://collector.example.com/telemetry\", json=payload)",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -18510,6 +18675,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "hardware_bridge": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import serial",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "high_risk_execution": {
     "block_comment": null,
@@ -18588,6 +18764,61 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "llm_api": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "from openai import OpenAI",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
+   "llm_orchestrator": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "from langchain_core.prompts import ChatPromptTemplate",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
+   "llm_vector_store": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import chromadb",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
+   "memory_scraping": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": null,
+    "inline_comment": "pass",
+    "keyword": "mem = open(\"/proc/\" + str(pid) + \"/mem\", \"rb\")",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "ml_traditional": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "from sklearn.linear_model import LogisticRegression",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "panics_and_aborts": {
     "block_comment": null,
     "comment": "pass",
@@ -18651,6 +18882,17 @@
     "inline_comment": "pass",
     "keyword": "Any",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "scientific": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "import numpy as np",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -22913,6 +23155,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "cryptography": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { createHash } from \"node:crypto\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "debug_prints": {
     "block_comment": "pass",
     "comment": "pass",
@@ -22946,6 +23199,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "dl_frameworks": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import * as tf from \"@tensorflow/tfjs\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "encapsulation": {
     "block_comment": "pass",
     "comment": "pass",
@@ -22968,6 +23232,28 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "exfiltration_camouflage": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "fetch(\"https://collector.example.com/telemetry\", { method: \"POST\" });",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "const el = document.getElementById(\"app\") as HTMLElement;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -22987,6 +23273,17 @@
     "inline_comment": "pass",
     "keyword": "process.env",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "hardware_bridge": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { SerialPort } from \"serialport\";",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -23067,6 +23364,39 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "llm_api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import OpenAI from \"openai\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "llm_orchestrator": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { ChatOpenAI } from \"@langchain/openai\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "llm_vector_store": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import { ChromaClient } from \"chromadb\";",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "memory_alloc": {
     "block_comment": "pass",
     "comment": "pass",
@@ -23086,6 +23416,17 @@
     "inline_comment": "pass",
     "keyword": "throw",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "rce_funnel": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "child_process.spawn(\"python\", [\"train.py\"]);",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -23196,6 +23537,17 @@
     "inline_comment": "pass",
     "keyword": "mutex",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "telemetry": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "logger.info(\"request served\");",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },

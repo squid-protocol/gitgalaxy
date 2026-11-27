@@ -144,6 +144,48 @@
       "aid": "DFHPF3",
       "commarea_hex": "FFFFFFFFFFFFFFFF",
       "why": "high-values area, PF3"
+    },
+    {
+      "name": "ca-len-300",
+      "aid": "DFHENTER",
+      "commarea_hex": "414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141",
+      "why": "EIBCALEN 300: a link area far longer than the 8-byte layout, so the bytes beyond it are carried and copied back (kills the beyond-area copy-back mutants, #7955)"
+    },
+    {
+      "name": "nc-ret-invreq-200",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "INVREQ",
+          "resp2": 200
+        }
+      ],
+      "why": "RETURN IMMEDIATE answers INVREQ resp2 200: three digits moved into the two-digit LLOG-RESP2"
+    },
+    {
+      "name": "nc-ret-lengerr-wq-ioerr",
+      "aid": "DFHPF3",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "transid": "PC52",
+          "nth": 1,
+          "resp": "LENGERR",
+          "resp2": 11
+        },
+        {
+          "cmd": "WRITEQ-TS",
+          "queue": "PCLOG",
+          "nth": 1,
+          "resp": "IOERR"
+        }
+      ],
+      "why": "RETURN answers LENGERR and the PCLOG WRITEQ answers IOERR, under PF3"
     }
   ]
 }

@@ -3277,7 +3277,7 @@
       "php/guzzle/Client.php": 6.385,
       "php/guzzle/CurlFactory.php": 5.89,
       "php/guzzle/CurlMultiHandler.php": 6.739,
-      "php/guzzle/Middleware.php": 6.449,
+      "php/guzzle/Middleware.php": 6.43,
       "php/guzzle/Pool.php": 7.1,
       "php/guzzle/RequestException.php": 5.979,
       "php/guzzle/StreamHandler.php": 6.797

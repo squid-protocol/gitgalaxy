@@ -3277,7 +3277,7 @@
       "php/guzzle/Client.php": 0,
       "php/guzzle/CurlFactory.php": 0,
       "php/guzzle/CurlMultiHandler.php": 0,
-      "php/guzzle/Middleware.php": 1,
+      "php/guzzle/Middleware.php": 0,
       "php/guzzle/Pool.php": 0,
       "php/guzzle/RequestException.php": 0,
       "php/guzzle/StreamHandler.php": 0

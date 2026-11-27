@@ -60,6 +60,18 @@
    ]
   },
   {
+   "id": "e577d1f405",
+   "op": "LIT",
+   "line": 151,
+   "before": "java.util.Map.entry(\"SHOW-PARA\", 5),",
+   "after": "java.util.Map.entry(\"XHOW-PARA\", 5),",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "57ca7fec8e",
    "op": "DEL",
    "line": 220,
@@ -84,6 +96,42 @@
    ]
   },
   {
+   "id": "07b74d5655",
+   "op": "DEL",
+   "line": 243,
+   "before": "calen = DetCics.eibCalen(task, 16);",
+   "after": "/* calen = DetCics.eibCalen(task, 16); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "05202491c8",
+   "op": "DEL",
+   "line": 247,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "2d82828faa",
+   "op": "CON",
+   "line": 247,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "058fdc7ea0",
    "op": "AOR",
    "line": 251,
@@ -93,6 +141,30 @@
    "reason": "f45_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2659457ad0",
+   "op": "DEL",
+   "line": 251,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "/* calen = DetCics.eibCalen(task, 6); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "3194cb0663",
+   "op": "CON",
+   "line": 251,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "calen = DetCics.eibCalen(task, 7);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
    ]
   },
   {
@@ -168,6 +240,90 @@
    ]
   },
   {
+   "id": "073ef412f9",
+   "op": "CON",
+   "line": 257,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "2eb3627dbf",
+   "op": "DEL",
+   "line": 261,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "2470037959",
+   "op": "DEL",
+   "line": 275,
+   "before": "calen = DetCics.eibCalen(task, 30);",
+   "after": "/* calen = DetCics.eibCalen(task, 30); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "10c0ae0328",
+   "op": "CON",
+   "line": 279,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "3af94dea25",
+   "op": "DEL",
+   "line": 279,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "20e970db1e",
+   "op": "CON",
+   "line": 285,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "3a6b5672e7",
+   "op": "DEL",
+   "line": 287,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "4988210920",
    "op": "CON",
    "line": 293,
@@ -204,6 +360,42 @@
    ]
   },
   {
+   "id": "2cc145e529",
+   "op": "CON",
+   "line": 361,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bc5d029862",
+   "op": "AOR",
+   "line": 381,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 8 (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cc101c2bd9",
+   "op": "ROR",
+   "line": 442,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "f12314d6b6",
    "op": "DEL",
    "line": 462,
@@ -213,6 +405,30 @@
    "reason": "f72_EIBRESP at line 462 is unconditionally overwritten by f72_EIBRESP at line 467 before any read (store-dominates-read)",
    "tried": [
     "store-dominates-read"
+   ]
+  },
+  {
+   "id": "c1857c4b55",
+   "op": "ROR",
+   "line": 466,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "eafbe55fa7",
+   "op": "ROR",
+   "line": 540,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {
@@ -240,6 +456,18 @@
    ]
   },
   {
+   "id": "f63dfd52a6",
+   "op": "CON",
+   "line": 561,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "20a39ffd66",
    "op": "CON",
    "line": 571,
@@ -261,6 +489,30 @@
    "reason": "f73_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "08bb902910",
+   "op": "ROR",
+   "line": 610,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "4bf908c1e1",
+   "op": "NEG",
+   "line": 610,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {

@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,761 decoy test only, 958 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,764 decoy test only, 955 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -229,7 +229,7 @@
 <rect x="804" y="236" width="11" height="11" fill="#8a6d3b"><title>matlab / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="236" width="11" height="11" fill="#3d6a8c"><title>nim / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="852" y="236" width="11" height="11" fill="#3d6a8c"><title>objective-c / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<rect x="864" y="236" width="11" height="11" fill="#3d6a8c"><title>ocaml / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="864" y="236" width="11" height="11" fill="#e5534b"><title>ocaml / branch: decoy test with &#x27;if&#x27;: in a comment LEAKS; in a string literal does not count; no parser result yet</title></rect>
 <rect x="876" y="236" width="11" height="11" fill="#3d6a8c"><title>perl / branch: decoy test with &#x27;if&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="888" y="236" width="11" height="11" fill="#8a6d3b"><title>pli / branch: decoy test with &#x27;IF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="236" width="11" height="11" fill="#8a6d3b"><title>postgresql / branch: decoy test with &#x27;IF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -591,7 +591,7 @@
 <rect x="804" y="320" width="11" height="11" fill="#8a6d3b"><title>matlab / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="320" width="11" height="11" fill="#8a6d3b"><title>nim / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="320" width="11" height="11" fill="#8a6d3b"><title>objective-c / safety: decoy test with &#x27;__weak&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="320" width="11" height="11" fill="#8a6d3b"><title>ocaml / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="320" width="11" height="11" fill="#e5534b"><title>ocaml / safety: decoy test with &#x27;try&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="320" width="11" height="11" fill="#8a6d3b"><title>perl / safety: decoy test with &#x27;croak&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="320" width="11" height="11" fill="#8a6d3b"><title>pli / safety: decoy test with &#x27;EXEC CICS HANDLE CONDITION&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="320" width="11" height="11" fill="#8a6d3b"><title>postgresql / safety: decoy test with &#x27;COMMIT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -653,7 +653,7 @@
 <rect x="804" y="332" width="11" height="11" fill="#8a6d3b"><title>matlab / safety_bypasses: decoy test with &#x27;eval&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="332" width="11" height="11" fill="#8a6d3b"><title>nim / safety_bypasses: decoy test with &#x27;unsafeAddr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="332" width="11" height="11" fill="#8a6d3b"><title>objective-c / safety_bypasses: decoy test with &#x27;__unsafe_unretained&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="332" width="11" height="11" fill="#8a6d3b"><title>ocaml / safety_bypasses: decoy test with &#x27;Obj.magic&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="332" width="11" height="11" fill="#e5534b"><title>ocaml / safety_bypasses: decoy test with &#x27;Obj.magic&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="332" width="11" height="11" fill="#8a6d3b"><title>perl / safety_bypasses: decoy test with &#x27;no strict&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="332" width="11" height="11" fill="#8a6d3b"><title>pli / safety_bypasses: decoy test with &#x27;NOHANDLE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="332" width="11" height="11" fill="#8a6d3b"><title>postgresql / safety_bypasses: decoy test with &#x27;UNLOGGED&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -716,7 +716,7 @@
 <rect x="804" y="344" width="11" height="11" fill="#8a6d3b"><title>matlab / high_risk_execution: decoy test with &#x27;system&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="344" width="11" height="11" fill="#8a6d3b"><title>nim / high_risk_execution: decoy test with &#x27;execCmd&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="344" width="11" height="11" fill="#8a6d3b"><title>objective-c / high_risk_execution: decoy test with &#x27;abort&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="344" width="11" height="11" fill="#8a6d3b"><title>ocaml / high_risk_execution: decoy test with &#x27;Sys.command&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="344" width="11" height="11" fill="#e5534b"><title>ocaml / high_risk_execution: decoy test with &#x27;Sys.command&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="344" width="11" height="11" fill="#8a6d3b"><title>perl / high_risk_execution: decoy test with &#x27;exit&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="344" width="11" height="11" fill="#8a6d3b"><title>pli / high_risk_execution: decoy test with &#x27;STOP;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="344" width="11" height="11" fill="#8a6d3b"><title>postgresql / high_risk_execution: decoy test with &#x27;SECURITY DEFINER&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -784,7 +784,7 @@
 <rect x="804" y="356" width="11" height="11" fill="#8a6d3b"><title>matlab / io: decoy test with &#x27;load&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="356" width="11" height="11" fill="#8a6d3b"><title>nim / io: decoy test with &#x27;readFile&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="356" width="11" height="11" fill="#8a6d3b"><title>objective-c / io: decoy test with &#x27;NSFileHandle&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="356" width="11" height="11" fill="#8a6d3b"><title>ocaml / io: decoy test with &#x27;open_in&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="356" width="11" height="11" fill="#e5534b"><title>ocaml / io: decoy test with &#x27;open_in&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="356" width="11" height="11" fill="#8a6d3b"><title>perl / io: decoy test with &#x27;open&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="356" width="11" height="11" fill="#8a6d3b"><title>pli / io: decoy test with &#x27;EXEC CICS READQ TS&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="356" width="11" height="11" fill="#8a6d3b"><title>postgresql / io: decoy test with &#x27;FETCH&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -803,7 +803,7 @@
 <rect x="204" y="368" width="11" height="11" fill="#8a6d3b"><title>csharp / api: decoy test with &#x27;app.MapGet&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="368" class="u"/>
 <use href="#c" x="228" y="368" class="u"/>
-<use href="#c" x="240" y="368" class="u"/>
+<rect x="240" y="368" width="11" height="11" fill="#e5534b"><title>php / api: decoy test with &#x27;public function run(): void {}&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="368" width="11" height="11" fill="#8a6d3b"><title>scala / api: decoy test with &#x27;export&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="368" width="11" height="11" fill="#8a6d3b"><title>swift / api: decoy test with &#x27;@usableFromInline&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="368" width="11" height="11" fill="#8a6d3b"><title>typescript / api: decoy test with &#x27;export&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -847,7 +847,7 @@
 <rect x="804" y="368" width="11" height="11" fill="#3d6a8c"><title>matlab / api: decoy test with &#x27;methods&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="828" y="368" width="11" height="11" fill="#8a6d3b"><title>nim / api: decoy test with &#x27;newHttpClient&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="368" width="11" height="11" fill="#8a6d3b"><title>objective-c / api: decoy test with &#x27;FOUNDATION_EXPORT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="368" width="11" height="11" fill="#8a6d3b"><title>ocaml / api: decoy test with &#x27;Dream.get&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="368" width="11" height="11" fill="#e5534b"><title>ocaml / api: decoy test with &#x27;Dream.get&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="368" width="11" height="11" fill="#8a6d3b"><title>perl / api: decoy test with &#x27;@EXPORT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="368" width="11" height="11" fill="#8a6d3b"><title>pli / api: decoy test with &#x27;EXPORTS()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="900" y="368" class="u"/>
@@ -909,7 +909,7 @@
 <rect x="804" y="380" width="11" height="11" fill="#8a6d3b"><title>matlab / state_mutation: decoy test with &#x27;x = 1&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="380" width="11" height="11" fill="#8a6d3b"><title>nim / state_mutation: decoy test with &#x27;inc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="380" width="11" height="11" fill="#3d6a8c"><title>objective-c / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<rect x="864" y="380" width="11" height="11" fill="#8a6d3b"><title>ocaml / state_mutation: decoy test with &#x27;incr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="380" width="11" height="11" fill="#e5534b"><title>ocaml / state_mutation: decoy test with &#x27;incr&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="380" width="11" height="11" fill="#8a6d3b"><title>perl / state_mutation: decoy test with &#x27;x++&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="380" width="11" height="11" fill="#8a6d3b"><title>pli / state_mutation: decoy test with &#x27;; X = 1;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="380" width="11" height="11" fill="#3d6a8c"><title>postgresql / state_mutation: decoy test with &#x27;INSERT INTO&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -1096,7 +1096,7 @@
 <rect x="804" y="416" width="11" height="11" fill="#8a6d3b"><title>matlab / test: decoy test with &#x27;TestCase&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="416" width="11" height="11" fill="#8a6d3b"><title>nim / test: decoy test with &#x27;doAssert&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="416" width="11" height="11" fill="#8a6d3b"><title>objective-c / test: decoy test with &#x27;XCTest&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="416" width="11" height="11" fill="#8a6d3b"><title>ocaml / test: decoy test with &#x27;Alcotest&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="416" width="11" height="11" fill="#e5534b"><title>ocaml / test: decoy test with &#x27;Alcotest&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="416" width="11" height="11" fill="#8a6d3b"><title>perl / test: decoy test with &#x27;cmp_ok&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="416" width="11" height="11" fill="#8a6d3b"><title>pli / test: decoy test with &#x27;ZUNIT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="416" width="11" height="11" fill="#8a6d3b"><title>postgresql / test: decoy test with &#x27;lives_ok()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1153,7 +1153,7 @@
 <rect x="804" y="440" width="11" height="11" fill="#8a6d3b"><title>matlab / concurrency: decoy test with &#x27;parfor&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="440" width="11" height="11" fill="#8a6d3b"><title>nim / concurrency: decoy test with &#x27;spawn&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="440" width="11" height="11" fill="#8a6d3b"><title>objective-c / concurrency: decoy test with &#x27;dispatch_async&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="440" width="11" height="11" fill="#8a6d3b"><title>ocaml / concurrency: decoy test with &#x27;Lwt.async&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="440" width="11" height="11" fill="#e5534b"><title>ocaml / concurrency: decoy test with &#x27;Lwt.async&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="440" width="11" height="11" fill="#8a6d3b"><title>perl / concurrency: decoy test with &#x27;async&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="440" width="11" height="11" fill="#8a6d3b"><title>pli / concurrency: decoy test with &#x27;ATTACH&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="440" width="11" height="11" fill="#8a6d3b"><title>postgresql / concurrency: decoy test with &#x27;ISOLATION LEVEL&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1206,7 +1206,7 @@
 <rect x="804" y="452" width="11" height="11" fill="#8a6d3b"><title>matlab / ui_framework: decoy test with &#x27;uifigure&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="452" width="11" height="11" fill="#8a6d3b"><title>nim / ui_framework: decoy test with &#x27;nigui&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="452" width="11" height="11" fill="#8a6d3b"><title>objective-c / ui_framework: decoy test with &#x27;UIView&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="452" width="11" height="11" fill="#8a6d3b"><title>ocaml / ui_framework: decoy test with &#x27;GMain&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="452" width="11" height="11" fill="#e5534b"><title>ocaml / ui_framework: decoy test with &#x27;GMain&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="452" width="11" height="11" fill="#8a6d3b"><title>perl / ui_framework: decoy test with &#x27;Template&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="452" width="11" height="11" fill="#8a6d3b"><title>pli / ui_framework: decoy test with &#x27;DFHMDF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="912" y="452" width="11" height="11" fill="#8a6d3b"><title>powershell / ui_framework: decoy test with &#x27;HtmlDocument&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1229,7 +1229,7 @@
 <rect x="312" y="464" width="11" height="11" fill="#4f9be8"><title>rust / closures: recall 0.99, precision 0.96 (285 oracle, 294 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="336" y="464" width="11" height="11" fill="#4f9be8"><title>java / closures: recall 0.97, precision 1.00 (29 oracle, 28 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="348" y="464" width="11" height="11" fill="#a9d1ff"><title>lua / closures: recall 0.99, precision 1.00 (77 oracle, 76 family functions; language-crucible v1.9.0)</title></rect>
-<use href="#c" x="372" y="464" class="u"/>
+<rect x="372" y="464" width="11" height="11" fill="#e5534b"><title>cpp / closures: decoy test with &#x27;auto add = [base](int v) { return base + v; };&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="540" y="464" width="11" height="11" fill="#8a6d3b"><title>crystal / closures: decoy test with &#x27;do&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="564" y="464" class="u"/>
 <rect x="576" y="464" width="11" height="11" fill="#3d6a8c"><title>dart / closures: decoy test with &#x27;(x) =&gt; x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -1244,7 +1244,7 @@
 <use href="#c" x="804" y="464" class="u"/>
 <rect x="828" y="464" width="11" height="11" fill="#8a6d3b"><title>nim / closures: decoy test with &#x27;proc()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="464" width="11" height="11" fill="#8a6d3b"><title>objective-c / closures: decoy test with &#x27;^(int x) { return x; }&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="464" width="11" height="11" fill="#8a6d3b"><title>ocaml / closures: decoy test with &#x27;fun&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="464" width="11" height="11" fill="#e5534b"><title>ocaml / closures: decoy test with &#x27;fun&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="464" width="11" height="11" fill="#8a6d3b"><title>perl / closures: decoy test with &#x27;sub { shift }&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="900" y="464" class="u"/>
 <rect x="912" y="464" width="11" height="11" fill="#8a6d3b"><title>powershell / closures: decoy test with &#x27;x = { x -&gt; x }(y)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1298,7 +1298,7 @@
 <rect x="804" y="476" width="11" height="11" fill="#8a6d3b"><title>matlab / globals: decoy test with &#x27;global&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="476" width="11" height="11" fill="#3d6a8c"><title>nim / globals: decoy test with &#x27;var&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="852" y="476" width="11" height="11" fill="#3d6a8c"><title>objective-c / globals: decoy test with &#x27;extern&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<rect x="864" y="476" width="11" height="11" fill="#8a6d3b"><title>ocaml / globals: decoy test with &#x27;Sys.getenv&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="476" width="11" height="11" fill="#e5534b"><title>ocaml / globals: decoy test with &#x27;Sys.getenv&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="476" width="11" height="11" fill="#8a6d3b"><title>perl / globals: decoy test with &#x27;$a&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="476" width="11" height="11" fill="#8a6d3b"><title>pli / globals: decoy test with &#x27;STATIC&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="476" width="11" height="11" fill="#8a6d3b"><title>postgresql / globals: decoy test with &#x27;current_setting()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1444,7 +1444,7 @@
 <rect x="804" y="512" width="11" height="11" fill="#8a6d3b"><title>matlab / comprehensions: decoy test with &#x27;arrayfun&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="512" width="11" height="11" fill="#8a6d3b"><title>nim / comprehensions: decoy test with &#x27;mapIt&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="512" width="11" height="11" fill="#8a6d3b"><title>objective-c / comprehensions: decoy test with &#x27;enumerateObjectsUsingBlock:&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="512" width="11" height="11" fill="#8a6d3b"><title>ocaml / comprehensions: decoy test with &#x27;List.map&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="512" width="11" height="11" fill="#e5534b"><title>ocaml / comprehensions: decoy test with &#x27;List.map&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="512" width="11" height="11" fill="#8a6d3b"><title>perl / comprehensions: decoy test with &#x27;map&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="512" width="11" height="11" fill="#8a6d3b"><title>postgresql / comprehensions: decoy test with &#x27;OVER()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="912" y="512" class="u"/>
@@ -1498,7 +1498,7 @@
 <rect x="804" y="524" width="11" height="11" fill="#8a6d3b"><title>matlab / scientific: decoy test with &#x27;fft&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="524" width="11" height="11" fill="#8a6d3b"><title>nim / scientific: decoy test with &#x27;arraymancer&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="524" width="11" height="11" fill="#8a6d3b"><title>objective-c / scientific: decoy test with &#x27;sin&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="524" width="11" height="11" fill="#8a6d3b"><title>ocaml / scientific: decoy test with &#x27;Owl&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="524" width="11" height="11" fill="#e5534b"><title>ocaml / scientific: decoy test with &#x27;Owl&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="524" width="11" height="11" fill="#8a6d3b"><title>perl / scientific: decoy test with &#x27;PDL&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="524" width="11" height="11" fill="#8a6d3b"><title>pli / scientific: decoy test with &#x27;SQRT()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="524" width="11" height="11" fill="#8a6d3b"><title>postgresql / scientific: decoy test with &#x27;sqrt()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1588,7 +1588,7 @@
 <use href="#c" x="336" y="548" class="u"/>
 <use href="#c" x="348" y="548" class="u"/>
 <rect x="360" y="548" width="11" height="11" fill="#3d6a8c"><title>shell / import: decoy test with &#x27;source x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<use href="#c" x="372" y="548" class="u"/>
+<rect x="372" y="548" width="11" height="11" fill="#e5534b"><title>cpp / import: decoy test with &#x27;#include &lt;vector&gt;&#x27;: in a comment LEAKS; in a string literal does not count; no parser result yet</title></rect>
 <rect x="384" y="548" width="11" height="11" fill="#566074"><title>jcl / import: decoy test with &#x27;//INC1     INCLUDE MEMBER=MYMEM&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="548" width="11" height="11" fill="#566074"><title>hlasm / import: decoy test with &#x27;a COPY b&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="548" width="11" height="11" fill="#3d6a8c"><title>cobol / import: decoy test with &#x27;COPY&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -1920,7 +1920,7 @@
 <rect x="348" y="632" width="11" height="11" fill="#8a6d3b"><title>lua / ssr_boundaries: decoy test with &#x27;ngx.say&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="632" width="11" height="11" fill="#8a6d3b"><title>shell / ssr_boundaries: decoy test with &#x27;CONTENT_TYPE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="632" width="11" height="11" fill="#8a6d3b"><title>cpp / ssr_boundaries: decoy test with &#x27;FCGI_Accept&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="396" y="632" width="11" height="11" fill="#8a6d3b"><title>hlasm / ssr_boundaries: decoy test with &#x27;EXEC CICS WEB&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<use href="#c" x="396" y="632" class="u"/>
 <rect x="408" y="632" width="11" height="11" fill="#8a6d3b"><title>cobol / ssr_boundaries: decoy test with &#x27;EXEC CICS WEB SEND END-EXEC.&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="632" width="11" height="11" fill="#8a6d3b"><title>abap / ssr_boundaries: decoy test with &#x27;CL_BSP_CONTEXT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="468" y="632" width="11" height="11" fill="#8a6d3b"><title>apex / ssr_boundaries: decoy test with &#x27;RestRequest&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1985,7 +1985,7 @@
 <rect x="804" y="644" width="11" height="11" fill="#8a6d3b"><title>matlab / events: decoy test with &#x27;notify&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="644" width="11" height="11" fill="#8a6d3b"><title>nim / events: decoy test with &#x27;AsyncEvent&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="644" width="11" height="11" fill="#8a6d3b"><title>objective-c / events: decoy test with &#x27;NSNotificationCenter&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="644" width="11" height="11" fill="#8a6d3b"><title>ocaml / events: decoy test with &#x27;Sys.signal&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="644" width="11" height="11" fill="#e5534b"><title>ocaml / events: decoy test with &#x27;Sys.signal&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="644" width="11" height="11" fill="#8a6d3b"><title>perl / events: decoy test with &#x27;emit&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="644" width="11" height="11" fill="#8a6d3b"><title>pli / events: decoy test with &#x27;EXEC CICS SIGNAL EVENT&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="644" width="11" height="11" fill="#8a6d3b"><title>postgresql / events: decoy test with &#x27;NOTIFY x&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2032,7 +2032,7 @@
 <rect x="780" y="656" width="11" height="11" fill="#566074"><title>m4 / dependency_injection: decoy test with &#x27;AC_REQUIRE&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="828" y="656" width="11" height="11" fill="#8a6d3b"><title>nim / dependency_injection: decoy test with &#x27;concept&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="656" width="11" height="11" fill="#8a6d3b"><title>objective-c / dependency_injection: decoy test with &#x27;TyphoonComponentFactory&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="656" width="11" height="11" fill="#8a6d3b"><title>ocaml / dependency_injection: decoy test with &#x27;functor&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="656" width="11" height="11" fill="#e5534b"><title>ocaml / dependency_injection: decoy test with &#x27;functor&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="656" width="11" height="11" fill="#8a6d3b"><title>perl / dependency_injection: decoy test with &#x27;IOC&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="912" y="656" width="11" height="11" fill="#8a6d3b"><title>powershell / dependency_injection: decoy test with &#x27;InversionOfControl&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="656" width="11" height="11" fill="#8a6d3b"><title>r / dependency_injection: decoy test with &#x27;with_options()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2097,7 +2097,7 @@
 <rect x="348" y="680" width="11" height="11" fill="#8a6d3b"><title>lua / pointers: decoy test with &#x27;ffi.cast&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="360" y="680" class="u"/>
 <rect x="372" y="680" width="11" height="11" fill="#8a6d3b"><title>cpp / pointers: decoy test with &#x27;uintptr_t&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="396" y="680" width="11" height="11" fill="#8a6d3b"><title>hlasm / pointers: decoy test with &#x27;DC A(&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<use href="#c" x="396" y="680" class="u"/>
 <rect x="408" y="680" width="11" height="11" fill="#8a6d3b"><title>cobol / pointers: decoy test with &#x27;POINTER&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="680" width="11" height="11" fill="#8a6d3b"><title>abap / pointers: decoy test with &#x27;GET REFERENCE OF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="444" y="680" width="11" height="11" fill="#8a6d3b"><title>ada / pointers: decoy test with &#x27;is access&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2115,7 +2115,7 @@
 <rect x="804" y="680" width="11" height="11" fill="#8a6d3b"><title>matlab / pointers: decoy test with &#x27;libpointer&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="680" width="11" height="11" fill="#8a6d3b"><title>nim / pointers: decoy test with &#x27;ptr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="680" width="11" height="11" fill="#8a6d3b"><title>objective-c / pointers: decoy test with &#x27;id&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="680" width="11" height="11" fill="#8a6d3b"><title>ocaml / pointers: decoy test with &#x27;ref x&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="680" width="11" height="11" fill="#e5534b"><title>ocaml / pointers: decoy test with &#x27;ref x&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="680" width="11" height="11" fill="#8a6d3b"><title>pli / pointers: decoy test with &#x27;POINTER&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="912" y="680" class="u"/>
 <rect x="936" y="680" width="11" height="11" fill="#8a6d3b"><title>r / pointers: decoy test with &#x27;externalptr&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2159,7 +2159,7 @@
 <rect x="804" y="692" width="11" height="11" fill="#8a6d3b"><title>matlab / memory_alloc: decoy test with &#x27;zeros()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="692" width="11" height="11" fill="#8a6d3b"><title>nim / memory_alloc: decoy test with &#x27;alloc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="692" width="11" height="11" fill="#8a6d3b"><title>objective-c / memory_alloc: decoy test with &#x27;alloc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="692" width="11" height="11" fill="#8a6d3b"><title>ocaml / memory_alloc: decoy test with &#x27;Bytes.create&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="692" width="11" height="11" fill="#e5534b"><title>ocaml / memory_alloc: decoy test with &#x27;Bytes.create&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="692" width="11" height="11" fill="#8a6d3b"><title>perl / memory_alloc: decoy test with &#x27;undef&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="692" width="11" height="11" fill="#8a6d3b"><title>pli / memory_alloc: decoy test with &#x27;ALLOC x&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="692" width="11" height="11" fill="#8a6d3b"><title>postgresql / memory_alloc: decoy test with &#x27;TABLESPACE x&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2191,7 +2191,7 @@
 <rect x="204" y="728" width="11" height="11" fill="#8a6d3b"><title>csharp / telemetry: decoy test with &#x27;ILogger.LogInformation&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="728" width="11" height="11" fill="#8a6d3b"><title>go / telemetry: decoy test with &#x27;trace.Span&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="228" y="728" width="11" height="11" fill="#8a6d3b"><title>kotlin / telemetry: decoy test with &#x27;Timber.i&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="240" y="728" class="u"/>
+<rect x="240" y="728" width="11" height="11" fill="#e5534b"><title>php / telemetry: decoy test with &#x27;Log::info(&quot;user created&quot;);&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="728" width="11" height="11" fill="#8a6d3b"><title>scala / telemetry: decoy test with &#x27;logger.info&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="728" width="11" height="11" fill="#8a6d3b"><title>swift / telemetry: decoy test with &#x27;Logger&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="276" y="728" class="u"/>
@@ -2202,7 +2202,7 @@
 <rect x="336" y="728" width="11" height="11" fill="#8a6d3b"><title>java / telemetry: decoy test with &#x27;@Slf4j&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="728" width="11" height="11" fill="#8a6d3b"><title>lua / telemetry: decoy test with &#x27;log.info&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="728" width="11" height="11" fill="#8a6d3b"><title>shell / telemetry: decoy test with &#x27;logger&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="372" y="728" class="u"/>
+<rect x="372" y="728" width="11" height="11" fill="#e5534b"><title>cpp / telemetry: decoy test with &#x27;logger.info(&quot;service started&quot;);&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="384" y="728" width="11" height="11" fill="#566074"><title>jcl / telemetry: decoy test with &#x27;MSGLEVEL=&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="728" width="11" height="11" fill="#566074"><title>hlasm / telemetry: decoy test with &#x27;SNAPX&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="408" y="728" width="11" height="11" fill="#8a6d3b"><title>cobol / telemetry: decoy test with &#x27;EXEC CICS WRITEQ TD&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2232,7 +2232,7 @@
 <rect x="804" y="728" width="11" height="11" fill="#8a6d3b"><title>matlab / telemetry: decoy test with &#x27;log4m&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="728" width="11" height="11" fill="#8a6d3b"><title>nim / telemetry: decoy test with &#x27;newConsoleLogger&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="728" width="11" height="11" fill="#8a6d3b"><title>objective-c / telemetry: decoy test with &#x27;os_log&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="728" width="11" height="11" fill="#8a6d3b"><title>ocaml / telemetry: decoy test with &#x27;Log.info&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="728" width="11" height="11" fill="#e5534b"><title>ocaml / telemetry: decoy test with &#x27;Log.info&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="728" width="11" height="11" fill="#8a6d3b"><title>perl / telemetry: decoy test with &#x27;Log::Log4perl&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="728" width="11" height="11" fill="#8a6d3b"><title>pli / telemetry: decoy test with &#x27;EXEC CICS WRITEQ TD&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="728" width="11" height="11" fill="#3d6a8c"><title>postgresql / telemetry: decoy test with &#x27;ANALYZE&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -2297,7 +2297,7 @@
 <rect x="804" y="740" width="11" height="11" fill="#8a6d3b"><title>matlab / debug_prints: decoy test with &#x27;disp&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="740" width="11" height="11" fill="#8a6d3b"><title>nim / debug_prints: decoy test with &#x27;echo&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="740" width="11" height="11" fill="#8a6d3b"><title>objective-c / debug_prints: decoy test with &#x27;printf&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="740" width="11" height="11" fill="#8a6d3b"><title>ocaml / debug_prints: decoy test with &#x27;Printf.printf&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="740" width="11" height="11" fill="#e5534b"><title>ocaml / debug_prints: decoy test with &#x27;Printf.printf&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="740" width="11" height="11" fill="#8a6d3b"><title>perl / debug_prints: decoy test with &#x27;print&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="740" width="11" height="11" fill="#8a6d3b"><title>pli / debug_prints: decoy test with &#x27;DISPLAY()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="900" y="740" class="u"/>
@@ -2317,7 +2317,7 @@
 <rect x="216" y="752" width="11" height="11" fill="#8a6d3b"><title>go / explicit_casts: decoy test with &#x27;int()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="228" y="752" class="u"/>
 <rect x="240" y="752" width="11" height="11" fill="#8a6d3b"><title>php / explicit_casts: decoy test with &#x27;settype()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="252" y="752" class="u"/>
+<rect x="252" y="752" width="11" height="11" fill="#8a6d3b"><title>scala / explicit_casts: decoy test with &#x27;val count = raw.toInt&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="752" width="11" height="11" fill="#8a6d3b"><title>swift / explicit_casts: decoy test with &#x27;Int()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="276" y="752" class="u"/>
 <rect x="288" y="752" width="11" height="11" fill="#8a6d3b"><title>javascript / explicit_casts: decoy test with &#x27;Number()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2413,7 +2413,7 @@
 <rect x="804" y="764" width="11" height="11" fill="#8a6d3b"><title>matlab / panics_and_aborts: decoy test with &#x27;throw&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="764" width="11" height="11" fill="#8a6d3b"><title>nim / panics_and_aborts: decoy test with &#x27;raise&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="764" width="11" height="11" fill="#8a6d3b"><title>objective-c / panics_and_aborts: decoy test with &#x27;abort&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="764" width="11" height="11" fill="#8a6d3b"><title>ocaml / panics_and_aborts: decoy test with &#x27;failwith&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="764" width="11" height="11" fill="#e5534b"><title>ocaml / panics_and_aborts: decoy test with &#x27;failwith&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="764" width="11" height="11" fill="#8a6d3b"><title>perl / panics_and_aborts: decoy test with &#x27;die&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="764" width="11" height="11" fill="#8a6d3b"><title>pli / panics_and_aborts: decoy test with &#x27;RESIGNAL&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="764" width="11" height="11" fill="#8a6d3b"><title>postgresql / panics_and_aborts: decoy test with &#x27;RAISE EXCEPTION&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2513,7 +2513,7 @@
 <rect x="348" y="788" width="11" height="11" fill="#4f9be8"><title>lua / bitwise_ops: recall 1.00, precision 0.95 (20 oracle, 21 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="360" y="788" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>shell / bitwise_ops: recall 1.00, precision 1.00 (2 oracle, 2 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="372" y="788" width="11" height="11" fill="#2f6aa8"><title>cpp / bitwise_ops: recall 0.88, precision 0.91 (57 oracle, 55 family functions; language-crucible v1.9.0)</title></rect>
-<rect x="396" y="788" width="11" height="11" fill="#3d6a8c"><title>hlasm / bitwise_ops: decoy test with &#x27;NR&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<use href="#c" x="396" y="788" class="u"/>
 <rect x="408" y="788" width="11" height="11" fill="#8a6d3b"><title>cobol / bitwise_ops: decoy test with &#x27;FUNCTION BIT-AND&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="788" width="11" height="11" fill="#8a6d3b"><title>abap / bitwise_ops: decoy test with &#x27;BIT-AND&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="432" y="788" width="11" height="11" fill="#8a6d3b"><title>acs / bitwise_ops: decoy test with &#x27;a &lt;&lt; 1&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2536,7 +2536,7 @@
 <rect x="804" y="788" width="11" height="11" fill="#8a6d3b"><title>matlab / bitwise_ops: decoy test with &#x27;bitand&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="788" width="11" height="11" fill="#8a6d3b"><title>nim / bitwise_ops: decoy test with &#x27;shl&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="788" width="11" height="11" fill="#8a6d3b"><title>objective-c / bitwise_ops: decoy test with &#x27;a &lt;&lt; 1&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="788" width="11" height="11" fill="#8a6d3b"><title>ocaml / bitwise_ops: decoy test with &#x27;land&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="788" width="11" height="11" fill="#e5534b"><title>ocaml / bitwise_ops: decoy test with &#x27;land&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="788" width="11" height="11" fill="#3d6a8c"><title>perl / bitwise_ops: decoy test with &#x27;a &lt;&lt; 1&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="888" y="788" width="11" height="11" fill="#8a6d3b"><title>pli / bitwise_ops: decoy test with &#x27;IAND()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="788" width="11" height="11" fill="#8a6d3b"><title>postgresql / bitwise_ops: decoy test with &#x27;bit_and()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2593,7 +2593,7 @@
 <rect x="804" y="800" width="11" height="11" fill="#8a6d3b"><title>matlab / sync_locks: decoy test with &#x27;labBarrier&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="800" width="11" height="11" fill="#8a6d3b"><title>nim / sync_locks: decoy test with &#x27;withLock&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="800" width="11" height="11" fill="#8a6d3b"><title>objective-c / sync_locks: decoy test with &#x27;NSLock&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="800" width="11" height="11" fill="#8a6d3b"><title>ocaml / sync_locks: decoy test with &#x27;Mutex.lock&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="800" width="11" height="11" fill="#e5534b"><title>ocaml / sync_locks: decoy test with &#x27;Mutex.lock&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="800" width="11" height="11" fill="#8a6d3b"><title>perl / sync_locks: decoy test with &#x27;lock&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="800" width="11" height="11" fill="#8a6d3b"><title>pli / sync_locks: decoy test with &#x27;EXEC CICS ENQ&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="800" width="11" height="11" fill="#8a6d3b"><title>postgresql / sync_locks: decoy test with &#x27;LOCK TABLE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2646,7 +2646,7 @@
 <rect x="804" y="812" width="11" height="11" fill="#8a6d3b"><title>matlab / immutability_locks: decoy test with &#x27;Constant&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="812" width="11" height="11" fill="#8a6d3b"><title>nim / immutability_locks: decoy test with &#x27;let&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="812" width="11" height="11" fill="#8a6d3b"><title>objective-c / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="812" width="11" height="11" fill="#8a6d3b"><title>ocaml / immutability_locks: decoy test with &#x27;x = private(y)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="812" width="11" height="11" fill="#e5534b"><title>ocaml / immutability_locks: decoy test with &#x27;x = private(y)&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="812" width="11" height="11" fill="#8a6d3b"><title>perl / immutability_locks: decoy test with &#x27;Readonly&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="812" width="11" height="11" fill="#8a6d3b"><title>pli / immutability_locks: decoy test with &#x27;NONASSIGNABLE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="812" width="11" height="11" fill="#8a6d3b"><title>postgresql / immutability_locks: decoy test with &#x27;READ ONLY&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2707,7 +2707,7 @@
 <rect x="804" y="824" width="11" height="11" fill="#3d6a8c"><title>matlab / cleanup: decoy test with &#x27;clear&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="828" y="824" width="11" height="11" fill="#8a6d3b"><title>nim / cleanup: decoy test with &#x27;close&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="824" width="11" height="11" fill="#8a6d3b"><title>objective-c / cleanup: decoy test with &#x27;dealloc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="824" width="11" height="11" fill="#8a6d3b"><title>ocaml / cleanup: decoy test with &#x27;close_in&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="824" width="11" height="11" fill="#e5534b"><title>ocaml / cleanup: decoy test with &#x27;close_in&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="824" width="11" height="11" fill="#8a6d3b"><title>perl / cleanup: decoy test with &#x27;close&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="824" width="11" height="11" fill="#8a6d3b"><title>pli / cleanup: decoy test with &#x27;CLOSE FILE()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="824" width="11" height="11" fill="#8a6d3b"><title>postgresql / cleanup: decoy test with &#x27;CLOSE x&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2759,7 +2759,7 @@
 <use href="#c" x="804" y="836" class="u"/>
 <rect x="828" y="836" width="11" height="11" fill="#8a6d3b"><title>nim / encapsulation: decoy test with &#x27;distinct&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="836" width="11" height="11" fill="#8a6d3b"><title>objective-c / encapsulation: decoy test with &#x27;@private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="836" width="11" height="11" fill="#8a6d3b"><title>ocaml / encapsulation: decoy test with &#x27;sig&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="836" width="11" height="11" fill="#e5534b"><title>ocaml / encapsulation: decoy test with &#x27;sig&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="836" width="11" height="11" fill="#3d6a8c"><title>pli / encapsulation: decoy test with &#x27;INTERNAL&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="900" y="836" class="u"/>
 <rect x="912" y="836" width="11" height="11" fill="#3d6a8c"><title>powershell / encapsulation: decoy test with &#x27;hidden&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -2813,7 +2813,7 @@
 <rect x="804" y="848" width="11" height="11" fill="#8a6d3b"><title>matlab / listeners: decoy test with &#x27;addlistener&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="848" width="11" height="11" fill="#8a6d3b"><title>nim / listeners: decoy test with &#x27;listen()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="848" width="11" height="11" fill="#8a6d3b"><title>objective-c / listeners: decoy test with &#x27;addObserver:&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="848" width="11" height="11" fill="#8a6d3b"><title>ocaml / listeners: decoy test with &#x27;Unix.listen&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="848" width="11" height="11" fill="#e5534b"><title>ocaml / listeners: decoy test with &#x27;Unix.listen&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="848" width="11" height="11" fill="#8a6d3b"><title>perl / listeners: decoy test with &#x27;on()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="848" width="11" height="11" fill="#8a6d3b"><title>pli / listeners: decoy test with &#x27;CALL MQGET()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="848" width="11" height="11" fill="#8a6d3b"><title>postgresql / listeners: decoy test with &#x27;INSTEAD OF&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2864,7 +2864,7 @@
 <rect x="804" y="860" width="11" height="11" fill="#8a6d3b"><title>matlab / test_skip: decoy test with &#x27;assume&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="860" width="11" height="11" fill="#3d6a8c"><title>nim / test_skip: decoy test with &#x27;skip&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="852" y="860" width="11" height="11" fill="#8a6d3b"><title>objective-c / test_skip: decoy test with &#x27;XCTSkip&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="860" width="11" height="11" fill="#8a6d3b"><title>ocaml / test_skip: decoy test with &#x27;Alcotest.skip&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="860" width="11" height="11" fill="#e5534b"><title>ocaml / test_skip: decoy test with &#x27;Alcotest.skip&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="860" width="11" height="11" fill="#8a6d3b"><title>perl / test_skip: decoy test with &#x27;skip()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="912" y="860" width="11" height="11" fill="#8a6d3b"><title>powershell / test_skip: decoy test with &#x27;pending&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="860" width="11" height="11" fill="#8a6d3b"><title>r / test_skip: decoy test with &#x27;skip_if()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2903,7 +2903,7 @@
 <rect x="756" y="884" width="11" height="11" fill="#8a6d3b"><title>julia / auth_middleware: decoy test with &#x27;JSONWebTokens&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="884" width="11" height="11" fill="#8a6d3b"><title>nim / auth_middleware: decoy test with &#x27;bcrypt&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="884" width="11" height="11" fill="#8a6d3b"><title>objective-c / auth_middleware: decoy test with &#x27;canEvaluatePolicy:&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="884" width="11" height="11" fill="#8a6d3b"><title>ocaml / auth_middleware: decoy test with &#x27;Jwto&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="884" width="11" height="11" fill="#e5534b"><title>ocaml / auth_middleware: decoy test with &#x27;Jwto&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="884" width="11" height="11" fill="#8a6d3b"><title>perl / auth_middleware: decoy test with &#x27;pam_authenticate()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="884" width="11" height="11" fill="#8a6d3b"><title>pli / auth_middleware: decoy test with &#x27;EXEC CICS SIGNON&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="884" width="11" height="11" fill="#3d6a8c"><title>postgresql / auth_middleware: decoy test with &#x27;GRANT x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -2948,7 +2948,7 @@
 <rect x="804" y="896" width="11" height="11" fill="#8a6d3b"><title>matlab / serialization_parsing: decoy test with &#x27;jsondecode&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="896" width="11" height="11" fill="#8a6d3b"><title>nim / serialization_parsing: decoy test with &#x27;parseJson&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="896" width="11" height="11" fill="#8a6d3b"><title>objective-c / serialization_parsing: decoy test with &#x27;NSJSONSerialization&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="896" width="11" height="11" fill="#8a6d3b"><title>ocaml / serialization_parsing: decoy test with &#x27;Yojson&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="896" width="11" height="11" fill="#e5534b"><title>ocaml / serialization_parsing: decoy test with &#x27;Yojson&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="896" width="11" height="11" fill="#8a6d3b"><title>perl / serialization_parsing: decoy test with &#x27;Storable::thaw&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="896" width="11" height="11" fill="#8a6d3b"><title>pli / serialization_parsing: decoy test with &#x27;XMLCHAR()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="896" width="11" height="11" fill="#8a6d3b"><title>postgresql / serialization_parsing: decoy test with &#x27;to_jsonb()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -3002,7 +3002,7 @@
 <rect x="804" y="908" width="11" height="11" fill="#8a6d3b"><title>matlab / regex_execution: decoy test with &#x27;regexp&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="908" width="11" height="11" fill="#8a6d3b"><title>nim / regex_execution: decoy test with &#x27;findAll&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="908" width="11" height="11" fill="#8a6d3b"><title>objective-c / regex_execution: decoy test with &#x27;NSRegularExpression&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="908" width="11" height="11" fill="#8a6d3b"><title>ocaml / regex_execution: decoy test with &#x27;Re.Perl&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="908" width="11" height="11" fill="#e5534b"><title>ocaml / regex_execution: decoy test with &#x27;Re.Perl&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="908" width="11" height="11" fill="#8a6d3b"><title>perl / regex_execution: decoy test with &#x27;qr()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="908" width="11" height="11" fill="#8a6d3b"><title>postgresql / regex_execution: decoy test with &#x27;SIMILAR TO&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="912" y="908" width="11" height="11" fill="#8a6d3b"><title>powershell / regex_execution: decoy test with &#x27;Select-String&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -3057,7 +3057,7 @@
 <rect x="804" y="920" width="11" height="11" fill="#8a6d3b"><title>matlab / time_date_logic: decoy test with &#x27;tic&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="920" width="11" height="11" fill="#8a6d3b"><title>nim / time_date_logic: decoy test with &#x27;getTime&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="920" width="11" height="11" fill="#8a6d3b"><title>objective-c / time_date_logic: decoy test with &#x27;NSDate&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="920" width="11" height="11" fill="#8a6d3b"><title>ocaml / time_date_logic: decoy test with &#x27;Unix.time&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="920" width="11" height="11" fill="#e5534b"><title>ocaml / time_date_logic: decoy test with &#x27;Unix.time&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="920" width="11" height="11" fill="#8a6d3b"><title>perl / time_date_logic: decoy test with &#x27;localtime&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="920" width="11" height="11" fill="#8a6d3b"><title>pli / time_date_logic: decoy test with &#x27;DATETIME()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="920" width="11" height="11" fill="#8a6d3b"><title>postgresql / time_date_logic: decoy test with &#x27;CURRENT_DATE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -3108,7 +3108,7 @@
 <rect x="804" y="932" width="11" height="11" fill="#8a6d3b"><title>matlab / ipc_rpc_bridges: decoy test with &#x27;system&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="932" width="11" height="11" fill="#8a6d3b"><title>nim / ipc_rpc_bridges: decoy test with &#x27;grpc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="852" y="932" width="11" height="11" fill="#8a6d3b"><title>objective-c / ipc_rpc_bridges: decoy test with &#x27;NSXPCConnection&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="932" width="11" height="11" fill="#8a6d3b"><title>ocaml / ipc_rpc_bridges: decoy test with &#x27;Unix.pipe&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="932" width="11" height="11" fill="#e5534b"><title>ocaml / ipc_rpc_bridges: decoy test with &#x27;Unix.pipe&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="876" y="932" width="11" height="11" fill="#8a6d3b"><title>perl / ipc_rpc_bridges: decoy test with &#x27;system()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="888" y="932" width="11" height="11" fill="#8a6d3b"><title>pli / ipc_rpc_bridges: decoy test with &#x27;EXEC CICS LINK&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="932" width="11" height="11" fill="#8a6d3b"><title>postgresql / ipc_rpc_bridges: decoy test with &#x27;CREATE SERVER&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -3130,7 +3130,7 @@
 <rect x="720" y="944" width="11" height="11" fill="#8a6d3b"><title>hcl / system_config_mutation: decoy test with &#x27;aws_ssm_parameter&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="756" y="944" width="11" height="11" fill="#8a6d3b"><title>julia / system_config_mutation: decoy test with &#x27;cd()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="828" y="944" width="11" height="11" fill="#8a6d3b"><title>nim / system_config_mutation: decoy test with &#x27;putEnv&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<rect x="864" y="944" width="11" height="11" fill="#8a6d3b"><title>ocaml / system_config_mutation: decoy test with &#x27;Unix.putenv&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="864" y="944" width="11" height="11" fill="#e5534b"><title>ocaml / system_config_mutation: decoy test with &#x27;Unix.putenv&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="900" y="944" width="11" height="11" fill="#8a6d3b"><title>postgresql / system_config_mutation: decoy test with &#x27;ALTER SYSTEM&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="936" y="944" width="11" height="11" fill="#8a6d3b"><title>r / system_config_mutation: decoy test with &#x27;Sys.setenv()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="1056" y="944" class="u"/>

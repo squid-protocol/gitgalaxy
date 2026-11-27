@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,758 decoy test only, 961 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,770 decoy test only, 949 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -558,7 +558,7 @@
 <rect x="324" y="320" width="11" height="11" fill="#8a6d3b"><title>c / safety: decoy test with &#x27;assert&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="320" width="11" height="11" fill="#8a6d3b"><title>java / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="320" width="11" height="11" fill="#8a6d3b"><title>lua / safety: decoy test with &#x27;pcall&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="360" y="320" class="u"/>
+<rect x="360" y="320" width="11" height="11" fill="#e5534b"><title>shell / safety: decoy test with &#x27;set -euo pipefail&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="320" width="11" height="11" fill="#8a6d3b"><title>cpp / safety: decoy test with &#x27;try&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="384" y="320" width="11" height="11" fill="#4f9be8"><title>jcl / safety: recall 1.00, precision 0.90 (27 oracle, 30 family functions; language-crucible v1.9.0)</title></rect>
 <rect x="396" y="320" width="11" height="11" fill="#566074"><title>hlasm / safety: decoy test with &#x27;ESTAEX&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -877,7 +877,7 @@
 <rect x="324" y="380" width="11" height="11" fill="#3d6a8c"><title>c / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="336" y="380" width="11" height="11" fill="#3d6a8c"><title>java / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="348" y="380" width="11" height="11" fill="#3d6a8c"><title>lua / state_mutation: decoy test with &#x27;x = !local(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
-<use href="#c" x="360" y="380" class="u"/>
+<rect x="360" y="380" width="11" height="11" fill="#3d6a8c"><title>shell / state_mutation: decoy test with &#x27;retries=0&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="380" width="11" height="11" fill="#3d6a8c"><title>cpp / state_mutation: decoy test with &#x27;x = A-Z_a-z(y)&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="384" y="380" width="11" height="11" fill="#566074"><title>jcl / state_mutation: decoy test with &#x27;//SET1     SET ENV=PROD&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
 <rect x="396" y="380" width="11" height="11" fill="#566074"><title>hlasm / state_mutation: decoy test with &#x27;OI&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -1415,11 +1415,11 @@
 <rect x="264" y="512" width="11" height="11" fill="#8a6d3b"><title>swift / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="512" width="11" height="11" fill="#8a6d3b"><title>typescript / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="288" y="512" width="11" height="11" fill="#8a6d3b"><title>javascript / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="300" y="512" class="u"/>
+<rect x="300" y="512" width="11" height="11" fill="#8a6d3b"><title>ruby / comprehensions: decoy test with &#x27;items.map { |item| item.name }&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="512" width="11" height="11" fill="#8a6d3b"><title>rust / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="512" width="11" height="11" fill="#8a6d3b"><title>java / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="512" width="11" height="11" fill="#8a6d3b"><title>lua / comprehensions: decoy test with &#x27;pairs&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="360" y="512" class="u"/>
+<rect x="360" y="512" width="11" height="11" fill="#e5534b"><title>shell / comprehensions: decoy test with &#x27;for i in {1..5}; do&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="512" width="11" height="11" fill="#8a6d3b"><title>cpp / comprehensions: decoy test with &#x27;std::transform&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="512" width="11" height="11" fill="#8a6d3b"><title>abap / comprehensions: decoy test with &#x27;[x for x in xs]&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="444" y="512" width="11" height="11" fill="#8a6d3b"><title>ada / comprehensions: decoy test with &#x27;for all&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1467,7 +1467,7 @@
 <rect x="312" y="524" width="11" height="11" fill="#8a6d3b"><title>rust / scientific: decoy test with &#x27;f32&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="524" width="11" height="11" fill="#8a6d3b"><title>c / scientific: decoy test with &#x27;dgemm&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="524" width="11" height="11" fill="#8a6d3b"><title>java / scientific: decoy test with &#x27;BigDecimal&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="348" y="524" class="u"/>
+<rect x="348" y="524" width="11" height="11" fill="#8a6d3b"><title>lua / scientific: decoy test with &#x27;local rounded = math.floor(value)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="524" width="11" height="11" fill="#8a6d3b"><title>shell / scientific: decoy test with &#x27;bc&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="524" width="11" height="11" fill="#8a6d3b"><title>cpp / scientific: decoy test with &#x27;__m128&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="524" width="11" height="11" fill="#566074"><title>hlasm / scientific: decoy test with &#x27;SQEB&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -1582,11 +1582,11 @@
 <rect x="264" y="548" width="11" height="11" fill="#3d6a8c"><title>swift / import: decoy test with &#x27;import x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="276" y="548" width="11" height="11" fill="#8a6d3b"><title>typescript / import: decoy test with &#x27;import()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="288" y="548" width="11" height="11" fill="#8a6d3b"><title>javascript / import: decoy test with &#x27;import()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="300" y="548" class="u"/>
+<rect x="300" y="548" width="11" height="11" fill="#8a6d3b"><title>ruby / import: decoy test with &#x27;require &#x27;json&#x27;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="312" y="548" class="u"/>
 <use href="#c" x="324" y="548" class="u"/>
 <use href="#c" x="336" y="548" class="u"/>
-<use href="#c" x="348" y="548" class="u"/>
+<rect x="348" y="548" width="11" height="11" fill="#8a6d3b"><title>lua / import: decoy test with &#x27;local json = require(&#x27;json&#x27;)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="548" width="11" height="11" fill="#3d6a8c"><title>shell / import: decoy test with &#x27;source x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="372" y="548" class="u"/>
 <rect x="384" y="548" width="11" height="11" fill="#566074"><title>jcl / import: decoy test with &#x27;//INC1     INCLUDE MEMBER=MYMEM&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -2013,7 +2013,7 @@
 <rect x="324" y="656" width="11" height="11" fill="#8a6d3b"><title>c / dependency_injection: decoy test with &#x27;plugin_register&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="656" width="11" height="11" fill="#8a6d3b"><title>java / dependency_injection: decoy test with &#x27;ApplicationContext&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="656" width="11" height="11" fill="#8a6d3b"><title>lua / dependency_injection: decoy test with &#x27;inject&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="360" y="656" class="u"/>
+<rect x="360" y="656" width="11" height="11" fill="#e5534b"><title>shell / dependency_injection: decoy test with &#x27;target=${1:-production}&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="656" width="11" height="11" fill="#8a6d3b"><title>cpp / dependency_injection: decoy test with &#x27;IServiceCollection&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="420" y="656" width="11" height="11" fill="#8a6d3b"><title>abap / dependency_injection: decoy test with &#x27;CL_BADI_BASE&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="468" y="656" width="11" height="11" fill="#8a6d3b"><title>apex / dependency_injection: decoy test with &#x27;fflib_ApexMocks&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2095,7 +2095,7 @@
 <rect x="324" y="680" width="11" height="11" fill="#8a6d3b"><title>c / pointers: decoy test with &#x27;uintptr_t&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="680" width="11" height="11" fill="#8a6d3b"><title>java / pointers: decoy test with &#x27;MemorySegment&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="680" width="11" height="11" fill="#8a6d3b"><title>lua / pointers: decoy test with &#x27;ffi.cast&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="360" y="680" class="u"/>
+<rect x="360" y="680" width="11" height="11" fill="#e5534b"><title>shell / pointers: decoy test with &#x27;declare -n ref=target&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="680" width="11" height="11" fill="#8a6d3b"><title>cpp / pointers: decoy test with &#x27;uintptr_t&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="396" y="680" class="u"/>
 <rect x="408" y="680" width="11" height="11" fill="#8a6d3b"><title>cobol / pointers: decoy test with &#x27;POINTER&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2196,7 +2196,7 @@
 <rect x="264" y="728" width="11" height="11" fill="#8a6d3b"><title>swift / telemetry: decoy test with &#x27;Logger&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="276" y="728" class="u"/>
 <use href="#c" x="288" y="728" class="u"/>
-<use href="#c" x="300" y="728" class="u"/>
+<rect x="300" y="728" width="11" height="11" fill="#8a6d3b"><title>ruby / telemetry: decoy test with &#x27;Rails.logger.info(message)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="728" width="11" height="11" fill="#8a6d3b"><title>rust / telemetry: decoy test with &#x27;instrument&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="728" width="11" height="11" fill="#8a6d3b"><title>c / telemetry: decoy test with &#x27;syslog&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="728" width="11" height="11" fill="#8a6d3b"><title>java / telemetry: decoy test with &#x27;@Slf4j&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2617,7 +2617,7 @@
 <rect x="312" y="812" width="11" height="11" fill="#8a6d3b"><title>rust / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="812" width="11" height="11" fill="#8a6d3b"><title>c / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="812" width="11" height="11" fill="#8a6d3b"><title>java / immutability_locks: decoy test with &#x27;final&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="348" y="812" class="u"/>
+<rect x="348" y="812" width="11" height="11" fill="#8a6d3b"><title>lua / immutability_locks: decoy test with &#x27;local max_retries &lt;const&gt; = 3&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="360" y="812" width="11" height="11" fill="#3d6a8c"><title>shell / immutability_locks: decoy test with &#x27;readonly x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="812" width="11" height="11" fill="#8a6d3b"><title>cpp / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="812" width="11" height="11" fill="#566074"><title>hlasm / immutability_locks: decoy test with &#x27;a EQU b&#x27;: in a comment ignored (pass); in a string literal not tested; no parser result yet</title></rect>
@@ -2884,7 +2884,7 @@
 <rect x="264" y="884" width="11" height="11" fill="#8a6d3b"><title>swift / auth_middleware: decoy test with &#x27;canEvaluatePolicy()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="884" width="11" height="11" fill="#8a6d3b"><title>typescript / auth_middleware: decoy test with &#x27;@UseGuards()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="288" y="884" width="11" height="11" fill="#8a6d3b"><title>javascript / auth_middleware: decoy test with &#x27;passport.authenticate()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="300" y="884" class="u"/>
+<rect x="300" y="884" width="11" height="11" fill="#8a6d3b"><title>ruby / auth_middleware: decoy test with &#x27;before_action :authenticate_user!&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="884" width="11" height="11" fill="#8a6d3b"><title>rust / auth_middleware: decoy test with &#x27;bcrypt::verify()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="884" width="11" height="11" fill="#8a6d3b"><title>c / auth_middleware: decoy test with &#x27;pam_authenticate()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="336" y="884" width="11" height="11" fill="#8a6d3b"><title>java / auth_middleware: decoy test with &#x27;@PreAuthorize()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

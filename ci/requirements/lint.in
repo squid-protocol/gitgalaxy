@@ -1,2 +1,2 @@
-ruff==0.17.5
+ruff==0.17.6
 PyYAML

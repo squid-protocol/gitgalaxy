@@ -115,8 +115,10 @@ def test_summary_figure_says_how_much_and_how_well_in_numbers():
         "6 language-by-family rules are defined. 3 are measured against a parser (2 languages), 3 more only by a decoy test, 0 not tested yet."
         in svg
     )
-    assert "In a comment: ignored" in svg and "2 of 3 cells" in svg
-    assert "In a string literal: counted" in svg and "1 of 2 cells" in svg
+    assert (
+        "In a comment: ignored" not in svg and "Decoy tiers: grey now" in svg
+    )  # decoy rates left the README figure (2026-11-27)
+    assert "In a string literal: counted" not in svg and "Grey = a decoy test only" in svg
     assert "family_validity_matrix.svg" in svg  # points at the maintainer matrix
     assert "hover" not in svg.lower()  # a README figure cannot depend on tooltips
     assert "<title>" not in svg
@@ -151,18 +153,19 @@ def test_matrix_has_no_dots_no_rainbow_and_names_every_state():
     assert "Keyword-family matrix (maintainers)" in svg
     for label in (
         "not tested yet",
-        "decoy: comment and string both ignored",
-        "decoy: comment ignored, string counted",
-        "decoy: comment ignored (no string decoy)",
-        "decoy: a comment leaked",
+        "decoy test only (SOP-001 first-pass, SOP-002 spec-grade): grey",
         "parser: construct never seen",
         "N/A: no rule",
+        "Decoy tiers: grey now (SOP-001, SOP-002). Stricter tiers (SOP-003 and later) take more colour",
     ):
         assert label in svg
     assert 'class="dg"' not in svg and "green dot" not in svg
     assert "go / io: recall 0.33, precision 0.62" in svg and "prometheus (not pinned)" in svg
-    assert "c / io: decoy test with &#x27;fopen&#x27;: in a comment ignored (pass); in a string literal counts" in svg
-    assert "in a comment LEAKS" in svg
+    assert (
+        "c / io: decoy test (untiered) with &#x27;fopen&#x27;: in a comment ignored (pass); in a string literal counts"
+        in svg
+    )
+    assert "in a comment LEAKS" in svg  # the detail is in the hover, not in the colour
     assert all(fill in svg for fill in fvc.BIN_FILLS[:2])
 
 
@@ -244,19 +247,41 @@ def test_check_fails_on_a_stale_svg(request, monkeypatch, capsys):
     assert "is stale" in capsys.readouterr().out
 
 
-def test_decoy_states_are_told_apart_and_drawn_in_different_colours():
-    clean = {"comment": "pass", "string_counts": False, "keyword": "k", "corpus": "r"}
-    strings = {**clean, "string_counts": True}
-    comment_only = {**clean, "string_counts": None}
-    leak = {**clean, "comment": "leak"}
-    assert [fvc.decoy_state(d) for d in (clean, strings, comment_only, leak)] == [
-        "decoy_clean",
-        "decoy_strings",
-        "decoy_comment_only",
-        "decoy_leak",
-    ]
-    colours = [fvc.MATRIX_COLOR[k] for k in ("untested", "decoy_clean", "decoy_strings", "decoy_comment_only", "empty")]
-    assert len(set(colours)) == 5  # five states, five different fills: the three greys no longer merge
+def test_every_decoy_tier_is_the_one_grey_and_only_the_hover_tells_them_apart():
+    """Owner ruling 2026-11-27: only a parser carries score colours. First-pass (SOP-001) and spec-grade (SOP-002) decoys are both grade 0."""
+    clean = {"comment": "pass", "string_counts": False, "keyword": "k", "corpus": "r", "protocol": "SOP-001-v1"}
+    strings = {**clean, "string_counts": True, "protocol": "SOP-002-v1"}
+    leak = {**clean, "comment": "leak", "ident_boundary": "leak"}
+    assert {fvc.decoy_fill(d) for d in (clean, strings, leak, {})} == {
+        fvc.DECOY_GREY
+    }  # a leak is not red, an unknown protocol is grey
+    assert (
+        len({fvc.MATRIX_COLOR[k] for k in ("untested", "decoy", "empty", "na")}) == 4
+    )  # still apart from the other states
     decoys = {"c": {"io": clean}, "go": {"io": strings}, "zig": {"branch": leak}}
     svg = fvc.render_matrix_svg(FAMILIES, LANGUAGES, DEFINED, {}, decoys)
-    assert fvc.MATRIX_COLOR["decoy_clean"] in svg and fvc.MATRIX_COLOR["decoy_strings"] in svg and fvc.FAIL in svg
+    assert f'fill="{fvc.DECOY_GREY}"><title>' in svg  # the decoy cells carry the grey
+    assert "decoy test (first-pass)" in svg and "decoy test (spec-grade)" in svg
+    assert "gates run: comment leak; word boundary leak" in svg
+
+
+def test_a_stricter_tier_tints_toward_the_parser_blue_in_proportion_to_its_grade(monkeypatch):
+    assert fvc.decoy_tier({"protocol": "SOP-002-v1"}) == ("spec-grade", 0.0)
+    assert fvc.decoy_tier({"protocol": "nope"}) == ("untiered", 0.0)
+    monkeypatch.setitem(fvc.DECOY_TIERS, "SOP-003-v1", ("rule-grade", 1.0))
+    monkeypatch.setitem(fvc.DECOY_TIERS, "SOP-9-v1", ("half", 0.5))
+    assert fvc.decoy_fill({"protocol": "SOP-003-v1"}) == fvc.PARSER_BLUE  # as thorough as a parser: the parser colour
+    half = fvc.decoy_fill({"protocol": "SOP-9-v1"})
+    assert half not in (fvc.DECOY_GREY, fvc.PARSER_BLUE)
+    assert fvc._blend("#000000", "#ffffff", 0.5) == "#808080" and fvc._blend("#102030", "#102030", 0.7) == "#102030"
+    assert fvc._blend("#000000", "#ffffff", 2.0) == "#ffffff" and fvc._blend("#000000", "#ffffff", -1.0) == "#000000"
+
+
+def test_the_readme_figure_shows_no_decoy_rates_only_the_ladder_key():
+    decoys = {
+        "c": {"io": {"comment": "pass", "string_counts": True, "keyword": "k", "corpus": "r", "protocol": "SOP-001-v1"}}
+    }
+    svg = fvc.render_summary_svg(FAMILIES, LANGUAGES, DEFINED, CELLS, decoys)
+    assert "In a comment: ignored" not in svg and "In a string literal: counted" not in svg
+    assert "Decoy tiers: grey now (SOP-001, SOP-002)" in svg
+    assert "Grey = a decoy test only" in svg

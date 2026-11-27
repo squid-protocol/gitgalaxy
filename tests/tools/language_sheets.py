@@ -91,6 +91,9 @@ CHIP_TEXT = ("#ff8f88", "#ffffff", "#ffffff", "#06121f", "#06121f")
 CHIP_LABEL = ("under 50%", "50-79%", "80-89%", "90-97%", "98-100%")
 FAIL = "#e5534b"
 GREY = "#8b949e"
+DECOY_GREY = (
+    "#6e7681"  # a decoy-tested family: not a parser measurement, so no score colour (family_validity_chart.DECOY_TIERS)
+)
 TRACK = "#30363d"
 # The keyword histogram's four bins, high to low: [>90, 90-75, 75-50, <50]
 KW_EDGES = (0.90, 0.75, 0.50)
@@ -252,11 +255,13 @@ def keywords_stats() -> dict[str, Stat]:
                 bins[kw_bin(score)] += 1
                 scored += 1
         n_defined = len(defined.get(lang, set()))
-        decoy_only = sum(
-            1
-            for k in decoys.get(lang, {})
+        gap_rows = [
+            row
+            for k, row in decoys.get(lang, {}).items()
             if not (k in cells.get(lang, {}) and fvc.cell_score(cells[lang][k]) is not None)
-        )
+        ]
+        decoy_only = len(gap_rows)
+        decoy_spec = sum(1 for row in gap_rows if row.get("protocol") == "SOP-002-v1")
         if not scored and not decoy_only:
             continue  # nothing measured for this language
         method = "tree-sitter" if scored else "decoy-test"
@@ -266,7 +271,13 @@ def keywords_stats() -> dict[str, Stat]:
             method=method,
             reference="parser-labelled functions, lower of recall and precision per family" if scored else "",
             source="tests/family_validity_baseline.json",
-            extra={"bins": bins, "scored": scored, "decoy_only": decoy_only, "defined": n_defined},
+            extra={
+                "bins": bins,
+                "scored": scored,
+                "decoy_only": decoy_only,
+                "decoy_spec": decoy_spec,
+                "defined": n_defined,
+            },
         )
     return out
 
@@ -589,7 +600,8 @@ def cell_text(name: str, s: Stat | None) -> str:
         if not e["scored"]:
             return f"decoy test only ({e['decoy_only']})" if e["decoy_only"] else "not measured"
         parts = [f"{c} {lbl}" for c, lbl in zip(e["bins"], KW_LABELS, strict=True) if c]
-        return f"{e['scored']} of {e['defined']} families: " + ", ".join(parts)
+        text = f"{e['scored']} of {e['defined']} families: " + ", ".join(parts)
+        return text + (f"; {e['decoy_only']} more decoy-tested only" if e["decoy_only"] else "")
     if name == "rosetta":
         e = s.extra
         return f"{e['comparable'] - e['open']} of {e['comparable']} passed, {e['open']} failed"
@@ -845,7 +857,7 @@ def _row_height(lang: str, stats: dict[str, dict[str, Stat]]) -> int:
     ak = stats["answer_key"].get(lang)
     if ak is not None:
         return ROW_AK if ak.extra.get("sample") else ROW_KW
-    return ROW_KW if k and k.extra["scored"] else ROW_PLAIN
+    return ROW_KW if k and (k.extra["scored"] or k.extra["decoy_only"]) else ROW_PLAIN
 
 
 def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str:
@@ -868,7 +880,7 @@ def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str
         out.append(f'<text x="{lx + 17}" y="40" font-size="10.5" fill="#c9d1d9">{lbl}</text>')
         lx += 100
     out.append(
-        f'<text x="{lx + 10}" y="40" font-size="10.5" fill="{GREY}">p = precision, r = recall. Keywords: families by score, high to low.</text>'
+        f'<text x="{lx + 10}" y="40" font-size="10.5" fill="{GREY}">p = precision, r = recall. Keywords: every family the language has a rule for; blue = measured against a parser, high to low; grey = only a decoy test; empty = not tested yet.</text>'
     )
     tx = 975
     out.append(f'<text x="{tx}" y="40" font-size="10.5" fill="{GREY}">Answer key bar:</text>')
@@ -896,28 +908,31 @@ def render_matrix_svg(rows: list[str], stats: dict[str, dict[str, Stat]]) -> str
             out.append(f'<text x="{x}" y="{y + 31}" font-size="10" fill="{GREY}">{escape(fmt_n(s))}</text>')
         s = stats["keywords"].get(lang)
         x = COLS["keywords"]
-        if s is None or not s.extra["scored"]:
-            label = f"decoy test only ({s.extra['decoy_only']})" if s and s.extra["decoy_only"] else "not measured"
-            out.append(f'<text x="{x}" y="{y + 14}" font-size="11" fill="{GREY}">{label}</text>')
+        if s is None or not (s.extra["scored"] or s.extra["decoy_only"]):
+            out.append(f'<text x="{x}" y="{y + 14}" font-size="11" fill="{GREY}">not measured</text>')
         else:
+            # One bar over every family the language has a rule for: the parser bins in colour, then the families only a
+            # decoy test has checked in the one grey (SOP-001 and SOP-002 alike), the rest empty. The gaps are what is untested.
             e = s.extra
-            out += _bar(x, y + 3, list(zip(e["bins"], KW_FILL, strict=True)), e["scored"])
+            total = max(e["defined"], e["scored"] + e["decoy_only"], 1)
+            out.append(f'<rect x="{x}" y="{y + 3}" width="{COL_W}" height="9" fill="{TRACK}"/>')
+            out += _bar(x, y + 3, [*zip(e["bins"], KW_FILL, strict=True), (e["decoy_only"], DECOY_GREY)], total)
             cx = float(x)  # each count sits under its own segment; a wide segment also names its range
-            for count, label in zip(e["bins"], KW_LABELS, strict=True):
+            for count, label in [*zip(e["bins"], KW_LABELS, strict=True), (e["decoy_only"], "decoy")]:
                 if not count:
                     continue
-                w = COL_W * count / e["scored"]
-                out.append(
-                    f'<text x="{cx + w / 2:.1f}" y="{y + 22}" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">{count}</text>'
-                )
+                w = COL_W * count / total
+                if w >= 9:
+                    out.append(
+                        f'<text x="{cx + w / 2:.1f}" y="{y + 22}" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">{count}</text>'
+                    )
                 if w >= 40:
                     out.append(
                         f'<text x="{cx + w / 2:.1f}" y="{y + 32}" font-size="9" fill="{GREY}" text-anchor="middle">{escape(label)}</text>'
                     )
                 cx += w
-            out.append(
-                f'<text x="{x}" y="{y + 44}" font-size="10" fill="{GREY}">{e["scored"]} of {e["defined"]} families</text>'
-            )
+            caption = f"{e['scored']} parser + {e['decoy_only']} decoy of {e['defined']} families"
+            out.append(f'<text x="{x}" y="{y + 44}" font-size="10" fill="{GREY}">{caption}</text>')
         s = stats["rosetta"].get(lang)
         x = COLS["rosetta"]
         if s is None:

@@ -6,7 +6,7 @@ The counterpart of tri_comparison_chart.svg (function finding) and graph_coverag
 from one baseline, because one picture cannot honestly carry both "how much is checked" and "how well":
 
   docs/self_scan/family_validity_chart.svg    the README figure: a coverage bar, a table of every parser-measured cell with the score PRINTED in it,
-                                              and the decoy-test result. Few numbers, readable at README width, no hover needed.
+                                              and the key to the decoy ladder. Few numbers, readable at README width, no hover needed.
   docs/self_scan/family_validity_matrix.svg   the maintainer matrix: every language the engine parses against every family with a written contract
                                               (signal_contracts.py), 73 x 71 cells, with hover tooltips. The detail behind the summary.
 
@@ -19,6 +19,8 @@ WHAT THE NUMBERS ARE
 
     Decoy test (no parser): the family's keyword planted in a comment and in a string literal, in each language's own syntax, only where the bare keyword
     fires as code (a positive control). Comments should be ignored (they are); strings are counted by design (#2535), which conflicts with the contracts.
+    A decoy test is not a measurement of the family, so it carries no score colour: every decoy cell is the one grey, the detail is in the hover. A stricter
+    tier gets a grade in DECOY_TIERS (0 = grey, 1 = as thorough as a parser) and tints toward the parser blue, so colour grows with thoroughness.
 
     Score bins are fixed here, before the data is read again, and are not tuned to it: under 50%, 50-79%, 80-89%, 90-97%, 98-100%.
 
@@ -66,16 +68,43 @@ PARSER_BLUE = "#4f9be8"
 
 CELL, GAP = 11, 1
 PITCH = CELL + GAP
-# Matrix states, kept visibly apart: dark = not tested yet; blue family = decoy test only (steel: comment and string both ignored, amber: comment ignored but
-# a keyword in a string counts, slate: comment ignored, no string decoy); dotted = tested by a parser but the construct never occurs; red = a comment leaked.
+# The decoy-test ladder (owner ruling 2026-11-27): only a parser measures a family, so only parser cells carry the score colours. A decoy test plants a keyword
+# in a comment and a string and says the lexer handles it; it does not say the family finds the construct. Every decoy tier is drawn in the one grey (the
+# README figure's "decoy test only" grey), and the finer detail (which gates passed, which leaked) stays in the tooltip, not in the colour. A stricter tier is
+# given a GRADE from 0 (grey) to 1 (as thorough as a parser: the score colours); its cells tint from the grey toward the parser blue in proportion, so the
+# chart grows colour as the tests approach a parser's thoroughness. SOP-001 (first-pass, one trigger per cell) and SOP-002 (spec-grade, every comment form,
+# every branch) are both grade 0 today: neither is closer to a parser than a keyword in a comment. Register SOP-003 and later here, with their grade.
+DECOY_GREY = NEUTRAL
+DECOY_TIERS: dict[str, tuple[str, float]] = {
+    "SOP-001-v1": ("first-pass", 0.0),
+    "SOP-002-v1": ("spec-grade", 0.0),
+}
+
+# Matrix states, kept visibly apart: dark = not tested yet; grey = decoy test only (a tier's tint, see DECOY_TIERS); dotted = tested by a parser but the
+# construct never occurs; the blue bins are the parser scores.
 MATRIX_COLOR = {
     "na": "#12141a",
     "untested": "#2b2f3a",
-    "decoy_clean": "#3d6a8c",
-    "decoy_strings": "#8a6d3b",
-    "decoy_comment_only": "#566074",
+    "decoy": DECOY_GREY,
     "empty": "#3b3f4a",
 }
+
+
+def _blend(a: str, b: str, t: float) -> str:
+    """`a` blended toward `b` by `t` in [0, 1], as #rrggbb."""
+    t = max(0.0, min(1.0, t))
+    ca, cb = (tuple(int(h[i : i + 2], 16) for i in (1, 3, 5)) for h in (a, b))
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb, strict=True))
+
+
+def decoy_tier(dec: dict) -> tuple[str, float]:
+    """(label, grade) of a decoy row's protocol; a protocol not registered in DECOY_TIERS is a first-pass grade 0."""
+    return DECOY_TIERS.get(dec.get("protocol", ""), ("untiered", 0.0))
+
+
+def decoy_fill(dec: dict) -> str:
+    """The cell colour of a decoy-only cell: the grey for grade 0, tinting toward the parser blue as the tier's grade rises."""
+    return _blend(DECOY_GREY, PARSER_BLUE, decoy_tier(dec)[1])
 
 
 @dataclass(frozen=True)
@@ -240,10 +269,9 @@ def _fmt_int(n: int) -> str:
 def render_summary_svg(
     families: list[Family], languages: list[str], defined: dict[str, set[str]], cells: dict, decoys: dict | None = None
 ) -> str:
-    """The README figure: coverage bar, the table of parser-measured cells with scores printed in them, and the decoy-test bars."""
+    """The README figure: coverage bar, the table of parser-measured cells with scores printed in them, and the decoy ladder key."""
     decoys = decoys or {}
     s = summary(families, languages, defined, cells, decoys)
-    dt_ = decoy_totals(decoys)
     langs = [
         lang
         for lang in _order(languages, families, defined, cells)
@@ -263,7 +291,7 @@ def render_summary_svg(
     table_w = len(langs) * (cw + cgap)
     width = max(gx + table_w + 16, 880)  # about the width GitHub shows a README image at: the text must stay readable
     top_a = 200
-    height = top_a + (ch + cgap) * len(rows) + 250
+    height = top_a + (ch + cgap) * len(rows) + 150
     p = _svg_open(width, height)
     p.append(f'<text class="title" x="{left}" y="24">Keyword families: how much is checked, and how well</text>')
     p.append(
@@ -341,54 +369,34 @@ def render_summary_svg(
         p.append(f'<rect x="{kx:.0f}" y="{ya + 44}" width="12" height="9" fill="{BIN_FILLS[i]}"{stroke}/>')
         p.append(f'<text class="legend" x="{kx + 16:.0f}" y="{ya + 52}">{label}</text>')
         kx += 28 + len(label) * 5.6
-    # panel B: decoy test, below the table
-    yb = ya + 86
-    p.append(f'<text class="h" x="{left}" y="{yb}">Decoy test (no parser needed)</text>')
+    # the decoy ladder, then the footnotes: only the parser cells above carry score colours (owner ruling 2026-11-27)
+    ladder_y = ya + 66
+    _ladder_legend(p, left, ladder_y)
     p.append(
-        f'<text class="note" x="{left}" y="{yb + 15}">Each family keyword planted in a comment and in a string literal, in {len(decoys)} languages.</text>'
+        f'<text class="note" x="{left}" y="{ladder_y + 24}">Grey = a decoy test only: a keyword planted in a comment and a string is handled; it does not show the family finds the construct.</text>'
     )
-    bar_w2 = 330
-    by = yb + 28
-    for label, n, tot, accent in (
-        ("In a comment: ignored", dt_["comment_ignored"], dt_["comment_total"], False),
-        ("In a string literal: counted", dt_["string_counted"], dt_["string_total"], True),
-    ):
-        p.append(f'<text class="big" x="{left}" y="{by + 10}">{label}</text>')
-        w = bar_w2 * (n / tot if tot else 0)
-        p.append(f'<rect x="{left}" y="{by + 16}" width="{bar_w2}" height="14" fill="{TRACK}"/>')
-        p.append(f'<rect x="{left}" y="{by + 16}" width="{w:.1f}" height="14" fill="{FAIL if accent else NEUTRAL}"/>')
-        p.append(
-            f'<text class="legend" x="{left + bar_w2 + 10}" y="{by + 27}">{_fmt_int(n)} of {_fmt_int(tot)} cells</text>'
-        )
-        by += 44
-    nx = left + bar_w2 + 130
-    notes = (
-        "Comments are stripped before any family is counted,",
-        "as designed. Strings are not: a keyword inside a string",
-        "counts like code. That is documented behaviour (issue",
-        "#2535), but it conflicts with the families' written",
-        "contracts, so it is a decision for the maintainers.",
-    )
-    for i, line in enumerate(notes):
-        p.append(f'<text class="note" x="{nx}" y="{yb + 30 + i * 13}">{escape(line)}</text>')
     for i, line in enumerate(
         (
             "One repository per language; the parser's reading is our interpretation of each family's contract, not ground truth.",
             "Cells are measurements on one corpus, not proof a family is right everywhere. Full 73 x 71 matrix: docs/self_scan/family_validity_matrix.svg",
         )
     ):
-        p.append(f'<text class="note" x="{left}" y="{by + 14 + i * 13}">{escape(line)}</text>')
+        p.append(f'<text class="note" x="{left}" y="{ladder_y + 42 + i * 13}">{escape(line)}</text>')
     p.append("</svg>")
     return "\n".join(p) + "\n"
 
 
-def decoy_state(dec: dict) -> str:
-    """decoy_leak / decoy_strings / decoy_clean / decoy_comment_only: what the decoy test found for one cell."""
-    if dec["comment"] != "pass":
-        return "decoy_leak"
-    if dec["string_counts"] is None:
-        return "decoy_comment_only"
-    return "decoy_strings" if dec["string_counts"] else "decoy_clean"
+def _ladder_legend(p: list[str], x0: int, y: int) -> None:
+    """The decoy ladder as a strip: grey (a keyword in a comment) tinting to the parser blue (as thorough as a parser)."""
+    steps = 6
+    for i in range(steps):
+        fill = _blend(DECOY_GREY, PARSER_BLUE, i / (steps - 1))
+        p.append(
+            f'<rect x="{x0 + i * 14}" y="{y}" width="14" height="{CELL}" fill="{fill}" stroke="#4a4f5c" stroke-width="0.4"/>'
+        )
+    p.append(
+        f'<text class="legend" x="{x0 + steps * 14 + 8}" y="{y + 9}">Decoy tiers: grey now (SOP-001, SOP-002). Stricter tiers (SOP-003 and later) take more colour until a test is as thorough as a parser.</text>'
+    )
 
 
 def _legend_row(p: list[str], x0: int, y: int, items: tuple) -> None:
@@ -403,10 +411,24 @@ def _legend_row(p: list[str], x0: int, y: int, items: tuple) -> None:
         sx += 30 + len(label) * 5.4
 
 
+_GATES = (
+    ("comment", "comment"),
+    ("block_comment", "block comment"),
+    ("inline_comment", "inline comment"),
+    ("ident_boundary", "word boundary"),
+    ("string_comment_boundary", "string then comment"),
+)
+
+
 def _decoy_tip(lang: str, rule: str, dec: dict) -> str:
     strings = {True: "counts", False: "does not count", None: "not tested"}[dec["string_counts"]]
     comment = "ignored (pass)" if dec["comment"] == "pass" else "LEAKS"
-    return f"{lang} / {rule}: decoy test with '{dec['keyword']}': in a comment {comment}; in a string literal {strings}; no parser result yet"
+    label = decoy_tier(dec)[0]
+    gates = "; ".join(f"{name} {dec[key]}" for key, name in _GATES if dec.get(key) is not None)
+    return (
+        f"{lang} / {rule}: decoy test ({label}) with '{dec['keyword']}': in a comment {comment}; in a string literal {strings}; "
+        f"gates run: {gates}; no parser result yet"
+    )
 
 
 def render_matrix_svg(
@@ -416,7 +438,7 @@ def render_matrix_svg(
     decoys = decoys or {}
     order = _order(languages, families, defined, cells)
     s = summary(families, languages, defined, cells, decoys)
-    left, label_w, top = 16, 176, 212
+    left, label_w, top = 16, 176, 236
     grid_x = left + label_w
     rows: list[tuple[str, Family | str]] = []
     last = None
@@ -448,17 +470,15 @@ def render_matrix_svg(
         p.append(f'<text class="legend" x="{lx + i * 70 + 16}" y="{ly + 9}">{BIN_LABELS[i]}</text>')
     legend2 = (
         (MATRIX_COLOR["untested"], "not tested yet", False),
-        (MATRIX_COLOR["decoy_clean"], "decoy: comment and string both ignored", False),
-        (MATRIX_COLOR["decoy_strings"], "decoy: comment ignored, string counted", False),
-        (MATRIX_COLOR["decoy_comment_only"], "decoy: comment ignored (no string decoy)", False),
-        (FAIL, "decoy: a comment leaked", False),
+        (MATRIX_COLOR["decoy"], "decoy test only (SOP-001 first-pass, SOP-002 spec-grade): grey", False),
         (MATRIX_COLOR["empty"], "parser: construct never seen", True),
         (MATRIX_COLOR["na"], "N/A: no rule", False),
     )
-    for row, items in ((ly + 20, legend2[:4]), (ly + 38, legend2[4:])):
+    for row, items in ((ly + 20, legend2[:2]), (ly + 38, legend2[2:])):
         _legend_row(p, lx, row, items)
+    _ladder_legend(p, lx, ly + 56)
     p.append(
-        f'<text class="legend" x="{lx}" y="{ly + 62}">Parser cells: colour = the lower of recall and precision. Faded: under {SMALL_N} functions. Hatched: corpus not pinned (exploratory).</text>'
+        f'<text class="legend" x="{lx}" y="{ly + 78}">Parser cells: colour = the lower of recall and precision. Faded: under {SMALL_N} functions. Hatched: corpus not pinned (exploratory).</text>'
     )
     for i, lang in enumerate(order):
         cx = grid_x + i * PITCH + CELL / 2
@@ -488,10 +508,8 @@ def render_matrix_svg(
             elif state == "decoy":
                 dec = decoys[lang][fam.key]
                 tip = _decoy_tip(lang, fam.key, dec)
-                dstate = decoy_state(dec)
-                fill = FAIL if dstate == "decoy_leak" else MATRIX_COLOR[dstate]
                 p.append(
-                    f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{fill}"><title>{escape(tip)}</title></rect>'
+                    f'<rect x="{x}" y="{y}" width="{CELL}" height="{CELL}" fill="{decoy_fill(dec)}"><title>{escape(tip)}</title></rect>'
                 )
             elif cell is not None:
                 where = f"{cell['corpus']}{'' if cell['pinned'] else ' (not pinned)'}"

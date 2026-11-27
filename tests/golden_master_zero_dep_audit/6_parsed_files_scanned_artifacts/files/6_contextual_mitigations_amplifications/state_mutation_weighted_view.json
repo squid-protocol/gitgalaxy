@@ -1177,13 +1177,8 @@
     },
     "ocaml/janestreet_base": {
       "ocaml/janestreet_base/applicative.ml": 17,
-      "ocaml/janestreet_base/applicative_intf.ml": 44,
-      "ocaml/janestreet_base/array.ml": 69,
-      "ocaml/janestreet_base/array0.ml": 8,
-      "ocaml/janestreet_base/array_intf.ml": 16,
-      "ocaml/janestreet_base/avltree.ml": 76,
-      "ocaml/janestreet_base/blit_intf.ml": 28,
-      "ocaml/janestreet_base/buffer_intf.ml": 18
+      "ocaml/janestreet_base/array0.ml": 6,
+      "ocaml/janestreet_base/avltree.ml": 80
     },
     "perl/ack3_tests": {
       "perl/ack3_tests/file-permission.t": 6

@@ -12280,7 +12280,9 @@
         "Array",
         "Array_intf.Definitions",
         "Binary_searchable.Make1",
-        "Import"
+        "Import",
+        "S",
+        "Sort"
       ],
       "ocaml/janestreet_base/array.mli": [
         "Array_intf.Array"

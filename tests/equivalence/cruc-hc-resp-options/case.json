@@ -49,6 +49,49 @@
       "terminal": "HC52 R",
       "why": "HC52 takes the ASIS paragraph (the transid is what routes, not the mode letter)",
       "transid": "HC52"
+    },
+    {
+      "name": "recv-typed-name",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "terminal": "HC52 R",
+      "transid": "HC52",
+      "receive": {
+        "HCM1": {
+          "NAMEI": "ALICE"
+        }
+      },
+      "why": "survivor attack (#7955): RECEIVE MAP ASIS with typed NAME: MAP present, resp 0, NAME stored"
+    },
+    {
+      "name": "recv-invmpsz",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "terminal": "HC52 R",
+      "transid": "HC52",
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "map": "HCM1",
+          "resp": "INVMPSZ"
+        }
+      ],
+      "why": "survivor attack (#7955): RECEIVE MAP answers INVMPSZ as planned"
+    },
+    {
+      "name": "recv-invreq",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "terminal": "HC52 R",
+      "transid": "HC52",
+      "faults": [
+        {
+          "cmd": "RECEIVE-MAP",
+          "map": "HCM1",
+          "resp": "INVREQ"
+        }
+      ],
+      "why": "survivor attack (#7955): RECEIVE MAP answers INVREQ as planned"
     }
   ]
 }

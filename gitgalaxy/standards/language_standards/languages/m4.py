@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # M4 branching logic and Autoconf shell-generation branches.
         "branch": re.compile(r"\b(?:ifelse|ifdef|AS_IF|AS_CASE|m4_if|m4_case|m4_cond|m4_ifval|m4_ifblank)\b"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # M4 positional arguments.
         # #2784: m4, like shell, has NO formal parameter list -- `m4_define(foo,
         # [...])` names no parameters, and `$1`/`$@` inside the body IS the whole

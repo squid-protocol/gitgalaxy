@@ -10,7 +10,7 @@ from gitgalaxy.standards.analysis_lens import SIGNAL_DISPLAY_NAMES
 
 LANGS = pathlib.Path(__file__).resolve().parents[2] / "gitgalaxy" / "standards" / "language_standards" / "languages"
 STALE = "args (Parameters / Coupling)"
-RELABELLED = ("c", "cpp", "python", "javascript", "sqlite", "dockerfile", "tcl", "fortran")
+RELABELLED = ("c", "cpp", "python", "javascript", "sqlite", "dockerfile", "tcl", "fortran", "php", "groovy", "m4", "typescript")
 
 
 def test_relabelled_files_carry_no_stale_label():

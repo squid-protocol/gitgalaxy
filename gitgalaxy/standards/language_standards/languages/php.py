@@ -116,7 +116,7 @@ DEFINITION: dict[str, Any] = {
             r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|break|continue|match)\b|(?<!<)\?\?|(?<!<)\?(?!>)"
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Signatures for functions and arrow functions. Bounded to prevent ReDoS.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the

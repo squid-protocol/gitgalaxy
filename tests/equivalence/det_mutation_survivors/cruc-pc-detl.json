@@ -1805,6 +1805,25 @@
    ]
   },
   {
+   "id": "351d03d576",
+   "op": "NEG",
+   "line": 349,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "the negated `to >= 0` guards a return that never runs: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans none of those on SEND TEXT (INVREQ, LENGERR, TSIOERR only); the same SEND TEXT faults and eight further inputs left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
    "id": "a70500adff",
    "op": "ROR",
    "line": 349,
@@ -1838,6 +1857,25 @@
    "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a3a94b90eb",
+   "op": "DEL",
+   "line": 352,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before the no-context RETURN copies s_DFHCOMMAREA back to the LINK area; PCDETL only reads DFHCOMMAREA (MOVE DFHCOMMAREA TO WS-CA, source line 27: no store into it), so the copied bytes equal the bytes loaded; eight inputs (EIBCALEN 9, 11, 29, exact 10, none) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {
@@ -1926,6 +1964,44 @@
    "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "94098dc82b",
+   "op": "DEL",
+   "line": 389,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before RETURN TRANSID('PC11') on the context arm copies s_DFHCOMMAREA back; PCDETL never stores into DFHCOMMAREA (only MOVE DFHCOMMAREA TO WS-CA), so the bytes written back are the ones loaded; eight inputs (EIBCALEN 9, 11, 29, populated, SEND MAP fault) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
+   "id": "2de8e121bc",
+   "op": "NEG",
+   "line": 391,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "`if (!(true)) throw new Goback()` falls through to `return 1`: perform() returns at i == thru (paragraph 0 is the only one) instead of the Goback catch in runTask, and after RETURN TRANSID task.ended() is true so the tail `if (!task.ended())` block is skipped either way; eight inputs with PF, PA, CLEAR and ENTER keys on both arms left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {

@@ -507,6 +507,66 @@
    ]
   },
   {
+   "id": "59e00c95ed",
+   "op": "LIT",
+   "line": 84,
+   "before": "java.util.Map.entry(\"LOG-B\", 1),",
+   "after": "java.util.Map.entry(\"XOG-B\", 1),",
+   "verdict": "equivalent",
+   "reason": "the PARAGRAPHS name map is read only by DetCics.paragraph(), which resolveCondition calls with the label of an active abend exit (task.abendOnCondition); PCIMMB has no HANDLE ABEND / HANDLE CONDITION, so no label reaches it; four screening inputs (PF3, CLEAR, PF12 stage 9, PA1 blank text) plus the case's scenarios killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
+   ]
+  },
+  {
+   "id": "e3afbb1268",
+   "op": "CON",
+   "line": 84,
+   "before": "java.util.Map.entry(\"LOG-B\", 1),",
+   "after": "java.util.Map.entry(\"LOG-B\", 2),",
+   "verdict": "equivalent",
+   "reason": "the PARAGRAPHS name map is read only by DetCics.paragraph(), which resolveCondition calls with the label of an active abend exit (task.abendOnCondition); PCIMMB has no HANDLE ABEND / HANDLE CONDITION, so no label reaches it; four screening inputs (PF3, CLEAR, PF12 stage 9, PA1 blank text) plus the case's scenarios killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
+   ]
+  },
+  {
+   "id": "1345f710ec",
+   "op": "LIT",
+   "line": 85,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
+   "verdict": "equivalent",
+   "reason": "the PARAGRAPHS name map is read only by DetCics.paragraph(), which resolveCondition calls with the label of an active abend exit (task.abendOnCondition); PCIMMB has no HANDLE ABEND / HANDLE CONDITION, so no label reaches it; four screening inputs (PF3, CLEAR, PF12 stage 9, PA1 blank text) plus the case's scenarios killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
+   ]
+  },
+  {
+   "id": "3ef028eb2f",
+   "op": "CON",
+   "line": 85,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
+   "verdict": "equivalent",
+   "reason": "the PARAGRAPHS name map is read only by DetCics.paragraph(), which resolveCondition calls with the label of an active abend exit (task.abendOnCondition); PCIMMB has no HANDLE ABEND / HANDLE CONDITION, so no label reaches it; four screening inputs (PF3, CLEAR, PF12 stage 9, PA1 blank text) plus the case's scenarios killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
+   ]
+  },
+  {
    "id": "75b4a24b2a",
    "op": "LIT",
    "line": 86,
@@ -889,6 +949,21 @@
    ]
   },
   {
+   "id": "4782083dd4",
+   "op": "CON",
+   "line": 251,
+   "before": "private int performDepth = 0;",
+   "after": "private int performDepth = 1;",
+   "verdict": "equivalent",
+   "reason": "performDepth is set to 0 by initialState() at the start of every runTask (line 134) before any perform(), so its field initialiser is never read; four screening inputs killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
+   ]
+  },
+  {
    "id": "27efe23789",
    "op": "DEL",
    "line": 259,
@@ -1126,6 +1201,21 @@
    "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "945f76ca1c",
+   "op": "DEL",
+   "line": 299,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "the finally in perform() restores performDepth only for a later PERFORM in the same task; PCIMMB runs one PERFORM (LOG-B) per task path and initialState() resets the depth each task, so the stale depth is never read; four screening inputs killed nothing",
+   "tried": [
+    "scr-clear-s2",
+    "scr-pa1-s1-blank",
+    "scr-pf12-s9",
+    "scr-pf3-s1"
    ]
   },
   {

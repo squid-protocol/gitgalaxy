@@ -1,0 +1,75 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-delacc",
+ "survivors": [
+  {
+   "id": "fc7cd47f22",
+   "op": "CON",
+   "line": 175,
+   "before": "private final Field f105_PROC_TRAN_DESC = Field.alphanumeric(s_PROCTRAN_AREA, 47, 40, false);",
+   "after": "private final Field f105_PROC_TRAN_DESC = Field.alphanumeric(s_PROCTRAN_AREA, 47, 41, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: truncated: PROC-TRAN-DESC is only ever moved whole into alphanumeric items of at most 40 bytes, so its 40 or 41 bytes give them the same leading bytes (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "6fa4e1aeea",
+   "op": "CON",
+   "line": 229,
+   "before": "private final Field f278_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f278_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "61bc2552ad",
+   "op": "DEL",
+   "line": 448,
+   "before": "System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DB2_DATE_REFORMAT, 0, s_DB2_DATE_REFORMAT.bytes, 0, IMAGE_s_DB2_DATE_REFORMAT.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_DB2_DATE_REFORMAT's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "197a52cee2",
+   "op": "DEL",
+   "line": 454,
+   "before": "System.arraycopy(IMAGE_s_ACCOUNT_CONTROL, 0, s_ACCOUNT_CONTROL.bytes, 0, IMAGE_s_ACCOUNT_CONTROL.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCOUNT_CONTROL, 0, s_ACCOUNT_CONTROL.bytes, 0, IMAGE_s_ACCOUNT_CONTROL.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_ACCOUNT_CONTROL's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "4f64cb9540",
+   "op": "AOR",
+   "line": 538,
+   "before": "Cobol.store(f274_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f274_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f274_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  }
+ ]
+}

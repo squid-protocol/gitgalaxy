@@ -396,6 +396,54 @@
    ]
   },
   {
+   "id": "23a1da46a3",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 1, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "MN_VISITS scale 0 -> 1: the MOVE of a scaled zoned item to the alphanumeric DVISITSO should drop or shift the implied decimal, yet five inputs (1234, ten digits, a D-zone digit, X'FF', typed 9999) left it alive, so the screen compares no difference. Not stated equivalent: the port's reading of a scaled sender is not shown to match this one. Open: needs an input and a compare that exposes DVISITSO text for a scaled sender.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "958d32b419",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 5, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "MN_VISITS widened from 4 to 5 digits (offset 0): its only read is MOVE MN-VISITS TO DVISITSO, a 4-byte alphanumeric item, so the 5-character source text is cut to its first four, which are the same bytes as the 4-digit item's. The extra byte is the first byte of MN-LAST. Five inputs (1234/ABCD/ZZ with non-digit byte 5, ten digits, a D-zone digit, all X'FF' under CLEAR, typed 9999/ABCD/Q) left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "2346749beb",
+   "op": "CON",
+   "line": 77,
+   "before": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 4, false);",
+   "after": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 5, false);",
+   "verdict": "equivalent",
+   "reason": "MN_LAST widened from 4 to 5 bytes (offset 4): its only read is MOVE MN-LAST TO DLASTO, a 4-byte alphanumeric item, so the 5-byte source is truncated on the right to its first four, the same bytes as before. The extra byte is the first byte of MN-FLAG, which the inputs set to Z, Q, 0 and X'FF'. Five inputs left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
    "id": "40928d5716",
    "op": "CON",
    "line": 80,
@@ -672,6 +720,38 @@
    "reason": "f96_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
    "tried": [
     "zero-image-read"
+   ]
+  },
+  {
+   "id": "994ce83708",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE widened from 4 to 5 digits: the item is read only by the returnCode() accessor after the run, which no compared scenario reads, and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "fac30f8c23",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE moved to offset 1 of its 2-byte image: the item is read only by the returnCode() accessor after the run, which no compared scenario reads (the harness compares screen, COMMAREA and abend), and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
    ]
   },
   {

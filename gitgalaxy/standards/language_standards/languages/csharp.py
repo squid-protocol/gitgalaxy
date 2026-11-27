@@ -129,7 +129,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(if|else|switch|case|default|for|foreach|while|do|continue|break|yield\s+return|yield\s+break)\b|\?\?|\?\.|(?<=\s)\?(?=\s)"
         ),
         "short_circuit": re.compile(r"&&|\|\||\b(?:and|or)\b"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks for methods, primary constructors, and lambdas.
         "args": re.compile(
             # =====================================================================

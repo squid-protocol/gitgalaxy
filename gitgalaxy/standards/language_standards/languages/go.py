@@ -64,7 +64,7 @@ DEFINITION: dict[str, Any] = {
         # Includes select/case and range-based loops. EXCLUDES panic (bailout_hits).
         "branch": re.compile(r"\b(if|else|switch|case|default|for|select)\b"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks for functions and methods. Bounded generics [^\]]* and params [^)]*.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the

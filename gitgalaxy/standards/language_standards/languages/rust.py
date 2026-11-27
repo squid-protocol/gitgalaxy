@@ -303,7 +303,7 @@ DEFINITION: dict[str, Any] = {
         # #8868: `||` after `(`, `,`, `=` or `move` is a no-argument closure and `&&T` / `|&&x|` are reference forms, not
         # booleans: an operator counts when an operand ends right before it.
         "short_circuit": re.compile(r"(?:\b(?!move\b)\w+|[)\]?\"'])\s*(?:&&|\|\|)"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks of functions and closures. Bounded to prevent ReDoS on complex types.
         "args": re.compile(
             # =====================================================================

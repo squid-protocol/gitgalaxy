@@ -108,7 +108,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|\?(?![ \t]*(?:[>,]|extends\b|super\b))"
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Captures method/constructor params and lambdas. Bounded to prevent ReDoS.
         "args": re.compile(
             # =====================================================================

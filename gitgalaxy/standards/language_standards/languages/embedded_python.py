@@ -110,7 +110,7 @@ DEFINITION: dict[str, Any] = {
             + r"|(?m:^[ \t]*(?:match|case)\b(?![ \t]*[=:.,)\]])(?=[^\n]*:))"
         ),
         "short_circuit": re.compile(r"\b(?:and|or)\b"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
         # #1199: the parameter list is now captured in its own group
         # (group 1 for def/lambda-with-parens, group 2 for bare

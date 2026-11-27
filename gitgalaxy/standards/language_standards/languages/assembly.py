@@ -112,7 +112,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(je|jne|jz|jnz|ja|jb|jl|jg|jge|jle|jae|jbe|cbz|cbnz|tbz|tbnz|beq|bne|loop)\b",
             re.I,
         ),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Assembly uses ABI registers for parameter coupling. Also covers the
         # legacy 8/16-bit x86 register forms (al/ah/ax, etc.) and the r8/r9
         # sub-register suffixes (r8d/r8w/r8b), since this language's own

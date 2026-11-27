@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,758 decoy test only, 961 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,790 decoy test only, 929 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -1454,7 +1454,7 @@
 <rect x="996" y="512" width="11" height="11" fill="#8a6d3b"><title>tcl / comprehensions: decoy test with &#x27;lmap&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="1056" y="512" width="11" height="11" fill="#8a6d3b"><title>zscript / comprehensions: decoy test with &#x27;ThinkerIterator&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="533">scientific</text>
-<use href="#c" x="192" y="524" class="u"/>
+<rect x="192" y="524" width="11" height="11" fill="#8a6d3b"><title>python / scientific: decoy test with &#x27;import numpy as np&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="524" width="11" height="11" fill="#8a6d3b"><title>csharp / scientific: decoy test with &#x27;Matrix4x4&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="524" class="u"/>
 <rect x="228" y="524" width="11" height="11" fill="#8a6d3b"><title>kotlin / scientific: decoy test with &#x27;sin&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1462,7 +1462,7 @@
 <rect x="252" y="524" width="11" height="11" fill="#8a6d3b"><title>scala / scientific: decoy test with &#x27;algebird&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="524" width="11" height="11" fill="#8a6d3b"><title>swift / scientific: decoy test with &#x27;simd&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="524" width="11" height="11" fill="#8a6d3b"><title>typescript / scientific: decoy test with &#x27;random&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="288" y="524" class="u"/>
+<rect x="288" y="524" width="11" height="11" fill="#8a6d3b"><title>javascript / scientific: decoy test with &#x27;import cv from &quot;@techstark/opencv-js&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="300" y="524" width="11" height="11" fill="#8a6d3b"><title>ruby / scientific: decoy test with &#x27;Math&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="524" width="11" height="11" fill="#8a6d3b"><title>rust / scientific: decoy test with &#x27;f32&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="524" width="11" height="11" fill="#8a6d3b"><title>c / scientific: decoy test with &#x27;dgemm&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2194,8 +2194,8 @@
 <use href="#c" x="240" y="728" class="u"/>
 <rect x="252" y="728" width="11" height="11" fill="#8a6d3b"><title>scala / telemetry: decoy test with &#x27;logger.info&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="728" width="11" height="11" fill="#8a6d3b"><title>swift / telemetry: decoy test with &#x27;Logger&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="276" y="728" class="u"/>
-<use href="#c" x="288" y="728" class="u"/>
+<rect x="276" y="728" width="11" height="11" fill="#8a6d3b"><title>typescript / telemetry: decoy test with &#x27;logger.info(&quot;request served&quot;);&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="728" width="11" height="11" fill="#8a6d3b"><title>javascript / telemetry: decoy test with &#x27;logger.info(&quot;request served&quot;);&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="300" y="728" class="u"/>
 <rect x="312" y="728" width="11" height="11" fill="#8a6d3b"><title>rust / telemetry: decoy test with &#x27;instrument&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="728" width="11" height="11" fill="#8a6d3b"><title>c / telemetry: decoy test with &#x27;syslog&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2319,7 +2319,7 @@
 <rect x="240" y="752" width="11" height="11" fill="#8a6d3b"><title>php / explicit_casts: decoy test with &#x27;settype()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="252" y="752" class="u"/>
 <rect x="264" y="752" width="11" height="11" fill="#8a6d3b"><title>swift / explicit_casts: decoy test with &#x27;Int()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="276" y="752" class="u"/>
+<rect x="276" y="752" width="11" height="11" fill="#8a6d3b"><title>typescript / explicit_casts: decoy test with &#x27;const el = document.getElementById(&quot;app&quot;) as HTMLElement;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="288" y="752" width="11" height="11" fill="#8a6d3b"><title>javascript / explicit_casts: decoy test with &#x27;Number()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="300" y="752" width="11" height="11" fill="#8a6d3b"><title>ruby / explicit_casts: decoy test with &#x27;Integer()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="752" width="11" height="11" fill="#8a6d3b"><title>rust / explicit_casts: decoy test with &#x27;as i8&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2723,7 +2723,7 @@
 <rect x="1044" y="824" width="11" height="11" fill="#8a6d3b"><title>zig / cleanup: decoy test with &#x27;deinit&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="1056" y="824" width="11" height="11" fill="#8a6d3b"><title>zscript / cleanup: decoy test with &#x27;Destroy()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="845">encapsulation</text>
-<use href="#c" x="192" y="836" class="u"/>
+<rect x="192" y="836" width="11" height="11" fill="#3d6a8c"><title>python / encapsulation: decoy test with &#x27;def _helper(x): return x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="204" y="836" width="11" height="11" fill="#8a6d3b"><title>csharp / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="836" class="u"/>
 <rect x="228" y="836" width="11" height="11" fill="#8a6d3b"><title>kotlin / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2731,7 +2731,7 @@
 <rect x="252" y="836" width="11" height="11" fill="#8a6d3b"><title>scala / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="836" width="11" height="11" fill="#8a6d3b"><title>swift / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="836" width="11" height="11" fill="#8a6d3b"><title>typescript / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="288" y="836" class="u"/>
+<rect x="288" y="836" width="11" height="11" fill="#8a6d3b"><title>javascript / encapsulation: decoy test with &#x27;class Counter { #count = 0; }&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="300" y="836" width="11" height="11" fill="#8a6d3b"><title>ruby / encapsulation: decoy test with &#x27;private&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="312" y="836" class="u"/>
 <rect x="324" y="836" width="11" height="11" fill="#3d6a8c"><title>c / encapsulation: decoy test with &#x27;static&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
@@ -3136,31 +3136,31 @@
 <use href="#c" x="1056" y="944" class="u"/>
 <text class="phase" x="16" y="965">AI-ML</text>
 <text class="fam" x="24" y="977">llm_api</text>
-<use href="#c" x="192" y="968" class="u"/>
-<use href="#c" x="276" y="968" class="u"/>
-<use href="#c" x="288" y="968" class="u"/>
+<rect x="192" y="968" width="11" height="11" fill="#3d6a8c"><title>python / llm_api: decoy test with &#x27;from openai import OpenAI&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="968" width="11" height="11" fill="#8a6d3b"><title>typescript / llm_api: decoy test with &#x27;import OpenAI from &quot;openai&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="968" width="11" height="11" fill="#8a6d3b"><title>javascript / llm_api: decoy test with &#x27;import OpenAI from &quot;openai&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="989">llm_orchestrator</text>
-<use href="#c" x="192" y="980" class="u"/>
-<use href="#c" x="276" y="980" class="u"/>
-<use href="#c" x="288" y="980" class="u"/>
+<rect x="192" y="980" width="11" height="11" fill="#3d6a8c"><title>python / llm_orchestrator: decoy test with &#x27;from langchain_core.prompts import ChatPromptTemplate&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="980" width="11" height="11" fill="#8a6d3b"><title>typescript / llm_orchestrator: decoy test with &#x27;import { ChatOpenAI } from &quot;@langchain/openai&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="980" width="11" height="11" fill="#8a6d3b"><title>javascript / llm_orchestrator: decoy test with &#x27;import { ChatOpenAI } from &quot;@langchain/openai&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1001">llm_vector_store</text>
-<use href="#c" x="192" y="992" class="u"/>
-<use href="#c" x="276" y="992" class="u"/>
-<use href="#c" x="288" y="992" class="u"/>
+<rect x="192" y="992" width="11" height="11" fill="#3d6a8c"><title>python / llm_vector_store: decoy test with &#x27;import chromadb&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="992" width="11" height="11" fill="#8a6d3b"><title>typescript / llm_vector_store: decoy test with &#x27;import { ChromaClient } from &quot;chromadb&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="992" width="11" height="11" fill="#8a6d3b"><title>javascript / llm_vector_store: decoy test with &#x27;import { ChromaClient } from &quot;chromadb&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1013">ml_traditional</text>
-<use href="#c" x="192" y="1004" class="u"/>
+<rect x="192" y="1004" width="11" height="11" fill="#3d6a8c"><title>python / ml_traditional: decoy test with &#x27;from sklearn.linear_model import LogisticRegression&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <text class="fam" x="24" y="1025">dl_frameworks</text>
-<use href="#c" x="192" y="1016" class="u"/>
-<use href="#c" x="276" y="1016" class="u"/>
-<use href="#c" x="288" y="1016" class="u"/>
+<rect x="192" y="1016" width="11" height="11" fill="#3d6a8c"><title>python / dl_frameworks: decoy test with &#x27;import torch&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="1016" width="11" height="11" fill="#8a6d3b"><title>typescript / dl_frameworks: decoy test with &#x27;import * as tf from &quot;@tensorflow/tfjs&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="1016" width="11" height="11" fill="#8a6d3b"><title>javascript / dl_frameworks: decoy test with &#x27;import * as tf from &quot;@tensorflow/tfjs&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1037">hardware_bridge</text>
-<use href="#c" x="192" y="1028" class="u"/>
-<use href="#c" x="276" y="1028" class="u"/>
-<use href="#c" x="288" y="1028" class="u"/>
+<rect x="192" y="1028" width="11" height="11" fill="#3d6a8c"><title>python / hardware_bridge: decoy test with &#x27;import serial&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="1028" width="11" height="11" fill="#8a6d3b"><title>typescript / hardware_bridge: decoy test with &#x27;import { SerialPort } from &quot;serialport&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="1028" width="11" height="11" fill="#8a6d3b"><title>javascript / hardware_bridge: decoy test with &#x27;import { SerialPort } from &quot;serialport&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1049">cryptography</text>
-<use href="#c" x="192" y="1040" class="u"/>
-<use href="#c" x="276" y="1040" class="u"/>
-<use href="#c" x="288" y="1040" class="u"/>
+<rect x="192" y="1040" width="11" height="11" fill="#3d6a8c"><title>python / cryptography: decoy test with &#x27;from cryptography.fernet import Fernet&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
+<rect x="276" y="1040" width="11" height="11" fill="#8a6d3b"><title>typescript / cryptography: decoy test with &#x27;import { createHash } from &quot;node:crypto&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="1040" width="11" height="11" fill="#8a6d3b"><title>javascript / cryptography: decoy test with &#x27;import { createHash } from &quot;node:crypto&quot;;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="636" y="1040" class="u"/>
 <text class="fam" x="24" y="1061">lazy_evaluation</text>
 <rect x="192" y="1052" width="11" height="11" fill="#4f9be8"><title>python / lazy_evaluation: recall 1.00, precision 0.94 (156 oracle, 165 family functions; language-crucible v1.9.0)</title></rect>
@@ -3172,14 +3172,14 @@
 <rect x="288" y="1064" width="11" height="11" fill="#8a6d3b"><title>javascript / vectorized_math: decoy test with &#x27;matmul()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="phase" x="16" y="1085">APPSEC</text>
 <text class="fam" x="24" y="1097">rce_funnel</text>
-<use href="#c" x="276" y="1088" class="u"/>
-<use href="#c" x="288" y="1088" class="u"/>
+<rect x="276" y="1088" width="11" height="11" fill="#8a6d3b"><title>typescript / rce_funnel: decoy test with &#x27;child_process.spawn(&quot;python&quot;, [&quot;train.py&quot;]);&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="1088" width="11" height="11" fill="#8a6d3b"><title>javascript / rce_funnel: decoy test with &#x27;child_process.spawn(&quot;python&quot;, [&quot;train.py&quot;]);&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1109">exfiltration_camouflage</text>
-<use href="#c" x="192" y="1100" class="u"/>
-<use href="#c" x="276" y="1100" class="u"/>
-<use href="#c" x="288" y="1100" class="u"/>
+<rect x="192" y="1100" width="11" height="11" fill="#8a6d3b"><title>python / exfiltration_camouflage: decoy test with &#x27;requests.post(&quot;https://collector.example.com/telemetry&quot;, json=payload)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="276" y="1100" width="11" height="11" fill="#8a6d3b"><title>typescript / exfiltration_camouflage: decoy test with &#x27;fetch(&quot;https://collector.example.com/telemetry&quot;, { method: &quot;POST&quot; });&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
+<rect x="288" y="1100" width="11" height="11" fill="#8a6d3b"><title>javascript / exfiltration_camouflage: decoy test with &#x27;fetch(&quot;https://collector.example.com/telemetry&quot;, { method: &quot;POST&quot; });&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="1121">memory_scraping</text>
-<use href="#c" x="192" y="1112" class="u"/>
+<rect x="192" y="1112" width="11" height="11" fill="#8a6d3b"><title>python / memory_scraping: decoy test with &#x27;mem = open(&quot;/proc/&quot; + str(pid) + &quot;/mem&quot;, &quot;rb&quot;)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="phase" x="16" y="1133">LITERATE</text>
 <text class="fam" x="24" y="1145">lit_code_blocks</text>
 <text class="fam" x="24" y="1157">lit_diagrams</text>

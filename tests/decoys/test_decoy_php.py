@@ -33,9 +33,6 @@ _ISSUES = "https://github.com/squid-protocol/gitgalaxy/issues/"
 _HASH_COMMENT = _ISSUES + "9443"
 _INLINE_HTML = _ISSUES + "9444"
 _OPENER_LINE = _ISSUES + "9445"
-_API_ATTR = _ISSUES + "9446"
-_LOGGER_BOUNDARY = _ISSUES + "9447"
-_SEVERITY = _ISSUES + "9448"
 
 
 def _hits(family: str, src: str) -> int:
@@ -219,7 +216,6 @@ def test_php_api_attribute_branches(attr: str):
 
 
 @pytest.mark.parametrize("attr", ["Get", "Post", "Put", "Delete", "Patch", "Route", "ApiResource"])
-@pytest.mark.xfail(strict=True, reason=_API_ATTR)
 def test_php_api_attribute_name_boundary(attr: str):
     """An attribute named `<Branch>Something` is a different attribute (no boundary after the name)."""
     assert _hits("api", _php(f"#[{attr}Helper]\n")) == 0
@@ -261,7 +257,6 @@ def test_php_telemetry_branch_boundaries(decoy: str):
 
 
 @pytest.mark.parametrize("src", ['my_logger()->info("x");', 'mylogger()->info("x");'])
-@pytest.mark.xfail(strict=True, reason=_LOGGER_BOUNDARY)
 def test_php_telemetry_logger_call_boundary(src: str):
     assert _hits("telemetry", _php(src + "\n")) == 0
 
@@ -273,12 +268,10 @@ def test_php_telemetry_logger_helper_and_psr_forms_fire():
     assert _hits("telemetry", _php('error_log("an error");\n')) >= 1
 
 
-@pytest.mark.xfail(strict=True, reason=_SEVERITY)
 def test_php_telemetry_severity_must_be_the_method():
     assert _hits("telemetry", _php("Log::get($info);\n")) == 0
 
 
-@pytest.mark.xfail(strict=True, reason=_SEVERITY)
 def test_php_telemetry_error_log_is_a_log_call():
     assert _hits("telemetry", _php('error_log("x", 3, "/tmp/app.log");\n')) >= 1
 

@@ -145,7 +145,7 @@ DEFINITION: dict[str, Any] = {
             + r"|(?m:^[ \t]*(?:match|case)\b(?![ \t]*[=:.,)\]])(?=[^\n]*:))"
         ),
         "short_circuit": re.compile(r"\b(?:and|or)\b"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Signatures for def/lambda. Bounded generics and params [^)]*.
         # RULE 11 FIX (epic #813/#818): the PEP 695 (3.12+) generic-parameter step-over was a
         # flat `[^\]]*`, truncating at the FIRST `]` and breaking any type param with a

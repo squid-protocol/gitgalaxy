@@ -97,7 +97,7 @@ DEFINITION: dict[str, Any] = {
         # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|\?\?|\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks. Bounded to prevent ReDoS on massive positional/destructured sets.
         "args": re.compile(
             # =====================================================================

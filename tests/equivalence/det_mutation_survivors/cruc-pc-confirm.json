@@ -3879,6 +3879,18 @@
    ]
   },
   {
+   "id": "581380dfb8",
+   "op": "CON",
+   "line": 594,
+   "before": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[1]), false, CS);",
+   "after": "Cobol.store(f147_EIBRESP2, BigDecimal.valueOf(planned10[2]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f147_EIBRESP2 at line 594 is unconditionally overwritten by f147_EIBRESP2 at line 616 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
    "id": "694f2d3743",
    "op": "DEL",
    "line": 594,

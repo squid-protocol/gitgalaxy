@@ -1440,6 +1440,18 @@
    ]
   },
   {
+   "id": "bb3839ae16",
+   "op": "CON",
+   "line": 185,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "unreachable",
+   "reason": "in_PcdetlWsCa() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "0e1170daad",
    "op": "NEG",
    "line": 195,
@@ -1836,6 +1848,126 @@
    ]
   },
   {
+   "id": "a9d4e4c37f",
+   "op": "CON",
+   "line": 296,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 2 entries, so a capacity of 65 is never filled (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "cf865ff17e",
+   "op": "NEG",
+   "line": 315,
+   "before": "if (mine == performThru.length) {",
+   "after": "if (!(mine == performThru.length)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f6d3665368",
+   "op": "ROR",
+   "line": 315,
+   "before": "if (mine == performThru.length) {",
+   "after": "if (mine != performThru.length) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "0bb3ebf678",
+   "op": "CON",
+   "line": 316,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "4cc3c0fb13",
+   "op": "DEL",
+   "line": 316,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8e642a009f",
+   "op": "AOR",
+   "line": 316,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bb7cde6ef8",
+   "op": "AOR",
+   "line": 318,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7b6584e064",
+   "op": "ROR",
+   "line": 323,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "bedd298876",
+   "op": "CON",
+   "line": 323,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "05bc25ec8b",
+   "op": "LIT",
+   "line": 352,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "1742c772f9",
    "op": "LIT",
    "line": 362,
@@ -1893,6 +2025,42 @@
    "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3bbf39b378",
+   "op": "CON",
+   "line": 365,
+   "before": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[1]), false, CS);",
+   "after": "Cobol.store(f94_EIBRESP2, BigDecimal.valueOf(planned2[2]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f94_EIBRESP2 at line 365 is unconditionally overwritten by f94_EIBRESP2 at line 383 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "a70500adff",
+   "op": "ROR",
+   "line": 368,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "be7374e505",
+   "op": "CON",
+   "line": 368,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {
@@ -1977,6 +2145,30 @@
    "reason": "f94_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "622b8f45e0",
+   "op": "ROR",
+   "line": 405,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f6ec175c65",
+   "op": "CON",
+   "line": 405,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {

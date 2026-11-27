@@ -732,6 +732,18 @@
    ]
   },
   {
+   "id": "d7dcd1a227",
+   "op": "DEL",
+   "line": 89,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "235a8e8d28",
    "op": "LIT",
    "line": 91,
@@ -811,6 +823,42 @@
    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
    "verdict": "unreachable",
    "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4bcef40590",
+   "op": "ROR",
+   "line": 112,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "unreachable",
+   "reason": "out_PcimmlDfhcommarea() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "bd223f5b23",
+   "op": "NEG",
+   "line": 112,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "unreachable",
+   "reason": "out_PcimmlDfhcommarea() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "0bcea7480f",
+   "op": "DEL",
+   "line": 113,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "out_PcimmlDfhcommarea() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
    ]
@@ -1908,6 +1956,126 @@
    ]
   },
   {
+   "id": "f7f6175612",
+   "op": "CON",
+   "line": 269,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 2 entries, so a capacity of 65 is never filled (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6d6f2ac619",
+   "op": "CON",
+   "line": 289,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c685344536",
+   "op": "AOR",
+   "line": 289,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "fcf8adbd3c",
+   "op": "DEL",
+   "line": 289,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "049e1123dd",
+   "op": "AOR",
+   "line": 291,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "81734bf7ee",
+   "op": "ROR",
+   "line": 296,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e1bae876b9",
+   "op": "CON",
+   "line": 296,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "aa08b58ec0",
+   "op": "NEG",
+   "line": 298,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8a090ee769",
+   "op": "ROR",
+   "line": 299,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a0569912a3",
+   "op": "NEG",
+   "line": 299,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "ff6ab3b861",
    "op": "DEL",
    "line": 311,
@@ -1917,6 +2085,18 @@
    "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
    "tried": [
     "exception-ctor"
+   ]
+  },
+  {
+   "id": "311a097183",
+   "op": "LIT",
+   "line": 325,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {
@@ -1977,6 +2157,30 @@
    "reason": "f43_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4d10a8e54f",
+   "op": "CON",
+   "line": 350,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e921581507",
+   "op": "ROR",
+   "line": 350,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {
@@ -2061,6 +2265,78 @@
    "reason": "f45_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "24cc405e53",
+   "op": "DEL",
+   "line": 468,
+   "before": "Cobol.move(BigDecimal.valueOf(f4_WS_RESP), f14_ALOG_RESP, CS);",
+   "after": "/* Cobol.move(BigDecimal.valueOf(f4_WS_RESP), f14_ALOG_RESP, CS); */",
+   "verdict": "equivalent",
+   "reason": "f14_ALOG_RESP at line 468 is unconditionally overwritten by f14_ALOG_RESP at line 473 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "f5339c3333",
+   "op": "DEL",
+   "line": 481,
+   "before": "Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr7)), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr7)), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f44_EIBRESP at line 481 is unconditionally overwritten by f44_EIBRESP at line 483 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "aa9e7a4445",
+   "op": "DEL",
+   "line": 482,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);",
+   "after": "/* Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 at line 482 is unconditionally overwritten by f45_EIBRESP2 at line 484 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "5b5b5fc23d",
+   "op": "DEL",
+   "line": 490,
+   "before": "Cobol.move(BigDecimal.valueOf(f4_WS_RESP), f14_ALOG_RESP, CS);",
+   "after": "/* Cobol.move(BigDecimal.valueOf(f4_WS_RESP), f14_ALOG_RESP, CS); */",
+   "verdict": "equivalent",
+   "reason": "f14_ALOG_RESP at line 490 is unconditionally overwritten by f14_ALOG_RESP at line 491 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "188b0b2429",
+   "op": "DEL",
+   "line": 500,
+   "before": "Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(start10.resp())), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(start10.resp())), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f44_EIBRESP at line 500 is unconditionally overwritten by f44_EIBRESP at line 501 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "0497a8824e",
+   "op": "DEL",
+   "line": 501,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(start10.resp2()), false, CS);",
+   "after": "/* Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(start10.resp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 at line 501 is unconditionally overwritten by f45_EIBRESP2 at line 502 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
    ]
   },
   {

@@ -780,6 +780,18 @@
    ]
   },
   {
+   "id": "9adc79fcb5",
+   "op": "DEL",
+   "line": 91,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "d95ae2154e",
    "op": "LIT",
    "line": 96,
@@ -2436,6 +2448,18 @@
    ]
   },
   {
+   "id": "6728f88b3a",
+   "op": "CON",
+   "line": 251,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 3 entries, so a capacity of 65 is never filled (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "e443808290",
    "op": "DEL",
    "line": 263,
@@ -2445,6 +2469,54 @@
    "reason": "Goback carries nothing a handler reads (empty catch bodies, no message / cause / trace call anywhere): the stack-trace and suppression flags are never seen (exception-ctor)",
    "tried": [
     "exception-ctor"
+   ]
+  },
+  {
+   "id": "2630e34a57",
+   "op": "CON",
+   "line": 271,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "7946ff34d5",
+   "op": "DEL",
+   "line": 271,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "d30bcf4b4b",
+   "op": "AOR",
+   "line": 271,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5f34eaa82c",
+   "op": "LIT",
+   "line": 308,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {
@@ -2544,6 +2616,30 @@
    ]
   },
   {
+   "id": "3fc0bc1e01",
+   "op": "CON",
+   "line": 361,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "ec2a6ca5b8",
+   "op": "ROR",
+   "line": 361,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "0349443a8c",
    "op": "CON",
    "line": 367,
@@ -2616,6 +2712,18 @@
    ]
   },
   {
+   "id": "300291dd0f",
+   "op": "CON",
+   "line": 412,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(rr7[1]), false, CS);",
+   "after": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(rr7[2]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 at line 412 is unconditionally overwritten by f45_EIBRESP2 at line 413 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
    "id": "e48a25bcbf",
    "op": "DEL",
    "line": 412,
@@ -2625,6 +2733,30 @@
    "reason": "f45_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "9a55543c5d",
+   "op": "DEL",
+   "line": 427,
+   "before": "Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS);",
+   "after": "/* Cobol.store(f44_EIBRESP, BigDecimal.valueOf(DetCics.resp(lr8)), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f44_EIBRESP at line 427 is unconditionally overwritten by f44_EIBRESP at line 431 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "8cec1ca194",
+   "op": "DEL",
+   "line": 428,
+   "before": "Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS);",
+   "after": "/* Cobol.store(f45_EIBRESP2, BigDecimal.valueOf(task.transferResp2()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f45_EIBRESP2 at line 428 is unconditionally overwritten by f45_EIBRESP2 at line 432 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
    ]
   },
   {

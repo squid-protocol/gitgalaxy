@@ -31,6 +31,9 @@ RELABELLED = (
     "java",
     "go",
     "rust",
+    "css",
+    "swift",
+    "html",
 )
 
 

@@ -117,7 +117,7 @@ DEFINITION: dict[str, Any] = {
             r"|(?<!\.)\bdefault\b(?=[ \t]*:)|\}\s*else\b|\?\?|(?<=\s)\?(?=\s)"
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks. Bounded negation [^)]* and <[^>]*> to prevent ReDoS.
         "args": re.compile(
             # =====================================================================

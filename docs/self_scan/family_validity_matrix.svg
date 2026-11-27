@@ -22,7 +22,7 @@
 <defs><rect id="c" width="11" height="11"/><pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#0f1117" stroke-width="1.4"/></pattern><pattern id="dots" width="4" height="4" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="0.8" fill="#aab2bd"/></pattern></defs>
 <rect class="surface" x="0" y="0" width="1084" height="1268"/>
 <text class="title" x="16" y="24">Keyword-family matrix (maintainers): every language against every family</text>
-<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,767 decoy test only, 952 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
+<text class="subtitle" x="16" y="42">2,936 cells have a rule: 217 measured against a parser, 1,778 decoy test only, 941 not tested; 2,320 cells are N/A. Hover a cell for numbers. The README figure is the summary of this.</text>
 <rect x="16" y="56" width="12" height="10" fill="#3b1d1d" stroke="#e5534b" stroke-width="1.2"/>
 <text class="legend" x="32" y="65">under 50%</text>
 <rect x="86" y="56" width="12" height="10" fill="#1f3b5c"/>
@@ -802,7 +802,7 @@
 <rect x="192" y="368" width="11" height="11" fill="#8a6d3b"><title>python / api: decoy test with &#x27;@app.get&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="368" width="11" height="11" fill="#8a6d3b"><title>csharp / api: decoy test with &#x27;app.MapGet&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="368" class="u"/>
-<use href="#c" x="228" y="368" class="u"/>
+<rect x="228" y="368" width="11" height="11" fill="#8a6d3b"><title>kotlin / api: decoy test with &#x27;public class Foo&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="368" width="11" height="11" fill="#e5534b"><title>php / api: decoy test with &#x27;public function run(): void {}&#x27;: in a comment LEAKS; in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="368" width="11" height="11" fill="#8a6d3b"><title>scala / api: decoy test with &#x27;export&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="368" width="11" height="11" fill="#8a6d3b"><title>swift / api: decoy test with &#x27;@usableFromInline&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -811,7 +811,7 @@
 <rect x="300" y="368" width="11" height="11" fill="#8a6d3b"><title>ruby / api: decoy test with &#x27;module_function&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="368" width="11" height="11" fill="#8a6d3b"><title>rust / api: decoy test with &#x27;pub&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="324" y="368" width="11" height="11" fill="#8a6d3b"><title>c / api: decoy test with &#x27;extern&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="336" y="368" class="u"/>
+<rect x="336" y="368" width="11" height="11" fill="#8a6d3b"><title>java / api: decoy test with &#x27;public class Foo {&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="368" width="11" height="11" fill="#3d6a8c"><title>lua / api: decoy test with &#x27;function x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="360" y="368" width="11" height="11" fill="#3d6a8c"><title>shell / api: decoy test with &#x27;export x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="368" width="11" height="11" fill="#8a6d3b"><title>cpp / api: decoy test with &#x27;export module&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1407,7 +1407,7 @@
 <rect x="1056" y="500" width="11" height="11" fill="#8a6d3b"><title>zscript / generics: decoy test with &#x27;Map&lt;String, Int&gt;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="521">comprehensions</text>
 <rect x="192" y="512" width="11" height="11" fill="#2f6aa8"><title>python / comprehensions: recall 0.85, precision 0.96 (198 oracle, 175 family functions; language-crucible v1.9.0)</title></rect>
-<use href="#c" x="204" y="512" class="u"/>
+<rect x="204" y="512" width="11" height="11" fill="#8a6d3b"><title>csharp / comprehensions: decoy test with &#x27;var r = items.Where(x =&gt; x &gt; 1);&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="512" width="11" height="11" fill="#8a6d3b"><title>go / comprehensions: decoy test with &#x27;slices.Delete&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="228" y="512" width="11" height="11" fill="#8a6d3b"><title>kotlin / comprehensions: decoy test with &#x27;xs.map(f)&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="512" width="11" height="11" fill="#8a6d3b"><title>php / comprehensions: decoy test with &#x27;array_map&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1574,7 +1574,7 @@
 <rect x="1056" y="536" width="11" height="11" fill="#8a6d3b"><title>zscript / reflection_metaprogramming: decoy test with &#x27;GetClassName()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="557">import</text>
 <rect x="192" y="548" width="11" height="11" fill="#4f9be8"><title>python / import: recall 1.00, precision 0.96 (131 oracle, 137 family functions; language-crucible v1.9.0)</title></rect>
-<use href="#c" x="204" y="548" class="u"/>
+<rect x="204" y="548" width="11" height="11" fill="#3d6a8c"><title>csharp / import: decoy test with &#x27;using System.Linq;&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="216" y="548" width="11" height="11" fill="#3d6a8c"><title>go / import: decoy test with &#x27;import()&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="228" y="548" width="11" height="11" fill="#3d6a8c"><title>kotlin / import: decoy test with &#x27;import x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="240" y="548" width="11" height="11" fill="#8a6d3b"><title>php / import: decoy test with &#x27;use function&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -1585,7 +1585,7 @@
 <use href="#c" x="300" y="548" class="u"/>
 <use href="#c" x="312" y="548" class="u"/>
 <use href="#c" x="324" y="548" class="u"/>
-<use href="#c" x="336" y="548" class="u"/>
+<rect x="336" y="548" width="11" height="11" fill="#3d6a8c"><title>java / import: decoy test with &#x27;import java.util.List;&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <use href="#c" x="348" y="548" class="u"/>
 <rect x="360" y="548" width="11" height="11" fill="#3d6a8c"><title>shell / import: decoy test with &#x27;source x&#x27;: in a comment ignored (pass); in a string literal does not count; no parser result yet</title></rect>
 <rect x="372" y="548" width="11" height="11" fill="#e5534b"><title>cpp / import: decoy test with &#x27;#include &lt;vector&gt;&#x27;: in a comment LEAKS; in a string literal does not count; no parser result yet</title></rect>
@@ -2313,9 +2313,9 @@
 <rect x="1056" y="740" width="11" height="11" fill="#8a6d3b"><title>zscript / debug_prints: decoy test with &#x27;A_LogInt()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <text class="fam" x="24" y="761">explicit_casts</text>
 <rect x="192" y="752" width="11" height="11" fill="#4f9be8"><title>python / explicit_casts: recall 0.99, precision 0.94 (279 oracle, 293 family functions; language-crucible v1.9.0)</title></rect>
-<use href="#c" x="204" y="752" class="u"/>
+<rect x="204" y="752" width="11" height="11" fill="#8a6d3b"><title>csharp / explicit_casts: decoy test with &#x27;var c = obj as Customer;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="752" width="11" height="11" fill="#8a6d3b"><title>go / explicit_casts: decoy test with &#x27;int()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="228" y="752" class="u"/>
+<rect x="228" y="752" width="11" height="11" fill="#8a6d3b"><title>kotlin / explicit_casts: decoy test with &#x27;val c = obj as Customer&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="752" width="11" height="11" fill="#8a6d3b"><title>php / explicit_casts: decoy test with &#x27;settype()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="752" width="11" height="11" fill="#8a6d3b"><title>scala / explicit_casts: decoy test with &#x27;val count = raw.toInt&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="752" width="11" height="11" fill="#8a6d3b"><title>swift / explicit_casts: decoy test with &#x27;Int()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2324,7 +2324,7 @@
 <rect x="300" y="752" width="11" height="11" fill="#8a6d3b"><title>ruby / explicit_casts: decoy test with &#x27;Integer()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="312" y="752" width="11" height="11" fill="#8a6d3b"><title>rust / explicit_casts: decoy test with &#x27;as i8&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="324" y="752" class="u"/>
-<use href="#c" x="336" y="752" class="u"/>
+<rect x="336" y="752" width="11" height="11" fill="#8a6d3b"><title>java / explicit_casts: decoy test with &#x27;int n = (int) value;&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="348" y="752" width="11" height="11" fill="#8a6d3b"><title>lua / explicit_casts: decoy test with &#x27;tonumber&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="372" y="752" width="11" height="11" fill="#8a6d3b"><title>cpp / explicit_casts: decoy test with &#x27;static_cast&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="396" y="752" width="11" height="11" fill="#a9d1ff" opacity="0.5"><title>hlasm / explicit_casts: recall 1.00, precision 1.00 (1 oracle, 1 family functions; language-crucible v1.9.0)</title></rect>
@@ -2608,7 +2608,7 @@
 <rect x="192" y="812" width="11" height="11" fill="#8a6d3b"><title>python / immutability_locks: decoy test with &#x27;Final&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="812" width="11" height="11" fill="#8a6d3b"><title>csharp / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="812" width="11" height="11" fill="#8a6d3b"><title>go / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="228" y="812" class="u"/>
+<rect x="228" y="812" width="11" height="11" fill="#8a6d3b"><title>kotlin / immutability_locks: decoy test with &#x27;const val MAX = 10&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="812" width="11" height="11" fill="#8a6d3b"><title>php / immutability_locks: decoy test with &#x27;const&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="812" width="11" height="11" fill="#8a6d3b"><title>scala / immutability_locks: decoy test with &#x27;final val&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="276" y="812" width="11" height="11" fill="#8a6d3b"><title>typescript / immutability_locks: decoy test with &#x27;readonly&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2774,7 +2774,7 @@
 <rect x="192" y="848" width="11" height="11" fill="#8a6d3b"><title>python / listeners: decoy test with &#x27;on_event&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="204" y="848" width="11" height="11" fill="#8a6d3b"><title>csharp / listeners: decoy test with &#x27;on&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <use href="#c" x="216" y="848" class="u"/>
-<use href="#c" x="228" y="848" class="u"/>
+<rect x="228" y="848" width="11" height="11" fill="#8a6d3b"><title>kotlin / listeners: decoy test with &#x27;button.setOnClickListener { }&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="848" width="11" height="11" fill="#8a6d3b"><title>php / listeners: decoy test with &#x27;addEventListener&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="252" y="848" width="11" height="11" fill="#8a6d3b"><title>scala / listeners: decoy test with &#x27;addEventListener&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="264" y="848" width="11" height="11" fill="#8a6d3b"><title>swift / listeners: decoy test with &#x27;addObserver&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
@@ -2876,7 +2876,7 @@
 <text class="phase" x="16" y="881">HYBRID</text>
 <text class="fam" x="24" y="893">auth_middleware</text>
 <rect x="192" y="884" width="11" height="11" fill="#8a6d3b"><title>python / auth_middleware: decoy test with &#x27;@login_required&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
-<use href="#c" x="204" y="884" class="u"/>
+<rect x="204" y="884" width="11" height="11" fill="#8a6d3b"><title>csharp / auth_middleware: decoy test with &#x27;app.UseAuthentication();&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="216" y="884" width="11" height="11" fill="#8a6d3b"><title>go / auth_middleware: decoy test with &#x27;bcrypt.CompareHashAndPassword()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="228" y="884" width="11" height="11" fill="#8a6d3b"><title>kotlin / auth_middleware: decoy test with &#x27;@PreAuthorize()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>
 <rect x="240" y="884" width="11" height="11" fill="#8a6d3b"><title>php / auth_middleware: decoy test with &#x27;Auth::check()&#x27;: in a comment ignored (pass); in a string literal counts; no parser result yet</title></rect>

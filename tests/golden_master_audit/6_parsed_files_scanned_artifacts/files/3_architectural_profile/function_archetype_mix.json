@@ -10329,12 +10329,10 @@
       "ocaml/janestreet_base/applicative.mli": {},
       "ocaml/janestreet_base/applicative_intf.ml": {},
       "ocaml/janestreet_base/array.ml": {
-        "Annotated & Test Methods": 6,
-        "Callbacks & Closures": 19,
-        "Compute Cores": 11,
-        "Defensive Guards": 4,
+        "Callbacks & Closures": 1,
+        "Defensive Guards": 1,
         "Interface Declarations": 1,
-        "Parameter Forwarders": 18
+        "Parameter Forwarders": 3
       },
       "ocaml/janestreet_base/array.mli": {},
       "ocaml/janestreet_base/array0.ml": {
@@ -10351,9 +10349,11 @@
       },
       "ocaml/janestreet_base/array_permute.mli": {},
       "ocaml/janestreet_base/avltree.ml": {
-        "Callbacks & Closures": 2,
+        "Callbacks & Closures": 5,
         "Compute Cores": 6,
-        "Many-Argument Workhorses": 2
+        "Interface Declarations": 1,
+        "Many-Argument Workhorses": 2,
+        "Parameter Forwarders": 1
       },
       "ocaml/janestreet_base/avltree.mli": {},
       "ocaml/janestreet_base/backtrace.ml": {

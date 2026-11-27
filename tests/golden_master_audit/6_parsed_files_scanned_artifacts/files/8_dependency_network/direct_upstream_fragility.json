@@ -3203,7 +3203,7 @@
       "ocaml/janestreet_base/applicative.ml": 12,
       "ocaml/janestreet_base/applicative.mli": 1,
       "ocaml/janestreet_base/applicative_intf.ml": 14,
-      "ocaml/janestreet_base/array.ml": 4,
+      "ocaml/janestreet_base/array.ml": 6,
       "ocaml/janestreet_base/array.mli": 1,
       "ocaml/janestreet_base/array0.ml": 2,
       "ocaml/janestreet_base/array0.mli": 0,

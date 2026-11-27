@@ -60,7 +60,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(BZF|BZMF|BZE|BMN|BPL|BMI|CCS|OVSK|BVBZ)\b",
             re.I,
         ),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Safely captures hardware registers (A, Q, L, Z) ONLY when they are
         # explicitly coupled to an AGC mathematical/memory opcode.
         # Also captures the Bank assignment declarations.

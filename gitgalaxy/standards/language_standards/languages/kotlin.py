@@ -100,7 +100,7 @@ DEFINITION: dict[str, Any] = {
         # #8034: a `.when(` method call (e.g. a mocking DSL) is not the `when` expression.
         "branch": re.compile(r"(?<!\.)\b(if|else|when|for|while|do)\b|\?:"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix Regex Sludge.
         "args": re.compile(
             # =====================================================================

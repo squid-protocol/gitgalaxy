@@ -197,7 +197,7 @@ DEFINITION: dict[str, Any] = {
             + r"))*)\)"
         ),
         "short_circuit": re.compile(r"(?<![^ \t\n\r(\[])(?:and|or)(?![^ \t)\]\n\r])"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Captures the parameter list inside a standard function definition: (define (func arg1 arg2) ...)
         "args": re.compile(
             # =====================================================================

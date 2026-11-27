@@ -457,7 +457,10 @@ def dead_after_throw(
     line = int(mutant["line"])
     if not _RETURN.match(before) or not (_RETURN.match(after) or after.strip().startswith("/*")) or line < 2:
         return None
-    if text.splitlines()[line - 2].strip() != _THROW:
+    lines = text.splitlines()
+    if line - 2 >= len(lines):  # a mutant line past the text (the entry is not in this port file): no fact
+        return None
+    if lines[line - 2].strip() != _THROW:
         return None
     return {
         "result": "dead-after-throw",

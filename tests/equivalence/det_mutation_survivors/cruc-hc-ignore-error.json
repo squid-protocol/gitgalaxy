@@ -12,6 +12,90 @@
  "case": "cruc-hc-ignore-error",
  "survivors": [
   {
+   "id": "55a9145fd9",
+   "op": "LIT",
+   "line": 35,
+   "before": "public static final String COBOLRT_VERSION = \"0.1.0\";",
+   "after": "public static final String COBOLRT_VERSION = \"X.1.0\";",
+   "verdict": "equivalent",
+   "reason": "COBOLRT_VERSION is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "912d7f0ea1",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "b1f2c03f94",
+   "op": "CON",
+   "line": 36,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "c4908a0a50",
+   "op": "LIT",
+   "line": 37,
+   "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+   "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");",
+   "verdict": "equivalent",
+   "reason": "PROFILE is declared and never read (constant-unused)",
+   "tried": [
+    "constant-unused"
+   ]
+  },
+  {
+   "id": "7cfef09c8b",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"MDA=\"));",
+   "after": "\"XDA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_RESP_D follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "811ce1dbf5",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"MDA=\"));",
+   "after": "\"XDA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_LEN_D follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "68dc7a64d9",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
    "id": "0d70407ee5",
    "op": "CON",
    "line": 66,
@@ -36,6 +120,54 @@
    ]
   },
   {
+   "id": "699c83656c",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into: bytes 1..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "737eaf1b2e",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "92897084d6",
+   "op": "CON",
+   "line": 66,
+   "before": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f8_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f8_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "2a02e7c7f7",
+   "op": "CON",
+   "line": 67,
+   "before": "private final Field f9_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f9_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "58e6cbf348",
    "op": "CON",
    "line": 70,
@@ -48,6 +180,90 @@
    ]
   },
   {
+   "id": "715599eb65",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBCALEN is only stored into: bytes 24..25 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "81d94979a0",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBCALEN is only stored into: bytes 25..26 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "afa6c181ea",
+   "op": "CON",
+   "line": 71,
+   "before": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f15_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f15_EIBCALEN is only stored into: bytes 24..27 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1ad8b00906",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into: bytes 80..83 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f84b960c0f",
+   "op": "CON",
+   "line": 73,
+   "before": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+   "after": "private final Field f37_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into: bytes 81..84 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "28fadfc5e0",
+   "op": "CON",
+   "line": 74,
+   "before": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f39_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "f39_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
+   "tried": [
+    "zero-image-read"
+   ]
+  },
+  {
+   "id": "50118e7f35",
+   "op": "DEL",
+   "line": 89,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "store() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
    "id": "4afba972f4",
    "op": "LIT",
    "line": 91,
@@ -57,6 +273,42 @@
    "reason": "abended() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
+   ]
+  },
+  {
+   "id": "259da9d1b6",
+   "op": "LIT",
+   "line": 99,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "4bb1e55759",
+   "op": "LIT",
+   "line": 99,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "paragraph() is reached from no entry point of the program (no-entry-path)",
+   "tried": [
+    "no-entry-path"
+   ]
+  },
+  {
+   "id": "89b7c1e86e",
+   "op": "DEL",
+   "line": 136,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
+   "tried": [
+    "inert-image"
    ]
   },
   {
@@ -84,6 +336,210 @@
    ]
   },
   {
+   "id": "a557e75864",
+   "op": "DEL",
+   "line": 163,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "b6bcc1f202",
+   "op": "CON",
+   "line": 169,
+   "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "db188a0cc5",
+   "op": "DEL",
+   "line": 169,
+   "before": "Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f9_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4365f85cb1",
+   "op": "CON",
+   "line": 175,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0b3f35229d",
+   "op": "CON",
+   "line": 177,
+   "before": "calen = DetCics.eibCalen(task, 20);",
+   "after": "calen = DetCics.eibCalen(task, 21);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "e2722c030f",
+   "op": "DEL",
+   "line": 177,
+   "before": "calen = DetCics.eibCalen(task, 20);",
+   "after": "/* calen = DetCics.eibCalen(task, 20); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "34df1cb4f2",
+   "op": "DEL",
+   "line": 179,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c233a2c030",
+   "op": "CON",
+   "line": 179,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7dc7d6d4c0",
+   "op": "CON",
+   "line": 181,
+   "before": "calen = DetCics.eibCalen(task, 16);",
+   "after": "calen = DetCics.eibCalen(task, 17);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "e74a4e8517",
+   "op": "DEL",
+   "line": 181,
+   "before": "calen = DetCics.eibCalen(task, 16);",
+   "after": "/* calen = DetCics.eibCalen(task, 16); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "8290e21dfd",
+   "op": "DEL",
+   "line": 183,
+   "before": "calen = DetCics.eibCalen(task, 2);",
+   "after": "/* calen = DetCics.eibCalen(task, 2); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fbfab15ec9",
+   "op": "CON",
+   "line": 183,
+   "before": "calen = DetCics.eibCalen(task, 2);",
+   "after": "calen = DetCics.eibCalen(task, 3);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0e733d6bd7",
+   "op": "CON",
+   "line": 185,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "291fc8aaba",
+   "op": "DEL",
+   "line": 185,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "019f082d86",
+   "op": "DEL",
+   "line": 187,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "cb4988ecba",
+   "op": "CON",
+   "line": 187,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "000f0a544f",
+   "op": "DEL",
+   "line": 189,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "/* calen = DetCics.eibCalen(task, 6); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "1318b05669",
    "op": "AOR",
    "line": 189,
@@ -93,6 +549,18 @@
    "reason": "f9_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "4074bb5374",
+   "op": "CON",
+   "line": 189,
+   "before": "calen = DetCics.eibCalen(task, 6);",
+   "after": "calen = DetCics.eibCalen(task, 7);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
    ]
   },
   {
@@ -180,6 +648,462 @@
    ]
   },
   {
+   "id": "49cc61ea98",
+   "op": "CON",
+   "line": 191,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "63e66b46b9",
+   "op": "DEL",
+   "line": 191,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "2fe543797e",
+   "op": "CON",
+   "line": 193,
+   "before": "calen = DetCics.eibCalen(task, 3);",
+   "after": "calen = DetCics.eibCalen(task, 4);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "34eb744f22",
+   "op": "DEL",
+   "line": 193,
+   "before": "calen = DetCics.eibCalen(task, 3);",
+   "after": "/* calen = DetCics.eibCalen(task, 3); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7f9f8e529c",
+   "op": "DEL",
+   "line": 195,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "973f40b8b2",
+   "op": "CON",
+   "line": 195,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "14aa16fcfd",
+   "op": "CON",
+   "line": 197,
+   "before": "calen = DetCics.eibCalen(task, 11);",
+   "after": "calen = DetCics.eibCalen(task, 12);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "37bb8db8ca",
+   "op": "DEL",
+   "line": 197,
+   "before": "calen = DetCics.eibCalen(task, 11);",
+   "after": "/* calen = DetCics.eibCalen(task, 11); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "0f0af08468",
+   "op": "DEL",
+   "line": 199,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "8cd369b5bd",
+   "op": "CON",
+   "line": 199,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "5bea6d4ffe",
+   "op": "DEL",
+   "line": 201,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6a999c7fef",
+   "op": "CON",
+   "line": 201,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "e0a59a3dba",
+   "op": "CON",
+   "line": 203,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "f60b6803df",
+   "op": "DEL",
+   "line": 203,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "aba6443fc7",
+   "op": "CON",
+   "line": 205,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "ad3c8a30a1",
+   "op": "DEL",
+   "line": 205,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "00602aa06c",
+   "op": "CON",
+   "line": 207,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "calen = DetCics.eibCalen(task, 5);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "fd33157e70",
+   "op": "DEL",
+   "line": 207,
+   "before": "calen = DetCics.eibCalen(task, 4);",
+   "after": "/* calen = DetCics.eibCalen(task, 4); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "113c3b89ec",
+   "op": "CON",
+   "line": 209,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6b4164d874",
+   "op": "DEL",
+   "line": 209,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "64682b95a9",
+   "op": "CON",
+   "line": 211,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "calen = DetCics.eibCalen(task, 11);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "e3490ef5d9",
+   "op": "DEL",
+   "line": 211,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "53ce4c5a88",
+   "op": "DEL",
+   "line": 213,
+   "before": "calen = DetCics.eibCalen(task, 30);",
+   "after": "/* calen = DetCics.eibCalen(task, 30); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "ad8a2d549f",
+   "op": "CON",
+   "line": 213,
+   "before": "calen = DetCics.eibCalen(task, 30);",
+   "after": "calen = DetCics.eibCalen(task, 31);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "4be6d95f32",
+   "op": "DEL",
+   "line": 215,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "805ffc6e95",
+   "op": "CON",
+   "line": 215,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "70c1268d6d",
+   "op": "CON",
+   "line": 217,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "b723550392",
+   "op": "DEL",
+   "line": 217,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "1c4c29a756",
+   "op": "DEL",
+   "line": 219,
+   "before": "calen = DetCics.eibCalen(task, 5);",
+   "after": "/* calen = DetCics.eibCalen(task, 5); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "a77ca41877",
+   "op": "CON",
+   "line": 219,
+   "before": "calen = DetCics.eibCalen(task, 5);",
+   "after": "calen = DetCics.eibCalen(task, 6);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "b9019d15c5",
+   "op": "CON",
+   "line": 221,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "edb5a822d4",
+   "op": "DEL",
+   "line": 221,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "7fae2a5f3b",
+   "op": "DEL",
+   "line": 223,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c46401a2b1",
+   "op": "CON",
+   "line": 223,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "6166711f54",
+   "op": "DEL",
+   "line": 225,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "e5668f4401",
+   "op": "CON",
+   "line": 225,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "c294129c23",
+   "op": "CON",
+   "line": 227,
+   "before": "if (calen == 0 && task.linkArea() != null) {",
+   "after": "if (calen == 1 && task.linkArea() != null) {",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "51c7cb90a5",
+   "op": "DEL",
+   "line": 230,
+   "before": "Cobol.store(f15_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+   "after": "/* Cobol.store(f15_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f15_EIBCALEN is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "2c14499ff0",
    "op": "CON",
    "line": 231,
@@ -228,6 +1152,90 @@
    ]
   },
   {
+   "id": "31df7052ee",
+   "op": "DEL",
+   "line": 370,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "43b9888e1d",
+   "op": "CON",
+   "line": 370,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "dd5fe5bb13",
+   "op": "DEL",
+   "line": 383,
+   "before": "Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp2), false, CS);",
+   "after": "/* Cobol.store(f36_EIBRESP, BigDecimal.valueOf(resp2), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f36_EIBRESP at line 383 is unconditionally overwritten by f36_EIBRESP at line 391 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "5c13ab951f",
+   "op": "DEL",
+   "line": 384,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 at line 384 is unconditionally overwritten by f37_EIBRESP2 at line 392 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "af74e4daf1",
+   "op": "CON",
+   "line": 384,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 at line 384 is unconditionally overwritten by f37_EIBRESP2 at line 392 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "80472eb1e3",
+   "op": "DEL",
+   "line": 395,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ce2fd0e77b",
+   "op": "CON",
+   "line": 409,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 at line 409 is unconditionally overwritten by f37_EIBRESP2 at line 415 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
    "id": "67b06eb1ae",
    "op": "CON",
    "line": 411,
@@ -249,6 +1257,18 @@
    "reason": "f37_EIBRESP2 at line 425 is unconditionally overwritten by f37_EIBRESP2 at line 432 before any read (store-dominates-read)",
    "tried": [
     "store-dominates-read"
+   ]
+  },
+  {
+   "id": "6bfef558e4",
+   "op": "CON",
+   "line": 443,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+   "after": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(1), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
    ]
   },
   {
@@ -281,6 +1301,18 @@
    "line": 459,
    "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
    "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(0), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "36804e6833",
+   "op": "DEL",
+   "line": 486,
+   "before": "Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(planned8[1]), false, CS);",
+   "after": "/* Cobol.store(f37_EIBRESP2, BigDecimal.valueOf(planned8[1]), false, CS); */",
    "verdict": "equivalent",
    "reason": "f37_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [

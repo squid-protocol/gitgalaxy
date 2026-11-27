@@ -167,7 +167,7 @@ DEFINITION: dict[str, Any] = {
         # EXCLUDES exceptions (bailout_hits).
         "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|break|continue|co_yield|co_await)\b|\?"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks of functions and lambdas. Bounded to prevent ReDoS on massive signatures.
         # OUT-OF-LINE OPERATOR + RULE 11 FIX (epic #813/#821): same gaps as func_start -- no
         # allowance for a class-qualified operator name (`TargetClass::operator=`) at all, and

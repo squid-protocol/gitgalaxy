@@ -1093,6 +1093,78 @@
    ]
   },
   {
+   "id": "049e1123dd",
+   "op": "AOR",
+   "line": 274,
+   "before": "performThru[performDepth++] = thru;",
+   "after": "performThru[performDepth--] = thru;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "81734bf7ee",
+   "op": "ROR",
+   "line": 279,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e1bae876b9",
+   "op": "CON",
+   "line": 279,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "aa08b58ec0",
+   "op": "NEG",
+   "line": 281,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "8a090ee769",
+   "op": "ROR",
+   "line": 282,
+   "before": "if (i == thru) {",
+   "after": "if (i != thru) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a0569912a3",
+   "op": "NEG",
+   "line": 282,
+   "before": "if (i == thru) {",
+   "after": "if (!(i == thru)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "01210ed10a",
    "op": "AOR",
    "line": 285,

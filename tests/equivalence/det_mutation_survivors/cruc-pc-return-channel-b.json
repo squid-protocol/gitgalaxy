@@ -1284,6 +1284,66 @@
    ]
   },
   {
+   "id": "f784925bca",
+   "op": "CON",
+   "line": 275,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack never holds more than 8 entries, so a capacity of 65 is never filled (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "0fe03283d2",
+   "op": "CON",
+   "line": 295,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "6ee7933898",
+   "op": "AOR",
+   "line": 295,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "886a711be9",
+   "op": "DEL",
+   "line": 295,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c21854affc",
+   "op": "LIT",
+   "line": 337,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "equivalent",
+   "reason": "run()'s default arm is entered by no index: every paragraph and PERFORM target is one of its case labels (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "74364acf24",
    "op": "CON",
    "line": 390,
@@ -1332,6 +1392,30 @@
    ]
   },
   {
+   "id": "10a8045df4",
+   "op": "ROR",
+   "line": 424,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "e02afca1f5",
+   "op": "CON",
+   "line": 424,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "b8f7a45add",
    "op": "DEL",
    "line": 457,
@@ -1368,6 +1452,30 @@
    ]
   },
   {
+   "id": "4749e0baee",
+   "op": "ROR",
+   "line": 461,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "4a4ffab1c3",
+   "op": "CON",
+   "line": 461,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "65ed09b155",
    "op": "DEL",
    "line": 517,
@@ -1389,6 +1497,30 @@
    "reason": "f47_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ad4f6b2074",
+   "op": "CON",
+   "line": 520,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c08c9445c2",
+   "op": "ROR",
+   "line": 520,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   }
  ]

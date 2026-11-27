@@ -396,6 +396,54 @@
    ]
   },
   {
+   "id": "23a1da46a3",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 1, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "MN_VISITS scale 0 -> 1: the MOVE of a scaled zoned item to the alphanumeric DVISITSO should drop or shift the implied decimal, yet five inputs (1234, ten digits, a D-zone digit, X'FF', typed 9999) left it alive, so the screen compares no difference. Not stated equivalent: the port's reading of a scaled sender is not shown to match this one. Open: needs an input and a compare that exposes DVISITSO text for a scaled sender.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "958d32b419",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 5, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "MN_VISITS widened from 4 to 5 digits (offset 0): its only read is MOVE MN-VISITS TO DVISITSO, a 4-byte alphanumeric item, so the 5-character source text is cut to its first four, which are the same bytes as the 4-digit item's. The extra byte is the first byte of MN-LAST. Five inputs (1234/ABCD/ZZ with non-digit byte 5, ten digits, a D-zone digit, all X'FF' under CLEAR, typed 9999/ABCD/Q) left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "2346749beb",
+   "op": "CON",
+   "line": 77,
+   "before": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 4, false);",
+   "after": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 5, false);",
+   "verdict": "equivalent",
+   "reason": "MN_LAST widened from 4 to 5 bytes (offset 4): its only read is MOVE MN-LAST TO DLASTO, a 4-byte alphanumeric item, so the 5-byte source is truncated on the right to its first four, the same bytes as before. The extra byte is the first byte of MN-FLAG, which the inputs set to Z, Q, 0 and X'FF'. Five inputs left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
    "id": "40928d5716",
    "op": "CON",
    "line": 80,
@@ -672,6 +720,38 @@
    "reason": "f96_GG_RETURN_CODE is only read, from s_GG_RETURN_CODE, which nothing writes after its all-zero image: any window inside it reads 0 (zero-image-read)",
    "tried": [
     "zero-image-read"
+   ]
+  },
+  {
+   "id": "994ce83708",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE widened from 4 to 5 digits: the item is read only by the returnCode() accessor after the run, which no compared scenario reads, and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "fac30f8c23",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE moved to offset 1 of its 2-byte image: the item is read only by the returnCode() accessor after the run, which no compared scenario reads (the harness compares screen, COMMAREA and abend), and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
    ]
   },
   {
@@ -1725,6 +1805,25 @@
    ]
   },
   {
+   "id": "351d03d576",
+   "op": "NEG",
+   "line": 349,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "the negated `to >= 0` guards a return that never runs: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans none of those on SEND TEXT (INVREQ, LENGERR, TSIOERR only); the same SEND TEXT faults and eight further inputs left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
    "id": "a70500adff",
    "op": "ROR",
    "line": 349,
@@ -1758,6 +1857,25 @@
    "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a3a94b90eb",
+   "op": "DEL",
+   "line": 352,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before the no-context RETURN copies s_DFHCOMMAREA back to the LINK area; PCDETL only reads DFHCOMMAREA (MOVE DFHCOMMAREA TO WS-CA, source line 27: no store into it), so the copied bytes equal the bytes loaded; eight inputs (EIBCALEN 9, 11, 29, exact 10, none) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {
@@ -1846,6 +1964,44 @@
    "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "94098dc82b",
+   "op": "DEL",
+   "line": 389,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before RETURN TRANSID('PC11') on the context arm copies s_DFHCOMMAREA back; PCDETL never stores into DFHCOMMAREA (only MOVE DFHCOMMAREA TO WS-CA), so the bytes written back are the ones loaded; eight inputs (EIBCALEN 9, 11, 29, populated, SEND MAP fault) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
+   "id": "2de8e121bc",
+   "op": "NEG",
+   "line": 391,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "`if (!(true)) throw new Goback()` falls through to `return 1`: perform() returns at i == thru (paragraph 0 is the only one) instead of the Goback catch in runTask, and after RETURN TRANSID task.ended() is true so the tail `if (!task.ended())` block is skipped either way; eight inputs with PF, PA, CLEAR and ENTER keys on both arms left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {

@@ -324,6 +324,7 @@ _FAMILY_COMMENT_SYNTAX: dict[str, tuple[tuple[str, ...], tuple[tuple[str, str], 
     "embedded_syntax": (("#",), (("<#", "#>"),)),
     "recursive_block_haskell": (("--",), (("{-", "-}"),)),
     "recursive_block_lisp": ((";",), (("#|", "|#"),)),
+    "recursive_block_ml": ((), (("(*", "*)"),)),
     "line_exclusive_dash": (("--",), ()),
     "block_exclusive": ((), (("<!--", "-->"),)),
 }

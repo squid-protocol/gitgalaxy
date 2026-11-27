@@ -33,16 +33,16 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": -10216.09
     },
     "abap/abapgit_objects_core": {
-      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": 9260.75,
-      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": 8468.18,
-      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": 8150.93,
-      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": 8586.17,
-      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": 8733.53,
-      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": 8240.82,
-      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": 8465.64,
-      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": 8764.67,
-      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": 9001.98,
-      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": 9216.02
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.lzabapgit_paralleltop.abap": 9253.56,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.saplzabapgit_parallel.abap": 8460.99,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_package.abap": 8143.74,
+      "abap/abapgit_objects_core/zabapgit_parallel.fugr.z_abapgit_serialize_parallel.abap": 8578.98,
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.abap": 8726.34,
+      "abap/abapgit_objects_core/zcl_abapgit_dependencies.clas.testclasses.abap": 8233.63,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.abap": 8458.45,
+      "abap/abapgit_objects_core/zcl_abapgit_file_deserialize.clas.testclasses.abap": 8757.48,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.abap": 8994.79,
+      "abap/abapgit_objects_core/zcl_abapgit_filename_logic.clas.testclasses.abap": 9208.83
     },
     "abap/abapgit_ui_pages": {
       "abap/abapgit_ui_pages/codi_zcl_abapgit_gui_page_code_insp.clas.abap": -6931.7,
@@ -145,19 +145,19 @@
       "agc_assembly/apollo-11_comanche055_cm/T4RUPT_PROGRAM.agc": 4881.29
     },
     "agc_assembly/apollo-11_luminary099_lm": {
-      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": 5786.47,
-      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": 5907.56,
-      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": 5792.68,
-      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": 5540.44,
-      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": 6232.94,
-      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": 6344.15,
-      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": 6324.63,
-      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": 5437.8,
-      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": 6097.63,
-      "agc_assembly/apollo-11_luminary099_lm/P12.agc": 5438.78,
-      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": 6005.99,
-      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": 6606.86,
-      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": 6489.82
+      "agc_assembly/apollo-11_luminary099_lm/AOSTASK_AND_AOSJOB.agc": 5778.51,
+      "agc_assembly/apollo-11_luminary099_lm/ASCENT_GUIDANCE.agc": 5899.6,
+      "agc_assembly/apollo-11_luminary099_lm/ATTITUDE_MANEUVER_ROUTINE.agc": 5784.72,
+      "agc_assembly/apollo-11_luminary099_lm/DAPIDLER_PROGRAM.agc": 5532.49,
+      "agc_assembly/apollo-11_luminary099_lm/GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc": 6224.98,
+      "agc_assembly/apollo-11_luminary099_lm/KALMAN_FILTER.agc": 6336.19,
+      "agc_assembly/apollo-11_luminary099_lm/LANDING_ANALOG_DISPLAYS.agc": 6316.67,
+      "agc_assembly/apollo-11_luminary099_lm/LICENSE.md": 5429.84,
+      "agc_assembly/apollo-11_luminary099_lm/P-AXIS_RCS_AUTOPILOT.agc": 6089.68,
+      "agc_assembly/apollo-11_luminary099_lm/P12.agc": 5430.82,
+      "agc_assembly/apollo-11_luminary099_lm/SERVICER.agc": 5998.03,
+      "agc_assembly/apollo-11_luminary099_lm/THROTTLE_CONTROL_ROUTINES.agc": 6598.9,
+      "agc_assembly/apollo-11_luminary099_lm/TJET_LAW.agc": 6481.86
     },
     "apex": {
       "apex/SOURCES.md": -1001.68
@@ -210,11 +210,11 @@
       "assembly/bootos/os.asm": 5751.1
     },
     "assembly/cosmopolitan": {
-      "assembly/cosmopolitan/BUILD.mk": 9043.57,
-      "assembly/cosmopolitan/ape.S": 8770.09,
-      "assembly/cosmopolitan/loader.c": 9048.69,
-      "assembly/cosmopolitan/notice.inc": 9313.37,
-      "assembly/cosmopolitan/start.S": 8504.69
+      "assembly/cosmopolitan/BUILD.mk": 9037.0,
+      "assembly/cosmopolitan/ape.S": 8763.53,
+      "assembly/cosmopolitan/loader.c": 9042.12,
+      "assembly/cosmopolitan/notice.inc": 9306.8,
+      "assembly/cosmopolitan/start.S": 8498.12
     },
     "assembly/cosmopolitan_runtime": {
       "assembly/cosmopolitan_runtime/argc.S": 10682.81,
@@ -250,26 +250,26 @@
       "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": -2280.88
     },
     "assembly/cpm65_6502": {
-      "assembly/cpm65_6502/apps_adm3adrv.S": 6198.17,
-      "assembly/cpm65_6502/apps_adm3atst.asm": 6885.48,
-      "assembly/cpm65_6502/apps_bedit.asm": 6095.12,
-      "assembly/cpm65_6502/apps_capsdrv.asm": 5563.52,
-      "assembly/cpm65_6502/apps_cls.asm": 6911.27,
-      "assembly/cpm65_6502/apps_cpuinfo.asm": 6249.46,
-      "assembly/cpm65_6502/apps_devices.asm": 5910.69,
-      "assembly/cpm65_6502/apps_dinfo.asm": 6057.71,
-      "assembly/cpm65_6502/apps_dump.asm": 6963.38,
-      "assembly/cpm65_6502/apps_kbdtest.asm": 5730.77,
-      "assembly/cpm65_6502/apps_ls.asm": 6282.9,
-      "assembly/cpm65_6502/apps_more.asm": 6846.84,
-      "assembly/cpm65_6502/apps_scrntest.asm": 5826.15,
-      "assembly/cpm65_6502/apps_scrvt100.S": 5727.78,
-      "assembly/cpm65_6502/apps_vt52drv.asm": 6722.52,
-      "assembly/cpm65_6502/apps_vt52test.asm": 6499.89,
-      "assembly/cpm65_6502/apps_xrecv.asm": 6372.17,
-      "assembly/cpm65_6502/apps_xsend.asm": 6621.29,
-      "assembly/cpm65_6502/cpmfs_hello.asm": 6233.01,
-      "assembly/cpm65_6502/lib_bdos.S": 6560.33
+      "assembly/cpm65_6502/apps_adm3adrv.S": 6190.12,
+      "assembly/cpm65_6502/apps_adm3atst.asm": 6877.43,
+      "assembly/cpm65_6502/apps_bedit.asm": 6087.07,
+      "assembly/cpm65_6502/apps_capsdrv.asm": 5555.48,
+      "assembly/cpm65_6502/apps_cls.asm": 6903.22,
+      "assembly/cpm65_6502/apps_cpuinfo.asm": 6241.42,
+      "assembly/cpm65_6502/apps_devices.asm": 5902.64,
+      "assembly/cpm65_6502/apps_dinfo.asm": 6049.67,
+      "assembly/cpm65_6502/apps_dump.asm": 6955.33,
+      "assembly/cpm65_6502/apps_kbdtest.asm": 5722.73,
+      "assembly/cpm65_6502/apps_ls.asm": 6274.85,
+      "assembly/cpm65_6502/apps_more.asm": 6838.79,
+      "assembly/cpm65_6502/apps_scrntest.asm": 5818.1,
+      "assembly/cpm65_6502/apps_scrvt100.S": 5719.73,
+      "assembly/cpm65_6502/apps_vt52drv.asm": 6714.48,
+      "assembly/cpm65_6502/apps_vt52test.asm": 6491.84,
+      "assembly/cpm65_6502/apps_xrecv.asm": 6364.13,
+      "assembly/cpm65_6502/apps_xsend.asm": 6613.24,
+      "assembly/cpm65_6502/cpmfs_hello.asm": 6224.96,
+      "assembly/cpm65_6502/lib_bdos.S": 6552.29
     },
     "assembly/freebsd_kernel_arch": {
       "assembly/freebsd_kernel_arch/COPYRIGHT": 8701.5,
@@ -553,21 +553,21 @@
       "c/doom/z_zone.c": -9954.95
     },
     "c/freebsd_openpam": {
-      "c/freebsd_openpam/pam_acct_mgmt.c": 10264.89
+      "c/freebsd_openpam/pam_acct_mgmt.c": 10257.61
     },
     "c/micropython": {
-      "c/micropython/compile.c": 7664.09,
-      "c/micropython/compile.h": 7813.31,
-      "c/micropython/emitnative.c": 7361.71,
-      "c/micropython/gc.c": 7910.67,
-      "c/micropython/gc.h": 8254.87,
-      "c/micropython/modmachine.c": 7046.72,
-      "c/micropython/modmachine.h": 7513.83,
-      "c/micropython/objtype.c": 7693.36,
-      "c/micropython/objtype.h": 7929.9,
-      "c/micropython/vfs.c": 8089.68,
-      "c/micropython/vfs.h": 7351.37,
-      "c/micropython/vm.c": 7150.83
+      "c/micropython/compile.c": 7656.01,
+      "c/micropython/compile.h": 7805.24,
+      "c/micropython/emitnative.c": 7353.63,
+      "c/micropython/gc.c": 7902.6,
+      "c/micropython/gc.h": 8246.79,
+      "c/micropython/modmachine.c": 7038.65,
+      "c/micropython/modmachine.h": 7505.75,
+      "c/micropython/objtype.c": 7685.28,
+      "c/micropython/objtype.h": 7921.83,
+      "c/micropython/vfs.c": 8081.6,
+      "c/micropython/vfs.h": 7343.3,
+      "c/micropython/vm.c": 7142.75
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 9192.6,
@@ -1302,8 +1302,8 @@
       "csd/carddemo/PROVENANCE.md": 7869.0
     },
     "csd/cbsa": {
-      "csd/cbsa/BANK.csd": 8807.16,
-      "csd/cbsa/PROVENANCE.md": 8526.78
+      "csd/cbsa/BANK.csd": 8799.61,
+      "csd/cbsa/PROVENANCE.md": 8519.23
     },
     "csd/z_sms_gateway": {
       "csd/z_sms_gateway/PROVENANCE.md": 13337.71,
@@ -1328,18 +1328,18 @@
       "csharp/powershell_commands_utility/src_Microsoft.PowerShell.Commands.Utility_commands_utility_trace_MshHostTraceListener.cs": 8376.94
     },
     "csharp/powertoys_common": {
-      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": 7694.71,
-      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": 6734.53,
-      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 7153.43,
-      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": 6888.94,
-      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": 6888.41,
-      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": 7399.93,
-      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": 7399.96,
-      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": 7534.81,
-      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 6619.72,
-      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 7359.71,
-      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 6969.8,
-      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 7125.14
+      "csharp/powertoys_common/src_common_Common.Search_FuzzSearch_MatchOption.cs": 7687.23,
+      "csharp/powertoys_common/src_common_Common.UI.Controls_Controls_ShortcutWithTextLabelControl_ShortcutWithTextLabelControl.xaml.cs": 6727.05,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_BgcodeHelper.cs": 7145.95,
+      "csharp/powertoys_common/src_common_FilePreviewCommon_GcodeThumbnailFormat.cs": 6881.46,
+      "csharp/powertoys_common/src_common_LanguageModelProvider_FoundryLocal_FoundryCatalogModel.cs": 6880.93,
+      "csharp/powertoys_common/src_common_LanguageModelProvider_ModelDetails.cs": 7392.45,
+      "csharp/powertoys_common/src_common_ManagedCommon_OSVersionHelper.cs": 7392.48,
+      "csharp/powertoys_common/src_common_ManagedCsWin32_CLSID.cs": 7527.33,
+      "csharp/powertoys_common/src_common_ManagedTelemetry_Telemetry_Events_EventBase.cs": 6612.24,
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_ComboBox.cs": 7352.22,
+      "csharp/powertoys_common/src_common_UITestAutomation_Element_Tab.cs": 6962.32,
+      "csharp/powertoys_common/src_common_UITestAutomation_ModuleConfigData.cs": 7117.66
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 1869.24,
@@ -1529,8 +1529,8 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": 11323.71
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 7018.32,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 6779.38
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 7013.67,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 6774.73
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": -8618.71,
@@ -1617,7 +1617,7 @@
       "embedded_python/meow_turtle/vibration_driver.py": -8186.09
     },
     "erlang": {
-      "erlang/SOURCES.md": 7510.42
+      "erlang/SOURCES.md": 7505.74
     },
     "erlang/cowboy_http_server": {
       "erlang/cowboy_http_server/cowboy.erl": 2671.84,
@@ -1768,18 +1768,18 @@
       "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 787.31
     },
     "groovy": {
-      "groovy/SOURCES.md": 9272.73
+      "groovy/SOURCES.md": 9266.39
     },
     "groovy/fineract_gradle_plugin": {
-      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 6807.78,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 5997.29,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 6095.18,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 6489.36,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 6295.05,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 6261.59,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 5998.45,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 6648.71,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 5759.94
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 6800.58,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 5990.08,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 6087.98,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 6482.16,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 6287.85,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 6254.38,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 5991.25,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 6641.51,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 5752.74
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": -7562.15,
@@ -2213,8 +2213,8 @@
       "hcl/terraform_aws_vpc/examples_manage-default-vpc_outputs.tf": -4001.57
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": 9684.0,
-      "hlasm/SOURCES.md": 9526.72
+      "hlasm/PROVENANCE.md": 9677.38,
+      "hlasm/SOURCES.md": 9520.1
     },
     "hlasm/carddemo_hlasm": {
       "hlasm/carddemo_hlasm/app_asm_COBDATFT.asm": 5779.49,
@@ -2384,7 +2384,7 @@
       "javascript/cesium_particle_emitters/LICENSE.md": 10736.55
     },
     "javascript/javascript_algorithms_bits": {
-      "javascript/javascript_algorithms_bits/fullAdder.js": 6680.98
+      "javascript/javascript_algorithms_bits/fullAdder.js": 6674.55
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 11825.86,
@@ -3031,8 +3031,8 @@
       "markdown/SOURCES.md": -2242.35
     },
     "markdown/airflow_job_lifecycle": {
-      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 7925.78,
-      "markdown/airflow_job_lifecycle/NOTICE": 7772.26
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": 7918.9,
+      "markdown/airflow_job_lifecycle/NOTICE": 7765.39
     },
     "markdown/kubernetes_client_go": {
       "markdown/kubernetes_client_go/ARCHITECTURE.md": -9904.13
@@ -3141,10 +3141,10 @@
       "nix/bun/shell.nix": 12277.55
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 6176.32,
-      "nix/ghostty/default.nix": 6222.0,
-      "nix/ghostty/flake.nix": 5890.63,
-      "nix/ghostty/shell.nix": 6387.04
+      "nix/ghostty/build.zig": 6170.03,
+      "nix/ghostty/default.nix": 6215.71,
+      "nix/ghostty/flake.nix": 5884.34,
+      "nix/ghostty/shell.nix": 6380.74
     },
     "objective-c": {
       "objective-c/SOURCES.md": 13138.57
@@ -3199,37 +3199,37 @@
       "ocaml/SOURCES.md": -798.59
     },
     "ocaml/janestreet_base": {
-      "ocaml/janestreet_base/LICENSE.md": 3851.75,
-      "ocaml/janestreet_base/applicative.ml": 5377.64,
-      "ocaml/janestreet_base/applicative.mli": 4139.29,
-      "ocaml/janestreet_base/applicative_intf.ml": 4326.15,
-      "ocaml/janestreet_base/array.ml": 4786.8,
-      "ocaml/janestreet_base/array.mli": 4995.87,
-      "ocaml/janestreet_base/array0.ml": 4890.8,
-      "ocaml/janestreet_base/array0.mli": 4692.87,
-      "ocaml/janestreet_base/array_intf.ml": 4584.85,
-      "ocaml/janestreet_base/array_permute.ml": 5689.15,
-      "ocaml/janestreet_base/array_permute.mli": 5287.46,
-      "ocaml/janestreet_base/avltree.ml": 4579.44,
-      "ocaml/janestreet_base/avltree.mli": 4224.98,
-      "ocaml/janestreet_base/backtrace.ml": 4454.81,
-      "ocaml/janestreet_base/backtrace.mli": 5406.45,
-      "ocaml/janestreet_base/base.ml": 5274.7,
-      "ocaml/janestreet_base/binary_search.ml": 5147.28,
-      "ocaml/janestreet_base/binary_search.mli": 4019.43,
-      "ocaml/janestreet_base/binary_searchable.ml": 5380.85,
-      "ocaml/janestreet_base/binary_searchable.mli": 3908.12,
-      "ocaml/janestreet_base/binary_searchable_intf.ml": 5015.2,
-      "ocaml/janestreet_base/blit.ml": 4519.87,
-      "ocaml/janestreet_base/blit.mli": 5703.49,
-      "ocaml/janestreet_base/blit_intf.ml": 4721.12,
-      "ocaml/janestreet_base/bool.ml": 5516.72,
-      "ocaml/janestreet_base/bool.mli": 4377.02,
-      "ocaml/janestreet_base/bool0.ml": 4793.73,
-      "ocaml/janestreet_base/bool0.mli": 4281.0,
-      "ocaml/janestreet_base/buffer.ml": 5119.98,
-      "ocaml/janestreet_base/buffer.mli": 5662.55,
-      "ocaml/janestreet_base/buffer_intf.ml": 4215.29
+      "ocaml/janestreet_base/LICENSE.md": 3853.86,
+      "ocaml/janestreet_base/applicative.ml": 4531.23,
+      "ocaml/janestreet_base/applicative.mli": 5712.59,
+      "ocaml/janestreet_base/applicative_intf.ml": 5252.1,
+      "ocaml/janestreet_base/array.ml": 4531.12,
+      "ocaml/janestreet_base/array.mli": 4074.67,
+      "ocaml/janestreet_base/array0.ml": 4887.02,
+      "ocaml/janestreet_base/array0.mli": 4690.31,
+      "ocaml/janestreet_base/array_intf.ml": 5418.41,
+      "ocaml/janestreet_base/array_permute.ml": 5679.75,
+      "ocaml/janestreet_base/array_permute.mli": 5028.16,
+      "ocaml/janestreet_base/avltree.ml": 4840.04,
+      "ocaml/janestreet_base/avltree.mli": 5531.35,
+      "ocaml/janestreet_base/backtrace.ml": 4453.71,
+      "ocaml/janestreet_base/backtrace.mli": 4766.32,
+      "ocaml/janestreet_base/base.ml": 5096.49,
+      "ocaml/janestreet_base/binary_search.ml": 4386.68,
+      "ocaml/janestreet_base/binary_search.mli": 4022.22,
+      "ocaml/janestreet_base/binary_searchable.ml": 5389.83,
+      "ocaml/janestreet_base/binary_searchable.mli": 5238.85,
+      "ocaml/janestreet_base/binary_searchable_intf.ml": 5010.26,
+      "ocaml/janestreet_base/blit.ml": 4518.51,
+      "ocaml/janestreet_base/blit.mli": 3965.17,
+      "ocaml/janestreet_base/blit_intf.ml": 4719.96,
+      "ocaml/janestreet_base/bool.ml": 4202.98,
+      "ocaml/janestreet_base/bool.mli": 4377.03,
+      "ocaml/janestreet_base/bool0.ml": 5406.67,
+      "ocaml/janestreet_base/bool0.mli": 4281.28,
+      "ocaml/janestreet_base/buffer.ml": 5114.35,
+      "ocaml/janestreet_base/buffer.mli": 5651.52,
+      "ocaml/janestreet_base/buffer_intf.ml": 4221.14
     },
     "perl": {
       "perl/SOURCES.md": -12215.14
@@ -4129,11 +4129,11 @@
       "rust/tokio_util_rand/rand.rs": -11607.27
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": 6795.13,
-      "rust/wasmtime/wasmtime_instance.rs": 7600.84,
-      "rust/wasmtime/wasmtime_ir_instructions.rs": 7333.22,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 6957.69,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 7267.4
+      "rust/wasmtime/wasmtime_component_macro.rs": 6788.37,
+      "rust/wasmtime/wasmtime_instance.rs": 7594.08,
+      "rust/wasmtime/wasmtime_ir_instructions.rs": 7326.46,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 6950.93,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 7260.65
     },
     "scala": {
       "scala/SOURCES.md": -11440.89
@@ -4165,16 +4165,16 @@
       "scala/gradle_scala/testing_performance_src_templates_project-with-source_Production.scala": -1394.7
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 7901.51,
-      "scala/kafka/KafkaApis.scala": 8026.27,
-      "scala/kafka/KafkaRaftManager.scala": 8481.49,
-      "scala/kafka/LogManager.scala": 8344.95,
-      "scala/kafka/Partition.scala": 8077.34,
-      "scala/kafka/ReplicaManager.scala": 7716.98,
-      "scala/kafka/SocketServer.scala": 7497.6
+      "scala/kafka/Kafka.scala": 7894.06,
+      "scala/kafka/KafkaApis.scala": 8018.82,
+      "scala/kafka/KafkaRaftManager.scala": 8474.04,
+      "scala/kafka/LogManager.scala": 8337.51,
+      "scala/kafka/Partition.scala": 8069.89,
+      "scala/kafka/ReplicaManager.scala": 7709.54,
+      "scala/kafka/SocketServer.scala": 7490.15
     },
     "scheme": {
-      "scheme/SOURCES.md": 8372.48
+      "scheme/SOURCES.md": 8365.72
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 12464.59,
@@ -4202,27 +4202,27 @@
       "shell/SOURCES.md": 12103.04
     },
     "shell/ansible": {
-      "shell/ansible/COPYING": 4323.51,
-      "shell/ansible/aggregate-coverage.sh": 4692.36,
-      "shell/ansible/alpine.sh": 4716.79,
-      "shell/ansible/ansible-console__runme.sh": 5006.07,
-      "shell/ansible/ansible-doc__runme.sh": 4811.21,
-      "shell/ansible/ansible-galaxy__runme.sh": 4585.36,
-      "shell/ansible/ansible-inventory__runme.sh": 4236.95,
-      "shell/ansible/ansible-playbook-callbacks__runme.sh": 5186.48,
-      "shell/ansible/ansible-pull__runme.sh": 4805.95,
-      "shell/ansible/ansible-test-collection-script-dependencies__runme.sh": 4730.16,
-      "shell/ansible/ansible-test-config-invalid__runme.sh": 4409.86,
-      "shell/ansible/ansible-test-config__runme.sh": 5515.05,
-      "shell/ansible/ansible-test-container__runme.sh": 5332.45,
-      "shell/ansible/ansible-test-coverage-windows__runme.sh": 5035.77,
-      "shell/ansible/ansible-test-coverage__runme.sh": 4598.47,
-      "shell/ansible/ansible-test-debugging-env__runme.sh": 5390.74,
-      "shell/ansible/hello__runme.sh": 4041.06,
-      "shell/ansible/module_common_regex_regression.sh": 4289.6,
-      "shell/ansible/runme.sh": 5325.36,
-      "shell/ansible/test__runme.sh": 4337.39,
-      "shell/ansible/windows.sh": 5101.25
+      "shell/ansible/COPYING": 4315.88,
+      "shell/ansible/aggregate-coverage.sh": 4684.73,
+      "shell/ansible/alpine.sh": 4709.15,
+      "shell/ansible/ansible-console__runme.sh": 4998.43,
+      "shell/ansible/ansible-doc__runme.sh": 4803.58,
+      "shell/ansible/ansible-galaxy__runme.sh": 4577.72,
+      "shell/ansible/ansible-inventory__runme.sh": 4229.31,
+      "shell/ansible/ansible-playbook-callbacks__runme.sh": 5178.84,
+      "shell/ansible/ansible-pull__runme.sh": 4798.32,
+      "shell/ansible/ansible-test-collection-script-dependencies__runme.sh": 4722.52,
+      "shell/ansible/ansible-test-config-invalid__runme.sh": 4402.23,
+      "shell/ansible/ansible-test-config__runme.sh": 5507.42,
+      "shell/ansible/ansible-test-container__runme.sh": 5324.82,
+      "shell/ansible/ansible-test-coverage-windows__runme.sh": 5028.13,
+      "shell/ansible/ansible-test-coverage__runme.sh": 4590.84,
+      "shell/ansible/ansible-test-debugging-env__runme.sh": 5383.1,
+      "shell/ansible/hello__runme.sh": 4033.42,
+      "shell/ansible/module_common_regex_regression.sh": 4281.97,
+      "shell/ansible/runme.sh": 5317.72,
+      "shell/ansible/test__runme.sh": 4329.75,
+      "shell/ansible/windows.sh": 5093.61
     },
     "shell/brew": {
       "shell/brew/Dockerfile": -9337.64,
@@ -4556,10 +4556,10 @@
       "sql/spamassassin_mysql/neural_mysql.sql": 10099.24
     },
     "sql/sqlite": {
-      "sql/sqlite/000-mandelbrot.sql": 8101.1,
-      "sql/sqlite/001-sudoku.sql": 7837.2,
-      "sql/sqlite/LICENSE.md": 8273.0,
-      "sql/sqlite/dotcmd01.sql": 8023.42
+      "sql/sqlite/000-mandelbrot.sql": 8094.49,
+      "sql/sqlite/001-sudoku.sql": 7830.59,
+      "sql/sqlite/LICENSE.md": 8266.39,
+      "sql/sqlite/dotcmd01.sql": 8016.81
     },
     "sql/sqlmap_postgresql": {
       "sql/sqlmap_postgresql/dns_request.sql": -8826.01
@@ -4665,7 +4665,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": 1137.94
     },
     "swift": {
-      "swift/SOURCES.md": 10156.44
+      "swift/SOURCES.md": 10150.02
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": 1009.84,
@@ -4921,10 +4921,10 @@
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": -12142.11
     },
     "xml/jenkins": {
-      "xml/jenkins/LICENSE.txt": 9845.3,
-      "xml/jenkins/XStreamDOMTest.data1.xml": 9674.09,
-      "xml/jenkins/XStreamDOMTest.data2.xml": 9396.26,
-      "xml/jenkins/excludesFilter.xml": 9717.07
+      "xml/jenkins/LICENSE.txt": 9838.04,
+      "xml/jenkins/XStreamDOMTest.data1.xml": 9666.83,
+      "xml/jenkins/XStreamDOMTest.data2.xml": 9389.0,
+      "xml/jenkins/excludesFilter.xml": 9709.81
     },
     "xml/odoo": {
       "xml/odoo/__manifest__.py": 13988.77
@@ -5011,7 +5011,7 @@
       "yaml/ansible/yaml_parsing/tasks/unsafe.yml": -507.77
     },
     "yaml/black_action": {
-      "yaml/black_action/action.yml": 8635.04
+      "yaml/black_action/action.yml": 8628.37
     },
     "yaml/grafana_compose": {
       "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": -1443.2,

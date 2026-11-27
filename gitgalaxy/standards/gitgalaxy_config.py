@@ -553,6 +553,11 @@ LEXICAL_FAMILY_HEURISTICS = {
         # branches for this family: REXX strings double their quote to escape,
         # never backslash, and cannot span lines.
         "recursive_block_rexx": {"delimiters": ["--", "/*", "*/"]},
+        # 2e. Recursive Block, ML dialect (#9303)
+        # OCaml's nesting `(* ... *)` comments (`(** ... *)` doc comments included), no line-comment
+        # token (so only two delimiters). Strings, `{id|...|id}` quoted strings and char literals
+        # are shielded first. Examples: ocaml.
+        "recursive_block_ml": {"delimiters": ["(*", "*)"]},
         # 3. Line Exclusive
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
         # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.

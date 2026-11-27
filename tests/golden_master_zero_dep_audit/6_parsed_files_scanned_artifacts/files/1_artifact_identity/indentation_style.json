@@ -3228,7 +3228,7 @@
       "ocaml/janestreet_base/bool0.ml": "Spaces",
       "ocaml/janestreet_base/bool0.mli": "Spaces",
       "ocaml/janestreet_base/buffer.ml": "Spaces",
-      "ocaml/janestreet_base/buffer.mli": "Spaces",
+      "ocaml/janestreet_base/buffer.mli": "Neutral / No Indentation",
       "ocaml/janestreet_base/buffer_intf.ml": "Spaces"
     },
     "perl": {

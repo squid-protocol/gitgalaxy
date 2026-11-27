@@ -3229,7 +3229,7 @@
       "ocaml/janestreet_base/bool0.mli": 0,
       "ocaml/janestreet_base/buffer.ml": 0,
       "ocaml/janestreet_base/buffer.mli": 0,
-      "ocaml/janestreet_base/buffer_intf.ml": 2
+      "ocaml/janestreet_base/buffer_intf.ml": 1
     },
     "perl": {
       "perl/SOURCES.md": 0

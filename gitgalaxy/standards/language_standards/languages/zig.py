@@ -69,7 +69,7 @@ DEFINITION: dict[str, Any] = {
         # impact: zig branch 19 (planted 3, +280%) -> exact.
         "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse)\b(?!\")"),
         "short_circuit": re.compile(r"\b(?:and|or)\b"),
-        # 2. args: Parameters / Coupling. Captures parameters in function signatures.
+        # 2. args (Calls & Signatures With Arguments). Captures parameters in function signatures.
         "args": re.compile(
             r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"
         ),

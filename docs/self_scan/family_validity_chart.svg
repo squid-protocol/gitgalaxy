@@ -931,8 +931,8 @@
 <text class="note" x="16" y="813">Each family keyword planted in a comment and in a string literal, in 65 languages.</text>
 <text class="big" x="16" y="836">In a comment: ignored</text>
 <rect x="16" y="842" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="842" width="324.2" height="14" fill="#8b949e"/>
-<text class="legend" x="356" y="853">1,903 of 1,937 cells</text>
+<rect x="16" y="842" width="330.0" height="14" fill="#8b949e"/>
+<text class="legend" x="356" y="853">1,937 of 1,937 cells</text>
 <text class="big" x="16" y="880">In a string literal: counted</text>
 <rect x="16" y="886" width="330" height="14" fill="#30363d"/>
 <rect x="16" y="886" width="288.8" height="14" fill="#e5534b"/>

@@ -27,6 +27,10 @@ RELABELLED = (
     "groovy",
     "m4",
     "typescript",
+    "csharp",
+    "java",
+    "go",
+    "rust",
 )
 
 

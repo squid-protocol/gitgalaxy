@@ -1,0 +1,147 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-inqcust",
+ "survivors": [
+  {
+   "id": "b95f472928",
+   "op": "CON",
+   "line": 42,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "equivalent",
+   "reason": "GOTO is only ORed on, tested and cleared as one flag bit: bit 21 is as good as bit 20 (goto-flag-bit)",
+   "tried": [
+    "goto-flag-bit"
+   ]
+  },
+  {
+   "id": "5c799ca645",
+   "op": "LIT",
+   "line": 59,
+   "before": "\"MDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_WS_SQLCODE_DISP lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "021b2e4ddc",
+   "op": "LIT",
+   "line": 74,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_EXIT_IMS_READ lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "8a38ad63c3",
+   "op": "LIT",
+   "line": 102,
+   "before": "\"ICAgICAgICA=\"));",
+   "after": "\"XCAgICAgICA=\"));",
+   "verdict": "equivalent",
+   "reason": "image byte(s) [0] of s_WS_INVOKING_PROGRAM lie in no item the program names (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "f1435534cd",
+   "op": "CON",
+   "line": 175,
+   "before": "private final Field f9_CUSTOMER_EYECATCHER = Field.alphanumeric(s_OUTPUT_DATA, 0, 4, false);",
+   "after": "private final Field f9_CUSTOMER_EYECATCHER = Field.alphanumeric(s_OUTPUT_DATA, 0, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: truncated: CUSTOMER-EYECATCHER is only ever moved whole into alphanumeric items of at most 4 bytes, so its 4 or 5 bytes give them the same leading bytes (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "9504cac9fa",
+   "op": "CON",
+   "line": 225,
+   "before": "private final Field f131_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f131_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBTIME is only stored into: bytes 0..4 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "7ca89aa591",
+   "op": "DEL",
+   "line": 240,
+   "before": "System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_MY_ABEND_CODE, 0, s_MY_ABEND_CODE.bytes, 0, IMAGE_s_MY_ABEND_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_MY_ABEND_CODE's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "467ddb8f4c",
+   "op": "DEL",
+   "line": 411,
+   "before": "System.arraycopy(IMAGE_s_HIGHEST_CUST_NUMBER, 0, s_HIGHEST_CUST_NUMBER.bytes, 0, IMAGE_s_HIGHEST_CUST_NUMBER.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HIGHEST_CUST_NUMBER, 0, s_HIGHEST_CUST_NUMBER.bytes, 0, IMAGE_s_HIGHEST_CUST_NUMBER.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_HIGHEST_CUST_NUMBER's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "bd3aacd69b",
+   "op": "DEL",
+   "line": 471,
+   "before": "Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS);",
+   "after": "/* Cobol.store(f102_EIBRESP, BigDecimal.valueOf(resp1), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f102_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "26f99f51fd",
+   "op": "AOR",
+   "line": 474,
+   "before": "Cobol.store(f131_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f131_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "b2f1354355",
+   "op": "AOR",
+   "line": 474,
+   "before": "Cobol.store(f131_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f131_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f131_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  }
+ ]
+}

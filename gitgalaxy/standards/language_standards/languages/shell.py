@@ -306,7 +306,7 @@ DEFINITION: dict[str, Any] = {
         # CRITICAL: Excluded bare '((' and '))' to prevent ReDoS on massive subshell nesting.
         "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b"),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Positional parameters and expansion markers.
         # BUG FIX (epic #813/#835): the braced form only matched a bare
         # `${1}`/`${10}` -- it had no allowance for the extremely common

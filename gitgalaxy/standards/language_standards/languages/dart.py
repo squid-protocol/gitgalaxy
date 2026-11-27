@@ -87,7 +87,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Captures parameters in function, method, and lambda signatures.
         # #1209: parameter-list span wrapped in its own capture group in
         # both alternatives (was only reachable via group(0), the whole

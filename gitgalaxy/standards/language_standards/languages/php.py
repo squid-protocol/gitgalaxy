@@ -214,7 +214,7 @@ DEFINITION: dict[str, Any] = {
             + r"\\|]*[ \t\n]+\$["
             + ID_START
             + r"])"
-            r"|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"
+            r"|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)\b[^\]]*\]"
         ),
         # 11. flux (State Mutation)
         # Mutation of state. Variable reassignments and array mutators.
@@ -441,9 +441,13 @@ DEFINITION: dict[str, Any] = {
         # trailing \b only fired when a word char immediately followed
         # the paren -- never true for the idiomatic Laravel chain form
         # `logger()->info('message')`, where `)` follows.
+        # #9447/#9448: the severity must be the logging METHOD (`Log::info(`, `->info(`), not any later word on the line, and
+        # `logger(` needs a leading boundary (`my_logger()`). `error_log` is itself the log call (no severity word).
         "telemetry": re.compile(
-            r"(?:\b(?:Log::|LoggerInterface|Monolog\\|error_log|Psr\\Log)\b|logger\()"
-            r".*?(?:info|error|warning|debug|trace|notice|critical|alert|emergency)\b",
+            r"\bLog::(?:info|error|warning|debug|trace|notice|critical|alert|emergency)[ \t]*\("
+            r"|\berror_log\b"
+            r"|(?<![\w$>:])logger\(.*?->(?:info|error|warning|debug|trace|notice|critical|alert|emergency)[ \t]*\("
+            r"|\b(?:LoggerInterface|Monolog\\|Psr\\Log)\b.*?->(?:info|error|warning|debug|trace|notice|critical|alert|emergency)[ \t]*\(",
             re.I,
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)

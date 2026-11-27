@@ -227,7 +227,7 @@
     "| time | 2123 | 295 | 0 | `elixir/elixir_stdlib/calendar_date.ex` |",
     "| serialization | 1151 | 210 | 0 | `lua/cosmopolitan/calls.lua` |",
     "| regex | 4480 | 368 | 0 | `perl/exiftool/ExifTool.pm` |",
-    "| events | 4706 | 627 | 1 | `m4/curl/configure.ac` |",
+    "| events | 4705 | 626 | 1 | `m4/curl/configure.ac` |",
     "| tests | 7241 | 558 | 2 | `cobol/gnucobol_internals/syn_misc.at` |",
     "| docs | 67886 | 1017 | 12 | `dart/flutter/framework.dart` |",
     "| debt | 11293 | 1238 | 6 | `shell/curl/ech_tests.sh` |",

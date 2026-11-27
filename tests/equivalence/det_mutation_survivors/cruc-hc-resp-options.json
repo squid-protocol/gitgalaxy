@@ -12,6 +12,66 @@
  "case": "cruc-hc-resp-options",
  "survivors": [
   {
+   "id": "b8b1c4eef1",
+   "op": "LIT",
+   "line": 45,
+   "before": "\"AAAAAAAAAAw=\"));",
+   "after": "\"XAAAAAAAAAw=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_ABS follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "a5902c4be8",
+   "op": "LIT",
+   "line": 51,
+   "before": "\"MDA=\"));",
+   "after": "\"XDA=\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_WS_R_D follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "f6835f8bbd",
+   "op": "LIT",
+   "line": 67,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  },
+  {
+   "id": "56509b5dec",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f6_NAMEA = Field.alphanumeric(s_HCM1I, 14, 1, false);",
+   "after": "private final Field f6_NAMEA = Field.alphanumeric(s_HCM1I, 14, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: map attribute NAMEA: SEND MAP reads its first byte only, and the mutant keeps it (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "8e472d7b3a",
+   "op": "CON",
+   "line": 113,
+   "before": "private final Field f44_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f44_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f44_EIBTIME is only stored into: bytes 0..3 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "e29dbfc8f5",
    "op": "CON",
    "line": 113,
@@ -19,6 +79,18 @@
    "after": "private final Field f47_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
    "verdict": "equivalent",
    "reason": "f47_EIBTASKN is only stored into: bytes 12..15 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "f1f572d8b6",
+   "op": "CON",
+   "line": 114,
+   "before": "private final Field f45_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f45_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "f45_EIBDATE is only stored into: bytes 4..7 of s_DFHEIBLK are in no read EIB item (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
    ]
@@ -72,6 +144,42 @@
    ]
   },
   {
+   "id": "bd80492a21",
+   "op": "DEL",
+   "line": 210,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "heldKey is a map nothing puts into: clear() and get() see it empty (never-populated)",
+   "tried": [
+    "never-populated"
+   ]
+  },
+  {
+   "id": "16859e4ecb",
+   "op": "CON",
+   "line": 216,
+   "before": "Cobol.store(f45_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f45_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f45_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "de75725846",
+   "op": "DEL",
+   "line": 216,
+   "before": "Cobol.store(f45_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f45_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f45_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
    "id": "57ca7fec8e",
    "op": "DEL",
    "line": 220,
@@ -93,6 +201,18 @@
    "reason": "every read of f21_WS_ITEM follows a top-level store of it in its own method; the initial value is never read (store-dominates-read)",
    "tried": [
     "store-dominates-read"
+   ]
+  },
+  {
+   "id": "890fca2162",
+   "op": "DEL",
+   "line": 242,
+   "before": "calen = DetCics.eibCalen(task, 10);",
+   "after": "/* calen = DetCics.eibCalen(task, 10); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
    ]
   },
   {
@@ -264,6 +384,42 @@
    ]
   },
   {
+   "id": "b5c7216965",
+   "op": "DEL",
+   "line": 262,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "/* calen = DetCics.eibCalen(task, 8); */",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: the deleted assignment is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "f275abd1c0",
+   "op": "CON",
+   "line": 268,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
+   "id": "f36dc1bc2b",
+   "op": "CON",
+   "line": 272,
+   "before": "calen = DetCics.eibCalen(task, 8);",
+   "after": "calen = DetCics.eibCalen(task, 9);",
+   "verdict": "equivalent",
+   "reason": "calen only feeds a store into EIBCALEN, which nothing reads: another constant in the chain is never seen (eib-calen-unread)",
+   "tried": [
+    "eib-calen-unread"
+   ]
+  },
+  {
    "id": "2470037959",
    "op": "DEL",
    "line": 275,
@@ -360,11 +516,107 @@
    ]
   },
   {
+   "id": "561b8c4236",
+   "op": "ROR",
+   "line": 357,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "56735b8cbf",
+   "op": "AOR",
+   "line": 357,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 0; d++) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "fcef92df67",
+   "op": "AOR",
+   "line": 357,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine + 1; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "1389136412",
+   "op": "NEG",
+   "line": 358,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (!(performThru[d] == i)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a17935971f",
+   "op": "ROR",
+   "line": 358,
+   "before": "if (performThru[d] == i) {",
+   "after": "if (performThru[d] != i) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "2cc145e529",
    "op": "CON",
    "line": 361,
    "before": "private int[] performThru = new int[64];",
    "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "60c96901dc",
+   "op": "ROR",
+   "line": 363,
+   "before": "if (next >= 7) {",
+   "after": "if (next < 7) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "806a861082",
+   "op": "NEG",
+   "line": 363,
+   "before": "if (next >= 7) {",
+   "after": "if (!(next >= 7)) {",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "210e4918b8",
+   "op": "ROR",
+   "line": 369,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
    "verdict": "equivalent",
    "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
    "tried": [
@@ -384,6 +636,54 @@
    ]
   },
   {
+   "id": "f01938e35c",
+   "op": "CON",
+   "line": 405,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "9dc1ad48b3",
+   "op": "NEG",
+   "line": 429,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "c014a390c2",
+   "op": "CON",
+   "line": 429,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to >= 1) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "f953a125ab",
+   "op": "ROR",
+   "line": 429,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
    "id": "cc101c2bd9",
    "op": "ROR",
    "line": 442,
@@ -393,6 +693,30 @@
    "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "468e8a3a6b",
+   "op": "CON",
+   "line": 450,
+   "before": "Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt4[0]), false, CS);",
+   "after": "Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt4[1]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f72_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "aaa1fc542b",
+   "op": "DEL",
+   "line": 450,
+   "before": "Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt4[0]), false, CS);",
+   "after": "/* Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt4[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f72_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
    ]
   },
   {
@@ -411,6 +735,30 @@
    "id": "c1857c4b55",
    "op": "ROR",
    "line": 466,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "614c439102",
+   "op": "DEL",
+   "line": 474,
+   "before": "Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt5[0]), false, CS);",
+   "after": "/* Cobol.store(f72_EIBRESP, BigDecimal.valueOf(fmt5[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f72_EIBRESP is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "1088c724f5",
+   "op": "ROR",
+   "line": 524,
    "before": "if (to >= 0) return GOTO | to;",
    "after": "if (to > 0) return GOTO | to;",
    "verdict": "equivalent",
@@ -489,6 +837,42 @@
    "reason": "f73_EIBRESP2 is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
    "tried": [
     "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "44b12f0173",
+   "op": "ROR",
+   "line": 573,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "5155d85034",
+   "op": "ROR",
+   "line": 594,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "77a7ae28b8",
+   "op": "ROR",
+   "line": 594,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
    ]
   },
   {

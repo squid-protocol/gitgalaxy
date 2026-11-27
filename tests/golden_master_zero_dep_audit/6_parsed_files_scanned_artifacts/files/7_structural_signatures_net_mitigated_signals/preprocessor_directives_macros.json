@@ -3202,7 +3202,7 @@
       "ocaml/janestreet_base/LICENSE.md": 0,
       "ocaml/janestreet_base/applicative.ml": 0,
       "ocaml/janestreet_base/applicative.mli": 0,
-      "ocaml/janestreet_base/applicative_intf.ml": 3,
+      "ocaml/janestreet_base/applicative_intf.ml": 0,
       "ocaml/janestreet_base/array.ml": 1,
       "ocaml/janestreet_base/array.mli": 0,
       "ocaml/janestreet_base/array0.ml": 0,

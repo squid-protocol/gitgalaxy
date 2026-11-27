@@ -5,7 +5,7 @@
   ],
   "value": {
     "Callbacks & Closures Files": "1.1% (45)",
-    "Compute Cores Files": "2.4% (103)",
+    "Compute Cores Files": "2.4% (102)",
     "Data / Markup / Trivial": "19.2% (810)",
     "Declarative / Non-Code": "19.9% (837)",
     "Encapsulated Accessors Files": "2.3% (97)",
@@ -15,7 +15,7 @@
     "Large Core Modules (2)": "8.8% (373)",
     "Large Core Modules (3)": "9.8% (414)",
     "Many-Argument Workhorses Files": "2.9% (121)",
-    "Parameter Forwarders Files": "5.0% (209)",
+    "Parameter Forwarders Files": "5.0% (210)",
     "State Mutators Files": "3.1% (130)",
     "Type Conversions Files": "0.9% (38)"
   }

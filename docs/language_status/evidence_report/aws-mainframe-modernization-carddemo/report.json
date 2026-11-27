@@ -3097,7 +3097,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "32acbf025b85ea17a2d2c6ae9d58e8a8d57652a4",
+   "sha": "b5a5025c149013466691f28791c327a9218243df",
    "translator": {
     "files": 189,
     "sha256": "61a5dce190102a6e3e90e51d47d580c31333d30bbece0b23bd249ee4164809ea"
@@ -6391,7 +6391,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:09b33424768d884a4207b40a259220445242331899f30f26426734711ab98b5c",
+       "oracle_image": "sha256:99d65b5da8408328b3b714b4c9573406aed5e382c40be68dfb57af30a4ad897b",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -6442,7 +6442,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:09b33424768d884a4207b40a259220445242331899f30f26426734711ab98b5c",
+      "oracle_image": "sha256:99d65b5da8408328b3b714b4c9573406aed5e382c40be68dfb57af30a4ad897b",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -6984,7 +6984,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:09b33424768d884a4207b40a259220445242331899f30f26426734711ab98b5c",
+       "oracle_image": "sha256:99d65b5da8408328b3b714b4c9573406aed5e382c40be68dfb57af30a4ad897b",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -11026,17 +11026,21 @@
     "accounted": 11,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted",
+    "det_port": "raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 109,
     "l5": false,
-    "mutants": 730,
+    "mutants": 728,
     "score": 0.7622,
     "stale_inputs": [],
     "survived": 34,
     "unaccounted": 23
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 730 mutants, seed 0); 23 of 34 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 76% (109/143 caught; 150 of 728 mutants, seed 0); 23 of 34 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -12360,19 +12364,23 @@
    "level_current": true,
    "mutation": {
     "accounted": 17,
-    "chosen": 152,
+    "chosen": 150,
     "current": true,
-    "det_port": "raw 64% (91/142 caught; 152 of 249 mutants, seed 0); 34 of 51 survivors unaccounted",
+    "det_port": "raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 32 of 49 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 91,
     "l5": false,
-    "mutants": 249,
-    "score": 0.6408,
+    "mutants": 247,
+    "score": 0.65,
     "stale_inputs": [],
-    "survived": 51,
-    "unaccounted": 34
+    "survived": 49,
+    "unaccounted": 32
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 64% (91/142 caught; 152 of 249 mutants, seed 0); 34 of 51 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 65% (91/140 caught; 150 of 247 mutants, seed 0); 32 of 49 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -13285,17 +13293,21 @@
     "accounted": 12,
     "chosen": 150,
     "current": true,
-    "det_port": "raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted",
+    "det_port": "raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 103,
     "l5": false,
-    "mutants": 729,
+    "mutants": 727,
     "score": 0.7103,
     "stale_inputs": [],
     "survived": 42,
     "unaccounted": 30
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 729 mutants, seed 0); 30 of 42 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (103/145 caught; 150 of 727 mutants, seed 0); 30 of 42 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -17425,19 +17437,23 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "chosen": 81,
+    "chosen": 79,
     "current": true,
-    "det_port": "raw 21% (16/75 caught; 81 of 81 mutants, seed 0); 59 of 59 survivors unaccounted",
+    "det_port": "raw 22% (16/73 caught; 79 of 79 mutants, seed 0); 57 of 57 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness"
+    ],
     "killed": 16,
     "l5": false,
-    "mutants": 81,
-    "score": 0.2133,
+    "mutants": 79,
+    "score": 0.2192,
     "stale_inputs": [],
-    "survived": 59,
-    "unaccounted": 59
+    "survived": 57,
+    "unaccounted": 57
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 21% (16/75 caught; 81 of 81 mutants, seed 0); 59 of 59 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 22% (16/73 caught; 79 of 79 mutants, seed 0); 57 of 57 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -23004,20 +23020,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 55,
-    "chosen": 141,
+    "accounted": 60,
+    "chosen": 148,
     "current": true,
-    "det_port": "raw 59% (79/135 caught; 141 of 1451 mutants, seed 0); 1 of 56 survivors unaccounted",
-    "killed": 79,
+    "det_port": "raw 57% (81/142 caught; 148 of 1487 mutants, seed 0); 1 of 61 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 81,
     "l5": false,
-    "mutants": 1451,
-    "score": 0.5852,
+    "mutants": 1487,
+    "score": 0.5704,
     "stale_inputs": [],
-    "survived": 56,
+    "survived": 61,
     "unaccounted": 1
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 59% (79/135 caught; 141 of 1451 mutants, seed 0); 1 of 56 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (81/142 caught; 148 of 1487 mutants, seed 0); 1 of 61 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -24873,20 +24894,25 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 582,
-    "chosen": 1284,
+    "accounted": 618,
+    "chosen": 1320,
     "current": true,
-    "det_port": "raw 52% (661/1261 caught; 1284 of 1284 mutants, seed 0); 18 of 600 survivors unaccounted",
-    "killed": 661,
+    "det_port": "raw 52% (670/1296 caught; 1320 of 1320 mutants, seed 0); 8 of 626 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh)",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
+    "killed": 670,
     "l5": false,
-    "mutants": 1284,
-    "score": 0.5242,
+    "mutants": 1320,
+    "score": 0.517,
     "stale_inputs": [],
-    "survived": 600,
-    "unaccounted": 18
+    "survived": 626,
+    "unaccounted": 8
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (661/1261 caught; 1284 of 1284 mutants, seed 0); 18 of 600 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 52% (670/1296 caught; 1320 of 1320 mutants, seed 0); 8 of 626 survivors unaccounted (recorded generator, harness, oracle differ from the tree; the port's bytes are checked by refresh))"
    ],
    "options": {
     "assumed": 6,
@@ -26135,8 +26161,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 32acbf025b85ea17a2d2c6ae9d58e8a8d57652a4",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 32acbf025b85ea17a2d2c6ae9d58e8a8d57652a4",
+   "python tests/tools/cics_census.py survey --baseline --sha b5a5025c149013466691f28791c327a9218243df",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha b5a5025c149013466691f28791c327a9218243df",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userlist-linked,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readacct carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -26154,7 +26180,7 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:078fbf3232efd0426c5bdb0d8fecc827c82e631385e4a02cace020eec295911a",
-   "sha256:09b33424768d884a4207b40a259220445242331899f30f26426734711ab98b5c",
+   "sha256:99d65b5da8408328b3b714b4c9573406aed5e382c40be68dfb57af30a4ad897b",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -26162,13 +26188,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "32acbf025b85ea17a2d2c6ae9d58e8a8d57652a4",
+   "sha": "b5a5025c149013466691f28791c327a9218243df",
    "translator": {
     "files": 189,
     "sha256": "61a5dce190102a6e3e90e51d47d580c31333d30bbece0b23bd249ee4164809ea"
    }
   },
-  "translator_commit": "32acbf025b85ea17a2d2c6ae9d58e8a8d57652a4",
+  "translator_commit": "b5a5025c149013466691f28791c327a9218243df",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

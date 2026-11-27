@@ -4349,6 +4349,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "int n = (int) x;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -4359,6 +4370,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "globals": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "static int counter = 0;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "high_risk_execution": {
     "block_comment": "pass",
@@ -4381,6 +4403,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "#include <stdio.h>",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "inline_asm": {
     "block_comment": "pass",
@@ -9542,6 +9575,17 @@
    }
   },
   "go": {
+   "api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "func ServeHTTP(w http.ResponseWriter, r *http.Request) {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -9629,6 +9673,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "encapsulation": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "func helper(x int) int {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "events": {
     "block_comment": "pass",
@@ -9729,6 +9784,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "listeners": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "msgs := make(<-chan string)",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "memory_alloc": {
     "block_comment": "pass",
     "comment": "pass",
@@ -9792,6 +9858,28 @@
     "inline_comment": "pass",
     "keyword": "errors.Is",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "_, err = os.Open(name)",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "scientific": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "y := math.Sqrt(x)",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -19839,6 +19927,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "encapsulation": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "pub(crate) fn helper() {}",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "events": {
     "block_comment": "pass",
     "comment": "pass",
@@ -19902,6 +20001,28 @@
     "inline_comment": "pass",
     "keyword": "const",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "import": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "use std::collections::HashMap;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "inline_asm": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "unsafe { asm!(\"nop\"); }",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },

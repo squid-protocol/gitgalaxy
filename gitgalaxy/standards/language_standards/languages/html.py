@@ -90,7 +90,7 @@ DEFINITION: dict[str, Any] = {
             r"<(?:details|summary|noscript)(?=[ \t\n\r\f/>])|\b(?:v-if|ng-if|x-if|hx-swap)=(?:\"[^\"]*\"|'[^']*')|\*ngIf=(?:\"[^\"]*\"|'[^']*')|\{%\s*(?:if|elif|else|endif)\s*[^%]*%\}|\{\{#if\s+[^}]+\}\}",
             re.I,
         ),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Attribute signatures defining input coupling. Bounded to prevent ReDoS on massive data attrs.
         "args": re.compile(
             r"\b(data-[a-zA-Z0-9_-]+|aria-[a-z]+|name|value|placeholder|for|alt|step|min|max)(?:[ \t\n\r\f]*=[ \t\n\r\f]*(?:\"[^\"]*\"|'[^']*'|[^ \t\n\r\f>\"']+))?",

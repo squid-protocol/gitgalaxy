@@ -53,7 +53,7 @@ DEFINITION: dict[str, Any] = {
             r"@media\b|@supports\b|@container\b|@starting-style\b|:(?:has|is|where|not)\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)",
             re.I,
         ),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # =====================================================================
         # A STATED ABSENCE (#2893). The `args` contract is "the parameters a
         # callable declares". CSS declares no callable, so it declares no

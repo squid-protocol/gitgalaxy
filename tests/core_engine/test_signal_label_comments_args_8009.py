@@ -38,6 +38,9 @@ RELABELLED = (
     "css",
     "swift",
     "html",
+    "lua",
+    "powershell",
+    "zig",
 )
 
 

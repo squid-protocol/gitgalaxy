@@ -69,7 +69,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
         "branch": re.compile(r"\b(if|elseif|else|for|while|repeat)\b"),
         "short_circuit": re.compile(r"\b(?:and|or)\b"),
-        # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
+        # 2. args (Calls & Signatures With Arguments). Captures parameters in named and anonymous function signatures.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the
         # "function"/name prefix) so detector.py's counter isolates just

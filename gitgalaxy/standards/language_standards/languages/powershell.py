@@ -288,7 +288,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"(?<![-$.\w])-(?:and|or|xor)\b"),
-        # args: Parameters / Coupling. Captures the param block mass of functions and script files.
+        # args (Calls & Signatures With Arguments). Captures the param block mass of functions and script files.
         # RULE 11 FIX (epic #813/#834): both alternatives used the flat `\([^)]*\)`,
         # truncating at the FIRST `)` and breaking on a realistic default-value expression
         # containing its own parens (`param($Config = (Get-DefaultConfig))`, extremely common

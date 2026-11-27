@@ -309,3 +309,31 @@ def test_the_sheet_explains_the_sample_and_that_counts_are_for_the_key_as_first_
     assert "### How much of the key was re-read" in files["pli.md"]
     assert "as first drafted" in files["pli.md"]
     assert "sample: key error" in files["matrix_legacy.svg"]
+
+
+def test_keyword_bar_fills_the_gaps_with_decoy_tested_families_in_grey():
+    """The keyword column spans every family the language has a rule for: parser bins in colour, decoy-tested ones in one grey, the rest empty."""
+    stat = ls.Stat(
+        n=100,
+        unit="oracle functions",
+        method="tree-sitter",
+        reference="r",
+        source="s",
+        extra={"bins": [2, 1, 0, 0], "scored": 3, "decoy_only": 5, "decoy_spec": 2, "defined": 10},
+    )
+    assert ls.cell_text("keywords", stat) == "3 of 10 families: 2 >90, 1 90-75; 5 more decoy-tested only"
+    stats = {name: {} for name in ls.STATS}
+    stats["keywords"] = {"zz": stat}
+    svg = ls.render_matrix_svg(["zz"], stats)
+    assert f'fill="{ls.DECOY_GREY}"' in svg and "3 parser + 5 decoy of 10 families" in svg
+    assert f'width="{ls.COL_W * 5 / 10:.1f}" height="9" fill="{ls.DECOY_GREY}"' in svg  # 5 of 10 families: half the bar
+    none = ls.Stat(
+        n=None,
+        unit="",
+        method="decoy-test",
+        reference="",
+        source="s",
+        extra={"bins": [0] * 4, "scored": 0, "decoy_only": 0, "decoy_spec": 0, "defined": 4},
+    )
+    stats["keywords"] = {"zz": none}
+    assert "not measured" in ls.render_matrix_svg(["zz"], stats)

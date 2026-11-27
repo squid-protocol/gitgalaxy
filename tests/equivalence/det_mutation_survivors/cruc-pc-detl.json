@@ -72,6 +72,22 @@
    ]
   },
   {
+   "id": "1e72e6481c",
+   "op": "LIT",
+   "line": 43,
+   "before": "\"ICAgICAgICAgICAgAAAgICAgIAAAICAgICAAACAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgICAgAAAgICAgIAAAICAgICAAACAgICAgAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "line 43 is the VALUE image of PCDTI (the input map area); the COBOL never names PCDTI (only PCDTO is MOVEd and SENT), so byte 0 of its initial image is never read or sent; thirteen inputs (AIDs ENTER, PF3, PF12, PF4, CLEAR, areas of 1 to 20 bytes, SEND faults) left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
    "id": "02c6ad005d",
    "op": "LIT",
    "line": 45,
@@ -84,6 +100,22 @@
    ]
   },
   {
+   "id": "22d9fc5d08",
+   "op": "LIT",
+   "line": 49,
+   "before": "\"ICAgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "after": "\"XCAgICAgICAgIAAAAAAAAAAAAAAAAAAAAAAAAAAA\"));",
+   "verdict": "equivalent",
+   "reason": "line 49 is the VALUE image of DFHCOMMAREA and the mutant changes byte 0 only (base64 'IC' to 'XC': 0x20 to 0x5C); byte 0 is overwritten by loadCommarea whenever EIBCALEN >= 1, and with EIBCALEN = 0 the program SENDs TEXT and RETURNs without reading DFHCOMMAREA; areas of 1, 2, 3, 5, 9, 10, 11, 20 bytes and no area left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
    "id": "ba6e4ea15d",
    "op": "LIT",
    "line": 51,
@@ -93,6 +125,22 @@
    "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
    "tried": [
     "inert-image"
+   ]
+  },
+  {
+   "id": "2a0365c06a",
+   "op": "LIT",
+   "line": 53,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "harness-gap",
+   "reason": "line 53 is the image of GG_RETURN_CODE (byte 0 0x00 -> 0x5C); the COBOL never reads it and only runProgram returns it, which the CICS harness does not call (it enters runTask); thirteen inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
    ]
   },
   {
@@ -396,6 +444,54 @@
    ]
   },
   {
+   "id": "23a1da46a3",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 1, false, false, false);",
+   "verdict": "case-gap",
+   "reason": "MN_VISITS scale 0 -> 1: the MOVE of a scaled zoned item to the alphanumeric DVISITSO should drop or shift the implied decimal, yet five inputs (1234, ten digits, a D-zone digit, X'FF', typed 9999) left it alive, so the screen compares no difference. Not stated equivalent: the port's reading of a scaled sender is not shown to match this one. Open: needs an input and a compare that exposes DVISITSO text for a scaled sender.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "958d32b419",
+   "op": "CON",
+   "line": 76,
+   "before": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 4, 0, false, false, false);",
+   "after": "private final Field f59_MN_VISITS = Field.zoned(s_WS_CA, 0, 5, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "MN_VISITS widened from 4 to 5 digits (offset 0): its only read is MOVE MN-VISITS TO DVISITSO, a 4-byte alphanumeric item, so the 5-character source text is cut to its first four, which are the same bytes as the 4-digit item's. The extra byte is the first byte of MN-LAST. Five inputs (1234/ABCD/ZZ with non-digit byte 5, ten digits, a D-zone digit, all X'FF' under CLEAR, typed 9999/ABCD/Q) left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "2346749beb",
+   "op": "CON",
+   "line": 77,
+   "before": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 4, false);",
+   "after": "private final Field f60_MN_LAST = Field.alphanumeric(s_WS_CA, 4, 5, false);",
+   "verdict": "equivalent",
+   "reason": "MN_LAST widened from 4 to 5 bytes (offset 4): its only read is MOVE MN-LAST TO DLASTO, a 4-byte alphanumeric item, so the 5-byte source is truncated on the right to its first four, the same bytes as before. The extra byte is the first byte of MN-FLAG, which the inputs set to Z, Q, 0 and X'FF'. Five inputs left it alive: a hand-read truncation argument plus the attack, not a tool fact.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
    "id": "40928d5716",
    "op": "CON",
    "line": 80,
@@ -675,6 +771,102 @@
    ]
   },
   {
+   "id": "994ce83708",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE widened from 4 to 5 digits: the item is read only by the returnCode() accessor after the run, which no compared scenario reads, and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "fac30f8c23",
+   "op": "CON",
+   "line": 88,
+   "before": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f96_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE moved to offset 1 of its 2-byte image: the item is read only by the returnCode() accessor after the run, which no compared scenario reads (the harness compares screen, COMMAREA and abend), and PCDETL never stores RETURN-CODE. Five inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "all-high",
+    "digits-all-flag-zz",
+    "nine-digit-visits",
+    "signed-nibble-visits",
+    "typed-9999"
+   ]
+  },
+  {
+   "id": "2dda22e406",
+   "op": "LIT",
+   "line": 103,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"XAIN-PARA\", 0)",
+   "verdict": "equivalent",
+   "reason": "the PARAGRAPHS entry name is read only by paragraph(name) for PERFORM / GO TO / HANDLE labels and by condition() when a handler label is set; PCDETL has none of these (one paragraph, no HANDLE CONDITION, no PERFORM), and perform(0, 0) enters by index; SEND TEXT / SEND MAP faults (the only paths into condition()) and thirteen further inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "ce9988a914",
+   "op": "CON",
+   "line": 103,
+   "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
+   "after": "java.util.Map.entry(\"MAIN-PARA\", 1)",
+   "verdict": "equivalent",
+   "reason": "the entry's index 0 -> 1 is read only through paragraph(name) and condition()'s label lookup, which PCDETL never reaches with a label (no HANDLE CONDITION, PERFORM or GO TO); runTask enters with perform(0, 0), not through the table; SEND faults and thirteen further inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "3a77f5cf77",
+   "op": "DEL",
+   "line": 123,
+   "before": "System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PCDTI, 0, s_PCDTI.bytes, 0, IMAGE_s_PCDTI.length); */",
+   "verdict": "equivalent",
+   "reason": "deleting the initialState copy of the PCDTI image leaves PCDTI zeroed instead of spaces/low-values; PCDTI is never referenced by the PROCEDURE DIVISION (PCDTO is built by MOVE LOW-VALUES and sent), so no byte of it reaches the map, EIB or COMMAREA; thirteen inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "ebbc7b4713",
+   "op": "DEL",
+   "line": 127,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "equivalent",
+   "reason": "deleting the DFHEIBLK image copy leaves the EIB bytes zero instead of spaces/packed zero; the only EIB items the COBOL reads are EIBCALEN and EIBTRNID, and runTask stores both on every task (EIBCALEN by Cobol.store, EIBTRNID by Cobol.move of transid) after initialState, so every read byte is overwritten; thirteen inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
    "id": "aaf7f7f8aa",
    "op": "DEL",
    "line": 137,
@@ -708,6 +900,38 @@
    "reason": "s_GG_RETURN_CODE is all X'00' and its items are only read: restoring it changes nothing (inert-image)",
    "tried": [
     "inert-image"
+   ]
+  },
+  {
+   "id": "008f67c6f0",
+   "op": "DEL",
+   "line": 150,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "caBack = () -> { } resets the copy-back hook per task; caBack becomes non-trivial only for a LINKed area (task.linkArea() non-null, REST facade) or an exact area shorter than 10 bytes, and runTask reassigns it in both arms before use; on any other task the stale hook would only write the previous task's bytes into the previous task's own area, which the harness no longer reads; areas of 1, 2, 5, 10, 11, 20 bytes in sequence left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "7c89705139",
+   "op": "DEL",
+   "line": 151,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "handlers.clear() empties a map PCDETL never fills: the source has no HANDLE CONDITION, HANDLE ABEND or IGNORE CONDITION, so the map is empty at entry and clear() changes nothing, even on a reused instance; SEND faults and thirteen further inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
    ]
   },
   {
@@ -758,6 +982,38 @@
     "noctx-no-terminal",
     "noctx-term-t001",
     "noctx-term-zzzz"
+   ]
+  },
+  {
+   "id": "46b8c037f4",
+   "op": "ROR",
+   "line": 160,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "harness-gap",
+   "reason": "the negated null test differs from the port only when task.aid() is null (switch on a null String throws); the harness cannot give a task no AID: the oracle refuses a null AID ('aid must be a DFH AID name'), so no input reaches it; for a non-null AID the switch has only a default arm and both read the same; areas of 1 to 20 bytes under ENTER, PF3, PF4, PF12, CLEAR left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "14c6db23db",
+   "op": "DEL",
+   "line": 165,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "equivalent",
+   "reason": "s_DFHCOMMAREA.beyond is read only by the caBack copy-back that runs when task.linkArea() is non-null, and in that arm loadCommarea(s_DFHCOMMAREA, raw) assigns beyond itself first; on every other path beyond is not read, so clearing it per task is unobservable; areas of 11 and 20 bytes followed by shorter ones left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
    ]
   },
   {
@@ -1066,6 +1322,38 @@
     "hex-nul-10",
     "pa1-hex-4",
     "pf3-ctx"
+   ]
+  },
+  {
+   "id": "a72f8b8c3d",
+   "op": "DEL",
+   "line": 213,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "harness-gap",
+   "reason": "deleting the restore of the TRUNC mode in the finally block leaves the process-wide TRUNC(STD) swap in place after the task; runTask re-swaps on entry and PCDETL does no binary arithmetic (only MOVEs and SEND), so the program's output is unchanged; the effect is on code that runs after runTask in the same JVM, which the harness does not observe; thirteen inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
+   ]
+  },
+  {
+   "id": "3874a73f86",
+   "op": "DEL",
+   "line": 214,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "harness-gap",
+   "reason": "deleting the restore of NUMPROC in the finally block leaves the NOPFD swap in place after the task; runTask re-swaps on entry and PCDETL does no packed arithmetic, so the program's output is unchanged; the effect is on later code in the same JVM, which the harness does not observe; thirteen inputs left it alive",
+   "tried": [
+    "calen-10-clear-no-terminal",
+    "calen-10-hex-pf12",
+    "calen-2-hex-digits",
+    "calen-5-hex-pf3",
+    "no-commarea-pf1"
    ]
   },
   {
@@ -1725,6 +2013,25 @@
    ]
   },
   {
+   "id": "351d03d576",
+   "op": "NEG",
+   "line": 349,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "the negated `to >= 0` guards a return that never runs: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans none of those on SEND TEXT (INVREQ, LENGERR, TSIOERR only); the same SEND TEXT faults and eight further inputs left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
    "id": "a70500adff",
    "op": "ROR",
    "line": 349,
@@ -1758,6 +2065,25 @@
    "reason": "`to` is never assigned: with no HANDLE label condition() throws unless the condition is ignored by default (EOC, EXPIRED), and the harness plans no such condition on this command (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "a3a94b90eb",
+   "op": "DEL",
+   "line": 352,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before the no-context RETURN copies s_DFHCOMMAREA back to the LINK area; PCDETL only reads DFHCOMMAREA (MOVE DFHCOMMAREA TO WS-CA, source line 27: no store into it), so the copied bytes equal the bytes loaded; eight inputs (EIBCALEN 9, 11, 29, exact 10, none) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {
@@ -1846,6 +2172,44 @@
    "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
    "tried": [
     "flow-plumbing"
+   ]
+  },
+  {
+   "id": "94098dc82b",
+   "op": "DEL",
+   "line": 389,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "equivalent",
+   "reason": "caBack.run() before RETURN TRANSID('PC11') on the context arm copies s_DFHCOMMAREA back; PCDETL never stores into DFHCOMMAREA (only MOVE DFHCOMMAREA TO WS-CA), so the bytes written back are the ones loaded; eight inputs (EIBCALEN 9, 11, 29, populated, SEND MAP fault) left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
+   ]
+  },
+  {
+   "id": "2de8e121bc",
+   "op": "NEG",
+   "line": 391,
+   "before": "if (true) throw new Goback();",
+   "after": "if (!(true)) throw new Goback();",
+   "verdict": "equivalent",
+   "reason": "`if (!(true)) throw new Goback()` falls through to `return 1`: perform() returns at i == thru (paragraph 0 is the only one) instead of the Goback catch in runTask, and after RETURN TRANSID task.ended() is true so the tail `if (!task.ended())` block is skipped either way; eight inputs with PF, PA, CLEAR and ENTER keys on both arms left it alive",
+   "tried": [
+    "clear-long-hex-30",
+    "enter-hex-9",
+    "pa2-no-context",
+    "pf1-ctx-visits-7",
+    "pf12-hex-ctx",
+    "pf24-hex-11",
+    "sendmap-ioerr-pa3",
+    "sendtext-resp-ioerr-pf1"
    ]
   },
   {

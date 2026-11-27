@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1018 950" width="1018" height="950" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1018 850" width="1018" height="850" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>
   .surface { fill: #0f1117; }  /* house style: dark, matching the other charts */
   .title { font-size: 16px; font-weight: 600; fill: #f0efec; }
@@ -19,18 +19,18 @@
   .lang9 { font-size: 9px; fill: #c3c2b7; }
   .u { fill: #3b3f4a; }
 </style>
-<rect class="surface" x="0" y="0" width="1018" height="950"/>
+<rect class="surface" x="0" y="0" width="1018" height="850"/>
 <text class="title" x="16" y="24">Keyword families: how much is checked, and how well</text>
-<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 217 are measured against a parser (19 languages), 1,790 more only by a decoy test, 929 not tested yet.</text>
+<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 217 are measured against a parser (19 languages), 1,833 more only by a decoy test, 886 not tested yet.</text>
 <rect x="16.0" y="56" width="72.9" height="16" fill="#4f9be8"/>
 <rect x="16" y="80" width="9" height="9" fill="#4f9be8"/>
 <text class="legend" x="30" y="88">217 measured against a parser</text>
-<rect x="88.9" y="56" width="601.1" height="16" fill="#8b949e"/>
+<rect x="88.9" y="56" width="615.6" height="16" fill="#8b949e"/>
 <rect x="200" y="80" width="9" height="9" fill="#8b949e"/>
-<text class="legend" x="214" y="88">1,790 decoy test only</text>
-<rect x="690.0" y="56" width="312.0" height="16" fill="#30363d"/>
+<text class="legend" x="214" y="88">1,833 decoy test only</text>
+<rect x="704.5" y="56" width="297.5" height="16" fill="#30363d"/>
 <rect x="339" y="80" width="9" height="9" fill="#30363d"/>
-<text class="legend" x="353" y="88">929 not tested yet</text>
+<text class="legend" x="353" y="88">886 not tested yet</text>
 <text class="h" x="16" y="120">Measured against a parser: the lower of recall and precision, in %</text>
 <text class="lang" transform="translate(228,192) rotate(-90)">python</text>
 <text class="lang" transform="translate(270,192) rotate(-90)">csharp</text>
@@ -927,21 +927,14 @@
 <text class="legend" x="234" y="764">90-97%</text>
 <rect x="279" y="756" width="12" height="9" fill="#a9d1ff"/>
 <text class="legend" x="295" y="764">98-100%</text>
-<text class="h" x="16" y="798">Decoy test (no parser needed)</text>
-<text class="note" x="16" y="813">Each family keyword planted in a comment and in a string literal, in 65 languages.</text>
-<text class="big" x="16" y="836">In a comment: ignored</text>
-<rect x="16" y="842" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="842" width="324.3" height="14" fill="#8b949e"/>
-<text class="legend" x="356" y="853">1,935 of 1,969 cells</text>
-<text class="big" x="16" y="880">In a string literal: counted</text>
-<rect x="16" y="886" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="886" width="288.1" height="14" fill="#e5534b"/>
-<text class="legend" x="356" y="897">1,624 of 1,860 cells</text>
-<text class="note" x="476" y="828">Comments are stripped before any family is counted,</text>
-<text class="note" x="476" y="841">as designed. Strings are not: a keyword inside a string</text>
-<text class="note" x="476" y="854">counts like code. That is documented behaviour (issue</text>
-<text class="note" x="476" y="867">#2535), but it conflicts with the families&#x27; written</text>
-<text class="note" x="476" y="880">contracts, so it is a decision for the maintainers.</text>
-<text class="note" x="16" y="928">One repository per language; the parser&#x27;s reading is our interpretation of each family&#x27;s contract, not ground truth.</text>
-<text class="note" x="16" y="941">Cells are measurements on one corpus, not proof a family is right everywhere. Full 73 x 71 matrix: docs/self_scan/family_validity_matrix.svg</text>
+<rect x="16" y="778" width="14" height="11" fill="#8b949e" stroke="#4a4f5c" stroke-width="0.4"/>
+<rect x="30" y="778" width="14" height="11" fill="#7f95ad" stroke="#4a4f5c" stroke-width="0.4"/>
+<rect x="44" y="778" width="14" height="11" fill="#7397bc" stroke="#4a4f5c" stroke-width="0.4"/>
+<rect x="58" y="778" width="14" height="11" fill="#6798ca" stroke="#4a4f5c" stroke-width="0.4"/>
+<rect x="72" y="778" width="14" height="11" fill="#5b9ad9" stroke="#4a4f5c" stroke-width="0.4"/>
+<rect x="86" y="778" width="14" height="11" fill="#4f9be8" stroke="#4a4f5c" stroke-width="0.4"/>
+<text class="legend" x="108" y="787">Decoy tiers: grey now (SOP-001, SOP-002). Stricter tiers (SOP-003 and later) take more colour until a test is as thorough as a parser.</text>
+<text class="note" x="16" y="802">Grey = a decoy test only: a keyword planted in a comment and a string is handled; it does not show the family finds the construct.</text>
+<text class="note" x="16" y="820">One repository per language; the parser&#x27;s reading is our interpretation of each family&#x27;s contract, not ground truth.</text>
+<text class="note" x="16" y="833">Cells are measurements on one corpus, not proof a family is right everywhere. Full 73 x 71 matrix: docs/self_scan/family_validity_matrix.svg</text>
 </svg>

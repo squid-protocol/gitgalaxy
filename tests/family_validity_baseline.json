@@ -4349,6 +4349,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "int n = (int) x;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -4359,6 +4370,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "globals": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "static int counter = 0;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "high_risk_execution": {
     "block_comment": "pass",
@@ -4381,6 +4403,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "#include <stdio.h>",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "inline_asm": {
     "block_comment": "pass",
@@ -5224,6 +5257,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "closures": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": null,
+    "inline_comment": "pass",
+    "keyword": "auto add = [base](int v) { return base + v; };",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "comprehensions": {
     "block_comment": "pass",
     "comment": "pass",
@@ -5355,6 +5399,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "#include <vector>",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "inline_asm": {
     "block_comment": "pass",
@@ -5551,6 +5606,17 @@
     "inline_comment": "pass",
     "keyword": "mutex",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "telemetry": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "logger.info(\"service started\");",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -6066,6 +6132,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "auth_middleware": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "app.UseAuthentication();",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "bitwise_ops": {
     "block_comment": "pass",
     "comment": "pass",
@@ -6107,6 +6184,17 @@
     "inline_comment": "pass",
     "keyword": "x => x + 1",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "comprehensions": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "var r = items.Where(x => x > 1);",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -6176,6 +6264,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "var c = obj as Customer;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -6219,6 +6318,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "using System.Linq;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "ipc_rpc_bridges": {
     "block_comment": "pass",
@@ -9465,6 +9575,17 @@
    }
   },
   "go": {
+   "api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "func ServeHTTP(w http.ResponseWriter, r *http.Request) {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -9552,6 +9673,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "encapsulation": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "func helper(x int) int {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "events": {
     "block_comment": "pass",
@@ -9652,6 +9784,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "listeners": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "msgs := make(<-chan string)",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "memory_alloc": {
     "block_comment": "pass",
     "comment": "pass",
@@ -9715,6 +9858,28 @@
     "inline_comment": "pass",
     "keyword": "errors.Is",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "safety_bypasses": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "pass",
+    "keyword": "_, err = os.Open(name)",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "scientific": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "y := math.Sqrt(x)",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -10881,6 +11046,17 @@
     "string_comment_boundary": null,
     "string_counts": null
    },
+   "bitwise_ops": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "NR",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
+   },
    "branch": {
     "block_comment": null,
     "comment": "pass",
@@ -11068,6 +11244,17 @@
     "string_comment_boundary": null,
     "string_counts": null
    },
+   "pointers": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "leak",
+    "keyword": "DC A(",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
+    "string_counts": true
+   },
    "reflection_metaprogramming": {
     "block_comment": null,
     "comment": "pass",
@@ -11122,6 +11309,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": null,
     "string_counts": null
+   },
+   "ssr_boundaries": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "leak",
+    "keyword": "EXEC CICS WEB",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
+    "string_counts": true
    },
    "state_mutation": {
     "block_comment": null,
@@ -11314,6 +11512,17 @@
    }
   },
   "java": {
+   "api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "public class Foo {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -11446,6 +11655,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "int n = (int) value;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -11489,6 +11709,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import java.util.List;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "io": {
     "block_comment": "pass",
@@ -12873,6 +13104,17 @@
    }
   },
   "kotlin": {
+   "api": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "public class Foo",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -13005,6 +13247,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "val c = obj as Customer",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -13038,6 +13291,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "immutability_locks": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "const val MAX = 10",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "import": {
     "block_comment": "pass",
     "comment": "pass",
@@ -13068,6 +13332,17 @@
     "inline_comment": "pass",
     "keyword": "BroadcastReceiver",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "listeners": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "button.setOnClickListener { }",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -13812,6 +14087,28 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "immutability_locks": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "local max_retries <const> = 3",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "import": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "local json = require('json')",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "io": {
     "block_comment": "pass",
     "comment": "pass",
@@ -13919,6 +14216,17 @@
     "inline_comment": "pass",
     "keyword": "rawget",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "scientific": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "local rounded = math.floor(value)",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -15816,172 +16124,172 @@
   },
   "ocaml": {
    "api": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Dream.get",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "auth_middleware": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Jwto",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "bitwise_ops": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "land",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "branch": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "if",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": false
    },
    "cleanup": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "close_in",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "closures": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "fun",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "comprehensions": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "List.map",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "concurrency": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Lwt.async",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "debug_prints": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Printf.printf",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "dependency_injection": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "functor",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "encapsulation": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "sig",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "events": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Sys.signal",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "globals": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Sys.getenv",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "high_risk_execution": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Sys.command",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "immutability_locks": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "x = private(y)",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "import": {
-    "block_comment": "leak",
+    "block_comment": "pass",
     "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
@@ -15992,212 +16300,212 @@
     "string_counts": false
    },
    "io": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "open_in",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "ipc_rpc_bridges": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Unix.pipe",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "listeners": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Unix.listen",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "memory_alloc": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Bytes.create",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "panics_and_aborts": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "failwith",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "pointers": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "ref x",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "regex_execution": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Re.Perl",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "safety": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "try",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "safety_bypasses": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Obj.magic",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "scientific": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Owl",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "serialization_parsing": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Yojson",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "state_mutation": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "incr",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "sync_locks": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Mutex.lock",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "system_config_mutation": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Unix.putenv",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "telemetry": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Log.info",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "test": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Alcotest",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "test_skip": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Alcotest.skip",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "time_date_logic": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": null,
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "Unix.time",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    },
    "ui_framework": {
-    "block_comment": "leak",
-    "comment": "leak",
+    "block_comment": "pass",
+    "comment": "pass",
     "corpus": "decoy-suite",
     "ident_boundary": "pass",
-    "inline_comment": "leak",
+    "inline_comment": "pass",
     "keyword": "GMain",
     "protocol": "SOP-001-v1",
-    "string_comment_boundary": "leak",
+    "string_comment_boundary": "pass",
     "string_counts": true
    }
   },
@@ -16622,6 +16930,17 @@
    }
   },
   "php": {
+   "api": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "leak",
+    "keyword": "public function run(): void {}",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
+    "string_counts": true
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -17005,6 +17324,17 @@
     "keyword": "mutex",
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "telemetry": {
+    "block_comment": "pass",
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "leak",
+    "inline_comment": "leak",
+    "keyword": "Log::info(\"user created\");",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "leak",
     "string_counts": true
    },
    "test": {
@@ -19364,6 +19694,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "auth_middleware": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "before_action :authenticate_user!",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "bitwise_ops": {
     "block_comment": "leak",
     "comment": "pass",
@@ -19405,6 +19746,17 @@
     "inline_comment": "pass",
     "keyword": "do",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "comprehensions": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "items.map { |item| item.name }",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -19526,6 +19878,17 @@
     "inline_comment": "pass",
     "keyword": "freeze",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "import": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "require 'json'",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -19716,6 +20079,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "telemetry": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "Rails.logger.info(message)",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "test": {
     "block_comment": "leak",
     "comment": "pass",
@@ -19872,6 +20246,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "encapsulation": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "pub(crate) fn helper() {}",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "events": {
     "block_comment": "pass",
     "comment": "pass",
@@ -19935,6 +20320,28 @@
     "inline_comment": "pass",
     "keyword": "const",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "import": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "use std::collections::HashMap;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "inline_asm": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "unsafe { asm!(\"nop\"); }",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -20333,6 +20740,17 @@
     "inline_comment": "pass",
     "keyword": "Source",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "val count = raw.toInt",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -20923,6 +21341,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "comprehensions": {
+    "block_comment": null,
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "for i in {1..5}; do",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "concurrency": {
     "block_comment": null,
     "comment": "pass",
@@ -20942,6 +21371,17 @@
     "inline_comment": "pass",
     "keyword": "echo",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "dependency_injection": {
+    "block_comment": null,
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "target=${1:-production}",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -21055,6 +21495,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "pointers": {
+    "block_comment": null,
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "declare -n ref=target",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "reflection_metaprogramming": {
     "block_comment": null,
     "comment": "pass",
@@ -21074,6 +21525,17 @@
     "inline_comment": "pass",
     "keyword": "grep",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "safety": {
+    "block_comment": null,
+    "comment": "leak",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "set -euo pipefail",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -21131,6 +21593,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "state_mutation": {
+    "block_comment": null,
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "retries=0",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "sync_locks": {
     "block_comment": null,

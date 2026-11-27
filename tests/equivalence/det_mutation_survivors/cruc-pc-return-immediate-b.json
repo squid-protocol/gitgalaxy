@@ -60,6 +60,27 @@
    ]
   },
   {
+   "id": "1297632937",
+   "op": "LIT",
+   "line": 40,
+   "before": "\"ICAgICAgICAgICBDPTAw\"));",
+   "after": "\"XCAgICAgICAgICBDPTAw\"));",
+   "verdict": "equivalent",
+   "reason": "image byte 0 of s_WS_BLOG is BLOG-TAG(1): both arms of the IF MOVE 'B1 ' or 'B2 ' over all 3 tag bytes before LOG-B, the only reader (WRITEQ TS FROM(WS-BLOG)); initialState() restores the image on every entry, so the first byte never reaches the queue. Ten new inputs left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
    "id": "bfea8a8c80",
    "op": "LIT",
    "line": 44,
@@ -69,6 +90,90 @@
    "reason": "every read of image byte(s) [0] of s_DFHEIBLK follows a top-level Cobol.store in its own method (inert-image)",
    "tried": [
     "inert-image"
+   ]
+  },
+  {
+   "id": "4affd7835a",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "harness-gap",
+   "reason": "byte 0 of the 2-byte GG_RETURN_CODE image becomes X'5C': the item is read only by the returnCode() accessor after the run, which no compared scenario reads (the harness compares screen, COMMAREA, TS writes and abend), and PCIMMB never stores RETURN-CODE. Ten new inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "8eb1c91eca",
+   "op": "CON",
+   "line": 52,
+   "before": "private final Field f2_WS_BLOG = Field.group(s_WS_BLOG, 0, 15);",
+   "after": "private final Field f2_WS_BLOG = Field.group(s_WS_BLOG, 0, 16);",
+   "verdict": "equivalent",
+   "reason": "f2_WS_BLOG is read only by DetCics.padded(f2_WS_BLOG, 15, ...), which copies min(15, f.length()) bytes: length 16 copies the same 15. Ten new inputs left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "f59bad5e37",
+   "op": "CON",
+   "line": 54,
+   "before": "private final Field f4_BLOG_TEXT = Field.alphanumeric(s_WS_BLOG, 3, 7, false);",
+   "after": "private final Field f4_BLOG_TEXT = Field.alphanumeric(s_WS_BLOG, 3, 8, false);",
+   "verdict": "equivalent",
+   "reason": "BLOG-TEXT widened from 7 to 8 bytes: its only writer is MOVE CA-TEXT (7 bytes) TO BLOG-TEXT, which space-pads the 8th byte, byte 10 of WS-BLOG, and that byte is FILLER VALUE ' ' which nothing else writes: the same space. Ten new inputs (binary and blank text) left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "3f16568ab4",
+   "op": "CON",
+   "line": 56,
+   "before": "private final Field f7_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 8);",
+   "after": "private final Field f7_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 9);",
+   "verdict": "equivalent",
+   "reason": "f7_DFHCOMMAREA length 8 -> 9: the field is used only through storage() and offset() (out_PcimmaWsCa, Cobol.commarea(f7, 8) which takes its size from the argument), so its declared length is never read. Ten new inputs left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
    ]
   },
   {
@@ -312,6 +417,48 @@
    ]
   },
   {
+   "id": "bd61bfa3a4",
+   "op": "CON",
+   "line": 67,
+   "before": "private final Field f42_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f42_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE moved to offset 1 of its 2-byte image: the item is read only by the returnCode() accessor after the run, which no compared scenario reads, and PCIMMB never stores RETURN-CODE. Ten new inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "ede702efe0",
+   "op": "CON",
+   "line": 67,
+   "before": "private final Field f42_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f42_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "harness-gap",
+   "reason": "GG_RETURN_CODE widened from 4 to 5 bytes: the item is read only by the returnCode() accessor after the run, which no compared scenario reads, and PCIMMB never stores RETURN-CODE. Ten new inputs left it alive. Open: the harness does not compare the return code.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
    "id": "1a6264004e",
    "op": "ROR",
    "line": 80,
@@ -417,6 +564,90 @@
    "reason": "store() is reached from no entry point of the program (no-entry-path)",
    "tried": [
     "no-entry-path"
+   ]
+  },
+  {
+   "id": "4ebcb30075",
+   "op": "AOR",
+   "line": 101,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base - 0, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "base + 0 -> base - 0 in in_PcimmaWsCa: the two expressions are equal for every int. Ten new inputs left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "a229f47b42",
+   "op": "CON",
+   "line": 101,
+   "before": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 1, false), CS);",
+   "after": "Cobol.move(d.getCaStage() == null ? \"\" : d.getCaStage(), Field.alphanumeric(s, base + 0, 2, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "in_PcimmaWsCa (stage byte widened from 1 to 2) copies a typed PcimmaWsCa DTO into DFHCOMMAREA (line 165) and the harness gives the task a byte-array COMMAREA in every scenario, so the DTO branch's difference is never compared (a typed entry would show it as a different COMMAREA on RETURN). Ten new byte-area inputs left it alive. Open: the harness does not enter the typed DTO.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "0aa0212c1d",
+   "op": "CON",
+   "line": 102,
+   "before": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 7, false), CS);",
+   "after": "Cobol.move(d.getCaText() == null ? \"\" : d.getCaText(), Field.alphanumeric(s, base + 1, 8, false), CS);",
+   "verdict": "harness-gap",
+   "reason": "in_PcimmaWsCa (text widened from 7 to 8 bytes) copies a typed PcimmaWsCa DTO into DFHCOMMAREA (line 165) and the harness gives the task a byte-array COMMAREA in every scenario, so the DTO branch's difference is never compared (a typed entry would show it as a different COMMAREA on RETURN). Ten new byte-area inputs left it alive. Open: the harness does not enter the typed DTO.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
+   ]
+  },
+  {
+   "id": "dce76cced5",
+   "op": "AOR",
+   "line": 106,
+   "before": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base + 0, 1, false), CS));",
+   "after": "d.setCaStage(Cobol.text(Field.alphanumeric(s, base - 0, 1, false), CS));",
+   "verdict": "equivalent",
+   "reason": "base + 0 -> base - 0 in fill_PcimmaWsCa: the two expressions are equal for every int. Ten new inputs left it alive.",
+   "tried": [
+    "s-space",
+    "s1-hex-9",
+    "s1-pf12",
+    "s1-text-high",
+    "s1-text-low",
+    "s1-wq-lengerr",
+    "s1-wq-nospace",
+    "s2-hex-8-ff",
+    "s2-pa2",
+    "s2-wq-qiderr"
    ]
   },
   {

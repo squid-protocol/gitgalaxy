@@ -21,16 +21,16 @@
 </style>
 <rect class="surface" x="0" y="0" width="1018" height="950"/>
 <text class="title" x="16" y="24">Keyword families: how much is checked, and how well</text>
-<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 217 are measured against a parser (19 languages), 1,758 more only by a decoy test, 961 not tested yet.</text>
+<text class="subtitle" x="16" y="43">2,936 language-by-family rules are defined. 217 are measured against a parser (19 languages), 1,769 more only by a decoy test, 950 not tested yet.</text>
 <rect x="16.0" y="56" width="72.9" height="16" fill="#4f9be8"/>
 <rect x="16" y="80" width="9" height="9" fill="#4f9be8"/>
 <text class="legend" x="30" y="88">217 measured against a parser</text>
-<rect x="88.9" y="56" width="590.4" height="16" fill="#8b949e"/>
+<rect x="88.9" y="56" width="594.1" height="16" fill="#8b949e"/>
 <rect x="200" y="80" width="9" height="9" fill="#8b949e"/>
-<text class="legend" x="214" y="88">1,758 decoy test only</text>
-<rect x="679.3" y="56" width="322.7" height="16" fill="#30363d"/>
+<text class="legend" x="214" y="88">1,769 decoy test only</text>
+<rect x="683.0" y="56" width="319.0" height="16" fill="#30363d"/>
 <rect x="339" y="80" width="9" height="9" fill="#30363d"/>
-<text class="legend" x="353" y="88">961 not tested yet</text>
+<text class="legend" x="353" y="88">950 not tested yet</text>
 <text class="h" x="16" y="120">Measured against a parser: the lower of recall and precision, in %</text>
 <text class="lang" transform="translate(228,192) rotate(-90)">python</text>
 <text class="lang" transform="translate(270,192) rotate(-90)">csharp</text>
@@ -931,12 +931,12 @@
 <text class="note" x="16" y="813">Each family keyword planted in a comment and in a string literal, in 65 languages.</text>
 <text class="big" x="16" y="836">In a comment: ignored</text>
 <rect x="16" y="842" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="842" width="324.2" height="14" fill="#8b949e"/>
-<text class="legend" x="356" y="853">1,903 of 1,937 cells</text>
+<rect x="16" y="842" width="323.7" height="14" fill="#8b949e"/>
+<text class="legend" x="356" y="853">1,911 of 1,948 cells</text>
 <text class="big" x="16" y="880">In a string literal: counted</text>
 <rect x="16" y="886" width="330" height="14" fill="#30363d"/>
-<rect x="16" y="886" width="288.8" height="14" fill="#e5534b"/>
-<text class="legend" x="356" y="897">1,600 of 1,828 cells</text>
+<rect x="16" y="886" width="288.4" height="14" fill="#e5534b"/>
+<text class="legend" x="356" y="897">1,607 of 1,839 cells</text>
 <text class="note" x="476" y="828">Comments are stripped before any family is counted,</text>
 <text class="note" x="476" y="841">as designed. Strings are not: a keyword inside a string</text>
 <text class="note" x="476" y="854">counts like code. That is documented behaviour (issue</text>

@@ -10,7 +10,7 @@ Context: legacy/mainframe
 | Functions | not measured | | | | |
 | Call links | not measured | | | | |
 | Imports | not measured | | | | |
-| Keywords | 5 of 47 families: 5 >90 | 11 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 5 of 47 families: 5 >90; 28 more decoy-tested only | 11 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 57 of 57 passed, 0 failed | 57 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | not measured | | | | |
 

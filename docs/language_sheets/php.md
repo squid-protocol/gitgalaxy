@@ -10,7 +10,7 @@ Context: unclassified
 | Functions | 100% recall / 100% precision | 1,707 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_php.json` |
 | Call links | 99.9% precision / 97.9% recall | 3,059 reference edges | analyser | scip-php 0.0.2 | `tests/call_graph_resolution_php_baseline.json` |
 | Imports | 99.2% precision / 100% recall | 390 imports | tree-sitter | import statements in guzzle/guzzle | `tests/import_graph_accuracy_baseline.json` |
-| Keywords | 13 of 56 families: 11 >90, 2 90-75 | 4,692 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 13 of 56 families: 11 >90, 2 90-75; 31 more decoy-tested only | 4,692 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | not measured | | | | |
 

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 592" width="1290" height="592" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">
-<rect width="1290" height="592" fill="#0f1117"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 634" width="1290" height="634" font-family="Inter,system-ui,sans-serif" role="img" aria-label="Per-language evidence matrix">
+<rect width="1290" height="634" fill="#0f1117"/>
 <text x="130" y="20" font-size="11" fill="#8b949e" font-weight="600">DETECTION</text>
 <text x="290" y="20" font-size="11" fill="#8b949e" font-weight="600">FUNCTIONS</text>
 <text x="450" y="20" font-size="11" fill="#8b949e" font-weight="600">CALL LINKS</text>
@@ -18,7 +18,7 @@
 <text x="325" y="40" font-size="10.5" fill="#c9d1d9">90-97%</text>
 <rect x="408" y="30" width="12" height="12" rx="3" fill="#a9d1ff" stroke="#8b949e"/>
 <text x="425" y="40" font-size="10.5" fill="#c9d1d9">98-100%</text>
-<text x="518" y="40" font-size="10.5" fill="#8b949e">p = precision, r = recall. Keywords: families by score, high to low.</text>
+<text x="518" y="40" font-size="10.5" fill="#8b949e">p = precision, r = recall. Keywords: every family the language has a rule for; blue = measured against a parser, high to low; grey = only a decoy test; empty = not tested yet.</text>
 <text x="975" y="40" font-size="10.5" fill="#8b949e">Answer key bar:</text>
 <rect x="1067" y="31" width="10" height="10" rx="2" fill="#4f9be8"/>
 <text x="1081" y="40" font-size="10.5" fill="#c9d1d9">cross</text>
@@ -37,7 +37,11 @@
 <text x="290" y="72" font-size="11" fill="#8b949e">not measured</text>
 <text x="450" y="72" font-size="11" fill="#8b949e">not measured</text>
 <text x="610" y="72" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="72" font-size="11" fill="#8b949e">decoy test only (4)</text>
+<rect x="770" y="61" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="61" width="42.9" height="9" fill="#6e7681"/>
+<text x="791.4" y="80" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">4</text>
+<text x="791.4" y="90" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="102" font-size="10" fill="#8b949e">0 parser + 4 decoy of 14 families</text>
 <rect x="960.0" y="61" width="150.0" height="9" fill="#4f9be8"/>
 <text x="960" y="82" font-size="10" fill="#c9d1d9">38 of 38 passed</text>
 <rect x="1120" y="58" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="71" font-size="11" fill="#06121f">100% p</text>
@@ -54,152 +58,180 @@
 <text x="290" y="136" font-size="11" fill="#8b949e">not measured</text>
 <text x="450" y="136" font-size="11" fill="#8b949e">not measured</text>
 <text x="610" y="136" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="136" font-size="11" fill="#8b949e">decoy test only (9)</text>
+<rect x="770" y="125" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="125" width="56.2" height="9" fill="#6e7681"/>
+<text x="798.1" y="144" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">9</text>
+<text x="798.1" y="154" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="166" font-size="10" fill="#8b949e">0 parser + 9 decoy of 24 families</text>
 <rect x="960.0" y="125" width="124.5" height="9" fill="#4f9be8"/>
 <rect x="1084.5" y="125" width="25.5" height="9" fill="#e5534b"/>
 <text x="960" y="146" font-size="10" fill="#c9d1d9">39 passed, 8 failed</text>
 <text x="1120" y="136" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="156" x2="1282" y2="156" stroke="#30363d"/>
-<text x="8" y="174" font-size="13" fill="#f0efec" font-weight="600">cobol</text>
-<text x="8" y="188" font-size="10" fill="#8b949e">7 of 7 stats</text>
-<rect x="130" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="173" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="173" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="191" font-size="10" fill="#8b949e">570 files</text>
-<rect x="290" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="173" font-size="11" fill="#06121f">100% p</text>
-<rect x="340" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="173" font-size="11" fill="#06121f">100% r</text>
-<text x="290" y="191" font-size="10" fill="#8b949e">2,527 units</text>
-<rect x="450" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="173" font-size="11" fill="#06121f">100% p</text>
-<rect x="500" y="160" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="506" y="173" font-size="11" fill="#06121f">92.9% r</text>
-<text x="450" y="191" font-size="10" fill="#8b949e">2,717 edges</text>
-<rect x="610" y="160" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="173" font-size="11" fill="#06121f">98.1% p</text>
-<rect x="667" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="173" font-size="11" fill="#06121f">100% r</text>
-<text x="610" y="191" font-size="10" fill="#8b949e">503 copybook paths</text>
-<rect x="770.0" y="163" width="100.0" height="9" fill="#4f9be8"/>
-<rect x="870.0" y="163" width="50.0" height="9" fill="#2f6aa8"/>
-<text x="820.0" y="182" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">2</text>
-<text x="820.0" y="192" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="895.0" y="182" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="895.0" y="192" font-size="9" fill="#8b949e" text-anchor="middle">90-75</text>
-<text x="770" y="204" font-size="10" fill="#8b949e">3 of 56 families</text>
-<rect x="960.0" y="163" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="184" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
-<rect x="1120" y="160" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="173" font-size="11" fill="#06121f">100% p</text>
-<rect x="1170" y="160" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="173" font-size="11" fill="#06121f">99.5% r</text>
-<rect x="1120.0" y="183" width="27.1" height="9" fill="#4f9be8"/>
-<rect x="1147.1" y="183" width="14.0" height="9" fill="#2f6aa8"/>
-<rect x="1161.1" y="183" width="103.6" height="9" fill="#1f3b5c"/>
-<rect x="1264.7" y="183" width="5.3" height="9" fill="#8b949e"/>
-<text x="1120" y="204" font-size="10" fill="#8b949e">41,057 facts, 34 fields</text>
-<text x="1120" y="216" font-size="10" fill="#8b949e">sample: key error &lt;= 2.9% (95%)</text>
-<line x1="8" y1="220" x2="1282" y2="220" stroke="#30363d"/>
-<text x="8" y="238" font-size="13" fill="#f0efec" font-weight="600">csd</text>
-<text x="8" y="252" font-size="10" fill="#8b949e">1 of 7 stats</text>
-<text x="130" y="238" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="238" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="238" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="238" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="238" font-size="11" fill="#8b949e">decoy test only (3)</text>
-<text x="960" y="238" font-size="11" fill="#8b949e">not measured</text>
-<rect x="1120" y="224" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="237" font-size="11" fill="#06121f">100% p</text>
-<rect x="1170" y="224" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="237" font-size="11" fill="#06121f">100% r</text>
-<rect x="1120.0" y="247" width="150.0" height="9" fill="#4f9be8"/>
-<text x="1120" y="268" font-size="10" fill="#8b949e">501 facts, 1 field</text>
-<line x1="8" y1="272" x2="1282" y2="272" stroke="#30363d"/>
-<text x="8" y="290" font-size="13" fill="#f0efec" font-weight="600">db2_sql</text>
-<text x="8" y="304" font-size="10" fill="#8b949e">3 of 7 stats</text>
-<rect x="130" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="289" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="289" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="307" font-size="10" fill="#8b949e">10 files</text>
-<text x="290" y="290" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="290" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="290" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="290" font-size="11" fill="#8b949e">decoy test only (29)</text>
-<rect x="960.0" y="279" width="147.4" height="9" fill="#4f9be8"/>
-<rect x="1107.4" y="279" width="2.6" height="9" fill="#e5534b"/>
-<text x="960" y="300" font-size="10" fill="#c9d1d9">56 passed, 1 failed</text>
-<rect x="1120" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="289" font-size="11" fill="#06121f">100% p</text>
-<rect x="1170" y="276" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="289" font-size="11" fill="#06121f">100% r</text>
-<rect x="1120.0" y="299" width="150.0" height="9" fill="#4f9be8"/>
-<text x="1120" y="320" font-size="10" fill="#8b949e">127 facts, 2 fields</text>
-<line x1="8" y1="324" x2="1282" y2="324" stroke="#30363d"/>
-<text x="8" y="342" font-size="13" fill="#f0efec" font-weight="600">easytrieve</text>
-<text x="8" y="356" font-size="10" fill="#8b949e">0 of 7 stats</text>
-<text x="130" y="342" font-size="11" fill="#8b949e">not measured</text>
-<text x="290" y="342" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="342" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="342" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="342" font-size="11" fill="#8b949e">decoy test only (6)</text>
-<text x="960" y="342" font-size="11" fill="#8b949e">not measured</text>
-<text x="1120" y="342" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="362" x2="1282" y2="362" stroke="#30363d"/>
-<text x="8" y="380" font-size="13" fill="#f0efec" font-weight="600">hlasm</text>
-<text x="8" y="394" font-size="10" fill="#8b949e">3 of 7 stats</text>
-<rect x="130" y="366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="379" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="366" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="379" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="397" font-size="10" fill="#8b949e">18 files</text>
-<text x="290" y="380" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="380" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="380" font-size="11" fill="#8b949e">not measured</text>
-<rect x="770.0" y="369" width="150.0" height="9" fill="#4f9be8"/>
-<text x="845.0" y="388" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
-<text x="845.0" y="398" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="770" y="410" font-size="10" fill="#8b949e">5 of 47 families</text>
-<rect x="960.0" y="369" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="390" font-size="10" fill="#c9d1d9">57 of 57 passed</text>
-<text x="1120" y="380" font-size="11" fill="#8b949e">not measured</text>
-<line x1="8" y1="414" x2="1282" y2="414" stroke="#30363d"/>
-<text x="8" y="432" font-size="13" fill="#f0efec" font-weight="600">jcl</text>
-<text x="8" y="446" font-size="10" fill="#8b949e">4 of 7 stats</text>
-<rect x="130" y="418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="431" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="431" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="449" font-size="10" fill="#8b949e">186 files</text>
-<text x="290" y="432" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="432" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="432" font-size="11" fill="#8b949e">not measured</text>
-<rect x="770.0" y="421" width="128.6" height="9" fill="#4f9be8"/>
-<rect x="898.6" y="421" width="21.4" height="9" fill="#1f3b5c"/>
-<text x="834.3" y="440" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">6</text>
-<text x="834.3" y="450" font-size="9" fill="#8b949e" text-anchor="middle">&gt;90</text>
-<text x="909.3" y="440" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">1</text>
-<text x="770" y="462" font-size="10" fill="#8b949e">7 of 25 families</text>
-<rect x="960.0" y="421" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="442" font-size="10" fill="#c9d1d9">52 of 52 passed</text>
-<rect x="1120" y="418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="431" font-size="11" fill="#06121f">100% p</text>
-<rect x="1170" y="418" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="431" font-size="11" fill="#06121f">100% r</text>
-<rect x="1120.0" y="441" width="113.2" height="9" fill="#4f9be8"/>
-<rect x="1233.2" y="441" width="36.8" height="9" fill="#1f3b5c"/>
-<text x="1120" y="462" font-size="10" fill="#8b949e">2,792 facts, 5 fields</text>
-<text x="1120" y="474" font-size="10" fill="#8b949e">sample: key error &lt;= 0.7% (95%)</text>
-<line x1="8" y1="478" x2="1282" y2="478" stroke="#30363d"/>
-<text x="8" y="496" font-size="13" fill="#f0efec" font-weight="600">pli</text>
-<text x="8" y="510" font-size="10" fill="#8b949e">3 of 7 stats</text>
-<rect x="130" y="482" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="495" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="482" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="495" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="513" font-size="10" fill="#8b949e">3 files</text>
-<text x="290" y="496" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="496" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="496" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="496" font-size="11" fill="#8b949e">decoy test only (35)</text>
-<rect x="960.0" y="485" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="506" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
-<rect x="1120" y="482" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="495" font-size="11" fill="#06121f">100% p</text>
-<rect x="1170" y="482" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="495" font-size="11" fill="#06121f">100% r</text>
-<rect x="1120.0" y="505" width="0.2" height="9" fill="#4f9be8"/>
-<rect x="1120.2" y="505" width="149.1" height="9" fill="#1f3b5c"/>
-<rect x="1269.3" y="505" width="0.7" height="9" fill="#8b949e"/>
-<text x="1120" y="526" font-size="10" fill="#8b949e">24,080 facts, 4 fields</text>
-<text x="1120" y="538" font-size="10" fill="#8b949e">sample: key error &lt;= 0.5% (95%)</text>
-<line x1="8" y1="542" x2="1282" y2="542" stroke="#30363d"/>
-<text x="8" y="560" font-size="13" fill="#f0efec" font-weight="600">rexx</text>
-<text x="8" y="574" font-size="10" fill="#8b949e">2 of 7 stats</text>
-<rect x="130" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="559" font-size="11" fill="#06121f">100% r</text>
-<rect x="180" y="546" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="559" font-size="11" fill="#06121f">100% p</text>
-<text x="130" y="577" font-size="10" fill="#8b949e">25 files</text>
-<text x="290" y="560" font-size="11" fill="#8b949e">not measured</text>
-<text x="450" y="560" font-size="11" fill="#8b949e">not measured</text>
-<text x="610" y="560" font-size="11" fill="#8b949e">not measured</text>
-<text x="770" y="560" font-size="11" fill="#8b949e">decoy test only (19)</text>
-<rect x="960.0" y="549" width="150.0" height="9" fill="#4f9be8"/>
-<text x="960" y="570" font-size="10" fill="#c9d1d9">54 of 54 passed</text>
-<text x="1120" y="560" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="170" x2="1282" y2="170" stroke="#30363d"/>
+<text x="8" y="188" font-size="13" fill="#f0efec" font-weight="600">cobol</text>
+<text x="8" y="202" font-size="10" fill="#8b949e">7 of 7 stats</text>
+<rect x="130" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="187" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="187" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="205" font-size="10" fill="#8b949e">570 files</text>
+<rect x="290" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="296" y="187" font-size="11" fill="#06121f">100% p</text>
+<rect x="340" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="346" y="187" font-size="11" fill="#06121f">100% r</text>
+<text x="290" y="205" font-size="10" fill="#8b949e">2,527 units</text>
+<rect x="450" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="456" y="187" font-size="11" fill="#06121f">100% p</text>
+<rect x="500" y="174" width="53" height="18" rx="4" fill="#4f9be8" stroke="#8b949e" stroke-width="1"/><text x="506" y="187" font-size="11" fill="#06121f">92.9% r</text>
+<text x="450" y="205" font-size="10" fill="#8b949e">2,717 edges</text>
+<rect x="610" y="174" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="616" y="187" font-size="11" fill="#06121f">98.1% p</text>
+<rect x="667" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="673" y="187" font-size="11" fill="#06121f">100% r</text>
+<text x="610" y="205" font-size="10" fill="#8b949e">503 copybook paths</text>
+<rect x="770" y="177" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="177" width="5.4" height="9" fill="#4f9be8"/>
+<rect x="775.4" y="177" width="2.7" height="9" fill="#2f6aa8"/>
+<rect x="778.0" y="177" width="93.8" height="9" fill="#6e7681"/>
+<text x="824.9" y="196" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">35</text>
+<text x="824.9" y="206" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="218" font-size="10" fill="#8b949e">3 parser + 35 decoy of 56 families</text>
+<rect x="960.0" y="177" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="198" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<rect x="1120" y="174" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="187" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="174" width="53" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="187" font-size="11" fill="#06121f">99.5% r</text>
+<rect x="1120.0" y="197" width="27.1" height="9" fill="#4f9be8"/>
+<rect x="1147.1" y="197" width="14.0" height="9" fill="#2f6aa8"/>
+<rect x="1161.1" y="197" width="103.6" height="9" fill="#1f3b5c"/>
+<rect x="1264.7" y="197" width="5.3" height="9" fill="#8b949e"/>
+<text x="1120" y="218" font-size="10" fill="#8b949e">41,057 facts, 34 fields</text>
+<text x="1120" y="230" font-size="10" fill="#8b949e">sample: key error &lt;= 2.9% (95%)</text>
+<line x1="8" y1="234" x2="1282" y2="234" stroke="#30363d"/>
+<text x="8" y="252" font-size="13" fill="#f0efec" font-weight="600">csd</text>
+<text x="8" y="266" font-size="10" fill="#8b949e">1 of 7 stats</text>
+<text x="130" y="252" font-size="11" fill="#8b949e">not measured</text>
+<text x="290" y="252" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="252" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="252" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="241" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="241" width="34.6" height="9" fill="#6e7681"/>
+<text x="787.3" y="260" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">3</text>
+<text x="770" y="282" font-size="10" fill="#8b949e">0 parser + 3 decoy of 13 families</text>
+<text x="960" y="252" font-size="11" fill="#8b949e">not measured</text>
+<rect x="1120" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="251" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="238" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="251" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="261" width="150.0" height="9" fill="#4f9be8"/>
+<text x="1120" y="282" font-size="10" fill="#8b949e">501 facts, 1 field</text>
+<line x1="8" y1="286" x2="1282" y2="286" stroke="#30363d"/>
+<text x="8" y="304" font-size="13" fill="#f0efec" font-weight="600">db2_sql</text>
+<text x="8" y="318" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="290" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="303" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="290" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="303" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="321" font-size="10" fill="#8b949e">10 files</text>
+<text x="290" y="304" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="304" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="304" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="293" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="293" width="96.7" height="9" fill="#6e7681"/>
+<text x="818.3" y="312" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">29</text>
+<text x="818.3" y="322" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="334" font-size="10" fill="#8b949e">0 parser + 29 decoy of 45 families</text>
+<rect x="960.0" y="293" width="147.4" height="9" fill="#4f9be8"/>
+<rect x="1107.4" y="293" width="2.6" height="9" fill="#e5534b"/>
+<text x="960" y="314" font-size="10" fill="#c9d1d9">56 passed, 1 failed</text>
+<rect x="1120" y="290" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="303" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="290" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="303" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="313" width="150.0" height="9" fill="#4f9be8"/>
+<text x="1120" y="334" font-size="10" fill="#8b949e">127 facts, 2 fields</text>
+<line x1="8" y1="338" x2="1282" y2="338" stroke="#30363d"/>
+<text x="8" y="356" font-size="13" fill="#f0efec" font-weight="600">easytrieve</text>
+<text x="8" y="370" font-size="10" fill="#8b949e">0 of 7 stats</text>
+<text x="130" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="290" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="356" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="345" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="345" width="75.0" height="9" fill="#6e7681"/>
+<text x="807.5" y="364" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">6</text>
+<text x="807.5" y="374" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="386" font-size="10" fill="#8b949e">0 parser + 6 decoy of 12 families</text>
+<text x="960" y="356" font-size="11" fill="#8b949e">not measured</text>
+<text x="1120" y="356" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="390" x2="1282" y2="390" stroke="#30363d"/>
+<text x="8" y="408" font-size="13" fill="#f0efec" font-weight="600">hlasm</text>
+<text x="8" y="422" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="394" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="407" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="394" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="407" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="425" font-size="10" fill="#8b949e">18 files</text>
+<text x="290" y="408" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="408" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="408" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="397" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="397" width="16.0" height="9" fill="#4f9be8"/>
+<rect x="786.0" y="397" width="89.4" height="9" fill="#6e7681"/>
+<text x="778.0" y="416" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">5</text>
+<text x="830.6" y="416" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">28</text>
+<text x="830.6" y="426" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="438" font-size="10" fill="#8b949e">5 parser + 28 decoy of 47 families</text>
+<rect x="960.0" y="397" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="418" font-size="10" fill="#c9d1d9">57 of 57 passed</text>
+<text x="1120" y="408" font-size="11" fill="#8b949e">not measured</text>
+<line x1="8" y1="442" x2="1282" y2="442" stroke="#30363d"/>
+<text x="8" y="460" font-size="13" fill="#f0efec" font-weight="600">jcl</text>
+<text x="8" y="474" font-size="10" fill="#8b949e">4 of 7 stats</text>
+<rect x="130" y="446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="459" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="459" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="477" font-size="10" fill="#8b949e">186 files</text>
+<text x="290" y="460" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="460" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="460" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="449" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="449" width="36.0" height="9" fill="#4f9be8"/>
+<rect x="806.0" y="449" width="6.0" height="9" fill="#1f3b5c"/>
+<rect x="812.0" y="449" width="42.0" height="9" fill="#6e7681"/>
+<text x="788.0" y="468" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">6</text>
+<text x="833.0" y="468" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">7</text>
+<text x="833.0" y="478" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="490" font-size="10" fill="#8b949e">7 parser + 7 decoy of 25 families</text>
+<rect x="960.0" y="449" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="470" font-size="10" fill="#c9d1d9">52 of 52 passed</text>
+<rect x="1120" y="446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="459" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="446" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="459" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="469" width="113.2" height="9" fill="#4f9be8"/>
+<rect x="1233.2" y="469" width="36.8" height="9" fill="#1f3b5c"/>
+<text x="1120" y="490" font-size="10" fill="#8b949e">2,792 facts, 5 fields</text>
+<text x="1120" y="502" font-size="10" fill="#8b949e">sample: key error &lt;= 0.7% (95%)</text>
+<line x1="8" y1="506" x2="1282" y2="506" stroke="#30363d"/>
+<text x="8" y="524" font-size="13" fill="#f0efec" font-weight="600">pli</text>
+<text x="8" y="538" font-size="10" fill="#8b949e">3 of 7 stats</text>
+<rect x="130" y="510" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="523" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="510" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="523" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="541" font-size="10" fill="#8b949e">3 files</text>
+<text x="290" y="524" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="524" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="524" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="513" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="513" width="107.1" height="9" fill="#6e7681"/>
+<text x="823.6" y="532" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">35</text>
+<text x="823.6" y="542" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="554" font-size="10" fill="#8b949e">0 parser + 35 decoy of 49 families</text>
+<rect x="960.0" y="513" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="534" font-size="10" fill="#c9d1d9">58 of 58 passed</text>
+<rect x="1120" y="510" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1126" y="523" font-size="11" fill="#06121f">100% p</text>
+<rect x="1170" y="510" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="1176" y="523" font-size="11" fill="#06121f">100% r</text>
+<rect x="1120.0" y="533" width="0.2" height="9" fill="#4f9be8"/>
+<rect x="1120.2" y="533" width="149.1" height="9" fill="#1f3b5c"/>
+<rect x="1269.3" y="533" width="0.7" height="9" fill="#8b949e"/>
+<text x="1120" y="554" font-size="10" fill="#8b949e">24,080 facts, 4 fields</text>
+<text x="1120" y="566" font-size="10" fill="#8b949e">sample: key error &lt;= 0.5% (95%)</text>
+<line x1="8" y1="570" x2="1282" y2="570" stroke="#30363d"/>
+<text x="8" y="588" font-size="13" fill="#f0efec" font-weight="600">rexx</text>
+<text x="8" y="602" font-size="10" fill="#8b949e">2 of 7 stats</text>
+<rect x="130" y="574" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="136" y="587" font-size="11" fill="#06121f">100% r</text>
+<rect x="180" y="574" width="46" height="18" rx="4" fill="#a9d1ff" stroke="#8b949e" stroke-width="1"/><text x="186" y="587" font-size="11" fill="#06121f">100% p</text>
+<text x="130" y="605" font-size="10" fill="#8b949e">25 files</text>
+<text x="290" y="588" font-size="11" fill="#8b949e">not measured</text>
+<text x="450" y="588" font-size="11" fill="#8b949e">not measured</text>
+<text x="610" y="588" font-size="11" fill="#8b949e">not measured</text>
+<rect x="770" y="577" width="150" height="9" fill="#30363d"/>
+<rect x="770.0" y="577" width="77.0" height="9" fill="#6e7681"/>
+<text x="808.5" y="596" font-size="11" font-weight="600" fill="#f0efec" text-anchor="middle">19</text>
+<text x="808.5" y="606" font-size="9" fill="#8b949e" text-anchor="middle">decoy</text>
+<text x="770" y="618" font-size="10" fill="#8b949e">0 parser + 19 decoy of 37 families</text>
+<rect x="960.0" y="577" width="150.0" height="9" fill="#4f9be8"/>
+<text x="960" y="598" font-size="10" fill="#c9d1d9">54 of 54 passed</text>
+<text x="1120" y="588" font-size="11" fill="#8b949e">not measured</text>
 </svg>

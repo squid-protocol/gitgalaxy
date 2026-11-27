@@ -20,7 +20,7 @@ Context: legacy/mainframe
 | Functions | 100% precision / 100% recall | 2,527 units | answer-key | answer key over 9 corpora, 168 programs (paragraphs and sections); weakest tier cross_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
 | Call links | 100% precision / 92.9% recall | 2,717 edges | answer-key | answer key over 9 corpora, 168 programs (PERFORM and GO TO edges inside a program); weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 | Imports | 98.1% precision / 100% recall | 503 copybook paths | answer-key | answer key over 9 corpora, 168 programs (COPY members resolved to a file); weakest tier cross_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
-| Keywords | 3 of 56 families: 2 >90, 1 90-75 | 3,895 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 3 of 56 families: 2 >90, 1 90-75; 35 more decoy-tested only | 3,895 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 58 of 58 passed, 0 failed | 58 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | 100% precision / 99.5% recall; 18% of 41,057 facts cross-verified, weakest tier draft; blind review of 4,200 sampled items found 105 key errors (at most 2.9% at 95%) | 41,057 facts | answer-key | answer key over 9 corpora, 32 fields; weakest tier draft | `tests/cobol_mainframe/ground_truth_ledger.json` |
 

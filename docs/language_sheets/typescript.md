@@ -17,7 +17,7 @@ Context: modern-tooled
 | Functions | 99.8% recall / 100% precision | 8,484 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_typescript.json` |
 | Call links | 100% precision / 83% recall | 2,661 reference edges | analyser | tsc 6.0.2 | `tests/call_graph_resolution_typescript_baseline.json` |
 | Imports | 100% precision / 100% recall | 870 imports | tree-sitter | import statements in colinhacks/zod | `tests/import_graph_accuracy_baseline.json` |
-| Keywords | 13 of 66 families: 9 >90, 3 90-75, 1 75-50 | 14,135 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 13 of 66 families: 9 >90, 3 90-75, 1 75-50; 39 more decoy-tested only | 14,135 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | not measured | | | | |
 

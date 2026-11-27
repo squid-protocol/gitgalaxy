@@ -10,7 +10,7 @@ Context: unclassified
 | Functions | 100% recall / 100% precision | 623 functions | tree-sitter | tree-sitter functions on language-crucible | `tests/tree_sitter_accuracy_baseline_lua.json` |
 | Call links | 97.5% precision / 98.2% recall | 1,356 calls | tree-sitter | tree-sitter call nodes (which names a function calls) | `tests/call_graph_accuracy_baseline.json` |
 | Imports | 100% precision / 99.2% recall | 354 imports | tree-sitter | import statements in luarocks/luarocks | `tests/import_graph_accuracy_baseline.json` |
-| Keywords | 11 of 52 families: 10 >90, 1 90-75 | 1,157 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 11 of 52 families: 10 >90, 1 90-75; 27 more decoy-tested only | 1,157 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 59 of 59 passed, 0 failed | 59 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | not measured | | | | |
 

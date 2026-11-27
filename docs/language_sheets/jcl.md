@@ -10,7 +10,7 @@ Context: legacy/mainframe
 | Functions | not measured | | | | |
 | Call links | not measured | | | | |
 | Imports | not measured | | | | |
-| Keywords | 7 of 25 families: 6 >90, 1 75-50 | 402 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
+| Keywords | 7 of 25 families: 6 >90, 1 75-50; 7 more decoy-tested only | 402 oracle functions | tree-sitter | parser-labelled functions, lower of recall and precision per family | `tests/family_validity_baseline.json` |
 | Rosetta | 52 of 52 passed, 0 failed | 52 comparable cells | keyword-rosetta | the 12-probe program, engine a48ee0ad95 | `docs/language_sheets/rosetta_snapshot.json` |
 | Answer key | 100% precision / 100% recall; 75% of 2,792 facts cross-verified, weakest tier sample_verified; blind review of 442 sampled items found 0 key errors (at most 0.7% at 95%) | 2,792 facts | answer-key | answer key over 8 corpora, 5 fields; weakest tier sample_verified | `tests/cobol_mainframe/ground_truth_ledger.json` |
 

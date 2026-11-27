@@ -1,0 +1,1030 @@
+{
+ "format": "det-mutation/1",
+ "issue": "#4628",
+ "about": "#4628: mutation testing of each det port (tests/tools/mutation.py on `det_port.py run --translate-only`'s port, fast mode, seeded sample), written only by tests/tools/det_mutation.py. An entry is trusted only while its fingerprints match the tree; stale or missing is unknown. Survivors are accounted for in det_mutation_survivors/ (reviewed).",
+ "case": "cbsa-inqacccu",
+ "entry": {
+  "program": "INQACCCU",
+  "commit": "3554331e965d53f0d21b1e14f3bb516acbc406fa",
+  "date": "2026-11-27",
+  "mode": "fast+one-jvm",
+  "seed": 0,
+  "mutants": 3817,
+  "out_of_scope": 71,
+  "chosen": 150,
+  "coverage": "proven on 24 scenarios, covering 21/22 paragraphs and 32/33 branches",
+  "counts": {
+   "killed": 42,
+   "timeout": 2,
+   "survived": 104,
+   "stillborn": 2,
+   "error": 0,
+   "pending": 0
+  },
+  "killed": [
+   "05448963e8",
+   "0ec164752a",
+   "13a4512cc3",
+   "279472c50d",
+   "2a215218d0",
+   "31363f1c81",
+   "343582771b",
+   "36bcc688da",
+   "3858a85fd2",
+   "432a7e8c22",
+   "469ec1fc57",
+   "4ef1c29293",
+   "4f77a5a6cc",
+   "5340b1e7eb",
+   "54f68428a3",
+   "5843f3c512",
+   "5ac734359f",
+   "60f5c638e5",
+   "638c94990d",
+   "64aadaa706",
+   "652e05fc6e",
+   "6e4e8df8f3",
+   "7337a0e31b",
+   "85747fe325",
+   "88a8fa39a0",
+   "89e1bd4020",
+   "8c649d8d67",
+   "919d5b9c7f",
+   "94433fd64e",
+   "9e628fb0d2",
+   "a2fccee8f6",
+   "aa7abb9420",
+   "ade7238d7c",
+   "afffe24d46",
+   "b482d9593b",
+   "b872ce51d5",
+   "c8d1eac489",
+   "cfa36405a6",
+   "d78be011b7",
+   "ddac4ff8a1",
+   "e6fd48279d",
+   "ea8d01f4b0",
+   "ec02752619",
+   "ed533ec277"
+  ],
+  "stillborn": [
+   "1ddfde6393",
+   "8cf53acc69"
+  ],
+  "survived": [
+   {
+    "id": "f595ce6d2d",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 120,
+    "before": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f102_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "d1aa7001db",
+    "op": "LIT",
+    "file": "service/AbndprocService.java",
+    "line": 160,
+    "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+    "after": "java.util.Map.entry(\"XREMIERE\", 0)"
+   },
+   {
+    "id": "9990dae63f",
+    "op": "ROR",
+    "file": "service/AbndprocService.java",
+    "line": 182,
+    "before": "Cobol.move(d.getAbndCode() == null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);",
+    "after": "Cobol.move(d.getAbndCode() != null ? \"\" : d.getAbndCode(), Field.alphanumeric(s, base + 42, 4, false), CS);"
+   },
+   {
+    "id": "e1ca4cd6e6",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 187,
+    "before": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 81, 600, false), CS);",
+    "after": "Cobol.move(d.getAbndFreeform() == null ? \"\" : d.getAbndFreeform(), Field.alphanumeric(s, base + 82, 600, false), CS);"
+   },
+   {
+    "id": "e23881b5da",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 191,
+    "before": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 15, 0, true), CS).longValue());",
+    "after": "d.setAbndUtimeKey(Cobol.num(Field.packed(s, base + 0, 16, 0, true), CS).longValue());"
+   },
+   {
+    "id": "6ffd2eaf92",
+    "op": "DEL",
+    "file": "service/AbndprocService.java",
+    "line": 297,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "/* caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); }; */"
+   },
+   {
+    "id": "6786d7ebd2",
+    "op": "AOR",
+    "file": "service/AbndprocService.java",
+    "line": 297,
+    "before": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } typed.run(); };",
+    "after": "caBack = () -> { System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } typed.run(); };"
+   },
+   {
+    "id": "661ba858a8",
+    "op": "COR",
+    "file": "service/AbndprocService.java",
+    "line": 346,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "7ed161fd05",
+    "op": "CON",
+    "file": "service/AbndprocService.java",
+    "line": 491,
+    "before": "perform(3, 5);",
+    "after": "perform(3, 6);"
+   },
+   {
+    "id": "ad449872b8",
+    "op": "LIT",
+    "file": "service/InqacccuService.java",
+    "line": 278,
+    "before": "java.util.Map.entry(\"FD010\", 7),",
+    "after": "java.util.Map.entry(\"XD010\", 7),"
+   },
+   {
+    "id": "2b316cbd1e",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 301,
+    "before": "Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS);",
+    "after": "/* Cobol.move(d.getAbndUtimeKey() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndUtimeKey().toString()), Field.packed(s, base + 0, 15, 0, true), CS); */"
+   },
+   {
+    "id": "6210bee7f1",
+    "op": "AOR",
+    "file": "service/InqacccuService.java",
+    "line": 308,
+    "before": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base + 46, 8, false), CS);",
+    "after": "Cobol.move(d.getAbndProgram() == null ? \"\" : d.getAbndProgram(), Field.alphanumeric(s, base - 46, 8, false), CS);"
+   },
+   {
+    "id": "6aa6881bef",
+    "op": "AOR",
+    "file": "service/InqacccuService.java",
+    "line": 311,
+    "before": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base + 72, 8, 0, true, true, true), CS);",
+    "after": "Cobol.move(d.getAbndSqlcode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAbndSqlcode().toString()), Field.zoned(s, base - 72, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "5d78f4419e",
+    "op": "CON",
+    "file": "service/InqacccuService.java",
+    "line": 342,
+    "before": "Cobol.move(d.getInqcustCustno() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCustno().toString()), Field.zoned(s, base + 10, 10, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getInqcustCustno() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCustno().toString()), Field.zoned(s, base + 10, 10, 1, false, false, false), CS);"
+   },
+   {
+    "id": "c3fc6be825",
+    "op": "ROR",
+    "file": "service/InqacccuService.java",
+    "line": 348,
+    "before": "Cobol.move(d.getInqcustCreditScore() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getInqcustCreditScore() != null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCreditScore().toString()), Field.zoned(s, base + 248, 3, 0, false, false, false), CS);"
+   },
+   {
+    "id": "fc204fe6c6",
+    "op": "ROR",
+    "file": "service/InqacccuService.java",
+    "line": 349,
+    "before": "Cobol.move(d.getInqcustCsReviewDd() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCsReviewDd().toString()), Field.zoned(s, base + 251, 2, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getInqcustCsReviewDd() != null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCsReviewDd().toString()), Field.zoned(s, base + 251, 2, 0, false, false, false), CS);"
+   },
+   {
+    "id": "4ecb2a8ea1",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 366,
+    "before": "d.setInqcustCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setInqcustCreditScore(Cobol.num(Field.zoned(s, base + 248, 3, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "bd704fb4b1",
+    "op": "ROR",
+    "file": "service/InqacccuService.java",
+    "line": 392,
+    "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 29, 10, false), CS);",
+    "after": "Cobol.move(d.getCommCustno() != null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 29, 10, false), CS);"
+   },
+   {
+    "id": "5d45d3adac",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 402,
+    "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 111, 12, 2, true, false, false), CS);",
+    "after": "/* Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 111, 12, 2, true, false, false), CS); */"
+   },
+   {
+    "id": "878deb9097",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 413,
+    "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 29, 10, false), CS));",
+    "after": "/* d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 29, 10, false), CS)); */"
+   },
+   {
+    "id": "76404860fa",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 419,
+    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 75, 8, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 75, 8, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "f666655a5e",
+    "op": "CON",
+    "file": "service/InqacccuService.java",
+    "line": 421,
+    "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 91, 8, 0, false, false, false), CS).intValue());",
+    "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 91, 8, 1, false, false, false), CS).intValue());"
+   },
+   {
+    "id": "29d9551b7c",
+    "op": "LIT",
+    "file": "service/InqacccuService.java",
+    "line": 507,
+    "before": "f112_CUSTOMER_EYECATCHER = \"    \";",
+    "after": "f112_CUSTOMER_EYECATCHER = \"X   \";"
+   },
+   {
+    "id": "540dd5395f",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 516,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, f47_WS_CICS_RESP_DISPLAY, CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f47_WS_CICS_RESP_DISPLAY, CS); */"
+   },
+   {
+    "id": "6c9cba2784",
+    "op": "COR",
+    "file": "service/InqacccuService.java",
+    "line": 582,
+    "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+    "after": "if (task.exactCommarea() || calen < s_DFHCOMMAREA.bytes.length) {"
+   },
+   {
+    "id": "eaee634e2c",
+    "op": "COR",
+    "file": "service/InqacccuService.java",
+    "line": 629,
+    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;"
+   },
+   {
+    "id": "a5fea5f278",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 729,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "23f9483dd5",
+    "op": "AOR",
+    "file": "service/InqacccuService.java",
+    "line": 850,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() + 0, 15, 0, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.packed(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() - 0, 15, 0, true), CS);"
+   },
+   {
+    "id": "7039d3f4e9",
+    "op": "LIT",
+    "file": "service/InqacccuService.java",
+    "line": 919,
+    "before": "task.planned(\"SQL\", \"INQACCCU:348\");",
+    "after": "task.planned(\"SQL\", \"XNQACCCU:348\");"
+   },
+   {
+    "id": "331d423fe3",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 957,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS); */"
+   },
+   {
+    "id": "7beab46240",
+    "op": "NEG",
+    "file": "service/InqacccuService.java",
+    "line": 1007,
+    "before": "if (true) return GOTO | paragraph(exit16);",
+    "after": "if (!(true)) return GOTO | paragraph(exit16);"
+   },
+   {
+    "id": "9e0211fc96",
+    "op": "COR",
+    "file": "service/InqacccuService.java",
+    "line": 1034,
+    "before": "while (!((!(Cobol.num(f25_SQLCODE, CS).compareTo(D0) == 0) || Cobol.num(f183_NUMBER_OF_ACCOUNTS, CS).compareTo(D20) == 0))) {",
+    "after": "while (!((!(Cobol.num(f25_SQLCODE, CS).compareTo(D0) == 0) && Cobol.num(f183_NUMBER_OF_ACCOUNTS, CS).compareTo(D20) == 0))) {"
+   },
+   {
+    "id": "f09442b8d5",
+    "op": "DEL",
+    "file": "service/InqacccuService.java",
+    "line": 1283,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f168_ABNDINFO_REC.storage(), f168_ABNDINFO_REC.offset() + 54, 8, 0, true, true, true), CS); */"
+   },
+   {
+    "id": "5e7205b383",
+    "op": "NEG",
+    "file": "service/InqacccuService.java",
+    "line": 1328,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "16b236db8b",
+    "op": "ROR",
+    "file": "service/InqacccuService.java",
+    "line": 1328,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "4cc309bdb1",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 181,
+    "before": "private final Field f20_CUSTOMER_CREDIT_SCORE = Field.zoned(s_OUTPUT_DATA, 248, 3, 0, false, false, false);",
+    "after": "private final Field f20_CUSTOMER_CREDIT_SCORE = Field.zoned(s_OUTPUT_DATA, 249, 3, 0, false, false, false);"
+   },
+   {
+    "id": "003e979928",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 256,
+    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
+    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
+   },
+   {
+    "id": "09477f4da8",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 281,
+    "before": "java.util.Map.entry(\"GMOFH999\", 11),",
+    "after": "java.util.Map.entry(\"XMOFH999\", 11),"
+   },
+   {
+    "id": "61ee03df85",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 288,
+    "before": "java.util.Map.entry(\"RCN010\", 4),",
+    "after": "java.util.Map.entry(\"XCN010\", 4),"
+   },
+   {
+    "id": "8031a9b5dc",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 344,
+    "before": "if (d == null) {",
+    "after": "if (!(d == null)) {"
+   },
+   {
+    "id": "65e930bcd7",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 358,
+    "before": "Cobol.move(d.getInqcustCsReviewYyyy() == null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCsReviewYyyy().toString()), Field.zoned(s, base + 255, 4, 0, false, false, false), CS);",
+    "after": "Cobol.move(d.getInqcustCsReviewYyyy() != null ? BigDecimal.ZERO : new BigDecimal(d.getInqcustCsReviewYyyy().toString()), Field.zoned(s, base + 255, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "859967c5dc",
+    "op": "AOR",
+    "file": "service/InqcustService.java",
+    "line": 365,
+    "before": "d.setInqcustEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+    "after": "d.setInqcustEye(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));"
+   },
+   {
+    "id": "61aa2585e3",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 376,
+    "before": "d.setInqcustCsReviewYyyy(Cobol.num(Field.zoned(s, base + 255, 4, 0, false, false, false), CS).intValue());",
+    "after": "/* d.setInqcustCsReviewYyyy(Cobol.num(Field.zoned(s, base + 255, 4, 0, false, false, false), CS).intValue()); */"
+   },
+   {
+    "id": "02fd1a32a6",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 430,
+    "before": "System.arraycopy(IMAGE_s_WS_POINTER_NUMBER_DISPLAY, 0, s_WS_POINTER_NUMBER_DISPLAY.bytes, 0, IMAGE_s_WS_POINTER_NUMBER_DISPLAY.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_POINTER_NUMBER_DISPLAY, 0, s_WS_POINTER_NUMBER_DISPLAY.bytes, 0, IMAGE_s_WS_POINTER_NUMBER_DISPLAY.length); */"
+   },
+   {
+    "id": "56f1615ca5",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 432,
+    "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */"
+   },
+   {
+    "id": "dc287a65f1",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 442,
+    "before": "DC_1.reset();",
+    "after": "/* DC_1.reset(); */"
+   },
+   {
+    "id": "aa1151abf6",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 609,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "589bb16ad7",
+    "op": "AOR",
+    "file": "service/InqcustService.java",
+    "line": 620,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "f987ca9603",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 629,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "b2dfd6a249",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 633,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "a7d0f7996f",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 739,
+    "before": "Cobol.move(\"0\", f128_INQCUST_INQ_FAIL_CD, CS);",
+    "after": "Cobol.move(\"X\", f128_INQCUST_INQ_FAIL_CD, CS);"
+   },
+   {
+    "id": "14e778af0f",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 779,
+    "before": "if (Cobol.compare(f127_INQCUST_INQ_SUCCESS, \"Y\", CS) == 0) {",
+    "after": "if (!(Cobol.compare(f127_INQCUST_INQ_SUCCESS, \"Y\", CS) == 0)) {"
+   },
+   {
+    "id": "02d3db7f74",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 835,
+    "before": "while (!((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(!((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0))))) {"
+   },
+   {
+    "id": "80cf25612c",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 835,
+    "before": "while (!((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) >= 0 || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "fe5a2a3506",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 837,
+    "before": "int[] planned4 = task.planned(\"DELAY\", \"-\");",
+    "after": "int[] planned4 = task.planned(\"XELAY\", \"-\");"
+   },
+   {
+    "id": "c62ee98d85",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 865,
+    "before": "if (true) return GOTO | 8;",
+    "after": "if (!(true)) return GOTO | 8;"
+   },
+   {
+    "id": "1740d2431b",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 867,
+    "before": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).add(D1), false, CS);",
+    "after": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).subtract(D1), false, CS);"
+   },
+   {
+    "id": "1e3c3bfe22",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 871,
+    "before": "if ((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)) {",
+    "after": "if ((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 || Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)) {"
+   },
+   {
+    "id": "506a75e3de",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 892,
+    "before": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0) && Cobol.compare(f37_WS_V_RETRIED, \"N\", CS) == 0)) {",
+    "after": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 || Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0) && Cobol.compare(f37_WS_V_RETRIED, \"N\", CS) == 0)) {"
+   },
+   {
+    "id": "d46558166e",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 903,
+    "before": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {",
+    "after": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 || !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {"
+   },
+   {
+    "id": "1c96f59ab4",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 903,
+    "before": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {",
+    "after": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 1)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {"
+   },
+   {
+    "id": "d7c8f2633b",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 903,
+    "before": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {",
+    "after": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) || (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {"
+   },
+   {
+    "id": "8f08763b18",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 903,
+    "before": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {",
+    "after": "if (((Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 && !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D9999999999) == 0)) && (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D13) == 0 || !(Cobol.cmpNum(f115_INQCUST_CUSTNO, CS).compareTo(D0) == 0)))) {"
+   },
+   {
+    "id": "07914c4348",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 965,
+    "before": "if (!task.linkAreaBack()) { in_AbndprocDfhcommarea(ca9, cw10, 0); }",
+    "after": "if (!(!task.linkAreaBack())) { in_AbndprocDfhcommarea(ca9, cw10, 0); }"
+   },
+   {
+    "id": "9cccfa101c",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 969,
+    "before": "if (exit11 != null) return GOTO | paragraph(exit11);",
+    "after": "if (!(exit11 != null)) return GOTO | paragraph(exit11);"
+   },
+   {
+    "id": "e504ef1f92",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 980,
+    "before": "if (Cobol.compare(f37_WS_V_RETRIED, \"Y\", CS) == 0) {",
+    "after": "if (Cobol.compare(f37_WS_V_RETRIED, \"X\", CS) == 0) {"
+   },
+   {
+    "id": "85db149191",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1030,
+    "before": "if ((Cobol.compare(f68_MY_ABEND_CODE, \"AFCR\", CS) == 0) || (Cobol.compare(f68_MY_ABEND_CODE, \"AFCS\", CS) == 0) || (Cobol.compare(f68_MY_ABEND_CODE, \"AFCT\", CS) == 0)) {",
+    "after": "if ((Cobol.compare(f68_MY_ABEND_CODE, \"AFCR\", CS) == 0) && (Cobol.compare(f68_MY_ABEND_CODE, \"AFCS\", CS) == 0) || (Cobol.compare(f68_MY_ABEND_CODE, \"AFCT\", CS) == 0)) {"
+   },
+   {
+    "id": "e3d08ecb35",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 1034,
+    "before": "Sysout.display(\"INQCUST: Check-For-Storm-Drain-VSAM: Storm \", \"Drain condition (Abend \", Cobol.displayText(f68_MY_ABEND_CODE, CS), \") \", \"has been met.\");",
+    "after": "Sysout.display(\"INQCUST: Check-For-Storm-Drain-VSAM: Storm \", \"Xrain condition (Abend \", Cobol.displayText(f68_MY_ABEND_CODE, CS), \") \", \"has been met.\");"
+   },
+   {
+    "id": "57240408fb",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 1040,
+    "before": "Cobol.store(f4_WS_CICS_RESP, BigDecimal.valueOf(planned13[0]), false, CS);",
+    "after": "/* Cobol.store(f4_WS_CICS_RESP, BigDecimal.valueOf(planned13[0]), false, CS); */"
+   },
+   {
+    "id": "f0a73b3d63",
+    "op": "AOR",
+    "file": "service/InqcustService.java",
+    "line": 1046,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 8, 4, 0, false, false, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() - 8, 4, 0, false, false, false), CS);"
+   },
+   {
+    "id": "92cf26809c",
+    "op": "AOR",
+    "file": "service/InqcustService.java",
+    "line": 1047,
+    "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 12, 8, false), CS);",
+    "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() - 12, 8, false), CS);"
+   },
+   {
+    "id": "8669d1f04c",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 1055,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 73, 8, 0, true, true, true), CS);"
+   },
+   {
+    "id": "44a7b56e44",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 1055,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 72, 8, 0, true, true, true), CS);",
+    "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f98_ABNDINFO_REC.storage(), f98_ABNDINFO_REC.offset() + 72, 9, 0, true, true, true), CS);"
+   },
+   {
+    "id": "83d95f6445",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 1072,
+    "before": "Cobol.string(f105_ABND_TIME, null, CS, Cobol.StringPart.size(f94_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(\":\", CS), Cobol.StringPart.size(f95_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(\":\", CS), Cobol.StringPart.size(f95_WS_TIME_NOW_GRP_MM));",
+    "after": "Cobol.string(f105_ABND_TIME, null, CS, Cobol.StringPart.size(f94_WS_TIME_NOW_GRP_HH), Cobol.StringPart.size(\":\", CS), Cobol.StringPart.size(f95_WS_TIME_NOW_GRP_MM), Cobol.StringPart.size(\"X\", CS), Cobol.StringPart.size(f95_WS_TIME_NOW_GRP_MM));"
+   },
+   {
+    "id": "d0c844fcc4",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 1096,
+    "before": "if (DetCics.resp(lr14) != 0) {",
+    "after": "if (!(DetCics.resp(lr14) != 0)) {"
+   },
+   {
+    "id": "95abd91468",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 1098,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "e608ddf6ef",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 1114,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "2b65531bb7",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 1117,
+    "before": "if (Cobol.compare(f69_WS_STORM_DRAIN, \"N\", CS) == 0) {",
+    "after": "if (Cobol.compare(f69_WS_STORM_DRAIN, \"N\", CS) == 1) {"
+   },
+   {
+    "id": "1e842041ee",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 1146,
+    "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f7_OUTPUT_DATA.storage(), f7_OUTPUT_DATA.offset() + 240, 8, 0, false, false, false), CS);",
+    "after": "/* Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f7_OUTPUT_DATA.storage(), f7_OUTPUT_DATA.offset() + 240, 8, 0, false, false, false), CS); */"
+   },
+   {
+    "id": "970cd3cae9",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 1164,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) >= 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "48487b99e4",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1164,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 && Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "13c979b808",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1164,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) && !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "907e64a5a2",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 1172,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "be19d1cc5b",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1183,
+    "before": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).add(D1), false, CS);",
+    "after": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).subtract(D1), false, CS);"
+   },
+   {
+    "id": "e0cd18b097",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 1189,
+    "before": "Cobol.move(\"N\", f127_INQCUST_INQ_SUCCESS, CS);",
+    "after": "Cobol.move(\"X\", f127_INQCUST_INQ_SUCCESS, CS);"
+   },
+   {
+    "id": "6b20b5ddfa",
+    "op": "LIT",
+    "file": "service/InqcustService.java",
+    "line": 1191,
+    "before": "Cobol.move(\"9\", f128_INQCUST_INQ_FAIL_CD, CS);",
+    "after": "Cobol.move(\"X\", f128_INQCUST_INQ_FAIL_CD, CS);"
+   },
+   {
+    "id": "32b5aac60c",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 1209,
+    "before": "if (Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0) {",
+    "after": "if (!(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)) {"
+   },
+   {
+    "id": "cfe567ea54",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1212,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 && Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "fa153254f7",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1212,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) && !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "4f16b35ef4",
+    "op": "ROR",
+    "file": "service/InqcustService.java",
+    "line": 1215,
+    "before": "if (planned28[0] == 0) planned28 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");",
+    "after": "if (planned28[0] != 0) planned28 = task.delayOrInvreq(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), CicsTask.delayRange(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "5811a82d82",
+    "op": "DEL",
+    "file": "service/InqcustService.java",
+    "line": 1216,
+    "before": "Cobol.store(f159_EIBRESP, BigDecimal.valueOf(planned28[0]), false, CS);",
+    "after": "/* Cobol.store(f159_EIBRESP, BigDecimal.valueOf(planned28[0]), false, CS); */"
+   },
+   {
+    "id": "c8ec9c8efa",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1235,
+    "before": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).add(D1), false, CS);",
+    "after": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).subtract(D1), false, CS);"
+   },
+   {
+    "id": "2c762705f3",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1260,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 && Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "e4f583958d",
+    "op": "COR",
+    "file": "service/InqcustService.java",
+    "line": 1260,
+    "before": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) || !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {",
+    "after": "while (!(((Cobol.cmpNum(f1_SYSIDERR_RETRY, CS).compareTo(D100) > 0 || Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D0) == 0) && !(Cobol.num(f4_WS_CICS_RESP, CS).compareTo(D53) == 0)))) {"
+   },
+   {
+    "id": "b7ebed787a",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1279,
+    "before": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).add(D1), false, CS);",
+    "after": "Cobol.store(f1_SYSIDERR_RETRY, Cobol.receiverNum(f1_SYSIDERR_RETRY, CS).subtract(D1), false, CS);"
+   },
+   {
+    "id": "7998ce63ef",
+    "op": "NEG",
+    "file": "service/InqcustService.java",
+    "line": 1288,
+    "before": "if (true) return GOTO | 17;",
+    "after": "if (!(true)) return GOTO | 17;"
+   },
+   {
+    "id": "b1d46e6fa1",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1335,
+    "before": "BigDecimal v37 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);",
+    "after": "BigDecimal v37 = Cobol.subtract(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);"
+   },
+   {
+    "id": "8b1e5ffd2f",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1335,
+    "before": "BigDecimal v37 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);",
+    "after": "BigDecimal v37 = Cobol.add(Cobol.align(Cobol.add(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);"
+   },
+   {
+    "id": "9ee731ead8",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1335,
+    "before": "BigDecimal v37 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);",
+    "after": "BigDecimal v37 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).divide(funcRandom.next(Cobol.num(f134_EIBTASKN, CS))), DC_1);"
+   },
+   {
+    "id": "3df0d5ff29",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1355,
+    "before": "BigDecimal v38 = D1.add(f2_INQCUST_RETRY);",
+    "after": "BigDecimal v38 = D1.subtract(f2_INQCUST_RETRY);"
+   },
+   {
+    "id": "5c3bc6425b",
+    "op": "CON",
+    "file": "service/InqcustService.java",
+    "line": 1356,
+    "before": "f2_INQCUST_RETRY = Cobol.zoned(v38, 4, 0, false, false, CS);",
+    "after": "f2_INQCUST_RETRY = Cobol.zoned(v38, 5, 0, false, false, CS);"
+   },
+   {
+    "id": "5bfa0a311f",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1358,
+    "before": "BigDecimal v39 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next()), DC_1);",
+    "after": "BigDecimal v39 = Cobol.subtract(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next()), DC_1);"
+   },
+   {
+    "id": "2de271dc25",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1358,
+    "before": "BigDecimal v39 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next()), DC_1);",
+    "after": "BigDecimal v39 = Cobol.add(Cobol.align(Cobol.add(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next()), DC_1);"
+   },
+   {
+    "id": "b290c47f8f",
+    "op": "BDM",
+    "file": "service/InqcustService.java",
+    "line": 1358,
+    "before": "BigDecimal v39 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).multiply(funcRandom.next()), DC_1);",
+    "after": "BigDecimal v39 = Cobol.add(Cobol.align(Cobol.subtract(Cobol.num(f46_NCS_CUST_NO_VALUE, CS), DC_1), 0).divide(funcRandom.next()), DC_1);"
+   }
+  ],
+  "inputs": {
+   "port": "24650a317ed5826fb46dfee9254c461c8da7f0146a69c41071d6c93f3eae1233",
+   "runtime": "a149b0e5a5e35e391bcb11779f099703999b90ef7e3d59a5a2e67795947c56d2",
+   "generator": "d24e5f4b3179a4b7aec60c91e50c635a850e1784aaf6b32d30d926fef261cc92",
+   "case": "f48252805aa773b96604ec95606a090c353a95648ed80295b516d7ee077365a2",
+   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
+   "harness": "392d5c93e8c9e61ff9cb5c77cce9c80d3552aed15aba491016a348fea2a4060e",
+   "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
+   "survivors": "027fa95dbc46b901f0950996554b084a100c6961416de8bbfe095b79c7c6747d"
+  },
+  "components": {
+   "generator": {
+    "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
+    "generator:cobolrt/ArithSpec.java": "d4b515111d390800aa5fae88ea6505dc5aa91640a2a5c8cee3c8807fdf2aca89",
+    "generator:cobolrt/Cobol.java": "a2777b7ea29130da1264231ef7c66d591cd06d0a257dc38d4466acedaff97db8",
+    "generator:cobolrt/CobolProfile.java": "25e525950493e4b7bc75f76f0d8e657c409ab3e77c07ce03f9c896709255246b",
+    "generator:cobolrt/CobolRuntime.java": "bb52f4ed5f74d50ab63062310030d1ed96cec5aaedca1130ae46b2969007829f",
+    "generator:cobolrt/Codec.java": "5c18daf4da5bd42c9af07954818ef664871ad37b1fbb7aed68f6d09e0b96a878",
+    "generator:cobolrt/CompareSpec.java": "d0d21666d912658ddcbd00146d3e079e8d57d77e1110f051c8abc61bd8cccaf2",
+    "generator:cobolrt/DetMvs.java": "3c70adb42450f7cb1f82b8a06f90d688d57b90eabfbd289458436f7a64d266f0",
+    "generator:cobolrt/Editing.java": "2ea7c7da4d7aa9a4c07b3358d929740fdc65dd0e44a982cdf5ef6c5f80c15b25",
+    "generator:cobolrt/EditingSpec.java": "65833ba7abef39702ef6d535a4e2af4032392b9b97db72abda145bc68a54ca15",
+    "generator:cobolrt/Field.java": "a4b12b313ae25789fa34988528c85c91a2d0c80f85555e154070ee9f2725809b",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/FuncSpec.java": "128b02f38cc68d3d5561f7d2dd6ce6a90276218c17c056857b9c4d16a82beda7",
+    "generator:cobolrt/Funcs.java": "b2d30b4ef89f86c951e98d0f17b2fb2ddd45b1c261911b332220d11cf5158f2a",
+    "generator:cobolrt/Hfp.java": "196c5981aad77f0ce4172f27931e116be97f1d8c2967990153efc2394bba8696",
+    "generator:cobolrt/HfpSpec.java": "e2475b7719ef0891921574a9876364709fc19ac6565bcada0dfb8a3d975ba9a2",
+    "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
+    "generator:cobolrt/JsonGenerate.java": "942317c0ac65f4d9f621ca629e03f2a3d28b69c04a8676c3bf5c92c1f969884e",
+    "generator:cobolrt/JsonParse.java": "bef55576a3ecf88ebe7201421c9a08ec00ba0b11026be02f86b5b8adf219e1d4",
+    "generator:cobolrt/Lossless.java": "6b510bebf0c87c1beb6aec682d8bb5039291afdff4ef806dcf56cce7808485f9",
+    "generator:cobolrt/MoveSpec.java": "cc3f346221e86900ccbdfab312c2ccea492fd1c2bcd6edeb26e33fb49826a0ea",
+    "generator:cobolrt/RuleTelemetry.java": "7f4be65cec37f56eecc3e00a660aa78c1f191a70e367ca7301c2dda6d294072f",
+    "generator:cobolrt/Sort.java": "fb513d7be182ca87009b642480fdde49fd2218d181c83cec05d8aac5729173be",
+    "generator:cobolrt/SortSpec.java": "8871dcc1e84459211f3190984a83af863e93ec41b3a0222f4f9038e474b6586f",
+    "generator:cobolrt/Storage.java": "d0e3bd4d16857a5e0188c0200f59e27e8a5579404fefc808449b9b59d79ca58f",
+    "generator:cobolrt/StringSpec.java": "f832b696ce0b1860fb53a536efb2ee282d3355202ea42fab03e12df0ad24fec7",
+    "generator:cobolrt/Zoned.java": "614ce9e271d21343be132d13cf47e3f159a24231eae99682ef15f10414024a01",
+    "generator:cobolrt/batch/DetFiles.java": "93a8b702e9dec728c6ed17a734125f0c7c4b34dd29afb055536a9592a9c7caa7",
+    "generator:cobolrt/cics/DetCics.java": "1988892e1059c018f3e442bafa01fa73a014a77d4e5fbd9f9b1093aeec6a0a48",
+    "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
+    "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
+    "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
+    "generator:cobolrt/job/Idcams.java": "9389c5e19810ec814b8ad20c90c30270fc151bc2411b2585bae80dc0129ae90d",
+    "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
+    "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
+    "generator:cobolrt/le/Ceedays.java": "76ce46c61da5542390cb2997d72169d0f486722f0cc30dbc2b459e2663551574",
+    "generator:cobolrt/le/Ceedywk.java": "75b94bf56764b828ae269090178184eb834e05b76a928f7517e96928c4002bd3",
+    "generator:cobolrt/le/Ceegmt.java": "0b6f7fb4d7671d19074ef50ee418a0fef8b752f0cabc68a6db21ecb8c6e40c1f",
+    "generator:cobolrt/le/Ceegmto.java": "937c33385934fdf9b241edc341c1900dfd9109d0756d279114da80ea9921aad1",
+    "generator:cobolrt/le/Ceeisec.java": "394d7c9ff85144cc898a78448f6b17b5a930f8902f42068b6af5f2be8ea7a2eb",
+    "generator:cobolrt/le/Ceeloct.java": "aaf1a0cd8e2fef30f9dc991c9314e7b7b67b79748f7e72b617f72f770d589dd8",
+    "generator:cobolrt/le/Ceeqcen.java": "6571d2ed7ca6eb0348d6a23d6fcb2a5c882a097a2917635e2881074fc91cad75",
+    "generator:cobolrt/le/Ceeseci.java": "e5ad976fdd2da3ed94bd0559632d6ff0642bcd1d980f5ebd3f694a79f598b7fb",
+    "generator:cobolrt/le/Ceesecs.java": "9a19442737a13f8439f554f8b1b8ad95b640a8fa598fc9e3cacb745726268692",
+    "generator:cobolrt/le/Ceeutc.java": "c12810fda2a51dac477c0ba79f913f08a5d54d20c49bc778d345fc8f2c32519d",
+    "generator:cobolrt/le/Cobdatft.java": "557be70b157d3a4fd55fbb9fbb20820dea0a23000f3be0170236593826a72e3f",
+    "generator:cobolrt/le/Dsntiac.java": "cf45a631af15438753cf354fe7a251ae4e498a679a76122eddb496428e80ed16",
+    "generator:cobolrt/le/LeTime.java": "0f07e6aec9a364c52b425c5a86adcc9946f9182edc37caa92010bb3986d5f5a8",
+    "generator:cobolrt/le/Mvswait.java": "41482047bde3829fba1da896ce716536e5535ee7d637142d426efd650ec64672",
+    "generator:cobolrt/le/Zuidstck.java": "e16376df0eeed8b8815210b35854eb6369e5f690a9cb056f8b4841140e0b24a1",
+    "generator:cobolrt/mq/QueueManager.java": "30bc5f1cae55df5b40a609f31ebeb402b7c0f3c74f53dbcc66b82e0e6e0af04c",
+    "generator:cobolrt/sql/DetSql.java": "0f1ad0d33d9ce5301ba16bfa1e0b3562d71dce1518af8932c3ea93d77bc89bf9",
+    "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
+    "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/bll": "d26fab1455283a28cfb0ae3799b2ad5df99a495dcbfa2108ba2075270cc5c548",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
+    "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
+    "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
+    "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
+    "generator:det/cics_counters": "494271d107d6554da2b7436d5c882f6c92db2141bb3b97c8fff218194d4993c4",
+    "generator:det/cics_faults": "863ce608ce8e183fe37350ba17f59b2176ce20452e1ebe86cb6b7ae6109fdb4e",
+    "generator:det/cics_filecontrol": "d948deda64cbd44a065c8d4c67605dacc556943adb3300564a6e82703b32ec7b",
+    "generator:det/cics_program": "149c6194ff068a6758dc994eeb216768dd4264e5d060da56cebd5d7da5398a5f",
+    "generator:det/cics_queues": "0ad690c3e8132ee2c8ab6c28177e5069625a4d8821a374d3f9d69ba3a930e914",
+    "generator:det/cics_storage": "c57cec1e621017d5d5d4eed3fe13b4720fa736b645e4e81ff8649aaaee381e24",
+    "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
+    "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
+    "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
+    "generator:det/cics_web": "d07666e2ab7079aec1a5f2288f4c0bea3da45ffff723e869d7eef20d93e712c0",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dfsort": "19ef95f6dbe5c034880fc4b4e4aa6154964b57727c3d80358f0fb76c17f484b4",
+    "generator:det/dli": "3543f9f3c05be02b2f8e0702a09f53874303bb17de9972a36a1e05521d90bc57",
+    "generator:det/dyncall": "b90198923bba2f1bb209e74fe5303e44a67b827850979be883a702dab7389958",
+    "generator:det/engine_layout": "b5d75efcd701e65818f3cf16d60637c238159f391449efd7af10396903dda25e",
+    "generator:det/entity": "05e52de75f61a97a7e0ccc16080f543f046dffb3b3cb57768f3e53bb5c253b90",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "01c4dd2e366ca673df03fb73ddddc679e560abb977905362a0dcac339ab37d4b",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
+    "generator:det/idcams": "51a9bbef4ed24288fc9abd58bae6c8795ac02d2b21700e750334a286acf2f577",
+    "generator:det/idcams_model": "fed2ad60f17e77252e200668ec1b19676fbe0fcc023e9082ce35dfe11bd9d216",
+    "generator:det/ims_region": "05becbc32fac8a8ea4a7f480e3c69cddeacb8a240ff37bcc17d2cb0fdd052c91",
+    "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
+    "generator:det/mq": "f657dc097af0127930c9dfc41b0687701f4300cdcb82b7e0a2f8884ab1c53083",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/program": "632c9652f0fad7ab660d5eccc9ad1180f63b9d9d814dff246f04d325b2ad6104",
+    "generator:det/refine": "e33674b05cbff5072eac5163cd9efbd60e5358ccb10e2855d8b73634354fe58e",
+    "generator:det/replace": "63b00b343ede85ea6ee431a521c5094d52bf03a347cd30bd56d30d821f0bae9c",
+    "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc",
+    "generator:det/sql": "74791ed542d623b7ddf082de9cdf01fc7b2a254a9e1c7b41423b58793309c561",
+    "generator:det/stmt": "5590bdc345efe60c24a8de8e021b73e3b1d131bff5d4966ccf58bb2f8bd01bb8",
+    "generator:det/tso": "7e4c6c4847b0154df35b1e64082aef52cd46e867900b2ce987ed523cdac86502"
+   },
+   "harness": {
+    "harness:cics": "bb33d6326b25595ce79c9986ad29dd1c32766d44cf987f3a8fe40dd5de064368",
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381",
+    "harness:db2": "95df4f1862b475bb5de6fbdccda16962f8ee09682add0314bf31ae1fb3645fc4"
+   },
+   "oracle": {
+    "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",
+    "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
+    "oracle:db2": "29ddb1c03f70d719795ec5b90fe42743545f6be4591ad6c8ba521b525d19ccd9",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
+   }
+  },
+  "every": "00351917df 003e979928 0042c11f8a 0048dd9e2b 004db6ae38 005c8c2e42 006f6aac35 007a609d4b 00884f6a67 009ba6985f 00a3dd97de 00a466e0ce 00ad14817e 00c741b6fd 0109fcb43a 011ece4537 011fa5663f 013ce59914 0169335e25 0196f41d6e 01b3f1a701 01baf21e70 01ea7a1a09 021b2e4ddc 023e5162fb 02413d25fd 02475cdb2b 02611cecb2 02752dac28 0283461282 02945ad671 02a52fe9b4 02a74602e1 02c4319f46 02d2b7d98d 02d3db7f74 02d8df577d 02da2dd03d 02f2d57f08 02f552714c 02fd1a32a6 0301149ff4 0306925617 031cc3b9e3 032a80540b 0331799728 033b606399 034923024d 0359f25a40 035f58a1e7 03616aa731 036938557b 0373e0ca42 03868f3d46 038eb05e75 0397d29eab 03c4e129bc 03cba155fc 03d6dfb03f 03da8028cd 03f07ec539 0420c1eb3b 04288a8aaa 043b300509 043d139d56 0450f79a42 045a8e8351 045d1cf4b4 046e56b382 04ae4bdc72 04bca24348 04be2f6309 04c0bdd986 04f0ff810a 04f19d9ae2 04f43452da 050468b570 0510fdd619 05115a3c4e 0524192548 052f81ed63 053068e6d1 053b39d177 05448963e8 055ce7312d 055eb8c769 05691fc4b9 05765201f5 058c44ef1f 059bc497cc 05a16be6b6 05a3d191f1 05ab5bd8dd 05abe698cd 05b97394bc 05c489c198 05d42b5fe2 05db6f9d64 05e3d1c027 05f35d175c 05f7dd7df4 05fbc8f65c 061b983a63 061cf19dba 0626ee9ece 0649fdad02 064a3a2f7a 06699193d1 0681a10be4 06850aa3b1 06944bf4e8 0698594a84 06af7030a8 06be40966d 06d0201f5c 06d7264345 06dbd37ad8 06f5cfb66e 07016e5d93 0708213ff4 071c4075e5 0728383a70 072a32128c 0732b2a3eb 0755675a4d 077bd250ab 0790e09f1e 07914c4348 079329d970 07a0e43063 07a8a68da7 07b2feda9e 07bbcc07c7 07c378af40 07d4551987 07e17ae039 07e6332f2a 07ebbd1cf5 07fb4ff5ac 07fec64124 0800aed1a3 08054eb522 0805d50c67 08244deff7 0839c174b0 0846fffd99 084a736b45 0857b99af9 085b81462d 0869611b8a 0872c41d72 087c92f56a 087ff8cb42 088d55444c 089029b14d 089c81340b 08b49c4283 08bd20f139 08e85f97c3 091e11d70f 0938edd185 09398d5dcd 09477f4da8 095837615c 0968aa9881 097cbadf9f 09c0b00a29 09d1019095 09e3d099b4 09fe747ca6 0a181e3329 0a1fba6993 0a25aef133 0a3471ff48 0a3c06057f 0a4729cc03 0a4e1adca5 0a52f654bc 0a57a3abda 0a5f680e36 0a61590849 0a6ae2741a 0a6f4cff51 0a730407ab 0a74f16171 0a757b6251 0a7bbd97b0 0aa765be17 0ae4e3038f 0af7ff9a14 0b10bf991a 0b2be39710 0b3710e1f2 0b372cf351 0b4160eb17 0b4254da46 0b48377505 0b5ad0fa46 0b6743e7b7 0b7706afc0 0b80d1290a 0ba0165e26 0bb2474a44 0bd0f14c84 0bdf5c3980 0bfd0cc747 0c066d8ded 0c0c487efe 0c254d1c6c 0c3074f30c 0c41bb56dd 0c5aae4cdc 0c6290bbd0 0c68634975 0c72c56764 0c7b5c7ba4 0c9220d21d 0c9c77b258 0c9f60083d 0c9fba7ba9 0cc26141f9 0cde758b91 0cf239daa5 0cfdb59883 0d057f79f7 0d078122c1 0d0e866fd2 0d232420f2 0d25e502bb 0d2c29e8fa 0d54bf08af 0d5936e625 0d811640da 0d83a13f57 0d8bfba6d8 0d8c7f9b11 0da29c2541 0db89d4992 0db9419c6b 0dc3363e3f 0dcad88855 0dcecab0af 0dfac670b5 0e19f3a98c 0e23f9cd71 0e2e59fa14 0e2e963816 0e2f9856e5 0e505935af 0e5efa4f71 0e737c25ef 0e79d0d284 0ead503c9d 0ec153332b 0ec164752a 0ecbba67c1 0eccf60ef3 0ee1026994 0eea1ebe7a 0ef1241bc4 0ef417264e 0f0fe69ae3 0f118c41d6 0f318a9b74 0f3f842430 0f44c18ac4 0f4ef9f130 0f53788d71 0f636ced78 0f7ab76824 0f94ffe83c 0f9a7f5c80 0fb412695c 0fd3a6a2ff 0fdd0e6f24 0fea4498f8 0feeb3fa8d 0ff0c7468c 10071a7965 10124446b6 101289a912 10174a38cc 1018be8c81 1035b04bf1 1038b06cb2 104cdbd6ef 105ae635b4 105e1938a5 107d9d89fc 10840a5b60 1091fd09d8 109b106af4 10a1ff3ba7 10a6838de5 11038b2a05 1112ae6506 1119d818ec 11515a2019 116b6c5470 117b46b5f0 1186747bcf 11b0bb593f 11b2c33f1f 11b9977b96 11cc7cbeb7 11d52bac60 11e1a6368f 11f2db9b32 120c2bb66e 123e479697 124136b06f 1263a6bd57 1268f3e27e 1269f37a55 127a66e417 12b3cc6e6a 12c1a8a7e1 12e32a7a48 12f77c0d18 130bf69c51 131890e8d7 1328790f88 133674e2ad 134276812b 1352d8e891 135656472d 135c321607 139a9525d6 139c7a1317 13a4512cc3 13bfac88b4 13c979b808 13d1240856 13d60d1d45 13e3fa4080 13f6486775 140d6e4745 14133aac2a 14232c5d62 1423c60e2e 1430829046 14427d152f 14630d7210 1466708d01 146b475d26 14706b7657 147780a6c0 1479a98203 147b0f41bf 148260d47a 14e4d82891 14e778af0f 15239ed0fe 15385e5de1 153ee9fcdd 1578b22c7a 158ba11979 1599a6ccab 15a0eada61 15aef2b57c 15b94ae4cf 15dc558ce7 15dfffe657 15e575972f 15f5e980d9 161b195a17 161ef69587 16251ba9e8 163b04a255 1645b7c646 165128f08a 166eac0c9b 1688a8aeb8 169c2bed6c 16a2784887 16b236db8b 16dcfec641 16de943a57 16eddf658e 17057e2d85 170c4a4aa7 1718556afc 171f2078cf 17311801cf 1739b935fc 1740d2431b 174743e14f 17773d4bdc 177dc8214f 17c744a784 17d63e5dfa 17e4f13760 17e66ca61b 17ffb0650e 180f75b588 18102ca50d 18156d6a70 1818e57452 181cd3b3a5 185668cfd9 18607a31bf 1863d56af9 18654b412c 1880b4b38e 18aba27978 18d42f63be 18da50e8af 18daebe99c 18eec98d1e 18f8e556d1 1900f2f2ee 1905d25656 1906b93665 190bb7be28 19117fcdfa 1913f0feb8 191900d896 1936bf9e32 1941bb912d 195f1418b5 1960751f54 19b690c1ff 19bf09e037 19d4ff8c84 19f73dcb32 1a150e68b1 1a565eb1d1 1a5bdea864 1a823f8215 1a86ad5e3e 1a8de9d920 1aa0f935b5 1aa97abe7f 1aa9e79f0f 1ac41feb3c 1ae73d73c9 1aea030ee6 1afc389e6f 1b01022d17 1b0fc79f61 1b2b5c9681 1b308bc5fc 1b37745f5e 1b45716e02 1b6b9df468 1b7e53a718 1b8fe03ead 1b9d2f059d 1bb48ff83b 1bc082cb9c 1bd53af8f9 1bef29085a 1c1aaa8bc8 1c25f881d2 1c2956e8de 1c299c2aaa 1c42203f58 1c4bd2e247 1c662e762f 1c80b901c1 1c90d84219 1c96f59ab4 1cb13c0c46 1cb330baf8 1cc2fcbd3f 1cc55a307a 1cc9de6040 1ce2ec29b9 1ced605d24 1cf2b0a396 1cfdff2865 1d003d9f51 1d1353df3b 1d1f592f94 1d2c1e559f 1d8d641f19 1dd886dee8 1ddfde6393 1de5235d21 1de890c409 1e029dc878 1e2c97e694 1e2de2b787 1e363ecce3 1e381ba2f3 1e3c3bfe22 1e5cbf9d02 1e6a979b3e 1e842041ee 1e9b8a245d 1e9e0c9ee6 1ea05940ae 1eba8bbd42 1ed2330b26 1ed282dc47 1edadf7b3a 1ee3c69a5b 1f0b1978bc 1f1795dd3a 1f17ee5e15 1f19fc6e6c 1f1d2644ae 1f57a481ed 1f64d9f6dc 1f8186381b 1f84aa96b4 1faf71a09f 1fe9220b10 1ff5500c7e 1ffca90da5 2006ecc374 200c47427a 200ecd6d45 2016543e6b 205113778d 20834cbb90 209fa51451 20c9c36b4f 20cc52a037 20fffceced 2103e89d88 2120909d15 2124644c73 2126f89b2a 214018e37a 214e69aefb 217b707503 219528cb39 219b284af0 21c2977b0b 21c2b93aef 21efc6663d 22019e7780 220d9e4f7a 22184a1459 221890683f 221f878798 222260eecb 22483b353f 22531fdff7 227c21ad7c 228e3f5ebe 229a62aff8 229ccfc106 22ba2d2882 22d01ad327 22d14443f1 22e58832c7 2301c3c367 2310e2fbce 2315d21183 2340d3ae4e 23486526c3 234f4c44f6 2357ff7755 236c650de6 237820601a 238ec0da60 23a7c7e3ad 23cf8331d7 23df4bb601 23f9483dd5 2403d296b1 24080dff15 24600d75d2 246d9e1da5 247f1c8baf 24958b7200 24a73428c1 24cfca5219 24f43d8a03 24f603e94a 24f910c176 250b77513d 250e14f885 250f4715c8 251db39e5b 25211ef06b 2539934838 254b1f47f4 254eaca66a 254eed0de8 254fa43fe0 25608efa04 256bf12a4a 257e6b7a30 258f83fdab 259db22e85 25b4e68898 25bf439d48 25d04f76e4 25e788a356 25ec6d9691 26082a30d9 2612fff64f 2619b66a58 263886a6dd 263b25aca1 2649ce694c 2653d5dace 26611fdcfd 266dfde6aa 266f16c4d5 268c0d875b 26ad605366 26be2a151b 26c029fc7d 26c0c469b0 26cbf34730 26de2fa736 26e488d4a1 26e5278b35 26f99f51fd 270f3cb4fa 272bd06f23 274f7978d8 2764b007ac 27661bfd9d 278624aa70 2787f3bc23 279472c50d 279cd780e9 27adbc7a6b 27aed939b9 27b0744355 27ba1204b5 27d00c9779 27dc19c397 27de1a034d 27e34adf24 27e93c3009 280b6c91d6 281b554d98 2852bcd58a 285cba5001 28775c7259 2892833576 289a4e6b18 28aea5c4af 28b1f8f473 28b5fce417 28cc71469f 28cff05038 28d09160bd 28d616d7d2 28da65818a 28da6bc590 28e258adeb 28fdb700c5 290a566364 290ddbfc14 291c1758ac 2920015459 2927fbe189 293955c6c4 2960cdddf0 29660eb01b 297aaafe9f 297f141c43 2983800b5c 2992650027 29b81530f4 29d9551b7c 29de6ec475 29f41fdab8 2a07514c54 2a215218d0 2a26b63e87 2a28dce4c9 2a3685b4c9 2a439dc3b2 2a4be6ebe3 2a5cc2b4cc 2a6c8a6938 2a730cb085 2a75644de5 2a75d7132b 2a7d0c4e2e 2a827d1d3b 2a8333a16d 2aa67019d5 2aa859c053 2ab13073b9 2ab387dd6a 2ac2881e74 2ac39fe8ad 2aefae44a7 2af48abab7 2b0cee05d2 2b0f619bdd 2b158ac46d 2b2c0cf2f2 2b316cbd1e 2b3b53b3ae 2b593f2ef1 2b65531bb7 2b6c02dd91 2b6d88f263 2b762ca7e3 2b8bdb0077 2b93b88dc1 2bab74ca63 2bd6f9f209 2bdc06faa1 2be2ed558f 2be8aba2ec 2beb8feb3e 2c11bb6ec9 2c149f1437 2c36684c0d 2c49530176 2c762705f3 2c89512622 2c93ed52a1 2ccc802e88 2cd671c3f9 2cd717f4d6 2cfa2eea23 2cfda695d7 2d07a5314c 2d2644deac 2d44e46558 2db688d6a7 2ddb0dce2e 2de271dc25 2de5e8a26b 2df452c24d 2e2916c6cf 2e4056d414 2e52eca532 2e55222c01 2edcf3535e 2eee69aa55 2ef689260f 2f02966b66 2f435741af 2f49dae7c5 2f4ba8d437 2f52f2487e 2f5f7b1671 2f60378e14 2fb1200515 2fe721b33e 2ff289df38 300573663c 300f40c970 3010d1d6a6 3011c20e8d 3019baaa86 302babcfff 3036eaf1ba 303d6ac046 303f773919 3056d19f0e 3066682dea 30765b34fb 3079121cbc 307be06531 30813310b2 3082e6c04e 308c069bd2 30aad90f58 30b1bfc792 30bca8ce69 30d7c4000f 30f48bf97c 30f59ca4cb 30f7ce5833 31031b88fd 310df78313 312a5b284a 312dafa14d 31305ba487 31363f1c81 3140ca7040 314383241e 315a81f5a6 315f05e39f 31cc7d3421 31ce62bd70 31dc3003f0 31f6b50273 31fe55f804 323eb5f4d0 32460daceb 324a11ddc6 324befa960 3264208152 3268e76540 327014dc2b 3270d9ce88 3287ec0095 328f812c31 3291596aa5 32b06da849 32b5aac60c 32c4f166d5 330873112c 330e30e90e 330e85d65e 331d423fe3 33213f6c2b 33231da9e7 332d801360 33506e29ef 335d146bd7 335eeb0461 337485a4fb 337cd292d2 3383a5563c 33850e490c 338b7b8f1c 339559e81e 33a7f4f980 33a9ccb9aa 33c1716c95 33cf2407cc 33ecb9e2db 3400ae5096 341cf6371a 3420dda282 3431e7a626 343582771b 343a4e1efe 343c8866df 3445f2de03 344851d9d1 3456f79904 346a8e2ac3 3483a0be6c 348acc8ee8 34917cb611 34e0fc52be 34e32b9575 3505a70872 35113e271e 3531260526 353510ced6 3536fd95c9 353967ce0a 353b9f2558 3563296d48 3569f54c75 3572859063 357ccdb261 35812ad8fa 35bbbf722a 35e0bf508c 35e3a01331 35f6ebedf4 35f84d29a5 3609572685 3624fd5a69 36490fabcb 364b0b529f 368ee18224 3690e49060 369ab7ebeb 36a6b08861 36bbe9578e 36bcc688da 36c0891178 36c43d9355 36f86fdb7a 36f872c8bc 3724b9cd27 3727b434a4 373e0e51e8 373f2209db 374d7a3328 3760bd064b 37687b60dc 37839e0df4 378a582b45 3790897803 37a2795784 37a483d54e 37be79bee6 37c4ed4eea 37ca32f5ad 37e92add33 37f32e8fcd 37f7daee1f 37fbbad11e 3811885a99 383b02b422 3858a85fd2 386caea80c 386e91d486 38853a985f 38afa0f215 38b6880709 38c5cadaf4 38cb1e0893 38cee97efa 38cfd2bca2 38d950be2c 38e3fa259c 38ecf9e1ba 392074ab94 392eac4795 3938ecd83a 39430196fc 394a3271a6 395d5e9133 397393d2a2 3974824f4a 398018420d 398ed43ed2 39ab0422d7 39b93bdbbd 39ee5729a5 39f1f6317b 3a2a94388f 3a458e395e 3a73578214 3a74b2edf4 3a818885c4 3a93a9ea2e 3aa36b7c59 3aa768303b 3adbe9d60a 3ae261274f 3af9b59851 3af9de8b77 3af9fb9163 3afc2bfbda 3afe47948d 3b09a96bb8 3b0f2744f1 3b35072462 3b3d7f6b23 3b4daf8f0a 3b50a1a065 3b6baa3d01 3b6e20a37f 3b9e7736d1 3bab07ba50 3bb65dee4c 3bcd6ffe07 3c05f5c3fe 3c1323a007 3c1e5b184a 3c1fae8505 3c290f5d4d 3c45f9d624 3c5b1becc8 3c680a3cb0 3c72a99493 3c7913efea 3c842b4b13 3ca2a16391 3ca506f18f 3cbc8dd350 3ccaaec752 3cd5a56d62 3d1168d57e 3d316b0820 3da4d3f3d2 3db6e53da3 3dccd075f0 3dd06ae89d 3dd2d6c42b 3ddea482e8 3de4910eba 3dee50897d 3df0d5ff29 3dfb1aca49 3dfe41dc2e 3e02bd137f 3e06c3206f 3e14613c79 3e2044cb25 3e29f11d30 3e2d388c2c 3e37d63d92 3e447c67a0 3e4f40bd49 3e71011e40 3e85ce0aba 3e8de7e31f 3e965a5653 3ea521309a 3ea55be942 3eb8edb612 3eda492292 3eec10515e 3f1e06f8a5 3f31525246 3f33aa9911 3f3d587b3d 3f419bd1e8 3f419c2acf 3f48d54a1b 3f6384e474 3f67878a1a 3f8327f79a 3f8bf8f66d 3f8de03ba0 3f9eaf3022 3f9ee76e17 3fc5095a5c 3fda8995bf 3feb7d0232 3fee41aad0 3ff43cf0a4 3ff5ffd731 40037325bf 401cd373c2 4020a9b7c8 404be54d4d 404be8ddb1 406e3826bf 40874e8b6a 408aa8ef45 409920ba74 40b26341d8 40c37fd753 40c8967556 40ca49a470 40d775f4cc 40ddca2975 40f01056f3 41167bd87a 41196e050f 414f5e4b8a 415157dbbc 415f685e14 4177b8f86f 41b019f447 41b816438b 41be75b760 41bea1de5c 41f79f63cd 42121c057a 42123bd1eb 422d49fb91 42424381b0 425003902b 425bfaaaea 42661206ee 4269d44a30 42753d3f23 428a36c50b 4298022f69 42d2ac135a 42d8bb4fe1 431c0b704f 432a7e8c22 434ad2323e 435eaacb44 436d597a62 43755ba70f 437ae8cd0f 43931e7fa5 4396a04d94 43e61e9799 43e93534d7 43ebe84700 43f3cecdbe 4404119aeb 442e3aeabf 44456da416 4451b2dc8b 4455aa4331 448c0b5d0a 44a7b56e44 44ab442160 44bfff6bdd 44cc0c0c93 450ca7cff3 453bacd5bc 4574e5b9e5 457d6f4f63 4584cd597f 4587d04aa2 458b234d84 458b68de77 4594009c15 459d1f2d89 45a98542b0 45bc54e60f 45bd4c85ef 45ce8506d0 45e9200606 45fa82cf7d 462c9d7655 462f1f9561 46616dc883 467ddb8f4c 468ce210cd 4690e02024 469ec1fc57 46b1eae95b 46cb36ddd9 46f057f81e 46fd3827cf 4703fe47dc 471010741f 472efc9281 473323b75e 475103a95e 4758da93ba 476efee2c6 47793afbdc 47867f258a 47d34c1689 47eba26a22 4820d810cd 483458c170 4839934282 48487b99e4 484dc4deef 4853bc93d9 487833bae0 4893ffd9d0 48a36195b6 48cb25be8d 48cd05d725 48d5a11a31 48da031714 48e74d3a17 4901f67b37 490ca92af5 4911eaddd8 491a7fd590 49232e0897 49347518a5 4973559175 497b52b212 49a26d03de 49c498bdcc 49dbe09c68 49dcc2ef4b 49e2cfaf64 4a0b07bf4f 4a1e74f7d8 4a1f0995d3 4a2b8fa607 4a3e871ccf 4a3fe9e95f 4a5a2b7fe6 4a653eefb4 4a763154f6 4a84138f99 4a8991dd16 4a8da7e4a1 4a9aa548fa 4aa07aa071 4ab1761873 4ab33dbd20 4ac5004705 4acb15662d 4af10aa51f 4af8264fe6 4af8bba901 4afd02b0e3 4b09705dd9 4b16e4ae20 4b1a29961c 4b3f3fc9f3 4b581711c0 4b88035a12 4b9c7646a1 4ba00ba73a 4bb014ac21 4bcc554c21 4be1807e67 4c0c9cc2c2 4c388bbf76 4c4065258f 4c42814980 4c48421d55 4c550b711c 4c68fbdd63 4c69b0050b 4c758b504d 4c9d45fbb0 4ca65edf08 4cae839a1a 4cb6aaa75b 4cc309bdb1 4cc95b7ce4 4cccc80de1 4cd5dec563 4cea97e8ee 4d01701ba2 4d1935b5e8 4d58bcd702 4d616c4663 4d61bb4f97 4d753d394d 4daf9c06dc 4dcf0f247b 4ddbf3da2c 4e0369cd5d 4e0ecf4f87 4e139d7a8b 4e175e1679 4e1ec0bd29 4e1f7a8c37 4e30966aa4 4e5037c92b 4e524a9655 4e5b515f9e 4e773d3603 4eb038ed4e 4eb466ff55 4eb4ddf5a7 4ebaa7b587 4ebe056c47 4ec16b0e3d 4ecb2a8ea1 4ed8e7d32d 4ee5d72e6a 4eec01c569 4ef1c29293 4efe56e33a 4f0c362813 4f0cc9500b 4f16b35ef4 4f1b1d2b37 4f299b871c 4f2acf5694 4f44754662 4f470e10cd 4f49b0a099 4f613ffa78 4f65dca340 4f6cfce87a 4f77a5a6cc 4f7e91969a 4f97029d01 4fa02afdf8 4fbccf7c12 4fc88b467f 4fd6a034a4 4fd6bb6fbf 4fd7a5c197 4fdcade132 4ff8d755e0 5043b237e5 50633b610c 506a75e3de 508b27a75c 509c48c66f 50a2390852 50a9bec8ae 50af85fc25 50b1d9a20a 50bf88cbb1 50d3955f15 50eae6f86d 50f4ef5ec4 510123e9e4 5113f48932 511e3a3f63 5134351f2a 5153d39441 5168542873 516ed288f1 517bd7d447 5182f5f926 51970c48dc 51a928d816 51adce63f4 51bb7311ea 51d272737e 520b5fece4 520daf2b90 5213dba89c 52688a8e80 52851da7eb 529ff1042b 52b059c57d 52b295ba97 52ce0862d2 52d77491b1 52d9cd9c6b 530d2a7d25 530dbbdf98 5340b1e7eb 534247baef 5344a81359 5363e67e10 53b1dca101 53d05cd103 53dc892f47 53e814cbf8 540dd5395f 542d917aa4 543244c9b5 5442d05ce3 5450c47d2f 545fed072d 549018cab5 54981e863d 54995ced4f 549fffdfc5 54b9c83b64 54d4e1973f 54f68428a3 5514f89d2e 552e8f810d 55431bce9f 5544b8423b 554e4a16ec 55761f9741 5581d73886 55858ead50 559757b39e 55a2177cb6 55e2333302 55f493f058 55ff1bf360 562836da8f 564abd74a5 564d68e603 565d9bcde1 568b15fe81 569cc3fd90 569e9836b9 56b3978eab 56f1615ca5 56f6b76e80 5703dac58b 5709b9c453 5714fa5b48 571f0c0db2 57240408fb 572a3d6df3 572e7d700e 5753cd1935 5787f6829a 57919ecd17 57a9067ebc 57abd07834 57ca8fc792 57cfcf315e 57da4f88f6 57e4f896be 57eb9bf22d 57f5e3a980 57fbd66c04 5808dd2d7c 5811a82d82 58294162d3 583d5b96f9 5843f3c512 584de76c5f 584ef6f365 585013a98f 5851586fdc 586ed77c1b 5875a1c745 589bb16ad7 58a098239b 58af1e6445 58e73d3d75 58eec059e5 58f81a9855 59230a4b77 5923f70939 592d5cc762 593512e991 59640fc0fa 599104521a 59a5affc0c 59c83388f4 59c924730f 59d698b443 59f99299e3 5a034e1c0f 5a11095307 5a14ef3072 5a1a4df403 5a20319d9a 5a20a42a71 5a35f2ecdd 5a41ef306a 5a44115261 5a4b9b94a8 5a50f43b6f 5a51eb0dea 5a6b59dca7 5a7c589be5 5a7d97abd2 5a7e69ee13 5a888cd29a 5aa2dbdd3f 5ab3d2d9c6 5abc871824 5ac734359f 5ae4587b83 5b0ad67967 5b199399f6 5b3e6e6524 5b57b603ff 5b7063111f 5bcb3c7ffe 5be18b5120 5be6708c6e 5bf5fc7e0d 5bfa0a311f 5c0b3b24ec 5c1884f473 5c1c7be8d4 5c3536f38a 5c396ec139 5c3bc6425b 5c5d312636 5c799ca645 5c8776f870 5c9e36a818 5cb4753e68 5cc61669b4 5cc637850c 5ccd4338d1 5cd341d117 5d02c2e896 5d02d83871 5d08ffba93 5d2fe590b7 5d338fdacf 5d45d3adac 5d637eb27d 5d67346eb1 5d78f4419e 5daafba6a4 5db6d76594 5dd7c7c709 5de26887b8 5df4b4ed1e 5e056db5e4 5e431098fe 5e495af172 5e4c6d06c8 5e5bce3e09 5e7205b383 5e80534e3e 5e89e8ebbf 5e8e2c2d61 5e9202e0d2 5e95d2f3b4 5e977055fb 5eac109b80 5eae055556 5eb706d9ed 5eceb035c6 5ed8fc83dc 5ee87cc193 5ef08843d5 5ef583b48f 5efcc0329a 5f05d4660e 5f0c63476e 5f34e96d46 5f45a52c56 5f5b295831 5f83165f29 5fb78a657b 5fcfafffc0 5ff2e247a1 602590979e 6032aaacec 6038649561 6041ac4301 605ad5c8d1 6071246c93 608dae0944 608f4f96e7 6094948600 609b20688a 609d089254 60a3318bad 60a6ef51bf 60b33b8dff 60c5b3a439 60e7770206 60f4d43afd 60f5c638e5 60f831dbb2 61073f2811 61186a0ec4 6119bb8664 6119c99dc7 6165aabc86 6172353cca 618bf0270f 618d42d72c 618ead43cd 61914db0b6 61aa2585e3 61b6a4623c 61c4553245 61ee03df85 61f9428339 61fcee3f4d 61ffb3839f 620642cfe9 620984af5e 6210bee7f1 6212cd0ce8 62431b8633 62482db31f 6264d04ffc 626f84e58c 6271cd7221 627fc64d8d 6295775a67 62966a5584 6296fdb1a3 62ab48ed7b 62e0d7facd 62e35391d1 630053a07e 630d92dbca 631f4d4dce 6340129f80 6340305535 6366bdbcad 636decff63 6370cbc241 6378673367 63868a3690 638c94990d 6394ed3bf0 63c3d3e283 63db3bfc72 63f320d264 63ffc8c05c 643afcf378 643bf7e8e0 644bdd3996 6455632723 64825b48de 64aadaa706 64b2548846 64d4927e37 64d97e1567 651444ccfb 65148c92db 6527fd640c 652e05fc6e 6535bc636d 655202a73a 656ba0f49d 656d3f087a 656e079aa4 657528935d 65797c88b0 657bdee794 657cf02406 658196dba0 658cacaf95 6596ed3574 65deb96110 65e930bcd7 65ef5f8ae4 65f3b62d66 65fdad4feb 661ba858a8 663656988d 66438a8e59 664e26dedd 665381fae9 6664ce7e33 66ddf14fba 66dfb1e3e3 66e34b7f4a 66ec62239a 66ecd78d3f 671e3c24da 67228c4073 673d79f94b 674090b9ff 6755738681 6768e681ce 676f221535 6786d7ebd2 679630fa46 67a9463563 67af9f28b5 67b7b6f65e 67e0bd72cc 681b0ed4b3 68243fb817 683def1692 683e7f3b34 6851f09062 68695a90b7 686de81eba 6873b3be21 6874decd4f 68976fc62e 689d6729f7 68a9e44a74 68f460f70b 68f79aadec 68fd75cd73 690bd79d46 690f945d74 692959dcc2 6942cab223 696380eaed 696a6c360a 6983e2f072 698605298a 699eb32ae1 69aa896538 69bbf0b788 69bff7751b 69ccaa3cab 69feb5b564 6a099aea50 6a225f2271 6a384d6f1f 6a3b0bab30 6a4675ce99 6a47ff4fb3 6a508f1aa0 6aa6881bef 6ac8ac209a 6acbe7e214 6acd34477f 6aed77c09b 6af1e24ce5 6af2f853da 6af4cc28df 6b159367cb 6b20b5ddfa 6b3103f328 6b3272be61 6b435edda1 6b514f0e0b 6b5325b13e 6b6e722767 6b929a28ea 6ba33c63bd 6ba6bd2983 6bbc9c6592 6bd70a1209 6bdfc0d722 6be7b3b111 6c09eaa51a 6c1b2e3330 6c2a1abe52 6c4e44b728 6c700c77b5 6c839b4e68 6c864b8db4 6c895ebdfa 6c9a864d25 6c9cba2784 6c9dcf9def 6cb0babf76 6cdda6a1d7 6ce2b8aefa 6cedc709a3 6cf5aca667 6cfa1531db 6d147b1a32 6d2fb38435 6d429088d7 6d7612de9e 6d83eb8c11 6da7725f96 6dbb21d7ce 6de19a57f2 6de313aa8f 6e144d48dc 6e1f764ae3 6e2bb5d0a2 6e4e8df8f3 6e58166b71 6e6bcf00c2 6e7e66f1b0 6e9f73a6a3 6ea4080f51 6eac35c30f 6eb7383619 6edf52d5a8 6edf9904a4 6ef20e5f90 6ef4bc29aa 6f10dc3c0b 6f13179f99 6f206967a9 6f488668eb 6f5a44affe 6f5fb90f78 6f9093197e 6fb2799ab6 6fc96a735a 6fde4b8f13 6feb1cce5e 6ffd2eaf92 700269c553 7039bad121 7039d3f4e9 7040cd0f96 7054499cc4 70635ecca2 7076c37035 70785e4b41 708c11069f 709467146a 70a5108d9b 70a7338c87 70a9dc5447 70cde49925 70df56524f 70f672c806 70fdbc949d 70ff4ad081 712f8e7f8e 7152d75506 7155c72e72 715f83d171 716dab48e4 717f0a266a 719638c6ed 719b7ea76a 719f2bed46 71a90e511e 71b266f47f 71b760289b 71bb0d487a 71bc66f393 71bd5adaf5 71c76b351f 71d3a81b07 71d6befdfc 721ff349b2 722f838f8a 7236c565a5 72576cf139 726a917e14 727f922c22 72962d15c9 729c9a9f9c 729ccd6f8a 72a1eb0307 72b75a4df7 72c872872b 730f09aadd 73152740aa 7322fc73bd 7337a0e31b 733bca52b9 7343901d0f 7359a0229a 735c46aadd 7360c6fd36 73913fe073 73a1567edb 73aa3e872a 73b3cd1ddf 73e414ee57 73e7f792a0 73e9db0c81 740adbd5a8 742ce7f318 742d091321 744cb2e5a1 7460b4df4e 747fde064d 7480ac904e 748e2bd971 749bdeda91 74a1591718 74a6d55e79 74b3632bfc 74b5a28811 74bf90eb35 74c0e6c905 74c65f0ea1 74c7d4e170 74df4b73fc 74f8ca8246 74fa41d2d6 7518d63ba8 7522d64ada 7528463275 752c8ab6e0 754a961dd0 756aa51047 7577b93987 75c7076ef5 75cbce88eb 75cc928cbe 75d1b30c11 75d989ed60 76041a904e 7618e1f36a 7621758524 76404860fa 765ebbf8a8 7676fc2102 769197efb7 76b306dee3 76cff4c188 76ed164dd4 76f032beed 76f931a422 7719c33d82 771f979a2f 77287a65af 773ad4e7ba 775632199e 775c81e585 77716c47c5 779004263a 77916f942e 77a9457e60 77aa745e3a 77bdb4017c 77cf05dddc 77e123ed9f 77e13447ff 77f2b4b6f0 780bf5a6f4 784354150c 784d1ae9d5 786bbb9220 787f09c594 78a90a2d03 78b5020a92 78b89b1288 78cdc1c131 78ced98a62 78dfb6ed92 790bf679ab 7910c2a2d9 7963d5af53 79646de334 798a11a34e 798f0f8965 7998ce63ef 79dd5ba670 7a1444e87a 7a30b0a9b9 7a32cee278 7a54487031 7a800fc847 7aac7778f3 7aaf1bee15 7aafd1e5ae 7ac1c48a31 7ad3b3b0d1 7afa885e92 7b0b9935f7 7b0c11728d 7b1c8358fb 7b27eba459 7b33771c6c 7b38bd5c9f 7b4ad574a9 7b4d3522c9 7b62d36fcd 7b937bc22f 7b93e55f6a 7ba165d95a 7ba8b539b0 7bc69bb3f7 7be5221f35 7be53ee53d 7beab46240 7c151449c5 7c16d864f9 7c1901a091 7c278a73f9 7c3caf1fe7 7c4df3824d 7c747c1d13 7ca89aa591 7caa7f3416 7cd8b458dc 7cf3d08d4e 7d1a950833 7d21c560ee 7d2972923c 7d57267878 7d5c024bfc 7d9e4ea1e6 7da552bb03 7da72ac607 7dc0ea5856 7dde1c1a81 7ddea1a388 7df03211e2 7df21ad417 7df8f20825 7e2e6ae767 7e3fbcfd12 7e44a2f42b 7e4826bcae 7e52c620ae 7e5b075a59 7e623113df 7e792b350a 7e8b5a2774 7ea0157b1e 7eb782380e 7ed161fd05 7ee0796312 7ee85ec65b 7eef898ce4 7f00ef0ffb 7f4c3e60b9 7f7a2d5456 7f8231b856 7f9297981a 7fa3715387 7fb9fa8d5d 7fc5583769 7fc8305a7e 7fcc87fe28 7fd5a56f60 7fd8166c9e 7fefd3bb0d 7ff9875ab5 802879dc64 802adf0905 8031a9b5dc 8037df898f 8065cfbb9f 806c17a5d7 806c794ca3 806f2f1590 80906ebecd 809e6effaa 80c0c780fa 80c89fa826 80cf25612c 80cf7ee038 80d41584c8 80db78d40f 80e8f945dc 80ee8e7f46 80fc8fb9bf 8110199f97 8116c1d9b7 811ddb5f0d 811ebfe8e8 8135e9ca41 813ab06bbe 813b0867e8 814c636145 814c8a158e 8169582264 81799366d3 819eb5df03 819f949d58 81a1200bcd 81ae152ac9 81aebe0cde 81cf36692b 81d13ec6d3 81e07071f2 8218125c8c 822263a277 826d0d11a3 82747f2610 8278e9f8f6 82a4a7d417 82b2e60a82 82c89e7b24 82dc28a0df 82f20cdf26 82f327e6db 82fabb2907 82ff83a3f0 8305e77d30 83146e25da 831a6211ef 832917e2df 832a9a244c 83341cacd5 833bf578dd 835c1429af 835d58d3e0 836490e5bc 83690395f6 83aa42a72d 83d1e09151 83d95f6445 8419369159 8426beefb6 8428ba0084 8430a18d82 84387eda5f 84548d19b9 8456f0ea52 845fc05f5c 847519d8a7 8495722d94 849a99fa58 84bc4b3e64 84e5491a43 8514a52801 8520603058 853988149e 854f2ac9bb 8572c19276 85747fe325 85941997ec 859967c5dc 859fb6e1b0 85a720c299 85c09f788c 85c7ad2efa 85d2c471e7 85db149191 85e6242637 85f923ad55 8644b4a024 864c1dcddf 864eda24b3 8659b41c75 86668e000a 8669d1f04c 86906067e1 869fdb1e8d 86b2960c3d 86cb16e1a5 86cdddd1aa 86ef9a2dad 86f7b24c15 8711b33537 8717be257b 8731086f82 873505fc89 873ddb8de3 874b030739 8750cc7d8c 8765d545af 8770d27f5b 878d41bff1 878deb9097 878fe3383a 879898904a 87be7d928f 87bf6fedea 87cab87fc3 87cb9e07a5 880251675d 882dacecb2 884fd1d041 8850372b03 8853d35da6 8854f92c26 8896f1f18d 8898670069 889f3f70b5 88a8fa39a0 88ad29ea45 88c2d8c42f 88c53c9e97 88caf2dbc0 88ed47ff30 88eeb95760 8908bbb984 890d3b6b5c 8914ff711f 891b177f3e 891f382818 8921481d6b 892c671334 8935efa56c 8937bd920c 893839e76b 893d6b12aa 896e641e97 89bec1cbc8 89c3db9087 89d0e9b8c0 89e1bd4020 89e7a973b8 89edfb2f05 89f8009b24 8a0fe7074c 8a1b25a883 8a255db0d0 8a3584631f 8a38ad63c3 8a3b57039c 8a480b70ae 8a56a9bc7c 8a570bc13b 8a6d35fe44 8a7d0bcb87 8a7efe1d27 8a821fd550 8a904222b2 8a91a42dfa 8a938e1688 8ad21b75c4 8ad63027a7 8ae8273530 8aea4fa9d5 8af4820c63 8af51923c8 8b1e5ffd2f 8b702f77c3 8b74e59ae4 8b78a41cd4 8b7bd98c34 8b8a8f8696 8ba7880c48 8bc5030943 8be3607738 8beac7ad0e 8c27e3f75d 8c4797fa7b 8c5358e7b8 8c649d8d67 8c69492714 8c97739900 8ca7cc9601 8cbc78d80d 8cc0c55a1e 8cdc7d4f00 8cde2dfc88 8ce9e7d530 8ceb0165c9 8cf50c6df8 8cf53acc69 8d039e7239 8d07fe9536 8d11681c65 8d24ad924c 8d2b86346f 8d2f89073e 8d30ccbc1a 8d36408c9a 8d38e4430d 8d49518e7b 8d56fae9c7 8d83411a5a 8da514b612 8da8a61de5 8db1bdb3bf 8dc304c4a2 8dc6d9895d 8dceaeab52 8de348eecf 8e056dedf7 8e4aa7aea6 8e4dc9b4cb 8e50267de9 8e521e7556 8e81b7f48f 8e888ddd32 8ed0db0093 8ed284f0ad 8ed90e0c56 8ee5c77371 8f02d2b0a9 8f08763b18 8f15001b7d 8f19358e45 8f3701b4ed 8f3cfc64cc 8f42dc3c39 8f439b0299 8f4494f9d3 8fb0cb1bf9 8fb2af0138 8fb8398f90 8fbdc4a57f 8fcc767e09 8fd5593d8a 8fd9b6b8b9 8fda297194 8fdcc5af7e 901aaecf80 902b7b5617 903ac1989a 905e49a07b 906194b990 9077f4c600 907e64a5a2 90982af420 90a03bf3a7 90b746bcf7 90c5ec151b 90d9d011b4 90de31fe89 90df87e1b6 90e097dd0a 90f9e2f812 9110482c1a 913629835d 9140826a79 9143cabdbc 9157ce7ed8 915ac2b2d3 915f987ea7 917a014e8c 918b7cf8fa 9194fe29d6 919d5b9c7f 919dc75387 91bc6fa032 91d6b1f117 91d6ce2013 9236244bb8 924572db42 92478fb60b 9257df4f71 927a5532b2 92ac6162de 92be5a73c0 92cf26809c 92fa867092 92fcb557a8 930d22773d 931bf14198 93272583e0 93279354bf 932ca6a852 93462f2b61 93483bf753 935a1a6c16 936cd347c9 93705aa740 937b80ce74 9396c51b49 93af0ec2e8 93e0939418 93ef1f5109 93fa9cb626 940582c33d 9409d49395 9410ff60cc 941b750751 94259456da 942a961ba8 9434b0400d 943729976b 943dcf554a 9440b4a33c 9443049038 94433fd64e 944de5b518 9468445f63 94ada1bd3c 94b23b0e2d 94d8145fd2 94df56b00d 94e5d7f84b 94e9dfadc5 94f4eb6df2 94fecd3cf1 9504cac9fa 95074525d5 95605e40c7 956697dcc2 956be2cb90 9576445d3f 9591618e2f 9595ef6882 95a2cd21a0 95abd91468 95c5301249 95cda8df1e 95eabe652e 95eacae305 95eb9f2d84 960fd85d02 9611186510 961834af18 961dd540a6 9651a4698b 96563611cb 9658df414c 965fd62fe6 96764a5a0f 9684660ede 968e4d8ff5 96900ea928 96941a9e3c 96a3a89b6c 96cfd5c219 96d864b3b6 96df750b59 96e11e884d 96e7238a85 96ee4f7798 96f450dc44 970cd3cae9 971394234a 972d806870 973510e40d 9747e558b5 975d56758d 97639e8ab6 9773740013 978d81e430 9796c80eb2 97b558da31 97c63a1a29 97d76a23df 9801586b14 98263b95ca 982b5af52f 982f8b00a9 9830afd854 9850227f17 98883e767b 98c61e2d0f 98c8f18187 98df27b89c 98e11dd23b 98fb60fa25 98fc1d0533 98fd599183 9905155cb1 992c3f11a9 993b7ba960 995012cb6a 99812e6b26 998dd62c3c 9990dae63f 99a0a354bf 99a104c026 99b607f5d7 99c5a8e571 99e9560263 99f0540616 9a258d23d0 9a283549e0 9a55842e88 9a584f5885 9a6968c742 9a6c449bcd 9a6e79a8c1 9a94b18df7 9a9e6a39c0 9aa161aaa7 9acee43abb 9b4179e31d 9b885cbb29 9b8e759917 9bb81de7e3 9bd43c5c6f 9be9fff391 9beca16532 9bf17f5fed 9c098160fe 9c09e7da87 9c0c97ad47 9c179804f5 9c2c64c8de 9c3339677f 9c4fea90e0 9c5e90a5be 9c67da2083 9c8e4b8081 9c9ce701ac 9ca776556a 9cbdedc444 9cc05cde5c 9cc63a9237 9cc6510635 9cccfa101c 9cd33a1e3c 9ce0042660 9ce551fa7d 9ce611593e 9cf94fd064 9d06acc6aa 9d1e436d8f 9d20b5d09c 9d4fbe8248 9d55c21266 9d5d484cb7 9d63ed5164 9d7e033a7d 9ddca00bf5 9dec52135d 9ded100c69 9e0211fc96 9e0469fe7c 9e04dbf9b5 9e08f055be 9e3a3460e3 9e54e362a6 9e553bd493 9e5b4f99e6 9e628fb0d2 9e6532d5e8 9e68502250 9e6e99d6db 9ea880dc87 9eb21d979e 9ed915136d 9ee731ead8 9ef381fea2 9f02fc495e 9f0c55cb10 9f150eb933 9f185fd965 9f24f0174f 9f4fb41547 9f5ddcc4fd 9f61a79b56 9f6a6a9c4b 9f9ba40d32 9fa0422f78 9fa1333a49 9fcc378230 9fdeb2baec 9ff8f37ac8 a00e654696 a02e4396e6 a05a5f7f47 a05d8b41b6 a06fb7dc5d a071391e08 a07bc2f1b3 a094a1690c a09d0b9ca5 a0a94c74d9 a0bab06922 a0c13c7f81 a0c544c8e0 a0ca6c9d90 a0de87e910 a0efc14e6e a0f0057552 a0f47b3302 a105d20de6 a1201e53d6 a120c1b968 a127afa326 a12cd982d0 a1327b1036 a1427db3b6 a1823aecbe a18ff04a24 a193a84f3d a1a06514e2 a1a2aa4cc0 a1b24bf828 a1b62458ce a1c2e666ff a1cabf0661 a1dd6987c6 a1ee23b7ad a20d1e3d3b a21479ebca a2193ccd21 a219910fec a227278cc9 a228dbdd3b a235128593 a23ae31286 a2452dc838 a256fe5667 a25eebfa78 a266ec9bd7 a2812c8864 a2b7837a13 a2d562396a a2e2e7c751 a2fccee8f6 a328b6c2fe a3320a7c8a a337d2ca30 a351a2052d a3616ba394 a3835f6ef2 a39abbda20 a39fde3975 a3a80014c1 a3ae944833 a3b96c4f9e a3f57d4a27 a4038f1e99 a4089fd007 a40d066517 a426079864 a427991ef6 a43ebb8af9 a46070384f a464edf8dc a467412b48 a46a4f6811 a471c72e66 a4848bca76 a49930ecb4 a4a136c24c a4aaa6092f a4b44ed10a a4c9d5c679 a4f18f1edf a4f6b4a451 a4f985dbdd a506ba6ed1 a50bcf8a27 a5170d1ec2 a541ce7f8c a550abe168 a5798f4c2e a57a98e6d6 a58a8777f6 a5d868b4bf a5f7ff4a0e a5fea5f278 a61191b277 a617973055 a6238ee3e8 a623d5e419 a651a142cb a662d66b64 a682bce778 a6845a61c0 a690e30243 a6a65fe3f6 a6a7818844 a6aaed8f2b a6ae9add4a a6e8a525bf a6f986950a a6fa16f74b a6fdc20dbb a70ceb1ab5 a73d8f451a a7404b2875 a76f9252da a7785c85f3 a7998f8fc3 a79afadd78 a79c40efc3 a7d001db09 a7d0f7996f a7d9b6ad19 a824fd0b76 a84755077c a85bc53f2c a86aa252b2 a86f0388bd a87ddcba42 a89d283f7b a8a7af07bc a8aba40b30 a8cc7c8d3e a8cfd46db2 a8d3e4dbe7 a8e18bbb96 a8e58f32c4 a90c6fe55e a90d701a3c a914ff57de a923a1d8cc a93fe0b867 a94c6659fb a95c8dd41f a971b2909a a9835e701b a989705d72 a9a04dffb7 a9b1bf94f9 a9ba77eb88 a9bdc22e7b a9d72218c9 a9d7e39f10 a9e0b12315 aa0f06c798 aa1151abf6 aa3471deda aa4e9bf0df aa55ad61f0 aa5c4c9b59 aa7abb9420 aaa5291490 aabe3d196a ab09648234 ab0ab8bc0f ab60347076 ab85d2ad62 ab8c6117f0 ab9e2fb5e0 aba086ddb3 aba689e1b8 abe3816048 abe5adb16c abfdf1b5d2 ac17264e29 ac2370b195 ac30915e1a ac346b751f ac8596d961 ac8c3d5b3b aca047e7ed aca3b1bc20 acf5a6a35d ad05f913dc ad0c0add0a ad116cb66e ad1bd9a76c ad1e421a34 ad4424cc1a ad446870a2 ad449872b8 ad57f87fe4 ad58ebdead ad5f48b9a3 ad656f2e7b ad68d8a84a ad8aab9f5e adb49ecf0d adc994cab8 adda5fceda ade7238d7c adefc80ebf ae015f3f28 ae24b58573 ae2f2a8b65 ae36854f8a ae38151fe8 ae41ab1778 ae4a1b3e83 ae7f5be33a ae87755dcd ae8eb044df ae8fdf6fb7 ae910c7e54 ae9dbe6528 aea2a5843d aeadc57c5f aeb74dfafb aeeb8bbaae aefa5ec103 af0549d036 af0b705c92 af218d75d4 af4daa7800 af5c111056 af6141bb1c af6d967849 af75f04f6d af89e1ecfe af9c806204 afac119a11 afc8ace50c afcaecf866 afcf231285 afdc9c7f82 afde8fe811 affe01c958 afffe24d46 b00b36ba97 b00e5997ba b01e246beb b026cf09a0 b03673af62 b045710db8 b06dd1b6fd b07592dd83 b0820f393e b0a350f485 b0c4dcdb53 b0dc412571 b0e6d32a0f b0ed04a451 b112b161fa b11cece1c8 b15d5fdcbb b16e714762 b185df9475 b194f164a3 b1976567c4 b1c9413022 b1d46e6fa1 b1d6e3d2a5 b1eb376907 b2003cc74a b22049a4c8 b23617f2b5 b25d67e345 b25e82e0c6 b26804de3d b274ce6a59 b290c47f8f b2a7dd495d b2c7d7c906 b2cf391756 b2dfd6a249 b2ec94bba0 b2f1354355 b2f7032b0d b3046335ae b3321927f2 b3369057c0 b340ac5e04 b342bdb912 b34a600352 b3608e89eb b39610258b b3a57937bc b3bd9cf609 b3c7ee90a5 b3de17b0d7 b3fcf78038 b4079cc9b9 b4291b50e7 b43a25ee7e b45907014c b47718cc18 b482d9593b b48af3de06 b48edb9c3e b48f6456e7 b49e9d8877 b4a73131d7 b4ac4dc632 b4ba44c2b9 b4c86be80d b4e35f51f2 b4e4ae9abc b4f6274828 b4f745f7dc b51e17138f b52b7f6d00 b53f4010ca b5440d1f44 b54c44aa43 b5532248bb b56b8f97f4 b56c5c6c23 b570442cc3 b5ab087fc6 b5adfa27b1 b5b2d0ca9b b5c177c0f1 b5c44442d0 b5d2365def b5e51d03b2 b5e6bbb839 b619034389 b61c420053 b61e4e2378 b657d3a0d4 b665d6e1c3 b68989bfc8 b69c3a5bde b6c15cb9c1 b6c34eebca b6dbb5c0e5 b6fdc175b4 b70806c1bd b720b762c4 b76d49560d b779e8d678 b788fa5809 b79fbbf198 b79fe25464 b7a226529e b7a33b02fa b7cc077d2e b7dc000f41 b7ebed787a b7f06b2f21 b804257c3a b80450cea1 b808882575 b821543018 b82ad4c901 b8558f033d b872ce51d5 b898eadfde b8a68535af b8afb7851e b8bb77f397 b8c2b36648 b8c50466d0 b8cfcae544 b8d04f4cb1 b8d84a3949 b8edc0369a b8fd82bdd2 b90342a016 b9110341bb b92691f3c7 b92a94b061 b93c62ea9b b944dc7c99 b9580ecf44 b95f472928 b9643fbf22 b9677ec065 b969cb6e97 b972c58bd4 b9a6c71631 b9af4325cc b9b9cbf2f3 b9bb4ac616 b9e99cd27f b9eb021d11 b9f50152dd b9f507258b b9fb916a6c ba0c86ab0b ba1ac3b690 ba2f561e48 ba48e145bf ba5cec754c ba8f53b6b9 ba980ba07b bab5398e99 baf267e863 baf5a070a8 baf8fe209f bb0320d7c4 bb2a3369dc bb35dc6d50 bb500ec681 bb6b94577f bb6f13dfbb bb7880a8a0 bb849ae7f7 bba1d180e5 bbcb96432a bbd4c5cd5f bbecbcbf7a bbf6e510cf bbf82a72aa bc1141dce3 bc1dad13e5 bc306f201d bc3fb47d2a bc628c5ed2 bc7f4634cd bc8cc9ab0c bc8cf19bca bc98881da7 bc9a015c23 bc9caa8b88 bcad0786ac bcb0edd25d bcd47d5cf8 bcd5a3c603 bcda55285f bcdfb9be45 bcf23b2264 bd0935a78a bd0ba4fc1e bd145373ac bd30a7cca1 bd327be807 bd3aacd69b bd420bbcfc bd510ed219 bd54d125c3 bd5ac6d864 bd6e8692ae bd704fb4b1 bd744c47c5 bd8890eb75 bd9ac2448f bdabd52b3e bdb8c5ddcd bdd43e129b bdeb9372ea bdeccb3b5d bdf0eca59f bdf154fbd8 bdf3bc4f43 bdf4161c50 be056ecc21 be19d1cc5b be1d56d1ab be48620034 be61d6e201 be6379e5fc be74c19d53 be8b3124bb bedd3a2fae bee5893bf9 bef3fa73a9 bef7854a20 bf01c480fd bf084b8678 bf15cde582 bf2ca481b5 bf3cc95bd7 bf4a570cf7 bf4e1517b3 bf8701440f bf91e57371 bf956a71f8 bf9a6670fc bf9a7e4153 bfaa157de1 bfb4381540 bfc87f5f1b bfd288a120 bff4a39d48 c0144a9913 c069398887 c092ee4126 c0939819e7 c0a4b888aa c0a85f030e c0b27ec7ab c0b732f59c c0b8472fb1 c0c6bebbd1 c0de6be1ed c151d42c71 c1521659c5 c15ffa85f3 c16167437d c161f3b1ba c18a030281 c19728cc8c c1a846de73 c1abe848cb c1ad9630c2 c1b36dc681 c1cbd6063e c1ccc00c42 c1cfce5bbf c1e3cb0a09 c1efa8b242 c1f1400653 c219babe12 c263218a83 c27473893c c283ae57e1 c284e4131a c28ffa5474 c297fa3ea4 c2eadeb139 c2ef2cc05e c2f72cbc4d c324973ff9 c34c8876af c35185c609 c372057219 c380b48d7a c38b1e7d19 c390f6d2b1 c39ff8f256 c3b15805ae c3b5a07391 c3bc2c9354 c3d2afeb9e c3ef1e53a2 c3f4b69205 c3fbd378ca c3fc6be825 c403a60d0d c4210550e4 c42d41435f c4564fce33 c47db19398 c4952bf6b5 c49eea0232 c4a14099c5 c4bc7c26c5 c4d1f16234 c4da87dfbf c4dcbee18c c4eeb91f1d c509b6a62d c50ad55fb5 c5162db9bc c529443288 c53b9b3b74 c5a1fdd60b c5af2e3b2f c5e5f109cd c5f56f8f21 c5fb977bb4 c5ff8f45e3 c6067f2961 c60ed0076b c6110df375 c6145bf3bb c62ee98d85 c6374d6871 c6462bcc3e c65adf4a1a c664a1dc49 c67827929f c683e33296 c6867cb647 c688ebfe32 c6a65ae918 c6b0a97a84 c6b4c1f7ad c6b69e1037 c6d46f303b c6e0e2c2b0 c6e1100cff c6e6bdf28d c725a7d138 c728142966 c734103a2e c73a64bfff c73ad20eab c7624edce0 c76ae03ce3 c77bb5bbef c77dd24b73 c78b756f22 c7a7d40534 c7bf6c035b c7f6e3205f c7fd6d560a c80e3cc80c c81057a769 c84fa69fb4 c858c5d7ad c865420ac6 c86af5457f c879af0bb3 c883ec415f c89e7f3a5c c8affef822 c8b8137e5c c8cb08b8f0 c8d1eac489 c8dc3b0cf2 c8ec9c8efa c8ed1c7dde c8f6063da7 c9380539ef c9bd1637c2 c9cb278da6 c9da55722d c9e3a24555 c9e77ad474 ca03e2f372 ca2473a6b1 ca24c60a88 ca4db29f5d ca57d0a7b1 caa6cfb91f caad5ae0b9 cad41edfa2 caed2b97af cb051907c3 cb2e380196 cb5389675c cb6b365b57 cb747ec3be cb804bf133 cbb4430e49 cbb5311bfe cbc1c94d9b cbc7f604af cbd017f0ef cc366b5f1e cc3bc7c2bb cc6b36894a cc6b5cf92d cc8afd2ab9 cc910d369d cca8a94dc0 ccbcae580f ccc5a4e5f6 ccc7214954 ccd489610e cceedfa3ad ccfbec7634 cd3ebff575 cd5afda6e1 cd7825374f cd9800e0da cda70a78f5 cda89fd979 cdb91bbeaa cdbc124bbf ce3a03fc55 ce5360e6d9 ce69183b2e ce765e8515 ce803bcc81 ce8ce00589 cea128e30f cec2fc006c cec95e646e ceeb7bdaee ceebca0f15 cef86dee66 cf211ce399 cf2ab4c896 cf2b3b25c1 cf455f0cab cf592a6a82 cf703d8b59 cf712f6b4e cf73f650b2 cf74b6a15d cf77a3e1e0 cfa36405a6 cfacd8c746 cfc9c48c84 cfe53e16f1 cfe567ea54 cff4aef56f d01ef6e746 d028e3613d d02efc1c8f d07fdd201d d09a0db228 d0c844fcc4 d0d178d7a1 d0db6db0ce d0e75571de d0e7f33a9d d0fb8ff082 d11aac1301 d126a352f9 d13b49f2a6 d1559504ea d16953bdcc d16e5e7928 d17366dfda d173c6f2ad d176acb542 d1aa7001db d1be36d4e6 d1dc27a402 d1fda14344 d203b690cb d21709adcf d21c2c8930 d25391468c d26acf5327 d2747351c5 d28266c19e d28584995e d29d65d0b9 d2bbb2728a d2d25931a2 d2da1898a8 d2e653af28 d31a849688 d3847f8778 d396224882 d39b14bc75 d3ba424933 d3bbcd7f65 d3c05ce9a8 d3eca023f8 d3f21e9dbf d3fd0b833f d43236bb72 d443ba2785 d45e2f1a01 d46558166e d490eb663e d49a1757b3 d49a1fbe8b d4a630dfc4 d4a75eb3cd d4c76d23bf d4d066fb13 d4ef413c9e d5200735a7 d528711e4f d5368e3b37 d54af27b8a d5a426dc9e d5a822cb82 d5bc979a21 d5c19c6130 d5ecd469bf d60aa75bdb d62f35d0cc d635497279 d6483fb80a d6511c3ad0 d666b45751 d67ad38e89 d67fb56bc1 d691b52baf d6a56786f3 d6b701555e d6cd6fb479 d6ceee84f7 d6f45a5177 d6f60992a9 d6ff4745fa d70042cb3f d7017adff2 d716d95e41 d749c599c6 d752d45453 d7690b341d d78be011b7 d7935e25dc d7956c87fa d79b0a43a6 d7abe31f1a d7c0695e0a d7c8f2633b d7c90616be d7c90ec920 d7ca434d7a d7f3e108cd d81100be1f d82e840e38 d855cc6f14 d866239c49 d8bb240855 d8ff4e81af d909a0d8b3 d90b43ae6a d9170c5bad d91b4bb93e d95617bb29 d95ad07822 d95c01adbf d95c754109 d9a135411a d9a4961770 d9d0ae3d0a d9d9999d3c da2bf79821 da3d088ee4 da3fac18e9 da57fca86b da6d5e7f37 da7274db17 da7f8e673e da83cdd550 da86d64ce2 da87cbc13e da88458383 da8aa5a508 da92bc4f1c da9e03f23d daa2d25451 dac08d7263 dac152d227 dadb017889 dae3682ece daf212e592 db1ca10ad3 db29b00235 db386974a5 db400b9172 db50674bf9 db55a3bc85 db697e6ee5 db6dd85c42 db8b9c4788 dba71e0403 dbbda41cc1 dbd9be6e2a dc095f721e dc1a172ef1 dc213fcbe5 dc24e650de dc287a65f1 dc43bbf6ef dc5bfa6899 dc69a23879 dc78f969fa dc7a17c23a dc7e5b6030 dc7f747fb2 dc85e1ada4 dc943b64d2 dcac61b0aa dcd783d808 dcd8ca965b dcd8cc4bb2 dcdb67eaaa dcf499d44c dcfda090a5 dcff254df3 dd074f6cac dd17aec920 dd2a92285e dd37f4c7d9 dd40197b44 dd4ed41fa2 dd56675f10 dd612a094d dd7e57d184 dd92064b0a dda54bbd5b ddac4ff8a1 ddbb555366 de03e2ca50 de2c05f4be de2d1c762d de32e99cff de376ca113 de3eaa2cc2 de51efcea8 de5f670707 de798acf72 de9a5db51a de9f2c9bfb dea1f10530 dec13eb813 dec383e4f4 dec82076ff deceba2fd4 dee4b3c4fc def4f7191b df027d89f7 df0dee9250 df158089e5 df34399626 df406e7a31 df545913a4 df5b9bfac0 df67a66ff3 df6a58af06 df6e409763 df8e63c1c0 dfc14aab20 dfc76bb6b5 dfdf74717f dfe1d3503b dff51da0b1 dfff2c6f63 e010f94982 e014de0036 e015a6b7ab e02277f20d e05a8e8705 e06ea6f1d4 e0758e7b96 e07d44fe7b e08bc0e9a7 e08c83da88 e0929f39b5 e0982756bf e0af1972d9 e0b1a0a806 e0c41121e9 e0cd18b097 e0cd28e867 e0dcb92f39 e0f0e2fc2f e0f7bd5c05 e10ce5028d e1124d3eac e11f9a11a5 e12833b567 e138e26bf2 e147a4a818 e153b0b696 e15798b5bf e196b965a6 e1aff8e657 e1ca4cd6e6 e1cf27c714 e1cf31e537 e207dbe0f8 e20c132c71 e20e6c81ea e21657d40b e220bccc58 e22aecb925 e23881b5da e256bf4953 e261dcc8d7 e281923410 e2b735a2ef e2d190c483 e2ddf89053 e2ef8763f5 e2f1aad5ab e2f987a942 e30d3a5b11 e30e336ee7 e311892c15 e32e232e1f e338125783 e33cba9d32 e342f8f90a e3529a595d e36b577b88 e36f9b0d82 e389f400e7 e399b86fae e39afca652 e39b555d43 e3ae4f7d5c e3b8552972 e3d08ecb35 e3df7e4a14 e40d80830a e40efefb79 e4126c344f e41ed91e6c e42dd6a575 e4616c294c e4871997c9 e488751065 e48fd0086f e4a899032e e4cacb7454 e4e9cf26c1 e4f583958d e4f813eafe e502233412 e504ef1f92 e513640a18 e532fc74df e5490281a3 e54bdfc76c e5517575d2 e582cd5e93 e583b53616 e59b95817b e5bddeb20d e5c11904f0 e5c2ad2bc6 e5db822385 e5eefd2388 e608ddf6ef e61d490f76 e622b8aa00 e625dbef45 e62c863dd9 e633fa17da e641d3888d e649b18af7 e64ba9bf85 e6550421ae e674ff1008 e68be8ec0f e6bd5a6b86 e6c0ed172e e6d18e1d90 e6d912406e e6e5079264 e6fd48279d e70ed09875 e71e7eb6d9 e726dc5b08 e729fd9cbf e73792d5ba e77540c365 e7825d52ec e7850bc415 e785ba0eb4 e7863a4210 e78d05a735 e792b3dc70 e79561c940 e7ece7d7d9 e7f7de8311 e7fa3b7b33 e7fb2a19b5 e804627ada e80e9f922f e83b299816 e83f1c1de5 e849f114db e86b18df3c e87d4bcca8 e880afcac9 e88a5e14d4 e8c022493f e8c3460463 e8c53143f4 e8d76a7cf8 e8eab8e8cb e8f6670962 e911a24d38 e9204e858f e924080a4e e925033392 e92b36c7a1 e92bc7151d e92ce0aa22 e93be08ed1 e9815678df e98660becc e987216e16 e9a2a8a3c0 e9a830403c e9df57ad26 e9f55ddfd5 e9fd71a59d ea3b4968e6 ea3bc0b469 ea4975a393 ea49f02398 ea6e1d418a ea758b33d0 ea7652e9c2 ea8d01f4b0 eab2e9c7d0 ead0e43e9e ead754b04f eadb4014e9 eadc52afb5 eae3808370 eaec02727c eaee634e2c eb06b96f96 eb091eeb7a eb0961ae7e eb361d7484 eb3dfed618 eb58065718 eb7fea3476 eb9405f2b9 eb9be2fecf ebaac5866d ebaf99e905 ebb9804291 ebc30fdcb9 ebd821b9f1 ebdb4ee129 ebe105b375 ebf84242dc ec02752619 ec147facb0 ec1cbc0632 ec245e8112 ec296f9394 ec29b5c4a4 ec2d361b76 ec3c52489f ec43d80e65 ec4ebea923 ec4f7b96e7 ec7503d006 ec84cc5788 ecdf08b595 ece5a5effa ed014c9099 ed06d2abaa ed06d7cdeb ed1a3b3e80 ed1ee0e304 ed20c1716b ed3aef0a0b ed533ec277 ed61511090 ed6882863c eda86277d9 ede2e3032c edfc81424a ee01ad53b8 ee19301498 ee2be9ec9e ee2eb70e62 ee39b07eaa ee68f1ef91 ee74e82733 ee7c2d5ce3 eea30fe38b eea7eca44e eebab47bd0 eee3f9b706 ef06383a60 ef0a1527fa ef243e0030 ef2f96fc96 ef3a94a9b0 ef421baa95 ef4c9744c3 ef4eab84ca ef5ca88e32 ef671e1109 ef9c6ef7ae efa7fca989 efb0db6471 efc236bc68 efc947cf28 efd590b696 efeccbbe56 f00bfc2159 f01742a03b f017fbea67 f0206d6e9e f0244684e8 f04737bc74 f04b36f2fa f04e03b086 f06167420f f06eb534b3 f09442b8d5 f09e76f60a f0a73b3d63 f0aaddb232 f0b52696cc f0b93d3409 f0b98dd5c4 f0d2fced32 f0f027e421 f0f672c816 f0f7cead78 f0f9030af5 f10431e136 f1206ea0ae f13edb0127 f1435534cd f1479ed7b0 f14c7c68e3 f16f252855 f19fc610c3 f1c28c69eb f1d17e4e3c f1e8513404 f23208f400 f234df777d f234e49b4a f239002e3d f247fd52d3 f2519ea22e f25e34e64a f26bf9919e f284ce2e43 f29a8ec283 f2aa4d7fb1 f2aa7b13c1 f2c21a10c6 f2d1aa5560 f2d85bc979 f2d92228e5 f2d99b480b f2fcb3f7c1 f2ff742cd1 f30319ec52 f304db14ab f307dbc0f2 f30e85ffce f31626ba3f f31d3c2a18 f32733f026 f34c6ffbd3 f3715a5961 f39756a952 f3aa9b0b1e f3aeed5f74 f3be01e517 f3d087db5a f3d65ff252 f3e6007a8b f3e85ed66b f3e9877512 f42707ce5c f44a420c4e f45b362fd9 f465f78fd2 f47e6bef58 f4b26fa1bb f4effafaa4 f50add2a0f f5106d1c10 f540c71580 f56565fee5 f568f0858d f595ce6d2d f5b15567a8 f5eb907521 f5ec502506 f60c3018c8 f61272f6f3 f6271c3481 f63fdcdf11 f64fc497e6 f65ee9a9dc f666655a5e f6680880fd f6849b8e90 f68d7962d3 f6a729d6e9 f6bc26fd54 f6c79bb985 f6d3ae4730 f6fefb9432 f73485b60f f73f8b6fa3 f7418c3dff f7593c0268 f771e92d84 f789d99aee f793fcc124 f7a0bc4e64 f7b55602f2 f7c05f9c9e f7d5fcb94a f7ef3f8b69 f7f4787f67 f7fb3c2071 f807dd325b f80d0a160b f8107e331d f81ae2818d f8301db60f f833c3b789 f87f5343c6 f880e49133 f888e87abe f899db2e9c f8bbd02d6b f8bc82f4b0 f8c72b600a f8d07d06f5 f8d2117e42 f90a1dc3d2 f916194d57 f92821e57b f92bd0909d f92eb6e612 f932a7da48 f944a2b313 f94d1e177f f94f915325 f95ab0fdec f96a349abe f96bbb9fc8 f975f41eb5 f987ca9603 f991fb1e66 f99e341100 f9a40cb280 f9c3080ce6 f9ddb3e149 f9e6553f5a f9f875deff fa0dd45f83 fa153254f7 fa1988bf4b fa1be0dbce fa24a112de fa2a8f8973 fa353b9422 fa3728b189 fa376759d7 fa385f52fe fa4c83aa40 fa5a82bdbc fa6b7bf8bf fa78ca2763 fa8a5cdebc fa9c880e98 faad489a85 fab38ce4ec fab8db0e28 fadbdaea02 faeae71e4c fb049dc1c7 fb19aa3948 fb2cc179a6 fb303e5f64 fb423014be fb4aa4946d fb5e7ac151 fb6a22c7e1 fb7169d2a5 fb73bde5fe fb8d73f45e fb947ed17b fb97dabaf4 fb985326be fb9f5b54fc fba86d068b fbae680485 fbba7cc5fa fbd2d790ec fbe457f4c7 fc069309be fc18f42cd2 fc204fe6c6 fc45b84579 fc543325e2 fc5618f998 fc564a80df fc56904452 fc9abb1e06 fcbe56f3e6 fcc9da04b6 fcff8f0e3a fd07880290 fd093b66f7 fd1a70c7de fd1bd727c8 fd51a81a3f fd72596449 fdab9eefbe fdb072bc04 fde2828225 fdfb51fac8 fdfe4c8810 fe16d950f5 fe40d6352b fe4b275605 fe512d1e28 fe5a2a3506 fe993b7337 feb8e0ac32 fed22b023a ff024a812b ff05eb0e23 ff0c59c5b0 ff16f3d2cc ff1af37896 ff2edc89c0 ff3f9e8874 ff60161fc6 ff66fe8ed7 ff6c7c81ee ff739ddfb0 ffab11f191 ffb725be77 ffbd844b04 ffbdd96bd1"
+ }
+}

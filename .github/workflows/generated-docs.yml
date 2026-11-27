@@ -34,6 +34,13 @@ on:
       - "tests/tools/readiness_report.py"
       - "tests/tools/progress_report.py"
       - "tests/tools/progress_slide.py"
+      - "tests/tools/family_validity_chart.py"  # #8863: the keyword-family charts and the language sheets
+      - "tests/tools/language_sheets.py"
+      - "tests/family_validity_baseline.json"
+      - "docs/language_sheets/notes/**"
+      - "docs/language_sheets/rosetta_snapshot.json"
+      - "gitgalaxy/standards/language_standards/**"
+      - "gitgalaxy/standards/signal_contracts.py"
       - "gitgalaxy/tools/readiness/era_tags.py"
       - "docs/language_status/mutation_scores.json"
       - "tests/cics_crucible/coverage.json"
@@ -169,5 +176,8 @@ jobs:
             docs/language_status/readiness_report.md \
             docs/language_status/progress.md \
             docs/language_status/progress.json \
-            docs/language_status/progress.svg
+            docs/language_status/progress.svg \
+            docs/self_scan/family_validity_chart.svg \
+            docs/self_scan/family_validity_matrix.svg \
+            docs/language_sheets/*.md docs/language_sheets/*.svg
           echo "published the generated pages from main $GITHUB_SHA: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status" >> "$GITHUB_STEP_SUMMARY"

@@ -234,17 +234,15 @@ def test_committed_baseline_names_real_families_and_languages():
             assert dec["comment"] in {"pass", "leak"} and dec["keyword"]
 
 
-def test_committed_svgs_are_current():
-    assert fvc.main(["--check"]) == 0
+def test_the_charts_are_published_pages_not_committed_files():
+    """They are rendered by generated_docs.py from the committed baseline, so a PR commits no SVG and cannot collide on one."""
+    import generated_docs
 
-
-def test_check_fails_on_a_stale_svg(request, monkeypatch, capsys):
-    stale = fvc.REPO_ROOT / "docs" / "self_scan" / "_stale_test_chart.svg"
-    stale.write_text("<svg/>", encoding="utf-8")
-    request.addfinalizer(lambda: stale.unlink(missing_ok=True))
-    monkeypatch.setattr(fvc, "CHART_PATH", stale)
-    assert fvc.main(["--check"]) == 1
-    assert "is stale" in capsys.readouterr().out
+    pages = {rel: fn for rel, fn in generated_docs.PAGES.items() if "family_validity" in rel}
+    assert set(pages) == {"docs/self_scan/family_validity_chart.svg", "docs/self_scan/family_validity_matrix.svg"}
+    for rel, fn in pages.items():
+        svg = fn()
+        assert svg.startswith("<svg") and svg.rstrip().endswith("</svg>"), rel
 
 
 def test_every_decoy_tier_is_the_one_grey_and_only_the_hover_tells_them_apart():

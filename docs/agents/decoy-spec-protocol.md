@@ -57,7 +57,7 @@ Using `gitgalaxy/standards/signal_contracts.py` and `docs/agents/family-validity
 ### Requirement E — Dedicated Per-Language Pytest Suite + Baseline Promotion
 1. Commit `tests/decoys/test_decoy_<lang>.py` with clear docstrings citing `SOP-002-v1` and `#8863`.
 2. Known unfixed engine leaks discovered during SOP-002 hardening MUST be marked `@pytest.mark.xfail(strict=True, reason="https://github.com/squid-protocol/gitgalaxy/issues/<N>")` with a filed GitHub issue — never deleted, never silently skipped.
-3. Promote `<lang>`'s entries in `tests/family_validity_baseline.json` to `"protocol": "SOP-002-v1"` and regenerate `docs/self_scan/family_validity_chart.svg` and `docs/self_scan/family_validity_matrix.svg`.
+3. Promote `<lang>`'s entries in `tests/family_validity_baseline.json` to `"protocol": "SOP-002-v1"` and regenerate (locally; not committed, CI publishes them) `docs/self_scan/family_validity_chart.svg` and `docs/self_scan/family_validity_matrix.svg`.
 
 ---
 
@@ -81,6 +81,6 @@ python tests/tools/family_decoy_runner.py --audit-superficial
 - [ ] **Req C:** 0 untested code-stream families remaining for `<langs>` (or dead-rule issue filed)
 - [ ] **Req D:** Cross-family negative controls written in `tests/decoys/test_decoy_<lang>.py` against `signal_contracts.py` rulings
 - [ ] **Req E:** Every discovered leak has a filed GitHub issue and `xfail(strict=True, reason=...)` in `tests/decoys/test_decoy_<lang>.py`; baseline promoted to `"protocol": "SOP-002-v1"`
-- [ ] `python tests/tools/family_validity_chart.py --write` and `--check` pass
+- [ ] `python tests/tools/family_validity_chart.py --write` renders (charts are not committed; CI publishes them)
 - [ ] `pytest tests/decoys/test_decoy_<lang>.py tests/tools/test_family_decoy_runner.py tests/tools/test_family_validity_chart.py` pass
 - [ ] `ruff_audit.py --ci`, `mypy_audit.py --ci`, `dead_key_audit.py --ci`, `doc_refs_audit.py --ci` pass with 0 new findings

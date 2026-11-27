@@ -41,7 +41,6 @@ Because most languages (and ~30–40 families even in parser-backed languages) w
 6. **Regenerate validity charts and verify:**
    ```sh
    python tests/tools/family_validity_chart.py --write
-   python tests/tools/family_validity_chart.py --check
    pytest -q tests/tools/test_family_decoy_runner.py tests/tools/test_family_validity_chart.py tests/tools/test_language_sheets.py
    ```
    Run `ruff format`, `ruff_audit.py --ci`, `mypy_audit.py --ci`, `dead_key_audit.py --ci`, and `doc_refs_audit.py --ci`.
@@ -53,7 +52,7 @@ Because most languages (and ~30–40 families even in parser-backed languages) w
 - use a foreign comment syntax to hide a `Prism` comment-stripping bug
 - silence a G5 (`ident_boundary`) leak by switching to a different keyword instead of reporting the missing boundary
 - mix unrelated engine regex fixes into a decoy-measurement PR without explicit approval and golden-master attribution
-- hand-edit `docs/self_scan/family_validity_*.svg` (always generate with `family_validity_chart.py --write`)
+- commit or hand-edit `docs/self_scan/family_validity_*.svg` (they are generated and published, not committed)
 
 ## Report back
 - Protocol version (`SOP-001-v1`)

@@ -284,6 +284,7 @@ blocker_report.anon.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests
 blocker_report.full.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
 blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_census_nightly.py,tests/tools/test_cics_census_baseline.py
 brief.md	tests/tools/cross_verify.py,tests/tools/cross_verify_sections.py
+c.md	tests/tools/test_language_sheets.py
 call_resolution_history.csv	tests/tools/call_resolution_rates.py
 callgraph.md	tests/tools/doom_speedrun,tests/tools/test_callgraph_oracle.py
 census/INELIGIBLE_FOR_BLIND_ESTATE.md	tests/tools/estate4_draw.py
@@ -359,7 +360,7 @@ docs/immutability_locks_rule_contract.md	gitgalaxy
 docs/import_rule_contract.md	gitgalaxy
 docs/io_rule_contract.md	gitgalaxy
 docs/jcl_oracle_mvs38j.md	tests/tools/capability_ledger.py
-docs/language_sheets/	tests/tools/language_sheets.py
+docs/language_sheets/	tests/tools/generated_docs.py,tests/tools/language_sheets.py,tests/tools/test_generated_branch.py
 docs/language_sheets/notes/	tests/tools/language_sheets.py
 docs/language_sheets/rosetta_snapshot.json	tests/tools/language_sheets.py
 docs/language_status	tests/tools/test_progress_report.py
@@ -488,10 +489,9 @@ docs/self_scan/	tests/tools/self_scan.py
 docs/self_scan/BUMPING_THE_CRUCIBLE_PIN.md	tests/tools/crucible_pins.py
 docs/self_scan/README.md	tests/tools/test_progress_report.py
 docs/self_scan/ROSETTA_AUDIT.md	tests/tools/rosetta_audit.py
-docs/self_scan/_stale_test_chart.svg	tests/tools/test_family_validity_chart.py
 docs/self_scan/call_resolution_history.csv	tests/tools/call_resolution_rates.py,tests/tools/test_generated_branch.py
-docs/self_scan/family_validity_chart.svg	tests/tools/family_sweep_nightly.py,tests/tools/family_validity_chart.py
-docs/self_scan/family_validity_matrix.svg	tests/tools/family_sweep_nightly.py,tests/tools/family_validity_chart.py
+docs/self_scan/family_validity_chart.svg	tests/tools/family_validity_chart.py,tests/tools/generated_docs.py,tests/tools/test_family_validity_chart.py,tests/tools/test_generated_branch.py
+docs/self_scan/family_validity_matrix.svg	tests/tools/family_validity_chart.py,tests/tools/generated_docs.py,tests/tools/test_family_validity_chart.py,tests/tools/test_generated_branch.py
 docs/self_scan/gitgalaxy.json	tests/tools/self_scan.py
 docs/self_scan/gitgalaxy_master.db	tests/tools/context_pack.py
 docs/self_scan/gitgalaxy_master.db/	tests/tools/context_pack.py,tests/tools/self_scan.py
@@ -551,8 +551,6 @@ estate_journey.md	tests/tools/estate_journey.py,tests/tools/test_estate_journey.
 evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
 family_oracle_readings.md	tests/tools/test_family_oracle.py,tests/tools/test_family_oracle_readings.py
 family_rosetta_consistency.md	tests/tools/test_family_rosetta_consistency.py
-family_validity_chart.svg	tests/tools/family_validity_chart.py
-family_validity_matrix.svg	tests/tools/family_validity_chart.py,tests/tools/test_family_validity_chart.py
 feed.md	tests/tools/blocker_estate_feed.py
 file.md	tests/extraction
 fresh-1.md	tests/cobol_mainframe
@@ -596,9 +594,6 @@ llm.md	tests/tools/test_cli_contract.py
 loop.md	tests/cobol_mainframe,tests/tools/porting_loop.py
 mainframe-evidence-policy.md	tests/tools/infeasible_outcomes.py,tests/tools/ladder_refresh.py
 manual_verification.json	tests/tools/tri_comparison_chart.py
-matrix.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
-matrix_legacy.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
-matrix_sparse.svg	tests/tools/language_sheets.py,tests/tools/test_language_sheets.py
 migration_worklist.md	gitgalaxy,tests/cobol_mainframe,tests/tools/publish_examples.py
 mutation.md	tests/tools/mutation.py,tests/tools/mutation_crucible.py
 mutation_equivalent_spot_check.md	tests/cobol_mainframe
@@ -614,6 +609,7 @@ p.md	tests/core_engine,tests/tools/test_generated_docs.py
 padded.md	tests/extraction
 page.md	tests/cobol_mainframe,tests/tools/test_cics_spec_status.py
 pilot-A.md	tests/cobol_mainframe
+pli.md	tests/tools/test_language_sheets.py
 port_blockers.md	tests/cobol_mainframe,tests/tools/port_blockers.py
 port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py

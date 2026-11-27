@@ -11,7 +11,8 @@ publishes them to the `generated` branch (tests/tools/generated_branch.py). No w
     diff BASE_DIR NEW_DIR   a markdown diff of the pages between two `check --out` directories (job summary)
     render                  write the pages into the working tree (git-ignored; for reading locally)
 
-Published copies: https://github.com/squid-protocol/gitgalaxy/tree/generated/docs/language_status
+Published copies: https://github.com/squid-protocol/gitgalaxy/tree/generated/docs/language_status, .../docs/language_sheets and
+.../docs/self_scan (the two keyword-family charts)
 """
 
 from __future__ import annotations
@@ -73,6 +74,43 @@ def _progress_svg() -> str:
     return progress_slide.render_page()
 
 
+def _family_chart(name: str) -> Callable[[], str]:
+    """The keyword-family chart `name` ("summary" or "matrix"), a pure function of the committed baseline and the engine registry."""
+
+    def render() -> str:
+        import family_validity_chart as fvc  # tests/tools/family_validity_chart.py (#8863)
+
+        families, languages, defined = fvc.engine_grid()
+        cells, decoys = fvc.load_baseline(fvc.BASELINE), fvc.load_decoys(fvc.BASELINE)
+        draw = fvc.render_summary_svg if name == "summary" else fvc.render_matrix_svg
+        return draw(families, languages, defined, cells, decoys)
+
+    return render
+
+
+def _language_sheet(name: str) -> Callable[[], str]:
+    """One file of the language sheets (the index, the three matrices, one sheet per language), rendered from docs/language_sheets/notes and the committed ledgers."""
+
+    def render() -> str:
+        import language_sheets  # tests/tools/language_sheets.py
+
+        files, problems = language_sheets.build()
+        if problems:
+            raise ValueError("; ".join(problems))
+        return files[name]
+
+    return render
+
+
+def _sheet_names() -> list[str]:
+    import language_sheets
+
+    langs, _stats = language_sheets.load_all()
+    return ["README.md", "matrix.svg", "matrix_legacy.svg", "matrix_sparse.svg", *(f"{lang}.md" for lang in langs)]
+
+
+SHEETS = "docs/language_sheets/"
+
 # repo-relative path -> its renderer. A page added here must also be git-ignored and published by generated-docs.yml
 # (test_generated_docs.py checks both).
 PAGES: dict[str, Callable[[], str]] = {
@@ -83,6 +121,10 @@ PAGES: dict[str, Callable[[], str]] = {
     "docs/language_status/progress.md": _progress_md,
     "docs/language_status/progress.json": _progress_json,
     "docs/language_status/progress.svg": _progress_svg,
+    # #8863: the keyword-family charts and the per-language sheets: pure functions of committed baselines and notes.
+    "docs/self_scan/family_validity_chart.svg": _family_chart("summary"),
+    "docs/self_scan/family_validity_matrix.svg": _family_chart("matrix"),
+    **{SHEETS + name: _language_sheet(name) for name in _sheet_names()},
 }
 
 
@@ -123,6 +165,11 @@ def diff(base: Path, new: Path, pages: list[str] | None = None, limit: int = DIF
             continue
         added = sum(1 for ln in lines if ln.startswith("+") and not ln.startswith("+++"))
         removed = sum(1 for ln in lines if ln.startswith("-") and not ln.startswith("---"))
+        if (
+            not old and len(lines) > limit
+        ):  # a page new in this PR: the artifact has it, the summary keeps to its size limit
+            out.append(f"- `{rel}`: new page, +{added} lines (see the generated-docs artifact)")
+            continue
         out += [f"- `{rel}`: +{added} / -{removed} lines", "", "```diff"]
         out += [ln.rstrip("\n") for ln in lines[:limit]]
         if len(lines) > limit:

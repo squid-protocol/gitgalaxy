@@ -45,7 +45,6 @@ REGENERATED: tuple[tuple[re.Pattern[str], list[str] | None], ...] = (
     (re.compile(r"^tests/(ruff|mypy)_audit_baseline\.json$"), [PY, "tests/tools/audit_check.py", "--regenerate"]),
     (re.compile(r"^tests/tools/docs_read_by_tests\.txt$"), [PY, "tests/tools/change_classifier.py", "--write"]),
     (re.compile(r"^docs/self_scan/graph_coverage_chart\.svg$"), [PY, "tests/tools/graph_coverage_chart.py", "--write"]),
-    (re.compile(r"^docs/self_scan/family_validity_(chart|matrix)\.svg$"), [PY, "tests/tools/family_validity_chart.py", "--write"]),
     (re.compile(r"^\.test_durations$"), None),
 )
 GOLDEN_WRITER = [PY, "tests/tools/crucible_check.py", "--update", "--yes"]
@@ -53,7 +52,10 @@ GOLDEN_WRITER = [PY, "tests/tools/crucible_check.py", "--update", "--yes"]
 # on all three sides), then the region's writer re-renders it. path -> (begin, end, writer).
 REGIONS: dict[str, tuple[str, str, list[str]]] = {
     "docs/language_status/mutation_testing.md": (
-        "<!-- mutation-scores -->", "<!-- /mutation-scores -->", [PY, "tests/tools/mutation_scores.py", "table"]),
+        "<!-- mutation-scores -->",
+        "<!-- /mutation-scores -->",
+        [PY, "tests/tools/mutation_scores.py", "table"],
+    ),
 }
 RECORDS = re.compile(r"^tests/equivalence/(det_sweep_coverage/[^/]+\.json|[^/]+/evidence\.json)$"
                      r"|^docs/self_scan/graph_comparison_ledger\.json$")  # fmt: skip
@@ -185,7 +187,11 @@ def main(argv: list[str] | None = None) -> int:
               "never rebase); nothing changed")  # fmt: skip
         return 2
     if args.dry_run:
-        print(f"merge_main: dry run, {len(paths)} conflict(s), all resolvable" if paths else "merge_main: dry run, merges clean")
+        print(
+            f"merge_main: dry run, {len(paths)} conflict(s), all resolvable"
+            if paths
+            else "merge_main: dry run, merges clean"
+        )
         return 0
     m = git("merge", "--no-edit", "--no-ff", args.base)
     if m.returncode == 0:

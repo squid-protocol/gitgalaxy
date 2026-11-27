@@ -1,6 +1,7 @@
 """generated_branch (#4847): publish/fetch/show against a local bare remote (no network), and a lint that main is
 written by bot workflows only where listed -- the history bots publish to `generated` instead."""
 
+import fnmatch
 import re
 import subprocess
 import sys
@@ -107,6 +108,18 @@ STILL_COMMITS_TO_MAIN = {
     "evidence-refresh.yml",  # evidence records + det-sweep ledger: inputs of human approval, must be on main (its report is MOVED)
     "release-crucible-archive.yml",  # opens its PR in language-crucible, not in this repo
 }
+
+
+def generated_docs_sheet_names():
+    import generated_docs
+
+    return [
+        rel.removeprefix("docs/language_sheets/")
+        for rel in generated_docs.PAGES
+        if rel.startswith("docs/language_sheets/")
+    ]
+
+
 MOVED = {
     "call-resolution-history.yml": ["docs/self_scan/call_resolution_history.csv"],
     "graph-comparison-history.yml": ["docs/self_scan/graph_comparison_ledger.json"],
@@ -124,6 +137,9 @@ MOVED = {
         "docs/language_status/progress.md",  # #5280
         "docs/language_status/progress.json",  # #5280
         "docs/language_status/progress.svg",  # #5286
+        "docs/self_scan/family_validity_chart.svg",  # #8863
+        "docs/self_scan/family_validity_matrix.svg",
+        *(f"docs/language_sheets/{n}" for n in generated_docs_sheet_names()),
     ],
 }
 
@@ -153,8 +169,10 @@ def test_a_moved_writer_publishes_to_generated_and_never_opens_a_pr(name):
     code = _code(name)
     assert "create-pull-request" not in code and "gh pr merge" not in code and "AUTOMATION_PAT" not in code
     assert "generated_branch.py publish" in code
+    # a shell glob publishes a whole family of pages (the language sheets)
+    globs = re.findall(r"(docs/[\w/]+/\*\.\w+)", code)
     for path in MOVED[name]:
-        assert path in code, f"{name} does not publish {path}"
+        assert path in code or any(fnmatch.fnmatch(path, g) for g in globs), f"{name} does not publish {path}"
     assert re.search(r"pull-requests:\s*write", code) is None, "a writer that opens no PR needs no pull-requests: write"
     assert re.search(r"persist-credentials:\s*true", code), "the publish step pushes with the checkout's credentials"
 

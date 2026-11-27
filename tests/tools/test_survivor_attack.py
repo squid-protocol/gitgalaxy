@@ -656,6 +656,11 @@ def test_dispatch_plumbing_of_a_program_with_no_handler_label_is_settled():
     assert _flow(_FLOW, entry, entry.replace('"A"', '"B"'))["result"] == "flow-plumbing"
 
 
+def test_a_mutant_line_past_the_port_text_is_no_fact_not_a_crash():
+    past = len(_FLOW.splitlines()) + 5
+    assert sa.port_fact(_FLOW, {"line": past, "before": "        return 1;", "after": "        return 2;"}) is None
+
+
 def test_dispatch_plumbing_is_not_settled_when_a_label_or_a_return_can_exist():
     guard = "        if (to >= 0) return GOTO | to;"
     for bad in (

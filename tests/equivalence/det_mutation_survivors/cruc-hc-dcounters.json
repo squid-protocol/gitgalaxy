@@ -1,0 +1,219 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cruc-hc-dcounters",
+ "survivors": [
+  {
+   "id": "c3097e8ea9",
+   "op": "AOR",
+   "line": 249,
+   "before": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f35_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "e31caf8426",
+   "op": "AOR",
+   "line": 249,
+   "before": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f35_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "ff379bd826",
+   "op": "AOR",
+   "line": 249,
+   "before": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f35_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f35_EIBDATE is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "3581e7d6b8",
+   "op": "AOR",
+   "line": 250,
+   "before": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f34_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "495a5f730a",
+   "op": "AOR",
+   "line": 250,
+   "before": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f34_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "561946cd1d",
+   "op": "AOR",
+   "line": 250,
+   "before": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f34_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "950aae4627",
+   "op": "AOR",
+   "line": 250,
+   "before": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f34_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f34_EIBTIME is only stored into and no read EIB item shares its bytes: the stored value is never seen (eib-resp-unread)",
+   "tried": [
+    "eib-resp-unread"
+   ]
+  },
+  {
+   "id": "00de1b62d7",
+   "op": "CON",
+   "line": 275,
+   "before": "calen = cx(task, 10);",
+   "after": "calen = cx(task, 11);",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 275 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "ea8165a6f5",
+   "op": "DEL",
+   "line": 277,
+   "before": "calen = cx(task, 11);",
+   "after": "/* calen = cx(task, 11); */",
+   "verdict": "equivalent",
+   "reason": "local calen assigned at line 277 is never read in the rest of its method (local-unread)",
+   "tried": [
+    "local-unread"
+   ]
+  },
+  {
+   "id": "d25281cddc",
+   "op": "CON",
+   "line": 355,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "equivalent",
+   "reason": "perform()'s loop tail is entered only when a paragraph returns with i != thru, which no PERFORM does (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "97b7235bf8",
+   "op": "AOR",
+   "line": 375,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM stack grows only when it holds 64 entries; this program's holds at most 8 (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  },
+  {
+   "id": "b261aa2fff",
+   "op": "CON",
+   "line": 516,
+   "before": "Cobol.store(f63_EIBRESP2, BigDecimal.valueOf((int) counter8[1]), false, CS);",
+   "after": "Cobol.store(f63_EIBRESP2, BigDecimal.valueOf((int) counter8[2]), false, CS);",
+   "verdict": "equivalent",
+   "reason": "f63_EIBRESP2 at line 516 is unconditionally overwritten by f63_EIBRESP2 at line 522 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "15838ab797",
+   "op": "DEL",
+   "line": 528,
+   "before": "Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter9[0]), false, CS);",
+   "after": "/* Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter9[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f62_EIBRESP at line 528 is unconditionally overwritten by f62_EIBRESP at line 531 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "af4f0ba94e",
+   "op": "DEL",
+   "line": 529,
+   "before": "Cobol.store(f63_EIBRESP2, BigDecimal.valueOf((int) counter9[1]), false, CS);",
+   "after": "/* Cobol.store(f63_EIBRESP2, BigDecimal.valueOf((int) counter9[1]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f63_EIBRESP2 at line 529 is unconditionally overwritten by f63_EIBRESP2 at line 532 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "41b7e2a36b",
+   "op": "DEL",
+   "line": 646,
+   "before": "Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter18[0]), false, CS);",
+   "after": "/* Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter18[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f62_EIBRESP at line 646 is unconditionally overwritten by f62_EIBRESP at line 651 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "01f9d4e3bb",
+   "op": "DEL",
+   "line": 684,
+   "before": "Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter21[0]), false, CS);",
+   "after": "/* Cobol.store(f62_EIBRESP, BigDecimal.valueOf((int) counter21[0]), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "f62_EIBRESP at line 684 is unconditionally overwritten by f62_EIBRESP at line 691 before any read (store-dominates-read)",
+   "tried": [
+    "store-dominates-read"
+   ]
+  },
+  {
+   "id": "490a2f8732",
+   "op": "ROR",
+   "line": 801,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to > 0) return GOTO | to;",
+   "verdict": "equivalent",
+   "reason": "`to >= 0` never holds: condition() returns -1 or throws, as no HANDLE CONDITION / HANDLE ABEND label exists (flow-plumbing)",
+   "tried": [
+    "flow-plumbing"
+   ]
+  }
+ ]
+}

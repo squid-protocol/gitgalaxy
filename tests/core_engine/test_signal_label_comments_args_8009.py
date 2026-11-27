@@ -35,6 +35,9 @@ RELABELLED = (
     "assembly",
     "shell",
     "embedded_python",
+    "css",
+    "swift",
+    "html",
 )
 
 

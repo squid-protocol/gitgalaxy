@@ -139,7 +139,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"\.(?:AND|OR)\.", re.I),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Signatures defining input parameters. Drives the physical size/mass of the function.
         # Upgraded to capture both the declaration block and explicit INTENT binding markers
         # that act as the true coupling mass in legacy Fortran, as well as VALUE and OPTIONAL.

@@ -63,7 +63,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(CASE|WHEN|ELSE|IFNULL|NULLIF|COALESCE|IIF|FILTER|WHERE|HAVING)\b",
             re.I,
         ),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Parameter blocks and input coupling. Bounded to prevent ReDoS on massive IN clauses.
         # Now explicitly captures CTE scoped arguments: cte_name (col1, col2)
         # BUG FIX (epic #813/#836), two findings:

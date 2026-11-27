@@ -415,7 +415,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Tcl control flow keywords.
         "branch": re.compile(r"\b(?:if|elseif|else|switch|while|for|foreach)\b"),
-        # 2. args (Parameters / Coupling)
+        # 2. args (Calls & Signatures With Arguments)
         # Safely captures the parameter list `{...}` immediately following a proc name.
         "args": re.compile(
             # =====================================================================

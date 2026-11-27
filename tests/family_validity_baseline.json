@@ -6066,6 +6066,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "auth_middleware": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "app.UseAuthentication();",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "bitwise_ops": {
     "block_comment": "pass",
     "comment": "pass",
@@ -6107,6 +6118,17 @@
     "inline_comment": "pass",
     "keyword": "x => x + 1",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "comprehensions": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "var r = items.Where(x => x > 1);",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },
@@ -6176,6 +6198,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "var c = obj as Customer;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -6219,6 +6252,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "using System.Linq;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "ipc_rpc_bridges": {
     "block_comment": "pass",
@@ -11347,6 +11391,17 @@
    }
   },
   "java": {
+   "api": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "public class Foo {",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -11479,6 +11534,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "int n = (int) value;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -11522,6 +11588,17 @@
     "protocol": "SOP-001-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
+   },
+   "import": {
+    "block_comment": "pass",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "import java.util.List;",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": false
    },
    "io": {
     "block_comment": "pass",
@@ -12785,6 +12862,17 @@
    }
   },
   "kotlin": {
+   "api": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "public class Foo",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "auth_middleware": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12917,6 +13005,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "explicit_casts": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "val c = obj as Customer",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "generics": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12950,6 +13049,17 @@
     "string_comment_boundary": "pass",
     "string_counts": true
    },
+   "immutability_locks": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "const val MAX = 10",
+    "protocol": "SOP-002-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
    "import": {
     "block_comment": "pass",
     "comment": "pass",
@@ -12980,6 +13090,17 @@
     "inline_comment": "pass",
     "keyword": "BroadcastReceiver",
     "protocol": "SOP-001-v1",
+    "string_comment_boundary": "pass",
+    "string_counts": true
+   },
+   "listeners": {
+    "block_comment": "leak",
+    "comment": "pass",
+    "corpus": "decoy-spec",
+    "ident_boundary": "pass",
+    "inline_comment": "pass",
+    "keyword": "button.setOnClickListener { }",
+    "protocol": "SOP-002-v1",
     "string_comment_boundary": "pass",
     "string_counts": true
    },

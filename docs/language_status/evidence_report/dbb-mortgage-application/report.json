@@ -2422,7 +2422,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "b5a5025c149013466691f28791c327a9218243df",
+   "sha": "110ba019e3b592a30140c1b06af9a498cb633315",
    "translator": {
     "files": 189,
     "sha256": "61a5dce190102a6e3e90e51d47d580c31333d30bbece0b23bd249ee4164809ea"
@@ -3966,23 +3966,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 4,
-    "chosen": 307,
+    "chosen": 309,
     "current": true,
-    "det_port": "raw 44% (133/300 caught; 307 of 307 mutants, seed 0); 163 of 167 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 44% (133/302 caught; 309 of 309 mutants, seed 0); 165 of 169 survivors unaccounted",
     "killed": 133,
     "l5": false,
-    "mutants": 307,
-    "score": 0.4433,
+    "mutants": 309,
+    "score": 0.4404,
     "stale_inputs": [],
-    "survived": 167,
-    "unaccounted": 163
+    "survived": 169,
+    "unaccounted": 165
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (133/300 caught; 307 of 307 mutants, seed 0); 163 of 167 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 44% (133/302 caught; 309 of 309 mutants, seed 0); 165 of 169 survivors unaccounted)"
    ],
    "options": {
     "assumed": 5,
@@ -4216,23 +4212,19 @@
    "level_current": true,
    "mutation": {
     "accounted": 2,
-    "chosen": 337,
+    "chosen": 339,
     "current": true,
-    "det_port": "raw 57% (189/332 caught; 337 of 337 mutants, seed 0); 141 of 143 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh)",
-    "drifted": [
-     "generator",
-     "harness"
-    ],
+    "det_port": "raw 57% (189/334 caught; 339 of 339 mutants, seed 0); 143 of 145 survivors unaccounted",
     "killed": 189,
     "l5": false,
-    "mutants": 337,
-    "score": 0.5693,
+    "mutants": 339,
+    "score": 0.5659,
     "stale_inputs": [],
-    "survived": 143,
-    "unaccounted": 141
+    "survived": 145,
+    "unaccounted": 143
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (189/332 caught; 337 of 337 mutants, seed 0); 141 of 143 survivors unaccounted (recorded generator, harness differ from the tree; the port's bytes are checked by refresh))"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (189/334 caught; 339 of 339 mutants, seed 0); 143 of 145 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -4886,8 +4878,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha b5a5025c149013466691f28791c327a9218243df",
-   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha b5a5025c149013466691f28791c327a9218243df",
+   "python tests/tools/cics_census.py survey --baseline --sha 110ba019e3b592a30140c1b06af9a498cb633315",
+   "python tests/tools/evidence_report.py dbb-mortgage-application --baseline --sha 110ba019e3b592a30140c1b06af9a498cb633315",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases mortgage-cmort,mortgage-csmrt,mortgage-mlist,mortgage-mlist-generated,mortgage-mpmt,mortgage-nbrvl  # Db2 cases (1) need the Db2 container",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -4908,13 +4900,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "b5a5025c149013466691f28791c327a9218243df",
+   "sha": "110ba019e3b592a30140c1b06af9a498cb633315",
    "translator": {
     "files": 189,
     "sha256": "61a5dce190102a6e3e90e51d47d580c31333d30bbece0b23bd249ee4164809ea"
    }
   },
-  "translator_commit": "b5a5025c149013466691f28791c327a9218243df",
+  "translator_commit": "110ba019e3b592a30140c1b06af9a498cb633315",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

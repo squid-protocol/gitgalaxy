@@ -61,11 +61,11 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 29,
-   "sha256": "d2c25b9bc80b8585fe5793e6fa95810d7f55ac37d695c5c738e4485b3f47a3b5",
+   "sha256": "467beae45f884591e0a5c3fc0a4fea4d110bb1425363308a3a86e6c1a3759e12",
    "components": {
     "harness:call": "22a9b9c67b24087f24252494fdb064d120ff80bd9764ea94d4e24bee53093eaa",
-    "harness:cics": "bff8a1c01ea33f27f741863dc987e563930679af40e687c5a4919fea56ce23ff",
-    "harness:core": "a525628026a395a7ee91c55c3122528e6646e71b46a2ff9bc6dbbb45e923ed39",
+    "harness:cics": "bb33d6326b25595ce79c9986ad29dd1c32766d44cf987f3a8fe40dd5de064368",
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381",
     "harness:crucible": "5d9886911c13e2b845dd05546773419c03ea361d85840cc141ccca8545360cac",
     "harness:db2": "95df4f1862b475bb5de6fbdccda16962f8ee09682add0314bf31ae1fb3645fc4",
     "harness:ims": "5e6b145294131b7f0dfc67b0e3b85409d04a3109eea2548ea871ba66894ee45f"
@@ -81,8 +81,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 149,
-   "sha256": "5803dc653bd72786a432d4c879c32223a9771ee88d20fcc0bef6e548316465d4",
+   "files": 152,
+   "sha256": "d24e5f4b3179a4b7aec60c91e50c635a850e1784aaf6b32d30d926fef261cc92",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/ArithSpec.java": "d4b515111d390800aa5fae88ea6505dc5aa91640a2a5c8cee3c8807fdf2aca89",
@@ -116,7 +116,7 @@
     "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
-    "generator:cobolrt/job/Idcams.java": "1cdfa1112c8eedc1324a5f82966596b69ea8f4833b864db0f4b0085aa288ba26",
+    "generator:cobolrt/job/Idcams.java": "9389c5e19810ec814b8ad20c90c30270fc151bc2411b2585bae80dc0129ae90d",
     "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
     "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
     "generator:cobolrt/le/Ceedays.java": "76ce46c61da5542390cb2997d72169d0f486722f0cc30dbc2b459e2663551574",
@@ -138,7 +138,7 @@
     "generator:cobolrt/sql/DetSql.java": "0f1ad0d33d9ce5301ba16bfa1e0b3562d71dce1518af8932c3ea93d77bc89bf9",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "8477a9cbed01ad1a376c6badb0f42e26e503d3316885a68cf08888ba3be31de1",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "d26fab1455283a28cfb0ae3799b2ad5df99a495dcbfa2108ba2075270cc5c548",
     "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
@@ -154,7 +154,7 @@
     "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
     "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cics_web": "d07666e2ab7079aec1a5f2288f4c0bea3da45ffff723e869d7eef20d93e712c0",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dfsort": "19ef95f6dbe5c034880fc4b4e4aa6154964b57727c3d80358f0fb76c17f484b4",
     "generator:det/dli": "3543f9f3c05be02b2f8e0702a09f53874303bb17de9972a36a1e05521d90bc57",
@@ -166,7 +166,7 @@
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
     "generator:det/idcams": "51a9bbef4ed24288fc9abd58bae6c8795ac02d2b21700e750334a286acf2f577",
-    "generator:det/idcams_model": "140cbd6203f5ddd505874abc367d197b6d9fae263528c55e2bbd735bfc4f2988",
+    "generator:det/idcams_model": "fed2ad60f17e77252e200668ec1b19676fbe0fcc023e9082ce35dfe11bd9d216",
     "generator:det/ims_region": "05becbc32fac8a8ea4a7f480e3c69cddeacb8a240ff37bcc17d2cb0fdd052c91",
     "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
     "generator:det/mq": "f657dc097af0127930c9dfc41b0687701f4300cdcb82b7e0a2f8884ab1c53083",
@@ -215,10 +215,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "49b319686be3f3df023a0cda408d7ee67d246585ffa1218f3a5573e2d89ec6a3"
+  "digest": "5e0a0451679e9c76dbddc7e52d67ceeabc4f3de7c2785c5973f2b546c8aa976e"
  },
  "proof": {
-  "at": "2026-11-23T20:12:00Z",
+  "at": "2026-11-28T12:04:40Z",
   "verdict": "proven",
   "runs": 1,
   "fault_runs": 0,
@@ -236,8 +236,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "8e5149c6073bda3e18b246b12a0184c35b83260f+uncommitted",
-  "inputs_digest": "49b319686be3f3df023a0cda408d7ee67d246585ffa1218f3a5573e2d89ec6a3"
+  "harness_commit": "110ba019e3b592a30140c1b06af9a498cb633315+uncommitted",
+  "inputs_digest": "5e0a0451679e9c76dbddc7e52d67ceeabc4f3de7c2785c5973f2b546c8aa976e"
  },
  "coverage": {
   "paragraphs": {
@@ -252,7 +252,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-return-immediate/PCIMMB",
   "ledger_sha256": "33463b36f7e9416a2ef87b3c2ebfa747b158bc6f80ea68aaa2101e7564e8c3a5",
-  "inputs_digest": "49b319686be3f3df023a0cda408d7ee67d246585ffa1218f3a5573e2d89ec6a3"
+  "inputs_digest": "5e0a0451679e9c76dbddc7e52d67ceeabc4f3de7c2785c5973f2b546c8aa976e"
  },
  "reach": {
   "entry_points": [

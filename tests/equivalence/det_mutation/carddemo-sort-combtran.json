@@ -5,19 +5,19 @@
  "case": "carddemo-sort-combtran",
  "entry": {
   "program": "DFSORTST",
-  "commit": "5733e40eb9107e2337a4a2d3d25e68860be8d4ef+uncommitted",
-  "date": "2026-11-21",
+  "commit": "110ba019e3b592a30140c1b06af9a498cb633315+uncommitted",
+  "date": "2026-11-28",
   "mode": "fast",
   "seed": 0,
-  "mutants": 198,
+  "mutants": 186,
   "out_of_scope": 41,
-  "chosen": 198,
+  "chosen": 186,
   "coverage": "proven on 3 runs, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
    "killed": 66,
    "timeout": 2,
-   "survived": 116,
-   "stillborn": 14,
+   "survived": 106,
+   "stillborn": 12,
    "error": 0,
    "pending": 0
   },
@@ -92,7 +92,6 @@
    "feb2c1c210"
   ],
   "stillborn": [
-   "2c23fd17d4",
    "310196b5cb",
    "33ed042de8",
    "53299bfe0a",
@@ -102,7 +101,6 @@
    "a39d7700b2",
    "a925308eb4",
    "accf7f4438",
-   "adc5ae8c81",
    "cc00971b7c",
    "ebfaadb4b1",
    "fba18ca9c2"
@@ -349,74 +347,10 @@
     "after": "private final Field f43_GG_SORT_RETURN = Field.binary(s_GG_SORT_RETURN, 0, 4, 1, true, false);"
    },
    {
-    "id": "646c2c9151",
-    "op": "NEG",
-    "file": "service/DfsortstService.java",
-    "line": 94,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "efd501e488",
-    "op": "ROR",
-    "file": "service/DfsortstService.java",
-    "line": 94,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "88868d9a87",
-    "op": "ROR",
-    "file": "service/DfsortstService.java",
-    "line": 94,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "7bfb8fab83",
-    "op": "CON",
-    "file": "service/DfsortstService.java",
-    "line": 94,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() > 2) {"
-   },
-   {
-    "id": "9c9980589f",
-    "op": "DEL",
-    "file": "service/DfsortstService.java",
-    "line": 95,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
-   },
-   {
-    "id": "748cdc899c",
-    "op": "LIT",
-    "file": "service/DfsortstService.java",
-    "line": 100,
-    "before": "@SuppressWarnings(\"unchecked\")",
-    "after": "@SuppressWarnings(\"Xnchecked\")"
-   },
-   {
-    "id": "ff03be29c0",
-    "op": "LIT",
-    "file": "service/DfsortstService.java",
-    "line": 105,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
-   },
-   {
-    "id": "24e0c2159b",
-    "op": "LIT",
-    "file": "service/DfsortstService.java",
-    "line": 105,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
-   },
-   {
     "id": "b4e92c75e7",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 109,
+    "line": 98,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
    },
@@ -424,7 +358,7 @@
     "id": "7becdac4d4",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 109,
+    "line": 98,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"MAIN-PARA\", 1)"
    },
@@ -432,7 +366,7 @@
     "id": "31e9cce0a6",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 142,
+    "line": 127,
     "before": "System.arraycopy(IMAGE_s_I1_REC, 0, s_I1_REC.bytes, 0, IMAGE_s_I1_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_I1_REC, 0, s_I1_REC.bytes, 0, IMAGE_s_I1_REC.length); */"
    },
@@ -440,7 +374,7 @@
     "id": "92ef9013cc",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 143,
+    "line": 128,
     "before": "System.arraycopy(IMAGE_s_I2_REC, 0, s_I2_REC.bytes, 0, IMAGE_s_I2_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_I2_REC, 0, s_I2_REC.bytes, 0, IMAGE_s_I2_REC.length); */"
    },
@@ -448,7 +382,7 @@
     "id": "7da4d1086c",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 144,
+    "line": 129,
     "before": "System.arraycopy(IMAGE_s_O_REC, 0, s_O_REC.bytes, 0, IMAGE_s_O_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_O_REC, 0, s_O_REC.bytes, 0, IMAGE_s_O_REC.length); */"
    },
@@ -456,7 +390,7 @@
     "id": "84d722e771",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 145,
+    "line": 130,
     "before": "System.arraycopy(IMAGE_s_S_REC, 0, s_S_REC.bytes, 0, IMAGE_s_S_REC.length);",
     "after": "/* System.arraycopy(IMAGE_s_S_REC, 0, s_S_REC.bytes, 0, IMAGE_s_S_REC.length); */"
    },
@@ -464,7 +398,7 @@
     "id": "bf83287ded",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 146,
+    "line": 131,
     "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
     "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
    },
@@ -472,7 +406,7 @@
     "id": "dc81352e35",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 147,
+    "line": 132,
     "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
    },
@@ -480,7 +414,7 @@
     "id": "b0e23caf79",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 148,
+    "line": 133,
     "before": "System.arraycopy(IMAGE_s_GG_SORT_RETURN, 0, s_GG_SORT_RETURN.bytes, 0, IMAGE_s_GG_SORT_RETURN.length);",
     "after": "/* System.arraycopy(IMAGE_s_GG_SORT_RETURN, 0, s_GG_SORT_RETURN.bytes, 0, IMAGE_s_GG_SORT_RETURN.length); */"
    },
@@ -488,7 +422,7 @@
     "id": "546ccc2681",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 149,
+    "line": 134,
     "before": "f8_W_EOF = \" \";",
     "after": "f8_W_EOF = \"X\";"
    },
@@ -496,7 +430,7 @@
     "id": "84fa99ecbe",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 150,
+    "line": 135,
     "before": "f9_W_REC = \"                                                                                                                                                                                                                                                                                                                                                              \";",
     "after": "f9_W_REC = \"X                                                                                                                                                                                                                                                                                                                                                             \";"
    },
@@ -504,7 +438,7 @@
     "id": "8e9b21423c",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 156,
+    "line": 141,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -512,7 +446,7 @@
     "id": "c0bb7dc405",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 157,
+    "line": 142,
     "before": "performDepth = 0;",
     "after": "/* performDepth = 0; */"
    },
@@ -520,7 +454,7 @@
     "id": "2ca9d1de95",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 157,
+    "line": 142,
     "before": "performDepth = 0;",
     "after": "performDepth = 1;"
    },
@@ -528,7 +462,7 @@
     "id": "38ff0215d8",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 159,
+    "line": 144,
     "before": "perform(0, 0);",
     "after": "/* perform(0, 0); */"
    },
@@ -536,7 +470,7 @@
     "id": "fa6ae3abbe",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 159,
+    "line": 144,
     "before": "perform(0, 0);",
     "after": "perform(1, 0);"
    },
@@ -544,7 +478,7 @@
     "id": "84f8275392",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 159,
+    "line": 144,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -552,7 +486,7 @@
     "id": "3210be69c8",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 228,
+    "line": 213,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -560,7 +494,7 @@
     "id": "ad7594d7a3",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 241,
+    "line": 226,
     "before": "initialState();",
     "after": "/* initialState(); */"
    },
@@ -568,7 +502,7 @@
     "id": "914b65c4a9",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 244,
+    "line": 229,
     "before": "O_FILE = new DetFiles.Sequential(files, \"SORTOUT\", () -> datasets.path(dd(dds, \"SORTOUT\")), s_O_REC, 0, 350);",
     "after": "O_FILE = new DetFiles.Sequential(files, \"XORTOUT\", () -> datasets.path(dd(dds, \"SORTOUT\")), s_O_REC, 0, 350);"
    },
@@ -576,7 +510,7 @@
     "id": "63f86427ab",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 246,
+    "line": 231,
     "before": "perform(0, 0);",
     "after": "perform(0, 1);"
    },
@@ -584,7 +518,7 @@
     "id": "08aaa03187",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 252,
+    "line": 237,
     "before": "Cobol.swapTruncBinary(truncBefore);",
     "after": "/* Cobol.swapTruncBinary(truncBefore); */"
    },
@@ -592,7 +526,7 @@
     "id": "584b78c2de",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 253,
+    "line": 238,
     "before": "Cobol.swapNumprocPfd(pfdBefore);",
     "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
    },
@@ -600,7 +534,7 @@
     "id": "f244e76278",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 258,
+    "line": 243,
     "before": "private int[] performThru = new int[64];",
     "after": "private int[] performThru = new int[65];"
    },
@@ -608,7 +542,7 @@
     "id": "375237a224",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 259,
+    "line": 244,
     "before": "private int performDepth = 0;",
     "after": "private int performDepth = 1;"
    },
@@ -616,7 +550,7 @@
     "id": "82a8bb35a8",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 267,
+    "line": 252,
     "before": "super(null, null, false, false);",
     "after": "/* super(null, null, false, false); */"
    },
@@ -624,7 +558,7 @@
     "id": "fc0bd1a39b",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 278,
+    "line": 263,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
    },
@@ -632,7 +566,7 @@
     "id": "27ed76ca5b",
     "op": "AOR",
     "file": "service/DfsortstService.java",
-    "line": 278,
+    "line": 263,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -640,7 +574,7 @@
     "id": "a81e2c6386",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 278,
+    "line": 263,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
    },
@@ -648,7 +582,7 @@
     "id": "eaa44bd6f6",
     "op": "AOR",
     "file": "service/DfsortstService.java",
-    "line": 280,
+    "line": 265,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -656,7 +590,7 @@
     "id": "b618f4ab05",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 285,
+    "line": 270,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -664,7 +598,7 @@
     "id": "ad05057d2f",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 285,
+    "line": 270,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) != 1;"
    },
@@ -672,7 +606,7 @@
     "id": "0b7c4ea0a1",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 287,
+    "line": 272,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -680,7 +614,7 @@
     "id": "5918504765",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 288,
+    "line": 273,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -688,7 +622,7 @@
     "id": "edc57a8ce0",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 288,
+    "line": 273,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -696,7 +630,7 @@
     "id": "2ede0f6f09",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 289,
+    "line": 274,
     "before": "return;",
     "after": "/* return; */"
    },
@@ -704,7 +638,7 @@
     "id": "7f5cbaa3ac",
     "op": "AOR",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -712,7 +646,7 @@
     "id": "674344ca89",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -720,7 +654,7 @@
     "id": "27f5b81778",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d < 0; d--) {"
    },
@@ -728,7 +662,7 @@
     "id": "5f621546d5",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -736,7 +670,7 @@
     "id": "f8dc8f4b2d",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 1; d--) {"
    },
@@ -744,7 +678,7 @@
     "id": "495f801f09",
     "op": "AOR",
     "file": "service/DfsortstService.java",
-    "line": 291,
+    "line": 276,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -752,7 +686,7 @@
     "id": "c2d393ac4b",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 292,
+    "line": 277,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -760,7 +694,7 @@
     "id": "5ca81b31aa",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 292,
+    "line": 277,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -768,7 +702,7 @@
     "id": "f62d31ff4d",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 297,
+    "line": 282,
     "before": "if (next >= 1) {",
     "after": "if (!(next >= 1)) {"
    },
@@ -776,7 +710,7 @@
     "id": "9d7497129c",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 297,
+    "line": 282,
     "before": "if (next >= 1) {",
     "after": "if (next < 1) {"
    },
@@ -784,7 +718,7 @@
     "id": "78db0c7714",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 297,
+    "line": 282,
     "before": "if (next >= 1) {",
     "after": "if (next > 1) {"
    },
@@ -792,7 +726,7 @@
     "id": "08c9035b33",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 297,
+    "line": 282,
     "before": "if (next >= 1) {",
     "after": "if (next >= 2) {"
    },
@@ -800,7 +734,7 @@
     "id": "26c6ad1d1d",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 300,
+    "line": 285,
     "before": "i = next;",
     "after": "/* i = next; */"
    },
@@ -808,7 +742,7 @@
     "id": "5134a07015",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 303,
+    "line": 288,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -816,7 +750,7 @@
     "id": "66d146adff",
     "op": "ROR",
     "file": "service/DfsortstService.java",
-    "line": 303,
+    "line": 288,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -824,7 +758,7 @@
     "id": "df5be19c40",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 307,
+    "line": 292,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -832,7 +766,7 @@
     "id": "a812494cd9",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 314,
+    "line": 299,
     "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
     "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
    },
@@ -840,7 +774,7 @@
     "id": "c7c9748039",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 321,
+    "line": 306,
     "before": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
     "after": "sort_S_FILE = new Sort(\"X-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),"
    },
@@ -848,7 +782,7 @@
     "id": "bd2e4ac1e8",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 321,
+    "line": 306,
     "before": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
     "after": "sort_S_FILE = new Sort(\"S-FILE\", 351, false, CS, Sort.Collating.ebcdic(\"EB\", CS),"
    },
@@ -856,7 +790,7 @@
     "id": "193ca94627",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 321,
+    "line": 306,
     "before": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"EB\", CS),",
     "after": "sort_S_FILE = new Sort(\"S-FILE\", 350, false, CS, Sort.Collating.ebcdic(\"XB\", CS),"
    },
@@ -864,7 +798,7 @@
     "id": "a73c67716b",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 322,
+    "line": 307,
     "before": "new Sort.Key(r -> Field.alphanumeric(r, 0, 16, false), true));",
     "after": "new Sort.Key(r -> Field.alphanumeric(r, 0, 17, false), true));"
    },
@@ -872,7 +806,7 @@
     "id": "87ed862a65",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 324,
+    "line": 309,
     "before": "Sort.expect(st1, \"SORT USING I1-FILE: OPEN\", \"00\");",
     "after": "Sort.expect(st1, \"XORT USING I1-FILE: OPEN\", \"00\");"
    },
@@ -880,7 +814,7 @@
     "id": "5395bd522e",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 330,
+    "line": 315,
     "before": "Sort.expect(st1, \"SORT USING I1-FILE: READ\", \"00\");",
     "after": "Sort.expect(st1, \"XORT USING I1-FILE: READ\", \"00\");"
    },
@@ -888,7 +822,7 @@
     "id": "c4e84adbf2",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 334,
+    "line": 319,
     "before": "Sort.expect(st1, \"SORT USING I1-FILE: CLOSE\", \"00\");",
     "after": "Sort.expect(st1, \"XORT USING I1-FILE: CLOSE\", \"00\");"
    },
@@ -896,7 +830,7 @@
     "id": "7af3c78eac",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 336,
+    "line": 321,
     "before": "Sort.expect(st2, \"SORT USING I2-FILE: OPEN\", \"00\");",
     "after": "Sort.expect(st2, \"XORT USING I2-FILE: OPEN\", \"00\");"
    },
@@ -904,7 +838,7 @@
     "id": "13c6898fc5",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 342,
+    "line": 327,
     "before": "Sort.expect(st2, \"SORT USING I2-FILE: READ\", \"00\");",
     "after": "Sort.expect(st2, \"XORT USING I2-FILE: READ\", \"00\");"
    },
@@ -912,7 +846,7 @@
     "id": "6e5522fb37",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 346,
+    "line": 331,
     "before": "Sort.expect(st2, \"SORT USING I2-FILE: CLOSE\", \"00\");",
     "after": "Sort.expect(st2, \"XORT USING I2-FILE: CLOSE\", \"00\");"
    },
@@ -920,7 +854,7 @@
     "id": "5b870c828e",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 348,
+    "line": 333,
     "before": "sort_S_FILE.rewind(350);",
     "after": "/* sort_S_FILE.rewind(350); */"
    },
@@ -928,7 +862,7 @@
     "id": "dc7a987b9e",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 349,
+    "line": 334,
     "before": "String st3 = O_FILE.open(\"OUTPUT\");",
     "after": "String st3 = O_FILE.open(\"XUTPUT\");"
    },
@@ -936,7 +870,7 @@
     "id": "36c36167fb",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 350,
+    "line": 335,
     "before": "Sort.expect(st3, \"SORT GIVING O-FILE: OPEN\", \"00\");",
     "after": "Sort.expect(st3, \"XORT GIVING O-FILE: OPEN\", \"00\");"
    },
@@ -944,7 +878,7 @@
     "id": "41d78289a6",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 353,
+    "line": 338,
     "before": "st3 = O_FILE.write(350);",
     "after": "st3 = O_FILE.write(351);"
    },
@@ -952,7 +886,7 @@
     "id": "cbfc1ff2ab",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 354,
+    "line": 339,
     "before": "Sort.expect(st3, \"SORT GIVING O-FILE: WRITE\", \"00\");",
     "after": "Sort.expect(st3, \"XORT GIVING O-FILE: WRITE\", \"00\");"
    },
@@ -960,7 +894,7 @@
     "id": "c9490c5557",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 356,
+    "line": 341,
     "before": "st3 = O_FILE.close();",
     "after": "/* st3 = O_FILE.close(); */"
    },
@@ -968,7 +902,7 @@
     "id": "e7d37ea2ab",
     "op": "LIT",
     "file": "service/DfsortstService.java",
-    "line": 357,
+    "line": 342,
     "before": "Sort.expect(st3, \"SORT GIVING O-FILE: CLOSE\", \"00\");",
     "after": "Sort.expect(st3, \"XORT GIVING O-FILE: CLOSE\", \"00\");"
    },
@@ -976,7 +910,7 @@
     "id": "1faf5b2da6",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 358,
+    "line": 343,
     "before": "sort_S_FILE = null;",
     "after": "/* sort_S_FILE = null; */"
    },
@@ -984,7 +918,7 @@
     "id": "0b21618dfa",
     "op": "DEL",
     "file": "service/DfsortstService.java",
-    "line": 359,
+    "line": 344,
     "before": "Sort.finished(f43_GG_SORT_RETURN, CS);",
     "after": "/* Sort.finished(f43_GG_SORT_RETURN, CS); */"
    },
@@ -992,7 +926,7 @@
     "id": "e08320984e",
     "op": "NEG",
     "file": "service/DfsortstService.java",
-    "line": 361,
+    "line": 346,
     "before": "if (true) throw new Goback();",
     "after": "if (!(true)) throw new Goback();"
    },
@@ -1000,25 +934,9 @@
     "id": "e0b57df9e4",
     "op": "CON",
     "file": "service/DfsortstService.java",
-    "line": 362,
+    "line": 347,
     "before": "return 1;",
     "after": "return 2;"
-   },
-   {
-    "id": "2279e1a78f",
-    "op": "COR",
-    "file": "service/DfsortstService.java",
-    "line": 102,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
-   },
-   {
-    "id": "6b11188d6d",
-    "op": "NEG",
-    "file": "service/DfsortstService.java",
-    "line": 102,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (!(CicsTask.undefinableFile(name) || task.undefinedInRegion(name))) {"
    },
    {
     "id": "176d1217ba",
@@ -1038,14 +956,14 @@
    }
   ],
   "inputs": {
-   "port": "c58df88682d63e6c1589b7eca14f6bd5ce42947802727087811ee455a682194e",
-   "runtime": "a6090f02e1fae2edabf84b088ea78aa84e46ec5395b5189237a8db46cc97a916",
-   "generator": "8c40bb639631023f449692379c213a8945baa2e0f0787eef01fd870ad98869e6",
+   "port": "76c780acdbb2930a729dcc7fcab83c5babc44d79b01c000857f4e17706b537f8",
+   "runtime": "a149b0e5a5e35e391bcb11779f099703999b90ef7e3d59a5a2e67795947c56d2",
+   "generator": "d24e5f4b3179a4b7aec60c91e50c635a850e1784aaf6b32d30d926fef261cc92",
    "case": "5c9da8ef6f046072464231ff9a8c5879393e0b48bc39c6e1dd8bcb6b9ff1b1bc",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "ecb50f332a7314a77cd73c4bd64ddd70f641935009860b4ddd9dde9d4309d1bd",
-   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
-   "survivors": "24acb9cb4320ee74c95a81b0d23ba2599642bde5b08bf66a4f4db5194879de70"
+   "harness": "392d5c93e8c9e61ff9cb5c77cce9c80d3552aed15aba491016a348fea2a4060e",
+   "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
+   "survivors": "c54a75f6d1b556c8c791eca98cbfa81e8c4f347aa7ef7a4d296783c8038a24f8"
   },
   "components": {
    "generator": {
@@ -1064,16 +982,17 @@
     "generator:cobolrt/Storage.java": "d0e3bd4d16857a5e0188c0200f59e27e8a5579404fefc808449b9b59d79ca58f",
     "generator:cobolrt/Zoned.java": "614ce9e271d21343be132d13cf47e3f159a24231eae99682ef15f10414024a01",
     "generator:cobolrt/batch/DetFiles.java": "93a8b702e9dec728c6ed17a734125f0c7c4b34dd29afb055536a9592a9c7caa7",
-    "generator:cobolrt/cics/DetCics.java": "39a0b5a823d673553834df08f427017a8118c5427b62e33adefd92c62d33ffcc",
+    "generator:cobolrt/cics/DetCics.java": "1988892e1059c018f3e442bafa01fa73a014a77d4e5fbd9f9b1093aeec6a0a48",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "b8bf3643251672baa720fe786dabd33f92d81d6fd8e67271a57cdb2c8b8c8461",
-    "generator:core": "eb702c37f189eda4046d9dbc47b61c246fed8e6f732a937e495daa903179aba0",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/source": "16ec13befa32a522af0c1b5bbd8e5c5e4c023adfd159fa623ff6424cc394dd2d"
+    "generator:det/replace": "63b00b343ede85ea6ee431a521c5094d52bf03a347cd30bd56d30d821f0bae9c",
+    "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc"
    },
    "harness": {
-    "harness:core": "9e96f3a9044e7fd4874601d1521191e05c71360226ff8204617c17cb358d014b"
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381"
    },
    "oracle": {
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
@@ -1081,12 +1000,14 @@
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "0338a9a201 048e3bd365 05ffe0eca2 08aaa03187 08c9035b33 0b21618dfa 0b7c4ea0a1 0cabbc26f2 0ef33c99a0 0f311dc2c9 106809946e 13c6898fc5 176d1217ba 1906f5341f 193ca94627 1faf5b2da6 2112e9ee68 21400a8257 2279e1a78f 24cf703bd4 24e0c2159b 26c6ad1d1d 27ed76ca5b 27f5b81778 287c8a2002 2a7f17b9de 2aff6e687a 2c23fd17d4 2c9795cf52 2ca9d1de95 2d5ec92450 2d82c25b83 2ede0f6f09 3078f8613b 310196b5cb 31e9cce0a6 3210be69c8 33ed042de8 36c36167fb 375237a224 38ff0215d8 3bd2ab6e0c 3bf49c0e15 3dea7619f3 41d78289a6 45f337c7d1 495f801f09 4a5431d9c0 5134a07015 518cbf3b38 521d0e25b5 52e923a2d6 53299bfe0a 533e7d554f 5395bd522e 546ccc2681 549086348b 584b78c2de 5918504765 597d5dc8c9 5a5531ee4a 5aee89a162 5b870c828e 5ca81b31aa 5d30145e45 5eaac76e4e 5f621546d5 601cf3ee0e 611a6a64c5 62e86ac560 63f86427ab 6430543ac2 646c2c9151 65fad321a8 66d146adff 674344ca89 68d94e67c2 69bb087ee2 6a8558aea2 6b11188d6d 6cf6303947 6e5522fb37 7037c7d5df 7075d070df 7144b20334 748cdc899c 75e03e2a97 78a7658ae4 78db0c7714 7af3c78eac 7becdac4d4 7bfb8fab83 7cc02937e9 7da4d1086c 7f5cbaa3ac 8056e28eb8 805f15467b 82a8bb35a8 82fd79d5d1 84d722e771 84f8275392 84fa99ecbe 8583b0cee4 85bf2a1667 877c3173ca 87d962b16c 87ed862a65 88868d9a87 8a198e709f 8a294398c6 8c088310e5 8cbe366ee4 8e6b4d6967 8e9b21423c 914b65c4a9 92ef9013cc 95bdbd41bd 9c9980589f 9d7497129c 9e26c7a7ce a39d7700b2 a73c67716b a812494cd9 a81e2c6386 a925308eb4 aa4ec71543 aba0c22e8d ac9ef798db accf7f4438 ad05057d2f ad7594d7a3 ada22f00b5 adc5ae8c81 adf7ef6748 afadaa70ae b0e23caf79 b1c31e5dd0 b1f50f4b80 b284e01e99 b36f5f978b b4e92c75e7 b618f4ab05 b6f8877a84 b70d67addc b711d71ca2 b7eec0e7d3 b94616996f bb3bd09b37 bd2e4ac1e8 bdb8f23b19 bf83287ded c0bb7dc405 c1cff91642 c2cc897a75 c2d393ac4b c3a55cde9b c4b3243fe0 c4e84adbf2 c50858bc8f c50be100d5 c69f6370ad c76b484361 c7c9748039 c9490c5557 ca0fc60ae5 cbfc1ff2ab cc00971b7c cd0fb6283a cebcc3fab1 d10232291e d1232af5b9 d40e1d06e8 d93bd87e40 da51f87f5b dc7a987b9e dc81352e35 dcdd33fc87 dee3a1ad0b df5be19c40 e08320984e e0b57df9e4 e1584b17ca e23a687144 e65dbb81ea e7d37ea2ab eaa44bd6f6 ebfaadb4b1 edc57a8ce0 ee4a86b58d efd501e488 f244e76278 f62d31ff4d f8dc8f4b2d fa6ae3abbe fba18ca9c2 fc0bd1a39b feb2c1c210 ff03be29c0",
+  "every": "0338a9a201 048e3bd365 05ffe0eca2 08aaa03187 08c9035b33 0b21618dfa 0b7c4ea0a1 0cabbc26f2 0ef33c99a0 0f311dc2c9 106809946e 13c6898fc5 176d1217ba 1906f5341f 193ca94627 1faf5b2da6 2112e9ee68 21400a8257 24cf703bd4 26c6ad1d1d 27ed76ca5b 27f5b81778 287c8a2002 2a7f17b9de 2aff6e687a 2c9795cf52 2ca9d1de95 2d5ec92450 2d82c25b83 2ede0f6f09 3078f8613b 310196b5cb 31e9cce0a6 3210be69c8 33ed042de8 36c36167fb 375237a224 38ff0215d8 3bd2ab6e0c 3bf49c0e15 3dea7619f3 41d78289a6 45f337c7d1 495f801f09 4a5431d9c0 5134a07015 518cbf3b38 521d0e25b5 52e923a2d6 53299bfe0a 533e7d554f 5395bd522e 546ccc2681 549086348b 584b78c2de 5918504765 597d5dc8c9 5a5531ee4a 5aee89a162 5b870c828e 5ca81b31aa 5d30145e45 5eaac76e4e 5f621546d5 601cf3ee0e 611a6a64c5 62e86ac560 63f86427ab 6430543ac2 65fad321a8 66d146adff 674344ca89 68d94e67c2 69bb087ee2 6a8558aea2 6cf6303947 6e5522fb37 7037c7d5df 7075d070df 7144b20334 75e03e2a97 78a7658ae4 78db0c7714 7af3c78eac 7becdac4d4 7cc02937e9 7da4d1086c 7f5cbaa3ac 8056e28eb8 805f15467b 82a8bb35a8 82fd79d5d1 84d722e771 84f8275392 84fa99ecbe 8583b0cee4 85bf2a1667 877c3173ca 87d962b16c 87ed862a65 8a198e709f 8a294398c6 8c088310e5 8cbe366ee4 8e6b4d6967 8e9b21423c 914b65c4a9 92ef9013cc 95bdbd41bd 9d7497129c 9e26c7a7ce a39d7700b2 a73c67716b a812494cd9 a81e2c6386 a925308eb4 aa4ec71543 aba0c22e8d ac9ef798db accf7f4438 ad05057d2f ad7594d7a3 ada22f00b5 adf7ef6748 afadaa70ae b0e23caf79 b1c31e5dd0 b1f50f4b80 b284e01e99 b36f5f978b b4e92c75e7 b618f4ab05 b6f8877a84 b70d67addc b711d71ca2 b7eec0e7d3 b94616996f bb3bd09b37 bd2e4ac1e8 bdb8f23b19 bf83287ded c0bb7dc405 c1cff91642 c2cc897a75 c2d393ac4b c3a55cde9b c4b3243fe0 c4e84adbf2 c50858bc8f c50be100d5 c69f6370ad c76b484361 c7c9748039 c9490c5557 ca0fc60ae5 cbfc1ff2ab cc00971b7c cd0fb6283a cebcc3fab1 d10232291e d1232af5b9 d40e1d06e8 d93bd87e40 da51f87f5b dc7a987b9e dc81352e35 dcdd33fc87 dee3a1ad0b df5be19c40 e08320984e e0b57df9e4 e1584b17ca e23a687144 e65dbb81ea e7d37ea2ab eaa44bd6f6 ebfaadb4b1 edc57a8ce0 ee4a86b58d f244e76278 f62d31ff4d f8dc8f4b2d fa6ae3abbe fba18ca9c2 fc0bd1a39b feb2c1c210",
   "refreshed": {
-   "from": "2026-11-14",
-   "survivors_rerun": 0,
-   "fresh": 2,
-   "stale": []
+   "from": "2026-11-21",
+   "survivors_rerun": 106,
+   "fresh": 0,
+   "stale": [
+    "survivors"
+   ]
   }
  }
 }

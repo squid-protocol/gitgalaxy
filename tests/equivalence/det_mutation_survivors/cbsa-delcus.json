@@ -1,0 +1,51 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "undefined-by-ibm": "only non-digit data in a numeric USAGE DISPLAY item kills it, and IBM documents no result for that",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-delcus",
+ "survivors": [
+  {
+   "id": "d752d45453",
+   "op": "CON",
+   "line": 118,
+   "before": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f78_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field_observability: dead window: no reachable statement or runtime reader reads EIBTRMID or bytes 16-20 of DFHEIBLK (solver-unobservable)",
+   "tried": [
+    "solver-unobservable"
+   ]
+  },
+  {
+   "id": "b3703aaa3f",
+   "op": "CON",
+   "line": 164,
+   "before": "private final Field f71_ACCOUNT_OVERDRAFT_LIMIT = Field.zoned(s_OUTPUT_DATA, 50, 8, 0, false, false, false);",
+   "after": "private final Field f71_ACCOUNT_OVERDRAFT_LIMIT = Field.zoned(s_OUTPUT_DATA, 50, 9, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "branch_solver: no reachable statement uses ACCOUNT-OVERDRAFT-LIMIT (OUTPUT-DATA) (solver-unread)",
+   "tried": [
+    "solver-unread"
+   ]
+  },
+  {
+   "id": "02f552714c",
+   "op": "DEL",
+   "line": 433,
+   "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */",
+   "verdict": "equivalent",
+   "reason": "every read of s_WS_ORIG_DATE_GRP_X's items follows a top-level Cobol.store in its own method; initial image is never read (inert-image)",
+   "tried": [
+    "inert-image"
+   ]
+  }
+ ]
+}

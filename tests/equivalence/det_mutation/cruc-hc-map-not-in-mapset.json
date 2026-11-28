@@ -5,19 +5,19 @@
  "case": "cruc-hc-map-not-in-mapset",
  "entry": {
   "program": "HCMAB",
-  "commit": "094a1b0618918e9bc2d521312e48ff38f6f19870+uncommitted",
-  "date": "2026-11-14",
+  "commit": "110ba019e3b592a30140c1b06af9a498cb633315+uncommitted",
+  "date": "2026-11-28",
   "mode": "fast",
   "seed": 0,
-  "mutants": 396,
+  "mutants": 371,
   "out_of_scope": 6,
-  "chosen": 152,
+  "chosen": 150,
   "coverage": "proven on 5 scenarios, covering 2/2 paragraphs and 5/5 branches",
   "counts": {
-   "killed": 40,
+   "killed": 38,
    "timeout": 0,
-   "survived": 107,
-   "stillborn": 5,
+   "survived": 110,
+   "stillborn": 2,
    "error": 0,
    "pending": 0
   },
@@ -56,26 +56,21 @@
    "c5da535766",
    "c6b6bb22bf",
    "c706511b71",
-   "ced240db7f",
    "e16a6e837f",
    "fb4ceade2e",
    "fd7dbad255",
-   "fe10565041",
-   "ff6f33595d"
+   "fe10565041"
   ],
   "stillborn": [
-   "0abf2d4427",
    "0fa7dfe028",
-   "6c2abf0511",
-   "7e7d09f216",
-   "ea719650b9"
+   "7e7d09f216"
   ],
   "survived": [
    {
     "id": "937ae7b58b",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 39,
+    "line": 42,
     "before": "\"ICAgICAgICA=\"));",
     "after": "\"XCAgICAgICA=\"));"
    },
@@ -83,7 +78,7 @@
     "id": "bf7a8ac4fc",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 41,
+    "line": 44,
     "before": "\"ICAgIA==\"));",
     "after": "\"XCAgIA==\"));"
    },
@@ -91,7 +86,7 @@
     "id": "bfba7c9073",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 47,
+    "line": 50,
     "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
     "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
    },
@@ -99,7 +94,7 @@
     "id": "382d30e8c5",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 49,
+    "line": 52,
     "before": "\"AAA=\"));",
     "after": "\"XAA=\"));"
    },
@@ -107,7 +102,7 @@
     "id": "71a8afe382",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 68,
+    "line": 71,
     "before": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
     "after": "private final Field f21_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
    },
@@ -115,7 +110,7 @@
     "id": "9664357f5c",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 72,
+    "line": 75,
     "before": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
     "after": "private final Field f25_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
    },
@@ -123,7 +118,7 @@
     "id": "c4f6a7a70d",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 73,
+    "line": 76,
     "before": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
     "after": "private final Field f28_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
    },
@@ -131,111 +126,23 @@
     "id": "46d9f4549b",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 75,
+    "line": 78,
     "before": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
     "after": "private final Field f50_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
-   },
-   {
-    "id": "c79a178f52",
-    "op": "NEG",
-    "file": "service/HcmabService.java",
-    "line": 90,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "24c69d089e",
-    "op": "ROR",
-    "file": "service/HcmabService.java",
-    "line": 90,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "85fe554101",
-    "op": "ROR",
-    "file": "service/HcmabService.java",
-    "line": 90,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() >= 1) {"
-   },
-   {
-    "id": "d1f5d8c03d",
-    "op": "LIT",
-    "file": "service/HcmabService.java",
-    "line": 96,
-    "before": "@SuppressWarnings(\"unchecked\")",
-    "after": "@SuppressWarnings(\"Xnchecked\")"
-   },
-   {
-    "id": "92edcb8f9d",
-    "op": "COR",
-    "file": "service/HcmabService.java",
-    "line": 98,
-    "before": "if (CicsTask.undefinableFile(name) || task.undefinedInRegion(name)) {",
-    "after": "if (CicsTask.undefinableFile(name) && task.undefinedInRegion(name)) {"
-   },
-   {
-    "id": "35679b4a80",
-    "op": "LIT",
-    "file": "service/HcmabService.java",
-    "line": 101,
-    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
-    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
    },
    {
     "id": "69303e6a7f",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 106,
+    "line": 98,
     "before": "java.util.Map.entry(\"MAIN-PARA\", 0)",
     "after": "java.util.Map.entry(\"XAIN-PARA\", 0)"
-   },
-   {
-    "id": "519a99da7c",
-    "op": "LIT",
-    "file": "service/HcmabService.java",
-    "line": 112,
-    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
-    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
-   },
-   {
-    "id": "8f4f6338e6",
-    "op": "LIT",
-    "file": "service/HcmabService.java",
-    "line": 130,
-    "before": "Integer error = handlers.get(\"ERROR\");",
-    "after": "Integer error = handlers.get(\"XRROR\");"
-   },
-   {
-    "id": "64ce2a5c17",
-    "op": "NEG",
-    "file": "service/HcmabService.java",
-    "line": 131,
-    "before": "if (error != null) {",
-    "after": "if (!(error != null)) {"
-   },
-   {
-    "id": "561c7edeaf",
-    "op": "ROR",
-    "file": "service/HcmabService.java",
-    "line": 131,
-    "before": "if (error != null) {",
-    "after": "if (error == null) {"
-   },
-   {
-    "id": "56f618e4b8",
-    "op": "ROR",
-    "file": "service/HcmabService.java",
-    "line": 142,
-    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
-    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
    },
    {
     "id": "c9d260c6f0",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 152,
+    "line": 117,
     "before": "System.arraycopy(IMAGE_s_HCM3I, 0, s_HCM3I.bytes, 0, IMAGE_s_HCM3I.length);",
     "after": "/* System.arraycopy(IMAGE_s_HCM3I, 0, s_HCM3I.bytes, 0, IMAGE_s_HCM3I.length); */"
    },
@@ -243,7 +150,7 @@
     "id": "a5a2f4b15e",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 153,
+    "line": 118,
     "before": "System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length);",
     "after": "/* System.arraycopy(IMAGE_s_WS_INPUT, 0, s_WS_INPUT.bytes, 0, IMAGE_s_WS_INPUT.length); */"
    },
@@ -251,7 +158,7 @@
     "id": "df9dad8fb6",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 182,
+    "line": 147,
     "before": "caBack = () -> { };",
     "after": "/* caBack = () -> { }; */"
    },
@@ -259,7 +166,7 @@
     "id": "4d1dfc45c6",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 184,
+    "line": 149,
     "before": "heldKey.clear();",
     "after": "/* heldKey.clear(); */"
    },
@@ -267,7 +174,7 @@
     "id": "c947bbbd9e",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 186,
+    "line": 151,
     "before": "Cobol.move(task.transid(), f23_EIBTRNID, CS);",
     "after": "/* Cobol.move(task.transid(), f23_EIBTRNID, CS); */"
    },
@@ -275,7 +182,7 @@
     "id": "65492ad86c",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 190,
+    "line": 155,
     "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "/* Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
    },
@@ -283,7 +190,7 @@
     "id": "573b38bf46",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 190,
+    "line": 155,
     "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -291,7 +198,7 @@
     "id": "7ca3c75d4d",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 190,
+    "line": 155,
     "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -299,7 +206,7 @@
     "id": "0311896b36",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 190,
+    "line": 155,
     "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
    },
@@ -307,7 +214,7 @@
     "id": "b49f0d7638",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 190,
+    "line": 155,
     "before": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
     "after": "Cobol.store(f22_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
    },
@@ -315,7 +222,7 @@
     "id": "0e71b0f05e",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 191,
+    "line": 156,
     "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "/* Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
    },
@@ -323,7 +230,7 @@
     "id": "9dcdde6a10",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 191,
+    "line": 156,
     "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -331,7 +238,7 @@
     "id": "6b31667671",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 191,
+    "line": 156,
     "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
    },
@@ -339,7 +246,7 @@
     "id": "ff18e5efea",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 191,
+    "line": 156,
     "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
    },
@@ -347,63 +254,31 @@
     "id": "97ad13929e",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 191,
+    "line": 156,
     "before": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
     "after": "Cobol.store(f21_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
-   },
-   {
-    "id": "b28463bed7",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 200,
-    "before": "calen = cx(task, 4);",
-    "after": "/* calen = cx(task, 4); */"
    },
    {
     "id": "cb22863a1c",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 201,
+    "line": 166,
     "before": "} else if (ca instanceof CaboffWsOut) {",
     "after": "} else if (!(ca instanceof CaboffWsOut)) {"
-   },
-   {
-    "id": "e61fbcaa47",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 202,
-    "before": "calen = cx(task, 16);",
-    "after": "/* calen = cx(task, 16); */"
    },
    {
     "id": "bc32e0f935",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 205,
+    "line": 170,
     "before": "} else if (ca instanceof CaboffWsSrc) {",
     "after": "} else if (!(ca instanceof CaboffWsSrc)) {"
-   },
-   {
-    "id": "608be0ea80",
-    "op": "CON",
-    "file": "service/HcmabService.java",
-    "line": 206,
-    "before": "calen = cx(task, 10);",
-    "after": "calen = cx(task, 11);"
-   },
-   {
-    "id": "066b664053",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 208,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
    },
    {
     "id": "6074233d0d",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 213,
+    "line": 178,
     "before": "} else if (ca instanceof CachanWsMore) {",
     "after": "} else if (!(ca instanceof CachanWsMore)) {"
    },
@@ -411,31 +286,15 @@
     "id": "d115b16ba7",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 215,
+    "line": 180,
     "before": "} else if (ca instanceof CachanWsReq) {",
     "after": "} else if (!(ca instanceof CachanWsReq)) {"
-   },
-   {
-    "id": "94af48ebea",
-    "op": "CON",
-    "file": "service/HcmabService.java",
-    "line": 216,
-    "before": "calen = cx(task, 10);",
-    "after": "calen = cx(task, 11);"
-   },
-   {
-    "id": "fb365ec813",
-    "op": "CON",
-    "file": "service/HcmabService.java",
-    "line": 220,
-    "before": "calen = cx(task, 4);",
-    "after": "calen = cx(task, 5);"
    },
    {
     "id": "355227f3c7",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 221,
+    "line": 186,
     "before": "} else if (ca instanceof CachxbWsOwn) {",
     "after": "} else if (!(ca instanceof CachxbWsOwn)) {"
    },
@@ -443,23 +302,15 @@
     "id": "6d08fc0996",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 225,
+    "line": 190,
     "before": "} else if (ca instanceof CagcstWsSrc2) {",
     "after": "} else if (!(ca instanceof CagcstWsSrc2)) {"
-   },
-   {
-    "id": "8f42290dde",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 226,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
    },
    {
     "id": "76bca8f1fc",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 227,
+    "line": 192,
     "before": "} else if (ca instanceof GtasgnWsCa) {",
     "after": "} else if (!(ca instanceof GtasgnWsCa)) {"
    },
@@ -467,47 +318,23 @@
     "id": "b61d51b40b",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 231,
+    "line": 200,
     "before": "} else if (ca instanceof PcrcaWsCarry) {",
     "after": "} else if (!(ca instanceof PcrcaWsCarry)) {"
-   },
-   {
-    "id": "5c5784e893",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 232,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
-   },
-   {
-    "id": "be27bed55f",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 234,
-    "before": "calen = cx(task, 8);",
-    "after": "/* calen = cx(task, 8); */"
    },
    {
     "id": "c75930c86f",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 235,
+    "line": 204,
     "before": "} else if (ca instanceof PcrcbWsExtra) {",
     "after": "} else if (!(ca instanceof PcrcbWsExtra)) {"
-   },
-   {
-    "id": "8f926ed03c",
-    "op": "CON",
-    "file": "service/HcmabService.java",
-    "line": 236,
-    "before": "calen = cx(task, 5);",
-    "after": "calen = cx(task, 6);"
    },
    {
     "id": "1d52b01404",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 239,
+    "line": 208,
     "before": "} else if (ca instanceof PcrcbWsNew2) {",
     "after": "} else if (!(ca instanceof PcrcbWsNew2)) {"
    },
@@ -515,7 +342,7 @@
     "id": "2aa69255cb",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 241,
+    "line": 210,
     "before": "} else if (ca instanceof PcrclWsLinked) {",
     "after": "} else if (!(ca instanceof PcrclWsLinked)) {"
    },
@@ -523,7 +350,7 @@
     "id": "4b0e6c9a64",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 244,
+    "line": 213,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen != 0 && task.linkArea() != null) {"
    },
@@ -531,7 +358,7 @@
     "id": "b6d131a6ca",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 244,
+    "line": 213,
     "before": "if (calen == 0 && task.linkArea() != null) {",
     "after": "if (calen == 1 && task.linkArea() != null) {"
    },
@@ -539,23 +366,15 @@
     "id": "3619daf9c6",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 249,
+    "line": 218,
     "before": "perform(0, 1);",
     "after": "perform(0, 2);"
-   },
-   {
-    "id": "b3e32c0689",
-    "op": "DEL",
-    "file": "service/HcmabService.java",
-    "line": 254,
-    "before": "caBack.run();",
-    "after": "/* caBack.run(); */"
    },
    {
     "id": "093bcbe290",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 266,
+    "line": 235,
     "before": "region.run(task, \"HCMAB\", this::runTask);",
     "after": "region.run(task, \"XCMAB\", this::runTask);"
    },
@@ -563,7 +382,7 @@
     "id": "4fec39ae8a",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 273,
+    "line": 242,
     "before": "lastAnswerBytes = task.returnedBytes();",
     "after": "/* lastAnswerBytes = task.returnedBytes(); */"
    },
@@ -571,7 +390,7 @@
     "id": "379c36be64",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 316,
+    "line": 283,
     "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
     "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
    },
@@ -579,7 +398,7 @@
     "id": "29733a2191",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 318,
+    "line": 285,
     "before": "performThru[performDepth++] = thru;",
     "after": "performThru[performDepth--] = thru;"
    },
@@ -587,7 +406,7 @@
     "id": "05ff98cc36",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 323,
+    "line": 290,
     "before": "boolean jumped = (next & GOTO) != 0;",
     "after": "boolean jumped = (next & GOTO) == 0;"
    },
@@ -595,7 +414,7 @@
     "id": "8eefe0568c",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 325,
+    "line": 292,
     "before": "if (!jumped) {",
     "after": "if (!(!jumped)) {"
    },
@@ -603,7 +422,7 @@
     "id": "6b495ffadc",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 326,
+    "line": 293,
     "before": "if (i == thru) {",
     "after": "if (!(i == thru)) {"
    },
@@ -611,7 +430,7 @@
     "id": "810f03e3f2",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 326,
+    "line": 293,
     "before": "if (i == thru) {",
     "after": "if (i != thru) {"
    },
@@ -619,7 +438,7 @@
     "id": "cb0de4718d",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 329,
+    "line": 296,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine + 1; d >= 0; d--) {"
    },
@@ -627,7 +446,7 @@
     "id": "3ce39b8269",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 329,
+    "line": 296,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 2; d >= 0; d--) {"
    },
@@ -635,7 +454,7 @@
     "id": "31ebf20353",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 329,
+    "line": 296,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d > 0; d--) {"
    },
@@ -643,7 +462,7 @@
     "id": "60960b92af",
     "op": "AOR",
     "file": "service/HcmabService.java",
-    "line": 329,
+    "line": 296,
     "before": "for (int d = mine - 1; d >= 0; d--) {",
     "after": "for (int d = mine - 1; d >= 0; d++) {"
    },
@@ -651,7 +470,7 @@
     "id": "82be195370",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 330,
+    "line": 297,
     "before": "if (performThru[d] == i) {",
     "after": "if (!(performThru[d] == i)) {"
    },
@@ -659,7 +478,7 @@
     "id": "712cf60366",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 330,
+    "line": 297,
     "before": "if (performThru[d] == i) {",
     "after": "if (performThru[d] != i) {"
    },
@@ -667,7 +486,7 @@
     "id": "54952ba251",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 341,
+    "line": 308,
     "before": "if (e.depth != mine) {",
     "after": "if (!(e.depth != mine)) {"
    },
@@ -675,7 +494,7 @@
     "id": "9ab5357a98",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 341,
+    "line": 308,
     "before": "if (e.depth != mine) {",
     "after": "if (e.depth == mine) {"
    },
@@ -683,7 +502,7 @@
     "id": "695edec694",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 345,
+    "line": 312,
     "before": "performDepth = mine;",
     "after": "/* performDepth = mine; */"
    },
@@ -691,7 +510,7 @@
     "id": "6f240e3b98",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 362,
+    "line": 329,
     "before": "f13_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 4, true, false, CS);",
     "after": "f13_WS_INLEN = Cobol.binary(BigDecimal.valueOf(received1.length()), 5, true, false, CS);"
    },
@@ -699,7 +518,7 @@
     "id": "e856f90aeb",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 363,
+    "line": 330,
     "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(received1.resp())), false, CS);",
     "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(received1.resp())), false, CS); */"
    },
@@ -707,7 +526,7 @@
     "id": "e2086d5d80",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 364,
+    "line": 331,
     "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -715,7 +534,7 @@
     "id": "e2b43ed160",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 370,
+    "line": 337,
     "before": "f14_WS_MODE = Cobol.moveText(f12_WS_INPUT.ref(6, Integer.valueOf(1)), 1, CS);",
     "after": "f14_WS_MODE = Cobol.moveText(f12_WS_INPUT.ref(6, Integer.valueOf(2)), 1, CS);"
    },
@@ -723,7 +542,7 @@
     "id": "49e05df3a0",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 372,
+    "line": 339,
     "before": "Cobol.moveFigurative(Figurative.LOW_VALUES, f8_HCM3O, CS);",
     "after": "/* Cobol.moveFigurative(Figurative.LOW_VALUES, f8_HCM3O, CS); */"
    },
@@ -731,7 +550,7 @@
     "id": "9779958da7",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 378,
+    "line": 345,
     "before": "values2.put(\"NAME\", Cobol.text(f11_NAMEO, CS));",
     "after": "values2.put(\"XAME\", Cobol.text(f11_NAMEO, CS));"
    },
@@ -739,7 +558,7 @@
     "id": "8c773df86b",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 381,
+    "line": 348,
     "before": "int[] planned5 = task.planned(\"SEND-MAP\", \"HCM3\");",
     "after": "int[] planned5 = task.planned(\"SEND-MAP\", \"XCM3\");"
    },
@@ -747,7 +566,7 @@
     "id": "2cfb6ccf3c",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 387,
+    "line": 354,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -755,7 +574,7 @@
     "id": "d45cc22d17",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 391,
+    "line": 358,
     "before": "String exit6 = task.abendMapNotFound(\"HCSET3\", \"HCSET3\");",
     "after": "String exit6 = task.abendMapNotFound(\"XCSET3\", \"HCSET3\");"
    },
@@ -763,7 +582,7 @@
     "id": "0236e07dd5",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 398,
+    "line": 365,
     "before": "String exit7 = task.abendMapNotFound(\"HCNONE\", \"HCSET3\");",
     "after": "String exit7 = task.abendMapNotFound(\"HCNONE\", \"XCSET3\");"
    },
@@ -771,7 +590,7 @@
     "id": "e89580f25e",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 405,
+    "line": 372,
     "before": "String exit8 = task.abendMapNotFound(\"HCSET3\", \"HCSET3\");",
     "after": "String exit8 = task.abendMapNotFound(\"XCSET3\", \"HCSET3\");"
    },
@@ -779,7 +598,7 @@
     "id": "d269bf51d0",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 411,
+    "line": 378,
     "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned10 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -787,7 +606,7 @@
     "id": "c4e323abfa",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 411,
+    "line": 378,
     "before": "int[] planned10 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned10 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -795,7 +614,7 @@
     "id": "6e93c18966",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 417,
+    "line": 384,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -803,7 +622,7 @@
     "id": "04f61b4a21",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 417,
+    "line": 384,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -811,7 +630,7 @@
     "id": "a96a6a3b15",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 420,
+    "line": 418,
     "before": "caBack.run();",
     "after": "/* caBack.run(); */"
    },
@@ -819,7 +638,7 @@
     "id": "11f2e75734",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 423,
+    "line": 390,
     "before": "return 1;",
     "after": "return 2;"
    },
@@ -827,7 +646,7 @@
     "id": "4ba373034c",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 433,
+    "line": 400,
     "before": "CicsTask.TsResult ts11 = task.writeqTs(\"HCLOG\".strip(), DetCics.toRegion(DetCics.padded(f17_WS_XLOG, 7, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts11 = task.writeqTs(\"HCLOG\".strip(), DetCics.toRegion(DetCics.padded(f17_WS_XLOG, 8, \"WRITEQ TS\", CS), CS, REGION));"
    },
@@ -835,7 +654,7 @@
     "id": "ae25e43fc3",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 433,
+    "line": 400,
     "before": "CicsTask.TsResult ts11 = task.writeqTs(\"HCLOG\".strip(), DetCics.toRegion(DetCics.padded(f17_WS_XLOG, 7, \"WRITEQ TS\", CS), CS, REGION));",
     "after": "CicsTask.TsResult ts11 = task.writeqTs(\"HCLOG\".strip(), DetCics.toRegion(DetCics.padded(f17_WS_XLOG, 7, \"XRITEQ TS\", CS), CS, REGION));"
    },
@@ -843,7 +662,7 @@
     "id": "d3960ce9d2",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 434,
+    "line": 401,
     "before": "Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts11.resp())), false, CS);",
     "after": "/* Cobol.store(f49_EIBRESP, BigDecimal.valueOf(DetCics.resp(ts11.resp())), false, CS); */"
    },
@@ -851,7 +670,7 @@
     "id": "00c90f98a5",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 435,
+    "line": 402,
     "before": "Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
     "after": "/* Cobol.store(f50_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
    },
@@ -859,7 +678,7 @@
     "id": "a3c09c4e8e",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 438,
+    "line": 405,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (!(to >= 0)) return GOTO | to;"
    },
@@ -867,7 +686,7 @@
     "id": "bd6a9d2199",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 438,
+    "line": 405,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -875,7 +694,7 @@
     "id": "dcab4d7326",
     "op": "CON",
     "file": "service/HcmabService.java",
-    "line": 438,
+    "line": 405,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to >= 1) return GOTO | to;"
    },
@@ -883,7 +702,7 @@
     "id": "6cdbe23c1d",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 442,
+    "line": 409,
     "before": "int[] planned13 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned13 = task.planned(\"XEND-TEXT\", \"-\");"
    },
@@ -891,7 +710,7 @@
     "id": "1d11da1b23",
     "op": "LIT",
     "file": "service/HcmabService.java",
-    "line": 442,
+    "line": 409,
     "before": "int[] planned13 = task.planned(\"SEND-TEXT\", \"-\");",
     "after": "int[] planned13 = task.planned(\"SEND-TEXT\", \"X\");"
    },
@@ -899,7 +718,7 @@
     "id": "cd4803e4c1",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 448,
+    "line": 415,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to > 0) return GOTO | to;"
    },
@@ -907,7 +726,7 @@
     "id": "0441fe7b2d",
     "op": "ROR",
     "file": "service/HcmabService.java",
-    "line": 448,
+    "line": 415,
     "before": "if (to >= 0) return GOTO | to;",
     "after": "if (to < 0) return GOTO | to;"
    },
@@ -915,34 +734,234 @@
     "id": "169f316a63",
     "op": "NEG",
     "file": "service/HcmabService.java",
-    "line": 229,
+    "line": 194,
     "before": "} else if (ca instanceof HcrparWsV1) {",
     "after": "} else if (!(ca instanceof HcrparWsV1)) {"
    },
    {
-    "id": "344af28394",
+    "id": "02426e3a8a",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 185,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "08aa5112fb",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 163,
+    "before": "calen = DetCics.eibCalen(task, 20);",
+    "after": "calen = DetCics.eibCalen(task, 21);"
+   },
+   {
+    "id": "0af729f52d",
     "op": "DEL",
     "file": "service/HcmabService.java",
-    "line": 230,
-    "before": "calen = cx(task, 10);",
-    "after": "/* calen = cx(task, 10); */"
+    "line": 211,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "0df57935df",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 173,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "0dfde43d07",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 199,
+    "before": "calen = DetCics.eibCalen(task, 30);",
+    "after": "/* calen = DetCics.eibCalen(task, 30); */"
+   },
+   {
+    "id": "15e0f38f42",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 169,
+    "before": "calen = DetCics.eibCalen(task, 2);",
+    "after": "/* calen = DetCics.eibCalen(task, 2); */"
+   },
+   {
+    "id": "160ac82c72",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 193,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "1703f6dbbc",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 191,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "1a9dd29f06",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 201,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "calen = DetCics.eibCalen(task, 9);"
+   },
+   {
+    "id": "1be662440c",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 209,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "21fcd5ede1",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 195,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "28f24940ad",
+    "op": "LIT",
+    "file": "service/HcmabService.java",
+    "line": 37,
+    "before": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"IBM037\");",
+    "after": "public static final CobolProfile PROFILE = new CobolProfile(CobolProfile.TruncMode.STD, CobolProfile.NumprocMode.NOPFD, CobolProfile.ArithMode.COMPAT, false, false, false, \"XBM037\");"
+   },
+   {
+    "id": "2df5b3f474",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 197,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "2e2aac5001",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 193,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "2ff361962b",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 169,
+    "before": "calen = DetCics.eibCalen(task, 2);",
+    "after": "calen = DetCics.eibCalen(task, 3);"
+   },
+   {
+    "id": "332155940e",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 207,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "3346cba5a1",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 167,
+    "before": "calen = DetCics.eibCalen(task, 16);",
+    "after": "/* calen = DetCics.eibCalen(task, 16); */"
+   },
+   {
+    "id": "401753ec44",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 181,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "4027787da8",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 171,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "/* calen = DetCics.eibCalen(task, 10); */"
+   },
+   {
+    "id": "4deb21c6fc",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 183,
+    "before": "calen = DetCics.eibCalen(task, 11);",
+    "after": "/* calen = DetCics.eibCalen(task, 11); */"
+   },
+   {
+    "id": "50261cb189",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 189,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "51df287216",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 171,
+    "before": "calen = DetCics.eibCalen(task, 10);",
+    "after": "calen = DetCics.eibCalen(task, 11);"
+   },
+   {
+    "id": "5443eef248",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 201,
+    "before": "calen = DetCics.eibCalen(task, 8);",
+    "after": "/* calen = DetCics.eibCalen(task, 8); */"
+   },
+   {
+    "id": "54d108ec76",
+    "op": "CON",
+    "file": "service/HcmabService.java",
+    "line": 165,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "calen = DetCics.eibCalen(task, 5);"
+   },
+   {
+    "id": "5d536aee59",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 165,
+    "before": "calen = DetCics.eibCalen(task, 4);",
+    "after": "/* calen = DetCics.eibCalen(task, 4); */"
+   },
+   {
+    "id": "5dba1b279d",
+    "op": "DEL",
+    "file": "service/HcmabService.java",
+    "line": 205,
+    "before": "calen = DetCics.eibCalen(task, 5);",
+    "after": "/* calen = DetCics.eibCalen(task, 5); */"
    }
   ],
   "inputs": {
-   "port": "6a651c822d3ee69e3d5a3c1aea0798304dd0396de164617b00e30fb024bb8d8a",
-   "runtime": "4825f7dc4674444965d36b497874f86c7be772372b76ceab7480e93bcbe5f76e",
-   "generator": "6a775d146d9339f952f975499f012f80d515c54093cc7e622d3f6f161846a911",
+   "port": "5da135489f878e175a7a328d1faf2201f2f1442a8a3148c248b379aecf767d59",
+   "runtime": "03164a88d8a5e92bf7e5706f443973a448338e510c1a6bef6a62ff5659ec2af6",
+   "generator": "d24e5f4b3179a4b7aec60c91e50c635a850e1784aaf6b32d30d926fef261cc92",
    "case": "74db7be0c1454b21d9374acb3d4dbda4fcf3b9963af68d3fa268977b6160ee92",
    "corpus": "bfea00a9f77a5e777a0d6ffe75847c17e25a24c024b01404f0167fe059c233bf",
-   "harness": "0e5919cac529afb564438babb965ebcad73d2ef5129ac775050c0c3a7b487209",
-   "oracle": "caf3573d1fa57b3f2fb9d4be16159edef9c51bae2c0d12ba83d008ac2391cf48",
+   "harness": "392d5c93e8c9e61ff9cb5c77cce9c80d3552aed15aba491016a348fea2a4060e",
+   "oracle": "49bf3ed4a4733fbedb104dea66724c6d4f5d0bdaeef39b080e7b699a5e1e8828",
    "survivors": "da952f774ad55d98db14d59fc5449e1e4b814a91b9f1e34e854233b0da067773"
   },
   "components": {
    "generator": {
-    "generator:core": "d0c736be6bc2c94c30ee263ccb374abb521fe4fc42ad68de3dd87e6c4cc29524",
+    "generator:core": "209fe04fad950e3cbe5a51b666e8a055b20dff4ba26aaa83f044bb68999e27cc",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2bc78259630c52ea904c48f4c70c3d8968ba5d3ce2f33dd5c461dd1034df81bd",
+    "generator:det/cics": "582fbb02177f308cebb8ec9f43e0bbfb4dca339f5aca0e7657acc3aced19a3d9",
     "generator:det/cics_common": "03fe34eeea3470e5e1b689ad1154e7012663890618326f8049c23025595e23c8",
     "generator:det/cics_conditions": "c2abb45bfc9eba1f265db47a5b34f41a21ea27de20d322aa7c011325632bcc9f",
     "generator:det/cics_containers": "0b061073eabfc3de21e12ddd608470b6fbe70c1539fffc0a40a263f2a21d3142",
@@ -955,29 +974,30 @@
     "generator:det/cics_system": "45e78c80727c275d63c9c9dcaede022c870eb3ab5e46698d30be729c3f1cb13b",
     "generator:det/cics_taskcontrol": "d25af58fbbb9a367274e13b481e36c1a4f1012c7fc11618e278345a51af432b9",
     "generator:det/cics_terminal": "f0fd521e09fcae2fec35ff2ecde1ffc414083f96c054123a8b63549eb941c541",
-    "generator:det/cics_web": "2fcb53de41d7e9f92d67854c4565a54d6857d5e4c30546cde20988aa59ae2c7a",
+    "generator:det/cics_web": "d07666e2ab7079aec1a5f2288f4c0bea3da45ffff723e869d7eef20d93e712c0",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/hlasm": "c7117c636ab25d2ccb7b4e2d7f23766ddacb9c9f7600c2fd6d894a49a60f4748",
-    "generator:det/layout": "683583d94ae563879c923a0d2afa2ee1cba756cd3761765b4b2284f9782a17b3",
-    "generator:det/source": "675a5ddb7aa4b9993c3f7f6cab8c20296e29f307c1df52a8518d2a74d24b5881"
+    "generator:det/layout": "df5eb9282474c285598602f753469270b4dccf210fb020532c88f093ecf082de",
+    "generator:det/replace": "63b00b343ede85ea6ee431a521c5094d52bf03a347cd30bd56d30d821f0bae9c",
+    "generator:det/source": "1d5fe79dcd2779dbb9d9d8ab8b79bc70645f7a355812d9a65b0642855b9071cc"
    },
    "harness": {
-    "harness:cics": "b789ce34c2ad4fb105ca9867f1e1702d1deb234c4571e30a07091a33c2174103",
-    "harness:core": "a582e234fabe957083224c90141de23abfbfe1d3826c6395a286d2c9407bae67"
+    "harness:cics": "bb33d6326b25595ce79c9986ad29dd1c32766d44cf987f3a8fe40dd5de064368",
+    "harness:core": "95392617cb7fdc7977a98861369222ef138b76e55f07a7ab315877dc55cac381"
    },
    "oracle": {
-    "oracle:cics-stub": "819f199408db1a7444eb3b08a674bc7d9a7fd69a832627a05086f71f6946fab3",
+    "oracle:cics-stub": "217528dacf5ac9d1a32b8b3adf4480040e454c5f9496c38f777d5247ec1f427e",
     "oracle:core": "b4bb775f0a30746a6054f259b4c8613e08cb0d8cf3b40f4a789d953aca4144a0",
     "oracle:le": "670c92cc59b722e108b688267be1fd89ecda9b7be62bb485da2ad4839b4f7011"
    }
   },
-  "every": "00c90f98a5 0236e07dd5 0311896b36 03b1102b2c 044085f006 0441fe7b2d 04f61b4a21 05ff98cc36 066b664053 069a553788 0875c0398d 093bcbe290 09745146ab 0a5c032258 0aaf253e6b 0abf2d4427 0b716eb83c 0b8801b4d6 0da74a2fa1 0dc8965bc3 0e71b0f05e 0f63ba9a4f 0f7d656c3d 0fa7dfe028 1153371419 11f2e75734 11f7be1d97 125a4ad7fb 13c9247bd6 14add9804c 154fc2791c 15764269fe 1597b6e201 169f316a63 1819434543 187df84cb0 1949c2a1a8 1a04c9a680 1a3b8df23c 1a7aafec68 1bd8f6d7f6 1c5b5cd75f 1d11da1b23 1d52b01404 1ef80b4b81 1f08671c79 2010746d3f 2018d83210 2055292471 207f377d94 210adaa2c3 21fff226ef 2203f7de39 2368090a57 249660ce55 24c69d089e 25b615f4f7 25d230e4c0 273b60a336 27dba27090 2930baddea 29733a2191 29c0e18a4e 2aa69255cb 2c2d13db7c 2c5fed32ed 2c9f6eec39 2cbdabb2a4 2cfb6ccf3c 2f90871549 308a9ff618 31ebf20353 3312abe827 3368717470 337b9c21f6 337bb05dcb 33a8bfdcb4 344af28394 3484a075b8 34a9c803f3 34c7075735 355227f3c7 35679b4a80 357a8d842a 35a82d35ce 35aed06aab 36104b1fd6 3619daf9c6 3634871591 3636fa6d84 379c36be64 382d30e8c5 398574bb91 3a56e59dad 3c47189766 3ca0f294c4 3ce39b8269 3d6a25c8c6 3d777fa2f3 3f8e748a3b 412568797a 42ec9cbe24 4500453930 45cb666b1b 46d9f4549b 47df236e28 48a6f14319 49d60f9efd 49e05df3a0 4aab108ab0 4b0e6c9a64 4ba373034c 4cc2fc0e5a 4ceef1301b 4d1dfc45c6 4d438095fe 4da99b1385 4e99600314 4f8dd149f2 4fbabd35bc 4fe9a4e9ed 4fec39ae8a 519a99da7c 52654f93d4 5276b5aea5 5387001e64 54952ba251 549d2828e7 561c7edeaf 56f618e4b8 573b38bf46 595c44721a 5971ce814e 59a9e22352 59cf7b63f4 5a64197df3 5aad042593 5bbb436f52 5c1d51e66b 5c5784e893 5c783f79f1 5c8148ff51 5c942086e0 5ccde6c562 5e20152743 5ef1a2c7d4 5ef4ce4ea8 5f93bd7f91 6074233d0d 608be0ea80 60960b92af 60caceb7c2 60d65b2cc2 60f75edc1f 6194b204b9 64ce2a5c17 65492ad86c 65c6eba72a 6682a78649 66d349af94 66e22e6aed 6715f905ea 69303e6a7f 695edec694 697892aed3 6b31667671 6b495ffadc 6bdf11fb6f 6bdf9938e0 6c2abf0511 6c332eb7b1 6cce09bc95 6cdbe23c1d 6d08fc0996 6e93c18966 6f240e3b98 7031db8cad 70d0d82060 712cf60366 7166e546d3 71a8afe382 72d3fc5cfd 7343e9aea4 74062b45e4 745c637024 74fe2c1a42 7513d98708 7548f9cd81 75570ff00e 76bca8f1fc 770488c58c 779a640761 77a8599012 784296aee4 784fcf2cd7 78596e5b39 790d0042d6 7aaca9accd 7bb51f41bd 7ca3c75d4d 7d743d5013 7da28e9a73 7e7d09f216 7e931f678e 810f03e3f2 8161b01184 81c47ccc62 82a0beae23 82be195370 8379d21788 83d2fdc839 8419ffebba 846eea9898 851e5bc3ee 85fe554101 86c7d3e33b 87f53525ef 89e9255409 8a64c9d3db 8b4f4cdc5a 8be5525f39 8c0e3c3721 8c773df86b 8d1952f490 8eefe0568c 8f018ae621 8f42290dde 8f4f6338e6 8f926ed03c 8faa04b973 8fc100de93 91e52fb6b0 92edcb8f9d 937ae7b58b 93dd92c60d 94af48ebea 952b35246d 9664357f5c 96a73b326e 9779958da7 97ad13929e 97d1909fc3 987e8775cf 9a203a77c6 9ab5357a98 9b0758bd37 9b23f8f95e 9bdac325f5 9bf8995d91 9d87488ae4 9dcdde6a10 9f0ca652f1 9fb7eddf04 a0264c8cac a17f31750e a1c3487f27 a370a2bd27 a3c09c4e8e a5a2f4b15e a6173bf215 a6cc4ae63c a96a6a3b15 ab9f20863f ae25e43fc3 af712faeb1 af84372660 b1567fa87a b1d56acf48 b28463bed7 b2c8e50dea b2edc2e2f2 b3112e2bfa b3e32c0689 b48dc794c6 b49f0d7638 b61d51b40b b6838685db b6d131a6ca b99777db50 b9a5576500 ba8a529b2a bad62c6fa6 bc32e0f935 bd0c5c5582 bd6a9d2199 bd80117f87 be167cdcbe be27bed55f bf1009f48d bf7a8ac4fc bfba7c9073 c051ceabc5 c078b25c02 c0ddd58894 c0f6c797ed c25fde4556 c3a684af17 c476a59f69 c4e323abfa c4f551d625 c4f6a7a70d c4f856c02a c5767a67e8 c5c6ecd733 c5da535766 c6b6bb22bf c706511b71 c75930c86f c79a178f52 c868f6b1d0 c947bbbd9e c9d260c6f0 cb0de4718d cb22863a1c cbcfc75f8f cd4803e4c1 cd49f4288e cd50e61db5 ced240db7f d09f962727 d115b16ba7 d150884e58 d1e4d236ba d1f5d8c03d d25fcb6022 d269bf51d0 d26e261789 d28d30a94b d3960ce9d2 d45cc22d17 d5fdaa9c55 d5ff8de26a d66ce4e902 d8a1a667e4 d8ff3e0514 d958f100f9 d98e92c507 dc943a9536 dcab4d7326 dceb9abc92 dd6a1c6dba de984c6a0b df0e5f3f23 df454cf106 df8833d3e9 df9dad8fb6 e14b10b21f e16a6e837f e196bc879f e2086d5d80 e22f43bdbd e2503f32c7 e2b43ed160 e45a8424d1 e4bbecd854 e61fbcaa47 e7b827ef93 e82e47fa15 e856f90aeb e8585db6af e89580f25e e9e38228fc ea29a7b2d7 ea719650b9 ea98dde32d eb34960cb7 ec19cc9a82 ece1c931d4 ee5f0a1de6 f0abba857d f1c7e6ee65 f307000566 f4b9710f26 f523bbdee0 f5d1e683c8 f7b94630a1 f7d50c23b8 f81cbdaa10 f8ebb66288 f9544505e9 f9c5cdc1a1 fb21e3c16a fb365ec813 fb4ceade2e fbcf825839 fbd88dc8a3 fc3bca6ed0 fd5687684e fd7dbad255 fe10565041 ff18e5efea ff364cb118 ff5a7346c4 ff6720431b ff6f33595d ff93e9bec6",
+  "every": "00c90f98a5 0236e07dd5 02426e3a8a 0311896b36 03b1102b2c 044085f006 0441fe7b2d 04f61b4a21 05ff98cc36 069a553788 0875c0398d 08aa5112fb 093bcbe290 09745146ab 0a5c032258 0aaf253e6b 0af729f52d 0b716eb83c 0b8801b4d6 0da74a2fa1 0dc8965bc3 0df57935df 0dfde43d07 0e71b0f05e 0f63ba9a4f 0f7d656c3d 0fa7dfe028 1153371419 11f2e75734 11f7be1d97 125a4ad7fb 13c9247bd6 14add9804c 154fc2791c 1597b6e201 15e0f38f42 160ac82c72 169f316a63 1703f6dbbc 1819434543 187df84cb0 1949c2a1a8 1a04c9a680 1a3b8df23c 1a7aafec68 1a9dd29f06 1be662440c 1c5b5cd75f 1d11da1b23 1d52b01404 1ef80b4b81 1f08671c79 2018d83210 2055292471 207f377d94 210adaa2c3 21fcd5ede1 21fff226ef 2368090a57 249660ce55 25b615f4f7 25d230e4c0 273b60a336 27dba27090 28f24940ad 2930baddea 29733a2191 29c0e18a4e 2aa69255cb 2c2d13db7c 2c5fed32ed 2cbdabb2a4 2cfb6ccf3c 2df5b3f474 2e2aac5001 2f90871549 2ff361962b 31ebf20353 3312abe827 332155940e 3346cba5a1 337b9c21f6 33a8bfdcb4 3484a075b8 34a9c803f3 34c7075735 355227f3c7 357a8d842a 35a82d35ce 35aed06aab 36104b1fd6 3619daf9c6 3634871591 3636fa6d84 379c36be64 382d30e8c5 398574bb91 3a56e59dad 3c47189766 3ca0f294c4 3ce39b8269 3d777fa2f3 3f8e748a3b 401753ec44 4027787da8 412568797a 42ec9cbe24 4500453930 45cb666b1b 46d9f4549b 49d60f9efd 49e05df3a0 4aab108ab0 4b0e6c9a64 4ba373034c 4cc2fc0e5a 4ceef1301b 4d1dfc45c6 4d438095fe 4da99b1385 4deb21c6fc 4f8dd149f2 4fbabd35bc 4fe9a4e9ed 4fec39ae8a 50261cb189 51df287216 52654f93d4 5276b5aea5 5387001e64 5443eef248 54952ba251 549d2828e7 54d108ec76 573b38bf46 595c44721a 5971ce814e 59a9e22352 5a64197df3 5aad042593 5bbb436f52 5c1d51e66b 5c783f79f1 5c8148ff51 5c942086e0 5d536aee59 5dba1b279d 5ef1a2c7d4 5ef4ce4ea8 5f93bd7f91 6074233d0d 60960b92af 60caceb7c2 60d65b2cc2 64321ab75d 65492ad86c 65c6eba72a 6682a78649 66e22e6aed 6715f905ea 679206d99b 685341374e 69303e6a7f 695edec694 697892aed3 6b31667671 6b495ffadc 6bdf11fb6f 6bdf9938e0 6c332eb7b1 6cce09bc95 6cdbe23c1d 6d08fc0996 6e93c18966 6f240e3b98 6f90116841 7031db8cad 70d0d82060 712cf60366 7166e546d3 71a8afe382 7223464f09 72d3fc5cfd 74062b45e4 745c637024 7513d98708 7548f9cd81 75570ff00e 76bca8f1fc 770488c58c 779a640761 77a8599012 784296aee4 784fcf2cd7 790d0042d6 7aaca9accd 7ca3c75d4d 7d743d5013 7da28e9a73 7e7d09f216 7e931f678e 7f3339f551 7ff0c13051 80aca61874 810f03e3f2 8161b01184 81c47ccc62 82a0beae23 82be195370 8379d21788 83d2fdc839 8419ffebba 846eea9898 849caebfa5 851e5bc3ee 86c7d3e33b 87f53525ef 8a64c9d3db 8be5525f39 8c0e3c3721 8c773df86b 8d1952f490 8e874644e5 8eefe0568c 8f018ae621 8faa04b973 8fc100de93 91e52fb6b0 937ae7b58b 93dd92c60d 9664357f5c 96a73b326e 9779958da7 97ad13929e 97d1909fc3 97f5e6c419 987e8775cf 9a203a77c6 9ab5357a98 9b0758bd37 9b23f8f95e 9bf8995d91 9d87488ae4 9dcdde6a10 9fa8e88858 9fb7eddf04 a17f31750e a1c3487f27 a3c09c4e8e a509d20999 a5a2f4b15e a6173bf215 a6cc4ae63c a7f3a88765 a96a6a3b15 ab73a9f926 ab9f20863f adf59387c1 ae25e43fc3 af712faeb1 b1567fa87a b1d56acf48 b2edc2e2f2 b3112e2bfa b49f0d7638 b61d51b40b b6838685db b6d131a6ca b8eddc253e ba8a529b2a bad62c6fa6 bc32e0f935 bd0c5c5582 bd6a9d2199 bd80117f87 be167cdcbe bf1009f48d bf7a8ac4fc bfba7c9073 c051ceabc5 c0ddd58894 c0f6c797ed c153851dc6 c25fde4556 c476a59f69 c4e323abfa c4f6a7a70d c5767a67e8 c5c6ecd733 c5da535766 c6b6bb22bf c706511b71 c75930c86f c868f6b1d0 c947bbbd9e c9d260c6f0 cb0de4718d cb22863a1c cd4803e4c1 cd49f4288e d09f962727 d115b16ba7 d1e4d236ba d269bf51d0 d28d30a94b d32ccbf6df d3960ce9d2 d3c3afb095 d45cc22d17 d5fdaa9c55 d66ce4e902 d89e92c8ac d8ff3e0514 dc943a9536 dcab4d7326 dceb9abc92 dd6a1c6dba de984c6a0b df0e5f3f23 df454cf106 df8833d3e9 df9dad8fb6 e14b10b21f e16a6e837f e196bc879f e2086d5d80 e2503f32c7 e2b43ed160 e45a8424d1 e4bbecd854 e7b827ef93 e82e47fa15 e856f90aeb e8585db6af e89580f25e e9e38228fc ea29a7b2d7 ea98dde32d ec19cc9a82 ece1c931d4 edb78d383f ee5f0a1de6 f0abba857d f1c7e6ee65 f1d0fb21d3 f307000566 f4b9710f26 f512776c1b f523bbdee0 f5d1e683c8 f7b94630a1 f7d50c23b8 f81cbdaa10 f8865d6689 f8ebb66288 f9544505e9 f9e96b88f6 fb21e3c16a fb4ceade2e fbcf825839 fbd88dc8a3 fc2c55bdad fc3bca6ed0 fc4443c79c fd26135081 fd7dbad255 fe10565041 ff18e5efea ff5a7346c4 ff6720431b ff93e9bec6",
   "refreshed": {
-   "from": "2026-11-13",
+   "from": "2026-11-14",
    "survivors_rerun": 0,
-   "fresh": 2,
+   "fresh": 26,
    "stale": []
   }
  }

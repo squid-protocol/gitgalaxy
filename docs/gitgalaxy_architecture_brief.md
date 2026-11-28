@@ -15,7 +15,7 @@
 > XGBoost Structural Signatures model found no malicious artifacts.
 
 ## 1. EXECUTIVE SUMMARY
-- **Scope:** 3391 analyzed artifact(s), 574014 LOC.
+- **Scope:** 3391 analyzed artifact(s), 574052 LOC.
 - **Load-bearing artifact:** `gitgalaxy/core/detector.py` -- 258 in-repo importer(s) depend on it. Changes here propagate furthest.
 - **Top orchestrator:** `gitgalaxy/tools/cobol_to_java/README.md` -- pulls in 101 dependencies, the widest assembly point in the scan.
 - **Heaviest artifact:** `gitgalaxy/core/detector.py` at magnitude 17297.08 (structural weight, not risk).
@@ -42,7 +42,7 @@
 | Total Artifacts | 8293 |
 | Analyzed Artifacts (Scanned) | 3391 |
 | Excluded Artifacts (Unparsable data, binaries, unsupported formats) | 4902 |
-| Total LOC | 574014 |
+| Total LOC | 574052 |
 | Volatility Index | 0.001 |
 | % Scanned of codebase = | 40.9% |
 | Dominant Lang | PYTHON |
@@ -59,7 +59,7 @@
 ## 4. COMPOSITION
 | Lang | Files | LOC | Share |
 |---|---|---|---|
-| PYTHON | 2274 | 462527 | 67.1% |
+| PYTHON | 2274 | 462565 | 67.1% |
 | PLAINTEXT | 371 | 0 | 10.9% |
 | JAVA | 227 | 68498 | 6.7% |
 | COBOL | 126 | 16782 | 3.7% |
@@ -1208,11 +1208,11 @@ These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but t
 ## 15. FUNCTION CALL RESOLUTION (Call Graph Confidence)
 > **AI CONTEXT:** Each function's callee names, linked to the definition they most plausibly mean. *scoped* = same class/file, an imported file, or a class-qualified call; *unique* = the only definition in the repository; *ambiguous* = several candidates or an untyped receiver (never a graph edge); *external* = defined nowhere here (built-ins, packages). A high scoped/unique share means the resolver made a confident choice, not that the choice was correct; resolution accuracy is measured separately (gitgalaxy#3332). Detail in `fcall_data` / `fcall_rate_data`.
 
-- **Repository:** 159881 call pairs -- scoped 29.0%, unique 0.2%, ambiguous 17.8%, external 53.0%
+- **Repository:** 159885 call pairs -- scoped 29.0%, unique 0.2%, ambiguous 17.8%, external 53.0%
 
 | Language | Pairs | Scoped | Unique | Ambiguous | External |
 |---|---|---|---|---|---|
-| python | 134447 | 27.6% | 0.0% | 17.5% | 54.9% |
+| python | 134451 | 27.6% | 0.0% | 17.5% | 54.9% |
 | java | 22313 | 36.5% | 0.0% | 21.4% | 42.0% |
 | c | 2479 | 30.9% | 12.0% | 5.2% | 51.9% |
 | cobol | 391 | 93.1% | 0.8% | 1.3% | 4.9% |

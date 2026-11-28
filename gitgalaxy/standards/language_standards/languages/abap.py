@@ -48,7 +48,7 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(IF|ELSE|ELSEIF|CASE|WHEN|WHILE|DO|LOOP\s+AT|CHECK|EXIT|CONTINUE|COND|SWITCH)\b",
             re.I | re.M,
         ),
-        # 2. args: Parameters / Coupling. Captures explicit parameter binding keywords.
+        # 2. args (Calls & Signatures With Arguments). Captures explicit parameter binding keywords.
         # BUG FIX (#1917, args regex correctness): two independent issues found while
         # investigating the tri-comparison chart's per-function args count.
         #   1. The trailing identifier had no `!?` -- ABAP's classic parameter-name

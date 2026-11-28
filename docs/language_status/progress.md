@@ -22,12 +22,12 @@ Entries that no longer hold (the program is above L0): dbb-mortgage-application/
 |---|---|---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 0 | 0 | 40 | 2 | 42 (95.5%) | 42 (95.5%) | 2 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
-| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 27 | 4 | 31 (100.0%) | 31 (100.0%) | 4 |
+| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 0 | 0 | 28 | 3 | 31 (100.0%) | 31 (100.0%) | 3 |
 | `cics-genapp` | 31 | 0 | 0 | 0 | 0 | 31 | 0 | 31 (100.0%) | 31 (100.0%) | 0 |
 | `dbb-mortgage-application` | 6 | 1 | 0 | 0 | 0 | 5 | 0 | 5 (83.3%) | 5 (83.3%) | 0 |
 | `example-health-apis` | 29 | 1 | 0 | 4 | 4 | 20 | 0 | 28 (96.6%) | 20 (69.0%) | 0 |
 | `zecs` | 7 | 0 | 0 | 0 | 0 | 7 | 0 | 7 (100.0%) | 7 (100.0%) | 0 |
-| **Total** | 158 | 4 | 0 | 4 | 4 | 140 | 6 | 154 (97.5%) | 146 (92.4%) | 6 |
+| **Total** | 158 | 4 | 0 | 4 | 4 | 141 | 5 | 154 (97.5%) | 146 (92.4%) | 5 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 every
 surviving translator mutant accounted for (`definition_of_done.md`).
@@ -36,7 +36,7 @@ Test estates, written to break the translator and so never in the denominator ab
 
 | Test estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| `cics-crucible` | 139 | 5 | 49 | 0 | 0 | 83 | 2 |
+| `cics-crucible` | 139 | 5 | 49 | 0 | 0 | 84 | 1 |
 
 
 Code we had never seen when we met it, never in the denominator above. L1 is measured from first contact; L2
@@ -57,14 +57,14 @@ judged; *sample* is mutants judged of those the program has. Claims are the revi
 
 | Estate | Programs | Measured | L5 | Ready | Raw caught | Sample | Equivalent | Unreachable |
 |---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 25 | 2 | 0 | 51.1% (6091 of 11926) | 41.3% (12559 of 30382) | 2249 | 209 |
-| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 87.1% (4916 of 5641) | 100.0% (6284 of 6284) | 288 | 70 |
-| `cics-banking-sample-application-cbsa` | 31 | 16 | 4 | 0 | 42.7% (3327 of 7792) | 47.3% (8142 of 17228) | 2773 | 831 |
-| `cics-genapp` | 31 | 11 | 0 | 0 | 26.3% (2729 of 10357) | 100.0% (10993 of 10993) | 1014 | 0 |
-| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.9% (322 of 632) | 100.0% (644 of 644) | 6 | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 25 | 2 | 0 | 51.1% (6080 of 11888) | 41.3% (12559 of 30382) | 2249 | 209 |
+| `cics-async-api-credit-card-application-example` | 10 | 10 | 0 | 0 | 86.1% (4805 of 5578) | 100.0% (6284 of 6284) | 288 | 70 |
+| `cics-banking-sample-application-cbsa` | 31 | 17 | 3 | 0 | 42.5% (3353 of 7895) | 39.4% (8292 of 21045) | 2775 | 831 |
+| `cics-genapp` | 31 | 11 | 0 | 0 | 26.6% (2706 of 10172) | 100.0% (10993 of 10993) | 1014 | 0 |
+| `dbb-mortgage-application` | 6 | 2 | 0 | 0 | 50.6% (322 of 636) | 100.0% (644 of 644) | 6 | 0 |
 | `example-health-apis` | 29 | 0 | 0 | 0 | not measured | not measured | 0 | 0 |
-| `zecs` | 7 | 4 | 0 | 0 | 50.0% (1179 of 2356) | 100.0% (2462 of 2463) | 845 | 354 |
-| **Total** | 158 | 68 | 6 | 0 | 48.0% (18564 of 38704) | 60.4% (41084 of 67994) | 7175 | 1464 |
+| `zecs` | 7 | 4 | 0 | 0 | 50.1% (1178 of 2350) | 100.0% (2462 of 2463) | 845 | 354 |
+| **Total** | 158 | 69 | 5 | 0 | 47.9% (18444 of 38519) | 57.4% (41234 of 71811) | 7177 | 1464 |
 
 ## Capability ledger
 
@@ -134,12 +134,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-27T18:27:39Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-11-28T14:10:19Z.
 
 - `scope:core`: 13 open, 264 closed.
 - Milestone 28: 0 open, 136 closed.
-- Last 7 days: 11 opened, 11 closed, net +0 closed.
-- ETA (open / net closure rate): **not converging**.
+- Last 7 days: 2 opened, 11 closed, net +9 closed.
+- ETA (open / net closure rate): **10 days**.
 
 ## 5. Gap Atlas
 

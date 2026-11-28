@@ -43,6 +43,10 @@ RELABELLED = (
     "zig",
     "solidity",
     "objectivec",
+    "cobol",
+    "scala",
+    "livecode",
+    "apex",
 )
 
 

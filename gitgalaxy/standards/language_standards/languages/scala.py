@@ -106,7 +106,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args: Parameters / Coupling. Captures parameters in method signatures and lambdas.
+        # 2. args (Calls & Signatures With Arguments). Captures parameters in method signatures and lambdas.
         # RULE 11 FIX (epic #813/#825): the generic-parameter step-over was the flat
         # `\[[^\]]*\]`, truncating at the FIRST `]` and breaking any nested generic bound
         # (`def foo[T <: Comparable[T]](x: T): T = {`, a realistic bounded generic method --

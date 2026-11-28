@@ -63,7 +63,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.
+        # 2. args (Calls & Signatures With Arguments). Captures method parameters and trigger event signatures.
         # #1209: parameter-list span wrapped in its own capture group in
         # both alternatives (was only reachable via group(0), the whole
         # match including the decorator/modifier/return-type/name prefix,

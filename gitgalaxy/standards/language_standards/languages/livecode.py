@@ -114,7 +114,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         "short_circuit": re.compile(r"\b(?:and|or)\b"),
-        # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
+        # 2. args (Calls & Signatures With Arguments). Captures parameters in handlers (on, command, function).
         # BUG FIX (livecode tri-comparison manual verification, 2026-08-28): this
         # `^`-anchored per-line pattern was compiled `re.I` only -- missing the
         # `re.M` its structurally-identical `func_start` sibling below has -- so

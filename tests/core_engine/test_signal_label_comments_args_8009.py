@@ -43,6 +43,9 @@ RELABELLED = (
     "zig",
     "solidity",
     "objectivec",
+    "perl",
+    "abap",
+    "haskell",
 )
 
 

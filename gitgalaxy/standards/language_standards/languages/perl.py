@@ -110,7 +110,7 @@ DEFINITION: dict[str, Any] = {
         # #8908: a ternary is one decision, counted at its `?` (as java/ruby, #2833); its `:` and a statement
         # label's `:` are not decisions (the label's loop keyword counts). Literal text never counts.
         "short_circuit": re.compile(r"&&|\|\|"),
-        # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
+        # 2. args (Calls & Signatures With Arguments). Captures modern signatures, traditional @_ unpacking, and shift.
         # #1209: parameter-list span wrapped in its own capture group in
         # the first two alternatives (was only reachable via group(0),
         # the whole match including the "sub"/"my" prefix) so detector.py's

@@ -108,7 +108,7 @@ DEFINITION: dict[str, Any] = {
             r"\b((?<!END-)IF|ELSE|(?<!END-)EVALUATE|WHEN|UNTIL|VARYING|TIMES|DEPENDING\s+ON|ON\s+EXCEPTION|AT\s+END|INVALID\s+KEY|ON\s+SIZE\s+ERROR|ON\s+OVERFLOW)\b",
             re.I,
         ),
-        # 2. args: Parameters / Coupling. Captures USING and RETURNING signatures in PROCEDURE division or CALLs.
+        # 2. args (Calls & Signatures With Arguments). Captures USING and RETURNING signatures in PROCEDURE division or CALLs.
         # BUG FIX (epic #813/#854): the parameter-name repetition had no
         # exclusion for the literal word "RETURNING" -- so
         # `PROCEDURE DIVISION USING WS-A RETURNING WS-B.` (declaring both

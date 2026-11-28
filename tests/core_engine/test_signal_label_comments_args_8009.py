@@ -46,6 +46,10 @@ RELABELLED = (
     "perl",
     "abap",
     "haskell",
+    "cobol",
+    "scala",
+    "livecode",
+    "apex",
 )
 
 
